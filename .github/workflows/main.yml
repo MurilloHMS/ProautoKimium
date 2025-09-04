@@ -8,6 +8,7 @@ jobs:
   deploy:
     environment: 
       name: deploy locaweb
+      url: https://proautokimium.com.br
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
