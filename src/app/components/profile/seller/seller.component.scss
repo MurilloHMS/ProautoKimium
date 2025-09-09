@@ -21,27 +21,12 @@ section{
   }
 }
 
-
-.about-section {
-  position: relative;
-  padding: 120px 0;
-
-  .content-column {
-    position: relative;
-    margin-bottom: 40px;
-
-    .inner-column {
-      position: relative;
-      padding: 50px 0 100px 0;
-
-      .text {
-        color: #777777;
-        font-size: 15px;
-        line-height: 2em;
-        margin-bottom: 40px;
-      }
-    }
-  }
+.text {
+  font-size: 16px;
+  line-height: 26px;
+  color: #777;
+  font-weight: 300;
+  text-align: justify;
 }
 
 .image-column {
@@ -127,23 +112,6 @@ section{
       height: 3px;
       background-color: #d1d2d6;
     }
-  }
-
-  .text {
-    font-size: 16px;
-    line-height: 26px;
-    color: #848484;
-    font-weight: 400;
-    margin-top: 35px;
-  }
-
-  &.light h2 {
-    color: #fff;
-  }
-
-  &.text-center h2:before {
-    left: 50%;
-    margin-left: -25px;
   }
 }
 
