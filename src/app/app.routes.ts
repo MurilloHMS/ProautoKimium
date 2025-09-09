@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { InstitucionalComponent } from './components/institucional/institucional.component';
 import { SalesCertificatesComponent } from './components/sales-certificates/sales-certificates.component';
 import { FaqComponent } from './components/faq/faq.component';
+import { SellerComponent } from './components/profile/seller/seller.component';
 
 
 export const routes: Routes = [
@@ -21,6 +22,7 @@ export const routes: Routes = [
     { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full'},
     { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full'},
     { path: 'support/faq', component: FaqComponent, pathMatch: 'full'},
+    { path: 'profile', component: SellerComponent, pathMatch: 'full'},
     { path: '**', redirectTo: '404'}
 ];
 
