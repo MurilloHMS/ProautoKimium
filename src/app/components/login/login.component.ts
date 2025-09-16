@@ -28,10 +28,10 @@ export class LoginComponent {
 
   login(){
     if(this.form.invalid) return;
-    
+
     const {username, password} = this.form.value;
     this.authService.login(username, password).subscribe({
-      next: () => this.router.navigate(['/client']),
+      next: () => this.router.navigate(['/']),
       error: () => this.errorMessage = 'Usuário ou senha inválidos'
     });
   }
