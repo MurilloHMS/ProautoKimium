@@ -10,8 +10,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  login(username: string, password: string){
-    return this.http.post<any>(`${environment.apiUrl}/auth/login`, {username, password}).pipe(
+  login(login: string, password: string){
+    return this.http.post<any>(`${environment.apiUrl}/auth/login`, {login, password}).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
       })
