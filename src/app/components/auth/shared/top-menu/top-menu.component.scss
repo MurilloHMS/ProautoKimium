@@ -1,0 +1,26 @@
+/* Ajusta altura do menubar */
+:host ::ng-deep .p-menubar {
+  padding: 0.15rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+/* Ajusta altura dos itens */
+:host ::ng-deep .p-menubar .p-menuitem-link {
+  padding: 0.35rem 0.75rem;
+}
+
+/* Ícones menores */
+:host ::ng-deep .p-menubar .p-menuitem-icon {
+  font-size: 0.8rem;
+}
+
+/* Badge mais compacto */
+:host ::ng-deep .p-menubar .p-badge {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+}
+
+:host ::ng-deep .p-inputtext {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}

@@ -1,6 +1,6 @@
 <div class="card">
-  <p-menubar [model]="items">
-     <ng-template pTemplate="start">
+    <p-menubar [model]="items">
+        <ng-template pTemplate="start">
             <svg width="33" height="35" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15.1934 0V0V0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="var(--primary-color)" />
                 <mask id="mask0_1_36" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
@@ -31,8 +31,8 @@
                 <path d="M11.4013 8.27235L8.00893 7.94938L10.2705 5.68861H12.5321L11.4013 8.27235Z" fill="var(--primary-color-text)" />
             </svg>
         </ng-template>
-    <ng-template pTemplate="item" let-item let-root="root">
-            <a pRipple class="flex align-items-center p-menuitem-link">
+        <ng-template pTemplate="item" let-item let-root="root">
+            <a pRipple class="flex align-items-center p-menuitem-link" [routerLink]="item.routerLink" routerLinkActive="active-item">
                 <span [class]="item.icon"></span>
                 <span class="ml-2">{{ item.label }}</span>
                 <p-badge *ngIf="item.badge" [ngClass]="{ 'ml-auto': !root, 'ml-2': root }" [value]="item.badge" />
@@ -43,7 +43,6 @@
         <ng-template pTemplate="end">
             <div class="flex align-items-center gap-2">
                 <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto" />
-                <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" />
             </div>
         </ng-template>
     </p-menubar>
