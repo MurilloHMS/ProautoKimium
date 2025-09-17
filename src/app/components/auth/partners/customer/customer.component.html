@@ -1,1 +1,55 @@
-<p>customer works!</p>
+<p-toolbar class="thin-toolbar">
+  <div class="p-toolbar-group-start">
+    <p-button icon="pi pi-refresh" class="mr-2" (click)="loadCustomers()"></p-button>
+    &nbsp;&nbsp;
+    <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()"></p-button>
+  </div>
+</p-toolbar>
+
+<div class="card">
+  <p-table
+    #dt1
+    [value]="customers"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5,10,20]"
+    [loading]="loading"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['name', 'email.address', 'phone.number']">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Cód Parceiro</th>
+        <th>Documento</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Ativo</th>
+        <th>Recebe Email</th>
+        <th>Cód Matriz</th>
+        <th>Ações</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-customer>
+      <tr>
+        <td>{{ customer.codParceiro }}</td>
+        <td>{{ customer.documento }}</td>
+        <td>{{ customer.name }}</td>
+        <td>{{ customer.email.address }}</td>
+        <td>
+            <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': customer.ativo, 'text-red-500 pi-times-circle': !customer.ativo}"></i>
+        </td>
+        <td>
+            <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': customer.recebeEmail, 'text-red-500 pi-times-circle': !customer.recebeEmail}"></i>
+        </td>
+        <td>{{ customer.codMatriz }}</td>
+        <td>
+          <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editCustomer(customer)"></button>
+          <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteCustomer(customer)"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">Nenhum cliente encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
