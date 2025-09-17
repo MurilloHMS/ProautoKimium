@@ -14,6 +14,12 @@ import { PublicLayoutComponent } from './layouts/public-layout/public-layout.com
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { AuthGuard } from './Core/guard/auth.guard';
 import { AdminCenterComponent } from './components/auth/admin-center/admin-center.component';
+import { AuthHomeComponent } from './components/auth/auth-home/auth-home.component';
+import { HoleritSpliterComponent } from './components/auth/documents/holerit-spliter/holerit-spliter.component';
+import { CustomerComponent } from './components/auth/partners/customer/customer.component';
+import { EmployesComponent } from './components/auth/partners/employes/employes.component';
+import { ServiceLocationComponent } from './components/auth/partners/service-location/service-location.component';
+import { EmailComponent } from './components/auth/settings/email/email.component';
 
 
 export const routes: Routes = [
@@ -38,7 +44,13 @@ export const routes: Routes = [
       component: AuthLayoutComponent,
       canActivate : [AuthGuard],
       children: [
-        {path: 'admin', component: AdminCenterComponent, data: {roles: ['ADMIN']}}
+        {path: 'home', component: AuthHomeComponent, data: {roles: ['ADMIN']}},
+        {path: 'admin', component: AdminCenterComponent, data: {roles: ['ADMIN']}},
+        {path: 'documents/holerit', component: HoleritSpliterComponent, data: {roles: ['ADMIN', 'RH']}},
+        {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN',]}},
+        {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
+        {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
+        {path: 'settings/email', component: EmailComponent, data: {roles: ['ADMIN']}},
       ]
     },
     { path: '**', redirectTo: '404'}
