@@ -12,4 +12,8 @@ export class EmailService {
   getEmails() : Observable<EmailItem[]>{
     return this.http.get<EmailItem[]>(`${environment.apiUrl}/email`);
   }
+
+  addEmail(email: Email): Observable<Email> {
+    return this.http.post<Email>(`${environment.apiUrl}/email`, email);
+  }
 }

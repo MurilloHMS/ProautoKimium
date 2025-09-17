@@ -5,21 +5,33 @@ import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 
 
 @Component({
   selector: 'app-email',
   standalone: true,
-  imports: [TableModule, CommonModule, ButtonModule,ToolbarModule],
+  imports: [TableModule, CommonModule, ButtonModule,ToolbarModule,
+     DialogModule, InputTextModule, ReactiveFormsModule],
   templateUrl: './email.component.html',
   styleUrl: './email.component.scss'
 })
 export class EmailComponent {
   emails: EmailItem[] = [];
   loading: boolean = false;
+  email: Email | null = null;
+  visible: boolean = false;
+  form: FormGroup;
 
-  constructor(private EmailService: EmailService) {}
+  constructor(private EmailService: EmailService, private fb: FormBuilder) {
+    this.form = this.fb.group({
+      name: ['', Validators.required]
+    });
+    this.loadEmails();
+  }
 
 
   loadEmails(){
@@ -44,7 +56,24 @@ export class EmailComponent {
     console.log('Deletar email:', email);
   }
 
+  showDialog() {
+    this.visible = true;
+  }
+
   addEmail() {
-    console.log('Deletar email:');
+    if(this.form.invalid) return;
+
+    const newEmail: Email = {
+      nome: this.form.value.name
+    };
+    this.EmailService.addEmail(newEmail).subscribe({
+      next: () => {
+        this.visible = false;
+        this.form.reset();
+      },
+      error: (err) => {
+        console.error('Error adding email', err);
+      }
+    });
   }
 }

@@ -1,5 +1,5 @@
 export interface Email{
-  address: string;
+  nome: string;
 }
 
 export interface EmailItem {

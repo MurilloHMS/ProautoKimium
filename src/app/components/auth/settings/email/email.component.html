@@ -2,7 +2,7 @@
   <div class="p-toolbar-group-start">
     <p-button icon="pi pi-refresh" class="mr-2" (click)="loadEmails()"></p-button>
     &nbsp;&nbsp;
-    <p-button icon="pi pi-plus" class="mr-2" (click)="addEmail()"></p-button>
+    <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()"></p-button>
   </div>
 </p-toolbar>
 
@@ -44,3 +44,18 @@
     </ng-template>
   </p-table>
 </div>
+
+<p-dialog header="Adicionar/Editar Email" [(visible)]="visible" [modal]="true" [closable]="true" [responsive]="true" [style]="{width: '30vw'}">
+  <span class="p-text-secondary block mb-5">Inclua o nome do email.</span>
+  <form [formGroup]="form" (ngSubmit)="addEmail()">
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="name">Nome</label>
+        <input id="name" type="text" pInputText formControlName="name" />
+      </div>
+    </div>
+    <p-footer>
+      <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
+    </p-footer>
+  </form>
+</p-dialog>
