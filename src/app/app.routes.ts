@@ -12,7 +12,7 @@ import { FaqComponent } from './components/public/faq/faq.component';
 import { SellerComponent } from './components/public/profile/seller/seller.component';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { AuthGuard } from './Core/guard/auth.guard';
+import { AuthGuard } from './infrastructure/guard/auth.guard';
 import { AdminCenterComponent } from './components/auth/admin-center/admin-center.component';
 import { AuthHomeComponent } from './components/auth/auth-home/auth-home.component';
 import { HoleritSpliterComponent } from './components/auth/documents/holerit-spliter/holerit-spliter.component';

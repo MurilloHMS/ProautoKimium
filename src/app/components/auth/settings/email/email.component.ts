@@ -1,4 +1,4 @@
-import { EmailService } from './../../../../Core/services/email/email.service';
+import { EmailService } from './../../../../infrastructure/services/email/email.service';
 import { Component } from '@angular/core';
 import { Email, EmailItem } from '../../../../domain/models/email.model';
 import { TableModule } from 'primeng/table';

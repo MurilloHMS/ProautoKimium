@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@import '../../../../styles/variables.scss';
 
 section {
     padding: 60px 0;
@@ -64,5 +64,5 @@ section {
 
 ::ng-deep .p-accordion .p-accordion-header-text {
     color: $primary-color;
-    text-decoration: none;    
+    text-decoration: none;
 }
