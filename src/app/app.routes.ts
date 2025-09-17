@@ -20,6 +20,7 @@ import { CustomerComponent } from './components/auth/partners/customer/customer.
 import { EmployesComponent } from './components/auth/partners/employes/employes.component';
 import { ServiceLocationComponent } from './components/auth/partners/service-location/service-location.component';
 import { EmailComponent } from './components/auth/settings/email/email.component';
+import { ContactsComponent } from './components/auth/support/contacts/contacts.component';
 
 
 export const routes: Routes = [
@@ -51,6 +52,7 @@ export const routes: Routes = [
         {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
         {path: 'settings/email', component: EmailComponent, data: {roles: ['ADMIN']}},
+        {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
       ]
     },
     { path: '**', redirectTo: '404'}

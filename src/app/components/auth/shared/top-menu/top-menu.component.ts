@@ -41,7 +41,12 @@ export class TopMenuComponent implements OnInit {
         items: [
           { label: 'Email', icon: 'pi pi-fw pi-envelope', routerLink: ['settings/email']},
         ]
-        },
+      },
+      { label: '- Suporte', icon: 'fa-solid fa-ticket',
+        items: [
+          { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['support/contact']},
+        ]
+      },
     ];
   }
 }
