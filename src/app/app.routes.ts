@@ -21,6 +21,7 @@ import { EmployesComponent } from './components/auth/partners/employes/employes.
 import { ServiceLocationComponent } from './components/auth/partners/service-location/service-location.component';
 import { EmailComponent } from './components/auth/settings/email/email.component';
 import { ContactsComponent } from './components/auth/support/contacts/contacts.component';
+import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
 
 
 export const routes: Routes = [
@@ -31,7 +32,6 @@ export const routes: Routes = [
         { path: '', component: HomeComponent, pathMatch: 'full'},
         { path: 'about-us', component: EmpresaComponent, pathMatch: 'full'},
         { path: 'carrinho', component: CarrinhoComponent, pathMatch: 'full'},
-        { path: 'login', component: LoginComponent, pathMatch: 'full'},
         { path: 'produtos/lista', component: ListaProdutosComponent, pathMatch: 'full'},
         { path: '404', component: NotFoundComponent},
         { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full'},
@@ -53,6 +53,13 @@ export const routes: Routes = [
         {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
         {path: 'settings/email', component: EmailComponent, data: {roles: ['ADMIN']}},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
+      ]
+    },
+    {
+      path: '',
+      component: NoHeaderLayoutComponent,
+      children: [
+        { path: 'login', component: LoginComponent, pathMatch: 'full'},
       ]
     },
     { path: '**', redirectTo: '404'}
