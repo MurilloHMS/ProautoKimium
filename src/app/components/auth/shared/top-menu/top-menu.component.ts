@@ -19,11 +19,29 @@ export class TopMenuComponent implements OnInit {
 
   ngOnInit() {
     this.items = [
+      { label: 'Inicio', icon: 'pi pi-fw pi-home', routerLink: ['home'] },
       { label: 'Administrativo', icon: 'pi pi-fw pi-user',
         items: [
-          { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['admin'] },
+          { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['admin']},
         ]
-       }
+       },
+       { label: 'Documentos', icon: 'pi pi-fw pi-file',
+        items: [
+          { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['documents/holerit']},
+       ]
+      },
+      { label: 'Parceiros', icon: 'pi pi-fw pi-users',
+        items: [
+          { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['partners/customers']},
+          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['partners/employees']},
+          { label: 'Locais de Serviço', icon: 'pi pi-fw pi-map-marker', routerLink: ['partners/services-locations']},
+       ]
+      },
+      { label: 'Configurações', icon: 'pi pi-fw pi-cog',
+        items: [
+          { label: 'Email', icon: 'pi pi-fw pi-envelope', routerLink: ['settings/email']},
+        ]
+        },
     ];
   }
 }
