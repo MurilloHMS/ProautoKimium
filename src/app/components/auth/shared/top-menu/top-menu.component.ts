@@ -6,11 +6,12 @@ import { AvatarModule } from 'primeng/avatar';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { RippleModule } from 'primeng/ripple';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'top-menu',
   standalone: true,
-  imports: [MenubarModule, BadgeModule, AvatarModule, InputTextModule, RippleModule, CommonModule],
+  imports: [MenubarModule, BadgeModule, AvatarModule, InputTextModule, RippleModule, CommonModule, ButtonModule],
   templateUrl: './top-menu.component.html',
   styleUrl: './top-menu.component.scss'
 })
@@ -48,5 +49,10 @@ export class TopMenuComponent implements OnInit {
         ]
       },
     ];
+  }
+
+  logout(){
+    localStorage.removeItem('token');
+    window.location.href = '/';
   }
 }
