@@ -8,12 +8,13 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer, CustomerResponse } from '../../../../domain/models/customer.model';
 import { CustomerService } from '../../../../infrastructure/services/partners/customer/customer.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-customer',
   standalone: true,
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
-    DialogModule, InputTextModule, ReactiveFormsModule
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
   ],
   templateUrl: './customer.component.html',
   styleUrl: './customer.component.scss'
@@ -29,11 +30,11 @@ export class CustomerComponent {
     this.form = this.fb.group({
       codParceiro: ['', Validators.required],
       documento: ['', Validators.required],
-      name: ['', Validators.required],
+      nome: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       ativo: [true, Validators.required],
       recebeEmail: [true, Validators.required],
-      codigoMatriz: ['', Validators.required]
+      codigoMatriz: ['']
     });
       this.loadCustomers();
   }

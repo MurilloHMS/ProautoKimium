@@ -1,7 +1,7 @@
 export interface Customer {
   codParceiro: string;
   documento: string;
-  name: string;
+  nome: string;
   email: string;
   ativo: boolean;
   recebeEmail: boolean;
