@@ -9,7 +9,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
-    console.log('Interceptor chamado, token:', token);
 
     if (token) {
       const cloned = req.clone({
@@ -17,7 +16,6 @@ export class AuthInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log('Request clonada com Authorization:', cloned.headers.get('Authorization'));
       return next.handle(cloned);
     }
     return next.handle(req);
