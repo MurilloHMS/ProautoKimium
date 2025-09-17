@@ -1,27 +1,32 @@
 <div class="container">
-    <div class="screen">
-        <div class="screen_content">
-            <form [formGroup]="form"  (ngSubmit)="login()" class="login">
-                <div class="login_field">
-                    <i class="login_icon fas fa-user"></i>
-                    <input type="text" formControlName="username" class="login_input" placeholder="Usuário / Email">
-                </div>
-                <div class="login_field">
-                    <i class="login_icon fas fa-lock"></i>
-                    <input type="password" formControlName="password" class="login_input" placeholder="Senha">
-                </div>
-                <button [disabled]="form.invalid" class="button login_submit">
-                    <span class="button_text">Login</span>
-                    <i class="button_icon fas fa-chevron-right"></i>
-                </button>
-                <p *ngIf="errorMessage">{{ errorMessage }}</p>
-            </form>
+  <div class="screen">
+    <div class="screen_content">
+      <form [formGroup]="form" (ngSubmit)="login()" class="login">
+
+        <div class="login_field">
+          <i class="login_icon fas fa-user"></i>
+          <input type="text" formControlName="username" class="login_input" placeholder="Usuário / Email" />
         </div>
-        <div class="screen_background">
-            <span class="screen_background_shape screen_background_shape4"></span>
-            <span class="screen_background_shape screen_background_shape3"></span>
-            <span class="screen_background_shape screen_background_shape2"></span>
-            <span class="screen_background_shape screen_background_shape1"></span>
+
+        <div class="login_field">
+          <i class="login_icon fas fa-lock"></i>
+          <input type="password" formControlName="password" class="login_input" placeholder="Senha" />
         </div>
+
+        <button type="submit" [disabled]="form.invalid" class="button login_submit">
+          <span class="button_text">Login</span>
+          <i class="button_icon fas fa-chevron-right"></i>
+        </button>
+
+        <p *ngIf="errorMessage" class="error_message">{{ errorMessage }}</p>
+      </form>
     </div>
+
+    <div class="screen_background">
+      <span class="screen_background_shape screen_background_shape4"></span>
+      <span class="screen_background_shape screen_background_shape3"></span>
+      <span class="screen_background_shape screen_background_shape2"></span>
+      <span class="screen_background_shape screen_background_shape1"></span>
+    </div>
+  </div>
 </div>
