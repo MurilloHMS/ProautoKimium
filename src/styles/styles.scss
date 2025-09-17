@@ -4,6 +4,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 @import "./variables.scss";
 
+
 html {
     scroll-behavior: smooth;
 }
@@ -22,7 +23,6 @@ app-root{
 }
 
 .content{
-    padding-top: px;
     flex: 1;
     background: #f1f2f4
 }
@@ -30,4 +30,3 @@ app-root{
 app-footer{
     text-align: center;
 }
-
