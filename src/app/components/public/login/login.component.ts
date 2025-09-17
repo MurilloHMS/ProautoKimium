@@ -1,6 +1,6 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule} from '@angular/forms';
-import { AuthService } from '../../Core/services/auth.service';
+import { AuthService } from '../../../Core/services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Seller, sellers } from '../../../../Type/sellers';
+import { Seller, sellers } from '../../../../../Type/sellers';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 

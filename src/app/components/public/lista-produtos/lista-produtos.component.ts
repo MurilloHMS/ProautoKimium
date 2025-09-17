@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { categorias, produtos } from '../../../Type/produtos';
+import { categorias, produtos } from '../../../../Type/produtos';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CartService } from '../../Core/services/cart.service';
-import { SnackbarComponent } from '../../shared/snackbar/snackbar.component';
+import { CartService } from '../../../Core/services/cart.service';
+import { SnackbarComponent } from '../../../shared/snackbar/snackbar.component';
 
 @Component({
   selector: 'app-lista-produtos',

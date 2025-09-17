@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CartService } from '../../Core/services/cart.service';
+import { CartService } from '../../../Core/services/cart.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -25,7 +25,7 @@ export class CarrinhoComponent {
       alert('Seu carrinho está vazio!');
       return;
     }
-    
+
 
     let mensagem = 'Olá, gostaria de solicitar um orçamento dos seguintes itens:%0A%0A';
     this.produtos.forEach((produto, index) => {

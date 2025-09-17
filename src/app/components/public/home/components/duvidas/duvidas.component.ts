@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContactButtonComponent } from "../../../../shared/contact-button/contact-button.component";
+import { ContactButtonComponent } from "../../../../../shared/contact-button/contact-button.component";
 import { ButtonDirective } from "primeng/button";
 import { RouterModule } from '@angular/router';
 
