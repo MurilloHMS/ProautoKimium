@@ -1,4 +1,4 @@
-@import '../../../../../../styles/variables.scss';
+@use '../../../../../../styles/variables.scss';
 
 .consultoria-container {
     max-width: 1400px;
@@ -16,7 +16,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    background: linear-gradient(to right, $primary-color, $secondary-color);
+    background: linear-gradient(to right, variables.$primary-color, variables.$secondary-color);
     -webkit-background-clip: text;
     color: transparent;
     margin-bottom: 1rem;
@@ -26,7 +26,7 @@
     font-size: 1.2rem;
     max-width: 800px;
     margin: 0 auto;
-    color: $primary-text-color;
+    color: variables.$primary-text-color;
     opacity: 0.85;
 }
 
@@ -44,7 +44,7 @@
 .process-box h2 {
     font-size: 1.8rem;
     font-weight: 500;
-    color: $primary-color;
+    color: variables.$primary-color;
     margin-bottom: 2rem;
 }
 
@@ -57,7 +57,7 @@
 
 .step {
     background: #fff;
-    border: 2px solid $primary-color;
+    border: 2px solid variables.$primary-color;
     border-radius: 16px 4px 16px;
     padding: 1.5rem;
     position: relative;
@@ -101,7 +101,7 @@
 .step:hover {
     transform: translateY(-8px);
     box-shadow: 0 6px 20px rgba(35, 46, 97, 0.12);
-    border-color: $secondary-color;
+    border-color: variables.$secondary-color;
 }
 
 .step-title {
@@ -149,7 +149,7 @@
     top: 50%;
     right: -2rem;
     transform: translateY(-50%);
-    color: $secondary-color;
+    color: variables.$secondary-color;
     font-size: 1.2rem;
     display: none;
 }

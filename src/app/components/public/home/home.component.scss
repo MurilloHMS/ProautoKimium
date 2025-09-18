@@ -1,4 +1,4 @@
-@import '../../../../styles/variables.scss';
+@use '../../../../styles/variables.scss';
 
 .container {
     max-width: 100%;
@@ -49,7 +49,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: $primary-color;
+    background-color: variables.$primary-color;
     padding: 50px;
     border-radius: 10px;
 
@@ -72,7 +72,7 @@
     }
 
     button {
-        background-color: $tertiary-color;
+        background-color: variables.$tertiary-color;
         font-weight: bold;
         margin: 0;
         padding: 5px 20px;
@@ -83,14 +83,14 @@
 
         a {
             text-decoration: none;
-            color: $primary-color;
+            color: variables.$primary-color;
         }
     }
 
     button:hover {
         transform: scale(1.1);
         cursor: pointer;
-        background-color: $primary-hover-color;
+        background-color: variables.$primary-hover-color;
         box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
         a {

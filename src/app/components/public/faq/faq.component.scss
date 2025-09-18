@@ -1,4 +1,4 @@
-@import '../../../../styles/variables.scss';
+@use '../../../../styles/variables.scss';
 
 section {
     padding: 60px 0;
@@ -39,7 +39,7 @@ section {
     position: relative;
     z-index: 1;
     padding-bottom: 22px;
-    color: $primary-color;
+    color: variables.$primary-color;
 }
 
 .section-title h2::after {
@@ -52,7 +52,7 @@ section {
     height: 4px;
     margin: auto;
     z-index: -1;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
 }
 
 .section-title p {
@@ -63,6 +63,6 @@ section {
 }
 
 ::ng-deep .p-accordion .p-accordion-header-text {
-    color: $primary-color;
+    color: variables.$primary-color;
     text-decoration: none;
 }

@@ -1,4 +1,4 @@
-@import '../../../../../../styles/variables.scss';
+@use '../../../../../../styles/variables.scss';
 
 .hero {
     position: relative;
@@ -9,8 +9,8 @@
     justify-content: center;
     text-align: center;
     padding: 60px 20px;
-    background: $neutral-light;
-    color: $primary-text-color;
+    background: variables.$neutral-light;
+    color: variables.$primary-text-color;
     overflow: hidden;
     margin: 20px;
     border-radius: 20px;
@@ -74,7 +74,7 @@
 }
 
 .hero-content h1 .highlight-green-variant {
-    color: $secondary-color;
+    color: variables.$secondary-color;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -82,7 +82,7 @@
     font-size: 1.8rem;
     font-weight: 400;
     margin-bottom: 40px;
-    color: $primary-color;
+    color: variables.$primary-color;
     line-height: 1.5;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -100,7 +100,7 @@
     align-items: center;
     font-size: 1.3rem;
     font-weight: 600;
-    color: $primary-text-color;
+    color: variables.$primary-text-color;
     background: rgba(255, 255, 255, 0.3);
     padding: 10px 20px;
     border-radius: 10px;
@@ -116,8 +116,8 @@
 
 .cta-button {
     display: inline-block;
-    background-color: $primary-color;
-    color: $secondary-text-color;
+    background-color: variables.$primary-color;
+    color: variables.$secondary-text-color;
     padding: 18px 36px;
     border-radius: 30px;
     text-decoration: none;
@@ -130,7 +130,7 @@
 }
 
 .cta-button:hover {
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
     transform: scale(1.05);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }

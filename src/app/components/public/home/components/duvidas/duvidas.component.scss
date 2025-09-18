@@ -1,4 +1,4 @@
-@import '../../../../../../styles/variables.scss';
+@use '../../../../../../styles/variables.scss';
 
 .duvidas{
     background-color: #f8f9fa;
@@ -7,7 +7,7 @@
 .duvidas h2 {
     font-size: 2rem;
     font-weight: 500;
-    color: $primary-color;
+    color: variables.$primary-color;
 }
 
 .duvidas p {
@@ -22,7 +22,7 @@
 }
 
 .custom-button {
-  background-color: $primary-color;
+  background-color: variables.$primary-color;
   color: #fff;
   font-weight: bold;
   border: transparent;
@@ -36,7 +36,7 @@
 }
 
 .custom-button:hover {
-  background-color: $primary-color;
+  background-color: variables.$primary-color;
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0,0,0,0.25);
 }

@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@use '../../../styles/variables.scss';
 
 h1 {
     position: relative;
@@ -38,7 +38,7 @@ h1.one:before {
     bottom: 3px;
     left: 50%;
     margin-left: -14px;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
 }
 
 h1.one:after {
@@ -50,7 +50,7 @@ h1.one:after {
     margin-top: 25px;
     left: 50%;
     margin-left: -50px;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
 }
 
 /* TWO */
@@ -103,7 +103,7 @@ h1.three:before {
     bottom: 0;
     height: 5px;
     width: 55px;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
 }
 
 h1.three:after {
@@ -114,7 +114,7 @@ h1.three:after {
     height: 1px;
     width: 95%;
     max-width: 255px;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
 }
 
 /* FOUR */
