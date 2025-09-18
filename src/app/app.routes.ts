@@ -22,6 +22,8 @@ import { ServiceLocationComponent } from './components/auth/partners/service-loc
 import { EmailComponent } from './components/auth/settings/email/email.component';
 import { ContactsComponent } from './components/auth/support/contacts/contacts.component';
 import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
+import { ProductsComponent } from './components/auth/company/products/inventory/products/products.component';
+import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
 
 
 export const routes: Routes = [
@@ -53,6 +55,8 @@ export const routes: Routes = [
         {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
         {path: 'settings/email', component: EmailComponent, data: {roles: ['ADMIN']}},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
+        {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
+        {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
       ]
     },
     {
