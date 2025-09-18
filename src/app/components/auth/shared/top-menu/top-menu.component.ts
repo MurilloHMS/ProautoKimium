@@ -38,6 +38,17 @@ export class TopMenuComponent implements OnInit {
           { label: 'Locais de Serviço', icon: 'pi pi-fw pi-map-marker', routerLink: ['partners/services-locations']},
        ]
       },
+      {
+        label: 'Empresa', icon: 'pi pi-fw pi-briefcase',
+        items:[
+          { label: 'Produtos', icon: 'pi pi-fw pi-tags', routerLink: ['company/products']},
+          { label: 'Inventário', icon: 'pi pi-fw pi-box',
+            items: [
+              { label: 'Controle de Estoque', icon: 'pi pi-fw pi-box', routerLink: ['company/inventory']},
+            ]
+          },
+        ]
+      },
       { label: 'Configurações', icon: 'pi pi-fw pi-cog',
         items: [
           { label: 'Email', icon: 'pi pi-fw pi-envelope', routerLink: ['settings/email']},
