@@ -35,7 +35,7 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       ripple: true,
       theme: {
-          preset: Aura,
+          preset: Material,
           options: {
               prefix: 'p',
               darkModeSelector: 'dark-mode',
