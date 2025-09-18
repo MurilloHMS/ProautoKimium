@@ -71,8 +71,8 @@
           <span>Email</span>
         </div>
         <div class="input-container">
-          <p-auto-complete [suggestions]="tiposContato"
-            formControlName="tipoContato" inputId="float-label" placeholder="Motivos de contato" required/>
+          <p-select [options]="tiposContato" field="label"  [(ngModel)]="tipoSelecionado" optionLabel="label"
+            formControlName="tipoContato" placeholder="Motivos de contato" />
           </div>
           @if (form.value.tipoContato === 9) {
             <div class="input-container">

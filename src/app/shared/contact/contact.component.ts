@@ -10,6 +10,7 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast'
 import { environment } from '../../../environments/environment';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { Select } from "primeng/select";
 
 interface TipoContato{
   label: string;
@@ -18,7 +19,7 @@ interface TipoContato{
 
 @Component({
     selector: 'app-contact',
-    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule , ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule],
+    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select],
     templateUrl: './contact.component.html',
     styleUrl: './contact.component.scss',
     providers: [MessageService]
@@ -26,6 +27,7 @@ interface TipoContato{
 export class ContactComponent {
   form: FormGroup;
   isLoading = false;
+  tipoSelecionado: TipoContato | null = null;
   tiposContato: TipoContato[] =[
     { label: 'Dúvida sobre produtos', value: 0 },
     { label: 'Suporte técnico', value: 1 },
@@ -47,9 +49,19 @@ export class ContactComponent {
       nome: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       nomeEmpresa: ['', Validators.required],
-      tipoContato: ['', Validators.required],
+      tipoContato: [null, Validators.required],
       outro: [''],
       mensagem: ['', Validators.required]
+    });
+
+    this.form.get('tipoContato')?.valueChanges.subscribe((tipo: TipoContato) => {
+      const outroControl = this.form.get('outro');
+      if (tipo?.value === 9) {
+        outroControl?.setValidators([Validators.required]);
+      } else {
+        outroControl?.clearValidators();
+      }
+      outroControl?.updateValueAndValidity();
     });
   }
 
