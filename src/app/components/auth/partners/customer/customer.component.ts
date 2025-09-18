@@ -38,7 +38,6 @@ export class CustomerComponent {
       recebeEmail: [true, Validators.required],
       codigoMatriz: ['']
     });
-      this.loadCustomers();
   }
 
   loadCustomers(){
