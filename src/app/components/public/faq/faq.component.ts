@@ -1,10 +1,6 @@
 import { Component } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
 
-
-import { AccordionTab } from 'primeng/accordion';
-import { ɵBrowserAnimationBuilder } from '@angular/animations';
-
 interface Faq{
   title: string,
   body: string

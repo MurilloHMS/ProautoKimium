@@ -7,9 +7,14 @@
 
     <p-accordion>
       @for (item of faqs; track item) {
-        <p-accordionTab [header]="item.title">
-          <p>{{ item.body }}</p>
-        </p-accordionTab>
+        <p-accordionpanel value="item.value">
+          <p-accordion-header>
+            <h3>{{ item.title }}</h3>
+          </p-accordion-header>
+          <p-accordion-content>
+            <p>{{ item.body }}</p>
+          </p-accordion-content>
+        </p-accordionpanel>
       }
     </p-accordion>
   </div>
