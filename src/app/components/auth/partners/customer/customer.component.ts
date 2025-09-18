@@ -35,7 +35,7 @@ export class CustomerComponent {
       email: ['', [Validators.required, Validators.email]],
       ativo: [true, Validators.required],
       recebeEmail: [true, Validators.required],
-      codigoMatriz: ['']
+      codMatriz: ['']
     });
   }
 
