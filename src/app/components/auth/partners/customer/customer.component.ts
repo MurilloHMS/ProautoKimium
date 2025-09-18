@@ -25,6 +25,8 @@ export class CustomerComponent {
   visible: boolean = false;
   customer: Customer | null = null;
   form: FormGroup;
+  dialogTitle: string = 'Adicionar Cliente';
+  customerToEdit: CustomerResponse | null = null;
 
   constructor(private customerService: CustomerService, private fb: FormBuilder){
     this.form = this.fb.group({
@@ -53,32 +55,56 @@ export class CustomerComponent {
     });
   }
 
-  editCustomer(customer: Customer) {
-    console.log('Editar cliente:', customer);
+  editCustomer(customer: CustomerResponse) {
+    this.dialogTitle = 'Editar Cliente';
+    this.customerToEdit = customer;
+
+    this.form.patchValue({
+      codParceiro: customer.codParceiro,
+      documento: customer.documento,
+      nome: customer.name,
+      email: customer.email.address,
+      ativo: customer.ativo,
+      recebeEmail: customer.recebeEmail,
+      codigoMatriz: customer.codMatriz ?? null
+    });
+    this.visible = true;
   }
+
   deleteCustomer(customer: Customer) {
     console.log('Deletar cliente:', customer);
   }
   showDialog() {
+    this.dialogTitle = 'Adicionar Cliente';
+    this.customerToEdit = null;
+    this.form.reset({
+      ativo: true,
+      recebeEmail: true
+    });
     this.visible = true;
   }
 
-  addCustomer(){
-    if (this.form.valid) {
-      const newCustomer: Customer = this.form.value
-      this.customerService.addCustomer(newCustomer).subscribe({
-        next: (customer) => {
-          console.log('Cliente adicionado com sucesso:', customer);
-          this.visible = false;
-          this.form.reset();
-          this.loadCustomers();
-        },
-        error: (err) => {
-          console.error('Erro ao adicionar cliente:', err);
-        }
-      });
-    }
+  saveCustomer(){
+    if(this.form.valid){
+      const customer: Customer = this.form.value;
+
+      if(this.customerToEdit){
+        this.customerService.updateCustomer(customer).subscribe({
+          next: () => {
+            this.visible = false;
+            this.loadCustomers();
+          },
+          error: (err) => alert('Erro ao atualizar cliente: ' + err.message)
+        });
+      } else{
+        this.customerService.addCustomer(customer).subscribe({
+          next: () =>{
+            this.visible = false;
+            this.loadCustomers();
+          },
+          error: (err) => alert('Erro ao adicionar cliente: ' + err.message)
+        });
+      }
+    };
   }
-
-
 }

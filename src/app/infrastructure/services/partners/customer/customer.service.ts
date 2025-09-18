@@ -20,6 +20,6 @@ export class CustomerService {
   }
 
   updateCustomer(customer: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${environment.apiUrl}/customer}`, customer);
+    return this.http.put<Customer>(`${environment.apiUrl}/customer`, customer);
   }
 }

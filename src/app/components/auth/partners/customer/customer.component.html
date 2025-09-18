@@ -25,7 +25,7 @@
         <th>Ativo</th>
         <th>Recebe Email</th>
         <th>Cód Matriz</th>
-        <th>Ações</th>
+        <th>Editar</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-customer>
@@ -43,7 +43,7 @@
         <td>{{ customer.codMatriz }}</td>
         <td>
           <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editCustomer(customer)"></button>
-          <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteCustomer(customer)"></button>
+          <!-- <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteCustomer(customer)"></button> -->
         </td>
       </tr>
     </ng-template>
@@ -56,11 +56,11 @@
 
   <p-dialog header="Adicionar Cliente" [(visible)]="visible" [modal]="true" [closable]="true" [responsive]="true" [style]="{width: '50vw'}">
     <span class="p-text-secondary block mb-5">Inclua os dados do cliente.</span>
-    <form [formGroup]="form" (ngSubmit)="addCustomer()">
+    <form [formGroup]="form" (ngSubmit)="saveCustomer()">
       <div class="p-fluid mb-4">
         <div class="p-field">
           <label for="codParceiro">Cód Parceiro</label>
-          <input id="codParceiro" type="text" pInputText formControlName="codParceiro" />
+          <input id="codParceiro" type="text" pInputText formControlName="codParceiro" [readOnly]="customerToEdit !== null" />
         </div>
         <div class="p-field">
           <label for="documento">Documento</label>
