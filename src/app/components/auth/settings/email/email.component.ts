@@ -12,12 +12,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 
 @Component({
-  selector: 'app-email',
-  standalone: true,
-  imports: [TableModule, CommonModule, ButtonModule,ToolbarModule,
-     DialogModule, InputTextModule, ReactiveFormsModule],
-  templateUrl: './email.component.html',
-  styleUrl: './email.component.scss'
+    selector: 'app-email',
+    imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
+        DialogModule, InputTextModule, ReactiveFormsModule],
+    templateUrl: './email.component.html',
+    styleUrl: './email.component.scss'
 })
 export class EmailComponent {
   emails: EmailItem[] = [];

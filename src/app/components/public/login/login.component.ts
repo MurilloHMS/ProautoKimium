@@ -5,12 +5,11 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [ɵInternalFormsSharedModule, CommonModule, ReactiveFormsModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
-  encapsulation: ViewEncapsulation.None
+    selector: 'app-login',
+    imports: [ɵInternalFormsSharedModule, CommonModule, ReactiveFormsModule],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss',
+    encapsulation: ViewEncapsulation.None
 })
 export class LoginComponent {
   form: FormGroup;

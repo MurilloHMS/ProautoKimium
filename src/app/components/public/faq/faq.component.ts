@@ -11,11 +11,10 @@ interface Faq{
 }
 
 @Component({
-  selector: 'app-faq',
-  standalone: true,
-  imports: [CommonModule, AccordionModule],
-  templateUrl: './faq.component.html',
-  styleUrl: './faq.component.scss'
+    selector: 'app-faq',
+    imports: [CommonModule, AccordionModule],
+    templateUrl: './faq.component.html',
+    styleUrl: './faq.component.scss'
 })
 export class FaqComponent {
   faqs: Faq[] = [

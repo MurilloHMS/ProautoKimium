@@ -3,11 +3,10 @@ import { CartService } from '../../../infrastructure/services/cart.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-carrinho',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './carrinho.component.html',
-  styleUrl: './carrinho.component.scss'
+    selector: 'app-carrinho',
+    imports: [CommonModule],
+    templateUrl: './carrinho.component.html',
+    styleUrl: './carrinho.component.scss'
 })
 export class CarrinhoComponent {
   produtos: any[] = [];

@@ -11,14 +11,13 @@ import { InventoryProduct, InventoryProductResponse } from '../../../../../../do
 import { InventoryProductService } from '../../../../../../infrastructure/services/company/inventory/inventory-product.service';
 
 @Component({
-  selector: 'app-products',
-  standalone: true,
-  imports: [
-    TableModule, CommonModule, ButtonModule, ToolbarModule,
+    selector: 'app-products',
+    imports: [
+        TableModule, CommonModule, ButtonModule, ToolbarModule,
         DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
-  ],
-  templateUrl: './products.component.html',
-  styleUrl: './products.component.scss'
+    ],
+    templateUrl: './products.component.html',
+    styleUrl: './products.component.scss'
 })
 export class ProductsComponent {
   products: InventoryProductResponse[] = [];

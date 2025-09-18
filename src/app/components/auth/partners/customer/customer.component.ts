@@ -11,13 +11,12 @@ import { CustomerService } from '../../../../infrastructure/services/partners/cu
 import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
-  selector: 'app-customer',
-  standalone: true,
-  imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
-  ],
-  templateUrl: './customer.component.html',
-  styleUrl: './customer.component.scss'
+    selector: 'app-customer',
+    imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
+        DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
+    ],
+    templateUrl: './customer.component.html',
+    styleUrl: './customer.component.scss'
 })
 export class CustomerComponent {
   customers: CustomerResponse[] = [];

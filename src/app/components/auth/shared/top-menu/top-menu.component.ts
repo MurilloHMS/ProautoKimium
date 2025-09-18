@@ -9,11 +9,10 @@ import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'top-menu',
-  standalone: true,
-  imports: [MenubarModule, BadgeModule, AvatarModule, InputTextModule, RippleModule, CommonModule, ButtonModule],
-  templateUrl: './top-menu.component.html',
-  styleUrl: './top-menu.component.scss'
+    selector: 'top-menu',
+    imports: [MenubarModule, BadgeModule, AvatarModule, InputTextModule, RippleModule, CommonModule, ButtonModule],
+    templateUrl: './top-menu.component.html',
+    styleUrl: './top-menu.component.scss'
 })
 export class TopMenuComponent implements OnInit {
   items: MenuItem[] | undefined;

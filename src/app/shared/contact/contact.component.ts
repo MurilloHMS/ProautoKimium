@@ -18,19 +18,18 @@ interface TipoContato{
 }
 
 @Component({
-  selector: 'app-contact',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, 
-// TODO: `HttpClientModule` should not be imported into a component directly.
-// Please refactor the code to add `provideHttpClient()` call to the provider list in the
-// application bootstrap logic and remove the `HttpClientModule` import from this component.
-HttpClientModule, InputTextModule,
-    InputTextareaModule, DropdownModule, ButtonModule, ProgressSpinnerModule,
-    ToastModule, FloatLabelModule
-  ],
-  templateUrl: './contact.component.html',
-  styleUrl: './contact.component.scss',
-  providers: [MessageService]
+    selector: 'app-contact',
+    imports: [CommonModule, ReactiveFormsModule,
+        // TODO: `HttpClientModule` should not be imported into a component directly.
+        // Please refactor the code to add `provideHttpClient()` call to the provider list in the
+        // application bootstrap logic and remove the `HttpClientModule` import from this component.
+        HttpClientModule, InputTextModule,
+        InputTextareaModule, DropdownModule, ButtonModule, ProgressSpinnerModule,
+        ToastModule, FloatLabelModule
+    ],
+    templateUrl: './contact.component.html',
+    styleUrl: './contact.component.scss',
+    providers: [MessageService]
 })
 export class ContactComponent {
   form: FormGroup;

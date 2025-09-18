@@ -7,12 +7,11 @@ import { DuvidasComponent } from "./components/duvidas/duvidas.component";
 import { SuccessCaseComponent } from "./components/success-case/success-case.component";
 
 @Component({
-  selector: 'app-home',
-  standalone: true,
-  imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, SuccessCaseComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+    selector: 'app-home',
+    imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, SuccessCaseComponent],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss'
 })
 export class HomeComponent {
 

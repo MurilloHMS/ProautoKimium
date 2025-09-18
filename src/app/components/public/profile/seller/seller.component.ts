@@ -4,11 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-seller',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './seller.component.html',
-  styleUrl: './seller.component.scss'
+    selector: 'app-seller',
+    imports: [CommonModule],
+    templateUrl: './seller.component.html',
+    styleUrl: './seller.component.scss'
 })
 export class SellerComponent implements OnInit {
   selectedSeller: Seller | null = null;

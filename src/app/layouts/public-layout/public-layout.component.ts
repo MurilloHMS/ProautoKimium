@@ -6,11 +6,10 @@ import { ScrollToTopComponent } from '../../shared/scroll-to-top/scroll-to-top.c
 import { WhatsappComponent } from '../../shared/whatsapp/whatsapp.component';
 
 @Component({
-  selector: 'app-public-layout',
-  standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, ScrollToTopComponent, WhatsappComponent],
-  templateUrl: './public-layout.component.html',
-  styleUrl: './public-layout.component.scss'
+    selector: 'app-public-layout',
+    imports: [RouterOutlet, HeaderComponent, FooterComponent, ScrollToTopComponent, WhatsappComponent],
+    templateUrl: './public-layout.component.html',
+    styleUrl: './public-layout.component.scss'
 })
 export class PublicLayoutComponent {
 

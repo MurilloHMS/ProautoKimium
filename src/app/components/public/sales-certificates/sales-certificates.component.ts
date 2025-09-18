@@ -6,11 +6,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 declare const generateCertificate: any;
 
 @Component({
-  selector: 'app-sales-certificates',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './sales-certificates.component.html',
-  styleUrl: './sales-certificates.component.scss'
+    selector: 'app-sales-certificates',
+    imports: [CommonModule, ReactiveFormsModule],
+    templateUrl: './sales-certificates.component.html',
+    styleUrl: './sales-certificates.component.scss'
 })
 export class SalesCertificatesComponent implements OnInit{
   form: FormGroup;

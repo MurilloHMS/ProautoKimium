@@ -5,11 +5,10 @@ import { CommonModule } from '@angular/common';
 import { ContactComponent } from '../contact/contact.component';
 
 @Component({
-  selector: 'pk-contact-button',
-  standalone: true,
-  imports: [CommonModule, ButtonModule, DialogModule, ContactComponent],
-  templateUrl: './contact-button.component.html',
-  styleUrl: './contact-button.component.scss'
+    selector: 'pk-contact-button',
+    imports: [CommonModule, ButtonModule, DialogModule, ContactComponent],
+    templateUrl: './contact-button.component.html',
+    styleUrl: './contact-button.component.scss'
 })
 export class ContactButtonComponent {
   displayContact = false;
