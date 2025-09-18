@@ -71,7 +71,7 @@
           <span>Email</span>
         </div>
         <div class="input-container">
-          <p-dropdown [options]="tiposContato" optionLabel="label" optionValue="value"
+          <p-auto-complete [suggestions]="tiposContato"
             formControlName="tipoContato" inputId="float-label" placeholder="Motivos de contato" required/>
           </div>
           @if (form.value.tipoContato === 9) {

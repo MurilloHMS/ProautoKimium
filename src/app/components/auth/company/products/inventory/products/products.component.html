@@ -47,7 +47,7 @@
     </ng-template>
   </p-table>
 
-  <p-dialog header="Adicionar Produto" [(visible)]="visible" [modal]="true" [closable]="true" [responsive]="true" [style]="{width: '50vw'}">
+  <p-dialog header="Adicionar Produto" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{width: '50vw'}">
     <span class="p-text-secondary block mb-5">Inclua os dados do produto.</span>
     <form [formGroup]="form" (ngSubmit)="saveProduct()">
       <div class="p-fluid mb-4">

@@ -3,8 +3,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
@@ -19,7 +18,7 @@ interface TipoContato{
 
 @Component({
     selector: 'app-contact',
-    imports: [ReactiveFormsModule, HttpClientModule, InputTextModule, InputTextareaModule, DropdownModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule],
+    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule , ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule],
     templateUrl: './contact.component.html',
     styleUrl: './contact.component.scss',
     providers: [MessageService]
@@ -41,7 +40,7 @@ export class ContactComponent {
   ];
 
   constructor(private fb: FormBuilder,
-    private http: HttpClient, 
+    private http: HttpClient,
     private messageService: MessageService
   ){
     this.form = this.fb.group({
