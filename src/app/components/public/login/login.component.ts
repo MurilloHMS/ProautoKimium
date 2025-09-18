@@ -30,7 +30,7 @@ export class LoginComponent {
     if(this.form.invalid) return;
 
     const {username, password} = this.form.value;
-    this.authService.login(username, password).subscribe({
+    this.authService.login(username.toLowerCase(), password).subscribe({
       next: () => this.router.navigate(['/home']),
       error: () => this.errorMessage = 'Usuário ou senha inválidos'
     });
