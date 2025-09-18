@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Seller, sellers } from '../../../../../Type/sellers';
 import { ActivatedRoute } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-seller',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './seller.component.html',
     styleUrl: './seller.component.scss'
 })

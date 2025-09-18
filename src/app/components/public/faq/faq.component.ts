@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
-import { CommonModule } from '@angular/common';
-import { NgFor } from '@angular/common';
+
+
 import { AccordionTab } from 'primeng/accordion';
 import { ɵBrowserAnimationBuilder } from '@angular/animations';
 
@@ -12,7 +12,7 @@ interface Faq{
 
 @Component({
     selector: 'app-faq',
-    imports: [CommonModule, AccordionModule],
+    imports: [AccordionModule],
     templateUrl: './faq.component.html',
     styleUrl: './faq.component.scss'
 })

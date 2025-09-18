@@ -18,7 +18,9 @@
           <i class="button_icon fas fa-chevron-right"></i>
         </button>
 
-        <p *ngIf="errorMessage" class="error_message">{{ errorMessage }}</p>
+        @if (errorMessage) {
+          <p class="error_message">{{ errorMessage }}</p>
+        }
       </form>
     </div>
 

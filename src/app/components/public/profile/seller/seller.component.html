@@ -1,41 +1,42 @@
-<section *ngIf="selectedSeller; else notFound">
-  <div class="container">
-    <div class="row clearfix">
-      <div class="content-column col-md-6 col-sm-12 col-xs-12">
-        <div class="inner-column">
-          <div class="sec-title">
-            <div class="title">{{ cargo?.toUpperCase() }}</div>
-            <h2>{{ selectedSeller.nome }}</h2>
-          </div>
-          <div class="text">
-            {{ selectedSeller.descricao }}
-          </div>
-          <div class="sec-buttons">
-            <div class="social-links">
-                    <a href="https://wa.me/{{ selectedSeller.whatsapp }}" target="_blank" class="social-link" aria-label="Whatsapp"><i
-                            class="fab fa-whatsapp"></i></a>
-                    <a href="mailto:sac@proautokimium.com.br" class="social-link" aria-label="Email"><i
-                            class="fas fa-envelope"></i></a>
-                    <a href="https://www.instagram.com/proautokimium/" target="_blank" class="social-link"
-                       aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://br.linkedin.com/company/proauto-kimium" target="_blank" class="social-link"
-                       aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+@if (selectedSeller) {
+  <section>
+    <div class="container">
+      <div class="row clearfix">
+        <div class="content-column col-md-6 col-sm-12 col-xs-12">
+          <div class="inner-column">
+            <div class="sec-title">
+              <div class="title">{{ cargo?.toUpperCase() }}</div>
+              <h2>{{ selectedSeller.nome }}</h2>
+            </div>
+            <div class="text">
+              {{ selectedSeller.descricao }}
+            </div>
+            <div class="sec-buttons">
+              <div class="social-links">
+                <a href="https://wa.me/{{ selectedSeller.whatsapp }}" target="_blank" class="social-link" aria-label="Whatsapp"><i
+                class="fab fa-whatsapp"></i></a>
+                <a href="mailto:sac@proautokimium.com.br" class="social-link" aria-label="Email"><i
+                class="fas fa-envelope"></i></a>
+                <a href="https://www.instagram.com/proautokimium/" target="_blank" class="social-link"
+                  aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                  <a href="https://br.linkedin.com/company/proauto-kimium" target="_blank" class="social-link"
+                    aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     <!-- <a href="https://github.com/MurilloHMS" target="_blank" class="social-link" aria-label="YouTube"><i class="fab fa-github"></i></a> -->
+                  </div>
                 </div>
+              </div>
+            </div>
+            <div class="image-column col-md-6 col-sm-12 col-xs-12">
+              <div class="inner-column">
+                <div class="image">
+                  <img [src]="'../../../../assets/images/employee/' + selectedSeller.imagem"  alt="{{ selectedSeller.nome }}"/>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="image-column col-md-6 col-sm-12 col-xs-12">
-        <div class="inner-column">
-          <div class="image">
-            <img [src]="'../../../../assets/images/employee/' + selectedSeller.imagem"  alt="{{ selectedSeller.nome }}"/>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
+    } @else {
+      <p>Vendedor Não encontrado.</p>
+    }
 
-<ng-template #notFound>
-  <p>Vendedor Não encontrado.</p>
-</ng-template>

@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, input, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     selector: 'app-snackbar',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './snackbar.component.html',
     styleUrl: './snackbar.component.scss'
 })

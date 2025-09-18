@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../../infrastructure/services/cart.service';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-carrinho',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './carrinho.component.html',
     styleUrl: './carrinho.component.scss'
 })

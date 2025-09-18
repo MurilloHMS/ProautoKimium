@@ -6,9 +6,11 @@
     </div>
 
     <p-accordion>
-      <p-accordionTab *ngFor="let item of faqs" [header]="item.title">
-        <p>{{ item.body }}</p>
-      </p-accordionTab>
+      @for (item of faqs; track item) {
+        <p-accordionTab [header]="item.title">
+          <p>{{ item.body }}</p>
+        </p-accordionTab>
+      }
     </p-accordion>
   </div>
 </section>

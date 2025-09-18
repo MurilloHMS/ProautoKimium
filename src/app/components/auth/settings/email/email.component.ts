@@ -2,7 +2,7 @@ import { EmailService } from './../../../../infrastructure/services/email/email.
 import { Component } from '@angular/core';
 import { Email, EmailItem } from '../../../../domain/models/email.model';
 import { TableModule } from 'primeng/table';
-import { CommonModule } from '@angular/common';
+
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DialogModule } from 'primeng/dialog';
@@ -13,8 +13,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 @Component({
     selector: 'app-email',
-    imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
-        DialogModule, InputTextModule, ReactiveFormsModule],
+    imports: [TableModule, ButtonModule, ToolbarModule, DialogModule, InputTextModule, ReactiveFormsModule],
     templateUrl: './email.component.html',
     styleUrl: './email.component.scss'
 })

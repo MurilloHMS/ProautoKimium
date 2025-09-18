@@ -1,5 +1,5 @@
-import { Component, HostListener, Inject } from '@angular/core';
-import { DOCUMENT, CommonModule } from '@angular/common';
+import { Component, HostListener, Inject, DOCUMENT } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-scroll-to-top',
