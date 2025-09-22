@@ -33,7 +33,7 @@ export class ProductsComponent {
       systemCode: ['', Validators.required],
       name: ['', Validators.required],
       active: [true, Validators.required],
-      minimunStock: [0, Validators.required],
+      minimumStock: [0, Validators.required],
     });
   }
 
@@ -58,7 +58,7 @@ export class ProductsComponent {
       systemCode: product.systemCode,
       name: product.name,
       active: product.active,
-      minimunStock: product.minimumStock
+      minimumStock: product.minimumStock
     });
     this.visible = true;
   }
@@ -68,7 +68,7 @@ export class ProductsComponent {
     this.productToEdit = null;
     this.form.reset({
       active: true,
-      minimunStock: 0
+      minimumStock: 0
     });
     this.visible = true;
   }
