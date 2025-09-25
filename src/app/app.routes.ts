@@ -24,12 +24,14 @@ import { ContactsComponent } from './components/auth/support/contacts/contacts.c
 import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
 import { ProductsComponent } from './components/auth/company/products/inventory/products/products.component';
 import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
+import { PublicGuard } from './infrastructure/guard/public/public.guard';
 
 
 export const routes: Routes = [
     {
       path: '',
       component : PublicLayoutComponent,
+      canActivate: [PublicGuard],
       children: [
         { path: '', component: HomeComponent, pathMatch: 'full'},
         { path: 'about-us', component: EmpresaComponent, pathMatch: 'full'},
