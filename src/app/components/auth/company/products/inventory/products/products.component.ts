@@ -78,7 +78,15 @@ export class ProductsComponent {
       const productData: InventoryProduct = this.form.value;
 
       if(this.productToEdit){
-        // Edit mode
+        this.productService.updateProduct(productData).subscribe({
+          next: () => {
+            this.visible = false;
+            this.loadProducts();
+          },
+          error: (err) => {
+            alert('Error updating product: ' + err.message);
+          }
+        });
       }else{
         this.productService.addInventoryProduct(productData).subscribe({
           next: () => {

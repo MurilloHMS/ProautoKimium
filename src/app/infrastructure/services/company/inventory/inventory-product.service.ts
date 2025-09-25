@@ -25,4 +25,8 @@ export class InventoryProductService {
   addInventoryMovement(movement: InventoryMovement) {
     return this.http.post<InventoryMovement>(`${environment.apiUrl}/product/inventory/movement`, movement);
   }
+
+  updateProduct(product: InventoryProduct){
+    return this.http.put<InventoryProduct>(`${environment.apiUrl}/product/inventory/product`, product);
+  }
 }
