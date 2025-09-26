@@ -47,6 +47,11 @@ export class TopMenuComponent implements OnInit {
               { label: 'Controle de Estoque', icon: 'pi pi-fw pi-box', routerLink: ['company/inventory']},
             ]
           },
+          { label: 'Veículos', icon: 'pi pi-fw pi-car',
+            items: [
+              { label: 'Lista de veículos', icon: 'pi pi-fw pi-list', routerLink: ['company/vehicle']}
+            ]
+          }
         ]
       },
       { label: 'Configurações', icon: 'pi pi-fw pi-cog',
