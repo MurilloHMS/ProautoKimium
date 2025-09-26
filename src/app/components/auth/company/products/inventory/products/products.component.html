@@ -1,0 +1,76 @@
+<p-toolbar class="thin-toolbar">
+  <div class="p-toolbar-group-start">
+    <p-button icon="pi pi-refresh" class="mr-2" (click)="loadProducts()"></p-button>
+    &nbsp;&nbsp;
+    <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()"></p-button>
+  </div>
+</p-toolbar>
+
+<div class="card">
+  <p-table
+    #dt1
+    [value]="products"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5,10,20]"
+    [loading]="loading"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['Cód Sistema', 'Nome', 'Estoque Mínimo']"
+    [rowHover]="true">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Cód Sistema</th>
+        <th>Nome</th>
+        <th>Estoque Mínimo</th>
+        <th>Ativo</th>
+        <th>Editar</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>{{ product.systemCode }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.minimumStock }}</td>
+        <td>
+            <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': product.active, 'text-red-500 pi-times-circle': !product.active}"></i>
+        </td>
+        <td>
+          <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editProduct(product)"></button>
+          <!-- <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteCustomer(customer)"></button> -->
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">Nenhum produto encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog header="Adicionar Produto" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{width: '50vw'}">
+    <span class="p-text-secondary block mb-5">Inclua os dados do produto.</span>
+    <form [formGroup]="form" (ngSubmit)="saveProduct()">
+      <div class="p-fluid mb-4">
+        <div class="p-field">
+          <label for="systemCode">Cód Sistema</label>
+          <input id="systemCode" type="text" pInputText formControlName="systemCode" [readOnly]="productToEdit !== null" />
+        </div>
+        <div class="p-field">
+          <label for="name">Nome</label>
+          <input id="name" type="text" pInputText formControlName="name" />
+        </div>
+        <div class="p-field">
+          <label for="minimumStock">Estoque Mínimo</label>
+          <input id="minimumStock" type="number" pInputText formControlName="minimumStock" />
+        </div>
+        <div class="p-field-checkbox">
+          <p-checkbox formControlName="active" binary="true"></p-checkbox>
+          <label for="active">Ativo</label>
+        </div>
+      </div>
+      <p-footer>
+        <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
+      </p-footer>
+    </form>
+  </p-dialog>
+</div>

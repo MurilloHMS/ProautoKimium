@@ -1,12 +1,13 @@
 <h1 [ngClass]="getPkTitleClass()">
-  <ng-container *ngIf="style === PkStyle.Four; else normalHeading">
+  @if (style === PkStyle.Four) {
     <span>{{ tagLine }}</span>
     {{ text }}
     <em>Style</em>
-  </ng-container>
-
-  <ng-template #normalHeading>
+  } @else {
     {{ text }}
-    <span *ngIf="tagLine && hasTagline()">{{ tagLine }}</span>
-  </ng-template>
+    @if (tagLine && hasTagline()) {
+      <span>{{ tagLine }}</span>
+    }
+  }
+
 </h1>

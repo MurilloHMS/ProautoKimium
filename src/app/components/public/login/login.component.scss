@@ -1,0 +1,130 @@
+.container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.screen {
+  background: #fff;
+  border-radius: 20px;
+  position: relative;
+  width: 360px;
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.3);
+  padding: 40px 30px;
+}
+
+.screen_content {
+  z-index: 1;
+  position: relative;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+}
+
+.login_field {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #d1d1d4;
+}
+
+.login_icon {
+  margin-right: 10px;
+  color: #999;
+}
+
+.login_input {
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 14px;
+  width: 100%;
+  padding: 10px 0;
+  color: #333;
+}
+
+.button.login_submit {
+  background: #4a90e2;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button.login_submit:hover {
+  background: #357abd;
+}
+
+.button_icon {
+  margin-left: 10px;
+}
+
+.error_message {
+  color: red;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.screen_background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.screen_background_shape {
+  transform: rotate(45deg);
+  position: absolute;
+}
+
+.screen_background_shape1 {
+  height: 520px;
+  width: 520px;
+  background: #fff;
+  top: -50px;
+  right: 120px;
+  border-radius: 0 72px 0 0;
+}
+
+.screen_background_shape2 {
+  height: 220px;
+  width: 220px;
+  background: #6c63ff;
+  top: -172px;
+  right: 0;
+  border-radius: 32px;
+}
+
+.screen_background_shape3 {
+  height: 540px;
+  width: 190px;
+  background: linear-gradient(270deg, #5d54a4, #6a679e);
+  top: -24px;
+  right: 0;
+  border-radius: 32px;
+}
+
+.screen_background_shape4 {
+  height: 400px;
+  width: 200px;
+  background: #7e7bb9;
+  top: 420px;
+  right: 50px;
+  border-radius: 60px;
+}

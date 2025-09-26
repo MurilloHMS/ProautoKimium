@@ -2,92 +2,95 @@
 
 <div class="container">
   <div class="form">
-        <div class="contact-info">
-          <h3 class="title">Outros Contatos</h3>
-          <p class="text">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe
-            dolorum adipisci recusandae praesentium dicta!
-          </p>
+    <div class="contact-info">
+      <h3 class="title">Outros Contatos</h3>
+      <p class="text">
+        Veja Abaixo os nossos meios para contato disponíveis
+      </p>
 
-          <div class="info">
-            <div class="information">
-              <i class="fab fa-whatsapp"></i>&nbsp;
-              <a href="https://wa.me/05511983583564" target="_blank"> (11) 9 8358-3564</a><br>
-            </div>
-            <div class="information">
-              <i class="fab fa-whatsapp"></i>&nbsp;
-             <a href="https://wa.me/05511957782766" target="_blank">(11) 9 5778-2766</a><br>
-            </div>
-            <div class="information">
-              <i class="fas fa-envelope"></i>&nbsp;
-              <a href="mailto:sac&#64;proautokimium.com.br">sac&#64;proautokimium.com.br</a><br>
-            </div>
-            <div class="information">
-              <i class="fas fa-map-marker-alt"></i>&nbsp;
-              <a href="https://maps.app.goo.gl/LujYJt2qmgmMSbN2A" target="_blank">
-                Av. João do Prado, 300 - Capuava, Santo André - SP
-              </a>
-            </div>
-          </div>
-
-          <div class="social-media">
-            <p>Siga nossas redes sociais</p>
-            <div class="social-icons">
-              <a href="#">
-                <i class="fab fa-facebook-f"></i>
-              </a>
-              <a href="#">
-                <i class="fab fa-twitter"></i>
-              </a>
-              <a href="#">
-                <i class="fab fa-instagram"></i>
-              </a>
-              <a href="#">
-                <i class="fab fa-linkedin-in"></i>
-              </a>
-            </div>
-          </div>
+      <div class="info">
+        <div class="information">
+          <i class="fab fa-whatsapp"></i>&nbsp;
+          <a href="https://wa.me/05511983583564" target="_blank"> (11) 9 8358-3564</a><br>
         </div>
+        <div class="information">
+          <i class="fab fa-whatsapp"></i>&nbsp;
+          <a href="https://wa.me/05511957782766" target="_blank">(11) 9 5778-2766</a><br>
+        </div>
+        <div class="information">
+          <i class="fas fa-envelope"></i>&nbsp;
+          <a href="mailto:sac&#64;proautokimium.com.br">sac&#64;proautokimium.com.br</a><br>
+        </div>
+        <div class="information">
+          <i class="fas fa-map-marker-alt"></i>&nbsp;
+          <a href="https://maps.app.goo.gl/LujYJt2qmgmMSbN2A" target="_blank">
+            Av. João do Prado, 300 - Capuava, Santo André - SP
+          </a>
+        </div>
+      </div>
 
-        <div class="contact-form">
-          <span class="circle one"></span>
-          <span class="circle two"></span>
+      <div class="social-media">
+        <p>Siga nossas redes sociais</p>
+        <div class="social-icons">
+          <a href="#">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+      </div>
+    </div>
 
-          <form [formGroup]="form">
-            <h3 class="title">Contato</h3>
+    <div class="contact-form">
+      <span class="circle one"></span>
+      <span class="circle two"></span>
+
+      <form [formGroup]="form">
+        <h3 class="title">Contato</h3>
+        <div class="input-container">
+          <input pInputText formControlName="name" class="input" required/>
+          <label for="">Nome</label>
+          <span>Nome</span>
+        </div>
+        <div class="input-container">
+          <input pInputText formControlName="businessName" class="input" required/>
+          <label for="">Nome Empresa</label>
+          <span>Nome Empresa</span>
+        </div>
+        <div class="input-container">
+          <input pInputText formControlName="email" class="input" required/>
+          <label for="">Email</label>
+          <span>Email</span>
+        </div>
+        <div class="input-container">
+          <p-select [options]="tiposContato" field="label"  [(ngModel)]="tipoSelecionado" optionLabel="label"
+            formControlName="contactType" placeholder="Motivos de contato" />
+          </div>
+          @if (form.value.contactType?.value === "Outros") {
             <div class="input-container">
-              <input pInputText formControlName="nome" class="input" required/>
-              <label for="">Nome</label>
-              <span>Nome</span>
-            </div>
-            <div class="input-container">
-              <input pInputText formControlName="nomeEmpresa" class="input" required/>
-              <label for="">Nome Empresa</label>
-              <span>Nome Empresa</span>
-            </div>
-            <div class="input-container">
-              <input pInputText formControlName="email" class="input" required/>
-              <label for="">Email</label>
-              <span>Email</span>
-            </div> 
-           <div class="input-container">
-              <p-dropdown [options]="tiposContato" optionLabel="label" optionValue="value"
-                formControlName="tipoContato" inputId="float-label" placeholder="Motivos de contato" required/>
-           </div>
-            <div class="input-container" *ngIf="form.value.tipoContato === 9">
-              <input pInputText formControlName="outro" class="input"/>
+              <input pInputText formControlName="other" class="input"/>
               <label for="">Digite o motivo</label>
               <span>Digite o motivo</span>
             </div>
-            <div class="input-container textarea">
-               <textarea pInputTextarea rows="5" formControlName="mensagem" class="input" required></textarea>
-              <label for="">Mensagem</label>
-              <span>Mensagem</span>
-            </div>
-            
-            <button class="btn" pButton type="button" label="Enviar" (click)="submit()" [disabled]="isLoading"></button>
-            <p-progressSpinner *ngIf="isLoading"></p-progressSpinner>
-          </form>
-        </div>
+          }
+          <div class="input-container textarea">
+            <textarea pInputTextarea rows="5" formControlName="message" class="input" required></textarea>
+            <label for="">Mensagem</label>
+            <span>Mensagem</span>
+          </div>
+
+          <button class="btn" pButton type="button" label="Enviar" (click)="submit()" [disabled]="isLoading"></button>
+          @if (isLoading) {
+            <p-progressSpinner></p-progressSpinner>
+          }
+        </form>
       </div>
-</div>
+    </div>
+  </div>

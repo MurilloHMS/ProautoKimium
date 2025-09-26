@@ -1,4 +1,4 @@
-@import '../../../styles/variables.scss';
+@use '../../../styles/variables.scss';
 
 .header{
     display: flex;
@@ -61,7 +61,7 @@
     text-decoration: none;
     font-weight: 400;
     transition: color .3s;
-    color: $text-primary-color;
+    color: variables.$text-primary-color;
     padding: 8px 15px;
     position: relative;
 }
@@ -73,7 +73,7 @@
     height: 3px;
     bottom: 0;
     left: 0;
-    background-color: $primary-color;
+    background-color: variables.$primary-color;
     visibility: hidden;
     -webkit-transform: scaleX(0);
     transform: scaleX(0);
@@ -101,12 +101,12 @@
 
 .grp-menu a{
     font-size: 1rem;
-    color: $secondary-color
+    color: variables.$secondary-color
 }
 
 .grp-menu a:hover{
     cursor: pointer;
-    color: $primary-color;
+    color: variables.$primary-color;
 }
 
 .carrinho-container {

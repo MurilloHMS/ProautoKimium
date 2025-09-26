@@ -1,0 +1,47 @@
+<main>
+  <section class="menu-categorias">
+    <h2>Navegue por Categorias</h2>
+    <div class="itens-categorias">
+      @for (categoria of categorias; track categoria) {
+        <div class="categoria">
+          <h3>{{ categoria.nome }}</h3>
+          <ul>
+            @for (item of categoria.produtos; track item) {
+              <li>
+                <a [href]="'/produtos/lista/#' + item.id">{{ item.nome }}</a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </section>
+  <section class="produtos-container">
+    @for (categoriaKey of produtosKeys; track categoriaKey) {
+      <section class="categoria-produtos" id="{{ categoriaKey }}">
+        <h2>{{ categoriaKey | titlecase}}</h2>
+        <div class="produtos-lista">
+          @for (produto of produtos[categoriaKey]; track produto) {
+            <div class="produto-card">
+              <div class="imageBox">
+                <img src="../../../assets/images/{{ produto.imagem }}" alt="{{ produto.titulo }}" loading="lazy">
+              </div>
+              <div class="title">
+                <h1>{{ produto.titulo }}</h1>
+              </div>
+              <div class="content">
+                <p><b>Produto: </b>{{ produto.descricao }}</p>
+                <p><b>Cor: </b>{{ produto.cor }}</p>
+                <p><b>Diluição:</b> {{ produto.diluicao }}</p>
+              </div>
+              <div class="actions">
+                <button (click)="adicionarAoCarrinho(produto)">Adicionar ao Carrinho</button>
+              </div>
+            </div>
+          }
+        </div>
+        <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar"></app-snackbar>
+      </section>
+    }
+  </section>
+</main>

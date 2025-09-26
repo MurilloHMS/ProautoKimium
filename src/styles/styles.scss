@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-@import "./variables.scss";
-@import "primeng/resources/themes/lara-light-blue/theme.css";
-@import "primeng/resources/primeng.css";
-@import "primeicons/primeicons.css";
+@use "variables.scss";
 
+// @import "/node_modules/bootstrap/dist/css/bootstrap.min.css" layer(bootstrap);
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 html {
     scroll-behavior: smooth;
@@ -23,7 +22,6 @@ app-root{
 }
 
 .content{
-    padding-top: px;
     flex: 1;
     background: #f1f2f4
 }
@@ -31,5 +29,3 @@ app-root{
 app-footer{
     text-align: center;
 }
-/* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';

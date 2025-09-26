@@ -1,60 +1,67 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast'
 import { environment } from '../../../environments/environment';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { Select } from "primeng/select";
 
 interface TipoContato{
   label: string;
-  value: number;
+  value: string;
 }
 
 @Component({
-  selector: 'app-contact',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, InputTextModule,
-    InputTextareaModule, DropdownModule, ButtonModule, ProgressSpinnerModule,
-    ToastModule, FloatLabelModule
-  ],
-  templateUrl: './contact.component.html',
-  styleUrl: './contact.component.scss',
-  providers: [MessageService]
+    selector: 'app-contact',
+    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select],
+    templateUrl: './contact.component.html',
+    styleUrl: './contact.component.scss',
+    providers: [MessageService]
 })
 export class ContactComponent {
   form: FormGroup;
   isLoading = false;
+  tipoSelecionado: TipoContato | null = null;
   tiposContato: TipoContato[] =[
-    { label: 'Dúvida sobre produtos', value: 0 },
-    { label: 'Suporte técnico', value: 1 },
-    { label: 'Solicitação de orçamento', value: 2 },
-    { label: 'Representação comercial', value: 3 },
-    { label: 'Trabalhe conosco', value: 4 },
-    { label: 'Consultoria especializada', value: 5 },
-    { label: 'Agendar visita técnica', value: 6 },
-    { label: 'Informações sobre certificações', value: 7 },
-    { label: 'Problemas com pedido ou entrega', value: 8 },
-    { label: 'Outros', value: 9 }
+    { label: 'Dúvida sobre produtos', value: "DuvidaProduto" },
+    { label: 'Suporte técnico', value: "SuporteTecnico" },
+    { label: 'Solicitação de orçamento', value: "SolicitacaoOrcamento" },
+    { label: 'Representação comercial', value: "RepresentacaoComercial" },
+    { label: 'Trabalhe conosco', value: "TrabalheConosco" },
+    { label: 'Consultoria especializada', value: "ConsultoriaEspecializada" },
+    { label: 'Agendar visita técnica', value: "VisitaTecnica" },
+    { label: 'Informações sobre certificações', value: "InformacoesCertificacoes" },
+    { label: 'Problemas com pedido ou entrega', value: "ProblemaPedidoEntrega" },
+    { label: 'Outros', value: "Outros" }
   ];
 
   constructor(private fb: FormBuilder,
-    private http: HttpClient, 
+    private http: HttpClient,
     private messageService: MessageService
   ){
     this.form = this.fb.group({
-      nome: ['', Validators.required],
+      name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      nomeEmpresa: ['', Validators.required],
-      tipoContato: ['', Validators.required],
-      outro: [''],
-      mensagem: ['', Validators.required]
+      businessName: ['', Validators.required],
+      contactType: [null, Validators.required],
+      other: [''],
+      message: ['', Validators.required]
+    });
+
+    this.form.get('contactType')?.valueChanges.subscribe((tipo: TipoContato) => {
+      const outroControl = this.form.get('other');
+      if (tipo?.value === "Outros") {
+        outroControl?.setValidators([Validators.required]);
+      } else {
+        outroControl?.clearValidators();
+      }
+      outroControl?.updateValueAndValidity();
     });
   }
 
@@ -65,13 +72,20 @@ export class ContactComponent {
     }
 
     const contato = {
-      ...this.form.value,
-      statusContato: 0,
-      dataSolicitadoContato: new Date().toISOString()
+      name: this.form.value.name,
+      email: this.form.value.email,
+      businessName: this.form.value.businessName,
+      contactType: this.form.value.contactType?.value,
+      other: this.form.value.other,
+      message: this.form.value.message,
+      contactStatus: "NaoContatado",
+      contactDate: this.formatLocalDateTime(new Date())
     };
 
+    console.log('JSON enviado:', contato);
+
     this.isLoading = true;
-    this.http.post(`${environment.apiUrl}/contato`, contato, {responseType: 'text' }).subscribe({
+    this.http.post(`${environment.apiUrl}/contact`, contato, {responseType: 'text', headers: new HttpHeaders({'Content-Type': 'application/json'})}).subscribe({
       next: (res) => {
         this.isLoading = false;
         this.messageService.add({severity: 'success', summary: 'Sucesso', detail: res});
@@ -82,5 +96,17 @@ export class ContactComponent {
         this.messageService.add({severity: 'error', summary: 'Error', detail: 'Ocorreu um erro ao entrar em contato, por favor utilize os dados ao lado.'})
       }
     });
+  }
+
+  private formatLocalDateTime(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
   }
 }

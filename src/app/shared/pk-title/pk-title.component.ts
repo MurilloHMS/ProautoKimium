@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 export enum PkStyle {
   One = 'one',
@@ -19,11 +19,10 @@ export enum PkStyle {
 }
 
 @Component({
-  selector: 'pk-title',
-  standalone: true,
-  imports: [NgClass, NgIf],
-  templateUrl: './pk-title.component.html',
-  styleUrls: ['./pk-title.component.scss']
+    selector: 'pk-title',
+    imports: [NgClass],
+    templateUrl: './pk-title.component.html',
+    styleUrls: ['./pk-title.component.scss']
 })
 export class PKTitleComponent {
   @Input() text: string = '';

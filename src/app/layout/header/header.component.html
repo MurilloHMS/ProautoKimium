@@ -1,48 +1,50 @@
 <header class="header">
-    <div class="logo">
-        <img src="../../../assets/images/logo-proauto.png" alt="Logo da Empresa">
-    </div>
+  <div class="logo">
+    <img src="../../../assets/images/logo-proauto.png" alt="Logo da Empresa">
+  </div>
 
-    <!-- Ícone do menu hambúrguer -->
-    <button class="menu-toggle" (click)="toggleMenu()">
-        ☰
-    </button>
+  <!-- Ícone do menu hambúrguer -->
+  <button class="menu-toggle" (click)="toggleMenu()">
+    ☰
+  </button>
 
-    <nav class="menu" [class.active]="menuAberto">
-        <ul>
-			<li><a routerLink="">Início</a></li>
-            <li><a routerLink="produtos/lista">Produtos</a></li>
-			<li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle">
-					Empresa
-				</a>
-				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a routerLink="about-us" class="dropdown-item">Sobre Nós</a>
-				</div>
-			</li>
-			<!-- <li class="nav-item dropdown">
-				<a class="nav-link dropdown-toggle">
-					Parceiros
-				</a>
-				<div class="dropdown-menu" aria-labelledby="navbarDropdown">
-					<a class="dropdown-item" href="partners/distributors">Distribuidores</a>
-				</div>
-			</li> -->
-		</ul>
-    </nav>
+  <nav class="menu" [class.active]="menuAberto">
+    <ul>
+      <li><a routerLink="">Início</a></li>
+      <li><a routerLink="produtos/lista">Produtos</a></li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle">
+          Empresa
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a routerLink="about-us" class="dropdown-item">Sobre Nós</a>
+        </div>
+      </li>
+      <!-- <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle">
+        Parceiros
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="partners/distributors">Distribuidores</a>
+      </div>
+    </li> -->
+  </ul>
+</nav>
 
-    <div>
-        <ul class="grp-menu">
-            <li class="carrinho-container">
-                <a href="/client/">
-                    <i class="fa fa-sign-in"></i>
-                </a>
-                &nbsp;
-                <a routerLink="carrinho">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="badge" *ngIf="quantidadeProdutos > 0">{{ quantidadeProdutos }}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
+<div>
+  <ul class="grp-menu">
+    <li class="carrinho-container">
+      <a href="/client/">
+        <i class="fa fa-sign-in"></i>
+      </a>
+      &nbsp;
+      <a routerLink="carrinho">
+        <i class="fas fa-shopping-cart"></i>
+        @if (quantidadeProdutos > 0) {
+          <span class="badge">{{ quantidadeProdutos }}</span>
+        }
+      </a>
+    </li>
+  </ul>
+</div>
 </header>

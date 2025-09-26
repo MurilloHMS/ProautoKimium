@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CartService } from '../../Core/services/cart.service';
-import { CommonModule } from '@angular/common';
+import { CartService } from '../../infrastructure/services/cart.service';
+
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [RouterLink, CommonModule],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+    selector: 'app-header',
+    imports: [RouterLink],
+    templateUrl: './header.component.html',
+    styleUrl: './header.component.scss'
 })
 export class HeaderComponent implements OnInit {
   quantidadeProdutos = 0;

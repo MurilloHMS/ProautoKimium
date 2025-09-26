@@ -1,12 +1,11 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, input, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
-  selector: 'app-snackbar',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './snackbar.component.html',
-  styleUrl: './snackbar.component.scss'
+    selector: 'app-snackbar',
+    imports: [],
+    templateUrl: './snackbar.component.html',
+    styleUrl: './snackbar.component.scss'
 })
 export class SnackbarComponent implements OnChanges {
   @Input() message: string = '';

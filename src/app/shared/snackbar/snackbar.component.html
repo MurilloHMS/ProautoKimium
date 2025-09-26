@@ -1,3 +1,5 @@
-<div *ngIf="isOpen" class="snackbar">
+@if (isOpen) {
+  <div class="snackbar">
     <span>{{ message }}</span>
-</div>
+  </div>
+}

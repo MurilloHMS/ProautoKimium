@@ -1,4 +1,5 @@
-@import '../../../styles/variables.scss';
+@use "sass:color";
+@use '../../../styles/variables.scss';
 
 .whatsapp-component {
     display: flex;
@@ -12,7 +13,7 @@
     width: 50px;
     height: 50px;
     font-size: 35px;
-    background-color: $secondary-color;
+    background-color: variables.$secondary-color;
     color: #fff;
     border: 0;
     border-radius: 50%;
@@ -21,7 +22,7 @@
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
 
     &:hover {
-        background-color: darken($secondary-color, 10%);
+        background-color: color.adjust(variables.$secondary-color, $lightness: -10%);
         transform: scale(1.1);
     }
 
