@@ -5,8 +5,7 @@
     <div class="contact-info">
       <h3 class="title">Outros Contatos</h3>
       <p class="text">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe
-        dolorum adipisci recusandae praesentium dicta!
+        Veja Abaixo os nossos meios para contato disponíveis
       </p>
 
       <div class="info">
@@ -56,12 +55,12 @@
       <form [formGroup]="form">
         <h3 class="title">Contato</h3>
         <div class="input-container">
-          <input pInputText formControlName="nome" class="input" required/>
+          <input pInputText formControlName="name" class="input" required/>
           <label for="">Nome</label>
           <span>Nome</span>
         </div>
         <div class="input-container">
-          <input pInputText formControlName="nomeEmpresa" class="input" required/>
+          <input pInputText formControlName="businessName" class="input" required/>
           <label for="">Nome Empresa</label>
           <span>Nome Empresa</span>
         </div>
@@ -72,17 +71,17 @@
         </div>
         <div class="input-container">
           <p-select [options]="tiposContato" field="label"  [(ngModel)]="tipoSelecionado" optionLabel="label"
-            formControlName="tipoContato" placeholder="Motivos de contato" />
+            formControlName="contactType" placeholder="Motivos de contato" />
           </div>
-          @if (form.value.tipoContato === 9) {
+          @if (form.value.contactType?.value === "Outros") {
             <div class="input-container">
-              <input pInputText formControlName="outro" class="input"/>
+              <input pInputText formControlName="other" class="input"/>
               <label for="">Digite o motivo</label>
               <span>Digite o motivo</span>
             </div>
           }
           <div class="input-container textarea">
-            <textarea pInputTextarea rows="5" formControlName="mensagem" class="input" required></textarea>
+            <textarea pInputTextarea rows="5" formControlName="message" class="input" required></textarea>
             <label for="">Mensagem</label>
             <span>Mensagem</span>
           </div>
