@@ -25,6 +25,7 @@ import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-la
 import { ProductsComponent } from './components/auth/company/products/inventory/products/products.component';
 import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
 import { PublicGuard } from './infrastructure/guard/public/public.guard';
+import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/vehicles.component';
 
 
 export const routes: Routes = [
@@ -59,6 +60,7 @@ export const routes: Routes = [
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
+        {path: 'company/vehicle', component: VehiclesComponent, data: {roles: ['ADMIN','COMPRADOR']}}
       ]
     },
     {
