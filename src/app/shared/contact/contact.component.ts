@@ -65,19 +65,23 @@ export class ContactComponent {
     });
   }
 
-  submit(){
-    if(this.form.invalid){
-      this.messageService.add({severity: 'warn', summary: 'Atenção', detail: 'Existem campos obrigatórios não preenchidos'});
+  submit() {
+    if (this.form.invalid) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Existem campos obrigatórios não preenchidos'
+      });
       return;
     }
 
     const contato = {
-      name: this.form.value.name,
-      email: this.form.value.email,
-      businessName: this.form.value.businessName,
+      name: this.form.value.name?.trim(),
+      email: this.form.value.email?.trim(),
       contactType: this.form.value.contactType?.value,
-      other: this.form.value.other,
-      message: this.form.value.message,
+      other: this.form.value.other?.trim() || '',
+      message: this.form.value.message?.trim(),
+      businessName: this.form.value.businessName?.trim(),
       contactStatus: "NaoContatado",
       contactDate: this.formatLocalDateTime(new Date())
     };
@@ -85,18 +89,27 @@ export class ContactComponent {
     console.log('JSON enviado:', contato);
 
     this.isLoading = true;
-    this.http.post(`${environment.apiUrl}/contact`, contato, {responseType: 'text', headers: new HttpHeaders({'Content-Type': 'application/json'})}).subscribe({
+    this.http.post(`${environment.apiUrl}/contact`, contato, {
+      responseType: 'text',
+      headers: { 'Content-Type': 'application/json' }
+    }).subscribe({
       next: (res) => {
         this.isLoading = false;
-        this.messageService.add({severity: 'success', summary: 'Sucesso', detail: res});
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: res });
         this.form.reset();
       },
-      error: (err) =>{
+      error: (err) => {
         this.isLoading = false;
-        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Ocorreu um erro ao entrar em contato, por favor utilize os dados ao lado.'})
+        console.error('Erro ao enviar contato:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Ocorreu um erro ao entrar em contato, por favor utilize os dados ao lado.'
+        });
       }
     });
   }
+
 
   private formatLocalDateTime(date: Date): string {
     const pad = (n: number) => n.toString().padStart(2, '0');
