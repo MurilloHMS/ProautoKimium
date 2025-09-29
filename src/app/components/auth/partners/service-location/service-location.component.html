@@ -1,1 +1,86 @@
-<p>service-location works!</p>
+<p-toolbar class="thin-toolbar">
+    <div class="p-toolbar-group-start">
+        <p-button icon="pi pi-refresh" class="mr-2" (click)="loadServiceLocations()" size="small"/>
+        &nbsp;&nbsp;
+        <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()" size="small"/>
+    </div>
+</p-toolbar>
+
+<div class="card">
+    <p-table
+      #dt1
+      [value]="serviceLocations"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5,10,20]"
+      [loading]="loading"
+      [responsiveLayout]="'scroll'"
+      [globalFilterFields]="['Cód Sistema', 'Nome', 'Estoque Mínimo']"
+      [rowHover]="true">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Cód Sistema</th>
+            <th>Documento</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Ativo</th>
+            <th>Ações</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-serviceLocation>
+        <tr>
+            <td>{{ serviceLocation.codParceiro }}</td>
+            <td>{{ serviceLocation.documento }}</td>
+            <td>{{ serviceLocation.nome }}</td>
+            <td>{{ serviceLocation.email }}</td>
+            <td>
+                <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': serviceLocation.ativo, 'text-red-500 pi-times-circle': !serviceLocation.ativo}"></i>
+            </td>
+            <td>
+                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editServiceLocation(serviceLocation)"></button>
+                <!-- <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deletevehicle(vehicle)"></button> -->
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td colspan="4">Nenhum Prestador de serviço Encontrado.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+</div>
+
+<p-dialog header="Adicionar Prestador de serviço" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{width: '25vw'}">
+    <span class="p-text-secondary block mb-5">Inclua os dados do Prestador de serviço</span>
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="p-fluid mb-4">
+            <div class="p-field">
+                <label for="codParceiro">Código Parceiro &nbsp;</label>
+                <input id="codParceiro" type="text" pInputText formControlName="codParceiro">
+            </div>
+            <div class="p-field">
+                <label for="documento">Documento &nbsp;</label>
+                <input id="documento" type="text" pInputText formControlName="documento">
+            </div>
+           <div class="p-field">
+                <label for="nome">Nome &nbsp;</label>
+                <input id="nome" type="text" pInputText formControlName="nome">
+            </div>
+            <div class="p-field">
+                <label for="email">Email &nbsp;</label>
+                <input id="email" type="email" pInputText formControlName="email">
+            </div>
+            <div class="p-field-checkbox">
+                <p-checkbox formControlName="ativo" binary="true"></p-checkbox>
+                <label for="ativo">Ativo</label>
+            </div>
+            <div class="p-field">
+                <label for="address">Endereço &nbsp;</label>
+                <input id="address" type="text" pInputText formControlName="address">
+            </div>
+        </div>
+        <p-footer>
+            <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
+        </p-footer>
+    </form>
+</p-dialog>
