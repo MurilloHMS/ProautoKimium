@@ -86,8 +86,6 @@ export class ContactComponent {
       contactDate: this.formatLocalDateTime(new Date())
     };
 
-    console.log('JSON enviado:', contato);
-
     this.isLoading = true;
     this.http.post(`${environment.apiUrl}/contact`, contato, {
       responseType: 'text',
