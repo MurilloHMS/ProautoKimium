@@ -2,11 +2,12 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule} from '@angular/forms';
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { Router } from '@angular/router';
+import { Button } from "primeng/button";
 
 
 @Component({
     selector: 'app-login',
-    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule],
+    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule, Button],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss',
     encapsulation: ViewEncapsulation.None
@@ -14,6 +15,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   form: FormGroup;
   errorMessage: string = '';
+  loading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -29,10 +31,17 @@ export class LoginComponent {
   login(){
     if(this.form.invalid) return;
 
+    this.loading = true;
     const {username, password} = this.form.value;
     this.authService.login(username.toLowerCase(), password).subscribe({
-      next: () => this.router.navigate(['/home']),
-      error: () => this.errorMessage = 'Usuário ou senha inválidos'
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/home'])
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Usuário ou senha inválidos'
+      }
     });
   }
 }

@@ -13,10 +13,13 @@
           <input type="password" formControlName="password" class="login_input" placeholder="Senha" />
         </div>
 
-        <button type="submit" [disabled]="form.invalid" class="button login_submit">
+        <!-- <button type="submit" [disabled]="form.invalid" class="button login_submit">
           <span class="button_text">Login</span>
           <i class="button_icon fas fa-chevron-right"></i>
-        </button>
+        </button> -->
+        <div class="button_wrapper">
+          <p-button label="Login" icon="fas fa-chevron-right" type="submit" [disabled]="form.invalid" [loading]="loading" styleClass="button login_submit" ></p-button>
+        </div>
 
         @if (errorMessage) {
           <p class="error_message">{{ errorMessage }}</p>
