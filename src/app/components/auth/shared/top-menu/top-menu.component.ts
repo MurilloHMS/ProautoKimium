@@ -29,6 +29,7 @@ export class TopMenuComponent implements OnInit {
        { label: 'Documentos', icon: 'pi pi-fw pi-file',
         items: [
           { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['documents/holerit']},
+          { label: 'Coletar Dados NFe', icon: 'pi pi-fw pi-file', routerLink: ['documents/nfe-collector']},
        ]
       },
       { label: 'Parceiros', icon: 'pi pi-fw pi-users',
