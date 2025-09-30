@@ -8,6 +8,8 @@ import { Button } from 'primeng/button';
 import { Badge } from 'primeng/badge';
 import { ProgressBar } from 'primeng/progressbar';
 import { Toast } from 'primeng/toast';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-nfe-data-collector',
@@ -19,7 +21,9 @@ import { Toast } from 'primeng/toast';
     Button,
     Badge,
     ProgressBar,
-    Toast
+    Toast,
+    ToggleSwitchModule,
+    FormsModule
   ],
   templateUrl: './nfe-data-collector.component.html',
   styleUrls: ['./nfe-data-collector.component.scss'],
@@ -30,6 +34,7 @@ export class NfeDataCollectorComponent {
   totalSize: number = 0;
   totalSizePercent: number = 0;
   index: number = 0;
+  checked: boolean = false;
 
   constructor(
     private messageService: MessageService
