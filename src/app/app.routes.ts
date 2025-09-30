@@ -26,6 +26,7 @@ import { ProductsComponent } from './components/auth/company/products/inventory/
 import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
 import { PublicGuard } from './infrastructure/guard/public/public.guard';
 import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/vehicles.component';
+import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
 
 
 export const routes: Routes = [
@@ -53,6 +54,7 @@ export const routes: Routes = [
         {path: 'home', component: AuthHomeComponent, data: {roles: ['ADMIN']}},
         {path: 'admin', component: AdminCenterComponent, data: {roles: ['ADMIN']}},
         {path: 'documents/holerit', component: HoleritSpliterComponent, data: {roles: ['ADMIN', 'RH']}},
+        {path: 'documents/nfe-collector', component: NfeDataCollectorComponent, data: {roles: ['ADMIN', 'RH', 'FINANCEIRO']}},
         {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN',]}},
         {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
