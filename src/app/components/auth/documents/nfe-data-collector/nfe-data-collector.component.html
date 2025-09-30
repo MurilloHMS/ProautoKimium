@@ -10,7 +10,7 @@
       name="myfile[]"
       url="https://www.primefaces.org/cdn/api/upload.php"
       [multiple]="true"
-      accept="*.xml"
+      accept=".xml"
       maxFileSize="1000000"
       (onUpload)="onTemplatedUpload()"
       (onSelect)="onSelectedFiles($event)"
@@ -88,9 +88,9 @@
                   <img
                     role="presentation"
                     [alt]="file.name"
-                    [src]="file.objectURL"
+                    src="assets/images/xml-file.png"
                     class="img-fluid rounded mb-3"
-                    style="max-height: 100px; object-fit: cover;"
+                    style="max-height: 50px; max-width: 50px; object-fit: fill;"
                   />
                   <h6 class="text-truncate">{{ file.name }}</h6>
                   <p class="text-muted small mb-2">{{ formatSize(file.size) }}</p>
@@ -120,9 +120,9 @@
                   <img
                     role="presentation"
                     [alt]="file.name"
-                    [src]="file.objectURL"
+                    src="assets/images/xml-file.png"
                     class="img-fluid rounded mb-3"
-                    style="max-height: 100px; object-fit: cover;"
+                    style="max-height: 50px; max-width: 50px; object-fit: fill;"
                   />
                   <h6 class="text-truncate">{{ file.name }}</h6>
                   <p class="text-muted small mb-2">{{ formatSize(file.size) }}</p>
@@ -143,7 +143,7 @@
         </div>
       </ng-template>
 
-      <!-- Empty -->
+
       <ng-template #empty>
         <div class="d-flex flex-column align-items-center justify-content-center py-5 text-muted">
           <i
