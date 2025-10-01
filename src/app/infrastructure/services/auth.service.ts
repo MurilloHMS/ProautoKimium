@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable({
   providedIn: 'root'
@@ -51,6 +52,16 @@ export class AuthService {
 
     return new Date(payload.exp * 1000);
   }
+
+ getStockControlToken(): Observable<string> {
+    return this.http.post<{ token: string }>(
+      `${environment.apiUrl}/auth/app-token`,
+      {}
+    ).pipe(
+      map(response => response.token)
+    );
+  }
+
 
   private decodeToken(): any{
     const token = this.getToken();
