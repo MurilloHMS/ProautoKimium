@@ -1,3 +1,4 @@
+import { NfeService } from './../../../../infrastructure/services/nfe/nfe.service';
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -34,15 +35,27 @@ export class NfeDataCollectorComponent {
   totalSize: number = 0;
   totalSizePercent: number = 0;
   index: number = 0;
-  checked: boolean = false;
+  collectNfe = false;
+  collectIcms = false;
 
   constructor(
-    private messageService: MessageService
+    private messageService: MessageService,
+    private nfeService: NfeService
   ) {}
 
   choose(event: any, callback: () => void) {
     callback();
   }
+
+
+  onToggle(type: 'nfe' | 'icms') {
+    if (type === 'nfe') {
+      this.collectIcms = false;
+    } else {
+      this.collectNfe = false;
+    }
+  }
+
 
   onRemoveTemplatingFile(event: any, file: any, removeFileCallback: any, index: number) {
     removeFileCallback(event, index);
@@ -56,21 +69,51 @@ export class NfeDataCollectorComponent {
     this.totalSizePercent = 0;
   }
 
-  onTemplatedUpload() {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Success',
-      detail: 'File Uploaded',
-      life: 3000
-    });
-  }
-
   onSelectedFiles(event: any) {
     this.files = event.currentFiles;
-    this.files.forEach(file => {
-      this.totalSize += file.size;
+    this.totalSize = this.files.reduce((acc, file) => acc + file.size, 0);
+    this.totalSizePercent = Math.min((this.totalSize / 1000000) * 10, 100)
+  }
+
+  uploadFiles() {
+    if(this.collectIcms === false && this.collectNfe === false) {
+      this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'Selecione uma opção de coleta (NFE ou ICMS)' });
+      return;
+    }
+
+    if (!this.files.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'Nenhum arquivo selecionado' });
+      return;
+    }
+
+    const fileList: File[] = this.files.map(f => f as File);
+
+    const selectedOption = this.collectNfe ? 'nfe' : 'icms';
+
+    this.nfeService.processXmlFiles(fileList, selectedOption).subscribe({
+      next: blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedOption === 'nfe' ? 'nfe_data' : 'icms_data'}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Excel gerado com sucesso!'
+        });
+      },
+      error: err => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Ocorreu um erro ao processar os arquivos.'
+        });
+        console.error('Error processing files:', err);
+      }
     });
-    this.totalSizePercent = this.totalSize / 10;
   }
 
   uploadEvent(callback: () => void) {

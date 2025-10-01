@@ -5,22 +5,22 @@
     </h2>
     <div class="d-flex justify-content-center align-items-center p-3 bg-light px-3">
       <div class="d-flex align-items-center">
-      <span class="me-2">Coletar dados da NFe</span>
-      <p-toggleswitch [(ngModel)]="checked">
-        <ng-template #handle let-checked="checked">
-          <i [ngClass]="['!text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
-        </ng-template>
-      </p-toggleswitch>
-    </div>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <div class="d-flex align-items-center">
-      <span class="me-2">Coletar dados do ICMS</span>
-      <p-toggleswitch [(ngModel)]="checked">
-        <ng-template #handle let-checked="checked">
-          <i [ngClass]="['!text-xs', 'pi', checked ? 'pi-check' : 'pi-times']"></i>
-        </ng-template>
-      </p-toggleswitch>
-    </div>
+        <span class="me-2">Coletar dados da NFe</span>
+        <p-toggleswitch [(ngModel)]="collectNfe" (onChange)="onToggle('nfe')">
+          <ng-template #handle let-checked="checked">
+            <i [ngClass]="['pi', checked ? 'pi-check' : 'pi-times']"></i>
+          </ng-template>
+        </p-toggleswitch>
+      </div>
+
+      <div class="d-flex align-items-center ms-4">
+        <span class="me-2">Coletar dados do ICMS</span>
+        <p-toggleswitch [(ngModel)]="collectIcms" (onChange)="onToggle('icms')">
+          <ng-template #handle let-checked="checked">
+            <i [ngClass]="['pi', checked ? 'pi-check' : 'pi-times']"></i>
+          </ng-template>
+        </p-toggleswitch>
+      </div>
     </div>
 
 
@@ -28,12 +28,11 @@
 
     <p-fileupload
       name="myfile[]"
-      url="https://www.primefaces.org/cdn/api/upload.php"
       [multiple]="true"
       accept=".xml"
       maxFileSize="1000000"
-      (onUpload)="onTemplatedUpload()"
       (onSelect)="onSelectedFiles($event)"
+      [auto]="false"
       class="w-100"
     >
 
@@ -55,7 +54,7 @@
               tooltip="Escolher arquivos"
             ></p-button>
             <p-button
-              (click)="uploadEvent(uploadCallback)"
+              (click)="uploadFiles()"
               icon="pi pi-cloud-upload"
               [rounded]="true"
               [outlined]="true"
@@ -81,7 +80,7 @@
               class="h-2"
             ></p-progressbar>
             <small class="text-muted d-block mt-1">
-              {{ totalSize }}B / 1Mb
+              {{ totalSize }}B / 100MB ({{ totalSizePercent | number:'1.0-2' }}%)
             </small>
           </div>
         </div>
