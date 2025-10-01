@@ -15,7 +15,7 @@
       [rowsPerPageOptions]="[5,10,20]"
       [loading]="loading"
       [responsiveLayout]="'scroll'"
-      [globalFilterFields]="['Cód Sistema', 'Nome', 'Estoque Mínimo']"
+      [globalFilterFields]="['Cód Sistema', 'Nome', 'Documento']"
       [rowHover]="true">
     <ng-template pTemplate="header">
         <tr>
@@ -52,7 +52,7 @@
 
 <p-dialog header="Adicionar Prestador de serviço" [(visible)]="visible" [modal]="true" [closable]="true" [style]="{width: '25vw'}">
     <span class="p-text-secondary block mb-5">Inclua os dados do Prestador de serviço</span>
-    <form [formGroup]="form" (ngSubmit)="save()">
+    <form [formGroup]="form" (ngSubmit)="saveSL()">
         <div class="p-fluid mb-4">
             <div class="p-field">
                 <label for="codParceiro">Código Parceiro &nbsp;</label>
