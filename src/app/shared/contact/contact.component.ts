@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
@@ -11,11 +11,10 @@ import { ToastModule } from 'primeng/toast'
 import { environment } from '../../../environments/environment';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { Select } from "primeng/select";
+import { Contact, TipoContato } from '../../domain/models/contact.model';
+import { ContactService } from '../../infrastructure/services/contact/contact.service';
 
-interface TipoContato{
-  label: string;
-  value: string;
-}
+
 
 @Component({
     selector: 'app-contact',
@@ -43,7 +42,8 @@ export class ContactComponent {
 
   constructor(private fb: FormBuilder,
     private http: HttpClient,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private contactService: ContactService
   ){
     this.form = this.fb.group({
       name: ['', Validators.required],
@@ -75,25 +75,21 @@ export class ContactComponent {
       return;
     }
 
-    const contato = {
-      name: this.form.value.name?.trim(),
-      email: this.form.value.email?.trim(),
-      contactType: this.form.value.contactType?.value,
-      other: this.form.value.other?.trim() || '',
-      message: this.form.value.message?.trim(),
-      businessName: this.form.value.businessName?.trim(),
-      contactStatus: "NaoContatado",
-      contactDate: this.formatLocalDateTime(new Date())
-    };
+    const contato: Contact = this.form.value;
+    contato.name = this.form.value.name?.trim();
+    contato.email = this.form.value.email?.trim();
+    contato.message = this.form.value.message?.trim();
+    contato.businessName = this.form.value.businessName?.trim();
+    contato.other = this.form.value.other?.trim() || '';
+    contato.contactType = this.form.value.contactType?.value;
+    contato.contactDate = this.formatLocalDateTime(new Date());
+    contato.contactStatus = "NaoContatado";
 
     this.isLoading = true;
-    this.http.post(`${environment.apiUrl}/contact`, contato, {
-      responseType: 'text',
-      headers: { 'Content-Type': 'application/json' }
-    }).subscribe({
-      next: (res) => {
+    this.contactService.addContact(contato).subscribe({
+      next: () => {
         this.isLoading = false;
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: res });
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Contato enviado com sucesso!' });
         this.form.reset();
       },
       error: (err) => {
