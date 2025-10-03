@@ -11,24 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
-import { Dialog } from "primeng/dialog";
-
-interface UserRole {
-  label: string;
-  value: string;
-}
-
-interface RegisterDTO {
-  login: string;
-  password: string;
-  roles: string[];
-}
-
-interface User {
-  id: string;
-  login: string;
-  roles: string[];
-}
+import {  UserRole, RegisterDTO, UserResponseDTO } from '../../../domain/models/user.model';
 
 @Component({
     selector: 'app-admin-center',
@@ -54,7 +37,7 @@ export class AdminCenterComponent {
   registerForm!: FormGroup;
   isSubmitting: boolean = false;
   isLoadingUsers: boolean = false;
-  users: User[] = [];
+  users: UserResponseDTO[] = [];
 
   availableRoles: UserRole[] = [
     { label: 'Administrador', value: 'ADMIN' },
@@ -102,6 +85,21 @@ export class AdminCenterComponent {
 
   showDialog(){
     this.visible = true;
+  }
+
+  loadUsers(){
+    this.loading = true;
+    this.authService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading users', err);
+        this.loading = false;
+      }
+    });
+
   }
 
   passwordMatchValidator(form: FormGroup) {
