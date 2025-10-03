@@ -4,6 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 
+interface RegisterDTO {
+  login: string;
+  password: string;
+  roles: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,6 +66,10 @@ export class AuthService {
     ).pipe(
       map(response => response.token)
     );
+  }
+
+  registerUser(user : RegisterDTO): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/auth/register`, user);
   }
 
 
