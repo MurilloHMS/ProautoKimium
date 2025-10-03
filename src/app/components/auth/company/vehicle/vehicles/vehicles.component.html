@@ -16,7 +16,8 @@
       [loading]="loading"
       [responsiveLayout]="'scroll'"
       [globalFilterFields]="['Modelo', 'Marca', 'Placa']"
-      [rowHover]="true">
+      [rowHover]="true"
+      size="small">
     <ng-template pTemplate="header">
         <tr>
             <th>Modelo</th>
@@ -25,13 +26,13 @@
             <th>Ações</th>
         </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-vehicle>
+    <ng-template pTemplate="body" let-vehicle >
         <tr>
             <td>{{ vehicle.nome }}</td>
             <td>{{ vehicle.marca }}</td>
             <td>{{ vehicle.placa }}</td>
             <td>
-                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editVehicle(vehicle)"></button>
+                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editVehicle(vehicle)" size="small"></button>
                 <!-- <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deletevehicle(vehicle)"></button> -->
             </td>
         </tr>
@@ -61,8 +62,9 @@
                 <input id="placa" type="text" pInputText formControlName="placa">
             </div>
         </div>
-        <p-footer>
-            <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
-        </p-footer>
+        <p-footer class="flex justify-end gap-2">
+          <button pButton type="submit" label="Salvar" class="p-button-success" [disabled]="form.invalid"></button>
+          <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="visible=false"></button>
+      </p-footer>
     </form>
 </p-dialog>

@@ -1,0 +1,96 @@
+upload-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.upload-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.upload-section {
+  margin-bottom: 2rem;
+}
+
+.upload-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.upload-loading p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+.pages-section {
+  margin-top: 2rem;
+}
+
+.pages-card {
+  background: #f8f9fa;
+}
+
+.pages-list {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.page-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.page-label {
+  min-width: 100px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0;
+}
+
+.page-input {
+  flex: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .upload-container {
+    padding: 0.5rem;
+  }
+
+  .page-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-label {
+    min-width: auto;
+  }
+
+  .page-input {
+    width: 100%;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons p-button {
+    width: 100%;
+  }
+}

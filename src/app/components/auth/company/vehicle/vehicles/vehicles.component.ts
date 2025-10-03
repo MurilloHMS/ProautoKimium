@@ -72,6 +72,7 @@ export class VehiclesComponent {
     this.dialogTitle = 'Adicionar Veículo';
     this.vehicleToEdit = null;
     this.visible = true;
+    this.form.reset();
   }
 
   saveVehicle(){

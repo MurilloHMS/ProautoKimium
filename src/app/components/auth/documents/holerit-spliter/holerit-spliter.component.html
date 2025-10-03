@@ -1,1 +1,75 @@
-<p>holerit-spliter works!</p>
+<div class="upload-container">
+  <p-toast></p-toast>
+
+  <p-card header="Separador de Holerites" styleClass="upload-card">
+
+    <div class="upload-section">
+      <p-fileUpload
+        name="file"
+        accept="application/pdf"
+        [maxFileSize]="10000000"
+        [auto]="false"
+        [customUpload]="true"
+        (onSelect)="onFileSelect($event)"
+        (onClear)="onClear()"
+        [showUploadButton]="false"
+        [showCancelButton]="true"
+        chooseLabel="Selecionar PDF"
+        [disabled]="isUploading"
+      >
+        <ng-template pTemplate="content">
+          <div *ngIf="isUploading" class="upload-loading">
+            <p-progressSpinner
+              [style]="{ width: '50px', height: '50px' }"
+              strokeWidth="4"
+            ></p-progressSpinner>
+            <p>Uploading and extracting pages...</p>
+          </div>
+        </ng-template>
+      </p-fileUpload>
+    </div>
+
+    <!-- Pages List Section -->
+    <div class="pages-section" *ngIf="pages.length > 0 && !isUploading">
+      <p-card header="Rename Pages" subheader="Document ID: {{ uploadId }}" styleClass="pages-card">
+
+        <div class="pages-list">
+          <div class="page-item" *ngFor="let page of pages; let i = index">
+            <label [for]="'page-' + i" class="page-label">
+              Page {{ i + 1 }}
+            </label>
+            <input
+              pInputText
+              [id]="'page-' + i"
+              type="text"
+              [(ngModel)]="page.name"
+              placeholder="Enter page name"
+              class="page-input"
+            />
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <p-button
+            label="Save Renamed Pages"
+            icon="pi pi-check"
+            (onClick)="saveRenamedPages()"
+            [loading]="isSaving"
+            [disabled]="isSaving"
+            severity="success"
+          ></p-button>
+
+          <p-button
+            label="Reset"
+            icon="pi pi-refresh"
+            (onClick)="resetForm()"
+            severity="secondary"
+            [outlined]="true"
+          ></p-button>
+        </div>
+
+      </p-card>
+    </div>
+
+  </p-card>
+</div>
