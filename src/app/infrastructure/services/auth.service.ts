@@ -3,12 +3,7 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
-
-interface RegisterDTO {
-  login: string;
-  password: string;
-  roles: string[];
-}
+import { UserResponseDTO, RegisterDTO } from '../../domain/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +67,10 @@ export class AuthService {
     return this.http.post<any>(`${environment.apiUrl}/auth/register`, user);
   }
 
+  getUsers(): Observable<UserResponseDTO[]> {
+    return this.http.get<UserResponseDTO[]>(`${environment.apiUrl}/auth/users`);
+  }
+
 
   private decodeToken(): any{
     const token = this.getToken();
@@ -84,3 +83,4 @@ export class AuthService {
     }
   }
 }
+
