@@ -16,7 +16,8 @@
       [loading]="loading"
       [responsiveLayout]="'scroll'"
       [globalFilterFields]="['Modelo', 'Marca', 'Placa']"
-      [rowHover]="true">
+      [rowHover]="true"
+      size="small">
     <ng-template pTemplate="header">
         <tr>
             <th>Modelo</th>
@@ -25,7 +26,7 @@
             <th>Ações</th>
         </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-vehicle>
+    <ng-template pTemplate="body" let-vehicle >
         <tr>
             <td>{{ vehicle.nome }}</td>
             <td>{{ vehicle.marca }}</td>
