@@ -31,7 +31,7 @@
             <td>{{ vehicle.marca }}</td>
             <td>{{ vehicle.placa }}</td>
             <td>
-                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editVehicle(vehicle)"></button>
+                <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editVehicle(vehicle)" size="small"></button>
                 <!-- <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deletevehicle(vehicle)"></button> -->
             </td>
         </tr>
@@ -61,8 +61,9 @@
                 <input id="placa" type="text" pInputText formControlName="placa">
             </div>
         </div>
-        <p-footer>
-            <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
-        </p-footer>
+        <p-footer class="flex justify-end gap-2">
+          <button pButton type="submit" label="Salvar" class="p-button-success" [disabled]="form.invalid"></button>
+          <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="visible=false"></button>
+      </p-footer>
     </form>
 </p-dialog>
