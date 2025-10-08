@@ -82,5 +82,14 @@ export class AuthService {
       return null;
     }
   }
+
+  hasRole(roles: string | string[]): boolean {
+  const userRoles = this.getUserRoles();
+  if (typeof roles === 'string') {
+    return userRoles.includes(roles);
+  }
+  return roles.some(r => userRoles.includes(r));
+}
+
 }
 
