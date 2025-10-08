@@ -105,7 +105,7 @@
       [rowsPerPageOptions]="[10, 25, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-      [globalFilterFields]="['codigoCliente', 'nomeDoCliente', 'emailCliente', 'mes', 'status']"
+      [globalFilterFields]="['codigoCliente', 'nomeCliente', 'email', 'mes', 'status']"
       responsiveLayout="scroll"
       styleClass="p-datatable-sm">
 
@@ -114,11 +114,11 @@
           <th pSortableColumn="codigoCliente">
             Código <p-sortIcon field="codigoCliente"></p-sortIcon>
           </th>
-          <th pSortableColumn="nomeDoCliente">
-            Cliente <p-sortIcon field="nomeDoCliente"></p-sortIcon>
+          <th pSortableColumn="nomeCliente">
+            Cliente <p-sortIcon field="nomeCliente"></p-sortIcon>
           </th>
-          <th pSortableColumn="emailCliente">
-            Email <p-sortIcon field="emailCliente"></p-sortIcon>
+          <th pSortableColumn="email">
+            Email <p-sortIcon field="email"></p-sortIcon>
           </th>
           <th pSortableColumn="data">
             Data <p-sortIcon field="data"></p-sortIcon>
@@ -143,21 +143,21 @@
           <td>
             <span class="font-semibold">{{ newsletter.codigoCliente }}</span>
           </td>
-          <td>{{ newsletter.nomeDoCliente }}</td>
+          <td>{{ newsletter.nomeCliente }}</td>
           <td>
             <i class="pi pi-envelope mr-1 text-sm"></i>
-            {{ newsletter.emailCliente }}
+            {{ newsletter.email }}
           </td>
           <td>{{ formatarData(newsletter.data) }}</td>
           <td>
             <span class="font-medium">{{ newsletter.mes }}</span>
           </td>
-          <td class="text-right">{{ newsletter.quantidadeDeProdutos }}</td>
-          <td class="text-right">{{ newsletter.quantidadeDeLitros | number:'1.2-2' }}</td>
-          <td class="text-right">{{ newsletter.quantidadeDeVisitas }}</td>
+          <td class="text-right">{{ newsletter.quantidadeProdutos }}</td>
+          <td class="text-right">{{ newsletter.quantidadeLitros | number:'1.2-2' }}</td>
+          <td class="text-right">{{ newsletter.quantidadeVisitas }}</td>
           <td class="text-right">{{ newsletter.quantidadeNotasEmitidas }}</td>
           <td class="text-right">{{ formatarMoeda(newsletter.faturamentoTotal) }}</td>
-          <td>{{ newsletter.produtoEmDestaque || '-' }}</td>
+          <td>{{ newsletter.produtoDestaque || '-' }}</td>
           <td>
             <p-tag
               [value]="newsletter.status"
