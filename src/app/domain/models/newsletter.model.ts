@@ -1,19 +1,17 @@
 export interface Newsletter {
-  id?: number;
   codigoCliente: string;
   nomeDoCliente: string;
-  data: string;
+  data: Date;
   mes: string;
-  quantidadeDeProdutos: number;
-  quantidadeDeLitros: number;
-  quantidadeDeVisitas: number;
+  quantidadeProdutos: number;
+  quantidadeLitros: number;
   quantidadeNotasEmitidas: number;
   mediaDiasAtendimento: number;
-  produtoEmDestaque: string;
+  produtoDestaque: string;
   faturamentoTotal: number;
-  valorDePecasTrocadas: number;
+  valorPecasTrocadas: number;
   status: string;
-  emailCliente: string;
+  email: string;
 }
 
 export interface NewsletterResponse {

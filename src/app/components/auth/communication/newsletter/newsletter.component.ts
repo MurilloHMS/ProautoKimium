@@ -15,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-newsletter',
@@ -83,7 +84,7 @@ export class NewsletterComponent implements OnInit {
 
   loadNewsletters(): void {
      this.loading = true;
-    this.http.get<Newsletter[]>('').subscribe({
+    this.http.get<Newsletter[]>(`${environment.apiUrl}/newsletter/pending`).subscribe({
       next: (data) => {
         this.newsletters = data;
         this.loading = false;
@@ -102,13 +103,13 @@ export class NewsletterComponent implements OnInit {
 
   getStatusSeverity(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'ENVIADO':
+      case 'SENT':
         return 'success';
-      case 'PENDENTE':
+      case 'PENDING':
         return 'warning';
-      case 'ERRO':
+      case 'ERROR':
         return 'danger';
-      case 'CANCELADO':
+      case 'CANCELED':
         return 'info';
       default:
         return 'secondary';
