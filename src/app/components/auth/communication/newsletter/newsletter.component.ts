@@ -1,3 +1,4 @@
+import { NewsletterService } from './../../../../infrastructure/services/newsletter/newsletter.service';
 import { Component, OnInit } from '@angular/core';
 import { Newsletter } from '../../../../domain/models/newsletter.model';
 import { HttpClient } from '@angular/common/http';
@@ -43,19 +44,41 @@ export class NewsletterComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private newsletterService: NewsletterService
   ) { }
 
   ngOnInit(): void {
 
   }
 
-  onUpload($event: any) : void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Funcionalidade de exportação em desenvolvimento'
-    });
+  onUpload(event: any) : void {
+    const fileList: File[] = event.files;
+    this.processing = true;
+    this.loading = true;
+
+    if(fileList.length > 0){
+      this.newsletterService.createNewsletters(fileList).subscribe({
+        next: (msg: string) => {
+          this.processing = false;
+          this.loading = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: msg
+          });
+        },
+        error: (err) => {
+          this.loading = false;
+          this.processing = false;
+          this.messageService.add({
+            severity: 'warning',
+            summary: 'Error',
+            detail: err.error || err.message || 'Erro desconhecido'
+          });
+        }
+      });
+    }
   }
 
   loadNewsletters(): void {
