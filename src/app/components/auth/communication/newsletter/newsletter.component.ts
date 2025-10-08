@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
+import { FileUploadModule } from 'primeng/fileupload';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -50,8 +50,12 @@ export class NewsletterComponent implements OnInit {
 
   }
 
-  onUpload($event: FileUploadEvent) {
-    throw new Error('Method not implemented.');
+  onUpload($event: any) : void {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Funcionalidade de exportação em desenvolvimento'
+    });
   }
 
   loadNewsletters(): void {
