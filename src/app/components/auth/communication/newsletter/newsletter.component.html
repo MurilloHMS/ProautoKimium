@@ -1,0 +1,181 @@
+<div class="newsletter-container p-4">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <p-card class="mb-4">
+    <ng-template pTemplate="header">
+      <div class="p-3 border-bottom-1 surface-border">
+        <h2 class="text-2xl font-semibold m-0">
+          <i class="pi pi-cloud-upload mr-2">
+            Upload de Arquivos Excel
+          </i>
+        </h2>
+      </div>
+    </ng-template>
+
+    <div class="upload-section">
+      <div class="grid">
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <div class="upload-box p-3 border-round surface-border border-1">
+            <div class="flex align-items-center justify-content-between mb-3">
+              <h3 class="text-lg font-semibold m-0">
+                <i class="pi pi-box text-blue-500 mr-2">
+                  Notas Fiscais
+                </i>
+              </h3>
+            </div>
+
+            <p-fileUpload
+              #upload
+              name="arquivoNotas"
+              [multiple]="true"
+              [customUpload]="true"
+              (uploadHandler)="onUpload($event)"
+              fileLimit="4"
+              accept=".xlsx"
+              maxFileSize="1000000"
+              mode="advanced"
+              chooseLabel="Selecionar Arquivos"
+              uploadLabel="Enviar"
+              cancelLabel="Cancelar"
+              >
+              <ng-template #empty>
+                <div class="p-d-flex p-ai-center p-jc-center p-4" style="height: 150px; border: 2px dashed #ccc; border-radius: 8px;">
+                  <div class="p-text-center">
+                    <i class="pi pi-upload" style="font-size: 2em; color: #888;"></i>
+                    <p class="p-mt-2" style="color: #888;">Arraste e solte os arquivos aqui ou clique para selecionar</p>
+                    <p style="color: #888; font-size: 0.9em;">(Máx. 4 arquivos .xlsx)</p>
+                  </div>
+                </div>
+              </ng-template>
+            </p-fileUpload>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="processing" class="mt-4 text-center">
+        <p-progressSpinner
+          [style]="{width: '50px', height: '50px'}"
+          strokeWidth="4">
+        </p-progressSpinner>
+        <p class="mt-2 text-lg font-medium text-primary">
+          Processando arquivos... Por favor, aguarde.
+        </p>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <p-toolbar styleClass="border-none p-3">
+        <ng-template pTemplate="left">
+          <h2 class="text-2xl font-semibold m-0">
+            <i class="pi pi-list mr-2"></i>
+            Newsletters Geradas
+          </h2>
+        </ng-template>
+
+        <ng-template pTemplate="right">
+          <button
+            pButton
+            type="button"
+            label="Atualizar"
+            icon="pi pi-refresh"
+            class="p-button-outlined mr-2"
+            (click)="loadNewsletters()"
+            [loading]="loading">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Exportar"
+            icon="pi pi-download"
+            class="p-button-outlined p-button-success"
+            (click)="exportarExcel()">
+          </button>
+        </ng-template>
+      </p-toolbar>
+    </ng-template>
+
+    <p-table
+      [value]="newsletters"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [globalFilterFields]="['codigoCliente', 'nomeDoCliente', 'emailCliente', 'mes', 'status']"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="codigoCliente">
+            Código <p-sortIcon field="codigoCliente"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nomeDoCliente">
+            Cliente <p-sortIcon field="nomeDoCliente"></p-sortIcon>
+          </th>
+          <th pSortableColumn="emailCliente">
+            Email <p-sortIcon field="emailCliente"></p-sortIcon>
+          </th>
+          <th pSortableColumn="data">
+            Data <p-sortIcon field="data"></p-sortIcon>
+          </th>
+          <th pSortableColumn="mes">
+            Mês <p-sortIcon field="mes"></p-sortIcon>
+          </th>
+          <th class="text-right">Produtos</th>
+          <th class="text-right">Litros</th>
+          <th class="text-right">Visitas</th>
+          <th class="text-right">Notas</th>
+          <th class="text-right">Faturamento</th>
+          <th>Produto Destaque</th>
+          <th pSortableColumn="status">
+            Status <p-sortIcon field="status"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-newsletter>
+        <tr>
+          <td>
+            <span class="font-semibold">{{ newsletter.codigoCliente }}</span>
+          </td>
+          <td>{{ newsletter.nomeDoCliente }}</td>
+          <td>
+            <i class="pi pi-envelope mr-1 text-sm"></i>
+            {{ newsletter.emailCliente }}
+          </td>
+          <td>{{ formatarData(newsletter.data) }}</td>
+          <td>
+            <span class="font-medium">{{ newsletter.mes }}</span>
+          </td>
+          <td class="text-right">{{ newsletter.quantidadeDeProdutos }}</td>
+          <td class="text-right">{{ newsletter.quantidadeDeLitros | number:'1.2-2' }}</td>
+          <td class="text-right">{{ newsletter.quantidadeDeVisitas }}</td>
+          <td class="text-right">{{ newsletter.quantidadeNotasEmitidas }}</td>
+          <td class="text-right">{{ formatarMoeda(newsletter.faturamentoTotal) }}</td>
+          <td>{{ newsletter.produtoEmDestaque || '-' }}</td>
+          <td>
+            <p-tag
+              [value]="newsletter.status"
+              [severity]="getStatusSeverity(newsletter.status)">
+            </p-tag>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="12" class="text-center p-5">
+            <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
+            <p class="text-lg text-600">Nenhuma newsletter encontrada</p>
+            <p class="text-sm text-500">Faça o upload dos arquivos Excel para processar newsletters</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+

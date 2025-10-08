@@ -1,0 +1,116 @@
+@use '../../../../../styles/variables.scss' as *;
+
+.newsletter-container {
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header-section{
+    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .upload-section{
+    .upload-box {
+      // background: $tertiary-color;
+      transition: all .3s ease;
+      height: 100%;
+
+      &:hover{
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      h3 {
+        color: $primary-color;;
+      }
+
+      ::ng-deep {
+        .p-fileupload-choose{
+          width: 100%;
+        }
+
+        .p-button{
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  ::ng-deep {
+    .p-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+
+      .p-card-header {
+        background: $tertiary-color;
+        border-bottom: 1px solid var(--surface-border);
+      }
+
+      .p-card-body {
+        padding: 1.5rem;
+      }
+    }
+
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background: var(--surface-100);
+        font-weight: 600;
+        padding: 1rem;
+      }
+
+      .p-datatable-tbody > tr {
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: var(--surface-50);
+        }
+
+        > td {
+          padding: 0.75rem 1rem;
+        }
+      }
+    }
+
+     .p-tag {
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+    }
+
+    .p-toolbar {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .p-progressspinner {
+      margin: 0 auto;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .newsletter-container {
+    padding: 1rem;
+
+    .header-section {
+      padding: 1.5rem;
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      p {
+        font-size: 0.95rem;
+      }
+    }
+
+    .upload-box {
+      margin-bottom: 1rem;
+    }
+  }
+}

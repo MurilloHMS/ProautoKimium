@@ -27,6 +27,7 @@ import { StockControlComponent } from './components/auth/company/products/invent
 import { PublicGuard } from './infrastructure/guard/public/public.guard';
 import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/vehicles.component';
 import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
+import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 
 
 export const routes: Routes = [
@@ -62,7 +63,9 @@ export const routes: Routes = [
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
-        {path: 'company/vehicle', component: VehiclesComponent, data: {roles: ['ADMIN','COMPRADOR']}}
+        {path: 'company/vehicle', component: VehiclesComponent, data: {roles: ['ADMIN','COMPRADOR']}},
+        {path: '', redirectTo: 'home', pathMatch: 'full'},
+        {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}},
       ]
     },
     {
