@@ -82,6 +82,30 @@ export class NewsletterComponent implements OnInit {
     }
   }
 
+  sendPendingNewsletters(): void {
+    this.loading = true;
+    this.newsletterService.sendPendingNewsletters().subscribe({
+      next: (msg: string) => {
+        this.processing = false;
+        this.loading = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: msg
+        });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.processing = false;
+        this.messageService.add({
+          severity: 'warning',
+          summary: 'Error',
+          detail: err.error || err.message || 'Erro desconhecido'
+        });
+      }
+    });
+  }
+
   loadNewsletters(): void {
      this.loading = true;
     this.http.get<Newsletter[]>(`${environment.apiUrl}/newsletter/pending`).subscribe({
@@ -129,11 +153,4 @@ export class NewsletterComponent implements OnInit {
     return new Intl.DateTimeFormat('pt-BR').format(date);
   }
 
-  exportarExcel(): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Funcionalidade de exportação em desenvolvimento'
-    });
-  }
 }
