@@ -16,6 +16,6 @@ export class NewsletterService {
   }
 
   sendPendingNewsletters(){
-    return this.http.post(`${environment.apiUrl}/pending/send`, "", {responseType: 'text'});
+    return this.http.post(`${environment.apiUrl}/newsletter/pending/send`, "", {responseType: 'text'});
   }
 }
