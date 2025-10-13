@@ -1,1 +1,226 @@
-<p>employes works!</p>
+<p-toolbar class="thin-toolbar">
+  <div class="p-toolbar-group-start">
+    <p-button icon="pi pi-refresh" class="mr-2" (click)="loadEmployes()"></p-button>
+    &nbsp;&nbsp;
+    <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()"></p-button>
+  </div>
+</p-toolbar>
+
+<div class="card">
+  <p-table
+    #dt1
+    [value]="employes"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5,10,20]"
+    [loading]="loading"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['name', 'email.address', 'hierarchy']"
+    [rowHover]="true">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Cód Parceiro</th>
+        <th>CPF</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Ativo</th>
+        <th>Cód Gerente</th>
+        <th>Hierarquia</th>
+        <th>Aniversário</th>
+        <th>Editar</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-e>
+      <tr>
+        <td>{{ e.partnerCode }}</td>
+        <td>{{ e.document }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.email }}</td>
+        <td>
+            <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': e.ativo, 'text-red-500 pi-times-circle': !e.ativo}"></i>
+        </td>
+        <td>{{ e.managerCode }}</td>
+        <td>{{ e.hierarchy }}</td>
+        <td>{{ e.birthday }}</td>
+        <td>
+          <button pButton type="button" icon="pi pi-pencil" class="p-button-rounded p-button-info p-mr-2" (click)="editEmploye(e)"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4">Nenhum Funcionário encontrado.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  header="Adicionar Funcionário"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [style]="{width: '50vw'}"
+  [breakpoints]="{'960px': '75vw', '640px': '90vw'}">
+
+  <ng-template pTemplate="header">
+    <div class="flex align-items-center gap-2">
+      <i class="pi pi-user-plus text-primary"></i>
+      <span class="font-semibold text-xl">
+        {{ employeToEdit ? 'Editar Funcionário' : 'Adicionar Funcionário' }}
+      </span>
+    </div>
+  </ng-template>
+
+  <div class="mb-4">
+    <p class="text-600 line-height-3 m-0">
+      Preencha os dados do funcionário abaixo
+    </p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="flex flex-column gap-4">
+
+      <div class="flex flex-column gap-2">
+        <label for="partnerCode" class="font-semibold text-900">
+          Código Parceiro
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="partnerCode"
+          type="text"
+          pInputText
+          formControlName="partnerCode"
+          [readOnly]="employeToEdit !== null"
+          placeholder="Digite o código do parceiro"
+          class="w-full" />
+        <small
+          *ngIf="form.get('partnerCode')?.invalid && form.get('partnerCode')?.touched"
+          class="text-red-500">
+          Campo obrigatório
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="document" class="font-semibold text-900">
+          CPF
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="document"
+          type="text"
+          pInputText
+          formControlName="document"
+          placeholder="000.000.000-00"
+          class="w-full" />
+        <small
+          *ngIf="form.get('document')?.invalid && form.get('document')?.touched"
+          class="text-red-500">
+          CPF inválido
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="hierarchy" class="font-semibold text-900">Hierarquia</label>
+        <span class="text-red-500">*</span>
+        <p-select
+          id="hierarchy"
+          [options]="hierarchyList"
+          formControlName="hierarchy"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione uma hierarquia"
+          class="w-full md:w-56">
+        </p-select>
+      <small
+          *ngIf="form.get('hierarchy')?.invalid && form.get('hierarchy')?.touched"
+          class="text-red-500">
+          Campo obrigatório
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="name" class="font-semibold text-900">
+          Nome Completo
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          formControlName="name"
+          placeholder="Digite o nome completo"
+          class="w-full" />
+        <small
+          *ngIf="form.get('name')?.invalid && form.get('name')?.touched"
+          class="text-red-500">
+          Campo obrigatório
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label for="email" class="font-semibold text-900">
+          E-mail
+          <span class="text-red-500">*</span>
+        </label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="exemplo@email.com"
+          class="w-full" />
+        <small
+          *ngIf="form.get('email')?.invalid && form.get('email')?.touched"
+          class="text-red-500">
+          E-mail inválido
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label class="font-semibold text-900">Status</label>
+        <div class="flex align-items-center gap-2">
+          <p-checkbox
+            inputId="ativo"
+            formControlName="ativo"
+            binary="true">
+          </p-checkbox>
+          <label for="ativo" class="cursor-pointer">
+            Funcionário ativo
+          </label>
+        </div>
+      </div>
+
+      <div class="flex flex-column gap-2">
+        <label class="font-semibold text-900">Aniversário</label>
+        <div class="flex align-items-center gap-2">
+          <p-datepicker formControlName="birthday" [showButtonBar]="true" [dateFormat]="'dd/mm/yy'"/>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2 justify-content-end">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        (click)="visible = false"
+        [text]="true"
+        severity="secondary"
+        [size]="'small'">
+      </p-button>
+      <p-button
+        label="Salvar"
+        icon="pi pi-check"
+        (click)="save()"
+        [disabled]="form.invalid"
+        severity="success"
+        [size]="'small'">
+      </p-button>
+    </div>
+  </ng-template>
+
+</p-dialog>
