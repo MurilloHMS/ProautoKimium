@@ -1,4 +1,4 @@
-@use '../../../../styles/variables.scss';
+@use '../../../../../../styles/variables.scss';
 
 /* ===== Reset básico ===== */
 h1, h2, h3, h4, h5, h6 {
@@ -29,22 +29,17 @@ img {
   height: auto;
 }
 
-section {
-  padding: 60px 0;
-}
-
 /* ===== About Section ===== */
 .about-section {
   position: relative;
-  padding: 120px 0;
+  padding: 40px 0;
 
   .content-column {
     position: relative;
-    margin-bottom: 40px;
 
     .inner-column {
       position: relative;
-      padding: 50px 0 100px 0;
+      padding: 10px 0 100px 0;
 
       .text {
         color: #777777;
