@@ -1,0 +1,16 @@
+.toolbar-home{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 50px;
+}
+
+.logo img{
+  height: 35px;
+}
+
+@media (max-width: 480px) {
+    .logo img {
+        height: 30px;
+    }
+}
