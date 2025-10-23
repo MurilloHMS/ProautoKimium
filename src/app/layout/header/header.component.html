@@ -1,7 +1,7 @@
 <header class="header">
-  <div class="logo">
+  <!-- <div class="logo">
     <img src="assets/images/logo-proauto.png" alt="Logo da Empresa">
-  </div>
+  </div> -->
 
   <button class="menu-toggle" (click)="toggleMenu()">
     ☰
@@ -9,7 +9,7 @@
 
   <nav class="menu" [class.active]="menuAberto">
     <ul>
-      <li><a routerLink="">Início</a></li>
+      <li><a href="#home" fragment="home">Início</a></li>
       <li><a routerLink="produtos/lista">Produtos</a></li>
       <li><a href="#about-us">Sobre nós</a></li>
   </ul>
@@ -18,10 +18,10 @@
 <div>
   <ul class="grp-menu">
     <li class="carrinho-container">
-      <a routerLink="login">
+      <!-- <a routerLink="login">
         <i class="fa fa-sign-in"></i>
       </a>
-      &nbsp;
+      &nbsp; -->
       <a routerLink="carrinho">
         <i class="fas fa-shopping-cart"></i>
         @if (quantidadeProdutos > 0) {

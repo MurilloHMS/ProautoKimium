@@ -27,6 +27,7 @@ import { PublicGuard } from './infrastructure/guard/public/public.guard';
 import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/vehicles.component';
 import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
+import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 
 
 export const routes: Routes = [
@@ -71,13 +72,17 @@ export const routes: Routes = [
       component: NoHeaderLayoutComponent,
       children: [
         { path: 'login', component: LoginComponent, pathMatch: 'full'},
+        { path: 'client-login', component: ClientLoginComponent, pathMatch: 'full'}
       ]
     },
     { path: '**', redirectTo: '404'}
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [RouterModule.forRoot(routes, {
+      scrollPositionRestoration: 'enabled',
+      anchorScrolling: 'enabled'
+    })],
     exports: [RouterModule],
 })
 

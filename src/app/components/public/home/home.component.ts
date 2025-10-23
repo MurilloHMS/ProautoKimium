@@ -5,10 +5,11 @@ import { MotivosContratarComponent } from "./components/motivos-contratar/motivo
 import { ServicosOfertadosComponent } from "./components/servicos-ofertados/servicos-ofertados.component";
 import { DuvidasComponent } from "./components/duvidas/duvidas.component";
 import { AboutUsComponent } from "./components/about-us/about-us.component";
+import { ToolbarComponent } from "./components/toolbar/toolbar.component";
 
 @Component({
     selector: 'app-home',
-    imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, AboutUsComponent],
+    imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, AboutUsComponent, ToolbarComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
