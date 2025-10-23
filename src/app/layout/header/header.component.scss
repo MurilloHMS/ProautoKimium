@@ -2,46 +2,45 @@
 
 .header{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
     gap: 20px;
-    padding: 10px 20px;
+    padding: 8px 20px;
     position: fixed;
-    top: 11px;  
-    left: 0;
-    right: 0;
-    width: calc(100% - 20px);
-    margin: 0 10px;
-    height: 60px;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90%, 350px);
+    max-width: 350px;
+    height: 50px;
     border-radius: 50px;
     z-index: 1000;
     background: rgba(255,255,255,0.75);
     backdrop-filter: blur(10px);
-    --webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255,255,255,0.3);
     animation: slideDown .9s ease-in-out;
 }
 
-
 @keyframes slideDown{
     from{
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translate(-50%, -20px);
     }
-
     to{
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, 0);
     }
 }
 
 .content {
-    margin-top: 60px; 
+    margin-top: 100px;
 }
 
 .logo img{
-    height: 35px;
+    height: 30px;
+    transition: height 0.3s ease;
 }
 
 .menu ul{
@@ -50,10 +49,11 @@
     margin: 0;
     padding: 0;
     align-items: center;
+    gap: 10px;
 }
 
 .menu li{
-    margin: 0 15px;
+    margin: 0;
     position: relative;
 }
 
@@ -62,8 +62,10 @@
     font-weight: 400;
     transition: color .3s;
     color: variables.$text-primary-color;
-    padding: 8px 15px;
+    padding: 6px 12px;
     position: relative;
+    display: block;
+    font-size: 0.9rem;
 }
 
 .menu a::before{
@@ -75,15 +77,12 @@
     left: 0;
     background-color: variables.$primary-color;
     visibility: hidden;
-    -webkit-transform: scaleX(0);
     transform: scaleX(0);
-    -webkit-transition: all 0.5s ease-in-out 0s;
     transition: all 0.5s ease-in-out 0s;
 }
 
 .menu a:hover::before{
     visibility: visible;
-    -webkit-transform: scaleX(1);
     transform: scaleX(1);
 }
 
@@ -93,15 +92,17 @@
     margin: 0;
     padding: 0;
     align-items: center;
+    gap: 15px;
 }
 
 .grp-menu li{
-    margin: 0 10px;
+    margin: 0;
 }
 
 .grp-menu a{
-    font-size: 1rem;
-    color: variables.$secondary-color
+    font-size: 1.1rem;
+    color: variables.$secondary-color;
+    transition: color 0.3s ease;
 }
 
 .grp-menu a:hover{
@@ -111,23 +112,26 @@
 
 .carrinho-container {
     position: relative;
-    display: inline-block;   
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .badge {
     position: absolute;
-    top: -5px;
-    right: -10px;
-    background: red;
+    top: -8px;
+    right: -8px;
+    background: variables.$primary-color;
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: bold;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     display: flex;
     justify-content: center;
     align-items: center;
+    border: 2px solid white;
 }
 
 .menu-toggle {
@@ -136,6 +140,13 @@
     background: none;
     border: none;
     cursor: pointer;
+    color: variables.$text-primary-color;
+    padding: 5px;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle:hover {
+    transform: scale(1.1);
 }
 
 .nav-item{
@@ -147,15 +158,17 @@
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     min-width: 200px;
     z-index: 999;
     opacity: 0;
     transform: translateY(10px);
-    transform: all .3s ease;
-    border-radius: 10px;
-    padding: 5px 0;
+    transition: all .3s ease;
+    border-radius: 15px;
+    padding: 8px 0;
+    border: 1px solid rgba(255,255,255,0.3);
 }
 
 .nav-item:hover .dropdown-menu {
@@ -165,40 +178,87 @@
 }
 
 .dropdown-item {
-    padding: 10px 20px;
-    color: black;
+    padding: 12px 20px;
+    color: variables.$text-primary-color;
     text-decoration: none;
     display: block;
     transition: background 0.3s;
 }
 
 .dropdown-item:hover {
-    background-color: #f0f0f0;
+    background-color: rgba(0,0,0,0.05);
 }
 
+// Tablet
+@media (max-width: 992px) {
+    .header {
+        width: min(95%, 900px);
+        padding: 10px 20px;
+    }
+
+    .menu ul {
+        gap: 5px;
+    }
+
+    .menu a {
+        padding: 8px 12px;
+        font-size: 0.95rem;
+    }
+}
+
+// Mobile
 @media (max-width: 768px) {
     .header {
-        padding: 10px;
+        width: calc(100% - 20px);
+        padding: 10px 15px;
+        justify-content: space-between;
+    }
+
+    .logo img {
+        height: 30px;
     }
 
     .menu {
-        position: absolute;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        background: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        top: 85px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 20px);
+        max-width: 500px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 25px;
+        border: 1px solid rgba(255,255,255,0.3);
         display: none;
         flex-direction: column;
         text-align: center;
-        padding: 15px 0;
+        padding: 20px 0;
+        animation: slideDownMenu 0.3s ease-in-out;
 
         ul {
             flex-direction: column;
+            gap: 0;
         }
 
         li {
-            margin: 10px 0;
+            width: 100%;
+            margin: 0;
+        }
+
+        a {
+            width: 100%;
+            padding: 15px 20px;
+        }
+
+        a::before {
+            display: none;
+        }
+
+        a:hover {
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 10px;
         }
     }
 
@@ -208,22 +268,53 @@
 
     .menu-toggle {
         display: block;
-        cursor: pointer;
     }
 
     .grp-menu {
-        flex-direction: column;
-        align-items: center;
+        gap: 12px;
+    }
+
+    .grp-menu a {
+        font-size: 1rem;
     }
 }
 
+@keyframes slideDownMenu {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+// Mobile pequeno
 @media (max-width: 480px) {
     .header {
-        flex-direction: row;
-        justify-content: space-between;
+        width: calc(100% - 20px);
+        padding: 8px 12px;
+        height: 55px;
     }
 
     .logo img {
-        height: 30px;
+        height: 28px;
+    }
+
+    .menu {
+        top: 80px;
+    }
+
+    .grp-menu a {
+        font-size: 0.95rem;
+    }
+
+    .badge {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        top: -6px;
+        right: -6px;
     }
 }
