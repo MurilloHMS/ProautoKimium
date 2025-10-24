@@ -28,6 +28,7 @@ import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/ve
 import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
+import { BrandingComponent } from './components/public/branding/branding.component';
 
 
 export const routes: Routes = [
@@ -44,6 +45,7 @@ export const routes: Routes = [
         { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full'},
         { path: 'support/faq', component: FaqComponent, pathMatch: 'full'},
         { path: 'profile', component: SellerComponent, pathMatch: 'full'},
+        { path: 'branding', component: BrandingComponent, pathMatch: 'full'}
       ]
     },
     {
