@@ -1,0 +1,393 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+.branding-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f9fafb, #eff6ff);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.header {
+  background: linear-gradient(to right, #232e61, #3e4b85);
+  color: white;
+  padding: 4.5rem 1.5rem;
+}
+
+.header-content {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.header-title {
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 1rem 0;
+}
+
+.header-subtitle {
+  text-align: center;
+  color: #bfdbfe;
+  font-size: 1.125rem;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.container {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  margin-bottom: 2rem;
+}
+
+.intro-card {
+  padding: 3rem;
+}
+
+.intro-text {
+  color: #374151;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  color: #374151;
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.check-icon {
+  color: #57c1ab;
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  font-weight: bold;
+}
+
+.alert {
+  margin-top: 2rem;
+  background: #fef2f2;
+  border-left: 4px solid #ef4444;
+  padding: 1.5rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.alert-icon {
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.alert-title {
+  font-weight: 700;
+  color: #991b1b;
+  margin: 0 0 0.5rem 0;
+}
+
+.alert-text {
+  color: #b91c1c;
+  margin: 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.section-icon {
+  color: #232e61;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #232e61;
+  margin: 0;
+}
+
+.section-description {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.logo-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  background: #f9fafb;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.logo-card {
+  text-align: center;
+  cursor: pointer;
+}
+
+.logo-wrapper {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.logo-wrapper:hover {
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.logo-image {
+  width: 8rem;
+  height: auto;
+  display: block;
+}
+
+.logo-image-wide {
+  width: 10rem;
+}
+
+.logo-card a {
+  text-decoration: none;
+}
+
+.logo-label {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.color-section {
+  margin-bottom: 3rem;
+}
+
+.color-section {
+  margin-bottom: 3rem;
+}
+
+.color-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #232e61;
+  margin: 0 0 1.5rem 0;
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 1.5rem;
+}
+
+.color-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.color-box {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.color-card:hover .color-box {
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+}
+
+.color-hex {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.color-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+}
+
+.color-reason {
+  font-size: 0.75rem;
+  color: #dc2626;
+  text-align: center;
+  margin: 0.25rem 0 0 0;
+}
+
+.avoid-section {
+  background: #fef2f2;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.avoid-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #dc2626;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.avoid-icon {
+  margin-right: 0.5rem;
+}
+
+.avoid-description {
+  color: #374151;
+}
+
+.typography-box {
+  background: linear-gradient(to bottom right, #232e61, #3e4b85);
+  border-radius: 1rem;
+  padding: 2rem;
+  color: white;
+}
+
+.typography-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.typography-subtitle {
+  color: #f1f2f4;
+  margin-bottom: 1.5rem;
+}
+
+.typography-weights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.weight-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.weight-semibold {
+  font-weight: 600;
+}
+
+.weight-bold {
+  font-weight: 700;
+}
+
+.typography-note {
+  font-size: 0.875rem;
+  color: #f1f2f4;
+  margin-bottom: 1rem;
+}
+
+.download-button {
+  display: inline-flex;
+  align-items: center;
+  background: #57c1ab;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+
+.download-button:hover {
+  background: #3e9e8e;
+}
+
+.download-button svg {
+  margin-right: 0.5rem;
+}
+
+.footer {
+  background: #232e61;
+  color: white;
+  padding: 2rem 1.5rem;
+  margin-top: 3rem;
+}
+
+.footer-content {
+  max-width: 72rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-text {
+  color: #f1f2f4;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .color-grid {
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+    gap: 1rem;
+  }
+
+  .color-box {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .logo-image {
+    width: 6rem;
+  }
+
+  .logo-image-wide {
+    width: 8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    padding: 1.5rem 1rem;
+  }
+
+  .typography-title {
+    font-size: 1.75rem;
+  }
+}

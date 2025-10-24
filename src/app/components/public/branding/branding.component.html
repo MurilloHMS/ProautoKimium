@@ -1,0 +1,178 @@
+<div class="branding-page">
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">Identidade Visual Proauto</h1>
+      <p class="header-subtitle">
+        Conheça os elementos visuais que definem nossa marca
+      </p>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="card intro-card">
+      <p class="intro-text">
+        Estamos passando por uma consultoria de imagem com o objetivo de fortalecer a presença da nossa marca no mercado.
+        Como parte desse processo, padronizamos a nossa <strong>Identidade visual</strong>, definindo:
+      </p>
+      <ul class="feature-list">
+        <li class="feature-item">
+          <span class="check-icon">✓</span>
+          <span>Logotipos Oficiais</span>
+        </li>
+        <li class="feature-item">
+          <span class="check-icon">✓</span>
+          <span>Paleta de cores institucional</span>
+        </li>
+        <li class="feature-item">
+          <span class="check-icon">✓</span>
+          <span>Tipografias padronizadas</span>
+        </li>
+      </ul>
+      <p class="intro-text">
+        A partir de agora, o uso correto desses elementos será essencial em todos os materiais da empresa —
+        especialmente nos que têm contato direto com clientes e parceiros.
+      </p>
+
+      <div class="alert">
+        <svg class="alert-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div>
+          <p class="alert-title">Importante:</p>
+          <p class="alert-text">
+            O uso de logos, cores ou fontes fora do padrão <strong>não será mais permitido.</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <svg class="section-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <h2 class="section-title">Logotipos Oficiais</h2>
+      </div>
+      <p class="section-description">Clique nas imagens para fazer o download</p>
+      <div class="logo-container">
+        <div class="logo-card">
+          <a href="assets/images/logo.png" download="logo.png">
+            <div class="logo-wrapper">
+              <img src="assets/images/logo.png" alt="Logo Proauto" class="logo-image" />
+            </div>
+          </a>
+          <p class="logo-label">Logo Principal</p>
+        </div>
+        <div class="logo-card">
+          <a href="assets/images/logo-proauto.png" download="logo-proauto.png">
+            <div class="logo-wrapper">
+              <img src="assets/images/logo-proauto.png" alt="Logo Proauto com nome" class="logo-image logo-image-wide" />
+            </div>
+          </a>
+          <p class="logo-label">Logo com Nome</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <svg class="section-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="13.5" cy="6.5" r=".5"></circle>
+          <circle cx="17.5" cy="10.5" r=".5"></circle>
+          <circle cx="8.5" cy="7.5" r=".5"></circle>
+          <circle cx="6.5" cy="12.5" r=".5"></circle>
+          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+        </svg>
+        <h2 class="section-title">Paleta de Cores</h2>
+      </div>
+
+      <div class="color-section">
+        <h3 class="color-section-title">Cores Principais</h3>
+        <p class="section-description">Cores primárias da nossa identidade visual</p>
+        <div class="color-grid">
+          <div *ngFor="let color of mainColors" class="color-card">
+            <div class="color-box" [style.background-color]="color.hex"></div>
+            <p class="color-hex">{{ color.hex }}</p>
+            <p class="color-name">{{ color.name }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="color-section">
+        <h3 class="color-section-title">Cores de Apoio</h3>
+        <p class="section-description">Cores complementares para uso secundário</p>
+        <div class="color-grid">
+          <div *ngFor="let color of supportColors" class="color-card">
+            <div class="color-box" [style.background-color]="color.hex"></div>
+            <p class="color-hex">{{ color.hex }}</p>
+            <p class="color-name">{{ color.name }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="avoid-section">
+        <h3 class="avoid-title">
+          <span class="avoid-icon">✖</span> Cores a Evitar
+        </h3>
+        <p class="section-description avoid-description">
+          Estas cores não devem ser utilizadas na identidade visual
+        </p>
+        <div class="color-grid">
+          <div *ngFor="let color of avoidColors" class="color-card">
+            <div class="color-box" [style.background-color]="color.hex"></div>
+            <p class="color-hex">{{ color.hex }}</p>
+            <p class="color-name">{{ color.name }}</p>
+            <p *ngIf="color.reason" class="color-reason">{{ color.reason }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-header">
+        <svg class="section-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 7 4 4 20 4 20 7"></polyline>
+          <line x1="9" y1="20" x2="15" y2="20"></line>
+          <line x1="12" y1="4" x2="12" y2="20"></line>
+        </svg>
+        <h2 class="section-title">Tipografia</h2>
+      </div>
+      <div class="typography-box">
+        <h3 class="typography-title">Montserrat</h3>
+        <p class="typography-subtitle">Fonte oficial da marca Proauto</p>
+        <div class="typography-weights">
+          <span class="weight-badge">Regular</span>
+          <span class="weight-badge weight-semibold">SemiBold</span>
+          <span class="weight-badge weight-bold">Bold</span>
+        </div>
+        <p class="typography-note">
+          Caso não consiga instalar, utilize a fonte <strong>Arial</strong> como alternativa padrão.
+        </p>
+        <a
+          href="https://fonts.google.com/specimen/Montserrat"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="download-button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Baixar Fonte Montserrat
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <p class="footer-text">
+        Para dúvidas sobre a identidade visual, entre em contato com o departamento de marketing.
+      </p>
+    </div>
+  </footer>
+</div>
