@@ -1,47 +1,76 @@
 <main>
-  <section class="menu-categorias">
-    <h2>Navegue por Categorias</h2>
-    <div class="itens-categorias">
+  <aside class="menu-categorias">
+    <div class="menu-header">
+      <h2>Categorias</h2>
+      <span class="menu-badge">{{ categorias.length }}</span>
+    </div>
+    <nav class="categorias-nav">
       @for (categoria of categorias; track categoria) {
-        <div class="categoria">
-          <h3>{{ categoria.nome }}</h3>
-          <ul>
+        <div class="categoria-item">
+          <h3 class="categoria-titulo">{{ categoria.nome }}</h3>
+          <ul class="categoria-lista">
             @for (item of categoria.produtos; track item) {
               <li>
-                <a [href]="'/produtos/lista/#' + item.id">{{ item.nome }}</a>
+                <a [href]="'/produtos/lista/#' + item.id" class="categoria-link">
+                  <span class="link-icon">→</span>
+                  <span class="link-text">{{ item.nome }}</span>
+                </a>
               </li>
             }
           </ul>
         </div>
       }
-    </div>
-  </section>
+    </nav>
+  </aside>
+
   <section class="produtos-container">
     @for (categoriaKey of produtosKeys; track categoriaKey) {
-      <section class="categoria-produtos" id="{{ categoriaKey }}">
-        <h2>{{ categoriaKey | titlecase}}</h2>
-        <div class="produtos-lista">
+      <section class="categoria-section" id="{{ categoriaKey }}">
+        <div class="section-header">
+          <h2>{{ categoriaKey | titlecase}}</h2>
+          <span class="produtos-count">{{ produtos[categoriaKey].length }} produtos</span>
+        </div>
+
+        <div class="produtos-grid">
           @for (produto of produtos[categoriaKey]; track produto) {
-            <div class="produto-card">
-              <div class="imageBox">
+            <article class="produto-card">
+              <div class="produto-image-wrapper">
                 <img src="../../../assets/images/{{ produto.imagem }}" alt="{{ produto.titulo }}" loading="lazy">
+                <div class="image-overlay">
+                  <span class="quick-view">Ver detalhes</span>
+                </div>
               </div>
-              <div class="title">
-                <h1>{{ produto.titulo }}</h1>
+
+              <div class="produto-info">
+                <h3 class="produto-titulo">{{ produto.titulo }}</h3>
+
+                <div class="produto-detalhes">
+                  <div class="detalhe-item">
+                    <span class="detalhe-label">Produto:</span>
+                    <span class="detalhe-valor">{{ produto.descricao }}</span>
+                  </div>
+                  <div class="detalhe-item">
+                    <span class="detalhe-label">Cor:</span>
+                    <span class="detalhe-valor">{{ produto.cor }}</span>
+                  </div>
+                  <div class="detalhe-item">
+                    <span class="detalhe-label">Diluição:</span>
+                    <span class="detalhe-valor">{{ produto.diluicao }}</span>
+                  </div>
+                </div>
               </div>
-              <div class="content">
-                <p><b>Produto: </b>{{ produto.descricao }}</p>
-                <p><b>Cor: </b>{{ produto.cor }}</p>
-                <p><b>Diluição:</b> {{ produto.diluicao }}</p>
+
+              <div class="produto-actions">
+                <button class="btn-adicionar" (click)="adicionarAoCarrinho(produto)">
+                  <span class="btn-icon">🛒</span>
+                  <span class="btn-text">Adicionar ao Carrinho</span>
+                </button>
               </div>
-              <div class="actions">
-                <button (click)="adicionarAoCarrinho(produto)">Adicionar ao Carrinho</button>
-              </div>
-            </div>
+            </article>
           }
         </div>
-        <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar"></app-snackbar>
       </section>
     }
+    <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar"></app-snackbar>
   </section>
 </main>
