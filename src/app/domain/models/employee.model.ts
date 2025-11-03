@@ -6,7 +6,8 @@ export interface Employee{
   ativo: boolean,
   managerCode: string,
   hierarchy: Hierarchy,
-  birthday: Date
+  birthday: Date,
+  department: Department
 }
 
 export enum Hierarchy{
@@ -17,4 +18,18 @@ export enum Hierarchy{
   COORDENADOR,
   ANALISTA,
   ASSISTENTE
+}
+
+export enum Department {
+	RESTAURANTES,
+	AUTOMOTIVO,
+	ALIMENTOS,
+	SUL,
+	EQUIPAMENTOS,
+	LAVANDERIA,
+	MOTORISTA,
+	MANUTENCAO,
+	DISTRIBUIDORES,
+	ADMINISTRATIVO,
+	PRODUCAO
 }
