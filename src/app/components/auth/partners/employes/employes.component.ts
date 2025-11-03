@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Employee, Hierarchy } from '../../../../domain/models/employee.model';
+import { Department, Employee, Hierarchy } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
@@ -32,6 +32,7 @@ export class EmployesComponent{
   dialogTitle: string = 'Adicionar Funcionário';
   employeToEdit: Employee | null = null;
   hierarchyList: {label: string, value: Hierarchy} [] = []
+  departmentList: {label: string, value: Department} [] = []
 
   constructor(
     private employeService: EmployeeService,
@@ -46,12 +47,14 @@ export class EmployesComponent{
       ativo: [true, Validators.required],
       managerCode: [''],
       hierarchy: [Hierarchy.ASSISTENTE, Validators.required],
-      birthday: [null]
+      birthday: [null],
+      department: [Department.ALIMENTOS, Validators.required]
     });
   }
 
   ngOnInit(){
     this.loadHierarchyList();
+    this.loadDepartmentList();
   }
 
   loadHierarchyList(){
@@ -60,6 +63,15 @@ export class EmployesComponent{
       .map(key => ({
         label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
         value: Hierarchy[key as keyof typeof Hierarchy]
+      }));
+  }
+
+  loadDepartmentList(){
+    this.departmentList = Object.keys(Department)
+      .filter(key => isNaN(Number(key)))
+      .map(key => ({
+        label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
+        value: Department[key as keyof typeof Department]
       }));
   }
 
@@ -109,11 +121,16 @@ export class EmployesComponent{
     this.visible = true;
   }
 
-  //TODO: Fix employee ativo null error
   save(){
     if(this.form.valid){
-      const employee: Employee = this.form.value;
+      const employee = this.form.value;
+      employee.hierarchy = Hierarchy[employee.hierarchy];
+      employee.department = Department[employee.department];
 
+      if(employee.birthday instanceof Date){
+        employee.birthday = employee.birthday.toISOString().split('T')[0];
+      }
+      console.log(employee);
       if(this.employeToEdit){
         this.employeService.updateEmploye(employee).subscribe({
           next: () => {

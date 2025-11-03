@@ -141,6 +141,25 @@
       </div>
 
       <div class="flex flex-column gap-2">
+        <label for="department" class="font-semibold text-900">Departamento</label>
+        <span class="text-red-500">*</span>
+        <p-select
+          id="department"
+          [options]="departmentList"
+          formControlName="department"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecione um departamento"
+          class="w-full md:w-56">
+        </p-select>
+        <small
+          *ngIf="form.get('department')?.invalid && form.get('department')?.touched"
+          class="text-red-500">
+          Campo obrigatório
+        </small>
+      </div>
+
+      <div class="flex flex-column gap-2">
         <label for="name" class="font-semibold text-900">
           Nome Completo
           <span class="text-red-500">*</span>
