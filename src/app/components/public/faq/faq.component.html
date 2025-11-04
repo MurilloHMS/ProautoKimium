@@ -5,14 +5,14 @@
       <p>Aqui você encontrará respostas para algumas das dúvidas mais comuns sobre a Proauto Kimium e nossos produtos químicos de qualidade.</p>
     </div>
 
-    <p-accordion [value]="0">
+    <p-accordion [value]="0" [multiple]="false">
       @for (item of faqs; track item) {
         <p-accordionpanel [value]="item.value">
           <p-accordion-header>
-            <h3>{{ item.title }}</h3>
+            <span class="faq-question">{{ item.title }}</span>
           </p-accordion-header>
           <p-accordion-content>
-            <p>{{ item.body }}</p>
+            <p class="faq-answer">{{ item.body }}</p>
           </p-accordion-content>
         </p-accordionpanel>
       }

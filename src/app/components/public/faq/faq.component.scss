@@ -8,7 +8,7 @@ section {
 .section-title {
     position: relative;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
 }
 
 .section-title label {
@@ -62,4 +62,130 @@ section {
     margin: 0;
 }
 
+.faq-question {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
 
+.faq-answer {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #555;
+}
+
+::ng-deep {
+    .p-accordion {
+        max-width: 900px;
+        margin: 0 auto;
+
+        .p-accordionpanel {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+
+            &:hover {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+        }
+
+        .p-accordion-header {
+            background: #fff;
+            border: none;
+            border-radius: 8px;
+
+            .p-accordion-header-link {
+                padding: 18px 24px;
+                border: none;
+                background: transparent;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background: rgba(variables.$primary-color, 0.03);
+                }
+
+                &:focus {
+                    box-shadow: none;
+                    outline: 2px solid rgba(variables.$primary-color, 0.3);
+                    outline-offset: -2px;
+                }
+            }
+
+            h3 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+                line-height: 1.5;
+            }
+
+            .p-accordion-toggle-icon {
+                color: variables.$primary-color;
+                font-size: 18px;
+            }
+        }
+
+        .p-accordionpanel-active {
+            .p-accordion-header {
+                .p-accordion-header-link {
+                    background: rgba(variables.$primary-color, 0.05);
+                }
+
+                h3 {
+                    color: variables.$primary-color;
+                }
+            }
+        }
+
+        .p-accordion-content {
+            padding: 20px 24px;
+            background: #fafafa;
+            border: none;
+            border-top: 1px solid #e9ecef;
+
+            p {
+                margin: 0;
+                font-size: 15px;
+                line-height: 1.7;
+                color: #555;
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    section {
+        padding: 60px 0;
+    }
+
+    .section-title h2 {
+        font-size: 26px;
+    }
+
+    ::ng-deep {
+        .p-accordion {
+            .p-accordion-header {
+                .p-accordion-header-link {
+                    padding: 14px 18px;
+                }
+
+                h3 {
+                    font-size: 15px;
+                }
+            }
+
+            .p-accordion-content {
+                padding: 16px 18px;
+
+                p {
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+}
