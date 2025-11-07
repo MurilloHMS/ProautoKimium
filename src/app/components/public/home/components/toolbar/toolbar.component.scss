@@ -6,11 +6,27 @@
 }
 
 .logo img{
-  height: 35px;
+  max-width: 100%;
+  height: auto;
+  max-height: 35px;
+}
+
+@media (max-width: 768px) {
+    .toolbar-home {
+        padding: 0 20px;
+    }
+
+    .logo img {
+        max-height: 30px;
+    }
 }
 
 @media (max-width: 480px) {
+    .toolbar-home {
+        padding: 0 10px;
+    }
+
     .logo img {
-        height: 30px;
+        max-height: 25px;
     }
 }
