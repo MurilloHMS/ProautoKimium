@@ -73,7 +73,8 @@ export class TopMenuComponent implements OnInit {
           {
             label: 'Veículos', icon: 'pi pi-fw pi-car',
             items: [
-              { label: 'Lista de veículos', icon: 'pi pi-fw pi-list', routerLink: ['company/vehicle'], roles: ['ADMIN','COMPRADOR'] }
+              { label: 'Lista de veículos', icon: 'pi pi-fw pi-list', routerLink: ['company/vehicle'], roles: ['ADMIN','COMPRADOR'] },
+              { label: 'Manutenção de veículos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/vehicle/maintenance'], roles: ['ADMIN','COMPRADOR']}
             ]
           }
         ]

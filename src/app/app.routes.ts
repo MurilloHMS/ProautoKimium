@@ -29,6 +29,7 @@ import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
+import { MaintenanceComponent } from './components/auth/company/vehicle/maintenance/maintenance.component';
 
 
 export const routes: Routes = [
@@ -67,6 +68,7 @@ export const routes: Routes = [
         {path: 'company/vehicle', component: VehiclesComponent, data: {roles: ['ADMIN','COMPRADOR']}},
         {path: '', redirectTo: 'home', pathMatch: 'full'},
         {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}},
+        {path: 'company/vehicle/maintenance', component: MaintenanceComponent, data: {roles: ['ADMIN','COMPRADOR']}}
       ]
     },
     {
