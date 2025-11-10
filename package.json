@@ -21,6 +21,8 @@
     "@popperjs/core": "^2.11.8",
     "@primeuix/themes": "^1.2.3",
     "bootstrap": "^5.3.8",
+    "ngx-mask": "^20.0.3",
+    "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.1.2",
     "rxjs": "~7.8.0",
