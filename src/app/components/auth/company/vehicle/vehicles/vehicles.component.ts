@@ -13,10 +13,10 @@ import { VehicleService } from '../../../../../infrastructure/services/vehicle/v
 @Component({
   selector: 'app-vehicles',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
-  ],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule],
   templateUrl: './vehicles.component.html',
-  styleUrl: './vehicles.component.scss'
+  styleUrl: './vehicles.component.scss',
+  providers: []
 })
 export class VehiclesComponent {
   vehicles: Vehicle[] = [];
@@ -30,12 +30,12 @@ export class VehiclesComponent {
   constructor(private vehicleService: VehicleService, private fb: FormBuilder){
     this.form = this.fb.group({
       nome: ['', Validators.required],
-      placa: ['', Validators.required],
+      placa: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{3}-([0-9]{4}|[0-9][A-Za-z][0-9]{2})$/)]],
       marca: ['', Validators.required],
-      consumoUrbanoAlcool: [0, Validators.required],
-      consumoUrbanoGasolina: [0, Validators.required],
-      consumoRodoviarioAlcool: [0, Validators.required],
-      consumoRodoviarioGasolina: [0, Validators.required],
+      consumoUrbanoAlcool: [0],
+      consumoUrbanoGasolina: [0],
+      consumoRodoviarioAlcool: [0],
+      consumoRodoviarioGasolina: [0],
     })
   }
 
@@ -78,6 +78,9 @@ export class VehiclesComponent {
   saveVehicle(){
     if(this.form.valid){
       const vehicleData: Vehicle = this.form.value;
+      vehicleData.nome.toUpperCase();
+      vehicleData.marca.toUpperCase();
+      vehicleData.placa.toUpperCase();
 
       if(this.vehicleToEdit){
         this.vehicleService.updateVehicle(vehicleData).subscribe({
