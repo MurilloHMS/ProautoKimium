@@ -81,6 +81,7 @@ export class ServiceLocationComponent {
     this.dialogTitle = 'Adicionar Prestador de serviço';
     this.sl2Edit = null;
     this.visible = true;
+    this.form.reset();
   }
 
   saveSL() {
