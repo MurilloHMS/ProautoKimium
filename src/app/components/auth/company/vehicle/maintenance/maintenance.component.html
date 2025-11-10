@@ -85,7 +85,7 @@
 
             <div class="col-12 md:col-6 mb-3">
                 <label for="revisionDate" class="block mb-2 font-semibold">Data da revisão <span class="text-red-500">*</span></label>
-                <input id="revisionDate" type="date" pInputText formControlName="revisionDate">
+                <input id="revisionDate" type="date" pInputText formControlName="revisionDate" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="vehiclePlate">Placa do Veiculo <span class="text-red-500">*</span>&nbsp;</label>
@@ -103,7 +103,8 @@
                   [(ngModel)]="vehicleSelected"
                   formControlName="vehiclePlate"
                   placeholder="Selecione o veículo"
-                  styleClass="select-compact">
+                  styleClass="select-compact w-full"
+                  [style]="{'width' : '100%'}">
                   <ng-template let-vehicle pTemplate="item">
                     {{ vehicle.marca }} {{ vehicle.nome }} - {{ vehicle.placa }}
                   </ng-template>
@@ -114,19 +115,19 @@
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="kilometer">Quilometragem <span class="text-red-500">*</span></label>
-                <input id="kilometer" type="number" pInputText formControlName="kilometer">
+                <input id="kilometer" type="number" pInputText formControlName="kilometer" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="nfe">Nota Fiscal <span class="text-red-500">*</span></label>
-                <input id="nfe" type="text" pInputText formControlName="nfe">
+                <input id="nfe" type="text" pInputText formControlName="nfe" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="type">Tipo de Manutenção <span class="text-red-500">*</span></label>
-                <input id="type" type="text" style="text-transform: uppercase;"  pInputText formControlName="type">
+                <input id="type" type="text" style="text-transform: uppercase;"  pInputText formControlName="type" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="driver">Motorista <span class="text-red-500">*</span></label>
-                <input id="driver" type="text" style="text-transform: uppercase;" pInputText formControlName="driver" >
+                <input id="driver" type="text" style="text-transform: uppercase;" pInputText formControlName="driver" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="localSystemCode">Local <span class="text-red-500">*</span>&nbsp;</label>
@@ -136,7 +137,8 @@
                   [(ngModel)]="locationSelected"
                   formControlName="localSystemCode"
                   placeholder="Selecione o Local de Serviço"
-                  styleClass="select-compact">
+                  styleClass="select-compact w-full"
+                  [style]="{'width' : '100%'}">
                   <ng-template let-location pTemplate="item">
                     {{ location.codParceiro }} - {{ location.nome }}
                   </ng-template>
@@ -147,7 +149,7 @@
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="observation">Observações <span class="text-red-500">*</span></label>
-                <textarea id="observation" pInputTextarea style="text-transform: uppercase;" formControlName="observation"></textarea>
+                <textarea id="observation" pInputTextarea style="text-transform: uppercase;" formControlName="observation" [style]="{'width' : '100%'}"></textarea>
             </div>
             <p-footer>
                 <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>&nbsp;
