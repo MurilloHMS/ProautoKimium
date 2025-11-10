@@ -97,7 +97,10 @@ export class MaintenanceComponent implements OnInit{
       maintenanceData.vehiclePlate = this.vehicleSelected?.placa ?? '';
       maintenanceData.driver.toUpperCase();
       maintenanceData.type.toUpperCase();
-      maintenanceData.observation.toUpperCase();
+
+      if(maintenanceData.observation.length > 0){
+        maintenanceData.observation.toUpperCase();
+      }
 
       if(maintenanceData.localSystemCode === '' || maintenanceData.vehiclePlate === ''){
         return alert("Por favor selecione um veiculo ou um local de serviço válido.");
