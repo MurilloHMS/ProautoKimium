@@ -104,7 +104,8 @@
                   formControlName="vehiclePlate"
                   placeholder="Selecione o veículo"
                   styleClass="select-compact w-full"
-                  [style]="{'width' : '100%'}">
+                  [style]="{'width' : '100%'}"
+                  appendTo="body">
                   <ng-template let-vehicle pTemplate="item">
                     {{ vehicle.marca }} {{ vehicle.nome }} - {{ vehicle.placa }}
                   </ng-template>
@@ -138,7 +139,8 @@
                   formControlName="localSystemCode"
                   placeholder="Selecione o Local de Serviço"
                   styleClass="select-compact w-full"
-                  [style]="{'width' : '100%'}">
+                  [style]="{'width' : '100%'}"
+                  appendTo="body">
                   <ng-template let-location pTemplate="item">
                     {{ location.codParceiro }} - {{ location.nome }}
                   </ng-template>
