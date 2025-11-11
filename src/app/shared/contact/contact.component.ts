@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -13,17 +13,18 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { Select } from "primeng/select";
 import { Contact, TipoContato } from '../../domain/models/contact.model';
 import { ContactService } from '../../infrastructure/services/contact/contact.service';
+import { NgStyle } from '@angular/common';
 
 
 
 @Component({
     selector: 'app-contact',
-    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select],
+    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select, NgStyle],
     templateUrl: './contact.component.html',
     styleUrl: './contact.component.scss',
     providers: [MessageService]
 })
-export class ContactComponent {
+export class ContactComponent implements OnInit {
   form: FormGroup;
   isLoading = false;
   tipoSelecionado: TipoContato | null = null;
@@ -39,6 +40,10 @@ export class ContactComponent {
     { label: 'Problemas com pedido ou entrega', value: "ProblemaPedidoEntrega" },
     { label: 'Outros', value: "Outros" }
   ];
+
+  // length limits
+  messageCount = 0;
+  otherCount = 0;
 
   constructor(private fb: FormBuilder,
     private http: HttpClient,
@@ -102,6 +107,24 @@ export class ContactComponent {
         });
       }
     });
+  }
+
+  ngOnInit(): void {
+    const other = this.form.get('other')?.value || '';
+    const message = this.form.get('message')?.value || '';
+
+    this.messageCount = message.length;
+    this.otherCount = other.length;
+  }
+
+  onObservationInput(event: Event, field: 'other' | 'message') {
+    const input = event.target as HTMLTextAreaElement;
+    const value = input.value;
+    if (field === 'other') {
+      this.otherCount = value.length;
+    } else if (field === 'message') {
+      this.messageCount = value.length;
+    }
   }
 
 
