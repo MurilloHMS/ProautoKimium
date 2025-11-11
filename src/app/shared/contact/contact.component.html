@@ -67,7 +67,10 @@
           formControlName="other"
           placeholder="Especifique o motivo"
           class="input-compact"
+          [maxlength]="100"
+          (input)="onObservationInput($event, 'other')"
         />
+        <small [ngStyle]="{ color: otherCount >= 100 ? 'red' : '#ccc'}" class="d-flex pl-3">{{ otherCount }}/100</small>
       </div>
     }
 
@@ -78,7 +81,10 @@
         formControlName="message"
         placeholder="Sua mensagem..."
         class="textarea-compact"
+        [maxlength]="500"
+        (input)="onObservationInput($event, 'message')"
       ></textarea>
+      <small [ngStyle]="{ color : messageCount >= 500 ? 'red' : '#ccc'}" class="d-flex pl-3">{{ messageCount }}/500</small>
     </div>
 
     <button
