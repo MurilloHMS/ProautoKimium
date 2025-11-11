@@ -16,7 +16,8 @@
     [loading]="loading"
     [responsiveLayout]="'scroll'"
     [globalFilterFields]="['name', 'email.address', 'phone.number']"
-    [rowHover]="true">
+    [rowHover]="true"
+    size="small">
     <ng-template pTemplate="header">
       <tr>
         <th>Cód Parceiro</th>
@@ -59,45 +60,60 @@
     [(visible)]="visible"
     [modal]="true"
     [closable]="true"
-    [style]="{width: '50vw'}">
+    [style]="{width: '600px', maxWidth: '90vw'}"
+    [contentStyle]="{'padding': 0}">
 
-    <span class="p-text-secondary block mb-5">Inclua os dados do cliente.</span>
-    <form [formGroup]="form" (ngSubmit)="saveCustomer()">
-      <div class="p-fluid mb-4">
-        <div class="p-field">
-          <label for="codParceiro">Cód Parceiro</label>
-          <input id="codParceiro" type="text" pInputText formControlName="codParceiro" [readOnly]="customerToEdit !== null" />
-        </div>
-        <div class="p-field">
-          <label for="documento">Documento</label>
-          <input id="documento" type="text" pInputText formControlName="documento" />
-        </div>
-        <div class="p-field">
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" pInputText formControlName="nome" />
-        </div>
-        <div class="p-field">
-          <label for="email">Email</label>
-          <input id="email" type="text" pInputText formControlName="email" />
-        </div>
-        <div class="d-flex gap-3 align-items-center">
-          <div class="p-field-checkbox">
-            <p-checkbox inputId="ativo" formControlName="ativo" binary="true"></p-checkbox>
-            <label for="ativo">Ativo</label>
+    <ng-template pTemplate="content">
+      <div class="p-fluid p-4">
+        <p class="p-text-secondary mb-4">Inclua os dados do cliente.</p>
+
+        <form [formGroup]="form" (ngSubmit)="saveCustomer()">
+          <div class="grid">
+
+            <div class="col-12 md:col-6 mb-3">
+              <label for="codParceiro">Cód Parceiro <span class="text-red-500">*</span></label>
+              <input id="codParceiro" type="text" pInputText formControlName="codParceiro" [readOnly]="customerToEdit !== null" [style]="{'width': '100%'}"/>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+              <label for="documento">Documento <span class="text-red-500">*</span></label>
+              <input id="documento" type="text" pInputText formControlName="documento" [style]="{'width': '100%'}"/>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+              <label for="nome">Nome <span class="text-red-500">*</span></label>
+              <input id="nome" type="text" pInputText formControlName="nome" [style]="{'width': '100%'}"/>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+              <label for="email">Email <span class="text-red-500">*</span></label>
+              <input id="email" type="text" pInputText formControlName="email" [style]="{'width': '100%'}"/>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3">
+              <label for="codMatriz">Cód Matriz</label>
+              <input id="codMatriz" type="text" pInputText formControlName="codMatriz" [style]="{'width': '100%'}"/>
+            </div>
+
+            <div class="col-12 md:col-6 mb-3 mt-3">
+              <div class="p-field-checkbox">
+                <p-checkbox inputId="ativo" formControlName="ativo" binary="true"></p-checkbox>
+                <label for="ativo">&nbsp; Ativo</label>
+              </div>
+              <div class="p-field-checkbox">
+                <p-checkbox inputId="recebeEmail" formControlName="recebeEmail" binary="true"></p-checkbox>
+                <label for="recebeEmail">&nbsp; Recebe Email</label>
+              </div>
+            </div>
+
           </div>
-        <div class="p-field-checkbox">
-            <p-checkbox inputId="recebeEmail" formControlName="recebeEmail" binary="true"></p-checkbox>
-            <label for="recebeEmail">Recebe Email</label>
-          </div>
-        </div>
-        <div class="p-field">
-          <label for="codMatriz">Cód Matriz</label>
-          <input id="codMatriz" type="text" pInputText formControlName="codMatriz" />
-        </div>
+
+          <p-footer>
+            <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
+            <button pButton type="button" label="Cancelar" class="p-button-secondary ml-2" severity="danger" (click)="visible = false"></button>
+          </p-footer>
+        </form>
       </div>
-      <p-footer>
-        <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>
-      </p-footer>
-    </form>
+    </ng-template>
   </p-dialog>
 </div>
