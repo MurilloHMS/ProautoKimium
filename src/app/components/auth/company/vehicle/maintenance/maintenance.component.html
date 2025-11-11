@@ -120,7 +120,7 @@
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="nfe">Nota Fiscal <span class="text-red-500">*</span></label>
-                <input id="nfe" type="text" pInputText formControlName="nfe" [style]="{'width' : '100%'}">
+                <input id="nfe" type="text" [maxlength]="10" pInputText formControlName="nfe" [style]="{'width' : '100%'}">
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="type">Tipo de Manutenção <span class="text-red-500">*</span></label>
@@ -151,7 +151,15 @@
             </div>
             <div class="col-12 md:col-6 mb-3">
                 <label for="observation">Observações <span class="text-red-500">*</span></label>
-                <textarea id="observation" pInputTextarea style="text-transform: uppercase;" formControlName="observation" [style]="{'width' : '100%'}"></textarea>
+                <textarea
+                  id="observation"
+                  pInputTextarea
+                  formControlName="observation"
+                  [maxlength]="200"
+                  [style]="{ width: '100%', textTransform: 'uppercase' }"
+                  (input)="onObservationInput($event)"
+                ></textarea>
+                <small [ngStyle]="{ color: observationLength >= 200 ? 'red' : '#555'}">{{ observationLength }}/200</small>
             </div>
             <p-footer>
                 <button pButton type="submit" label="Salvar" [disabled]="form.invalid"></button>&nbsp;

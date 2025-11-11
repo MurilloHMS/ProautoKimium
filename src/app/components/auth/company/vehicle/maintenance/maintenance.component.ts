@@ -43,6 +43,8 @@ export class MaintenanceComponent implements OnInit{
 
   mask: string = 'SSS-0000';
 
+  observationLength = 0;
+
   constructor(private maintenanceService : MaintenanceService ,
     private fb: FormBuilder,
     private VehicleService: VehicleService,
@@ -145,7 +147,16 @@ export class MaintenanceComponent implements OnInit{
   }
 
   ngOnInit(): void{
+    const value = this.form.get('observation')?.value || '';
+    this.observationLength = value.length;
+    }
 
+  onObservationInput(event: Event) {
+    const input = event.target as HTMLTextAreaElement;
+    const upperValue = input.value.toUpperCase();
+
+    this.form.get('observation')?.setValue(upperValue, { emitEvent: false });
+    this.observationLength = upperValue.length;
   }
 
   updateMask(value: string) {
