@@ -125,20 +125,23 @@ export class NewsletterComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'SENT':
-        return 'success';
-      case 'PENDING':
-        return 'warning';
-      case 'ERROR':
-        return 'danger';
-      case 'CANCELED':
-        return 'info';
-      default:
-        return 'secondary';
-    }
+  getStatusSeverity(status: string):
+  "success" | "info" | "warn" | "danger" | "secondary" | "contrast" {
+
+  switch (status?.toUpperCase()) {
+    case 'SENT':
+      return 'success';
+    case 'PENDING':
+      return 'warn';
+    case 'ERROR':
+      return 'danger';
+    case 'CANCELED':
+      return 'info';
+    default:
+      return 'secondary';
   }
+}
+
 
   formatarMoeda(valor: number): string {
     return new Intl.NumberFormat('pt-BR', {
