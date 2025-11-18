@@ -12,6 +12,7 @@
       <li><a href="#home" fragment="home">Início</a></li>
       <li><a routerLink="produtos/lista">Produtos</a></li>
       <li><a href="#about-us">Sobre nós</a></li>
+      <li><a (click)="showContact()">Contato</a></li>
   </ul>
 </nav>
 
@@ -32,3 +33,14 @@
   </ul>
 </div>
 </header>
+
+<p-dialog header="Entre em contato"
+    [(visible)]="visible"
+    [modal]="true"
+    [closable]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{width: '50vw'}"
+    [draggable]="false"
+    [resizable]="false">
+  <app-contact></app-contact>
+</p-dialog>
