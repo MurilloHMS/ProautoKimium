@@ -154,12 +154,12 @@ export class AdminCenterComponent {
       });
     }
 
-  getRoleSeverity(role: string): string {
+  getRoleSeverity(role: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" {
     switch (role) {
       case 'ADMIN':
         return 'danger';
       case 'MANAGER':
-        return 'warning';
+        return 'warn';
       case 'USER':
         return 'info';
       default:
