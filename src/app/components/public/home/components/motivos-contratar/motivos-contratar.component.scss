@@ -14,58 +14,57 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 80px 40px;
-  // background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
 }
 
 .motivos-header {
   text-align: center;
   margin-bottom: 60px;
-  animation: fadeInUp 1s ease-out;
 
   .section-label {
     display: inline-block;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 600;
     color: v.$secondary-color;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     margin-bottom: 16px;
-    padding: 8px 24px;
-    background: rgba(87, 193, 171, 0.1);
-    border-radius: 50px;
+    padding: 8px 20px;
+    background: rgba(87, 193, 171, 0.08);
+    border-radius: 30px;
   }
 
   h1 {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     color: v.$primary-text-color;
     font-weight: 700;
     line-height: 1.3;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     letter-spacing: -0.5px;
   }
 
   .header-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.125rem;
     color: #6c757d;
     font-weight: 400;
     max-width: 600px;
     margin: 0 auto;
+    line-height: 1.6;
   }
 }
 
 .motivos-grid {
   display: grid;
-  grid-template-columns: repeat(2 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 32px;
 }
 
 .motivo-card {
   background: #ffffff;
-  border-radius: 24px;
-  padding: 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: all 0.4s cubic-bezier(0.4, 0 , 0.2, 1);
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
 
@@ -75,274 +74,252 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 5px;
+    height: 4px;
     transition: height 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.1);
   }
 }
 
 .problema-card {
-    &::before {
-        background: linear-gradient(90deg, #ff6b6b, #ee5a52);
-    }
+  &::before {
+    background: linear-gradient(90deg, #ff6b6b, #ee5a52);
+  }
 
-    &:hover::before {
-        height: 8px;
-    }
+  &:hover::before {
+    height: 6px;
+  }
 }
 
 .solucao-card {
-    &::before {
-        background: linear-gradient(90deg, v.$secondary-color, #45e0c7);
-    }
+  &::before {
+    background: linear-gradient(90deg, v.$secondary-color, #45e0c7);
+  }
 
-    &:hover::before {
-        height: 8px;
-    }
+  &:hover::before {
+    height: 6px;
+  }
 }
 
 .card-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
 
   .card-icon {
-    font-size: 2.5rem;
-    width: 70px;
-    height: 70px;
+    font-size: 2.25rem;
+    width: 64px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 16px;
+    border-radius: 12px;
     flex-shrink: 0;
   }
 
   .problema-icon {
-        background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(238, 90, 82, 0.15) 100%);
-    }
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.12) 0%, rgba(238, 90, 82, 0.12) 100%);
+  }
 
-    .solucao-icon {
-        background: linear-gradient(135deg, rgba(87, 193, 171, 0.15) 0%, rgba(69, 224, 199, 0.15) 100%);
-    }
+  .solucao-icon {
+    background: linear-gradient(135deg, rgba(87, 193, 171, 0.12) 0%, rgba(69, 224, 199, 0.12) 100%);
+  }
 
-    h3 {
-        font-size: 1.6rem;
-        color: v.$primary-color;
-        font-weight: 700;
-        margin: 0;
-    }
+  h3 {
+    font-size: 1.5rem;
+    color: v.$primary-color;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+  }
 }
 
 .motivos-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  li {
     display: flex;
-    flex-direction: column;
-    gap: 16px;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: all 0.25s ease;
 
-    li {
-        display: flex;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 16px;
-        border-radius: 12px;
-        background: #f8f9fa;
-        transition: all 0.3s ease;
-        animation: fadeInLeft 0.6s ease-out backwards;
-
-        &:nth-child(1) { animation-delay: 0.1s; }
-        &:nth-child(2) { animation-delay: 0.2s; }
-        &:nth-child(3) { animation-delay: 0.3s; }
-        &:nth-child(4) { animation-delay: 0.4s; }
-
-        &:hover {
-            background: #ffffff;
-            transform: translateX(8px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        .icon-wrapper {
-            font-size: 1.5rem;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            flex-shrink: 0;
-            font-weight: bold;
-        }
-
-        .icon-wrapper.problema {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(238, 90, 82, 0.2) 100%);
-        }
-
-        .icon-wrapper.solucao {
-            background: linear-gradient(135deg, rgba(87, 193, 171, 0.2) 0%, rgba(69, 224, 199, 0.2) 100%);
-        }
-
-        .text {
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: #333;
-            font-weight: 500;
-        }
+    &:hover {
+      background: #e9ecef;
+      transform: translateX(4px);
     }
+
+    .icon-wrapper {
+      font-size: 1.25rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .icon-wrapper.problema {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.15) 0%, rgba(238, 90, 82, 0.15) 100%);
+      color: #ee5a52;
+    }
+
+    .icon-wrapper.solucao {
+      background: linear-gradient(135deg, rgba(87, 193, 171, 0.15) 0%, rgba(69, 224, 199, 0.15) 100%);
+      color: v.$secondary-color;
+    }
+
+    .text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #495057;
+      font-weight: 500;
+      padding-top: 2px;
+    }
+  }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
+// Responsive Design
 @media (max-width: 1024px) {
-    .motivos-container {
-        padding: 60px 30px;
-    }
+  .motivos-container {
+    padding: 60px 30px;
+  }
 
-    .motivos-header h1 {
-        font-size: 2.4rem;
-    }
+  .motivos-header h1 {
+    font-size: 2.25rem;
+  }
 
-    .motivos-grid {
-        gap: 24px;
-    }
+  .motivos-grid {
+    gap: 28px;
+  }
 
-    .motivo-card {
-        padding: 32px;
-    }
+  .motivo-card {
+    padding: 32px;
+  }
 }
 
 @media (max-width: 768px) {
-    .motivos-container {
-        padding: 50px 24px;
+  .motivos-container {
+    padding: 50px 24px;
+  }
+
+  .motivos-header {
+    margin-bottom: 40px;
+
+    h1 {
+      font-size: 2rem;
     }
 
-    .motivos-header {
-        margin-bottom: 40px;
-
-        h1 {
-            font-size: 2rem;
-        }
-
-        .header-subtitle {
-            font-size: 1.1rem;
-        }
+    .header-subtitle {
+      font-size: 1.0625rem;
     }
+  }
 
-    .motivos-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
+  .motivos-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .motivo-card {
+    padding: 28px;
+  }
+
+  .card-header {
+    flex-direction: row;
+    text-align: left;
+
+    h3 {
+      font-size: 1.375rem;
     }
+  }
 
-    .motivo-card {
-        padding: 28px;
+  .motivos-list li {
+    padding: 12px;
+
+    .text {
+      font-size: 0.9375rem;
     }
-
-    .card-header {
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-
-        h3 {
-            font-size: 1.4rem;
-        }
-    }
-
-    .motivos-list li {
-        padding: 14px;
-
-        .text {
-            font-size: 1rem;
-        }
-    }
+  }
 }
 
 @media (max-width: 480px) {
-    .motivos-container {
-        padding: 40px 20px;
+  .motivos-container {
+    padding: 40px 20px;
+  }
+
+  .motivos-header {
+    .section-label {
+      font-size: 0.8125rem;
+      padding: 6px 16px;
+      letter-spacing: 1.2px;
     }
 
-    .motivos-header {
-        .section-label {
-            font-size: 0.8rem;
-            padding: 6px 20px;
-        }
-
-        h1 {
-            font-size: 1.7rem;
-        }
-
-        .header-subtitle {
-            font-size: 1rem;
-        }
+    h1 {
+      font-size: 1.75rem;
     }
 
-    .motivo-card {
-        padding: 24px;
-        border-radius: 20px;
+    .header-subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .motivo-card {
+    padding: 24px;
+    border-radius: 14px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    flex-direction: column;
+    text-align: center;
+
+    .card-icon {
+      font-size: 2rem;
+      width: 56px;
+      height: 56px;
     }
 
-    .card-header {
-        margin-bottom: 24px;
-        padding-bottom: 20px;
-
-        .card-icon {
-            font-size: 2rem;
-            width: 60px;
-            height: 60px;
-        }
-
-        h3 {
-            font-size: 1.25rem;
-        }
+    h3 {
+      font-size: 1.25rem;
     }
+  }
 
-    .motivos-list {
-        gap: 12px;
+  .motivos-list {
+    gap: 12px;
 
-        li {
-            padding: 12px;
-            gap: 12px;
+    li {
+      padding: 12px;
+      gap: 12px;
 
-            .icon-wrapper {
-                font-size: 1.3rem;
-                width: 32px;
-                height: 32px;
-            }
+      .icon-wrapper {
+        font-size: 1.125rem;
+        width: 28px;
+        height: 28px;
+      }
 
-            .text {
-                font-size: 0.95rem;
-            }
+      .text {
+        font-size: 0.9rem;
+      }
 
-            &:hover {
-                transform: translateX(4px);
-            }
-        }
+      &:hover {
+        transform: translateX(2px);
+      }
     }
+  }
 }
