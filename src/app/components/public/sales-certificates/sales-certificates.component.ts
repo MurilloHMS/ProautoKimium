@@ -2,14 +2,16 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
 
 declare const generateCertificate: any;
 
 @Component({
     selector: 'app-sales-certificates',
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, NgxMaskDirective ],
     templateUrl: './sales-certificates.component.html',
-    styleUrl: './sales-certificates.component.scss'
+    styleUrl: './sales-certificates.component.scss',
+    providers: [provideNgxMask()]
 })
 export class SalesCertificatesComponent implements OnInit{
   form: FormGroup;
