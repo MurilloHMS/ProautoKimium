@@ -336,6 +336,13 @@
     }
 }
 
+.image-icon {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
