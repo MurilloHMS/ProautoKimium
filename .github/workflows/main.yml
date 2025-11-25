@@ -2,7 +2,7 @@ name: deploy angular web app
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
 
 jobs:
   deploy:
