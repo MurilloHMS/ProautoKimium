@@ -7,6 +7,19 @@
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
+.section-label {
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: v.$secondary-color;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+  padding: 8px 20px;
+  background: rgba(87, 193, 171, 0.08);
+  border-radius: 30px;
+}
+
 .consultoria-container header {
   max-width: 1400px;
   margin: 0 auto 4rem;
