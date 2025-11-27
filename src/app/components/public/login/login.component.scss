@@ -2,10 +2,11 @@
 
 .container {
   height: 100vh;
-  width: 100vw;
+  min-width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: url(/images/enterprise_photos/connection.svg) center/contain, #fff;
 }
 
 
@@ -65,7 +66,7 @@
 }
 
 .button.login_submit:hover {
-  background: linear-gradient(320deg, $secondary-color, $primary-color);
+  background: radial-gradient(320deg, $secondary-color, $primary-color);
 }
 
 .button_icon {
