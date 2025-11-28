@@ -141,7 +141,10 @@
 }
 
 .logo-card {
+  display: flex;
+  flex-direction: column;
   text-align: center;
+  justify-content: end;
   cursor: pointer;
 }
 
