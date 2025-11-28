@@ -32,7 +32,6 @@
 .login_field {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
   border-bottom: 2px solid #d1d1d4;
 }
 
@@ -76,8 +75,8 @@
 .error_message {
   color: red;
   font-size: 13px;
-  margin-top: 10px;
-  text-align: center;
+  margin-top: 3px;
+  text-align: start;
 }
 
 .screen_background {
