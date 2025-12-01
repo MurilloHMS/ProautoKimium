@@ -16,6 +16,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
 import { environment } from '../../../../../environments/environment';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-newsletter',
@@ -31,7 +33,9 @@ import { environment } from '../../../../../environments/environment';
     ConfirmDialogModule,
     ToolbarModule,
     DividerModule,
-    BadgeModule
+    BadgeModule,
+    ToggleSwitchModule,
+    FormsModule
   ],
   templateUrl: './newsletter.component.html',
   styleUrl: './newsletter.component.scss',
@@ -42,6 +46,7 @@ export class NewsletterComponent implements OnInit {
   loading = false;
   processing = false;
   newsletters: Newsletter[] = [];
+  checked: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -59,7 +64,8 @@ export class NewsletterComponent implements OnInit {
     this.loading = true;
 
     if(fileList.length > 0){
-      this.newsletterService.createNewsletters(fileList).subscribe({
+      console.log("isMatriz:", this.checked);
+      this.newsletterService.createNewsletters(fileList, this.checked).subscribe({
         next: (msg: string) => {
           this.processing = false;
           this.loading = false;

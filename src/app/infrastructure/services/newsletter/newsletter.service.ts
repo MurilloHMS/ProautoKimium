@@ -8,9 +8,11 @@ import { environment } from '../../../../environments/environment';
 export class NewsletterService {
   constructor(private http: HttpClient){}
 
-  createNewsletters(files: File[]) {
+  createNewsletters(files: File[], isMatriz: boolean = false){
     const formData = new FormData();
     files.forEach(f => formData.append('files', f));
+
+    formData.append('isMatriz', String(isMatriz));
 
     return this.http.post(`${environment.apiUrl}/newsletter/upload`, formData, {responseType: 'text'});
   }

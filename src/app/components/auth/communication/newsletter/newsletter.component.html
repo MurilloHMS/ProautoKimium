@@ -14,6 +14,14 @@
     </ng-template>
 
     <div class="upload-section">
+      <div class="d-flex align-items-center ms-4 mb-3">
+        <span class="me-2">Criar Informativo com código matriz?</span>
+        <p-toggleswitch [(ngModel)]="checked" >
+          <ng-template #handle let-checked="checked">
+            <i [ngClass]="['pi', checked ? 'pi-check' : 'pi-times']"></i>
+          </ng-template>
+        </p-toggleswitch>
+      </div>
       <div class="grid">
 
         <div class="col-12 md:col-6 lg:col-12">
