@@ -1,9 +1,33 @@
-<p-toolbar class="thin-toolbar">
-  <div class="p-toolbar-group-start">
-    <p-button icon="pi pi-refresh" class="mr-2" (click)="loadCustomers()"></p-button>
-    &nbsp;&nbsp;
-    <p-button icon="pi pi-plus" class="mr-2" (click)="showDialog()"></p-button>
-  </div>
+<p-toast></p-toast>
+<p-toolbar>
+  <ng-template #start>
+    <p-button icon="pi pi-refresh" class="mr-2" text size="small" (click)="loadCustomers()"></p-button>
+    <p-button icon="pi pi-plus" class="mr-2" text size="small" (click)="showDialog()"></p-button>
+  </ng-template>
+  <ng-template #end>
+    <p-fileUpload
+      #fu
+      mode="basic"
+      chooseLabel="Selecionar Excel"
+      chooseIcon="pi pi-file-excel"
+      accept=".xlsx"
+      maxFileSize="1000000"
+      [auto]="false"
+      [customUpload]="true"
+      (onSelect)="onFileSelect($event)"
+    >
+  </p-fileUpload>
+
+  <p-button
+      icon="pi pi-upload"
+      label="Enviar"
+      class="ml-2"
+      size="small"
+      (click)="importByExcel()"
+      [disabled]="!selectedFile"
+  ></p-button>
+
+  </ng-template>
 </p-toolbar>
 
 <div class="card">
@@ -15,13 +39,12 @@
     [rowsPerPageOptions]="[5,10,20]"
     [loading]="loading"
     [responsiveLayout]="'scroll'"
-    [globalFilterFields]="['name', 'email.address', 'phone.number']"
+    [globalFilterFields]="['nome', 'email', 'codParceiro']"
     [rowHover]="true"
     size="small">
     <ng-template pTemplate="header">
       <tr>
         <th>Cód Parceiro</th>
-        <th>Documento</th>
         <th>Nome</th>
         <th>Email</th>
         <th>Ativo</th>
@@ -33,9 +56,8 @@
     <ng-template pTemplate="body" let-customer>
       <tr>
         <td>{{ customer.codParceiro }}</td>
-        <td>{{ customer.documento }}</td>
-        <td>{{ customer.name }}</td>
-        <td>{{ customer.email.address }}</td>
+        <td>{{ customer.nome }}</td>
+        <td>{{ customer.email }}</td>
         <td>
             <i class="pi" [ngClass]="{ 'text-green-500 pi-check-circle': customer.ativo, 'text-red-500 pi-times-circle': !customer.ativo}"></i>
         </td>
