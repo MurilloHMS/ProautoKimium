@@ -1,24 +1,65 @@
 <section class="hero">
-    <!-- <div class="hero-logo">
-        <img src="assets/images/logo.png" alt="Proauto Kimium Logo">
-    </div> -->
-    <div class="hero-content">
-        <h1>Excelência em <span class="highlight-green-variant">performance</span> e inovação</h1>
-        <h2>Produtos, Consultoria e Inovação técnica para os setores mais exigentes do mercado.</h2>
-        <div class="hero-features">
-            <div class="feature-item">
-                <img src="images/hero/checkbox-checked.png" alt="Check">
-                <span>Tecnologia comprovada</span>
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-badge">36 anos transformando indústrias</div>
+            
+            <h1 class="hero-title">
+                Higienização que <span class="highlight">impulsiona resultados</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Soluções completas em higienização industrial para elevar a eficiência e segurança do seu negócio.
+                Menos desperdício, mais performance.
+            </p>
+
+            <div class="hero-cta">
+                <a href="#consultoria" class="btn-primary">Lidere com nossas Soluções</a>
+                <a (click)="showContact()"class="btn-secondary">Entrar em contato</a>
             </div>
-            <div class="feature-item">
-                <img src="images/hero/checkbox-checked.png" alt="Check">
-                <span>Equipe técnica especializada</span>
-            </div>
-            <div class="feature-item">
-                <img src="images/hero/checkbox-checked.png" alt="Check">
-                <span>Sustentabilidade como pilar</span>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">35+</span>
+                    <span class="stat-label">Anos de mercado</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">30+</span>
+                    <span class="stat-label">Serviços de consultoria</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">5000+</span>
+                    <span class="stat-label">Clientes satisfeitos</span>
+                </div>
             </div>
         </div>
-        <a href="#consultoria" class="cta-button">Lidere com nossas soluções</a>
+
+        <div class="hero-visual">
+            <div class="visual-card">
+                <div class="card-icon">🧪</div>
+                <h4>Ultra Concentrados</h4>
+                <p>2 litros rendem até 200 litros de solução pronta</p>
+            </div>
+            <div class="visual-card">
+                <div class="card-icon">⚡</div>
+                <h4>Consultoria Técnica</h4>
+                <p>Equipe especializada para otimizar seus processos</p>
+            </div>
+            <div class="visual-card">
+                <div class="card-icon">🌱</div>
+                <h4>Sustentável</h4>
+                <p>Soluções que respeitam o meio ambiente</p>
+            </div>
+        </div>
     </div>
 </section>
+
+<p-dialog header="Entre em contato"
+    [(visible)]="visible"
+    [modal]="true"
+    [closable]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
+    [style]="{width: '50vw'}"
+    [draggable]="false"
+    [resizable]="false">
+  <app-contact></app-contact>
+</p-dialog>
