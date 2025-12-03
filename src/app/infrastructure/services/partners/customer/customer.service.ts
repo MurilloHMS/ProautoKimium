@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Customer, CustomerResponse } from '../../../../domain/models/customer.model';
+import { Customer } from '../../../../domain/models/customer.model';
 import { environment } from '../../../../../environments/environment';
 
 @Injectable({
@@ -11,8 +11,8 @@ export class CustomerService {
 
   constructor(private http: HttpClient) { }
 
-  getCustomers() : Observable<CustomerResponse[]>{
-    return this.http.get<CustomerResponse[]>(`${environment.apiUrl}/customer`);
+  getCustomers() : Observable<Customer[]>{
+    return this.http.get<Customer[]>(`${environment.apiUrl}/customer`);
   }
 
   addCustomer(customer: Customer): Observable<Customer> {
@@ -21,5 +21,12 @@ export class CustomerService {
 
   updateCustomer(customer: Customer): Observable<Customer> {
     return this.http.put<Customer>(`${environment.apiUrl}/customer`, customer);
+  }
+
+  importCustomersByExcel(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(`${environment.apiUrl}/customer/upload`, formData, {responseType: 'text'});
   }
 }
