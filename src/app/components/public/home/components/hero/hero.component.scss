@@ -28,7 +28,7 @@
         content: '';
         position: absolute;
         inset: 0;
-        background-image: 
+        background-image:
             linear-gradient(rgba(87, 193, 171, 0.02) 1px, transparent 1px),
             linear-gradient(90deg, rgba(87, 193, 171, 0.02) 1px, transparent 1px);
         background-size: 80px 80px;
@@ -66,7 +66,7 @@
     letter-spacing: 0.5px;
     margin-bottom: 32px;
     backdrop-filter: blur(10px);
-    
+
     &::before {
         content: '✦';
         font-size: 1.2rem;
@@ -74,7 +74,7 @@
 }
 
 .hero-title {
-    font-size: 4.8rem;
+    font-size: 4.2rem;
     font-weight: 900;
     line-height: 1.1;
     color: #ffffff;
@@ -350,7 +350,7 @@
 
     .hero-cta {
         flex-direction: column;
-        
+
         .btn-primary, .btn-secondary {
             width: 100%;
             justify-content: center;
