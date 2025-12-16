@@ -1,5 +1,5 @@
-@use "sass:color";
-@use '../../../styles/variables.scss';
+@use 'sass:color';
+@use '../../../styles/variables.scss' as v;
 
 .whatsapp-component {
     display: flex;
@@ -13,16 +13,15 @@
     width: 50px;
     height: 50px;
     font-size: 35px;
-    background-color: variables.$secondary-color;
-    color: #fff;
+    background: #fff;
     border: 0;
     border-radius: 50%;
     line-height: 50px;
     transition: opacity 0.3s ease-in-out, background 0.3s, transform 0.3s ease-in-out;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    animation: pulse 1.5s infinite;
 
     &:hover {
-        background-color: color.adjust(variables.$secondary-color, $lightness: -10%);
         transform: scale(1.1);
     }
 
@@ -32,11 +31,21 @@
     }
 
     a{
-        color: white;
+        color: v.$secondary-color;
         text-decoration: none;
         font-weight: 500;
         display: inline-block;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        text-shadow: 2px 1px #E0E0E0;
     }
-    
+
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+  }
 }
