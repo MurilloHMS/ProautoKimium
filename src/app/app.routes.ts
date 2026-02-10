@@ -1,5 +1,5 @@
 import { RouterModule, Routes } from '@angular/router';
-import { NgModule, Component } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { CarrinhoComponent } from './components/public/carrinho/carrinho.component';
 import { HomeComponent } from './components/public/home/home.component';
@@ -15,21 +15,15 @@ import { AuthGuard } from './infrastructure/guard/auth.guard';
 import { AdminCenterComponent } from './components/auth/admin-center/admin-center.component';
 import { AuthHomeComponent } from './components/auth/auth-home/auth-home.component';
 import { HoleritSpliterComponent } from './components/auth/documents/holerit-spliter/holerit-spliter.component';
-import { CustomerComponent } from './components/auth/partners/customer/customer.component';
-import { EmployesComponent } from './components/auth/partners/employes/employes.component';
-import { ServiceLocationComponent } from './components/auth/partners/service-location/service-location.component';
-import { EmailComponent } from './components/auth/settings/email/email.component';
 import { ContactsComponent } from './components/auth/support/contacts/contacts.component';
 import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
 import { ProductsComponent } from './components/auth/company/products/inventory/products/products.component';
 import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
 import { PublicGuard } from './infrastructure/guard/public/public.guard';
-import { VehiclesComponent } from './components/auth/company/vehicle/vehicles/vehicles.component';
 import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
-import { MaintenanceComponent } from './components/auth/company/vehicle/maintenance/maintenance.component';
 
 
 export const routes: Routes = [
@@ -58,17 +52,11 @@ export const routes: Routes = [
         {path: 'admin', component: AdminCenterComponent, data: {roles: ['ADMIN']}},
         {path: 'documents/holerit', component: HoleritSpliterComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'documents/nfe-collector', component: NfeDataCollectorComponent, data: {roles: ['ADMIN', 'RH', 'FINANCEIRO']}},
-        {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN',]}},
-        {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
-        {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
-        {path: 'settings/email', component: EmailComponent, data: {roles: ['ADMIN']}},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
-        {path: 'company/vehicle', component: VehiclesComponent, data: {roles: ['ADMIN','COMPRADOR']}},
         {path: '', redirectTo: 'home', pathMatch: 'full'},
-        {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}},
-        {path: 'company/vehicle/maintenance', component: MaintenanceComponent, data: {roles: ['ADMIN','COMPRADOR']}}
+        {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}}
       ]
     },
     {
