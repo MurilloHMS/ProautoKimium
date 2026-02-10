@@ -53,14 +53,6 @@ export class TopMenuComponent implements OnInit {
         ]
       },
       {
-        label: 'Parceiros', icon: 'pi pi-fw pi-users',
-        items: [
-          { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['partners/customers'], roles: ['ADMIN'] },
-          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['partners/employees'], roles: ['ADMIN','RH'] },
-          { label: 'Locais de Serviço', icon: 'pi pi-fw pi-map-marker', routerLink: ['partners/services-locations'], roles: ['ADMIN'] },
-        ]
-      },
-      {
         label: 'Empresa', icon: 'pi pi-fw pi-briefcase',
         items: [
           { label: 'Produtos', icon: 'pi pi-fw pi-tags', routerLink: ['company/products'], roles: ['ADMIN','ALMOXARIFADO'] },
@@ -68,13 +60,6 @@ export class TopMenuComponent implements OnInit {
             label: 'Inventário', icon: 'pi pi-fw pi-box',
             items: [
               { label: 'Controle de Estoque', icon: 'pi pi-fw pi-box', routerLink: ['company/inventory'], roles: ['ADMIN','ALMOXARIFADO'] },
-            ]
-          },
-          {
-            label: 'Veículos', icon: 'pi pi-fw pi-car',
-            items: [
-              { label: 'Lista de veículos', icon: 'pi pi-fw pi-list', routerLink: ['company/vehicle'], roles: ['ADMIN','COMPRADOR'] },
-              { label: 'Manutenção de veículos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/vehicle/maintenance'], roles: ['ADMIN','COMPRADOR']}
             ]
           }
         ]
@@ -88,12 +73,6 @@ export class TopMenuComponent implements OnInit {
       { label: 'Comunicação', icon: 'pi pi-fw pi-comments',
         items: [
           { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], roles: ['ADMIN','MARKETING'] },
-        ]
-      },
-      {
-        label: 'Configurações', icon: 'pi pi-fw pi-cog',
-        items: [
-          { label: 'Email', icon: 'pi pi-fw pi-envelope', routerLink: ['settings/email'], roles: ['ADMIN'] },
         ]
       }
     ];
