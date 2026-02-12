@@ -31,7 +31,7 @@ jobs:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USER }}
           password: ${{ secrets.PASS }}
-          localDir: 'dist/proauto-kimium/browser'
+          localDir: dist/proauto-kimium/browser
           remoteDir: 'public_html'
           forceSsl: "false"
 
