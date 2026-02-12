@@ -26,10 +26,12 @@ jobs:
         run: npm run build -- --configuration production
 
       - name: FTP Deploy Locaweb
-        uses: locaweb/ftp-deploy@1.0.0
+        uses: MurilloHMS/ftp-deploy-locaweb@main
         with:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USER }}
           password: ${{ secrets.PASS }}
           localDir: 'dist/proauto-kimium/browser'
+          remoteDir: 'public_html'
+          forceSsl: "false"
 
