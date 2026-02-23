@@ -1,31 +1,104 @@
-<div class="container">
-  <div class="screen">
-    <div class="screen_content">
-      <form [formGroup]="form" (ngSubmit)="login()" class="login">
+<section class="login-container">
 
-        <div class="login_field">
-          <i class="login_icon fas fa-user"></i>
-          <input type="text" formControlName="username" class="login_input" placeholder="Usuário / Email" />
+  <!-- Animated background grid -->
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- Floating accent shapes -->
+  <div class="accent accent--tl" aria-hidden="true"></div>
+  <div class="accent accent--br" aria-hidden="true"></div>
+
+  <!-- Card -->
+  <div class="login-card">
+
+    <!-- Top stripe -->
+    <div class="card-stripe"></div>
+
+    <div class="card-body">
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <line x1="12" y1="12" x2="12" y2="12.01"/>
+            <path d="M8 12h.01M16 12h.01"/>
+          </svg>
+        </div>
+        <h1 class="card-title">Área do Funcionário</h1>
+        <p class="card-subtitle">Entre com suas credenciais para acessar sua conta</p>
+      </div>
+
+      <!-- Form -->
+      <form class="login-form" (ngSubmit)="login()" [formGroup]="form" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="username">Usuário</label>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              class="form-input"
+              placeholder="seu.usuario"
+              autocomplete="username"
+            />
+          </div>
         </div>
 
-        <div class="login_field pt-2">
-          <i class="login_icon fas fa-lock"></i>
-          <input type="password" formControlName="password" class="login_input" placeholder="Senha" />
+        <div class="form-group">
+          <div class="label-row">
+            <label class="form-label" for="password">Senha</label>
+            <a href="#" class="forgot-link">Esqueceu?</a>
+          </div>
+          <div class="input-wrap">
+            <span class="input-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              class="form-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
         </div>
+
         @if (errorMessage) {
-          <small class="error_message">{{ errorMessage }}</small>
+          <div class="error-banner" role="alert">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span class="error-message">{{ errorMessage }}</span>
+          </div>
         }
-        <div class="button_wrapper">
-          <p-button label="Login" icon="fas fa-chevron-right" type="submit" [disabled]="form.invalid" [loading]="loading" styleClass="button login_submit" ></p-button>
-        </div>
-      </form>
-    </div>
 
-    <div class="screen_background">
-      <span class="screen_background_shape screen_background_shape4"></span>
-      <span class="screen_background_shape screen_background_shape3"></span>
-      <span class="screen_background_shape screen_background_shape2"></span>
-      <span class="screen_background_shape screen_background_shape1"></span>
+        <button type="submit" class="submit-button" [disabled]="form.invalid || loading">
+          <span class="submit-text">{{ loading ? 'Entrando...' : 'Entrar' }}</span>
+          <span class="submit-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
+        </button>
+
+      </form>
+
     </div>
   </div>
-</div>
+
+  <!-- Footer note -->
+  <p class="login-footer">Acesso restrito a funcionários cadastrados</p>
+
+</section>
