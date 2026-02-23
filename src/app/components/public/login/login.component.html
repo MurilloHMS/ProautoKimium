@@ -1,21 +1,17 @@
 <section class="login-container">
 
-  <!-- Animated background grid -->
   <div class="bg-grid" aria-hidden="true"></div>
 
-  <!-- Floating accent shapes -->
   <div class="accent accent--tl" aria-hidden="true"></div>
   <div class="accent accent--br" aria-hidden="true"></div>
 
-  <!-- Card -->
   <div class="login-card">
 
-    <!-- Top stripe -->
     <div class="card-stripe"></div>
 
     <div class="card-body">
+      <a routerLink="" class="back_to_home">Voltar</a>
 
-      <!-- Header -->
       <div class="card-header">
         <div class="card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -29,7 +25,6 @@
         <p class="card-subtitle">Entre com suas credenciais para acessar sua conta</p>
       </div>
 
-      <!-- Form -->
       <form class="login-form" (ngSubmit)="login()" [formGroup]="form" novalidate>
 
         <div class="form-group">
@@ -98,7 +93,6 @@
     </div>
   </div>
 
-  <!-- Footer note -->
   <p class="login-footer">Acesso restrito a funcionários cadastrados</p>
 
 </section>

@@ -1,13 +1,13 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule} from '@angular/forms';
 import { AuthService } from '../../../infrastructure/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Button } from "primeng/button";
 
 
 @Component({
     selector: 'app-login',
-    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule, Button],
+    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule, RouterLink],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss',
     encapsulation: ViewEncapsulation.None

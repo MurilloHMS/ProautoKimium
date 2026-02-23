@@ -100,6 +100,18 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   padding: 40px 40px 44px;
 }
 
+.card-body .back_to_home {
+  display: flex;
+  justify-content: end;
+  font-size: 0.8rem;
+  color: #6b7280;
+  cursor: hand;
+  text-decoration: none;
+}
+
+.card-body .back_to_home:hover {
+  color: v.$secondary-color;
+}
 
 .card-header {
   margin-bottom: 32px;
