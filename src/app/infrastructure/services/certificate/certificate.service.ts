@@ -19,4 +19,15 @@ export class CertificateService {
         }
       );
     }
+
+    addCertificateWithoutValidation(certificate: Certificate) {
+      return this.http.post(
+        `${environment.apiUrl}/certificate/no-validation`,
+        certificate,
+        {
+          responseType: 'blob',
+          observe: 'response'
+        }
+      );
+    }
 }

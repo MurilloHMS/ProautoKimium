@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { CertificateService } from './../../../infrastructure/services/certificate/certificate.service';
 import { Certificate } from '../../../domain/models/certificate.model';
 import { Toast } from 'primeng/toast';
+import { ApiError } from '../../../domain/models/apiError.models';
 
 @Component({
   selector: 'app-sales-certificates',
@@ -90,7 +91,7 @@ export class SalesCertificatesComponent implements OnInit {
       cellphone: this.form.value.contato
     };
 
-    this.certificateService.addCertificate(certificate).subscribe({
+    this.certificateService.addCertificateWithoutValidation(certificate).subscribe({
 
       next: (response: HttpResponse<Blob>) => {
         const blob = response.body!;
@@ -123,25 +124,46 @@ export class SalesCertificatesComponent implements OnInit {
       error: async (err) => {
         if (err.error instanceof Blob) {
           try {
-            const text      = await err.error.text();
-            const errorJson = JSON.parse(text);
+            const text = await err.error.text();
+            const apiError = JSON.parse(text) as ApiError;
+
+            let detail = '';
+
+            switch (apiError.status) {
+              case 409:
+                detail = 'Já existe um certificado para esses dados.';
+                break;
+
+              case 404:
+                detail = 'Certificado não encontrado.';
+                break;
+
+              case 400:
+                detail = apiError.message;
+                break;
+
+              default:
+                detail = apiError.message || 'Erro inesperado.';
+            }
+
             this.messageService.add({
               severity: 'error',
-              summary:  'Erro',
-              detail:   errorJson.message || 'Erro inesperado.'
+              summary: `Erro ${apiError.status}`,
+              detail: detail
             });
+
           } catch {
             this.messageService.add({
               severity: 'error',
-              summary:  'Erro',
-              detail:   'Erro inesperado ao processar resposta do servidor.'
+              summary: 'Erro',
+              detail: 'Erro inesperado ao processar resposta do servidor.'
             });
           }
         } else {
           this.messageService.add({
             severity: 'error',
-            summary:  'Erro',
-            detail:   'Ocorreu um erro ao gerar o certificado. Por favor, tente novamente.'
+            summary: `Erro ${err.status}`,
+            detail: 'Ocorreu um erro ao gerar o certificado.'
           });
         }
       }
