@@ -1,112 +1,205 @@
-<p-toast></p-toast>
-<div class="certificate-container">
-  <!-- Header com Ícone -->
-  <div class="header-section">
-    <div class="success-icon">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+<p-toast />
+
+<div class="top-bar">
+  <div class="top-bar-logo">🏢</div>
+  <div class="top-bar-title"><strong>Portal de Treinamentos</strong> · Certificação</div>
+</div>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-medal">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="8" r="6"/>
+        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
       </svg>
     </div>
-    <h1 class="title">Parabéns!</h1>
-    <p class="subtitle">Você está a um passo de conquistar seu certificado</p>
+    <div class="hero-eyebrow">Parabéns pela conclusão</div>
+    <h1 class="hero-title">Seu certificado<br>está pronto!</h1>
+    <p class="hero-subtitle">Preencha seus dados abaixo para<br>gerar e baixar seu certificado oficial.</p>
   </div>
 
-  <!-- Badge do Treinamento -->
-  <div class="training-badge">
-    <div class="badge-icon">📋</div>
-    <div class="badge-text">
-      <span class="badge-label">Treinamento</span>
-      <strong>Gestão, Higiene e Limpeza</strong>
+  <div class="steps">
+    <div class="step done">
+      <div class="step-num">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="step-label">Treinamento<br>concluído</div>
+    </div>
+    <div class="step active">
+      <div class="step-num">2</div>
+      <div class="step-label">Preencher<br>dados</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-label">Baixar<br>certificado</div>
     </div>
   </div>
 
-  <!-- Vídeo -->
-  <div class="video-wrapper">
-    <iframe width="100%" height="200"
-            src="https://www.youtube.com/embed/l4ESEUUkqUQ"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen>
-    </iframe>
+  <div class="section-divider">Material do treinamento</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <polyline points="8 21 12 17 16 21"/>
+        </svg>
+      </div>
+      <div class="card-header-text">
+        <div class="card-header-label">Treinamento</div>
+        <div class="card-header-name">Gestão, Higiene e Limpeza</div>
+      </div>
+      <div class="card-header-badge">✓ Concluído</div>
+    </div>
+    <div class="video-body">
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube.com/embed/l4ESEUUkqUQ"
+          title="Gestão, Higiene e Limpeza"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="video-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Vídeo de referência — assista sempre que precisar revisar o conteúdo.
+      </div>
+    </div>
   </div>
 
-  <!-- Instruções -->
-  <div class="instructions">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="16" x2="12" y2="12"></line>
-      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+  <div class="section-divider">Seus dados</div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="card-header-text">
+        <div class="card-header-label">Etapa 2 de 3</div>
+        <div class="card-header-name">Identificação do colaborador</div>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <form [formGroup]="form" autocomplete="off">
+
+        <div class="field">
+          <label class="field-label" for="nome">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Nome completo <span class="req">*</span>
+          </label>
+          <input
+            id="nome"
+            type="text"
+            formControlName="nome"
+            placeholder="Ex: Maria Aparecida Santos"
+            class="field-input"
+            [class.valid]="isValid('nome')"
+            [class.invalid]="isInvalid('nome')"
+            (input)="capitalizeName($event)"
+          >
+          <div class="field-hint" [class.ok]="isValid('nome')" [class.err]="isInvalid('nome')">
+            @if (isValid('nome')) { ✓ Nome válido }
+            @else if (isInvalid('nome')) { Digite seu nome completo (nome e sobrenome) }
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="email">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            E-mail <span class="req">*</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu.nome@empresa.com.br"
+            class="field-input"
+            [class.valid]="isValid('email')"
+            [class.invalid]="isInvalid('email')"
+          >
+          <div class="field-hint" [class.ok]="isValid('email')" [class.err]="isInvalid('email')">
+            @if (isValid('email')) { ✓ E-mail válido }
+            @else if (isInvalid('email')) { Formato inválido (ex: nome&#64;empresa.com.br) }
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="contato">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.21 12 19.79 19.79 0 0 1 1.14 3.38 2 2 0 0 1 3.11 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.2 17z"/>
+            </svg>
+            WhatsApp <span class="req">*</span>
+          </label>
+          <input
+            id="contato"
+            type="tel"
+            formControlName="contato"
+            placeholder="(11) 99999-9999"
+            class="field-input"
+            inputmode="numeric"
+            mask="(00) 00000-0000"
+            [dropSpecialCharacters]="true"
+            [class.valid]="isValid('contato')"
+            [class.invalid]="isInvalid('contato')"
+            (keypress)="$event.charCode >= 48 && $event.charCode <= 57"
+          >
+          <div class="field-hint" [class.ok]="isValid('contato')" [class.err]="isInvalid('contato')">
+            @if (isValid('contato')) { ✓ WhatsApp válido }
+            @else if (isInvalid('contato')) { Digite DDD + 9 dígitos }
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="cta-wrapper">
+    <button
+      class="btn-main"
+      [disabled]="form.invalid"
+      (click)="gerarCertificado()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="18" x2="12" y2="12"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      Gerar Certificado
+    </button>
+
+    <div class="btn-progress">
+      <span>{{ filledCount }} de 3 campos</span>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" [style.width.%]="progressPct"></div>
+      </div>
+      <span>{{ progressPct }}%</span>
+    </div>
+  </div>
+
+  <div class="privacy">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
-    <span>Preencha os dados abaixo para receber seu certificado</span>
+    Seus dados são utilizados exclusivamente para emissão do certificado e ficam protegidos conforme a LGPD.
   </div>
 
-  <!-- Formulário -->
-  <form [formGroup]="form" class="form-section">
-    <div class="form-group">
-      <label class="form-label">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        Nome completo
-      </label>
-      <input type="text"
-             class="form-input"
-             formControlName="nome"
-             placeholder="Digite seu nome completo">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-          <polyline points="22,6 12,13 2,6"></polyline>
-        </svg>
-        E-mail
-      </label>
-      <input type="email"
-             class="form-input"
-             formControlName="email"
-             placeholder="seu@email.com">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-        </svg>
-        WhatsApp
-      </label>
-      <input type="tel"
-             pattern="[0-9]*"
-             maxlength="15"
-             inputmode="numeric"
-             class="form-input"
-             formControlName="contato"
-             placeholder="(00) 00000-0000"
-             mask="(00) 00000-0000"
-             [dropSpecialCharacters]="true"
-             (keypress)="$event.charCode >= 48 && $event.charCode <= 57">
-    </div>
-  </form>
-
-  <!-- Botão -->
-  <button class="btn-generate"
-          [disabled]="form.invalid"
-          (click)="gerarCertificado()">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-      <polyline points="14 2 14 8 20 8"></polyline>
-      <line x1="12" y1="18" x2="12" y2="12"></line>
-      <line x1="9" y1="15" x2="15" y2="15"></line>
-    </svg>
-    Gerar Certificado
-  </button>
-
-  <!-- Footer -->
-  <div class="footer-note">
-    <p>🔒 Seus dados estão seguros e serão usados apenas para emissão do certificado</p>
-  </div>
 </div>

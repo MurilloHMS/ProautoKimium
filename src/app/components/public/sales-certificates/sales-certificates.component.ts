@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
-import { NgxMaskDirective, provideNgxMask } from "ngx-mask";
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { MessageService } from 'primeng/api';
 
 import { CertificateService } from './../../../infrastructure/services/certificate/certificate.service';
 import { Certificate } from '../../../domain/models/certificate.model';
-import { Toast } from "primeng/toast";
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-sales-certificates',
@@ -31,8 +31,8 @@ export class SalesCertificatesComponent implements OnInit {
     private messageService: MessageService
   ) {
     this.form = this.fb.group({
-      nome: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      nome:    ['', Validators.required],
+      email:   ['', [Validators.required, Validators.email]],
       contato: ['', [Validators.required, Validators.pattern('^[0-9]{10,11}$')]]
     });
   }
@@ -46,7 +46,38 @@ export class SalesCertificatesComponent implements OnInit {
     }
   }
 
-  gerarCertificado() {
+  capitalizeName(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const pos   = input.selectionStart ?? 0;
+    const value = input.value
+      .toLowerCase()
+      .replace(/\b\w/g, char => char.toUpperCase());
+
+    this.form.get("nome")!.setValue(value, { emitEvent: false });
+    input.setSelectionRange(pos, pos);
+  }
+
+  isValid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!control && control.valid && (control.dirty || control.touched);
+  }
+
+  isInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
+
+  get filledCount(): number {
+    return ['nome', 'email', 'contato']
+      .filter(f => this.form.get(f)?.valid)
+      .length;
+  }
+
+  get progressPct(): number {
+    return Math.round((this.filledCount / 3) * 100);
+  }
+
+  gerarCertificado(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -54,78 +85,67 @@ export class SalesCertificatesComponent implements OnInit {
 
     const certificate: Certificate = {
       ...this.form.value,
-      name: this.capitalize(this.form.value.nome).trim(),
-      email: this.form.value.email,
+      name:      this.capitalize(this.form.value.nome).trim(),
+      email:     this.form.value.email,
       cellphone: this.form.value.contato
     };
 
-    this.certificateService.addCertificate(certificate)
-      .subscribe({
+    this.certificateService.addCertificate(certificate).subscribe({
 
-        next: (response: HttpResponse<Blob>) => {
+      next: (response: HttpResponse<Blob>) => {
+        const blob = response.body!;
+        const contentDisposition = response.headers.get('content-disposition');
 
-          const blob = response.body!;
-          const contentDisposition = response.headers.get('content-disposition');
+        let fileName = `${certificate.name}.pdf`;
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="?(.+)"?/);
+          if (match?.[1]) fileName = match[1];
+        }
 
-          let fileName = `${certificate.name}.pdf`;
+        const url = window.URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href     = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
 
-          if (contentDisposition) {
-            const match = contentDisposition.match(/filename="?(.+)"?/);
-            if (match && match[1]) {
-              fileName = match[1];
-            }
-          }
+        this.messageService.add({
+          severity: 'success',
+          summary:  'Sucesso',
+          detail:   'Certificado gerado com sucesso!'
+        });
 
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = fileName;
+        this.form.reset();
+      },
 
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-
-          window.URL.revokeObjectURL(url);
-
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Certificado gerado com sucesso!'
-          });
-
-          this.form.reset();
-        },
-
-        error: async (err) => {
-
-          if (err.error instanceof Blob) {
-            try {
-              const text = await err.error.text();
-              const errorJson = JSON.parse(text);
-
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Erro',
-                detail: errorJson.message || 'Erro inesperado.'
-              });
-
-            } catch {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Erro',
-                detail: 'Erro inesperado ao processar resposta do servidor.'
-              });
-            }
-
-          } else {
+      error: async (err) => {
+        if (err.error instanceof Blob) {
+          try {
+            const text      = await err.error.text();
+            const errorJson = JSON.parse(text);
             this.messageService.add({
               severity: 'error',
-              summary: 'Erro',
-              detail: 'Ocorreu um erro ao gerar o certificado. Por favor, tente novamente.'
+              summary:  'Erro',
+              detail:   errorJson.message || 'Erro inesperado.'
+            });
+          } catch {
+            this.messageService.add({
+              severity: 'error',
+              summary:  'Erro',
+              detail:   'Erro inesperado ao processar resposta do servidor.'
             });
           }
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary:  'Erro',
+            detail:   'Ocorreu um erro ao gerar o certificado. Por favor, tente novamente.'
+          });
         }
-      });
+      }
+    });
   }
 
   private capitalize(str: string): string {
