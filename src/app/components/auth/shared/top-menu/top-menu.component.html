@@ -1,58 +1,205 @@
-<div class="card">
-  <p-menubar [model]="items">
-    <ng-template pTemplate="start">
-      <svg width="33" height="35" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15.1934 0V0V0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="var(--primary-color)" />
-        <mask id="mask0_1_36" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
-          <path d="M15.1934 0V0V0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="var(--primary-color-text)" />
-        </mask>
-        <g mask="url(#mask0_1_36)">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1935 0V3.5994V3.58318V20.0075V20.0075V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z" fill="var(--primary-color)" />
-        </g>
-        <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="var(--primary-color-text)" />
-        <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="var(--primary-color-text)" />
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z"
-          fill="var(--primary-color-text)"
-          />
-          <path d="M19.3168 24.7437L21.4168 22.6444V20.5451L19.3168 22.3214V24.7437Z" fill="var(--primary-color-text)" />
-          <path d="M10.9166 24.7437L8.81662 22.6444V20.5451L10.9166 22.3214V24.7437Z" fill="var(--primary-color-text)" />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M13.0167 5.68861L11.7244 8.7568L13.8244 14.8932H14.7936V5.68861H13.0167ZM15.4397 5.68861V14.8932H16.5706L18.5091 8.7568L17.2167 5.68861H15.4397Z"
-            fill="var(--primary-color-text)"
-            />
-            <path d="M13.8244 14.8932L6.87813 12.3094L5.90888 8.27235L11.8859 8.7568L13.9859 14.8932H13.8244Z" fill="var(--primary-color-text)" />
-            <path d="M16.5706 14.8932L23.5169 12.3094L24.4861 8.27235L18.3476 8.7568L16.4091 14.8932H16.5706Z" fill="var(--primary-color-text)" />
-            <path d="M18.8321 8.27235L22.2245 7.94938L19.9629 5.68861H17.7013L18.8321 8.27235Z" fill="var(--primary-color-text)" />
-            <path d="M11.4013 8.27235L8.00893 7.94938L10.2705 5.68861H12.5321L11.4013 8.27235Z" fill="var(--primary-color-text)" />
-          </svg>
-        </ng-template>
-        <ng-template pTemplate="item" let-item let-root="root">
-          <a pRipple class="flex align-items-center p-menuitem-link" [routerLink]="item.routerLink" routerLinkActive="active-item">
-            <span [class]="item.icon"></span>
-            <span class="ml-2">{{ item.label }}</span>
-            @if (item.badge) {
-              <p-badge [ngClass]="{ 'ml-auto': !root, 'ml-2': root }" [value]="item.badge" />
+
+<div class="drawer-hover-zone"
+  (mouseenter)="onDrawerZoneEnter()"
+  (mouseleave)="onDrawerZoneLeave()">
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="hamburger" (click)="drawerVisible = true" aria-label="Abrir menu">
+      <i class="pi pi-bars"></i>
+    </button>
+    <svg class="topbar-logo" width="26" height="28" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      <mask id="mask_top" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
+        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      </mask>
+      <g mask="url(#mask_top)">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z" fill="white" style="opacity:0.5" />
+      </g>
+      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61" />
+      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61" />
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z" fill="#232e61" />
+    </svg>
+    <span class="topbar-title">Proauto Kimium</span>
+  </div>
+
+  <div class="topbar-right">
+
+    <div class="topbar-search-wrap">
+      <i class="pi pi-search topbar-search-icon"></i>
+      <input
+        type="text"
+        pInputText
+        placeholder="Buscar página..."
+        class="topbar-search"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput()"
+        (focus)="onSearchFocus()"
+        autocomplete="off"
+      />
+      @if (searchQuery) {
+        <button class="search-clear" (click)="clearSearch()" tabindex="-1">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+
+      @if (showSearchResults) {
+        <div class="search-dropdown">
+          @if (searchResults.length > 0) {
+            @for (result of searchResults; track result.routerLink) {
+              <a class="search-result"
+                [routerLink]="result.routerLink"
+                (click)="navigateToResult(result)">
+                <span class="search-result-icon">
+                  <i [class]="result.icon"></i>
+                </span>
+                <span class="search-result-info">
+                  <span class="search-result-label">{{ result.label }}</span>
+                  <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
+                </span>
+              </a>
             }
-            @if (item.shortcut) {
-              <span class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1">{{ item.shortcut }}</span>
-            }
-            @if (item.items) {
-              <i [ngClass]="['pi', root ? 'pi-angle-down ml-2' : 'pi-angle-right ml-auto']"></i>
-            }
-          </a>
-        </ng-template>
-        <ng-template pTemplate="end">
-          <div class="d-flex align-items-center gap-2">
-            <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto" />
-            <button pButton type="button" icon="pi pi-bell" class="p-button-text p-button-rounded p-button-plain" badge="3" badgeClass="bg-danger" aria-label="Notification"></button>
-            <!-- <button pButton type="button" icon="pi pi-cog" class="p-button-text p-button-rounded p-button-plain" aria-label="Settings"></button> -->
-            <p-button pButton type="button" icon=" pi pi-sign-out" class="p-button-text p-button-rounded p-button-plain" aria-label="LogOut" (click)="logout()"></p-button>
-          </div>
-        </ng-template>
-      </p-menubar>
+          } @else {
+            <div class="search-empty">
+              <i class="pi pi-search"></i>
+              <span>Nenhuma página encontrada para "<strong>{{ searchQuery }}</strong>"</span>
+            </div>
+          }
+        </div>
+      }
     </div>
+
+    <button pButton type="button" icon="pi pi-bell"
+      class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
+      aria-label="Notificações">
+    </button>
+    <button pButton type="button" icon="pi pi-sign-out"
+      class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
+      aria-label="Sair"
+      (click)="logout()">
+    </button>
+  </div>
+</div>
+
+<div class="drawer-overlay" [class.visible]="drawerVisible" (click)="closeDrawer()"></div>
+
+<nav class="drawer" [class.open]="drawerVisible"
+  (mouseenter)="onDrawerMouseEnter()"
+  (mouseleave)="onDrawerMouseLeave()">
+
+  <div class="drawer-header">
+    <svg width="24" height="26" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      <mask id="mask_drawer" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
+        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      </mask>
+      <g mask="url(#mask_drawer)">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z" fill="white" style="opacity:0.5" />
+      </g>
+      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61" />
+      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61" />
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z" fill="#232e61" />
+    </svg>
+    <span class="drawer-app-name">Proauto Kimium</span>
+    <button class="drawer-close" (click)="closeDrawer()" aria-label="Fechar menu">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <div class="drawer-body">
+    <ul class="drawer-menu">
+      @for (item of items; track item.label) {
+        <li class="drawer-item">
+
+          @if (item.items && item.items.length > 0) {
+            <button
+              class="drawer-link drawer-toggle"
+              [class.expanded]="asAppItem(item)._expanded"
+              (click)="toggleSubmenu(asAppItem(item))">
+              <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
+              <span class="drawer-label">{{ item.label }}</span>
+              @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
+              <i class="pi pi-angle-down drawer-chevron"></i>
+            </button>
+
+            <ul class="drawer-submenu" [class.open]="asAppItem(item)._expanded">
+              @for (sub of item.items; track sub.label) {
+                <li class="drawer-subitem">
+
+                  @if (sub.items && sub.items.length > 0) {
+                    <button
+                      class="drawer-sublink drawer-toggle"
+                      [class.expanded]="asAppItem(sub)._expanded"
+                      (click)="toggleSubmenuNested(asAppItem(sub), asAppItems(item.items!))">
+                      <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
+                      <span>{{ sub.label }}</span>
+                      <i class="pi pi-angle-down drawer-chevron drawer-chevron--sm"></i>
+                    </button>
+
+                    <ul class="drawer-submenu drawer-submenu--deep" [class.open]="asAppItem(sub)._expanded">
+                      @for (deep of sub.items; track deep.label) {
+                        <li>
+                          <a pRipple class="drawer-deeplink"
+                            [routerLink]="deep.routerLink"
+                            routerLinkActive="active-deepitem"
+                            (click)="closeDrawer()">
+                            <span class="drawer-dot"></span>
+                            <span>{{ deep.label }}</span>
+                            @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
+                          </a>
+                        </li>
+                      }
+                    </ul>
+                  }
+
+                  @if (!sub.items || sub.items.length === 0) {
+                    <a pRipple class="drawer-sublink"
+                      [routerLink]="sub.routerLink"
+                      routerLinkActive="active-subitem"
+                      (click)="closeDrawer()">
+                      <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
+                      <span>{{ sub.label }}</span>
+                      @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
+                      @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
+                    </a>
+                  }
+
+                </li>
+              }
+            </ul>
+          }
+
+          @if (!item.items || item.items.length === 0) {
+            <a pRipple class="drawer-link"
+              [routerLink]="item.routerLink"
+              routerLinkActive="active-item"
+              (click)="closeDrawer()">
+              <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
+              <span class="drawer-label">{{ item.label }}</span>
+              @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
+              @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
+            </a>
+          }
+
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="drawer-footer">
+    <div class="drawer-user">
+      <div class="drawer-user-avatar">
+        <i class="pi pi-user"></i>
+      </div>
+      <div class="drawer-user-info">
+        <span class="drawer-user-name">{{ auth.getUsername() }}</span>
+        <span class="drawer-user-role">{{ auth.getUserRoles() }}</span>
+      </div>
+      <button pButton type="button" icon="pi pi-sign-out"
+        class="p-button-text p-button-rounded p-button-plain"
+        (click)="logout()" aria-label="Sair">
+      </button>
+    </div>
+  </div>
+</nav>
