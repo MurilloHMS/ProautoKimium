@@ -1,3 +1,4 @@
+<p-toast></p-toast>
 <div class="certificate-container">
   <!-- Header com Ícone -->
   <div class="header-section">
@@ -51,8 +52,8 @@
         </svg>
         Nome completo
       </label>
-      <input type="text" 
-             class="form-input" 
+      <input type="text"
+             class="form-input"
              formControlName="nome"
              placeholder="Digite seu nome completo">
     </div>
@@ -65,8 +66,8 @@
         </svg>
         E-mail
       </label>
-      <input type="email" 
-             class="form-input" 
+      <input type="email"
+             class="form-input"
              formControlName="email"
              placeholder="seu@email.com">
     </div>
@@ -78,11 +79,11 @@
         </svg>
         WhatsApp
       </label>
-      <input type="tel" 
-             pattern="[0-9]*" 
-             maxlength="15" 
-             inputmode="numeric" 
-             class="form-input" 
+      <input type="tel"
+             pattern="[0-9]*"
+             maxlength="15"
+             inputmode="numeric"
+             class="form-input"
              formControlName="contato"
              placeholder="(00) 00000-0000"
              mask="(00) 00000-0000"
@@ -92,8 +93,8 @@
   </form>
 
   <!-- Botão -->
-  <button class="btn-generate" 
-          [disabled]="form.invalid" 
+  <button class="btn-generate"
+          [disabled]="form.invalid"
           (click)="gerarCertificado()">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
