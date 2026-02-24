@@ -1,75 +1,132 @@
-<div class="upload-container">
-  <p-toast></p-toast>
+<div class="spliter-page">
+  <p-toast position="bottom-right"></p-toast>
 
-  <p-card header="Separador de Holerites" styleClass="upload-card">
+  <div class="page-header">
+    <div class="header-icon">
+      <i class="pi pi-file-pdf"></i>
+    </div>
+    <div class="header-text">
+      <h1>Separador de Holerites</h1>
+      <p>Faça upload do PDF, renomeie cada página e baixe os arquivos separados</p>
+    </div>
+  </div>
 
-    <div class="upload-section">
-      <p-fileUpload
-        name="file"
-        accept="application/pdf"
-        [maxFileSize]="10000000"
-        [auto]="false"
-        [customUpload]="true"
-        (onSelect)="onFileSelect($event)"
-        (onClear)="onClear()"
-        [showUploadButton]="false"
-        [showCancelButton]="true"
-        chooseLabel="Selecionar PDF"
-        [disabled]="isUploading"
-      >
-        <ng-template pTemplate="content">
-          <div *ngIf="isUploading" class="upload-loading">
+  <div class="section-card upload-card" [class.has-file]="selectedFile">
+
+    <div class="section-label">
+      <i class="pi pi-upload"></i>
+      <span>Selecionar arquivo</span>
+    </div>
+
+    <p-fileUpload
+      name="file"
+      accept="application/pdf"
+      [maxFileSize]="10000000"
+      [auto]="false"
+      [customUpload]="true"
+      (onSelect)="onFileSelect($event)"
+      (onClear)="onClear()"
+      [showUploadButton]="false"
+      [showCancelButton]="true"
+      chooseLabel="Selecionar PDF"
+      [disabled]="isUploading"
+      styleClass="custom-upload">
+
+      <ng-template pTemplate="content">
+        <div *ngIf="isUploading" class="uploading-state">
+          <div class="spinner-wrapper">
             <p-progressSpinner
-              [style]="{ width: '50px', height: '50px' }"
-              strokeWidth="4"
-            ></p-progressSpinner>
-            <p>Uploading and extracting pages...</p>
+              [style]="{ width: '48px', height: '48px' }"
+              strokeWidth="3"
+              animationDuration=".8s">
+            </p-progressSpinner>
           </div>
-        </ng-template>
-      </p-fileUpload>
-    </div>
-
-    <!-- Pages List Section -->
-    <div class="pages-section" *ngIf="pages.length > 0 && !isUploading">
-      <p-card header="Rename Pages" subheader="Document ID: {{ uploadId }}" styleClass="pages-card">
-
-        <div class="pages-list">
-          <div class="page-item" *ngFor="let page of pages; let i = index">
-            <label [for]="'page-' + i" class="page-label">
-              Page {{ i + 1 }}
-            </label>
-            <input
-              pInputText
-              [id]="'page-' + i"
-              type="text"
-              [(ngModel)]="page.name"
-              placeholder="Enter page name"
-              class="page-input"
-            />
+          <div class="uploading-text">
+            <strong>Processando PDF...</strong>
+            <span>Extraindo páginas, aguarde</span>
           </div>
         </div>
 
-        <div class="action-buttons">
-          <p-button
-            label="Save Renamed Pages"
-            icon="pi pi-check"
-            (onClick)="saveRenamedPages()"
-            [loading]="isSaving"
-            [disabled]="isSaving"
-            severity="success"
-          ></p-button>
-
-          <p-button
-            label="Reset"
-            icon="pi pi-refresh"
-            (onClick)="resetForm()"
-            severity="secondary"
-            [outlined]="true"
-          ></p-button>
+        <div *ngIf="!isUploading && !selectedFile" class="drop-hint">
+          <i class="pi pi-cloud-upload drop-icon"></i>
+          <span>Arraste o PDF aqui ou clique em <em>Selecionar PDF</em></span>
+          <small>Máximo 10 MB · Somente PDF</small>
         </div>
+      </ng-template>
+    </p-fileUpload>
+  </div>
 
-      </p-card>
+  <div class="section-card pages-card" *ngIf="pages.length > 0 && !isUploading" @fadeIn>
+
+    <div class="section-label">
+      <i class="pi pi-list"></i>
+      <span>Renomear páginas</span>
+      <span class="page-count-badge">{{ pages.length }} página{{ pages.length > 1 ? 's' : '' }}</span>
+      <span class="upload-id">
+        <i class="pi pi-hashtag"></i>{{ uploadId }}
+      </span>
     </div>
 
-  </p-card>
+    <div class="pages-grid">
+      <div
+        class="page-item"
+        *ngFor="let page of pages; let i = index"
+        [style.animation-delay]="i * 40 + 'ms'">
+
+        <div class="page-number">
+          <span>{{ i + 1 }}</span>
+        </div>
+
+        <div class="page-input-group">
+          <label [for]="'page-' + i" class="page-original-hint">
+            <i class="pi pi-file"></i> Original: {{ getOriginalName(i) }}
+          </label>
+          <input
+            pInputText
+            [id]="'page-' + i"
+            type="text"
+            [(ngModel)]="page.name"
+            placeholder="Nome do arquivo da página {{ i + 1 }}"
+            class="page-name-input"
+          />
+        </div>
+
+        <p-button
+          icon="pi pi-undo"
+          [text]="true"
+          severity="secondary"
+          [rounded]="true"
+          size="small"
+          pTooltip="Restaurar nome original"
+          tooltipPosition="left"
+          (click)="restoreOriginalName(i)">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="pages-footer">
+      <div class="footer-info">
+        <i class="pi pi-info-circle"></i>
+        <span>Os PDFs serão baixados em um arquivo <strong>.zip</strong></span>
+      </div>
+      <div class="footer-actions">
+        <p-button
+          label="Resetar"
+          icon="pi pi-refresh"
+          severity="secondary"
+          outlined
+          (click)="resetForm()">
+        </p-button>
+        <p-button
+          label="Baixar PDFs separados"
+          icon="pi pi-download"
+          (click)="saveRenamedPages()"
+          [loading]="isSaving"
+          [disabled]="isSaving"
+          severity="success">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
 </div>
