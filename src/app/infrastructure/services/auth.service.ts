@@ -47,6 +47,13 @@ export class AuthService {
     return payload.roles || [];
   }
 
+  getUsername(): string | null {
+    const payload = this.decodeToken();
+    if (!payload) return null;
+
+    return payload.sub || payload.name || payload.preferred_username || null;
+  }
+
   getExpirationDate(): Date | null {
     const payload = this.decodeToken();
     if (!payload || !payload.exp) return null;
