@@ -1,82 +1,254 @@
-<p-toolbar>
-  <div class="p-toolbar-group-start">
-    <p-button icon="pi pi-refresh" class="mr-2" (click)="loadContacts()"></p-button>
-  </div>
-</p-toolbar>
+<div class="contacts-page">
 
-<div class="card">
-  <p-table
-    #dt1
-    [value]="contacts"
-    dataKey="email"
-    [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[5,10,20]"
-    [loading]="loading"
-    [responsiveLayout]="'scroll'"
-    [globalFilterFields]="['name','email','businessName']"
-    [rowHover]="true"
-    [expandedRowKeys]="expandedRows"
-    (onRowExpand)="onRowExpand($event)"
-    (onRowCollapse)="onRowCollapse($event)">
-
-    <!-- Toolbar do Table -->
-    <ng-template pTemplate="caption">
-      <div class="flex flex-wrap justify-end gap-2">
-        <p-button label="Expand All" icon="pi pi-plus" text (click)="expandAll()"></p-button>
-        <p-button label="Collapse All" icon="pi pi-minus" text (click)="collapseAll()"></p-button>
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <div class="title-icon">
+          <i class="pi pi-envelope"></i>
+        </div>
+        <div>
+          <h1>Pedidos de Contatos</h1>
+          <span class="subtitle">Gerencie todas as solicitações de contato recebidas</span>
+        </div>
       </div>
-    </ng-template>
+      <div class="header-stats">
+        <div class="stat-badge">
+          <span class="stat-number">{{ contacts.length }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-badge accent">
+          <span class="stat-number">{{ getUnreadCount() }}</span>
+          <span class="stat-label">Novos</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Cabeçalho -->
-    <ng-template pTemplate="header">
-      <tr>
-        <th style="width:5rem"></th>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Tipo Contato</th>
-        <th>Empresa</th>
-        <th>Data contato</th>
-      </tr>
-    </ng-template>
+  <div class="filters-bar">
+    <div class="search-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input
+          pInputText
+          type="text"
+          placeholder="Buscar por nome, email ou empresa..."
+          [(ngModel)]="searchTerm"
+          (input)="dt1.filterGlobal(searchTerm, 'contains')"
+          class="search-input">
+          <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search">
+            <i class="pi pi-times"></i>
+          </button>
+    </div>
+    <div class="filter-actions">
+      <p-select
+        [options]="contactTypeOptions"
+        [(ngModel)]="selectedType"
+        placeholder="Tipo de contato"
+        [showClear]="true"
+        (onChange)="filterByType($event)"
+        styleClass="type-filter"/>
 
-    <!-- Corpo -->
-    <ng-template pTemplate="body" let-contact let-expanded="expanded">
-      <tr>
-        <td>
-          <p-button
-            type="button"
-            pRipple
-            [pRowToggler]="contact"
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [text]="true"
-            severity="secondary"
-            [rounded]="true">
-          </p-button>
-        </td>
-        <td>{{ contact.name }}</td>
-        <td>{{ contact.email }}</td>
-        <td>{{ contact.contactType }}</td>
-        <td>{{ contact.businessName }}</td>
-        <td>{{ contact.contactDate | date:'dd/MM/yyyy' }}</td>
-      </tr>
-    </ng-template>
+        <p-button
+          icon="pi pi-refresh"
+          [loading]="loading"
+          (click)="loadContacts()"
+          severity="secondary"
+          outlined
+          pTooltip="Atualizar Lista"
+          tooltipPosition="bottom"/>
 
-    <!-- Linha expandida -->
-    <ng-template pTemplate="expandedrow" let-contact>
-      <tr>
-        <td colspan="6">
-          <strong>Mensagem:</strong>
-          <p>{{ contact.message }}</p>
-        </td>
-      </tr>
-    </ng-template>
+          <p-button label="Expandir Todos" icon="pi pi-arrows-v" text (click)="expandAll()" size="small"/>
+          <p-button label="Recolher Todos" icon="pi pi-minus" text (click)="collapseAll()" size="small"/>
+    </div>
+  </div>
 
-    <!-- Mensagem de vazio -->
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="6">Nenhum contato encontrado.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <div class="table-card">
+    <p-table
+      #dt1
+      [value]="contacts"
+      dataKey="email"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5,10,20]"
+      [loading]="loading"
+      [responsiveLayout]="'scroll'"
+      [globalFilterFields]="['name','email','businessName','contactType']"
+      [rowHover]="true"
+      [expandedRowKeys]="expandedRows"
+      (onRowExpand)="onRowExpand($event)"
+      (onRowCollapse)="onRowCollapse($event)"
+      styleClass="contacts-table"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} contatos"
+      [showCurrentPageReport]="true">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:3.5rem"></th>
+          <th pSortableColumn="name">
+            <div class="th-content">
+              Nome <p-sortIcon field="name"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="email">
+            <div class="th-content">
+              Email <p-sortIcon field="email"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="contactType">
+            <div class="th-content">
+              Tipo <p-sortIcon field="contactType"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="businessName">
+            <div class="th-content">
+              Empresa <p-sortIcon field="businessName"></p-sortIcon>
+            </div>
+          </th>
+          <th pSortableColumn="contactDate">
+            <div class="th-content">
+              Data <p-sortIcon field="contactDate"></p-sortIcon>
+            </div>
+          </th>
+          <th style="width:5rem">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-contact let-expanded="expanded">
+        <tr [class.row-expanded]="expanded" [class.row-new]="isNew(contact)">
+          <td>
+            <p-button
+              pRipple
+              [pRowToggler]="contact"
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [text]="true"
+              severity="secondary"
+              [rounded]="true"
+              size="small">
+            </p-button>
+          </td>
+
+          <td>
+            <div class="contact-name-cell">
+              <p-avatar
+                [label]="getInitials(contact.name)"
+                styleClass="contact-avatar"
+                shape="circle"
+                size="normal">
+              </p-avatar>
+              <div class="name-info">
+                <span class="name-text">{{ contact.name }}</span>
+                <span *ngIf="isNew(contact)" class="new-badge">Novo</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <a [href]="'mailto:' + contact.email" class="email-link">
+              <i class="pi pi-at email-icon"></i>
+              {{ contact.email }}
+            </a>
+          </td>
+
+          <td>
+            <p-tag
+              [value]="contact.contactType"
+              [severity]="getTypeSeverity(contact.contactType)"
+              [rounded]="true">
+            </p-tag>
+          </td>
+
+          <td>
+            <span *ngIf="contact.businessName; else noCompany" class="business-cell">
+              <i class="pi pi-building"></i>
+              {{ contact.businessName }}
+            </span>
+            <ng-template #noCompany>
+              <span class="no-data">—</span>
+            </ng-template>
+          </td>
+
+          <td>
+            <div class="date-cell">
+              <span class="date-main">{{ contact.contactDate | date:'dd/MM/yyyy' }}</span>
+              <span class="date-time">{{ contact.contactDate | date:'HH:mm' }}</span>
+            </div>
+          </td>
+
+          <td>
+            <div class="actions-cell">
+              <p-button
+                icon="pi pi-envelope"
+                [text]="true"
+                severity="info"
+                [rounded]="true"
+                size="small"
+                pTooltip="Responder"
+                tooltipPosition="left"
+                (click)="replyToContact(contact)">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                [text]="true"
+                severity="danger"
+                [rounded]="true"
+                size="small"
+                pTooltip="Remover"
+                tooltipPosition="left"
+                (click)="confirmDelete(contact)">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="expandedrow" let-contact>
+        <tr class="expanded-detail-row">
+          <td colspan="7">
+            <div class="message-panel">
+              <div class="message-header">
+                <i class="pi pi-comment"></i>
+                <span>Mensagem de {{ contact.name }}</span>
+                <span class="message-date">{{ contact.contactDate | date:'dd/MM/yyyy \'às\' HH:mm' }}</span>
+              </div>
+              <div class="message-body">
+                <p>{{ contact.message }}</p>
+              </div>
+              <div class="message-footer">
+                <p-button
+                  label="Responder por email"
+                  icon="pi pi-send"
+                  size="small"
+                  (click)="replyToContact(contact)">
+                </p-button>
+                <p-button
+                  label="Copiar email"
+                  icon="pi pi-copy"
+                  size="small"
+                  severity="secondary"
+                  outlined
+                  (click)="copyEmail(contact.email)">
+                </p-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="pi pi-inbox empty-icon"></i>
+              <h3>Nenhum contato encontrado</h3>
+              <p>Tente ajustar os filtros ou aguarde novas solicitações.</p>
+              <p-button label="Limpar Filtros" icon="pi pi-filter-slash" outlined (click)="clearFilters()"></p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
+
+<p-confirmDialog></p-confirmDialog>
+
+<p-toast position="bottom-right"></p-toast>
