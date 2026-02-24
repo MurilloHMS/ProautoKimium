@@ -8,6 +8,17 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const publicEndponts = [
+      '/auth/login',
+      '/auth/register'
+    ];
+
+    const isPublic = publicEndponts.some(url => req.url.includes(url));
+
+    if(isPublic){
+      return next.handle(req);
+    }
+
     const token = this.authService.getToken();
 
     if (token) {
