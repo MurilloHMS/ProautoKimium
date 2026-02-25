@@ -91,7 +91,7 @@ export class SalesCertificatesComponent implements OnInit {
       cellphone: this.form.value.contato
     };
 
-    this.certificateService.addCertificateWithoutValidation(certificate).subscribe({
+    this.certificateService.addCertificate(certificate).subscribe({
 
       next: (response: HttpResponse<Blob>) => {
         const blob = response.body!;
