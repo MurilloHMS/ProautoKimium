@@ -1,0 +1,105 @@
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="header-icon">✉</div>
+        <div>
+            <h1>Assinatura de E-mail</h1>
+            <p>Gere sua assinatura profissional</p>
+        </div>
+    </div>
+
+    <div class="content-grid">
+
+        <div class="card">
+            <h2 class="card-title">Dados da Assinatura</h2>
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+                <div class="form-group">
+                    <label for="nome">Nome completo *</label>
+                    <input id="nome" formControlName="nome" type="text" placeholder="Ex: João da Silva"
+                        [class.invalid]="isInvalid('nome')" (input)="onNomeInput($event)" />
+                    <span class="error" *ngIf="isInvalid('nome')">Campo obrigatório</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="cargo">Cargo *</label>
+                    <input id="cargo" formControlName="cargo" type="text" placeholder="Ex: Gerente Comercial"
+                        [class.invalid]="isInvalid('cargo')" />
+                    <span class="error" *ngIf="isInvalid('cargo')">Campo obrigatório</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail *</label>
+                    <input id="email" formControlName="email" type="email" placeholder="joao@empresa.com.br"
+                        [class.invalid]="isInvalid('email')" />
+                    <span class="error" *ngIf="isInvalid('email')">E-mail inválido</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="celular">Celular *</label>
+                        <input id="celular" formControlName="celular" type="text" placeholder="(11) 99999-9999"
+                            [class.invalid]="isInvalid('celular')" (input)="onCelularInput($event)" />
+                        <span class="error" *ngIf="isInvalid('celular')">Campo obrigatório</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="whatsapp">WhatsApp *</label>
+                        <input id="whatsapp" formControlName="whatsapp" type="text" placeholder="(11) 99999-9999"
+                            [class.invalid]="isInvalid('whatsapp')" (input)="onWhatsappInput($event)" />
+                        <span class="error" *ngIf="isInvalid('whatsapp')">Campo obrigatório</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="site">Site *</label>
+                    <input id="site" formControlName="site" type="text" placeholder="www.empresa.com.br"
+                        [class.invalid]="isInvalid('site')" />
+                    <span class="error" *ngIf="isInvalid('site')">Campo obrigatório</span>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline" (click)="loadPreview()" [disabled]="loading">
+                        <span *ngIf="!loading">👁 Visualizar</span>
+                        <span *ngIf="loading" class="spinner"></span>
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="loading">
+                        <span *ngIf="!loading">⬇ Baixar PNG</span>
+                        <span *ngIf="loading" class="spinner"></span>
+                    </button>
+                </div>
+
+                <div class="alert alert-error" *ngIf="errorMsg">
+                    ⚠ {{ errorMsg }}
+                </div>
+
+            </form>
+        </div>
+        
+        <div class="card preview-card">
+            <h2 class="card-title">Preview</h2>
+
+            <div class="preview-area">
+                <div class="preview-placeholder" *ngIf="!previewUrl && !loading">
+                    <div class="placeholder-icon">🖼</div>
+                    <p>Preencha o formulário e clique em<br /><strong>Visualizar</strong> para ver o preview</p>
+                </div>
+
+                <div class="loading-overlay" *ngIf="loading">
+                    <div class="loader"></div>
+                    <p>Gerando assinatura...</p>
+                </div>
+
+                <img *ngIf="previewUrl && !loading" [src]="previewUrl" alt="Preview da assinatura"
+                    class="preview-img" />
+            </div>
+
+            <div class="preview-actions" *ngIf="previewUrl && !loading">
+                <button class="btn btn-sm btn-outline" (click)="loadPreview()">🔄 Atualizar</button>
+                <button class="btn btn-sm btn-primary" (click)="onSubmit()">⬇ Baixar</button>
+            </div>
+        </div>
+
+    </div>
+</div>
