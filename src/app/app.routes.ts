@@ -24,6 +24,7 @@ import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
+import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
 
 
 export const routes: Routes = [
@@ -52,6 +53,7 @@ export const routes: Routes = [
         {path: 'admin', component: AdminCenterComponent, data: {roles: ['ADMIN']}},
         {path: 'documents/holerit', component: HoleritSpliterComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'documents/nfe-collector', component: NfeDataCollectorComponent, data: {roles: ['ADMIN', 'RH', 'FINANCEIRO']}},
+        {path: 'documents/email-signature', component: EmailSignatureComponent, data: {roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDORES']}},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
