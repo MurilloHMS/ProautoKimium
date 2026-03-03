@@ -25,6 +25,7 @@ import { NewsletterComponent } from './components/auth/communication/newsletter/
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
 import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
+import {ForgotPasswordComponent} from "./components/public/forgot-password/forgot-password.component";
 
 
 export const routes: Routes = [
@@ -41,7 +42,8 @@ export const routes: Routes = [
         { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full'},
         { path: 'support/faq', component: FaqComponent, pathMatch: 'full'},
         { path: 'profile', component: SellerComponent, pathMatch: 'full'},
-        { path: 'branding', component: BrandingComponent, pathMatch: 'full'}
+        { path: 'branding', component: BrandingComponent, pathMatch: 'full'},
+        { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full'}
       ]
     },
     {
