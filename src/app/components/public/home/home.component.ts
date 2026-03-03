@@ -6,10 +6,11 @@ import { ServicosOfertadosComponent } from "./components/servicos-ofertados/serv
 import { DuvidasComponent } from "./components/duvidas/duvidas.component";
 import { AboutUsComponent } from "./components/about-us/about-us.component";
 import { ToolbarComponent } from "./components/toolbar/toolbar.component";
+import {ContactComponent} from "../../../shared/contact/contact.component";
 
 @Component({
     selector: 'app-home',
-    imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, AboutUsComponent, ToolbarComponent],
+  imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, DuvidasComponent, AboutUsComponent, ToolbarComponent, ContactComponent],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'
