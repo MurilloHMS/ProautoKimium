@@ -1,13 +1,14 @@
-
 <button class="custom-button" pButton type="button" [label]="label" [icon]="icon" (click)="openContact()"></button>
 
-<p-dialog header="Entre em contato" 
-    [(visible)]="displayContact" 
-    [modal]="true" 
-    [closable]="true" 
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"  
-    [style]="{width: '50vw'}"  
-    [draggable]="false" 
-    [resizable]="false">
+<p-dialog
+  header="Entre em contato"
+  [(visible)]="displayContact"
+  [modal]="true"
+  [closable]="true"
+  [breakpoints]="{ '1199px': '75vw', '575px': '95vw' }"
+  [style]="{ width: '60vw' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+  [draggable]="false"
+  [resizable]="false">
   <app-contact></app-contact>
 </p-dialog>

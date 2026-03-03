@@ -1,116 +1,191 @@
 <p-toast></p-toast>
 
-<div class="contato-dialog">
+<section id="contact" class="contact-section">
 
-  <div class="contato-rapido">
-    <a href="https://wa.me/05511983583564" target="_blank" class="contato-item">
-      <i class="fab fa-whatsapp"></i>
-      <span>(11) 9 8358-3564</span>
-    </a>
-    <a href="https://wa.me/05511957782766" target="_blank" class="contato-item">
-      <i class="fab fa-whatsapp"></i>
-      <span>(11) 9 5778-2766</span>
-    </a>
-    <a href="mailto:sac@proautokimium.com.br" class="contato-item">
-      <i class="fas fa-envelope"></i>
-      <span>sac@proautokimium.com.br</span>
-    </a>
+  <!-- Cabeçalho da seção -->
+  <div class="section-header">
+    <span class="section-tag">Atendimento</span>
+    <h2 class="section-title">Entre em contato com nossa equipe</h2>
+    <p class="section-desc">Estamos prontos para atender sua empresa com agilidade e excelência.</p>
   </div>
 
-  <form [formGroup]="form" class="form-compacto">
-    <div class="form-row">
-      <div class="form-field">
-        <input
-          pInputText
-          formControlName="name"
-          placeholder="Nome completo"
-          class="input-compact"
-        />
+  <div class="contact-grid">
+
+    <!-- Coluna esquerda: info + canais -->
+    <aside class="contact-aside">
+
+      <!-- Canais rápidos -->
+      <div class="aside-block">
+        <span class="block-label">Canais de atendimento</span>
+        <div class="canais-list">
+          <a href="https://wa.me/05511983583564" target="_blank" class="canal-card">
+            <span class="canal-icon wpp"><i class="fab fa-whatsapp"></i></span>
+            <div class="canal-info">
+              <span class="canal-tipo">WhatsApp</span>
+              <span class="canal-valor">(11) 9 8358-3564</span>
+            </div>
+            <i class="fas fa-arrow-right canal-arrow"></i>
+          </a>
+          <a href="https://wa.me/05511957782766" target="_blank" class="canal-card">
+            <span class="canal-icon wpp"><i class="fab fa-whatsapp"></i></span>
+            <div class="canal-info">
+              <span class="canal-tipo">WhatsApp</span>
+              <span class="canal-valor">(11) 9 5778-2766</span>
+            </div>
+            <i class="fas fa-arrow-right canal-arrow"></i>
+          </a>
+          <a href="mailto:sac@proautokimium.com.br" class="canal-card">
+            <span class="canal-icon email"><i class="fas fa-envelope"></i></span>
+            <div class="canal-info">
+              <span class="canal-tipo">E-mail SAC</span>
+              <span class="canal-valor">sac&#64;proautokimium.com.br</span>
+            </div>
+            <i class="fas fa-arrow-right canal-arrow"></i>
+          </a>
+        </div>
       </div>
-      <div class="form-field">
-        <input
-          pInputText
-          formControlName="businessName"
-          placeholder="Nome da empresa"
-          class="input-compact"
-        />
+
+      <!-- Horário -->
+      <div class="aside-block">
+        <span class="block-label">Horário de atendimento</span>
+        <div class="horario-list">
+          <div class="horario-item">
+            <span class="horario-dia">Segunda a Quinta</span>
+            <span class="horario-hora">07h30 – 17h30</span>
+          </div>
+          <div class="horario-item">
+            <span class="horario-dia">Sexta</span>
+            <span class="horario-hora">07h30 – 16h30</span>
+          </div>
+          <div class="horario-item feriado">
+            <span class="horario-dia">Sábados, Domingos e feriados</span>
+            <span class="horario-hora">Fechado</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Mapa -->
+      <div class="aside-block mapa-block">
+        <span class="block-label">Nossa localização</span>
+        <div class="mapa-wrap">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3655.3318300428086!2d-46.48629482373029!3d-23.628284564056145!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce6929c6b677c7%3A0xb9cd67c8f84dee52!2sProauto%20Kimium!5e0!3m2!1sen!2sbr!4v1772567810653!5m2!1sen!2sbr"
+            width="100%"
+            height="160"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Localização Proauto Kimium"
+          ></iframe>
+        </div>
+        <div class="endereco">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Av. João do Prado, 300 — Capuava, Santo André, SP - 09270-160</span>
+        </div>
+      </div>
+
+      <!-- Redes sociais -->
+      <div class="aside-block social-block">
+        <span class="block-label">Redes sociais</span>
+        <div class="social-icons">
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/proautokimium/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://br.linkedin.com/company/proauto-kimium" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+
+      <div class="aside-block faq-block">
+        <span class="block-label">Dúvidas frequentes</span>
+        <p class="faq-desc">Consulte nossa central de ajuda com as principais perguntas sobre produtos e atendimento.</p>
+        <a routerLink="/support/faq" class="btn-faq">
+          <i class="fas fa-question-circle"></i>
+          <span>Acessar o FAQ</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Coluna direita: formulário -->
+    <div class="form-card">
+      <div class="form-card-header">
+        <h3>Envie sua mensagem</h3>
+        <p>Responderemos em até 1 dia útil.</p>
+      </div>
+
+      <form [formGroup]="form" class="contato-form">
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nome completo</label>
+            <input pInputText formControlName="name" placeholder="Seu nome" class="field-input" />
+          </div>
+          <div class="form-field">
+            <label>Empresa</label>
+            <input pInputText formControlName="businessName" placeholder="Nome da empresa" class="field-input" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>E-mail corporativo</label>
+            <input pInputText formControlName="email" type="email" placeholder="seu@empresa.com.br" class="field-input" />
+          </div>
+          <div class="form-field">
+            <label>Motivo do contato</label>
+            <p-select
+              [options]="tiposContato"
+              [(ngModel)]="tipoSelecionado"
+              optionLabel="label"
+              formControlName="contactType"
+              placeholder="Selecione..."
+              styleClass="select-field"
+              appendTo="body"
+            />
+          </div>
+        </div>
+
+        @if (form.value.contactType?.value === "Outros") {
+          <div class="form-field full">
+            <label>Especifique o motivo</label>
+            <input
+              pInputText
+              formControlName="other"
+              placeholder="Descreva brevemente"
+              class="field-input"
+              [maxlength]="100"
+              (input)="onObservationInput($event, 'other')"
+            />
+            <small [ngStyle]="{ color: otherCount >= 100 ? '#e53e3e' : '#a0aec0' }">{{ otherCount }}/100</small>
+          </div>
+        }
+
+        <div class="form-field full">
+          <label>Mensagem</label>
+          <textarea
+            pInputTextarea
+            rows="4"
+            formControlName="message"
+            placeholder="Descreva como podemos ajudar sua empresa..."
+            class="field-textarea"
+            [maxlength]="500"
+            (input)="onObservationInput($event, 'message')"
+          ></textarea>
+          <small [ngStyle]="{ color: messageCount >= 500 ? '#e53e3e' : '#a0aec0' }">{{ messageCount }}/500</small>
+        </div>
+
+        <button class="btn-enviar" type="button" (click)="submit()" [disabled]="isLoading">
+          @if (isLoading) {
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Enviando...</span>
+          } @else {
+            <i class="fas fa-paper-plane"></i>
+            <span>Enviar mensagem</span>
+          }
+        </button>
+
+      </form>
     </div>
 
-    <div class="form-row">
-      <div class="form-field">
-        <input
-          pInputText
-          formControlName="email"
-          type="email"
-          placeholder="E-mail"
-          class="input-compact"
-        />
-      </div>
-      <div class="form-field">
-        <p-select
-          [options]="tiposContato"
-          [(ngModel)]="tipoSelecionado"
-          optionLabel="label"
-          formControlName="contactType"
-          placeholder="Motivo do contato"
-          styleClass="select-compact"
-          appendTo="body"
-        />
-      </div>
-    </div>
-
-    @if (form.value.contactType?.value === "Outros") {
-      <div class="form-field full">
-        <input
-          pInputText
-          formControlName="other"
-          placeholder="Especifique o motivo"
-          class="input-compact"
-          [maxlength]="100"
-          (input)="onObservationInput($event, 'other')"
-        />
-        <small [ngStyle]="{ color: otherCount >= 100 ? 'red' : '#ccc'}" class="d-flex pl-3">{{ otherCount }}/100</small>
-      </div>
-    }
-
-    <div class="form-field full">
-      <textarea
-        pInputTextarea
-        rows="3"
-        formControlName="message"
-        placeholder="Sua mensagem..."
-        class="textarea-compact"
-        [maxlength]="500"
-        (input)="onObservationInput($event, 'message')"
-      ></textarea>
-      <small [ngStyle]="{ color : messageCount >= 500 ? 'red' : '#ccc'}" class="d-flex pl-3">{{ messageCount }}/500</small>
-    </div>
-
-    <button
-      class="btn-enviar"
-      pButton
-      type="button"
-      (click)="submit()"
-      [disabled]="isLoading"
-    >
-      @if (isLoading) {
-        <i class="pi pi-spin pi-spinner"></i>
-        <span>Enviando...</span>
-      } @else {
-        <i class="fas fa-paper-plane"></i>
-        <span>Enviar Mensagem</span>
-      }
-    </button>
-  </form>
-
-  <div class="footer-social">
-    <span>Siga-nos:</span>
-    <div class="social-icons">
-      <a href="#"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/proautokimium/" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://br.linkedin.com/company/proauto-kimium" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-    </div>
   </div>
-
-</div>
+</section>

@@ -14,12 +14,13 @@ import { Select } from "primeng/select";
 import { Contact, TipoContato } from '../../domain/models/contact.model';
 import { ContactService } from '../../infrastructure/services/contact/contact.service';
 import { NgStyle } from '@angular/common';
+import {RouterLink} from "@angular/router";
 
 
 
 @Component({
     selector: 'app-contact',
-    imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select, NgStyle],
+  imports: [ReactiveFormsModule, InputTextModule, AutoCompleteModule, ButtonModule, ProgressSpinnerModule, ToastModule, FloatLabelModule, Select, NgStyle, RouterLink],
     templateUrl: './contact.component.html',
     styleUrl: './contact.component.scss',
     providers: [MessageService]

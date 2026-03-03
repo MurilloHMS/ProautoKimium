@@ -1,323 +1,514 @@
 @use '../../../styles/variables.scss';
 
-.contato-dialog {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 0;
+// ── Seção ─────────────────────────────────────────────────────────────────
+.contact-section {
+  width: 100%;
+
+  padding: 72px 0;
+  font-family: variables.$text-font;
 }
 
-// ===== CONTATO RÁPIDO =====
-.contato-rapido {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 10px;
+// ── Header ────────────────────────────────────────────────────────────────
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 0 24px;
 }
 
-.contato-item {
+.section-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: variables.$secondary-color-dark1;
+  background: rgba(variables.$secondary-color, 0.10);
+  border: 1px solid rgba(variables.$secondary-color, 0.25);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-family: variables.$title-font;
+  font-size: 2rem;
+  font-weight: 700;
+  color: variables.$primary-color;
+  margin: 0 0 12px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.section-desc {
+  font-size: 0.95rem;
+  color: variables.$text-secondary-color;
+  margin: 0;
+  max-width: 480px;
+  margin-inline: auto;
+  line-height: 1.6;
+}
+
+// ── Grid principal ────────────────────────────────────────────────────────
+.contact-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+// ── Aside ─────────────────────────────────────────────────────────────────
+.contact-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aside-block {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid variables.$tertiary-color-dark;
+}
+
+.block-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: variables.$primary-color-light2;
+  margin-bottom: 14px;
+}
+
+// ── Canais ────────────────────────────────────────────────────────────────
+.canais-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.canal-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1.5px solid variables.$tertiary-color-dark;
+  background: variables.$tertiary-color;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: variables.$secondary-color;
+    background: rgba(variables.$secondary-color, 0.04);
+    transform: translateX(3px);
+
+    .canal-arrow { opacity: 1; transform: translateX(3px); }
+  }
+}
+
+.canal-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+
+  &.wpp {
+    background: rgba(37, 211, 102, 0.12);
+    color: #16a34a;
+  }
+
+  &.email {
+    background: rgba(variables.$primary-color, 0.08);
+    color: variables.$primary-color;
+  }
+}
+
+.canal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.canal-tipo {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: variables.$text-secondary-color;
+}
+
+.canal-valor {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: variables.$primary-color;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.canal-arrow {
+  color: variables.$tertiary-color-dark;
+  font-size: 0.72rem;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+// ── Horário ───────────────────────────────────────────────────────────────
+.horario-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.horario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 7px;
+  background: variables.$tertiary-color;
+
+  &.feriado {
+    .horario-hora { color: variables.$error-color; }
+  }
+}
+
+.horario-dia {
+  font-size: 0.82rem;
+  color: variables.$text-primary-color;
+  font-weight: 500;
+}
+
+.horario-hora {
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  color: variables.$primary-color;
+}
+
+// ── Mapa ──────────────────────────────────────────────────────────────────
+.mapa-block { padding-bottom: 16px; }
+
+.mapa-wrap {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid variables.$tertiary-color-dark;
+
+  iframe { display: block; }
+}
+
+.endereco {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: variables.$text-primary-color;
+
+  i {
+    color: variables.$secondary-color-dark1;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  span { line-height: 1.45; }
+}
+
+// ── Social ────────────────────────────────────────────────────────────────
+.social-block { padding: 16px 20px; }
+
+.social-icons {
+  display: flex;
+  gap: 8px;
+
+  a {
+    width: 34px;
+    height: 34px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 14px 10px;
-    background: linear-gradient(135deg, variables.$primary-color 0%, darken(variables.$primary-color, 5%) 100%);
-    border-radius: 10px;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1.5px solid variables.$tertiary-color-dark;
+    color: variables.$primary-color-light2;
+    background: variables.$tertiary-color;
     text-decoration: none;
-    color: white;
-    transition: all 0.3s ease;
-    text-align: center;
-
-    i {
-        font-size: 1.4rem;
-        opacity: 0.9;
-    }
-
-    span {
-        font-size: 0.75rem;
-        font-weight: 600;
-        line-height: 1.3;
-    }
+    font-size: 0.82rem;
+    transition: all 0.2s ease;
 
     &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      border-color: variables.$primary-color;
+      color: variables.$primary-color;
+      background: rgba(variables.$primary-color, 0.05);
+      transform: translateY(-2px);
     }
+  }
 }
 
-// ===== FORMULÁRIO COMPACTO =====
-.form-compacto {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+// ── Form card ─────────────────────────────────────────────────────────────
+.form-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid variables.$tertiary-color-dark;
+  overflow: hidden;
+}
+
+.form-card-header {
+  background: variables.$primary-color;
+  padding: 22px 28px;
+
+  h3 {
+    font-family: variables.$title-font;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.60);
+    margin: 0;
+  }
+}
+
+.contato-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 28px 28px;
 }
 
 .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 .form-field {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 
-    &.full {
-        grid-column: 1 / -1;
-    }
-}
+  &.full { grid-column: 1 / -1; }
 
-.input-compact,
-.textarea-compact {
-    width: 100%;
-    padding: 10px 12px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: #333;
-    transition: all 0.3s ease;
-    font-family: inherit;
-
-    &::placeholder {
-        color: #adb5bd;
-    }
-
-    &:focus {
-        outline: none;
-        border-color: variables.$secondary-color;
-        box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.1);
-    }
-}
-
-.textarea-compact {
-    resize: none;
-    min-height: 70px;
-}
-
-// Estilos para o p-select compacto
-::ng-deep {
-    .select-compact {
-        .p-select {
-            width: 100%;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-
-            &:hover {
-                border-color: #dee2e6;
-            }
-
-            &.p-focus {
-                border-color: variables.$secondary-color;
-                box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.1);
-            }
-        }
-
-        .p-select-label {
-            padding: 10px 12px;
-            font-size: 0.9rem;
-            color: #333;
-
-            &.p-placeholder {
-                color: #adb5bd;
-            }
-        }
-
-        .p-select-dropdown {
-            color: variables.$primary-color;
-        }
-    }
-
-    .p-select-overlay {
-        border-radius: 8px;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
-
-        .p-select-option {
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-
-            &:hover {
-                background: rgba(87, 193, 171, 0.1);
-                color: variables.$secondary-color;
-            }
-
-            &.p-select-option-selected {
-                background: rgba(87, 193, 171, 0.15);
-                color: variables.$secondary-color;
-            }
-        }
-    }
-}
-
-// ===== BOTÃO ENVIAR =====
-.btn-enviar {
-    width: 100%;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, variables.$secondary-color 0%, #45e0c7 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
+  label {
+    font-size: 0.74rem;
     font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-family: variables.$title-font;
+    color: variables.$primary-color;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  small {
+    font-size: 0.7rem;
+    text-align: right;
+  }
+}
+
+.field-input,
+.field-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid variables.$tertiary-color-dark;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  font-family: variables.$text-font;
+  color: variables.$text-primary-color;
+  background: variables.$tertiary-color;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+
+  &::placeholder { color: #b0bec5; }
+
+  &:focus {
+    outline: none;
+    background: #fff;
+    border-color: variables.$secondary-color;
+    box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12);
+  }
+}
+
+.field-textarea {
+  resize: none;
+  line-height: 1.55;
+}
+
+// ── p-select ──────────────────────────────────────────────────────────────
+::ng-deep {
+  .select-field {
+    .p-select {
+      width: 100% !important;
+      border: 1.5px solid variables.$tertiary-color-dark !important;
+      border-radius: 7px !important;
+      background: variables.$tertiary-color !important;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
+
+      &.p-focus {
+        background: #fff !important;
+        border-color: variables.$secondary-color !important;
+        box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12) !important;
+      }
+    }
+
+    .p-select-label {
+      padding: 9px 12px !important;
+      font-size: 0.875rem !important;
+      font-family: variables.$text-font !important;
+      color: variables.$text-primary-color !important;
+
+      &.p-placeholder { color: #b0bec5 !important; }
+    }
+
+    .p-select-dropdown {
+      color: variables.$primary-color-light2 !important;
+    }
+  }
+
+  .p-select-overlay {
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important;
+
+    .p-select-option {
+      padding: 8px 12px !important;
+      font-size: 0.875rem !important;
+      font-family: variables.$text-font !important;
+
+      &:hover {
+        background: rgba(87, 193, 171, 0.08) !important;
+        color: variables.$secondary-color-dark1 !important;
+      }
+
+      &.p-select-option-selected {
+        background: rgba(variables.$primary-color, 0.06) !important;
+        color: variables.$primary-color !important;
+        font-weight: 600 !important;
+      }
+    }
+  }
+}
+
+// ── Botão ─────────────────────────────────────────────────────────────────
+.btn-enviar {
+  width: 100%;
+  padding: 11px 20px;
+  background: variables.$primary-color;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-top: 4px;
+
+  &:hover:not(:disabled) {
+    background: variables.$primary-hover-color;
+    box-shadow: 0 4px 16px rgba(variables.$primary-hover-color, 0.32);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) { transform: translateY(0); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  i { font-size: 0.82rem; }
+}
+
+// ── Responsivo ────────────────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .contact-grid {
+    grid-template-columns: 300px 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-section { padding: 48px 0; }
+
+  .section-title { font-size: 1.5rem; }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+  }
+
+  .contact-aside {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(87, 193, 171, 0.3);
-    margin-top: 4px;
+  }
 
-    &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(87, 193, 171, 0.4);
-    }
+  .mapa-block { grid-column: 1 / -1; }
 
-    &:active:not(:disabled) {
-        transform: translateY(0);
-    }
+  .form-row { grid-template-columns: 1fr; }
 
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
+  .contato-form { padding: 20px; }
 
-    i {
-        font-size: 1rem;
-    }
+  .form-card-header { padding: 18px 20px; }
 }
 
-// ===== FOOTER SOCIAL =====
-.footer-social {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #e9ecef;
-
-    span {
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-weight: 600;
-    }
-
-    .social-icons {
-        display: flex;
-        gap: 8px;
-
-        a {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, variables.$secondary-color, #45e0c7);
-            border-radius: 8px;
-            color: white;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-
-            &:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 4px 12px rgba(87, 193, 171, 0.4);
-            }
-        }
-    }
+@media (max-width: 480px) {
+  .contact-aside { grid-template-columns: 1fr; }
+  .section-title { font-size: 1.3rem; }
 }
 
-// ===== RESPONSIVO =====
-@media (max-width: 1199px) {
-    .contato-rapido {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
 
-    .contato-item {
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 12px 14px;
+.faq-block { padding: 18px 20px; }
 
-        i {
-            font-size: 1.2rem;
-        }
-
-        span {
-            font-size: 0.8rem;
-            text-align: left;
-        }
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
+.faq-desc {
+  font-size: 0.78rem;
+  color: variables.$text-secondary-color;
+  line-height: 1.55;
+  margin: 0 0 14px;
 }
 
-@media (max-width: 575px) {
-    .contato-dialog {
-        gap: 16px;
-    }
+.btn-faq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 7px;
+  border: 1.5px solid variables.$primary-color;
+  background: transparent;
+  color: variables.$primary-color;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: variables.$title-font;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: all 0.2s ease;
 
-    .contato-rapido {
-        gap: 8px;
-        margin-bottom: 8px;
-    }
+  span { flex: 1; }
 
-    .contato-item {
-        padding: 10px 12px;
-        gap: 10px;
+  .fa-arrow-right {
+    font-size: 0.72rem;
+    transition: transform 0.2s;
+  }
 
-        i {
-            font-size: 1.1rem;
-        }
-
-        span {
-            font-size: 0.75rem;
-        }
-    }
-
-    .form-compacto {
-        gap: 10px;
-    }
-
-    .form-row {
-        gap: 8px;
-    }
-
-    .input-compact,
-    .textarea-compact {
-        padding: 9px 11px;
-        font-size: 0.85rem;
-    }
-
-    .textarea-compact {
-        min-height: 65px;
-    }
-
-    .btn-enviar {
-        padding: 11px 20px;
-        font-size: 0.9rem;
-    }
-
-    .footer-social {
-        padding-top: 10px;
-        gap: 10px;
-
-        span {
-            font-size: 0.8rem;
-        }
-
-        .social-icons {
-            gap: 6px;
-
-            a {
-                width: 30px;
-                height: 30px;
-                font-size: 0.85rem;
-            }
-        }
-    }
+  &:hover {
+    background: variables.$primary-color;
+    color: #fff;
+    .fa-arrow-right { transform: translateX(3px); }
+  }
 }
