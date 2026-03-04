@@ -37,10 +37,10 @@
             <p-fileUpload
               #upload
               name="arquivoNotas"
-              [multiple]="true"
+              [multiple]="false"
               [customUpload]="true"
               (uploadHandler)="onUpload($event)"
-              fileLimit="4"
+              fileLimit="1"
               accept=".xlsx"
               maxFileSize="1000000"
               mode="advanced"
@@ -53,7 +53,7 @@
                   <div class="p-text-center">
                     <i class="pi pi-upload" style="font-size: 2em; color: #888;"></i>
                     <p class="p-mt-2" style="color: #888;">Arraste e solte os arquivos aqui ou clique para selecionar</p>
-                    <p style="color: #888; font-size: 0.9em;">(Máx. 4 arquivos .xlsx)</p>
+                    <p style="color: #888; font-size: 0.9em;">(Máx. 1 arquivos .xlsx)</p>
                   </div>
                 </div>
               </ng-template>

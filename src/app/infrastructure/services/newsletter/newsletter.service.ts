@@ -17,6 +17,14 @@ export class NewsletterService {
     return this.http.post(`${environment.apiUrl}/newsletter/upload`, formData, {responseType: 'text'});
   }
 
+  createNewsletterWithOneFile(file: File, isMatriz: boolean = false){
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('isMatriz', String(isMatriz));
+
+    return this.http.post(`${environment.apiUrl}/newsletter/upload/one-file`, formData, {responseType: 'text'});
+  }
+
   sendPendingNewsletters(){
     return this.http.post(`${environment.apiUrl}/newsletter/pending/send`, "", {responseType: 'text'});
   }
