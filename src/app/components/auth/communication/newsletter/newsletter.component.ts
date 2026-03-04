@@ -1,5 +1,5 @@
 import { NewsletterService } from './../../../../infrastructure/services/newsletter/newsletter.service';
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import { Newsletter } from '../../../../domain/models/newsletter.model';
 import { HttpClient } from '@angular/common/http';
 import { MessageService, ConfirmationService } from 'primeng/api';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { FileUploadModule } from 'primeng/fileupload';
+import {FileUpload, FileUploadModule} from 'primeng/fileupload';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -43,6 +43,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class NewsletterComponent implements OnInit {
 
+  @ViewChild('upload') upload!: FileUpload;
+
   loading = false;
   processing = false;
   newsletters: Newsletter[] = [];
@@ -65,15 +67,17 @@ export class NewsletterComponent implements OnInit {
 
     if(fileList.length > 0){
       console.log("isMatriz:", this.checked);
-      this.newsletterService.createNewsletters(fileList, this.checked).subscribe({
-        next: (msg: string) => {
-          this.processing = false;
-          this.loading = false;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: msg
-          });
+      this.newsletterService.createNewsletterWithOneFile(fileList[0], this.checked)
+        .subscribe({
+          next: (msg: string) => {
+            this.processing = false;
+            this.loading = false;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: msg
+            });
+            this.upload.clear();
         },
         error: (err) => {
           this.loading = false;
@@ -83,6 +87,7 @@ export class NewsletterComponent implements OnInit {
             summary: 'Error',
             detail: err.error || err.message || 'Erro desconhecido'
           });
+          this.upload.clear();
         }
       });
     }
