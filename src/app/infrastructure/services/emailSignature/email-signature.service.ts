@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { EmailSignatureRequest } from '../../../domain/models/emailSignature.models';
+import { EmailSignatureRequest } from '../../../domain/models/emailSignature.model';
 
 @Injectable({
   providedIn: 'root',

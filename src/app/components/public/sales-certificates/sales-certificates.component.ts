@@ -8,7 +8,7 @@ import { MessageService } from 'primeng/api';
 import { CertificateService } from './../../../infrastructure/services/certificate/certificate.service';
 import { Certificate } from '../../../domain/models/certificate.model';
 import { Toast } from 'primeng/toast';
-import { ApiError } from '../../../domain/models/apiError.models';
+import { ApiError } from '../../../domain/models/apiError.model';
 
 @Component({
   selector: 'app-sales-certificates',
