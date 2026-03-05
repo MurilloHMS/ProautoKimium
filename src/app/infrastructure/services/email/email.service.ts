@@ -16,4 +16,8 @@ export class EmailService {
   addEmail(email: Email): Observable<Email> {
     return this.http.post<Email>(`${environment.apiUrl}/email`, email);
   }
+
+  sendEmails(formData: FormData): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/smtp/send`, formData, {responseType: 'text'});
+  }
 }
