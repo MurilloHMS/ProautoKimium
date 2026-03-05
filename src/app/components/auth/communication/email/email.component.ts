@@ -24,6 +24,7 @@ import {EmployeeService} from "../../../../infrastructure/services/partners/empl
 import {forkJoin} from "rxjs";
 import {SkeletonModule} from "primeng/skeleton";
 import {ScrollerModule} from "primeng/scroller";
+import {EmailService} from "../../../../infrastructure/services/email/email.service";
 
 export interface EmailForm {
   from: string;
@@ -83,9 +84,12 @@ export class EmailComponent implements OnInit {
   };
 
   fromEmailOptions: { label: string; value: string }[] = [
-    { label: 'noreply@empresa.com.br', value: 'noreply@empresa.com.br' },
-    { label: 'marketing@empresa.com.br', value: 'marketing@empresa.com.br' },
-    { label: 'contato@empresa.com.br', value: 'contato@empresa.com.br' },
+    { label: 'Marketing@proautokimium.com.br', value: 'marketing@envios.proautokimium.com.br' },
+    { label: 'Ti@proautokimium.com.br', value: 'ti@envios.proautokimium.com.br' },
+    { label: 'Avisos@proautokimium.com.br', value: 'avisos@envios.proautokimium.com.br' },
+    { label: 'Newsletter@proautokimium.com.br', value: 'newsletter@envios.proautokimium.com.br' },
+    { label: 'Design@proautokimium.com.br', value: 'design@envios.proautokimium.com.br' },
+    { label: 'RH@proautokimium.com.br', value: 'rh@envios.proautokimium.com.br' },
   ];
 
   constructor(
@@ -93,7 +97,8 @@ export class EmailComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private customerService: CustomerService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private emailService: EmailService
   ) {}
 
   ngOnInit(): void {
@@ -282,18 +287,24 @@ export class EmailComponent implements OnInit {
   private executeSend(): void {
     this.isSending = true;
 
-    const formData = new FormData();
-    formData.append('from', this.emailForm.from);
-    formData.append('replyTo', this.emailForm.replyTo);
-    formData.append('subject', this.emailForm.subject);
-    formData.append('body', this.emailForm.body);
-    formData.append('recipients', JSON.stringify(this.selectedRecipients.map(r => r.email)));
+    const emailData = {
+      sender: this.emailForm.from,
+      replyTo: this.emailForm.replyTo,
+      subject: this.emailForm.subject,
+      body: this.emailForm.body,
+      recipients: this.selectedRecipients.map(r => r.email),
+      cc: [],
+      bcc: [],
+      imageBase64: null
+    };
 
-    this.images.forEach(img => formData.append('images', img));
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(emailData)], { type: 'application/json' }));
+
+    //this.images.forEach(img => formData.append('images', img));
     this.attachments.forEach(att => formData.append('attachments', att));
 
-    // Substitua pela URL do seu endpoint:
-    this.http.post('/api/email/blast', formData).subscribe({
+    this.emailService.sendEmails(formData).subscribe({
       next: () => {
         this.isSending = false;
         this.messageService.add({
