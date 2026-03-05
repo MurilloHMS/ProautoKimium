@@ -258,35 +258,35 @@
           </p-editor>
         </div>
 
-        <!-- Imagens -->
-        <div class="form-group">
-          <label class="form-label">
-            <i class="pi pi-image"></i>
-            Imagens
-          </label>
-          <p-fileUpload
-            #imageUploader
-            mode="advanced"
-            [multiple]="true"
-            accept="image/*"
-            [maxFileSize]="10000000"
-            (onSelect)="onImagesSelected($event)"
-            (onRemove)="onImageRemoved($event)"
-            chooseLabel="Adicionar Imagens"
-            uploadLabel="Upload"
-            cancelLabel="Cancelar"
-            styleClass="custom-file-upload"
-            [showUploadButton]="false"
-            [showCancelButton]="false"
-          >
-            <ng-template pTemplate="empty">
-              <div class="upload-empty">
-                <i class="pi pi-image"></i>
-                <p>Arraste imagens aqui ou clique para selecionar</p>
-              </div>
-            </ng-template>
-          </p-fileUpload>
-        </div>
+<!--        &lt;!&ndash; Imagens &ndash;&gt;-->
+<!--        <div class="form-group">-->
+<!--          <label class="form-label">-->
+<!--            <i class="pi pi-image"></i>-->
+<!--            Imagens-->
+<!--          </label>-->
+<!--          <p-fileUpload-->
+<!--            #imageUploader-->
+<!--            mode="advanced"-->
+<!--            [multiple]="true"-->
+<!--            accept="image/*"-->
+<!--            [maxFileSize]="10000000"-->
+<!--            (onSelect)="onImagesSelected($event)"-->
+<!--            (onRemove)="onImageRemoved($event)"-->
+<!--            chooseLabel="Adicionar Imagens"-->
+<!--            uploadLabel="Upload"-->
+<!--            cancelLabel="Cancelar"-->
+<!--            styleClass="custom-file-upload"-->
+<!--            [showUploadButton]="false"-->
+<!--            [showCancelButton]="false"-->
+<!--          >-->
+<!--            <ng-template pTemplate="empty">-->
+<!--              <div class="upload-empty">-->
+<!--                <i class="pi pi-image"></i>-->
+<!--                <p>Arraste imagens aqui ou clique para selecionar</p>-->
+<!--              </div>-->
+<!--            </ng-template>-->
+<!--          </p-fileUpload>-->
+<!--        </div>-->
 
         <!-- Anexos -->
         <div class="form-group">
