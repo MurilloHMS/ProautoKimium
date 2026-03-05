@@ -18,13 +18,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { Select } from "primeng/select";
-
-export interface Recipient {
-  id: string | number;
-  name: string;
-  email: string;
-  type: 'employee' | 'client';
-}
+import {Recipient} from "../../../../domain/models/partnerRecipient.model";
+import {CustomerService} from "../../../../infrastructure/services/partners/customer/customer.service";
+import {EmployeeService} from "../../../../infrastructure/services/partners/employee/employee.service";
+import {forkJoin} from "rxjs";
+import {SkeletonModule} from "primeng/skeleton";
+import {ScrollerModule} from "primeng/scroller";
 
 export interface EmailForm {
   from: string;
@@ -33,7 +32,7 @@ export interface EmailForm {
   body: string;
 }
 
-type FilterType = 'all' | 'employees' | 'clients';
+type FilterType = 'all' | 'employees' | 'customer';
 
 @Component({
   selector: 'app-email',
@@ -50,7 +49,9 @@ type FilterType = 'all' | 'employees' | 'clients';
     ConfirmDialogModule,
     ToastModule,
     AutoCompleteModule,
-    Select
+    Select,
+    SkeletonModule,
+    ScrollerModule
 ],
   templateUrl: './email.component.html',
   styleUrl: './email.component.scss',
@@ -91,6 +92,8 @@ export class EmailComponent implements OnInit {
     private http: HttpClient,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private customerService: CustomerService,
+    private employeeService: EmployeeService
   ) {}
 
   ngOnInit(): void {
@@ -99,47 +102,44 @@ export class EmailComponent implements OnInit {
 
   // ─── Load Data ────────────────────────────────────────────
   private loadRecipients(): void {
-    // Substitua pelas suas chamadas reais:
-    // forkJoin({
-    //   employees: this.http.get<Recipient[]>('/api/employees'),
-    //   clients: this.http.get<Recipient[]>('/api/clients'),
-    // }).subscribe(({ employees, clients }) => {
-    //   this.allRecipients = [...employees, ...clients];
-    //   this.updateCounts();
-    //   this.applyFilter();
-    // });
+    forkJoin({
+      customers: this.customerService.getCustomersEmail(),
+      employees: this.employeeService.getEmployeeEmail()
+    }).subscribe({
+      next: ({ customers, employees }) => {
+        const mappedCustomers = (customers ?? []).map(c => ({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          type: 'customer' as const
+        }));
 
-    this.allRecipients = this.generateMockData();
-    this.updateCounts();
-    this.applyFilter();
-  }
+        const mappedEmployees = (employees ?? []).map(e => ({
+          id: e.id,
+          name: e.name,
+          email: e.email,
+          type: 'employee' as const
+        }));
 
-  private generateMockData(): Recipient[] {
-    const recipients: Recipient[] = [];
-    for (let i = 1; i <= 50; i++) {
-      recipients.push({
-        id: i,
-        name: `Funcionário ${i}`,
-        email: `funcionario${i}@empresa.com.br`,
-        type: 'employee',
-      });
-    }
-    for (let i = 1; i <= 80; i++) {
-      recipients.push({
-        id: `c${i}`,
-        name: `Cliente ${i}`,
-        email: `cliente${i}@email.com`,
-        type: 'client',
-      });
-    }
-    return recipients;
+        this.allRecipients = [...mappedCustomers, ...mappedEmployees];
+        this.updateCounts();
+        this.applyFilter();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Não foi possível carregar os destinatários.',
+        });
+      }
+    });
   }
 
   private updateCounts(): void {
     this.totalCounts = {
       all: this.allRecipients.length,
       employees: this.allRecipients.filter(r => r.type === 'employee').length,
-      clients: this.allRecipients.filter(r => r.type === 'client').length,
+      clients: this.allRecipients.filter(r => r.type === 'customer').length,
     };
   }
 
@@ -158,8 +158,8 @@ export class EmailComponent implements OnInit {
 
     if (this.activeFilter === 'employees') {
       result = result.filter(r => r.type === 'employee');
-    } else if (this.activeFilter === 'clients') {
-      result = result.filter(r => r.type === 'client');
+    } else if (this.activeFilter === 'customer') {
+      result = result.filter(r => r.type === 'customer');
     }
 
     if (this.searchTerm.trim()) {
