@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { empty, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
+import {Recipient} from "../../../../domain/models/partnerRecipient.model";
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,10 @@ export class EmployeeService {
 
   getEmployes() : Observable<Employee[]>{
     return this.http.get<Employee[]>(`${environment.apiUrl}/employee`);
+  }
+
+  getEmployeeEmail() : Observable<Recipient[]>{
+    return this.http.get<Recipient[]>(`${environment.apiUrl}/employee/only-email`);
   }
 
   addEmploye(employe: Employee): Observable<Employee>{
