@@ -24,6 +24,7 @@ import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-
 import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
 import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
+import { EmailComponent } from './components/auth/communication/email/email.component';
 import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
 import {ForgotPasswordComponent} from "./components/public/forgot-password/forgot-password.component";
 
@@ -60,7 +61,8 @@ export const routes: Routes = [
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: '', redirectTo: 'home', pathMatch: 'full'},
-        {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}}
+        {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}},
+        {path: 'communication/email', component: EmailComponent, data: {roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT']}}
       ]
     },
     {
