@@ -54,8 +54,8 @@
         </button>
         <button
           class="filter-tab"
-          [class.active]="activeFilter === 'clients'"
-          (click)="setFilter('clients')"
+          [class.active]="activeFilter === 'customer'"
+          (click)="setFilter('customer')"
         >
           <i class="pi pi-briefcase"></i>
           Clientes
@@ -98,31 +98,51 @@
         </button>
       </div>
 
-      <!-- Recipients List -->
-      <div class="recipients-list" #listContainer>
-        <div
-          *ngFor="let recipient of filteredList; trackBy: trackById"
-          class="recipient-item"
-          [class.selected]="isSelected(recipient)"
-          (click)="toggleRecipient(recipient)"
+      <!-- Recipients List com Virtual Scroll -->
+      <div class="recipients-list">
+        <p-scroller
+          *ngIf="filteredList.length > 0"
+          [items]="filteredList"
+          [itemSize]="64"
+          [style]="{ height: '480px' }"
+          [trackBy]="trackById"
         >
-          <p-checkbox
-            [ngModel]="isSelected(recipient)"
-            [binary]="true"
-            (click)="$event.stopPropagation()"
-            (onChange)="toggleRecipient(recipient)"
-          />
-          <div class="recipient-avatar" [class]="'avatar-' + recipient.type">
-            {{ getInitials(recipient.name) }}
-          </div>
-          <div class="recipient-info">
-            <span class="recipient-name">{{ recipient.name }}</span>
-            <span class="recipient-email">{{ recipient.email }}</span>
-          </div>
-          <span class="recipient-type-badge" [class]="'badge-' + recipient.type">
-            {{ recipient.type === 'employee' ? 'Func.' : 'Cliente' }}
-          </span>
-        </div>
+          <ng-template pTemplate="item" let-recipient>
+            <div
+              class="recipient-item"
+              [class.selected]="isSelected(recipient)"
+              (click)="toggleRecipient(recipient)"
+              [style.height.px]="64"
+            >
+              <p-checkbox
+                [ngModel]="isSelected(recipient)"
+                [binary]="true"
+                (click)="$event.stopPropagation()"
+                (onChange)="toggleRecipient(recipient)"
+              />
+              <div class="recipient-avatar" [class]="'avatar-' + recipient.type">
+                {{ getInitials(recipient.name) }}
+              </div>
+              <div class="recipient-info">
+                <span class="recipient-name">{{ recipient.name }}</span>
+                <span class="recipient-email">{{ recipient.email }}</span>
+              </div>
+              <span class="recipient-type-badge" [class]="'badge-' + recipient.type">
+                {{ recipient.type === 'employee' ? 'Func.' : 'Cliente' }}
+              </span>
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="loader">
+            <div class="recipient-item" [style.height.px]="64">
+              <p-skeleton shape="circle" size="2rem" />
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+                <p-skeleton width="60%" height="0.9rem" />
+                <p-skeleton width="80%" height="0.75rem" />
+              </div>
+            </div>
+          </ng-template>
+        </p-scroller>
 
         <div *ngIf="filteredList.length === 0" class="empty-state">
           <i class="pi pi-inbox"></i>
