@@ -1,7 +1,6 @@
-
 <div class="drawer-hover-zone"
-  (mouseenter)="onDrawerZoneEnter()"
-  (mouseleave)="onDrawerZoneLeave()">
+     (mouseenter)="onDrawerZoneEnter()"
+     (mouseleave)="onDrawerZoneLeave()">
 </div>
 
 <div class="topbar">
@@ -47,18 +46,29 @@
       @if (showSearchResults) {
         <div class="search-dropdown">
           @if (searchResults.length > 0) {
-            @for (result of searchResults; track result.routerLink) {
-              <a class="search-result"
-                [routerLink]="result.routerLink"
-                (click)="navigateToResult(result)">
-                <span class="search-result-icon">
-                  <i [class]="result.icon"></i>
-                </span>
-                <span class="search-result-info">
-                  <span class="search-result-label">{{ result.label }}</span>
-                  <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
-                </span>
-              </a>
+            @for (result of searchResults; track result.label) {
+              @if (result.routerLink) {
+                <a class="search-result"
+                   [routerLink]="result.routerLink"
+                   (click)="navigateToResult(result)">
+                  <span class="search-result-icon"><i [class]="result.icon"></i></span>
+                  <span class="search-result-info">
+                    <span class="search-result-label">{{ result.label }}</span>
+                    <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
+                  </span>
+                </a>
+              } @else {
+                <a class="search-result"
+                   [href]="result.url"
+                   [target]="result.target ?? '_self'"
+                   (click)="navigateToResult(result)">
+                  <span class="search-result-icon"><i [class]="result.icon"></i></span>
+                  <span class="search-result-info">
+                    <span class="search-result-label">{{ result.label }}</span>
+                    <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
+                  </span>
+                </a>
+              }
             }
           } @else {
             <div class="search-empty">
@@ -71,13 +81,13 @@
     </div>
 
     <button pButton type="button" icon="pi pi-bell"
-      class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
-      aria-label="Notificações">
+            class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
+            aria-label="Notificações">
     </button>
     <button pButton type="button" icon="pi pi-sign-out"
-      class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
-      aria-label="Sair"
-      (click)="logout()">
+            class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
+            aria-label="Sair"
+            (click)="logout()">
     </button>
   </div>
 </div>
@@ -85,8 +95,8 @@
 <div class="drawer-overlay" [class.visible]="drawerVisible" (click)="closeDrawer()"></div>
 
 <nav class="drawer" [class.open]="drawerVisible"
-  (mouseenter)="onDrawerMouseEnter()"
-  (mouseleave)="onDrawerMouseLeave()">
+     (mouseenter)="onDrawerMouseEnter()"
+     (mouseleave)="onDrawerMouseLeave()">
 
   <div class="drawer-header">
     <svg width="24" height="26" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -140,29 +150,52 @@
                     <ul class="drawer-submenu drawer-submenu--deep" [class.open]="asAppItem(sub)._expanded">
                       @for (deep of sub.items; track deep.label) {
                         <li>
-                          <a pRipple class="drawer-deeplink"
-                            [routerLink]="deep.routerLink"
-                            routerLinkActive="active-deepitem"
-                            (click)="closeDrawer()">
-                            <span class="drawer-dot"></span>
-                            <span>{{ deep.label }}</span>
-                            @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
-                          </a>
+                          @if (deep.routerLink) {
+                            <a pRipple class="drawer-deeplink"
+                               [routerLink]="deep.routerLink"
+                               routerLinkActive="active-deepitem"
+                               (click)="closeDrawer()">
+                              <span class="drawer-dot"></span>
+                              <span>{{ deep.label }}</span>
+                              @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
+                            </a>
+                          } @else {
+                            <a pRipple class="drawer-deeplink"
+                               [href]="deep['url']"
+                               [target]="deep['target'] ?? '_self'"
+                               (click)="closeDrawer()">
+                              <span class="drawer-dot"></span>
+                              <span>{{ deep.label }}</span>
+                              @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
+                            </a>
+                          }
                         </li>
                       }
                     </ul>
                   }
 
                   @if (!sub.items || sub.items.length === 0) {
-                    <a pRipple class="drawer-sublink"
-                      [routerLink]="sub.routerLink"
-                      routerLinkActive="active-subitem"
-                      (click)="closeDrawer()">
-                      <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
-                      <span>{{ sub.label }}</span>
-                      @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
-                      @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
-                    </a>
+                    @if (sub.routerLink) {
+                      <a pRipple class="drawer-sublink"
+                         [routerLink]="sub.routerLink"
+                         routerLinkActive="active-subitem"
+                         (click)="closeDrawer()">
+                        <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
+                        <span>{{ sub.label }}</span>
+                        @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
+                        @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
+                      </a>
+                    } @else {
+                      <a pRipple class="drawer-sublink"
+                         [href]="sub['url']"
+                         [target]="sub['target'] ?? '_self'"
+                         (click)="closeDrawer()">
+                        <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
+                        <span>{{ sub.label }}</span>
+                        @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
+                        @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
+                      </a>
+                    }
                   }
 
                 </li>
@@ -171,15 +204,27 @@
           }
 
           @if (!item.items || item.items.length === 0) {
-            <a pRipple class="drawer-link"
-              [routerLink]="item.routerLink"
-              routerLinkActive="active-item"
-              (click)="closeDrawer()">
-              <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
-              <span class="drawer-label">{{ item.label }}</span>
-              @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
-              @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
-            </a>
+            @if (item.routerLink) {
+              <a pRipple class="drawer-link"
+                 [routerLink]="item.routerLink"
+                 routerLinkActive="active-item"
+                 (click)="closeDrawer()">
+                <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
+                <span class="drawer-label">{{ item.label }}</span>
+                @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
+                @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
+              </a>
+            } @else {
+              <a pRipple class="drawer-link"
+                 [href]="item['url']"
+                 [target]="item['target'] ?? '_self'"
+                 (click)="closeDrawer()">
+                <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
+                <span class="drawer-label">{{ item.label }}</span>
+                @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
+                @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
+              </a>
+            }
           }
 
         </li>
@@ -197,8 +242,8 @@
         <span class="drawer-user-role">{{ auth.getUserRoles() }}</span>
       </div>
       <button pButton type="button" icon="pi pi-sign-out"
-        class="p-button-text p-button-rounded p-button-plain"
-        (click)="logout()" aria-label="Sair">
+              class="p-button-text p-button-rounded p-button-plain"
+              (click)="logout()" aria-label="Sair">
       </button>
     </div>
   </div>

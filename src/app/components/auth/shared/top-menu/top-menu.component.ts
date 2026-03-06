@@ -19,7 +19,9 @@ interface AppMenuItem extends MenuItem {
 interface FlatMenuItem {
   label: string;
   icon: string;
-  routerLink: any[];
+  routerLink?: any[];
+  url?: string;
+  target?: string;
   breadcrumb: string;
 }
 
@@ -106,6 +108,18 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         items: [
           { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], roles: ['ADMIN', 'MARKETING'] },
           { label: 'Disparo de Emails', icon: 'pi pi-fw pi-send', routerLink: ['communication/email'], roles: ['ADMIN','MARKETING','RH','SUPPORT'] },
+        ],
+      },
+      {
+        label: 'Apps Externos',
+        icon: 'pi pi-fw pi-external-link',
+        items: [
+          { label: 'NextCloud', icon: 'pi pi-fw pi-cloud', url: 'https://cloud.proautokimium.com.br/', target: '_blank' },
+          { label: 'N8N', icon: 'pi pi-fw pi-cog', url: 'https://n8n.proautokimium.com.br/', target: '_blank' },
+          { label: 'PDF', icon: 'pi pi-fw pi-file-pdf', url: 'https://pdf.proautokimium.com.br/', target: '_blank' },
+          { label: 'Jenkins', icon: 'pi pi-fw pi-cog', url: 'https://jenkins.proautokimium.com.br/', target: '_blank' },
+          { label: 'Api (Documentação)', icon: 'pi pi-fw pi-file', url: 'https://api.proautokimium.com/swagger-ui/index.html', target: '_blank' },
+          { label: 'GLPI (Chamados)', icon: 'pi pi-fw pi-ticket', url: 'https://infra.proautokimium.com.br/', target: '_blank' },
         ],
       },
     ];
@@ -218,11 +232,13 @@ export class TopMenuComponent implements OnInit, OnDestroy {
     const result: FlatMenuItem[] = [];
     for (const item of items) {
       const crumb = breadcrumb ? `${breadcrumb} › ${item.label}` : (item.label ?? '');
-      if (item.routerLink) {
+      if (item.routerLink || item.url) {
         result.push({
           label: item.label ?? '',
           icon: item.icon ?? 'pi pi-circle',
           routerLink: item.routerLink as any[],
+          url: item.url,
+          target: item.target,
           breadcrumb: crumb,
         });
       }
