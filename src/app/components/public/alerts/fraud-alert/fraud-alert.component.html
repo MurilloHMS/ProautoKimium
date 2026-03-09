@@ -1,0 +1,84 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '640px', maxWidth: '95vw' }"
+  styleClass="fraud-alert-dialog"
+  [baseZIndex]="9999"
+>
+  <ng-template pTemplate="header">
+    <div class="alert-header">
+      <div class="alert-badge">
+        <span class="badge-dot"></span>
+        AVISO IMPORTANTE
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <div class="alert-body">
+
+      <div class="alert-icon-row">
+        <div class="alert-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="alert-title-group">
+          <h2 class="alert-title">Atenção: Boletos Fraudulentos</h2>
+          <p class="alert-subtitle">Golpe em nome da Proauto Kimium</p>
+        </div>
+      </div>
+
+      <div class="alert-divider"></div>
+
+      <p class="alert-message">
+        Identificamos que terceiros estão enviando <strong>boletos falsos</strong> utilizando
+        dados da nossa empresa <strong>Proauto Indústria Química Ltda</strong> para nossos
+        clientes. Esses documentos <strong>não foram emitidos por nós</strong>.
+      </p>
+
+      <div class="alert-tips">
+        <div class="tip-item">
+          <div class="tip-check">
+            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
+                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span>Confirme todos os boletos <strong>diretamente conosco</strong> antes de pagar</span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-check">
+            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
+                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span>Verifique se o CNPJ beneficiário é <strong>Proauto Industria Quimica Ltda</strong></span>
+        </div>
+        <div class="tip-item">
+          <div class="tip-check">
+            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
+                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span>Em caso de dúvida, <strong>não efetue o pagamento</strong> e entre em contato</span>
+        </div>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="alert-footer">
+      <button class="btn-close-alert" (click)="close()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round"/>
+        </svg>
+        Estou ciente, fechar aviso
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
