@@ -97,6 +97,13 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         ],
       },
       {
+        label: 'Parceiros', icon: 'pi pi-fw pi-users',
+        items: [
+          { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['partners/customers'], roles: ['ADMIN'] },
+          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['partners/employees'], roles: ['ADMIN','RH'] },
+        ]
+      },
+      {
         label: 'Suporte',
         icon: 'fa-solid fa-ticket',
         items: [

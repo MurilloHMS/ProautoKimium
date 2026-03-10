@@ -1,0 +1,599 @@
+@use '../../../../../styles/variables.scss' as *;
+
+// ─── Brand Variables ──────────────────────────────────────────────────────────
+$primary:           #232e61;
+$primary-light:     #3e4b85;
+$primary-dark:      #1b224d;
+$secondary:         #57c1ab;
+$secondary-dark:    #3e9e8e;
+$bg-base:           #f0f4f9;
+$bg-panel:          #ffffff;
+$bg-hover:          #f8fafc;
+$text-main:         #1a202c;
+$text-muted:        #64748b;
+$text-light:        #94a3b8;
+$border:            #e2e8f0;
+$success:           #10b981;
+$danger:            #ef4444;
+
+$radius-sm:  6px;
+$radius-md:  10px;
+$radius-lg:  14px;
+$radius-xl:  18px;
+
+$shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+$shadow-md:  0 4px 16px rgba(35,46,97,.08), 0 1px 4px rgba(0,0,0,.04);
+$shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
+
+// ─── Page Header ──────────────────────────────────────────────────────────────
+.page-header {
+  padding: 1.5rem 1.75rem 1.25rem;
+  background: $bg-panel;
+  border-bottom: 1px solid $border;
+  margin-bottom: 1.5rem;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  &__title-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $radius-md;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(35,46,97,.25);
+
+    i {
+      color: #fff;
+      font-size: 1.3rem;
+    }
+  }
+
+  &__title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: $primary;
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    font-size: .82rem;
+    color: $text-muted;
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    flex-wrap: wrap;
+  }
+
+  &__file-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .75rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: $radius-sm;
+    padding: .35rem .75rem;
+    font-size: .8rem;
+    color: #15803d;
+    font-weight: 500;
+
+    i { font-size: .85rem; }
+
+    .badge-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #15803d;
+      padding: 0 0 0 .25rem;
+      line-height: 1;
+      opacity: .7;
+      transition: opacity .15s;
+      &:hover { opacity: 1; }
+      i { font-size: .7rem; }
+    }
+  }
+}
+
+// ─── Buttons ──────────────────────────────────────────────────────────────────
+.btn-primary.p-button {
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  border: none;
+  border-radius: $radius-sm;
+  font-weight: 600;
+  font-size: .82rem;
+  padding: .5rem 1rem;
+  box-shadow: 0 2px 8px rgba(35,46,97,.22);
+  transition: transform .15s, box-shadow .15s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(35,46,97,.32);
+  }
+  &:active { transform: translateY(0); }
+}
+
+.btn-secondary.p-button {
+  background: linear-gradient(135deg, $secondary-dark, $secondary);
+  border: none;
+  border-radius: $radius-sm;
+  font-weight: 600;
+  font-size: .82rem;
+  padding: .5rem 1rem;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(87,193,171,.3);
+  transition: transform .15s, box-shadow .15s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(87,193,171,.4);
+  }
+}
+
+.btn-ghost.p-button {
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  color: $text-muted;
+  font-weight: 500;
+  font-size: .82rem;
+  padding: .5rem 1rem;
+  transition: background .15s, color .15s, border-color .15s;
+
+  &:hover {
+    background: $bg-hover;
+    color: $primary;
+    border-color: $primary;
+  }
+}
+
+.btn-outlined.p-button {
+  background: transparent;
+  border: 1px solid $secondary;
+  border-radius: $radius-sm;
+  color: $secondary-dark;
+  font-weight: 600;
+  font-size: .82rem;
+  padding: .5rem 1rem;
+  transition: background .15s;
+
+  &:hover {
+    background: rgba(87,193,171,.08);
+  }
+}
+
+// File upload camouflage (keep PrimeNG working but style like our btn)
+::ng-deep .btn-excel-upload {
+  .p-fileupload-choose {
+    background: transparent !important;
+    border: 1px solid $secondary !important;
+    border-radius: $radius-sm !important;
+    color: $secondary-dark !important;
+    font-weight: 600 !important;
+    font-size: .82rem !important;
+    padding: .5rem 1rem !important;
+    box-shadow: none !important;
+    transition: background .15s;
+
+    &:hover { background: rgba(87,193,171,.08) !important; }
+  }
+}
+
+// ─── Table Card ───────────────────────────────────────────────────────────────
+.table-card {
+  background: $bg-panel;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+}
+
+// ─── Table Caption ────────────────────────────────────────────────────────────
+.table-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid $border;
+  flex-wrap: wrap;
+  gap: .75rem;
+
+  &__count {
+    font-size: .85rem;
+    color: $text-muted;
+    strong { color: $primary; font-weight: 700; }
+  }
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+      position: absolute;
+      left: .75rem;
+      color: $text-light;
+      font-size: .85rem;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    input.p-inputtext {
+      padding-left: 2.25rem;
+      height: 36px;
+      width: 260px;
+      border-radius: $radius-sm;
+      border: 1px solid $border;
+      font-size: .83rem;
+      background: $bg-base;
+      transition: border-color .15s, box-shadow .15s;
+
+      &:focus {
+        border-color: $primary-light;
+        box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+        background: $bg-panel;
+        outline: none;
+      }
+    }
+  }
+}
+
+// ─── PrimeNG Table Overrides ──────────────────────────────────────────────────
+::ng-deep .custom-table {
+
+  .p-datatable-thead > tr > th {
+    background: $bg-base;
+    color: $text-muted;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: .75rem 1rem;
+    border-bottom: 2px solid $border;
+    white-space: nowrap;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: background .12s;
+
+    > td {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid $border;
+      font-size: .85rem;
+      color: $text-main;
+      vertical-align: middle;
+    }
+
+    &:hover > td { background: $bg-hover; }
+    &:last-child > td { border-bottom: none; }
+  }
+
+  .p-paginator {
+    border-top: 1px solid $border;
+    padding: .75rem 1rem;
+    background: $bg-panel;
+
+    .p-paginator-element {
+      border-radius: $radius-sm;
+      font-size: .82rem;
+      min-width: 32px;
+      height: 32px;
+
+      &.p-highlight {
+        background: $primary;
+        color: #fff;
+        border-color: $primary;
+      }
+    }
+  }
+}
+
+// ─── Table Cell Styles ────────────────────────────────────────────────────────
+.col-center { text-align: center !important; }
+
+.cod-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(35,46,97,.08);
+  color: $primary;
+  border-radius: $radius-sm;
+  padding: .2rem .55rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  font-family: 'Courier New', monospace;
+
+  &--secondary {
+    background: rgba(87,193,171,.1);
+    color: $secondary-dark;
+  }
+}
+
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+}
+
+.customer-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.customer-name {
+  font-weight: 500;
+}
+
+.email-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: $text-muted;
+  font-size: .83rem;
+
+  i { color: $text-light; font-size: .8rem; }
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  border-radius: 100px;
+  padding: .25rem .65rem;
+  font-size: .75rem;
+  font-weight: 600;
+
+  i { font-size: .7rem; }
+
+  &--active {
+    background: rgba(16,185,129,.1);
+    color: #059669;
+  }
+
+  &--inactive {
+    background: rgba(239,68,68,.08);
+    color: #dc2626;
+  }
+}
+
+.action-btn.p-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  border: 1px solid $border;
+  color: $text-muted;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+  }
+}
+
+.text-muted { color: $text-light; font-size: .85rem; }
+
+// ─── Empty State ──────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1rem;
+  text-align: center;
+
+  &__icon {
+    font-size: 2.5rem;
+    color: $text-light;
+    margin-bottom: 1rem;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: $text-muted;
+    margin: 0 0 .35rem;
+    font-size: .95rem;
+  }
+
+  &__subtitle {
+    font-size: .82rem;
+    color: $text-light;
+    margin: 0;
+  }
+}
+
+// ─── Dialog ───────────────────────────────────────────────────────────────────
+::ng-deep .custom-dialog {
+  border-radius: $radius-xl !important;
+  box-shadow: $shadow-lg !important;
+  overflow: hidden;
+
+  .p-dialog-header {
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    color: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0;
+
+    .p-dialog-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .p-dialog-header-icon {
+      color: rgba(255,255,255,.7);
+      &:hover { background: rgba(255,255,255,.15); color: #fff; }
+    }
+  }
+
+  .p-dialog-content {
+    padding: 0 !important;
+    background: $bg-panel;
+  }
+
+  .p-dialog-footer {
+    padding: 0;
+    border-top: none;
+    background: $bg-panel;
+  }
+}
+
+// ─── Dialog Form ──────────────────────────────────────────────────────────────
+.dialog-form {
+  padding: 0;
+}
+
+.form-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid $border;
+
+  &:last-child { border-bottom: none; }
+
+  &__title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: $text-muted;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+
+    i { color: $secondary-dark; font-size: .8rem; }
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--full { grid-column: 1 / -1; }
+
+  label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: $text-main;
+  }
+
+  .required { color: $danger; }
+
+  input.p-inputtext {
+    height: 38px;
+    border-radius: $radius-sm;
+    border: 1px solid $border;
+    font-size: .85rem;
+    padding: 0 .75rem;
+    transition: border-color .15s, box-shadow .15s;
+    width: 100%;
+
+    &:focus {
+      border-color: $primary-light;
+      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      outline: none;
+    }
+
+    &[readonly] {
+      background: $bg-base;
+      color: $text-muted;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ─── Toggle Group ─────────────────────────────────────────────────────────────
+.toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+
+  &:hover {
+    background: $bg-hover;
+    border-color: rgba(35,46,97,.2);
+  }
+
+  label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+
+  .toggle-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: $text-main;
+  }
+
+  .toggle-desc {
+    font-size: .76rem;
+    color: $text-muted;
+  }
+}
+
+// ─── Dialog Footer ────────────────────────────────────────────────────────────
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: .625rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid $border;
+  background: $bg-base;
+}

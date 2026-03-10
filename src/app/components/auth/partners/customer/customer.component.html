@@ -1,0 +1,254 @@
+<p-toast position="top-right"></p-toast>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__content">
+    <div class="page-header__title-group">
+      <div class="page-header__icon">
+        <i class="pi pi-users"></i>
+      </div>
+      <div>
+        <h1 class="page-header__title">Clientes</h1>
+        <p class="page-header__subtitle">Gerencie sua base de parceiros e clientes</p>
+      </div>
+    </div>
+    <div class="page-header__actions">
+      <button pButton
+              icon="pi pi-refresh"
+              label="Atualizar"
+              class="btn-ghost"
+              size="small"
+              (click)="loadCustomers()">
+      </button>
+      <p-fileUpload
+        #fu
+        mode="basic"
+        chooseLabel="Importar Excel"
+        chooseIcon="pi pi-file-excel"
+        accept=".xlsx"
+        maxFileSize="1000000"
+        [auto]="false"
+        [customUpload]="true"
+        (onSelect)="onFileSelect($event)"
+        styleClass="btn-excel-upload"
+      ></p-fileUpload>
+      <button pButton
+              *ngIf="selectedFile"
+              icon="pi pi-upload"
+              label="Enviar"
+              class="btn-secondary"
+              size="small"
+              (click)="importByExcel()">
+      </button>
+      <button pButton
+              icon="pi pi-plus"
+              label="Novo Cliente"
+              class="btn-primary"
+              size="small"
+              (click)="showDialog()">
+      </button>
+    </div>
+  </div>
+
+  <div class="page-header__file-badge" *ngIf="selectedFile">
+    <i class="pi pi-file-excel"></i>
+    <span>{{ selectedFile.name }}</span>
+    <button class="badge-remove" (click)="selectedFile = null"><i class="pi pi-times"></i></button>
+  </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+  <p-table
+    #dt1
+    [value]="customers"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [loading]="loading"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['nome', 'email', 'codParceiro']"
+    [rowHover]="true"
+    styleClass="custom-table"
+    size="small">
+
+    <ng-template pTemplate="caption">
+      <div class="table-caption">
+        <span class="table-caption__count">
+          <strong>{{ customers.length }}</strong> registros encontrados
+        </span>
+        <span class="p-input-icon-left table-caption__search">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" placeholder="Buscar por nome, email, código…"
+                 (input)="dt1.filterGlobal($any($event.target).value, 'contains')" />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="codParceiro">
+          Cód Parceiro <p-sortIcon field="codParceiro"></p-sortIcon>
+        </th>
+        <th pSortableColumn="nome">
+          Nome <p-sortIcon field="nome"></p-sortIcon>
+        </th>
+        <th pSortableColumn="email">
+          Email <p-sortIcon field="email"></p-sortIcon>
+        </th>
+        <th class="col-center">Ativo</th>
+        <th class="col-center">Recebe Email</th>
+        <th pSortableColumn="codMatriz">
+          Cód Matriz <p-sortIcon field="codMatriz"></p-sortIcon>
+        </th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-customer>
+      <tr class="table-row">
+        <td>
+          <span class="cod-badge">{{ customer.codParceiro }}</span>
+        </td>
+        <td>
+          <div class="customer-info">
+            <div class="customer-avatar">{{ customer.nome?.charAt(0) | uppercase }}</div>
+            <span class="customer-name">{{ customer.nome }}</span>
+          </div>
+        </td>
+        <td>
+          <span class="email-cell">
+            <i class="pi pi-envelope"></i>
+            {{ customer.email }}
+          </span>
+        </td>
+        <td class="col-center">
+          <span class="status-chip" [ngClass]="customer.ativo ? 'status-chip--active' : 'status-chip--inactive'">
+            <i class="pi" [ngClass]="customer.ativo ? 'pi-check' : 'pi-times'"></i>
+            {{ customer.ativo ? 'Ativo' : 'Inativo' }}
+          </span>
+        </td>
+        <td class="col-center">
+          <span class="status-chip" [ngClass]="customer.recebeEmail ? 'status-chip--active' : 'status-chip--inactive'">
+            <i class="pi" [ngClass]="customer.recebeEmail ? 'pi-check' : 'pi-times'"></i>
+            {{ customer.recebeEmail ? 'Sim' : 'Não' }}
+          </span>
+        </td>
+        <td>
+          <span *ngIf="customer.codMatriz" class="cod-badge cod-badge--secondary">{{ customer.codMatriz }}</span>
+          <span *ngIf="!customer.codMatriz" class="text-muted">—</span>
+        </td>
+        <td class="col-center">
+          <button pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="action-btn"
+                  pTooltip="Editar cliente"
+                  tooltipPosition="left"
+                  (click)="editCustomer(customer)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">
+          <div class="empty-state">
+            <i class="pi pi-users empty-state__icon"></i>
+            <p class="empty-state__title">Nenhum cliente encontrado</p>
+            <p class="empty-state__subtitle">Adicione um novo cliente ou importe via Excel.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Dialog -->
+<p-dialog
+  [header]="dialogTitle"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '620px', maxWidth: '95vw' }"
+  styleClass="custom-dialog"
+  [draggable]="false"
+  [resizable]="false">
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" (ngSubmit)="saveCustomer()" class="dialog-form">
+
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-id-card"></i> Identificação
+        </h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="codParceiro">Cód Parceiro <span class="required">*</span></label>
+            <input id="codParceiro" type="text" pInputText formControlName="codParceiro"
+                   [readOnly]="customerToEdit !== null" placeholder="Ex: 001234" />
+          </div>
+          <div class="form-field">
+            <label for="documento">Documento <span class="required">*</span></label>
+            <input id="documento" type="text" pInputText formControlName="documento"
+                   placeholder="CPF ou CNPJ" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-user"></i> Dados do Cliente
+        </h3>
+        <div class="form-grid">
+          <div class="form-field form-field--full">
+            <label for="nome">Nome <span class="required">*</span></label>
+            <input id="nome" type="text" pInputText formControlName="nome"
+                   placeholder="Nome completo" />
+          </div>
+          <div class="form-field form-field--full">
+            <label for="email">Email <span class="required">*</span></label>
+            <input id="email" type="text" pInputText formControlName="email"
+                   placeholder="email@empresa.com" />
+          </div>
+          <div class="form-field">
+            <label for="codMatriz">Cód Matriz</label>
+            <input id="codMatriz" type="text" pInputText formControlName="codMatriz"
+                   placeholder="Opcional" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-sliders-h"></i> Configurações
+        </h3>
+        <div class="toggle-group">
+          <div class="toggle-item">
+            <p-checkbox inputId="ativo" formControlName="ativo" binary="true"></p-checkbox>
+            <label for="ativo">
+              <span class="toggle-label">Ativo</span>
+              <span class="toggle-desc">O cliente está habilitado na plataforma</span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <p-checkbox inputId="recebeEmail" formControlName="recebeEmail" binary="true"></p-checkbox>
+            <label for="recebeEmail">
+              <span class="toggle-label">Recebe Email</span>
+              <span class="toggle-desc">Notificações e comunicados por email</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancelar" class="btn-ghost" (click)="visible = false"></button>
+      <button pButton type="button" label="Salvar" class="btn-primary" [disabled]="form.invalid" (click)="saveCustomer()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
