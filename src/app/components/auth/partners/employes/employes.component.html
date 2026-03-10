@@ -1,0 +1,310 @@
+<p-toast position="top-right"></p-toast>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="page-header__content">
+    <div class="page-header__title-group">
+      <div class="page-header__icon">
+        <i class="pi pi-briefcase"></i>
+      </div>
+      <div>
+        <h1 class="page-header__title">Funcionários</h1>
+        <p class="page-header__subtitle">Gerencie os colaboradores e suas hierarquias</p>
+      </div>
+    </div>
+    <div class="page-header__actions">
+      <button pButton
+              icon="pi pi-refresh"
+              label="Atualizar"
+              class="btn-ghost"
+              size="small"
+              (click)="loadEmployes()">
+      </button>
+      <button pButton
+              icon="pi pi-plus"
+              label="Novo Funcionário"
+              class="btn-primary"
+              size="small"
+              (click)="showDialog()">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Table Card -->
+<div class="table-card">
+  <p-table
+    #dt1
+    [value]="employes"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [loading]="loading"
+    [responsiveLayout]="'scroll'"
+    [globalFilterFields]="['name', 'email', 'partnerCode', 'hierarchy']"
+    [rowHover]="true"
+    styleClass="custom-table"
+    size="small">
+
+    <ng-template pTemplate="caption">
+      <div class="table-caption">
+        <span class="table-caption__count">
+          <strong>{{ employes.length }}</strong> registros encontrados
+        </span>
+        <span class="p-input-icon-left table-caption__search">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" placeholder="Buscar por nome, email, código…"
+                 (input)="dt1.filterGlobal($any($event.target).value, 'contains')" />
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="partnerCode">
+          Cód Parceiro <p-sortIcon field="partnerCode"></p-sortIcon>
+        </th>
+        <th pSortableColumn="document">
+          CPF <p-sortIcon field="document"></p-sortIcon>
+        </th>
+        <th pSortableColumn="name">
+          Nome <p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="email">
+          Email <p-sortIcon field="email"></p-sortIcon>
+        </th>
+        <th class="col-center">Ativo</th>
+        <th pSortableColumn="managerCode">
+          Cód Gerente <p-sortIcon field="managerCode"></p-sortIcon>
+        </th>
+        <th pSortableColumn="hierarchy">
+          Hierarquia <p-sortIcon field="hierarchy"></p-sortIcon>
+        </th>
+        <th pSortableColumn="birthday">
+          Aniversário <p-sortIcon field="birthday"></p-sortIcon>
+        </th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-e>
+      <tr class="table-row">
+        <td>
+          <span class="cod-badge">{{ e.partnerCode }}</span>
+        </td>
+        <td>
+          <span class="doc-cell">{{ e.document }}</span>
+        </td>
+        <td>
+          <div class="employee-info">
+            <div class="employee-avatar">{{ e.name?.charAt(0) | uppercase }}</div>
+            <div class="employee-meta">
+              <span class="employee-name">{{ e.name }}</span>
+              <span class="employee-dept" *ngIf="e.department">{{ e.department }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="email-cell">
+            <i class="pi pi-envelope"></i>
+            {{ e.email }}
+          </span>
+        </td>
+        <td class="col-center">
+          <span class="status-chip" [ngClass]="e.ativo ? 'status-chip--active' : 'status-chip--inactive'">
+            <i class="pi" [ngClass]="e.ativo ? 'pi-check' : 'pi-times'"></i>
+            {{ e.ativo ? 'Ativo' : 'Inativo' }}
+          </span>
+        </td>
+        <td>
+          <span *ngIf="e.managerCode" class="cod-badge cod-badge--secondary">{{ e.managerCode }}</span>
+          <span *ngIf="!e.managerCode" class="text-muted">—</span>
+        </td>
+        <td>
+          <span *ngIf="e.hierarchy" class="hierarchy-badge">{{ e.hierarchy }}</span>
+          <span *ngIf="!e.hierarchy" class="text-muted">—</span>
+        </td>
+        <td>
+          <span *ngIf="e.birthday" class="birthday-cell">
+            <i class="pi pi-calendar"></i>
+            {{ e.birthday | date: 'dd/MM' }}
+          </span>
+          <span *ngIf="!e.birthday" class="text-muted">—</span>
+        </td>
+        <td class="col-center">
+          <button pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  class="action-btn"
+                  pTooltip="Editar funcionário"
+                  tooltipPosition="left"
+                  (click)="editEmploye(e)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9">
+          <div class="empty-state">
+            <i class="pi pi-users empty-state__icon"></i>
+            <p class="empty-state__title">Nenhum funcionário encontrado</p>
+            <p class="empty-state__subtitle">Adicione um novo funcionário para começar.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Dialog -->
+<p-dialog
+  [header]="dialogTitle"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '640px', maxWidth: '95vw' }"
+  styleClass="custom-dialog"
+  [draggable]="false"
+  [resizable]="false">
+
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
+
+      <!-- Identificação -->
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-id-card"></i> Identificação
+        </h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="partnerCode">Cód Parceiro <span class="required">*</span></label>
+            <input id="partnerCode" type="text" pInputText formControlName="partnerCode"
+                   [readOnly]="employeToEdit !== null" placeholder="Ex: 001234" />
+            <small class="field-error"
+                   *ngIf="form.get('partnerCode')?.invalid && form.get('partnerCode')?.touched">
+              Campo obrigatório
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="document">CPF <span class="required">*</span></label>
+            <input id="document" type="text" pInputText formControlName="document"
+                   placeholder="000.000.000-00" />
+            <small class="field-error"
+                   *ngIf="form.get('document')?.invalid && form.get('document')?.touched">
+              CPF inválido
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dados pessoais -->
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-user"></i> Dados Pessoais
+        </h3>
+        <div class="form-grid">
+          <div class="form-field form-field--full">
+            <label for="name">Nome Completo <span class="required">*</span></label>
+            <input id="name" type="text" pInputText formControlName="name"
+                   placeholder="Nome completo" />
+            <small class="field-error"
+                   *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+              Campo obrigatório
+            </small>
+          </div>
+          <div class="form-field form-field--full">
+            <label for="email">E-mail <span class="required">*</span></label>
+            <input id="email" type="email" pInputText formControlName="email"
+                   placeholder="exemplo@empresa.com" />
+            <small class="field-error"
+                   *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+              E-mail inválido
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="birthday">Aniversário</label>
+            <p-datepicker
+              formControlName="birthday"
+              [showButtonBar]="true"
+              [dateFormat]="'dd/mm/yy'"
+              styleClass="datepicker-field"
+              placeholder="dd/mm/aaaa">
+            </p-datepicker>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cargo e departamento -->
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-sitemap"></i> Cargo & Departamento
+        </h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="hierarchy">Hierarquia <span class="required">*</span></label>
+            <p-select
+              id="hierarchy"
+              [options]="hierarchyList"
+              formControlName="hierarchy"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecione…"
+              styleClass="select-field">
+            </p-select>
+            <small class="field-error"
+                   *ngIf="form.get('hierarchy')?.invalid && form.get('hierarchy')?.touched">
+              Campo obrigatório
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="department">Departamento <span class="required">*</span></label>
+            <p-select
+              id="department"
+              [options]="departmentList"
+              formControlName="department"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Selecione…"
+              styleClass="select-field">
+            </p-select>
+            <small class="field-error"
+                   *ngIf="form.get('department')?.invalid && form.get('department')?.touched">
+              Campo obrigatório
+            </small>
+          </div>
+          <div class="form-field">
+            <label for="managerCode">Cód Gerente</label>
+            <input id="managerCode" type="text" pInputText formControlName="managerCode"
+                   placeholder="Opcional" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Configurações -->
+      <div class="form-section">
+        <h3 class="form-section__title">
+          <i class="pi pi-sliders-h"></i> Configurações
+        </h3>
+        <div class="toggle-group">
+          <div class="toggle-item">
+            <p-checkbox inputId="ativo" formControlName="ativo" binary="true"></p-checkbox>
+            <label for="ativo">
+              <span class="toggle-label">Ativo</span>
+              <span class="toggle-desc">O funcionário está habilitado na plataforma</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancelar" class="btn-ghost" (click)="visible = false"></button>
+      <button pButton type="button" label="Salvar" class="btn-primary" [disabled]="form.invalid" (click)="save()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
