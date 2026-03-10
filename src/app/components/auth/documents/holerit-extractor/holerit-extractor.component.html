@@ -1,0 +1,181 @@
+<p-toast position="top-right" />
+
+<div class="extractor-wrapper">
+
+  <!-- ── HEADER ── -->
+  <header class="page-header">
+    <div class="header-inner">
+      <div class="header-icon">
+        <i class="pi pi-file-pdf"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Extrator de Holerites</h1>
+        <p class="page-subtitle">Faça upload do PDF para extrair e analisar os dados de folha de pagamento</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── UPLOAD CARD ── -->
+  <p-card styleClass="upload-card">
+    <ng-template pTemplate="header">
+      <div class="card-label">
+        <i class="pi pi-upload"></i>
+        <span>Envio do Arquivo</span>
+      </div>
+    </ng-template>
+
+    <p-fileUpload
+      name="pdf"
+      accept=".pdf"
+      [maxFileSize]="20000000"
+      [auto]="false"
+      [customUpload]="true"
+      chooseLabel="Selecionar PDF"
+      [showUploadButton]="false"
+      [showCancelButton]="false"
+      styleClass="custom-upload"
+      (onSelect)="onFileSelect($event)"
+      (onClear)="onFileClear()"
+    >
+      <ng-template pTemplate="empty">
+        <div class="drop-zone">
+          <i class="pi pi-cloud-upload drop-icon"></i>
+          <p class="drop-text">Arraste e solte o PDF aqui</p>
+          <p class="drop-hint">ou clique em <strong>Selecionar PDF</strong> · Máx. 20 MB</p>
+        </div>
+      </ng-template>
+    </p-fileUpload>
+
+    <div class="action-row">
+      <p-button
+        label="Extrair Dados"
+        icon="pi pi-cog"
+        [loading]="isLoading()"
+        [disabled]="!selectedFile() || isLoading()"
+        (onClick)="extractData()"
+        styleClass="extract-btn"
+      />
+
+      @if (hasData()) {
+        <p-button
+          label="Exportar Excel"
+          icon="pi pi-file-excel"
+          severity="success"
+          [outlined]="true"
+          (onClick)="exportToExcel()"
+          styleClass="export-btn"
+        />
+      }
+    </div>
+  </p-card>
+
+  <!-- ── ERROR MESSAGE ── -->
+  @if (hasError()) {
+    <p-message
+      severity="error"
+      text="Erro ao processar o arquivo. Verifique se o PDF é válido e se a API está disponível."
+      styleClass="error-msg"
+    />
+  }
+
+  <!-- ── LOADING SKELETONS ── -->
+  @if (isLoading()) {
+    <p-card styleClass="results-card">
+      <div class="skeleton-grid">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-row">
+            <p-skeleton width="160px" height="14px" />
+            <p-skeleton width="120px" height="14px" />
+            <p-skeleton width="100px" height="14px" />
+            <p-skeleton width="80px" height="14px" />
+            <p-skeleton width="90px" height="14px" />
+          </div>
+        }
+      </div>
+    </p-card>
+  }
+
+  <!-- ── RESULTS ── -->
+  @if (hasData() && !isLoading()) {
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+      <div class="summary-card inss">
+        <span class="summary-label">Total INSS</span>
+        <span class="summary-value">{{ formatCurrency(totalInss()) }}</span>
+      </div>
+      <div class="summary-card irrf">
+        <span class="summary-label">Total IRRF</span>
+        <span class="summary-value">{{ formatCurrency(totalIrrf()) }}</span>
+      </div>
+      <div class="summary-card fgts">
+        <span class="summary-label">Total FGTS</span>
+        <span class="summary-value">{{ formatCurrency(totalFgts()) }}</span>
+      </div>
+      <div class="summary-card emprestimo">
+        <span class="summary-label">Total Empréstimo</span>
+        <span class="summary-value">{{ formatCurrency(totalEmprestimo()) }}</span>
+      </div>
+    </div>
+
+    <!-- Main table -->
+    <p-card styleClass="results-card">
+      <ng-template pTemplate="header">
+        <div class="card-label">
+          <i class="pi pi-table"></i>
+          <span>Dados Extraídos</span>
+          <p-badge [value]="extractedData().length.toString()" severity="info" styleClass="record-badge" />
+        </div>
+      </ng-template>
+
+      <p-table
+        [value]="extractedData()"
+        [scrollable]="true"
+        scrollHeight="480px"
+        [rowHover]="true"
+        styleClass="p-datatable-sm result-table"
+        [tableStyle]="{ 'min-width': '900px' }"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pFrozenColumn>Nome</th>
+            <th>CPF</th>
+            <th>Cargo</th>
+            <th>Empresa</th>
+            <th>Departamento</th>
+            @for (col of financialColumns; track col.field) {
+              <th class="text-right">{{ col.header }}</th>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td pFrozenColumn class="name-cell">
+              <div class="name-avatar">{{ row.nome?.charAt(0) | uppercase }}</div>
+              <span>{{ row.nome }}</span>
+            </td>
+            <td class="cpf-cell">{{ formatCpf(row.cpf) }}</td>
+            <td>
+              <p-tag [value]="row.cargo" severity="secondary" styleClass="cargo-tag" />
+            </td>
+            <td>{{ row.empresa }}</td>
+            <td>{{ row.departamento }}</td>
+            @for (col of financialColumns; track col.field) {
+              <td class="text-right currency-cell">
+                {{ formatCurrency(row[col.field]) }}
+              </td>
+            }
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="13" class="empty-msg">Nenhum dado encontrado.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  }
+
+</div>

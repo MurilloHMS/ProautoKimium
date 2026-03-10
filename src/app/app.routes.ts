@@ -27,6 +27,7 @@ import { BrandingComponent } from './components/public/branding/branding.compone
 import { EmailComponent } from './components/auth/communication/email/email.component';
 import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
 import {ForgotPasswordComponent} from "./components/public/forgot-password/forgot-password.component";
+import {HoleritExtractorComponent} from "./components/auth/documents/holerit-extractor/holerit-extractor.component";
 
 
 export const routes: Routes = [
@@ -57,6 +58,7 @@ export const routes: Routes = [
         {path: 'documents/holerit', component: HoleritSpliterComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'documents/nfe-collector', component: NfeDataCollectorComponent, data: {roles: ['ADMIN', 'RH', 'FINANCEIRO']}},
         {path: 'documents/email-signature', component: EmailSignatureComponent, data: {roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDORES']}},
+        {path: 'documents/holerit/extractor', component: HoleritExtractorComponent, data: {roles: ['ADMIN', 'RH']}},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
