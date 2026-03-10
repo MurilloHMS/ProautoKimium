@@ -28,6 +28,9 @@ import { EmailComponent } from './components/auth/communication/email/email.comp
 import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
 import {ForgotPasswordComponent} from "./components/public/forgot-password/forgot-password.component";
 import {HoleritExtractorComponent} from "./components/auth/documents/holerit-extractor/holerit-extractor.component";
+import {CustomerComponent} from "./components/auth/partners/customer/customer.component";
+import {EmployesComponent} from "./components/auth/partners/employes/employes.component";
+import {ServiceLocationComponent} from "./components/auth/partners/service-location/service-location.component";
 
 
 export const routes: Routes = [
@@ -64,7 +67,10 @@ export const routes: Routes = [
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: '', redirectTo: 'home', pathMatch: 'full'},
         {path: 'communication/newsletter', component: NewsletterComponent, data: {roles: ['ADMIN','MARKETING']}},
-        {path: 'communication/email', component: EmailComponent, data: {roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT']}}
+        {path: 'communication/email', component: EmailComponent, data: {roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT']}},
+        {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN',]}},
+        {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
+        {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
       ]
     },
     {
