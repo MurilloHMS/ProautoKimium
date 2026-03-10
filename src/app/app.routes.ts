@@ -30,7 +30,6 @@ import {ForgotPasswordComponent} from "./components/public/forgot-password/forgo
 import {HoleritExtractorComponent} from "./components/auth/documents/holerit-extractor/holerit-extractor.component";
 import {CustomerComponent} from "./components/auth/partners/customer/customer.component";
 import {EmployesComponent} from "./components/auth/partners/employes/employes.component";
-import {ServiceLocationComponent} from "./components/auth/partners/service-location/service-location.component";
 
 
 export const routes: Routes = [
@@ -70,7 +69,6 @@ export const routes: Routes = [
         {path: 'communication/email', component: EmailComponent, data: {roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT']}},
         {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN',]}},
         {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH']}},
-        {path: 'partners/services-locations', component: ServiceLocationComponent, data: {roles: ['ADMIN']}},
       ]
     },
     {
