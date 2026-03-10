@@ -51,10 +51,10 @@ export class HoleritExtractorComponent {
   hasData = computed(() => this.extractedData().length > 0);
 
   totalInss = computed(() =>
-    this.extractedData().reduce((s, r) => s + (r.inss ?? 0), 0)
+    this.extractedData().reduce((s, r) => s + (r.inss ?? 0) + (r.inss13 ?? 0) + (r.inssFerias ?? 0) , 0)
   );
   totalIrrf = computed(() =>
-    this.extractedData().reduce((s, r) => s + (r.irrf ?? 0), 0)
+    this.extractedData().reduce((s, r) => s + (r.irrf ?? 0) + (r.irrf13 ?? 0) + (r.irrfFerias ?? 0), 0)
   );
   totalFgts = computed(() =>
     this.extractedData().reduce((s, r) => s + (r.fgts ?? 0), 0)
