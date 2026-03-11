@@ -75,7 +75,7 @@ export class ContactsComponent implements OnInit{
     this.loading = true;
     this.contactService.getContacts().subscribe({
       next: (contacts) => {
-        this.contacts = contacts;
+        this.contacts = contacts.map((c,i) => ({...c, _rowId:i}));
         this.loading = false;
       },
       error: (err) => {
@@ -87,7 +87,7 @@ export class ContactsComponent implements OnInit{
 
   expandAll() {
     this.expandedRows = this.contacts.reduce(
-      (acc, contact) => ({ ...acc, [contact.email]: true }),
+      (acc, contact: any) => ({ ...acc, [contact._rowId]: true }),
       {}
     );
   }
@@ -178,7 +178,7 @@ export class ContactsComponent implements OnInit{
       rejectLabel: 'Cancelar',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
-        this.contacts = this.contacts.filter(c => c.email !== contact.email);
+        this.contacts = this.contacts.filter(c => (c as any)._rowId !== (contact as any)._rowId);
         this.messageService.add({
           severity: 'success',
           summary: 'Removido',
