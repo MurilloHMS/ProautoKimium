@@ -1,7 +1,10 @@
 @use "../../../../../../styles/variables.scss" as v;
 
+// ─────────────────────────────────────────────
+//  ABOUT HERO
+// ─────────────────────────────────────────────
+
 .about-hero {
-  // background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
   padding: 80px 0;
 
   .container {
@@ -11,10 +14,12 @@
   }
 }
 
+// ─── Header ───────────────────────────────────
+
 .about-header {
   text-align: center;
   margin-bottom: 80px;
-  animation: fadeInUp is ease-out;
+  animation: fadeInUp 0.7s ease-out;
 
   .label {
     display: inline-block;
@@ -49,12 +54,7 @@
         left: 0;
         width: 100%;
         height: 3px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          v.$secondary-color,
-          transparent
-        );
+        background: linear-gradient(90deg, transparent, v.$secondary-color, transparent);
         opacity: 0.4;
       }
     }
@@ -69,6 +69,8 @@
   }
 }
 
+// ─── Stats ────────────────────────────────────
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -78,10 +80,10 @@
 
 .stat-card {
   background: #ffffff;
-  padding: 40x 30px;
+  padding: 40px 30px;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.04);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -104,7 +106,7 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 
     &::before {
-      transform: scale(1);
+      transform: scaleX(1);
     }
   }
 
@@ -124,6 +126,8 @@
     font-weight: 600;
   }
 }
+
+// ─── Story ────────────────────────────────────
 
 .story-section {
   display: grid;
@@ -167,6 +171,30 @@
   }
 }
 
+.story-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+
+  .pill {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: v.$primary-color;
+    background: rgba(87, 193, 171, 0.08);
+    border: 1.5px solid rgba(87, 193, 171, 0.25);
+    border-radius: 50px;
+    padding: 6px 16px;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: rgba(87, 193, 171, 0.16);
+      border-color: v.$secondary-color;
+    }
+  }
+}
+
 .story-image {
   position: relative;
 
@@ -176,6 +204,7 @@
     object-fit: cover;
     border-radius: 20px;
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+    display: block;
   }
 
   &::before {
@@ -191,86 +220,144 @@
   }
 }
 
+.story-badge {
+  position: absolute;
+  bottom: 24px;
+  left: -20px;
+  background: v.$secondary-color;
+  color: #fff;
+  border-radius: 16px;
+  padding: 16px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 28px rgba(87, 193, 171, 0.45);
+  z-index: 2;
+
+  .badge-years {
+    font-size: 2.2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .badge-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ─── Mission ──────────────────────────────────
+
 .mission-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    margin-bottom: 100px;
-    padding: 60px;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 100px;
+  padding: 60px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
 }
 
 .mission-image {
-    img {
-        width: 100%;
-        height: 450px;
-        object-fit: cover;
-        border-radius: 16px;
-    }
+  img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 16px;
+    display: block;
+  }
 }
 
 .mission-content {
-    .label-small {
-        display: inline-block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: v.$secondary-color;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin-bottom: 16px;
+  .label-small {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: v.$secondary-color;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    font-size: 2.5rem;
+    color: v.$primary-color;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 20px;
+
+    strong {
+      color: v.$primary-color;
+      font-weight: 600;
+    }
+  }
+
+  .contact-info {
+    margin-top: 40px;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(87, 193, 171, 0.08) 0%, rgba(87, 193, 171, 0.02) 100%);
+    border-radius: 12px;
+    border-left: 4px solid v.$secondary-color;
+
+    .contact-label {
+      display: block;
+      font-size: 0.9rem;
+      color: #6c757d;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
-    h2 {
-        font-size: 2.5rem;
+    .email-link {
+      font-size: 1.2rem;
+      color: v.$secondary-color;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+
+      &:hover {
         color: v.$primary-color;
-        font-weight: 700;
-        margin-bottom: 24px;
+        text-decoration: underline;
+      }
     }
-
-    p {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #555;
-        margin-bottom: 20px;
-
-        strong {
-            color: v.$primary-color;
-            font-weight: 600;
-        }
-    }
-
-    .contact-info {
-        margin-top: 40px;
-        padding: 24px;
-        background: linear-gradient(135deg, rgba(87, 193, 171, 0.08) 0%, rgba(87, 193, 171, 0.02) 100%);
-        border-radius: 12px;
-        border-left: 4px solid v.$secondary-color;
-
-        .contact-label {
-            display: block;
-            font-size: 0.9rem;
-            color: #6c757d;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .email-link {
-            font-size: 1.2rem;
-            color: v.$secondary-color;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-
-            &:hover {
-                color: v.$primary-color;
-                text-decoration: underline;
-            }
-        }
-    }
+  }
 }
+
+.mission-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 24px 0 4px;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.97rem;
+  color: #444;
+  font-weight: 500;
+
+  .benefit-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    stroke: v.$secondary-color;
+  }
+}
+
+// ─── Values ───────────────────────────────────
 
 .values-section {
   text-align: center;
@@ -285,15 +372,15 @@
     display: inline-block;
 
     &::after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, v.$secondary-color, transparent);
-        }
+      content: '';
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, v.$secondary-color, transparent);
+    }
   }
 }
 
@@ -304,168 +391,250 @@
 }
 
 .value-card {
-    background: #ffffff;
-    padding: 40px 30px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #ffffff;
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 
-    &:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-        border-color: rgba(87, 193, 171, 0.3);
-    }
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+    border-color: rgba(87, 193, 171, 0.3);
+  }
 
-    .value-icon {
-        font-size: 3.5rem;
-        margin-bottom: 20px;
-    }
+  .value-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
 
-    h3 {
-        font-size: 1.4rem;
-        color: v.$primary-color;
-        font-weight: 700;
-        margin-bottom: 12px;
-    }
+  h3 {
+    font-size: 1.4rem;
+    color: v.$primary-color;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
 
-    p {
-        font-size: 1rem;
-        line-height: 1.6;
-        color: #6c757d;
-    }
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #6c757d;
+    flex: 1;
+  }
 }
 
 .image-icon {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-    margin-bottom: 20px;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  margin-bottom: 20px;
 }
+
+// ─── Animation ────────────────────────────────
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(30px);
-  }to {
+  }
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+// ─────────────────────────────────────────────
+//  RESPONSIVE
+// ─────────────────────────────────────────────
+
 @media (max-width: 1024px) {
-    .about-header h1 {
-        font-size: 2.8rem;
-    }
+  .about-header h1 {
+    font-size: 2.8rem;
+  }
 
-    .stats-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
 
-    .story-section,
-    .mission-section {
-        gap: 40px;
-    }
+  .story-section,
+  .mission-section {
+    gap: 40px;
+  }
 
-    .values-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
-    .about-hero {
-        padding: 60px 0;
+  .about-hero {
+    padding: 60px 0;
 
-        .container {
-            padding: 0 24px;
-        }
+    .container {
+      padding: 0 20px;
+    }
+  }
+
+  .about-header {
+    margin-bottom: 48px;
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: -0.5px;
     }
 
-    .about-header {
-        margin-bottom: 60px;
+    .subtitle {
+      font-size: 1rem;
+    }
+  }
 
-        h1 {
-            font-size: 2.2rem;
-        }
+  // Stats: coluna única
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 60px;
+    overflow-x: unset;
+  }
 
-        .subtitle {
-            font-size: 1.1rem;
-        }
+  .stat-card {
+    min-width: unset;
+    scroll-snap-align: unset;
+    padding: 28px 24px;
+
+    .stat-number {
+      font-size: 2.8rem;
+    }
+  }
+
+  .story-section {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    margin-bottom: 60px;
+  }
+
+  .story-image {
+    order: -1;
+
+    &::before { display: none; }
+
+    img { height: 280px; }
+  }
+
+  .story-badge {
+    bottom: 16px;
+    left: 16px;
+    padding: 12px 16px;
+
+    .badge-years { font-size: 1.8rem; }
+    .badge-text  { font-size: 0.7rem; }
+  }
+
+  .story-pills {
+    gap: 8px;
+
+    .pill { font-size: 0.8rem; padding: 5px 12px; }
+  }
+
+  .mission-section {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 32px 24px;
+    margin-bottom: 60px;
+  }
+
+  .mission-image img { height: 240px; }
+
+  .mission-content {
+    h2 { font-size: 1.8rem; }
+    p  { font-size: 1rem; }
+
+    .contact-info {
+      padding: 18px;
+
+      .email-link { font-size: 1rem; }
+    }
+  }
+
+  // Values: 2 colunas, cards verticais com alturas iguais
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .value-card {
+    padding: 28px 18px;
+    // mantém flex-direction: column e align-items: center do base
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .value-icon {
+      margin-bottom: 14px;
     }
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        margin-bottom: 60px;
+    .image-icon {
+      width: 54px;
+      height: 54px;
+      margin-bottom: 0;
     }
 
-    .story-section,
-    .mission-section {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        margin-bottom: 60px;
-    }
+    h3 { font-size: 1.05rem; margin-bottom: 8px; }
+    p  { font-size: 0.88rem; }
+  }
 
-    .mission-section {
-        padding: 40px 30px;
-    }
-
-    .story-image::before {
-        display: none;
-    }
-
-    .story-content h2,
-    .mission-content h2 {
-        font-size: 2rem;
-    }
-
-    .values-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .values-section h2 {
-        font-size: 2.2rem;
-        margin-bottom: 40px;
-    }
+  .values-section h2 {
+    font-size: 2rem;
+    margin-bottom: 40px;
+  }
 }
 
 @media (max-width: 480px) {
-    .about-header h1 {
-        font-size: 1.8rem;
+  .about-hero .container {
+    padding: 0 16px;
+  }
+
+  .about-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .about-header .label {
+    font-size: 0.78rem;
+    padding: 6px 14px;
+  }
+
+  .story-content h2 {
+    font-size: 1.7rem;
+  }
+
+  // Values: 1 coluna abaixo de 480px
+  .values-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .value-card {
+    padding: 24px 20px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .image-icon {
+      width: 52px;
+      height: 52px;
     }
 
-    .stat-card {
-        padding: 30px 20px;
+    h3 { font-size: 1.1rem; }
+    p  { font-size: 0.9rem; }
+  }
 
-        .stat-number {
-            font-size: 2.8rem;
-        }
-
-        .stat-label {
-            font-size: 0.95rem;
-        }
-    }
-
-    .story-content p,
-    .mission-content p {
-        font-size: 1rem;
-    }
-
-    .mission-section {
-        padding: 30px 20px;
-    }
-
-    .value-card {
-        padding: 30px 24px;
-
-        .value-icon {
-            font-size: 3rem;
-        }
-
-        h3 {
-            font-size: 1.2rem;
-        }
-    }
+  .mission-section {
+    padding: 24px 16px;
+  }
 }
