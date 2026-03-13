@@ -5,160 +5,157 @@
     <h2>Centro Administrativo</h2>
   </div>
   <div class="col pt-4">
-    <p-button  label="Gerar Tokens de Acesso" icon="pi pi-lock" size="small" [loading]="loading" (click)="generateAccessTokens()"/>
-    &nbsp;&nbsp;
-    <p-button label="Registrar Novo Usuário" icon="pi pi-user" size="small" [loading]="loading" (click)="showDialog()"/>
+    <p-button label="Gerar Tokens de Acesso" icon="pi pi-lock" size="small" [loading]="loading" (click)="generateAccessTokens()"/>
     &nbsp;&nbsp;
     <p-button label="Carregar Usuários" icon="pi pi-refresh" size="small" [loading]="loading" (click)="loadUsers()"/>
   </div>
 </div>
 
 <div class="register-container">
-    <p-toast></p-toast>
 
-    <div class="form-section">
-      <p-card header="Registrar Usuário" styleClass="register-card">
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <!-- FORMULÁRIO -->
+  <div class="form-section">
+    <p-card [header]="editingUser ? 'Editar Permissões: ' + editingUser.login : 'Registrar Usuário'" styleClass="register-card">
+
+      <!-- Banner de modo edição -->
+      <div class="edit-banner" *ngIf="editingUser">
+        <i class="pi pi-info-circle"></i>
+        Editando permissões de <strong>{{ editingUser.login }}</strong>. Campos de senha desabilitados.
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <!-- Login -->
+        <div class="form-field">
+          <label for="login" class="form-label">Login <span class="required">*</span></label>
+          <input pInputText id="login" formControlName="login"
+                 placeholder="Digite o login do Usuário"
+                 [class.ng-invalid]="isFieldInvalid('login')"/>
+          <small class="error-message" *ngIf="isFieldInvalid('login')">{{ getFieldError('login') }}</small>
+        </div>
+
+        <!-- Password (oculto no modo edição) -->
+        <ng-container *ngIf="!editingUser">
+          <div class="form-field">
+            <label for="password" class="form-label">Senha <span class="required">*</span></label>
+            <p-password id="password" formControlName="password"
+                        [toggleMask]="true" [feedback]="true" placeholder="Digite a senha"
+                        styleClass="w-full"
+                        [inputStyleClass]="isFieldInvalid('password') ? 'ng-invalid ng-dirty' : ''"
+                        promptLabel="Digite uma senha" weakLabel="Fraca" mediumLabel="Média" strongLabel="Forte">
+            </p-password>
+            <small class="error-message" *ngIf="isFieldInvalid('password')">{{ getFieldError('password') }}</small>
+          </div>
 
           <div class="form-field">
-            <label for="login" class="form-label">
-              Login <span class="required">*</span>
-            </label>
-            <input pInputText
-              id="login"
-              formControlName="login"
-              placeholder="Digite o login do Usuário"
-              [class.ng-invalid]="isFieldInvalid('login')"/>
-            <small class="error-message" *ngIf="isFieldInvalid('login')">
-              {{ getFieldError('login') }}
-            </small>
+            <label for="confirmPassword" class="form-label">Confirmar Senha <span class="required">*</span></label>
+            <p-password id="confirmPassword" formControlName="confirmPassword"
+                        [toggleMask]="true" [feedback]="false" placeholder="Confirme a senha"
+                        styleClass="w-full"
+                        [inputStyleClass]="isFieldInvalid('confirmPassword') ? 'ng-invalid ng-dirty' : ''">
+            </p-password>
+            <small class="error-message" *ngIf="isFieldInvalid('confirmPassword')">{{ getFieldError('confirmPassword') }}</small>
           </div>
-<!-- Password -->
-        <div class="form-field">
-          <label for="password" class="form-label">
-            Senha <span class="required">*</span>
-          </label>
-          <p-password
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [feedback]="true"
-            placeholder="Digite a senha"
-            styleClass="w-full"
-            [inputStyleClass]="isFieldInvalid('password') ? 'ng-invalid ng-dirty' : ''"
-            promptLabel="Digite uma senha"
-            weakLabel="Fraca"
-            mediumLabel="Média"
-            strongLabel="Forte"
-          ></p-password>
-          <small class="error-message" *ngIf="isFieldInvalid('password')">
-            {{ getFieldError('password') }}
-          </small>
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="form-field">
-          <label for="confirmPassword" class="form-label">
-            Confirmar Senha <span class="required">*</span>
-          </label>
-          <p-password
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            [toggleMask]="true"
-            [feedback]="false"
-            placeholder="Confirme a senha"
-            styleClass="w-full"
-            [inputStyleClass]="isFieldInvalid('confirmPassword') ? 'ng-invalid ng-dirty' : ''"
-          ></p-password>
-          <small class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
-            {{ getFieldError('confirmPassword') }}
-          </small>
-        </div>
+        </ng-container>
 
         <!-- Roles -->
         <div class="form-field">
-          <label for="roles" class="form-label">
-            Permissões <span class="required">*</span>
-          </label>
-          <p-multiSelect
-            id="roles"
-            formControlName="roles"
-            [options]="availableRoles"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecione as permissões"
-            [showToggleAll]="false"
-            display="chip"
-            styleClass="w-full"
-            [class.ng-invalid]="isFieldInvalid('roles')"
-            [class.ng-dirty]="isFieldInvalid('roles')"
-          ></p-multiSelect>
-          <small class="error-message" *ngIf="isFieldInvalid('roles')">
-            {{ getFieldError('roles') }}
-          </small>
+          <label for="roles" class="form-label">Permissões <span class="required">*</span></label>
+          <p-multiSelect id="roles" formControlName="roles"
+                         [options]="availableRoles" optionLabel="label" optionValue="value"
+                         placeholder="Selecione as permissões" [showToggleAll]="false"
+                         display="chip" styleClass="w-full"
+                         [class.ng-invalid]="isFieldInvalid('roles')"
+                         [class.ng-dirty]="isFieldInvalid('roles')">
+          </p-multiSelect>
+          <small class="error-message" *ngIf="isFieldInvalid('roles')">{{ getFieldError('roles') }}</small>
         </div>
 
-        <!-- Buttons -->
+        <!-- Botões -->
         <div class="form-actions">
           <p-button
-            label="Registrar Usuário"
-            icon="pi pi-user-plus"
+            [label]="editingUser ? 'Atualizar Permissões' : 'Salvar Dados'"
+            [icon]="editingUser ? 'pi pi-save' : 'pi pi-user-plus'"
             type="submit"
             [loading]="isSubmitting"
             [disabled]="isSubmitting"
-            severity="success"
-          ></p-button>
+            severity="success">
+          </p-button>
 
-          <p-button
-            label="Limpar"
-            icon="pi pi-times"
-            type="button"
-            (onClick)="registerForm.reset()"
-            severity="secondary"
-            [outlined]="true"
-          ></p-button>
+          <p-button *ngIf="editingUser"
+                    label="Cancelar Edição"
+                    icon="pi pi-times"
+                    type="button"
+                    (onClick)="cancelEdit()"
+                    severity="secondary"
+                    [outlined]="true">
+          </p-button>
+
+          <p-button *ngIf="!editingUser"
+                    label="Limpar"
+                    icon="pi pi-times"
+                    type="button"
+                    (onClick)="registerForm.reset({ roles: [] })"
+                    severity="secondary"
+                    [outlined]="true">
+          </p-button>
         </div>
 
       </form>
     </p-card>
-    </div>
-
-    <div class="users-section">
-      <p-card header="Usuários Cadastrados" styleClass="users-card">
-        <p-table
-          [value]="users"
-          [loading]="isLoadingUsers"
-          [paginator]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5,10,20]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuários">
-
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Login</th>
-              <th>Permissões</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-user>
-            <tr>
-              <td>{{ user.login }}</td>
-              <td>
-                <p-tag
-                  *ngFor="let role of user.roles"
-                  [value]="getRoleLabel(role)"
-                  [severity]="getRoleSeverity(role)"
-                  styleClass="role-tag">
-                </p-tag>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="2">Nenhum usuário encontrado.</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-card>
-    </div>
   </div>
+
+  <!-- TABELA -->
+  <div class="users-section">
+    <p-card header="Usuários Cadastrados" styleClass="users-card">
+      <p-table
+        [value]="users"
+        [loading]="isLoadingUsers"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[5,10,20]"
+        [showCurrentPageReport]="true"
+        selectionMode="single"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuários">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Login</th>
+            <th>Permissões</th>
+            <th style="width: 80px; text-align: center">Editar</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-user>
+          <tr [class.row-editing]="editingUser?.login === user.login">
+            <td>{{ user.login }}</td>
+            <td>
+              <p-tag
+                *ngFor="let role of user.roles"
+                [value]="getRoleLabel(role)"
+                [severity]="getRoleSeverity(role)"
+                styleClass="role-tag">
+              </p-tag>
+            </td>
+            <td style="text-align: center">
+              <p-button
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                pTooltip="Editar permissões"
+                tooltipPosition="left"
+                (onClick)="selectUserToEdit(user)">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="3">Nenhum usuário encontrado.</td></tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+
+</div>

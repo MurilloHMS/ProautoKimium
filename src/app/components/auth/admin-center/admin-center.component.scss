@@ -93,3 +93,30 @@
     width: 100%;
   }
 }
+
+.action-buttons {
+  text-align: center;
+  white-space: nowrap;
+}
+
+::ng-deep .edit-roles-select {
+  width: 100%;
+  min-width: 200px;
+}
+
+.edit-banner {
+  background: #e3f2fd;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  color: #1565c0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+::ng-deep .row-editing td {
+  background-color: #f0f7ff !important;
+}
