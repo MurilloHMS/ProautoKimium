@@ -127,6 +127,14 @@ export class AuthService {
     };
   }
 
+  updateUserRoles(login: string, roles: string[]): Observable<string> {
+    return this.http.put(
+      `${environment.apiUrl}/auth/users/${login}/roles`,
+      { roles },
+      { responseType: 'text' }
+    );
+  }
+
   private decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;

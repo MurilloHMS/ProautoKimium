@@ -1,164 +1,176 @@
 <p-toast></p-toast>
 
-<div class="container">
-  <div class="row">
-    <h2>Centro Administrativo</h2>
+<!-- TOPBAR -->
+<div class="ac-topbar">
+  <div class="ac-topbar-left">
+    <div class="ac-topbar-icon">
+      <i class="pi pi-users"></i>
+    </div>
+    <div>
+      <h1 class="ac-topbar-title">Centro Administrativo</h1>
+      <span class="ac-topbar-sub">Gerencie usuários e permissões</span>
+    </div>
   </div>
-  <div class="col pt-4">
-    <p-button  label="Gerar Tokens de Acesso" icon="pi pi-lock" size="small" [loading]="loading" (click)="generateAccessTokens()"/>
-    &nbsp;&nbsp;
-    <p-button label="Registrar Novo Usuário" icon="pi pi-user" size="small" [loading]="loading" (click)="showDialog()"/>
-    &nbsp;&nbsp;
-    <p-button label="Carregar Usuários" icon="pi pi-refresh" size="small" [loading]="loading" (click)="loadUsers()"/>
+  <div class="ac-topbar-right">
+    <p-button label="Gerar Token" icon="pi pi-lock" size="small"
+              [loading]="loading" [outlined]="true" (click)="generateAccessTokens()"/>
+    <p-button label="Carregar" icon="pi pi-refresh" size="small"
+              [loading]="loading" [outlined]="true" (click)="loadUsers()"/>
   </div>
 </div>
 
-<div class="register-container">
-    <p-toast></p-toast>
+<!-- CONTEÚDO -->
+<div class="ac-content">
 
-    <div class="form-section">
-      <p-card header="Registrar Usuário" styleClass="register-card">
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <!-- FORM -->
+  <div class="ac-panel">
+    <div class="ac-panel-header">
+      <span class="ac-panel-title">
+        {{ editingUser ? 'Editar permissões' : 'Registrar usuário' }}
+      </span>
+      <span class="ac-edit-badge" *ngIf="editingUser">
+        <i class="pi pi-pencil"></i> {{ editingUser.login }}
+      </span>
+    </div>
 
-          <div class="form-field">
-            <label for="login" class="form-label">
-              Login <span class="required">*</span>
-            </label>
-            <input pInputText
-              id="login"
-              formControlName="login"
-              placeholder="Digite o login do Usuário"
-              [class.ng-invalid]="isFieldInvalid('login')"/>
-            <small class="error-message" *ngIf="isFieldInvalid('login')">
-              {{ getFieldError('login') }}
-            </small>
+    <div class="ac-panel-body">
+      <div class="edit-banner" *ngIf="editingUser">
+        <i class="pi pi-info-circle"></i>
+        Editando permissões de <strong>{{ editingUser.login }}</strong>. Campos de senha desabilitados.
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="ac-form-row">
+
+        <!-- Login -->
+        <div class="ac-field">
+          <label class="ac-label">Login <span class="ac-required">*</span></label>
+          <input pInputText formControlName="login"
+                 placeholder="login.usuario"
+                 [class.ng-invalid]="isFieldInvalid('login')"/>
+          <small class="ac-error" *ngIf="isFieldInvalid('login')">{{ getFieldError('login') }}</small>
+        </div>
+
+        <!-- Senha (oculto no modo edição) -->
+        <ng-container *ngIf="!editingUser">
+          <div class="ac-field">
+            <label class="ac-label">Senha <span class="ac-required">*</span></label>
+            <p-password formControlName="password"
+                        [toggleMask]="true" [feedback]="true"
+                        placeholder="Mínimo 8 caracteres" styleClass="w-full"
+                        [inputStyleClass]="isFieldInvalid('password') ? 'ng-invalid ng-dirty' : ''"
+                        promptLabel="Digite uma senha" weakLabel="Fraca"
+                        mediumLabel="Média" strongLabel="Forte"
+                        appendTo="body">
+            </p-password>
+            <small class="ac-error" *ngIf="isFieldInvalid('password')">{{ getFieldError('password') }}</small>
           </div>
-<!-- Password -->
-        <div class="form-field">
-          <label for="password" class="form-label">
-            Senha <span class="required">*</span>
-          </label>
-          <p-password
-            id="password"
-            formControlName="password"
-            [toggleMask]="true"
-            [feedback]="true"
-            placeholder="Digite a senha"
-            styleClass="w-full"
-            [inputStyleClass]="isFieldInvalid('password') ? 'ng-invalid ng-dirty' : ''"
-            promptLabel="Digite uma senha"
-            weakLabel="Fraca"
-            mediumLabel="Média"
-            strongLabel="Forte"
-          ></p-password>
-          <small class="error-message" *ngIf="isFieldInvalid('password')">
-            {{ getFieldError('password') }}
-          </small>
-        </div>
 
-        <!-- Confirm Password -->
-        <div class="form-field">
-          <label for="confirmPassword" class="form-label">
-            Confirmar Senha <span class="required">*</span>
-          </label>
-          <p-password
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            [toggleMask]="true"
-            [feedback]="false"
-            placeholder="Confirme a senha"
-            styleClass="w-full"
-            [inputStyleClass]="isFieldInvalid('confirmPassword') ? 'ng-invalid ng-dirty' : ''"
-          ></p-password>
-          <small class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
-            {{ getFieldError('confirmPassword') }}
-          </small>
-        </div>
+          <div class="ac-field">
+            <label class="ac-label">Confirmar senha <span class="ac-required">*</span></label>
+            <p-password formControlName="confirmPassword"
+                        [toggleMask]="true" [feedback]="false"
+                        placeholder="Repita a senha" styleClass="w-full"
+                        [inputStyleClass]="isFieldInvalid('confirmPassword') ? 'ng-invalid ng-dirty' : ''">
+            </p-password>
+            <small class="ac-error" *ngIf="isFieldInvalid('confirmPassword')">{{ getFieldError('confirmPassword') }}</small>
+          </div>
+        </ng-container>
 
         <!-- Roles -->
-        <div class="form-field">
-          <label for="roles" class="form-label">
-            Permissões <span class="required">*</span>
-          </label>
-          <p-multiSelect
-            id="roles"
-            formControlName="roles"
-            [options]="availableRoles"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Selecione as permissões"
-            [showToggleAll]="false"
-            display="chip"
-            styleClass="w-full"
-            [class.ng-invalid]="isFieldInvalid('roles')"
-            [class.ng-dirty]="isFieldInvalid('roles')"
-          ></p-multiSelect>
-          <small class="error-message" *ngIf="isFieldInvalid('roles')">
-            {{ getFieldError('roles') }}
-          </small>
+        <div class="ac-field ac-field-roles">
+          <label class="ac-label">Permissões <span class="ac-required">*</span></label>
+          <p-multiSelect formControlName="roles"
+                         [options]="availableRoles" optionLabel="label" optionValue="value"
+                         placeholder="Selecione as permissões" [showToggleAll]="false"
+                         display="chip" styleClass="w-full" appendTo="body"
+                         [class.ng-invalid]="isFieldInvalid('roles')"
+                         [class.ng-dirty]="isFieldInvalid('roles')">
+          </p-multiSelect>
+          <small class="ac-error" *ngIf="isFieldInvalid('roles')">{{ getFieldError('roles') }}</small>
         </div>
 
-        <!-- Buttons -->
-        <div class="form-actions">
-          <p-button
-            label="Registrar Usuário"
-            icon="pi pi-user-plus"
-            type="submit"
-            [loading]="isSubmitting"
-            [disabled]="isSubmitting"
-            severity="success"
-          ></p-button>
-
-          <p-button
-            label="Limpar"
-            icon="pi pi-times"
-            type="button"
-            (onClick)="registerForm.reset()"
-            severity="secondary"
-            [outlined]="true"
-          ></p-button>
+        <!-- Ações -->
+        <div class="ac-field ac-field-actions">
+          <label class="ac-label">&nbsp;</label>
+          <div class="ac-actions">
+            <p-button
+              [label]="editingUser ? 'Atualizar' : 'Salvar'"
+              [icon]="editingUser ? 'pi pi-save' : 'pi pi-user-plus'"
+              type="submit"
+              [loading]="isSubmitting"
+              [disabled]="isSubmitting"
+              severity="contrast">
+            </p-button>
+            <p-button *ngIf="editingUser"
+                      label="Cancelar" icon="pi pi-times" type="button"
+                      (onClick)="cancelEdit()" [outlined]="true" severity="secondary">
+            </p-button>
+            <p-button *ngIf="!editingUser"
+                      label="Limpar" icon="pi pi-times" type="button"
+                      (onClick)="registerForm.reset({ roles: [] })"
+                      [outlined]="true" severity="secondary">
+            </p-button>
+          </div>
         </div>
 
       </form>
-    </p-card>
-    </div>
-
-    <div class="users-section">
-      <p-card header="Usuários Cadastrados" styleClass="users-card">
-        <p-table
-          [value]="users"
-          [loading]="isLoadingUsers"
-          [paginator]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5,10,20]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuários">
-
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Login</th>
-              <th>Permissões</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-user>
-            <tr>
-              <td>{{ user.login }}</td>
-              <td>
-                <p-tag
-                  *ngFor="let role of user.roles"
-                  [value]="getRoleLabel(role)"
-                  [severity]="getRoleSeverity(role)"
-                  styleClass="role-tag">
-                </p-tag>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="2">Nenhum usuário encontrado.</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-card>
     </div>
   </div>
+
+  <!-- TABELA -->
+  <div class="ac-panel">
+    <div class="ac-panel-header">
+      <span class="ac-panel-title">Usuários cadastrados</span>
+      <span class="ac-count-badge">{{ users.length }} usuários</span>
+    </div>
+
+    <p-table
+      [value]="users"
+      [loading]="isLoadingUsers"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5,10,20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} usuários"
+      styleClass="ac-table">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Login</th>
+          <th>Permissões</th>
+          <th style="width: 72px; text-align: center">Editar</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr [class.ac-row-active]="editingUser?.login === user.login">
+          <td class="ac-login-cell">{{ user.login }}</td>
+          <td>
+            <span class="ac-tag" *ngFor="let role of user.roles"
+                  [attr.data-role]="role">
+              {{ getRoleLabel(role) }}
+            </span>
+          </td>
+          <td style="text-align: center">
+            <p-button icon="pi pi-pencil"
+                      [rounded]="true" [text]="true" severity="secondary"
+                      pTooltip="Editar permissões" tooltipPosition="left"
+                      (onClick)="selectUserToEdit(user)">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="ac-empty">
+            <i class="pi pi-users"></i>
+            <span>Nenhum usuário encontrado</span>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+
+</div>
