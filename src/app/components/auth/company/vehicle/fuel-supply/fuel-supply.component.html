@@ -1,0 +1,196 @@
+<p-toast position="top-right" />
+
+<div class="page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header__icon">
+      <i class="pi pi-gas-pump"></i>
+    </div>
+    <div>
+      <h1 class="page-header__title">Abastecimento</h1>
+      <p class="page-header__sub">Importe a planilha mensal e gere os relatórios consolidados por período.</p>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- COLUNA 1 — Importar planilha                                       -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="panel">
+      <div class="panel__header">
+        <span class="panel__step">01</span>
+        <div>
+          <h2 class="panel__title">Importar Planilha</h2>
+          <p class="panel__desc">Envie o arquivo .xlsx do período de referência.</p>
+        </div>
+      </div>
+
+      <div class="form">
+
+        <!-- Período -->
+        <div class="form-row">
+          <div class="field">
+            <label class="field__label" for="mes-upload">Mês</label>
+            <p-select
+              inputId="mes-upload"
+              [options]="monthOptions"
+              [(ngModel)]="selectedMonth"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Mês"
+              styleClass="w-full"
+            />
+          </div>
+          <div class="field">
+            <label class="field__label" for="ano-upload">Ano</label>
+            <p-select
+              inputId="ano-upload"
+              [options]="yearOptions"
+              [(ngModel)]="selectedYear"
+              placeholder="Ano"
+              styleClass="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Drop zone -->
+        <div class="field">
+          <label class="field__label">Arquivo</label>
+          <div
+            class="dropzone"
+            [class.dropzone--filled]="selectedFile"
+            (click)="fileInput.click()"
+          >
+            @if (!selectedFile) {
+              <div class="dropzone__empty">
+                <div class="dropzone__icon-wrap">
+                  <i class="pi pi-file-excel"></i>
+                </div>
+                <p class="dropzone__text">Clique para selecionar</p>
+                <p class="dropzone__hint">Apenas arquivos <strong>.xlsx</strong></p>
+              </div>
+            } @else {
+              <div class="dropzone__filled">
+                <div class="dropzone__file-icon">
+                  <i class="pi pi-file-excel"></i>
+                </div>
+                <div class="dropzone__file-info">
+                  <span class="dropzone__file-name">{{ selectedFile.name }}</span>
+                  <span class="dropzone__file-size">{{ fileSizeLabel }}</span>
+                </div>
+                <button
+                  class="dropzone__remove"
+                  (click)="$event.stopPropagation(); clearFile()"
+                  title="Remover"
+                >
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+          <input
+            #fileInput
+            type="file"
+            accept=".xlsx"
+            class="hidden-input"
+            (change)="onFileSelected($event)"
+          />
+        </div>
+
+        <!-- Ação -->
+        <div class="form-actions">
+          <p-button
+            label="Enviar Planilha"
+            icon="pi pi-upload"
+            iconPos="right"
+            [loading]="loadingUpload"
+            [disabled]="!selectedFile || !selectedMonth || !selectedYear"
+            styleClass="btn btn--secondary"
+            (onClick)="upload()"
+            pRipple
+          />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Divisor vertical -->
+    <div class="divider-v">
+      <span class="divider-v__line"></span>
+      <span class="divider-v__dot" [class.divider-v__dot--active]="canGenerate">
+        <i class="pi" [ngClass]="canGenerate ? 'pi-arrow-right' : 'pi-lock'"></i>
+      </span>
+      <span class="divider-v__line"></span>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- COLUNA 2 — Gerar relatório                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="panel" [class.panel--locked]="!canGenerate">
+      <div class="panel__header">
+        <span class="panel__step" [class.panel__step--active]="canGenerate">02</span>
+        <div>
+          <h2 class="panel__title">Gerar Relatório</h2>
+          <p class="panel__desc">
+            @if (canGenerate) {
+              Dados de <strong>{{ selectedMonthLabel }}/{{ selectedYear }}</strong> prontos para exportar.
+            } @else {
+              Disponível após a importação do período.
+            }
+          </p>
+        </div>
+
+        <!-- Status pill -->
+        <div class="status-pill" [class.status-pill--ready]="canGenerate">
+          <i class="pi" [ngClass]="canGenerate ? 'pi-check-circle' : 'pi-clock'"></i>
+          <span>{{ canGenerate ? 'Pronto' : 'Aguardando' }}</span>
+        </div>
+      </div>
+
+      <div class="form">
+
+        <!-- Formato -->
+        <div class="field">
+          <label class="field__label">Formato</label>
+          <div class="format-grid">
+            @for (opt of formatOptions; track opt.value) {
+              <div
+                class="format-item"
+                [class.format-item--active]="selectedFormat === opt.value"
+                [class.format-item--locked]="!canGenerate"
+                (click)="canGenerate && (selectedFormat = opt.value)"
+              >
+                <i [class]="opt.icon + ' format-item__icon'"></i>
+                <div class="format-item__text">
+                  <span class="format-item__label">{{ opt.label }}</span>
+                  <span class="format-item__desc">{{ opt.description }}</span>
+                </div>
+                <div class="format-item__check">
+                  <i class="pi pi-check"></i>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Ação -->
+        <div class="form-actions">
+          <p-button
+            label="Gerar Relatório"
+            icon="pi pi-download"
+            iconPos="right"
+            [loading]="loadingReport"
+            [disabled]="!canGenerate"
+            styleClass="btn btn--primary"
+            (onClick)="generate()"
+            pRipple
+          />
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
