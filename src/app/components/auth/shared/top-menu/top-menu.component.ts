@@ -94,6 +94,13 @@ export class TopMenuComponent implements OnInit, OnDestroy {
               { label: 'Controle de Estoque', icon: 'pi pi-fw pi-box', routerLink: ['company/inventory'], roles: ['ADMIN', 'ALMOXARIFADO'] },
             ],
           },
+          {
+            label: 'Veiculos',
+            icon: 'pi pi-fw pi-car',
+            items: [
+              { label: 'Abastecimento' , icon: 'pi pi-fw pi-fuel', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR']},
+            ]
+          }
         ],
       },
       {
