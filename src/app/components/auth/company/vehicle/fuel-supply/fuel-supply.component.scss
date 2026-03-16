@@ -1,0 +1,483 @@
+@use '../../../../../../styles/variables.scss' as *;
+
+// ─── Página ───────────────────────────────────────────────────────────────────
+.page {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: $primary-color;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.35rem;
+      color: #fff;
+    }
+  }
+
+  &__title {
+    font-family: $title-font;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $primary-color;
+    margin: 0 0 0.15rem;
+  }
+
+  &__sub {
+    font-family: $text-font;
+    font-size: 0.875rem;
+    color: $text-secondary-color;
+    margin: 0;
+  }
+}
+
+// ─── Layout 2 colunas ─────────────────────────────────────────────────────────
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 48px 1fr;
+  align-items: start;
+  gap: 0;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Panel ────────────────────────────────────────────────────────────────────
+.panel {
+  background: $bg-panel;
+  border: 1px solid $tertiary-color-dark;
+  border-radius: 16px;
+  padding: 1.75rem;
+  transition: opacity 0.2s;
+
+  &--locked {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__step {
+    font-family: $title-font;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: $tertiary-color-dark;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+
+    &--active {
+      color: $primary-color;
+    }
+  }
+
+  &__title {
+    font-family: $title-font;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $primary-color;
+    margin: 0 0 0.2rem;
+  }
+
+  &__desc {
+    font-family: $text-font;
+    font-size: 0.82rem;
+    color: $text-secondary-color;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// ─── Status pill ──────────────────────────────────────────────────────────────
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-family: $text-font;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba($warning-color, 0.12);
+  color: darken($warning-color, 20%);
+  border: 1px solid rgba($warning-color, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  i { font-size: 0.7rem; }
+
+  &--ready {
+    background: rgba($success-color, 0.1);
+    color: darken($success-color, 10%);
+    border-color: rgba($success-color, 0.25);
+  }
+}
+
+// ─── Divisor vertical ─────────────────────────────────────────────────────────
+.divider-v {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2.5rem;
+  gap: 0;
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    padding-top: 0;
+    height: 32px;
+  }
+
+  &__line {
+    flex: 1;
+    width: 1px;
+    background: $tertiary-color-dark;
+
+    @media (max-width: 768px) {
+      width: auto;
+      height: 1px;
+    }
+  }
+
+  &__dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: $tertiary-color;
+    border: 1px solid $tertiary-color-dark;
+    color: $text-secondary-color;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+
+    i { font-size: 0.75rem; }
+
+    &--active {
+      background: $secondary-color;
+      border-color: $secondary-color-dark1;
+      color: #fff;
+    }
+  }
+}
+
+// ─── Formulário ───────────────────────────────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+
+  &-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  &-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.25rem;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  &__label {
+    font-family: $text-font;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $primary-text-color;
+    letter-spacing: 0.01em;
+  }
+}
+
+// ─── Drop zone ────────────────────────────────────────────────────────────────
+.hidden-input { display: none; }
+
+.dropzone {
+  border: 2px dashed $tertiary-color-dark;
+  border-radius: 12px;
+  background: $bg-base;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $secondary-color;
+    background: rgba($secondary-color, 0.04);
+  }
+
+  &--filled {
+    border-style: solid;
+    border-color: $secondary-color;
+    background: rgba($secondary-color, 0.05);
+
+    &:hover {
+      border-color: $secondary-color-dark1;
+      background: rgba($secondary-color, 0.08);
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.75rem 1rem;
+    gap: 0.4rem;
+  }
+
+  &__icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: $tertiary-color-dark2;
+    margin-bottom: 0.25rem;
+
+    i {
+      font-size: 1.25rem;
+      color: $primary-color-light2;
+    }
+  }
+
+  &__text {
+    font-family: $text-font;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $primary-text-color;
+    margin: 0;
+  }
+
+  &__hint {
+    font-family: $text-font;
+    font-size: 0.78rem;
+    color: $text-secondary-color;
+    margin: 0;
+
+    strong { color: $primary-text-color; }
+  }
+
+  &__filled {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+  }
+
+  &__file-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba($secondary-color, 0.15);
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.1rem;
+      color: $secondary-color-dark1;
+    }
+  }
+
+  &__file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__file-name {
+    font-family: $text-font;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $primary-text-color;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__file-size {
+    font-family: $text-font;
+    font-size: 0.75rem;
+    color: $text-secondary-color;
+  }
+
+  &__remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: $tertiary-color-dark2;
+    color: $text-secondary-color;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+
+    i { font-size: 0.65rem; }
+
+    &:hover {
+      background: rgba($danger, 0.12);
+      color: $danger;
+    }
+  }
+}
+
+// ─── Grade de formatos ────────────────────────────────────────────────────────
+.format-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.format-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1.5px solid $tertiary-color-dark;
+  background: $bg-base;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: $secondary-color;
+    background: rgba($secondary-color, 0.04);
+  }
+
+  &--active {
+    border-color: $primary-color;
+    background: rgba($primary-color, 0.04);
+
+    .format-item__icon { color: $primary-color; }
+    .format-item__label { color: $primary-color; }
+    .format-item__check { opacity: 1; }
+  }
+
+  &--locked {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &__icon {
+    font-size: 1.35rem;
+    color: $primary-color-light2;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+  }
+
+  &__label {
+    font-family: $text-font;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: $primary-text-color;
+    transition: color 0.15s;
+  }
+
+  &__desc {
+    font-family: $text-font;
+    font-size: 0.75rem;
+    color: $text-secondary-color;
+  }
+
+  &__check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $primary-color;
+    opacity: 0;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+
+    i {
+      font-size: 0.6rem;
+      color: #fff;
+    }
+  }
+}
+
+// ─── Botões (override PrimeNG via host) ───────────────────────────────────────
+:host ::ng-deep {
+  .btn {
+    font-family: $text-font;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    padding: 0.55rem 1.4rem;
+
+    &--primary {
+      background: $primary-color !important;
+      border-color: $primary-color !important;
+
+      &:hover:not(:disabled) {
+        background: $primary-color-dark1 !important;
+        border-color: $primary-color-dark1 !important;
+      }
+    }
+
+    &--secondary {
+      background: transparent !important;
+      border-color: $primary-color !important;
+      color: $primary-color !important;
+
+      &:hover:not(:disabled) {
+        background: rgba($primary-color, 0.06) !important;
+      }
+    }
+  }
+
+  .p-select {
+    border-radius: 8px;
+    border-color: $tertiary-color-dark;
+    font-family: $text-font;
+    font-size: 0.875rem;
+
+    &:hover { border-color: $secondary-color; }
+    &.p-focus { border-color: $primary-color; box-shadow: 0 0 0 2px rgba($primary-color, 0.15); }
+  }
+}
