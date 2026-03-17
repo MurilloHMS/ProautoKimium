@@ -88,9 +88,8 @@ export class EmployesComponent{
         this.loading = false;
         this.msgService.add({
           severity: 'warning',
-          summary: 'Error',
-          detail: err.error || err.message || 'Erro desconhecido'
-
+          summary: 'Erro',
+          detail: this.getErrorMessage(err)
         });
       }
     });
@@ -126,40 +125,58 @@ export class EmployesComponent{
   save(){
     if(this.form.valid){
       const employee = this.form.value;
-      employee.hierarchy = Hierarchy[employee.hierarchy];
-      employee.department = Department[employee.department];
 
       if(employee.birthday instanceof Date){
         employee.birthday = employee.birthday.toISOString().split('T')[0];
       }
-      console.log(employee);
+
       if(this.employeToEdit){
         this.employeService.updateEmploye(employee).subscribe({
           next: () => {
             this.visible = false;
             this.loadEmployes();
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Funcionário atualizado com sucesso!'
+            });
           },
           error: (err) => {
             this.visible = false;
-            this.msgService.add({ severity: 'warning', summary: 'Error',detail: err.error || err.message || 'Erro desconhecido'});
+            this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
         });
-      }else {
+      } else {
         this.employeService.addEmploye(employee).subscribe({
           next: () => {
             this.visible = false;
             this.loadEmployes();
+            this.msgService.add({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Funcionário cadastrado com sucesso!'
+            });
           },
           error: (err) => {
             this.visible = false;
-            this.msgService.add({
-              severity: 'warning',
-              summary: 'Error',
-              detail: err.error || err.message || 'Erro desconhecido'
-            });
+            this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
-        })
+        });
       }
+    }
+  }
+
+  private getErrorMessage(err: any): string {
+    switch (err.status) {
+      case 400: return 'Requisição inválida';
+      case 401: return 'Não autorizado. Faça login novamente';
+      case 403: return 'Você não tem permissão para esta ação';
+      case 404: return 'Recurso não encontrado';
+      case 409: return 'Registro já existe';
+      case 422: return 'Dados inválidos';
+      case 500: return 'Erro interno do servidor';
+      case 0:   return 'Sem conexão com o servidor';
+      default:  return `Erro inesperado (${err.status})`;
     }
   }
 }

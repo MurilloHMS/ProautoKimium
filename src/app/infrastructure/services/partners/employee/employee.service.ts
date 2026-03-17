@@ -20,11 +20,15 @@ export class EmployeeService {
     return this.http.get<Recipient[]>(`${environment.apiUrl}/employee/only-email`);
   }
 
-  addEmploye(employe: Employee): Observable<Employee>{
-    return this.http.post<Employee>(`${environment.apiUrl}/employee`, employe);
+  addEmploye(employe: Employee): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/employee`, employe, {
+      responseType: 'text'
+    });
   }
 
-  updateEmploye(employee: Employee) : Observable<Employee>{
-    return this.http.put<Employee>(`${environment.apiUrl}/employee`, employee)
+  updateEmploye(employee: Employee): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/employee`, employee, {
+      responseType: 'text'
+    });
   }
 }
