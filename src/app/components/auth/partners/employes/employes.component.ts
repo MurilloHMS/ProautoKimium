@@ -107,7 +107,8 @@ export class EmployesComponent{
       ativo: employee.ativo,
       managerCode: employee.managerCode,
       hierarchy: employee.hierarchy,
-      birthday: employee.birthday
+      birthday: employee.birthday,
+      department: employee.department,
     });
 
     this.visible = true;
