@@ -31,6 +31,7 @@ import {HoleritExtractorComponent} from "./components/auth/documents/holerit-ext
 import {CustomerComponent} from "./components/auth/partners/customer/customer.component";
 import {EmployesComponent} from "./components/auth/partners/employes/employes.component";
 import {FuelSupplyComponent} from "./components/auth/company/vehicle/fuel-supply/fuel-supply.component";
+import {ExcelCredentialsComponent} from "./components/auth/documents/excel-credentials/excel-credentials.component";
 
 
 export const routes: Routes = [
@@ -62,6 +63,7 @@ export const routes: Routes = [
         {path: 'documents/nfe-collector', component: NfeDataCollectorComponent, data: {roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR']}},
         {path: 'documents/email-signature', component: EmailSignatureComponent, data: {roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDOR']}},
         {path: 'documents/holerit/extractor', component: HoleritExtractorComponent, data: {roles: ['ADMIN', 'RH']}},
+        {path: 'documents/excel', component: ExcelCredentialsComponent},
         {path: 'support/contact', component: ContactsComponent, data: {roles: ['ADMIN', 'SUPPORT']}},
         {path: 'company/products', component: ProductsComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
         {path: 'company/inventory', component: StockControlComponent, data: {roles: ['ADMIN', 'ALMOXARIFADO']}},
