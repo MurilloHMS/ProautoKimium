@@ -32,6 +32,7 @@ import {CustomerComponent} from "./components/auth/partners/customer/customer.co
 import {EmployesComponent} from "./components/auth/partners/employes/employes.component";
 import {FuelSupplyComponent} from "./components/auth/company/vehicle/fuel-supply/fuel-supply.component";
 import {ExcelCredentialsComponent} from "./components/auth/documents/excel-credentials/excel-credentials.component";
+import {PainelDeVagasComponent} from "./components/auth/rh/painel-de-vagas/painel-de-vagas.component";
 
 
 export const routes: Routes = [
@@ -73,6 +74,7 @@ export const routes: Routes = [
         {path: 'communication/email', component: EmailComponent, data: {roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN']}},
         {path: 'partners/customers', component: CustomerComponent, data: {roles: ['ADMIN', 'RH', 'MARKETING']}},
         {path: 'partners/employees', component: EmployesComponent, data: {roles: ['ADMIN', 'RH', 'MARKETING']}},
+        {path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: {roles: ['ADMIN', 'RH']}},
       ]
     },
     {
