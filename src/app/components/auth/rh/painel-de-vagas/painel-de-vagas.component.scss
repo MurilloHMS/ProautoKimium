@@ -1,0 +1,415 @@
+// ── Tokens ────────────────────────────────────────────────────────────────────
+$primary:      #2563EB;
+$primary-lt:   #EFF6FF;
+$primary-dark: #1D4ED8;
+$success:      #16A34A;
+$success-lt:   #F0FDF4;
+$text-900:     #0F172A;
+$text-600:     #475569;
+$text-400:     #94A3B8;
+$border:       #E2E8F0;
+$surface:      #F8FAFC;
+$white:        #FFFFFF;
+$radius-sm:    6px;
+$radius-md:    10px;
+$radius-lg:    14px;
+$shadow-sm:    0 1px 3px rgba(0,0,0,.08);
+$shadow-md:    0 4px 12px rgba(0,0,0,.10);
+
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+.painel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.75rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.painel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: $text-900;
+    margin: 0;
+
+    i { color: $primary; }
+  }
+
+  .header-subtitle {
+    margin: .2rem 0 0;
+    color: $text-600;
+    font-size: .9rem;
+  }
+
+  .btn-nova-vaga {
+    background: $primary !important;
+    border-color: $primary !important;
+    border-radius: $radius-md !important;
+    font-weight: 600 !important;
+    padding: .55rem 1.25rem !important;
+    transition: background .18s, transform .15s !important;
+
+    &:hover {
+      background: $primary-dark !important;
+      border-color: $primary-dark !important;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+.tabs-nav {
+  display: flex;
+  gap: .5rem;
+  border-bottom: 2px solid $border;
+  padding-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .6rem 1.1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: $radius-sm $radius-sm 0 0;
+  font-size: .88rem;
+  font-weight: 500;
+  color: $text-600;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+
+  i { font-size: .85rem; }
+
+  &:hover {
+    color: $primary;
+    background: $primary-lt;
+  }
+
+  &--active {
+    color: $primary;
+    border-bottom-color: $primary;
+    font-weight: 700;
+  }
+
+  .tab-badge {
+    background: $primary;
+    color: $white;
+    font-size: .7rem;
+    font-weight: 700;
+    border-radius: 99px;
+    padding: .1rem .45rem;
+    min-width: 1.4rem;
+    text-align: center;
+  }
+}
+
+// ── Filtros ───────────────────────────────────────────────────────────────────
+.filtros-section {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: 1rem 1.25rem;
+  box-shadow: $shadow-sm;
+}
+
+.filtros-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.filtro-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+
+  .busca-icon {
+    position: absolute;
+    left: .75rem;
+    color: $text-400;
+    font-size: .88rem;
+    pointer-events: none;
+  }
+
+  .busca-input {
+    width: 100%;
+    padding: .55rem .75rem .55rem 2.1rem !important;
+    border: 1px solid $border !important;
+    border-radius: $radius-sm !important;
+    font-size: .9rem !important;
+    transition: border-color .18s, box-shadow .18s !important;
+
+    &:focus {
+      border-color: $primary !important;
+      box-shadow: 0 0 0 3px rgba($primary, .12) !important;
+      outline: none !important;
+    }
+  }
+
+  .busca-clear {
+    position: absolute;
+    right: .6rem;
+    background: none;
+    border: none;
+    color: $text-400;
+    cursor: pointer;
+    padding: .2rem;
+    display: flex;
+    align-items: center;
+
+    &:hover { color: $text-900; }
+
+    i { font-size: .8rem; }
+  }
+}
+
+.filtro-area {
+  min-width: 200px;
+
+  ::ng-deep .p-select {
+    border-radius: $radius-sm !important;
+    font-size: .9rem !important;
+  }
+}
+
+.btn-limpar {
+  background: transparent !important;
+  border: 1px solid $border !important;
+  color: $text-600 !important;
+  border-radius: $radius-sm !important;
+  font-size: .85rem !important;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: $primary !important;
+    color: $primary !important;
+  }
+}
+
+// ── Tabela ────────────────────────────────────────────────────────────────────
+.tabela-section {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+// Skeleton
+.estado-loading {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: .5rem 0;
+
+  ::ng-deep .p-skeleton { border-radius: $radius-sm; }
+}
+
+// Vazio / erro
+.estado-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 3.5rem 1.5rem;
+  color: $text-400;
+  text-align: center;
+
+  i {
+    font-size: 2.5rem;
+    opacity: .45;
+  }
+
+  p {
+    margin: 0;
+    font-size: .95rem;
+    color: $text-600;
+  }
+}
+
+.estado-erro i { color: #EF4444; opacity: .8; }
+
+// p-table overrides
+::ng-deep {
+  .painel-table {
+    .p-datatable-thead > tr > th {
+      background: $surface !important;
+      border-color: $border !important;
+      color: $text-600 !important;
+      font-size: .8rem !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: .7rem 1rem !important;
+    }
+
+    .p-datatable-tbody > tr > td {
+      border-color: $border !important;
+      font-size: .88rem !important;
+      color: $text-900;
+      padding: .65rem 1rem !important;
+      vertical-align: middle;
+    }
+
+    .p-datatable-tbody > tr:hover > td {
+      background: $primary-lt !important;
+    }
+
+    .p-paginator {
+      border-top: 1px solid $border !important;
+      padding: .6rem 1rem !important;
+      font-size: .83rem !important;
+    }
+  }
+}
+
+// Linhas
+.linha-principal {
+  transition: background .15s;
+
+  &.linha-expandida > td {
+    background: $primary-lt !important;
+    border-bottom: none !important;
+  }
+}
+
+.linha-detalhe > td {
+  background: $primary-lt !important;
+  padding: 0 !important;
+  border-top: none !important;
+}
+
+// Botão expandir
+.btn-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: none;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: background .15s, transform .2s, border-color .15s;
+  color: $text-600;
+
+  i {
+    font-size: .72rem;
+    transition: transform .2s;
+  }
+
+  &--open {
+    background: $primary-lt;
+    border-color: $primary;
+    color: $primary;
+
+    i { transform: rotate(90deg); }
+  }
+
+  &:hover {
+    background: $primary-lt;
+    border-color: $primary;
+    color: $primary;
+  }
+}
+
+// Células especiais
+.cell-id {
+  font-family: 'Courier New', monospace;
+  font-size: .78rem !important;
+  color: $text-400 !important;
+}
+
+.cell-titulo {
+  font-weight: 600;
+  color: $text-900 !important;
+}
+
+.tag-area {
+  display: inline-flex;
+  align-items: center;
+  padding: .2rem .65rem;
+  background: #EEF2FF;
+  color: #4338CA;
+  border-radius: 99px;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cell-acoes {
+  display: flex !important;
+  justify-content: center;
+  gap: .2rem;
+}
+
+.btn-acao {
+  color: $text-600 !important;
+  width: 2rem !important;
+  height: 2rem !important;
+
+  &:hover { color: $primary !important; background: $primary-lt !important; }
+}
+
+// Detalhe expandido
+.detalhe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px dashed darken($border, 5%);
+}
+
+.detalhe-card {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  .detalhe-label {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .75rem;
+    font-weight: 700;
+    color: $text-400;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+
+    i { font-size: .75rem; }
+  }
+
+  .detalhe-valor {
+    margin: 0;
+    font-size: .87rem;
+    color: $text-900;
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+}
