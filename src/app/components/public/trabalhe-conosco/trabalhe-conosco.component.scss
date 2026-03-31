@@ -1,0 +1,885 @@
+@use '../../../../styles/variables.scss' as *;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PAGE
+// ══════════════════════════════════════════════════════════════════════════════
+.tc-page {
+  background: $bg-base;
+  min-height: 100vh;
+  font-family: $text-font;
+  color: $primary-text-color;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HERO
+// ══════════════════════════════════════════════════════════════════════════════
+.hero {
+  position: relative;
+  background: $primary-color;
+  overflow: hidden;
+  padding: 4.5rem 2rem 3.5rem;
+  text-align: center;
+}
+
+.hero-bg-shape {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 110% 50%, rgba($secondary-color, .18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at -10% 60%, rgba($primary-color-light2, .25) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hero-eyebrow {
+  font-family: $menu-font;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: $secondary-color;
+  background: rgba($secondary-color, .12);
+  border: 1px solid rgba($secondary-color, .3);
+  border-radius: 99px;
+  padding: .3rem .9rem;
+}
+
+.hero-title {
+  font-family: $title-font;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(#fff, .72);
+  line-height: 1.65;
+  max-width: 520px;
+}
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: .5rem;
+  background: rgba(#fff, .08);
+  border: 1px solid rgba(#fff, .14);
+  border-radius: 99px;
+  padding: .6rem 1.6rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .stat-num {
+    font-family: $title-font;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $secondary-color;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: .72rem;
+    font-weight: 500;
+    color: rgba(#fff, .55);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+}
+
+.stat-divider {
+  width: 1px;
+  height: 2rem;
+  background: rgba(#fff, .2);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FILTROS
+// ══════════════════════════════════════════════════════════════════════════════
+.filtros-bar {
+  background: $bg-panel;
+  border-bottom: 1px solid $tertiary-color-dark;
+  box-shadow: 0 2px 8px rgba($primary-color, .06);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.filtros-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: .85rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.busca-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+
+  > .pi-search {
+    position: absolute;
+    left: .85rem;
+    color: $secondary-color;
+    font-size: .85rem;
+    pointer-events: none;
+  }
+
+  .busca-input {
+    width: 100%;
+    padding: .6rem .75rem .6rem 2.3rem;
+    border: 1.5px solid $tertiary-color-dark;
+    border-radius: 8px;
+    font-family: $text-font;
+    font-size: .9rem;
+    color: $text-primary-color;
+    background: $bg-base;
+    transition: border-color .18s, box-shadow .18s;
+    outline: none;
+
+    &::placeholder { color: $secondary-text-color; }
+    &:focus { border-color: $secondary-color; box-shadow: 0 0 0 3px rgba($secondary-color, .15); }
+  }
+
+  .busca-x {
+    position: absolute;
+    right: .6rem;
+    background: none;
+    border: none;
+    color: $secondary-text-color;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: .2rem;
+    border-radius: 50%;
+    transition: color .15s;
+
+    &:hover { color: $primary-color; }
+    i { font-size: .78rem; }
+  }
+}
+
+.area-select {
+  min-width: 190px;
+
+  ::ng-deep .p-select {
+    border-radius: 8px !important;
+    border: 1.5px solid $tertiary-color-dark !important;
+    font-family: $text-font !important;
+    font-size: .9rem !important;
+    background: $bg-base !important;
+
+    &:hover { border-color: $secondary-color !important; }
+    &.p-focus { border-color: $secondary-color !important; box-shadow: 0 0 0 3px rgba($secondary-color, .15) !important; }
+  }
+}
+
+.btn-limpar {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $primary-text-color;
+  border-radius: 8px;
+  padding: .55rem .9rem;
+  font-family: $text-font;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .18s, color .18s;
+
+  i { font-size: .8rem; }
+  &:hover { border-color: $secondary-color; color: $secondary-color-dark1; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CARDS
+// ══════════════════════════════════════════════════════════════════════════════
+.cards-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.vaga-card {
+  background: $bg-panel;
+  border: 1px solid $tertiary-color-dark;
+  border-radius: 12px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  animation: fadeUp .35s ease both;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba($primary-color, .12);
+    border-color: rgba($secondary-color, .4);
+
+    &::before { opacity: 1; }
+    .btn-ver-vaga { background: $secondary-color; color: #fff; border-color: $secondary-color; }
+  }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.card-area {
+  font-family: $menu-font;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: $primary-color;
+  background: rgba($primary-color, .08);
+  border-radius: 99px;
+  padding: .2rem .7rem;
+}
+
+.card-data {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .75rem;
+  color: $primary-text-color;
+
+  i { font-size: .7rem; color: $warning-color; }
+}
+
+.card-titulo {
+  font-family: $title-font;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: $primary-color-dark1;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-descricao {
+  font-size: .85rem;
+  color: $text-primary-color;
+  line-height: 1.6;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-footer { margin-top: .25rem; }
+
+.btn-ver-vaga {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: rgba($secondary-color, .1);
+  color: $secondary-color-dark1;
+  border: 1.5px solid rgba($secondary-color, .3);
+  border-radius: 99px;
+  padding: .45rem 1.1rem;
+  font-family: $menu-font;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+  i { font-size: .78rem; }
+}
+
+.card-skeleton {
+  background: $bg-panel;
+  border: 1px solid $tertiary-color-dark;
+  border-radius: 12px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+
+  ::ng-deep .p-skeleton { border-radius: 6px; }
+}
+
+.estado-centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 1rem;
+  text-align: center;
+
+  p { font-size: .95rem; color: $secondary-text-color; max-width: 340px; }
+}
+
+.estado-icon {
+  font-size: 2.8rem;
+  color: $tertiary-color-dark2;
+
+  &--erro { color: $danger; opacity: .6; }
+}
+
+.btn-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: $primary-color;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: .6rem 1.2rem;
+  font-family: $menu-font;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s;
+
+  i { font-size: .8rem; }
+  &:hover { background: $primary-color-dark1; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODAL ÚNICO
+// ══════════════════════════════════════════════════════════════════════════════
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($primary-color-dark1, .6);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: overlayIn .2s ease;
+}
+
+.modal-box {
+  background: $bg-panel;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 28px 64px rgba($primary-color, .22);
+  animation: modalIn .25s ease;
+  overflow: hidden;
+}
+
+// ── Barra de passos ───────────────────────────────────────────────────────────
+.modal-steps {
+  display: flex;
+  align-items: center;
+  padding: .85rem 1.75rem;
+  background: $bg-base;
+  border-bottom: 1px solid $tertiary-color-dark;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-shrink: 0;
+
+  .step-num {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    border: 2px solid $tertiary-color-dark;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $menu-font;
+    font-size: .72rem;
+    font-weight: 700;
+    color: $secondary-text-color;
+    background: $bg-panel;
+    transition: all .2s;
+
+    i { font-size: .65rem; }
+  }
+
+  .step-label {
+    font-family: $menu-font;
+    font-size: .75rem;
+    font-weight: 600;
+    color: $primary-text-color;
+    transition: color .2s;
+  }
+
+  &--active {
+    .step-num { border-color: $primary-color; background: $primary-color; color: #fff; }
+    .step-label { color: $primary-color; }
+  }
+
+  &--done {
+    .step-num { border-color: $secondary-color; background: $secondary-color; color: #fff; }
+    .step-label { color: $secondary-color-dark1; }
+  }
+}
+
+.step-line {
+  flex: 1;
+  height: 2px;
+  background: $tertiary-color-dark;
+  margin: 0 .5rem;
+  border-radius: 99px;
+  transition: background .3s;
+
+  &--done { background: $secondary-color; }
+}
+
+// ── Header do modal ───────────────────────────────────────────────────────────
+.modal-header {
+  background: $primary-color;
+  padding: 1.5rem 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  position: relative;
+  flex-shrink: 0;
+
+  &--form {
+    background: $bg-panel;
+    border-bottom: 1px solid $tertiary-color-dark;
+    padding: 1.1rem 1.75rem;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(#fff, .15);
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  transition: background .15s;
+  z-index: 2;
+
+  i { font-size: .78rem; }
+  &:hover { background: $danger; }
+
+  &--abs {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: $tertiary-color;
+    color: $primary-text-color;
+    &:hover { background: $danger; color: #fff; }
+  }
+}
+
+.modal-back {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: none;
+  border: none;
+  color: $primary-color;
+  font-family: $menu-font;
+  font-size: .8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: .3rem;
+  transition: color .15s;
+
+  i { font-size: .75rem; }
+  &:hover { color: $primary-color-dark1; }
+}
+
+.modal-area-badge {
+  font-family: $menu-font;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: $secondary-color;
+  background: rgba($secondary-color, .12);
+  border: 1px solid rgba($secondary-color, .25);
+  border-radius: 99px;
+  padding: .2rem .75rem;
+  align-self: flex-start;
+}
+
+.modal-titulo {
+  font-family: $title-font;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+
+  .modal-header--form & { color: $primary-color-dark1; font-size: 1.15rem; }
+}
+
+.modal-subtitulo {
+  font-size: .85rem;
+  color: $primary-text-color;
+
+  strong { color: $primary-color; font-weight: 600; }
+}
+
+.modal-datas {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .78rem;
+    color: rgba(#fff, .6);
+  }
+
+  i { font-size: .72rem; color: $secondary-color; }
+}
+
+// ── Body scrollável ───────────────────────────────────────────────────────────
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: $tertiary-color-dark transparent;
+
+  p {
+    font-size: .9rem;
+    color: $text-primary-color;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+}
+
+.modal-section-title {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: $title-font;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: $primary-color;
+  margin-bottom: .4rem;
+}
+
+.dot {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: $secondary-color;
+  flex-shrink: 0;
+}
+
+// ── Footer com botões ─────────────────────────────────────────────────────────
+.modal-footer {
+  padding: 1rem 1.75rem 1.4rem;
+  border-top: 1px solid $tertiary-color-dark;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .75rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.btn-primario {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  background: $secondary-color;
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: .65rem 1.5rem;
+  font-family: $menu-font;
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, transform .15s, opacity .18s;
+
+  i { font-size: .85rem; }
+
+  &:hover:not(:disabled) { background: $secondary-color-dark1; transform: translateY(-1px); }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+.btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $primary-text-color;
+  border-radius: 99px;
+  padding: .6rem 1.25rem;
+  font-family: $menu-font;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .18s, color .18s;
+
+  i { font-size: .8rem; }
+  &:hover { border-color: $primary-color; color: $primary-color; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULÁRIO DE CANDIDATURA (dentro do modal-body)
+// ══════════════════════════════════════════════════════════════════════════════
+.cand-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  label {
+    font-family: $menu-font;
+    font-size: .78rem;
+    font-weight: 700;
+    color: $primary-color;
+    letter-spacing: .03em;
+  }
+
+  &--error {
+    .input-wrap { border-color: $danger !important; }
+    .input-wrap i { color: $danger !important; }
+  }
+}
+
+.req { color: $danger; margin-left: .15rem; }
+.opcional { font-weight: 400; color: $secondary-text-color; margin-left: .3rem; font-family: $text-font; }
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid $tertiary-color-dark;
+  border-radius: 10px;
+  background: $bg-base;
+  transition: border-color .18s, box-shadow .18s;
+
+  &:focus-within {
+    border-color: $secondary-color;
+    box-shadow: 0 0 0 3px rgba($secondary-color, .14);
+    background: $bg-panel;
+  }
+
+  i {
+    position: absolute;
+    left: .85rem;
+    color: $secondary-color;
+    font-size: .85rem;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: .65rem .85rem .65rem 2.4rem !important;
+    border: none !important;
+    background: transparent !important;
+    font-family: $text-font !important;
+    font-size: .9rem !important;
+    color: $text-primary-color !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    outline: none;
+
+    &::placeholder { color: $secondary-text-color; }
+  }
+}
+
+.field-err {
+  font-size: .76rem;
+  color: $danger;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+
+  &::before {
+    content: '!';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: .9rem;
+    height: .9rem;
+    background: $danger;
+    color: #fff;
+    border-radius: 50%;
+    font-size: .58rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+.field-hint {
+  font-size: .76rem;
+  color: $secondary-text-color;
+  line-height: 1.4;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEEDBACK (sucesso / erro) — ocupa o modal inteiro
+// ══════════════════════════════════════════════════════════════════════════════
+@keyframes feedbackIn {
+  from { opacity: 0; transform: scale(.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-feedback {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3.5rem 2.5rem;
+  text-align: center;
+  animation: feedbackIn .3s ease;
+
+  h2 {
+    font-family: $title-font;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $primary-color-dark1;
+  }
+
+  p {
+    font-size: .92rem;
+    color: $secondary-text-color;
+    line-height: 1.65;
+    max-width: 380px;
+
+    strong { color: $primary-color; font-weight: 600; }
+  }
+}
+
+.feedback-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i { font-size: 2.2rem; }
+
+  &--ok {
+    background: rgba($success, .1);
+    color: $success;
+    border: 2px solid rgba($success, .25);
+  }
+
+  &--erro {
+    background: rgba($danger, .1);
+    color: $danger;
+    border: 2px solid rgba($danger, .25);
+  }
+}
+
+.feedback-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVO
+// ══════════════════════════════════════════════════════════════════════════════
+@media (max-width: 600px) {
+  .hero { padding: 3rem 1.25rem 2.5rem; }
+  .filtros-inner, .cards-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; gap: .5rem; }
+  .stat-divider { width: 2.5rem; height: 1px; }
+
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal-box { border-radius: 18px 18px 0 0; max-height: 96vh; }
+  .modal-body { padding: 1.25rem; }
+  .modal-header { padding: 1.25rem 1.25rem 1rem; }
+  .modal-footer { padding: .85rem 1.25rem 1.25rem; }
+  .modal-steps { padding: .75rem 1.25rem; }
+  .step-label { display: none; }
+  .modal-feedback { padding: 2.5rem 1.5rem; }
+}
