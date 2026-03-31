@@ -2,7 +2,6 @@
 
 <div class="painel-wrapper">
 
-  <!-- ── Header ── -->
   <div class="painel-header">
     <div>
       <h2 class="header-title">
@@ -13,7 +12,6 @@
     <button pButton class="btn-nova-vaga" icon="pi pi-plus" label="Nova Vaga" (click)="abrirModalNova()"></button>
   </div>
 
-  <!-- ── Tabs ── -->
   <nav class="tabs-nav">
     <button
       *ngFor="let tab of tabs"
@@ -29,7 +27,6 @@
     </button>
   </nav>
 
-  <!-- ── Filtros ── -->
   <div class="filtros-section">
     <div class="filtros-row">
       <div class="filtro-busca">
@@ -62,10 +59,8 @@
     </div>
   </div>
 
-  <!-- ── Tabela ── -->
   <div class="tabela-section">
 
-    <!-- Loading skeleton -->
     <div class="estado-loading" *ngIf="isLoading">
       <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
         <p-skeleton width="2rem"  height="1rem" />
@@ -77,21 +72,20 @@
       </div>
     </div>
 
-    <!-- Erro -->
     <div class="estado-vazio estado-erro" *ngIf="!isLoading && erroCarregamento">
       <i class="pi pi-exclamation-circle"></i>
       <p>Ocorreu um erro ao carregar as vagas.</p>
       <button pButton label="Tentar novamente" icon="pi pi-refresh" severity="secondary" (click)="recarregar()"></button>
     </div>
 
-    <!-- Vazio -->
+
     <div class="estado-vazio" *ngIf="!isLoading && !erroCarregamento && vagasFiltradas.length === 0">
       <i class="pi pi-inbox"></i>
       <p *ngIf="!filtrosAtivos">Nenhuma vaga encontrada nesta categoria.</p>
       <p *ngIf="filtrosAtivos">Nenhuma vaga corresponde aos filtros aplicados.</p>
     </div>
 
-    <!-- Tabela principal -->
+
     <p-table
       *ngIf="!isLoading && !erroCarregamento && vagasFiltradas.length > 0"
       [value]="vagasFiltradas"
@@ -110,7 +104,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-vaga>
-        <!-- Linha principal -->
+
         <tr class="linha-principal" [class.linha-expandida]="isExpanded(vaga)">
           <td>
             <button
@@ -127,33 +121,29 @@
           <td>{{ formatarData(vaga.dataAbertura) }}</td>
           <td>{{ formatarData(vaga.dataEncerramento) }}</td>
           <td class="cell-acoes">
-            <!-- Editar: sempre disponível -->
+
             <button pButton icon="pi pi-pencil" class="btn-acao" text rounded
                     pTooltip="Editar" (click)="abrirModalEditar(vaga)">
             </button>
 
-            <!-- Publicar: apenas rascunho -->
             <button pButton icon="pi pi-send" class="btn-acao" text rounded severity="success"
                     pTooltip="Publicar"
                     *ngIf="activeTab === 'rascunho'"
                     (click)="publicar(vaga)">
             </button>
 
-            <!-- Encerrar: apenas publicadas -->
             <button pButton icon="pi pi-times-circle" class="btn-acao" text rounded severity="danger"
                     pTooltip="Encerrar"
                     *ngIf="activeTab === 'publicadas'"
                     (click)="encerrar(vaga)">
             </button>
 
-            <!-- Arquivar: apenas encerradas -->
             <button pButton icon="pi pi-inbox" class="btn-acao" text rounded severity="warn"
                     pTooltip="Arquivar"
                     *ngIf="activeTab === 'encerradas'"
                     (click)="arquivar(vaga)">
             </button>
 
-            <!-- Voltar para rascunho: apenas arquivadas -->
             <button pButton icon="pi pi-file-edit" class="btn-acao" text rounded severity="secondary"
                     pTooltip="Mover para Rascunho"
                     *ngIf="activeTab === 'arquivadas'"
@@ -162,7 +152,6 @@
           </td>
         </tr>
 
-        <!-- Linha de detalhe expandida -->
         <tr class="linha-detalhe" *ngIf="isExpanded(vaga)">
           <td colspan="6">
             <div class="detalhe-grid">
@@ -187,7 +176,6 @@
 
 </div>
 
-<!-- ── Modal Criar / Editar ── -->
 <p-dialog
   [(visible)]="modalAberto"
   [header]="vagaEmEdicao ? 'Editar Vaga' : 'Nova Vaga'"
@@ -197,14 +185,23 @@
   (onHide)="fecharModal()"
 >
   <div style="display: flex; flex-direction: column; gap: 1rem; padding: .5rem 0">
+
     <div>
-      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Título *</label>
-      <input pInputText [(ngModel)]="formVaga.titulo" style="width: 100%" placeholder="Ex: Desenvolvedor Full Stack" />
+      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">
+        Título * <span class="char-counter" [class.char-counter--limit]="formVaga.titulo.length >= 100">{{ formVaga.titulo.length }}/100</span>
+      </label>
+      <input pInputText [(ngModel)]="formVaga.titulo" maxlength="100"
+             style="width: 100%" placeholder="Ex: Desenvolvedor Full Stack" />
     </div>
+
     <div>
-      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Área *</label>
-      <input pInputText [(ngModel)]="formVaga.area" style="width: 100%" placeholder="Ex: Tecnologia" />
+      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">
+        Área * <span class="char-counter" [class.char-counter--limit]="formVaga.area.length >= 100">{{ formVaga.area.length }}/100</span>
+      </label>
+      <input pInputText [(ngModel)]="formVaga.area" maxlength="100"
+             style="width: 100%" placeholder="Ex: Tecnologia" />
     </div>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
       <div>
         <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Data de Abertura</label>
@@ -215,17 +212,29 @@
         <input pInputText type="date" [(ngModel)]="formVaga.dataEncerramento" style="width: 100%" />
       </div>
     </div>
+
     <div>
-      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Descrição</label>
-      <textarea pTextarea [(ngModel)]="formVaga.descricao" rows="3" style="width: 100%" placeholder="Descreva a vaga..."></textarea>
+      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">
+        Descrição <span class="char-counter" [class.char-counter--limit]="formVaga.descricao.length >= 1000">{{ formVaga.descricao.length }}/1000</span>
+      </label>
+      <textarea pTextarea [(ngModel)]="formVaga.descricao" maxlength="1000"
+                rows="3" style="width: 100%" placeholder="Descreva a vaga..."></textarea>
     </div>
+
     <div>
-      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Requisitos</label>
-      <textarea pTextarea [(ngModel)]="formVaga.requisitos" rows="3" style="width: 100%" placeholder="Liste os requisitos..."></textarea>
+      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">
+        Requisitos <span class="char-counter" [class.char-counter--limit]="formVaga.requisitos.length >= 1000">{{ formVaga.requisitos.length }}/1000</span>
+      </label>
+      <textarea pTextarea [(ngModel)]="formVaga.requisitos" maxlength="1000"
+                rows="3" style="width: 100%" placeholder="Liste os requisitos..."></textarea>
     </div>
+
     <div>
-      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Benefícios</label>
-      <textarea pTextarea [(ngModel)]="formVaga.beneficios" rows="2" style="width: 100%" placeholder="Liste os benefícios..."></textarea>
+      <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">
+        Benefícios <span class="char-counter" [class.char-counter--limit]="formVaga.beneficios.length >= 1000">{{ formVaga.beneficios.length }}/1000</span>
+      </label>
+      <textarea pTextarea [(ngModel)]="formVaga.beneficios" maxlength="1000"
+                rows="2" style="width: 100%" placeholder="Liste os benefícios..."></textarea>
     </div>
   </div>
 
@@ -233,15 +242,20 @@
     <button pButton label="Cancelar" severity="secondary" (click)="fecharModal()" [disabled]="salvando"></button>
 
     <ng-container *ngIf="vagaEmEdicao">
-      <button pButton label="Salvar alterações" icon="pi pi-check" (click)="salvarVaga()" [loading]="salvando"></button>
+      <button pButton label="Salvar alterações" icon="pi pi-check"
+              (click)="salvarVaga()" [loading]="salvando"
+              [disabled]="!formValido">
+      </button>
     </ng-container>
 
     <ng-container *ngIf="!vagaEmEdicao">
       <button pButton label="Salvar Rascunho" severity="secondary" icon="pi pi-file-edit"
-              (click)="salvarVaga(false)" [loading]="salvando">
+              (click)="salvarVaga(false)" [loading]="salvando"
+              [disabled]="!formValido">
       </button>
       <button pButton label="Salvar e Publicar" severity="success" icon="pi pi-send"
-              (click)="salvarVaga(true)" [loading]="salvando">
+              (click)="salvarVaga(true)" [loading]="salvando"
+              [disabled]="!formValido">
       </button>
     </ng-container>
   </ng-template>

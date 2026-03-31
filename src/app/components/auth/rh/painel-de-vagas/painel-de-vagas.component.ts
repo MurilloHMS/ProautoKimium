@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil, finalize, switchMap, of } from 'rxjs'; // ← adicionar "of"
+import { Subject, takeUntil, finalize, switchMap, of } from 'rxjs';
 
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
@@ -28,6 +28,14 @@ interface TabConfig {
   loader: () => void;
 }
 
+const CAMPO_LIMITS = {
+  titulo:           100,
+  descricao:       1000,
+  requisitos:      1000,
+  beneficios:      1000,
+  area:             100,
+} as const;
+
 @Component({
   selector: 'app-painel-de-vagas',
   standalone: true,
@@ -42,6 +50,8 @@ interface TabConfig {
 })
 export class PainelDeVagasComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  readonly limites = CAMPO_LIMITS;
 
   activeTab: TabStatus = 'publicadas';
 
@@ -83,7 +93,18 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
   ngOnInit(): void { this.loadPublicadas(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
-  // ─── Tabs ─────────────────────────────────────────────────────────────────
+  get formValido(): boolean {
+    const f = this.formVaga;
+    return (
+      !!f.titulo?.trim() &&
+      !!f.area?.trim() &&
+      f.titulo.length     <= CAMPO_LIMITS.titulo     &&
+      f.descricao.length  <= CAMPO_LIMITS.descricao  &&
+      f.requisitos.length <= CAMPO_LIMITS.requisitos &&
+      f.beneficios.length <= CAMPO_LIMITS.beneficios &&
+      f.area.length       <= CAMPO_LIMITS.area
+    );
+  }
 
   setTab(tab: TabConfig): void {
     if (this.activeTab === tab.key) return;
@@ -110,8 +131,6 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Filtros ──────────────────────────────────────────────────────────────
-
   private buildAreaOptions(vagas: ResponseVagaDTO[]): void {
     const areas = [...new Set(vagas.map((v) => v.area).filter(Boolean))].sort();
     this.opcoesArea = areas.map((a) => ({ label: a, value: a }));
@@ -129,8 +148,6 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
 
   limparFiltros(): void { this.termoBusca = ''; this.areaSelecionada = null; this.aplicarFiltros(); }
   get filtrosAtivos(): boolean { return !!this.termoBusca || !!this.areaSelecionada; }
-
-  // ─── Modal ────────────────────────────────────────────────────────────────
 
   abrirModalNova(): void {
     this.vagaEmEdicao = null;
@@ -193,7 +210,6 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ─── Ações de Status ──────────────────────────────────────────────────────
 
   publicar(vaga: ResponseVagaDTO): void {
     this.vagaService.publicarVaga(vaga.id).pipe(takeUntil(this.destroy$)).subscribe({
@@ -223,7 +239,6 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
 
   toggleRow(vaga: ResponseVagaDTO): void {
     if (this.expandedRows[vaga.id]) delete this.expandedRows[vaga.id];
