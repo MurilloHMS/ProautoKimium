@@ -205,11 +205,11 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
       <div>
         <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Data de Abertura</label>
-        <input pInputText type="date" [(ngModel)]="formVaga.dataAbertura" style="width: 100%" />
+        <input pInputText type="datetime-local" [(ngModel)]="formVaga.dataAbertura" style="width: 100%" />
       </div>
       <div>
         <label style="font-size: .85rem; font-weight: 600; color: #475569; display: block; margin-bottom: .35rem">Data de Encerramento</label>
-        <input pInputText type="date" [(ngModel)]="formVaga.dataEncerramento" style="width: 100%" />
+        <input pInputText type="datetime-local" [(ngModel)]="formVaga.dataEncerramento" style="width: 100%" />
       </div>
     </div>
 
