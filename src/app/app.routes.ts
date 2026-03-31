@@ -33,6 +33,7 @@ import {EmployesComponent} from "./components/auth/partners/employes/employes.co
 import {FuelSupplyComponent} from "./components/auth/company/vehicle/fuel-supply/fuel-supply.component";
 import {ExcelCredentialsComponent} from "./components/auth/documents/excel-credentials/excel-credentials.component";
 import {PainelDeVagasComponent} from "./components/auth/rh/painel-de-vagas/painel-de-vagas.component";
+import {TrabalheConoscoComponent} from "./components/public/trabalhe-conosco/trabalhe-conosco.component";
 
 
 export const routes: Routes = [
@@ -50,7 +51,8 @@ export const routes: Routes = [
         { path: 'support/faq', component: FaqComponent, pathMatch: 'full'},
         { path: 'profile', component: SellerComponent, pathMatch: 'full'},
         { path: 'branding', component: BrandingComponent, pathMatch: 'full'},
-        { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full'}
+        { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full'},
+        { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full'},
       ]
     },
     {
