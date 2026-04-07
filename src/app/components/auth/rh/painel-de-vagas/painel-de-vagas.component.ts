@@ -18,6 +18,7 @@ import { ToastModule } from 'primeng/toast';
 
 import { VagaService } from '../../../../infrastructure/services/processoSeletivo/vaga/vaga.service';
 import { CreateVagaDTO, ResponseVagaDTO, UpdateVagaDTO } from '../../../../domain/models/vaga.model';
+import {CandidaturasComponent} from "../candidaturas/candidaturas.component";
 
 type TabStatus = 'publicadas' | 'rascunho' | 'arquivadas' | 'encerradas';
 
@@ -42,7 +43,7 @@ const CAMPO_LIMITS = {
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     SkeletonModule, TooltipModule, BadgeModule, InputText, Select,
-    DialogModule, TextareaModule, ToastModule,
+    DialogModule, TextareaModule, ToastModule, CandidaturasComponent,
   ],
   providers: [MessageService],
   templateUrl: './painel-de-vagas.component.html',
