@@ -144,7 +144,7 @@
   text-align: center;
 
   i { font-size: 2.6rem; opacity: .35; }
-  p { font-size: .95rem; color: $secondary-text-color; }
+  p { font-size: .95rem; color: $primary-text-color; }
 }
 
 .estado-erro i { color: $danger; opacity: .6; }
@@ -222,7 +222,7 @@
   gap: .35rem;
   padding: 1.5rem 0;
   font-size: .8rem;
-  color: $tertiary-color-dark;
+  color: $primary-color;
 
   i { font-size: .85rem; }
 }
@@ -257,7 +257,7 @@
 
   &--aprovado  { border-left: 3px solid $success !important; }
   &--reprovado { border-left: 3px solid $danger !important; opacity: .75; }
-  &--encerrado { border-left: 3px solid $secondary-text-color !important; opacity: .6; }
+  &--encerrado { border-left: 3px solid $primary-color !important; opacity: .6; }
 }
 
 .card-nome {
@@ -323,7 +323,7 @@
   &--info    { background: rgba($info-color, .12); color: $info-color;  border: 1px solid rgba($info-color, .25); }
   &--success { background: rgba($success, .12);    color: $success;     border: 1px solid rgba($success, .25); }
   &--danger  { background: rgba($danger, .12);     color: $danger;      border: 1px solid rgba($danger, .25); }
-  &--neutral { background: rgba($secondary-text-color, .1); color: $secondary-text-color; border: 1px solid rgba($secondary-text-color, .2); }
+  &--neutral { background: rgba($primary-color, .1); color: $primary-color; border: 1px solid rgba($primary-color, .2); }
 }
 
 // ── Skeletons ─────────────────────────────────────────────────────────────────
@@ -614,7 +614,7 @@
   gap: .35rem;
   background: none;
   border: 1.5px solid $tertiary-color-dark;
-  color: $secondary-text-color;
+  color: $primary-text-color;
   border-radius: 8px;
   padding: .5rem 1rem;
   font-family: $menu-font;
