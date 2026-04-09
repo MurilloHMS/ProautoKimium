@@ -2,9 +2,6 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// PAGE
-// ══════════════════════════════════════════════════════════════════════════════
 .cand-page {
   display: flex;
   flex-direction: column;
@@ -27,6 +24,40 @@
 }
 
 .header-left {
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+}
+
+// ── Botão voltar ──────────────────────────────────────────────────────────────
+.btn-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $primary-color;
+  border-radius: 8px;
+  padding: .45rem 1rem;
+  font-family: $menu-font;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .15s;
+  align-self: flex-start;
+
+  i { font-size: .8rem; transition: transform .2s; }
+
+  &:hover {
+    background: rgba($primary-color, .06);
+    border-color: $primary-color;
+    transform: translateX(-2px);
+
+    i { transform: translateX(-3px); }
+  }
+}
+
+.header-info {
   display: flex;
   flex-direction: column;
   gap: .25rem;
@@ -55,8 +86,7 @@
 
 .header-sub {
   font-size: .88rem;
-  color: $secondary-text-color;
-
+  color: $secondary-color;
   strong { color: $primary-color; }
 }
 
@@ -114,25 +144,20 @@
   text-align: center;
 
   i { font-size: 2.6rem; opacity: .35; }
-
   p { font-size: .95rem; color: $secondary-text-color; }
 }
 
 .estado-erro i { color: $danger; opacity: .6; }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// KANBAN WRAP (kanban + painel lado a lado)
+// KANBAN WRAP
 // ══════════════════════════════════════════════════════════════════════════════
 .kanban-wrap {
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
-  min-height: 0;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// KANBAN
-// ══════════════════════════════════════════════════════════════════════════════
 .kanban {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -197,12 +222,12 @@
   gap: .35rem;
   padding: 1.5rem 0;
   font-size: .8rem;
-  color: $primary-color;
+  color: $tertiary-color-dark;
 
   i { font-size: .85rem; }
 }
 
-// ── Card de candidato ─────────────────────────────────────────────────────────
+// ── Card ──────────────────────────────────────────────────────────────────────
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -230,7 +255,7 @@
     box-shadow: 0 0 0 3px rgba($primary-color, .1) !important;
   }
 
-  &--aprovado { border-left: 3px solid $success !important; }
+  &--aprovado  { border-left: 3px solid $success !important; }
   &--reprovado { border-left: 3px solid $danger !important; opacity: .75; }
   &--encerrado { border-left: 3px solid $secondary-text-color !important; opacity: .6; }
 }
@@ -248,7 +273,7 @@
 
 .card-email {
   font-size: .75rem;
-  color: $secondary-text-color;
+  color: $primary-text-color;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -265,7 +290,7 @@
     align-items: center;
     gap: .25rem;
     font-size: .72rem;
-    color: $secondary-text-color;
+    color: $primary-text-color;
 
     i { font-size: .68rem; }
   }
@@ -295,13 +320,13 @@
   letter-spacing: .05em;
   text-transform: uppercase;
 
-  &--info    { background: rgba($info-color, .12);  color: $info-color;    border: 1px solid rgba($info-color, .25);    }
-  &--success { background: rgba($success, .12);      color: $success;       border: 1px solid rgba($success, .25);       }
-  &--danger  { background: rgba($danger, .12);       color: $danger;        border: 1px solid rgba($danger, .25);        }
+  &--info    { background: rgba($info-color, .12); color: $info-color;  border: 1px solid rgba($info-color, .25); }
+  &--success { background: rgba($success, .12);    color: $success;     border: 1px solid rgba($success, .25); }
+  &--danger  { background: rgba($danger, .12);     color: $danger;      border: 1px solid rgba($danger, .25); }
   &--neutral { background: rgba($secondary-text-color, .1); color: $secondary-text-color; border: 1px solid rgba($secondary-text-color, .2); }
 }
 
-// ── Skeleton cards ────────────────────────────────────────────────────────────
+// ── Skeletons ─────────────────────────────────────────────────────────────────
 .card-skeleton {
   background: $bg-base;
   border: 1.5px solid $tertiary-color-dark;
@@ -329,7 +354,7 @@
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// PAINEL DE DETALHE
+// PAINEL LATERAL
 // ══════════════════════════════════════════════════════════════════════════════
 .detalhe-panel {
   width: 0;
@@ -393,7 +418,7 @@
   &:hover { background: $danger; }
 }
 
-// ── Pipeline de etapas ────────────────────────────────────────────────────────
+// ── Pipeline ──────────────────────────────────────────────────────────────────
 .pipeline {
   display: flex;
   align-items: flex-start;
@@ -428,18 +453,8 @@
 
   i { font-size: .75rem; }
 
-  .pipeline-step--done & {
-    background: $secondary-color;
-    border-color: $secondary-color;
-    color: #fff;
-  }
-
-  .pipeline-step--active & {
-    background: $primary-color;
-    border-color: $primary-color;
-    color: #fff;
-    box-shadow: 0 0 0 3px rgba($primary-color, .18);
-  }
+  .pipeline-step--done   & { background: $secondary-color; border-color: $secondary-color; color: #fff; }
+  .pipeline-step--active & { background: $primary-color; border-color: $primary-color; color: #fff; box-shadow: 0 0 0 3px rgba($primary-color, .18); }
 }
 
 .pipeline-label {
@@ -469,7 +484,7 @@
   &--done { background: $secondary-color; }
 }
 
-// ── Seção de dados ────────────────────────────────────────────────────────────
+// ── Dados ─────────────────────────────────────────────────────────────────────
 .detalhe-section {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid $tertiary-color-dark;
@@ -490,17 +505,9 @@
   i { font-size: .7rem; }
 }
 
-.info-grid {
-  display: flex;
-  flex-direction: column;
-  gap: .65rem;
-}
+.info-grid { display: flex; flex-direction: column; gap: .65rem; }
 
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: .1rem;
-}
+.info-item { display: flex; flex-direction: column; gap: .1rem; }
 
 .info-label {
   font-size: .7rem;
@@ -511,10 +518,7 @@
   letter-spacing: .05em;
 }
 
-.info-val {
-  font-size: .85rem;
-  color: $primary-color;
-}
+.info-val { font-size: .85rem; color: $text-primary-color; }
 
 .info-link {
   color: $primary-color;
@@ -541,16 +545,12 @@
   text-align: center;
 }
 
-.confirmacao-icon {
-  font-size: 1.6rem;
-  color: $danger;
-}
+.confirmacao-icon { font-size: 1.6rem; color: $danger; }
 
 .confirmacao p {
   font-size: .85rem;
   color: $text-primary-color;
   line-height: 1.55;
-
   strong { color: $danger; }
 }
 
@@ -585,39 +585,26 @@
   width: 100%;
 
   i { font-size: .8rem; }
-
   &:disabled { opacity: .55; cursor: not-allowed; transform: none !important; }
 
   &--avancar {
-    background: rgba($primary-color, .1);
-    color: $primary-color;
-    border: 1.5px solid rgba($primary-color, .25);
-
+    background: rgba($primary-color, .1); color: $primary-color; border: 1.5px solid rgba($primary-color, .25);
     &:hover:not(:disabled) { background: $primary-color; color: #fff; }
   }
 
   &--aprovar {
-    background: rgba($success, .1);
-    color: $success;
-    border: 1.5px solid rgba($success, .25);
-
+    background: rgba($success, .1); color: $success; border: 1.5px solid rgba($success, .25);
     &:hover:not(:disabled) { background: $success; color: #fff; }
   }
 
   &--reprovar {
-    background: rgba($danger, .08);
-    color: $danger;
-    border: 1.5px solid rgba($danger, .2);
-
+    background: rgba($danger, .08); color: $danger; border: 1.5px solid rgba($danger, .2);
     &:hover:not(:disabled) { background: rgba($danger, .15); }
   }
 
   &--encerrar {
-    background: rgba(#ff0000, .07);
-    color: $primary-color;
-    border: 1.5px solid rgba($primary-color, .18);
-
-    &:hover:not(:disabled) { background: rgba(#ff0000, .14); }
+    background: rgba($primary-text-color, .07); color: $primary-text-color; border: 1.5px solid rgba($primary-text-color, .18);
+    &:hover:not(:disabled) { background: rgba($primary-text-color, .14); }
   }
 }
 
@@ -627,7 +614,7 @@
   gap: .35rem;
   background: none;
   border: 1.5px solid $tertiary-color-dark;
-  color: $primary-text-color;
+  color: $secondary-text-color;
   border-radius: 8px;
   padding: .5rem 1rem;
   font-family: $menu-font;

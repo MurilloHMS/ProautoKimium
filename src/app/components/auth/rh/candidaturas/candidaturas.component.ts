@@ -1,11 +1,11 @@
-import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil, finalize } from 'rxjs';
 
 import {
   ResponseCandidaturaDTO,
   EtapaCandidatura,
-  StatusCandidatura,
   ETAPAS_CONFIG,
   STATUS_CONFIG,
 } from '../../../../domain/models/candidatura.model';
@@ -20,12 +20,11 @@ type AcaoPendente = 'avancar' | 'aprovar' | 'reprovar' | 'encerrar' | null;
   templateUrl: './candidaturas.component.html',
   styleUrl: './candidaturas.component.scss',
 })
-export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
-
-  @Input() vagaId!: string;
-  @Input() vagaTitulo = '';
-
+export class CandidaturasComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  vagaId    = '';
+  vagaTitulo = '';
 
   candidaturas: ResponseCandidaturaDTO[] = [];
   selecionada: ResponseCandidaturaDTO | null = null;
@@ -34,21 +33,27 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
   erro = false;
 
   emExecucao: Record<string, AcaoPendente> = {};
-
   confirmando: { id: string; acao: 'reprovar' | 'encerrar' } | null = null;
 
   etapasConfig = ETAPAS_CONFIG;
   statusConfig  = STATUS_CONFIG;
   etapasOrdem: EtapaCandidatura[] = ['TRIAGEM', 'ENTREVISTA_RH', 'PROPOSTA', 'CONTRATADO'];
 
-  constructor(private service: CandidaturaService) {}
+  constructor(
+    private service: CandidaturaService,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
-    if (this.vagaId) this.carregar();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['vagaId'] && !changes['vagaId'].firstChange) this.carregar();
+    // Lê vagaId e vagaTitulo dos queryParams
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        this.vagaId     = params['vagaId']    ?? '';
+        this.vagaTitulo = params['vagaTitulo'] ?? '';
+        if (this.vagaId) this.carregar();
+      });
   }
 
   ngOnDestroy(): void {
@@ -56,6 +61,12 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
+  // ── Voltar para o painel de vagas ─────────────────────────────────────────
+  voltar(): void {
+    this.router.navigate(['/rh/painel-de-vagas']);
+  }
+
+  // ── Carregar ──────────────────────────────────────────────────────────────
   carregar(): void {
     this.isLoading = true;
     this.erro = false;
@@ -69,6 +80,7 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
+  // ── Seleção ───────────────────────────────────────────────────────────────
   selecionar(c: ResponseCandidaturaDTO): void {
     this.selecionada = this.selecionada?.id === c.id ? null : c;
     this.confirmando = null;
@@ -79,25 +91,13 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
     this.confirmando = null;
   }
 
-  avancar(c: ResponseCandidaturaDTO): void {
-    this.executar(c.id, 'avancar', this.service.avancar(c.id));
-  }
+  // ── Ações ─────────────────────────────────────────────────────────────────
+  avancar(c: ResponseCandidaturaDTO): void  { this.executar(c.id, 'avancar', this.service.avancar(c.id)); }
+  aprovar(c: ResponseCandidaturaDTO): void  { this.executar(c.id, 'aprovar', this.service.aprovar(c.id)); }
 
-  aprovar(c: ResponseCandidaturaDTO): void {
-    this.executar(c.id, 'aprovar', this.service.aprovar(c.id));
-  }
-
-  confirmarReprovar(c: ResponseCandidaturaDTO): void {
-    this.confirmando = { id: c.id, acao: 'reprovar' };
-  }
-
-  confirmarEncerrar(c: ResponseCandidaturaDTO): void {
-    this.confirmando = { id: c.id, acao: 'encerrar' };
-  }
-
-  cancelarConfirmacao(): void {
-    this.confirmando = null;
-  }
+  confirmarReprovar(c: ResponseCandidaturaDTO): void { this.confirmando = { id: c.id, acao: 'reprovar' }; }
+  confirmarEncerrar(c: ResponseCandidaturaDTO): void { this.confirmando = { id: c.id, acao: 'encerrar' }; }
+  cancelarConfirmacao(): void { this.confirmando = null; }
 
   executarConfirmado(): void {
     if (!this.confirmando) return;
@@ -109,37 +109,19 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
 
   private executar(id: string, acao: AcaoPendente, obs: ReturnType<CandidaturaService['avancar']>): void {
     this.emExecucao[id] = acao;
-
     obs.pipe(
       takeUntil(this.destroy$),
       finalize(() => delete this.emExecucao[id])
-    ).subscribe({
-      next: () => {
-        this.carregar();
-        this.fecharDetalhe();
-      },
-    });
+    ).subscribe({ next: () => { this.carregar(); this.fecharDetalhe(); } });
   }
 
-  isExecutando(id: string): boolean {
-    return id in this.emExecucao;
-  }
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  isExecutando(id: string): boolean { return id in this.emExecucao; }
 
-  podeAvancar(c: ResponseCandidaturaDTO): boolean {
-    return c.status === 'EM_ANDAMENTO' && c.etapaAtual !== 'CONTRATADO';
-  }
-
-  podeAprovar(c: ResponseCandidaturaDTO): boolean {
-    return c.status === 'EM_ANDAMENTO';
-  }
-
-  podeReprovar(c: ResponseCandidaturaDTO): boolean {
-    return c.status === 'EM_ANDAMENTO';
-  }
-
-  podeEncerrar(c: ResponseCandidaturaDTO): boolean {
-    return c.status !== 'ENCERRADO';
-  }
+  podeAvancar(c: ResponseCandidaturaDTO): boolean { return c.status === 'EM_ANDAMENTO' && c.etapaAtual !== 'CONTRATADO'; }
+  podeAprovar(c: ResponseCandidaturaDTO): boolean { return c.status === 'EM_ANDAMENTO'; }
+  podeReprovar(c: ResponseCandidaturaDTO): boolean { return c.status === 'EM_ANDAMENTO'; }
+  podeEncerrar(c: ResponseCandidaturaDTO): boolean { return c.status !== 'ENCERRADO'; }
 
   formatarData(iso: string | null): string {
     if (!iso) return '—';
@@ -147,15 +129,7 @@ export class CandidaturasComponent implements OnInit, OnChanges, OnDestroy {
     catch { return '—'; }
   }
 
-  etapaOrdem(etapa: EtapaCandidatura): number {
-    return ETAPAS_CONFIG[etapa]?.ordem ?? 0;
-  }
-
-  get skeletons(): number[] {
-    return [1, 2, 3, 4];
-  }
-
-  por(etapa: EtapaCandidatura): ResponseCandidaturaDTO[] {
-    return this.candidaturas.filter(c => c.etapaAtual === etapa);
-  }
+  etapaOrdem(etapa: EtapaCandidatura): number { return ETAPAS_CONFIG[etapa]?.ordem ?? 0; }
+  por(etapa: EtapaCandidatura): ResponseCandidaturaDTO[] { return this.candidaturas.filter(c => c.etapaAtual === etapa); }
+  get skeletons(): number[] { return [1, 2, 3, 4]; }
 }

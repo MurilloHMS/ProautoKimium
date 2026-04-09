@@ -126,6 +126,17 @@
                     pTooltip="Editar" (click)="abrirModalEditar(vaga)">
             </button>
 
+            <button
+              pButton
+              icon="pi pi-users"
+              class="btn-acao"
+              text
+              rounded
+              severity="info"
+              pTooltip="Ver Candidaturas"
+              (click)="verCandidaturas(vaga)">
+            </button>
+
             <button pButton icon="pi pi-send" class="btn-acao" text rounded severity="success"
                     pTooltip="Publicar"
                     *ngIf="activeTab === 'rascunho'"
@@ -168,7 +179,6 @@
                 <p class="detalhe-valor">{{ vaga.beneficios || 'Não informado.' }}</p>
               </div>
             </div>
-            <app-candidaturas [vagaId]="vaga.id" style="margin-top: 1rem"></app-candidaturas>
           </td>
         </tr>
       </ng-template>

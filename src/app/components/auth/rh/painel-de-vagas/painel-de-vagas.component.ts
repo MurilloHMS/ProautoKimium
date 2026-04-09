@@ -19,6 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { VagaService } from '../../../../infrastructure/services/processoSeletivo/vaga/vaga.service';
 import { CreateVagaDTO, ResponseVagaDTO, UpdateVagaDTO } from '../../../../domain/models/vaga.model';
 import {CandidaturasComponent} from "../candidaturas/candidaturas.component";
+import {Router} from "@angular/router";
 
 type TabStatus = 'publicadas' | 'rascunho' | 'arquivadas' | 'encerradas';
 
@@ -89,6 +90,7 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
   constructor(
     private vagaService: VagaService,
     private messageService: MessageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void { this.loadPublicadas(); }
@@ -265,5 +267,14 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
 
   private toast(severity: string, detail: string): void {
     this.messageService.add({ severity, summary: severity === 'error' ? 'Erro' : 'Sucesso', detail, life: 3000 });
+  }
+
+  verCandidaturas(vaga: ResponseVagaDTO): void {
+    this.router.navigate(['rh/candidaturas'], {
+      queryParams: {
+        vagaId: vaga.id,
+        vagaTitulo: vaga.titulo
+      }
+    });
   }
 }
