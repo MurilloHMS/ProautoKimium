@@ -1,0 +1,255 @@
+<div class="cand-page">
+
+  <!-- ══════════════════════════ HEADER ══════════════════════════ -->
+  <div class="cand-header">
+    <div class="header-left">
+      <!-- Botão voltar -->
+      <button class="btn-voltar" (click)="voltar()">
+        <i class="pi pi-arrow-left"></i>
+        <span>Voltar às vagas</span>
+      </button>
+
+      <div class="header-info">
+        <span class="header-eyebrow">Processo Seletivo</span>
+        <h1 class="header-titulo">
+          <i class="pi pi-users"></i> Candidaturas
+        </h1>
+        <p class="header-sub" *ngIf="vagaTitulo">
+          Vaga: <strong>{{ vagaTitulo }}</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <span class="total-badge">
+        <i class="pi pi-user"></i>
+        {{ candidaturas.length }} candidato{{ candidaturas.length !== 1 ? 's' : '' }}
+      </span>
+      <button class="btn-reload" (click)="carregar()" [disabled]="isLoading"
+              title="Recarregar">
+        <i class="pi"
+           [class.pi-refresh]="!isLoading"
+           [class.pi-spin]="isLoading"
+           [class.pi-spinner]="isLoading"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ ERRO ════════════════════════════ -->
+  <div *ngIf="erro" class="estado-erro">
+    <i class="pi pi-exclamation-triangle"></i>
+    <p>Não foi possível carregar as candidaturas.</p>
+    <button class="btn-sec" (click)="carregar()">
+      <i class="pi pi-refresh"></i> Tentar novamente
+    </button>
+  </div>
+
+  <!-- ══════════════════════════ LOADING ═════════════════════════ -->
+  <div *ngIf="isLoading && !erro" class="kanban">
+    <div *ngFor="let col of etapasOrdem" class="kanban-col">
+      <div class="col-header">
+        <i class="pi {{ etapasConfig[col].icon }}"></i>
+        {{ etapasConfig[col].label }}
+      </div>
+      <div *ngFor="let s of skeletons" class="card-skeleton">
+        <div class="sk sk--name"></div>
+        <div class="sk sk--email"></div>
+        <div class="sk sk--tag"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ VAZIO ═══════════════════════════ -->
+  <div *ngIf="!isLoading && !erro && candidaturas.length === 0" class="estado-vazio">
+    <i class="pi pi-inbox"></i>
+    <p>Nenhuma candidatura recebida para esta vaga.</p>
+    <button class="btn-sec" (click)="voltar()">
+      <i class="pi pi-arrow-left"></i> Voltar às vagas
+    </button>
+  </div>
+
+  <!-- ══════════════════════════ KANBAN + DETALHE ═══════════════ -->
+  <div *ngIf="!isLoading && !erro && candidaturas.length > 0" class="kanban-wrap">
+
+    <!-- KANBAN -->
+    <div class="kanban">
+      <div *ngFor="let etapa of etapasOrdem" class="kanban-col">
+
+        <div class="col-header">
+          <span class="col-icon"><i class="pi {{ etapasConfig[etapa].icon }}"></i></span>
+          <span class="col-label">{{ etapasConfig[etapa].label }}</span>
+          <span class="col-count">{{ por(etapa).length }}</span>
+        </div>
+
+        <div class="col-cards">
+
+          <div *ngIf="por(etapa).length === 0" class="col-vazio">
+            <i class="pi pi-minus-circle"></i> Nenhum
+          </div>
+
+          <div
+            *ngFor="let c of por(etapa)"
+            class="cand-card"
+            [class.cand-card--selected]="selecionada?.id === c.id"
+            [class.cand-card--aprovado]="c.status === 'APROVADO'"
+            [class.cand-card--reprovado]="c.status === 'REPROVADO'"
+            [class.cand-card--encerrado]="c.status === 'ENCERRADO'"
+            (click)="selecionar(c)">
+
+            <span class="status-pill status-pill--{{ statusConfig[c.status].color }}">
+              {{ statusConfig[c.status].label }}
+            </span>
+
+            <p class="card-nome">{{ c.candidatoNome }}</p>
+            <p class="card-email">{{ c.candidatoEmail }}</p>
+
+            <div class="card-meta">
+              <span><i class="pi pi-calendar"></i> {{ formatarData(c.criadoEm) }}</span>
+            </div>
+
+            <div *ngIf="isExecutando(c.id)" class="card-loading">
+              <i class="pi pi-spin pi-spinner"></i>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PAINEL LATERAL DE DETALHE -->
+    <div class="detalhe-panel" [class.detalhe-panel--open]="!!selecionada">
+      <ng-container *ngIf="selecionada">
+
+        <div class="detalhe-header">
+          <div>
+            <span class="status-pill status-pill--{{ statusConfig[selecionada.status].color }}">
+              {{ statusConfig[selecionada.status].label }}
+            </span>
+            <h2 class="detalhe-nome">{{ selecionada.candidatoNome }}</h2>
+            <p class="detalhe-vaga">{{ selecionada.vagaTitulo }}</p>
+          </div>
+          <button class="btn-fechar-detalhe" (click)="fecharDetalhe()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <!-- Pipeline -->
+        <div class="pipeline">
+          <div
+            *ngFor="let etapa of etapasOrdem; let i = index"
+            class="pipeline-step"
+            [class.pipeline-step--done]="etapaOrdem(selecionada.etapaAtual) > etapasConfig[etapa].ordem"
+            [class.pipeline-step--active]="selecionada.etapaAtual === etapa">
+            <div class="pipeline-dot">
+              <i class="pi" [ngClass]="etapaOrdem(selecionada.etapaAtual) > etapasConfig[etapa].ordem ? 'pi-check' : etapasConfig[etapa].icon"></i>
+            </div>
+            <span class="pipeline-label">{{ etapasConfig[etapa].label }}</span>
+            <div *ngIf="i < etapasOrdem.length - 1" class="pipeline-line"
+                 [class.pipeline-line--done]="etapaOrdem(selecionada.etapaAtual) > etapasConfig[etapa].ordem"></div>
+          </div>
+        </div>
+
+        <!-- Dados -->
+        <div class="detalhe-section">
+          <h3 class="section-title"><i class="pi pi-user"></i> Dados do Candidato</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">E-mail</span>
+              <a class="info-val info-link" href="mailto:{{ selecionada.candidatoEmail }}">{{ selecionada.candidatoEmail }}</a>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Telefone</span>
+              <a class="info-val info-link" href="https://wa.me/55{{ selecionada.candidatoTelefone }}" target="_blank">
+                {{ selecionada.candidatoTelefone || '—' }}
+              </a>
+            </div>
+            <div class="info-item" *ngIf="selecionada.candidatoLinkedin">
+              <span class="info-label">LinkedIn</span>
+              <a class="info-val info-link" [href]="selecionada.candidatoLinkedin" target="_blank" rel="noopener">
+                <i class="pi pi-external-link"></i> Ver perfil
+              </a>
+            </div>
+            <div class="info-item" *ngIf="selecionada.candidatoCurriculo">
+              <span class="info-label">Currículo</span>
+              <a class="info-val info-link" [href]="selecionada.candidatoCurriculo" target="_blank" rel="noopener">
+                <i class="pi pi-file-pdf"></i> Abrir currículo
+              </a>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Candidatou-se em</span>
+              <span class="info-val">{{ formatarData(selecionada.criadoEm) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selecionada.atualizadoEm">
+              <span class="info-label">Última atualização</span>
+              <span class="info-val">{{ formatarData(selecionada.atualizadoEm) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirmação -->
+        <div *ngIf="confirmando && confirmando.id === selecionada.id" class="confirmacao">
+          <i class="pi pi-exclamation-triangle confirmacao-icon"></i>
+          <p>
+            Tem certeza que deseja
+            <strong>{{ confirmando.acao === 'reprovar' ? 'reprovar' : 'encerrar' }}</strong>
+            esta candidatura? Esta ação não pode ser desfeita.
+          </p>
+          <div class="confirmacao-actions">
+            <button class="btn-sec" (click)="cancelarConfirmacao()">Cancelar</button>
+            <button class="btn-danger" [disabled]="isExecutando(selecionada.id)" (click)="executarConfirmado()">
+              <i class="pi"
+                 [class.pi-spin]="isExecutando(selecionada.id)"
+                 [class.pi-spinner]="isExecutando(selecionada.id)"
+                 [class.pi-check]="!isExecutando(selecionada.id)"></i>
+              Confirmar
+            </button>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="detalhe-acoes" *ngIf="!confirmando">
+
+          <button *ngIf="podeAvancar(selecionada)"
+                  class="btn-acao btn-acao--avancar"
+                  [disabled]="isExecutando(selecionada.id)"
+                  (click)="avancar(selecionada)">
+            <i class="pi"
+               [class.pi-spin]="isExecutando(selecionada.id)"
+               [class.pi-spinner]="isExecutando(selecionada.id)"
+               [class.pi-arrow-right]="!isExecutando(selecionada.id)"></i>
+            Avançar etapa
+          </button>
+
+          <button *ngIf="podeAprovar(selecionada)"
+                  class="btn-acao btn-acao--aprovar"
+                  [disabled]="isExecutando(selecionada.id)"
+                  (click)="aprovar(selecionada)">
+            <i class="pi"
+               [class.pi-spin]="isExecutando(selecionada.id)"
+               [class.pi-spinner]="isExecutando(selecionada.id)"
+               [class.pi-check-circle]="!isExecutando(selecionada.id)"></i>
+            Aprovar
+          </button>
+
+          <button *ngIf="podeReprovar(selecionada)"
+                  class="btn-acao btn-acao--reprovar"
+                  [disabled]="isExecutando(selecionada.id)"
+                  (click)="confirmarReprovar(selecionada)">
+            <i class="pi pi-times-circle"></i> Reprovar
+          </button>
+
+          <button *ngIf="podeEncerrar(selecionada)"
+                  class="btn-acao btn-acao--encerrar"
+                  [disabled]="isExecutando(selecionada.id)"
+                  (click)="confirmarEncerrar(selecionada)">
+            <i class="pi pi-ban"></i> Encerrar
+          </button>
+
+        </div>
+
+      </ng-container>
+    </div>
+
+  </div>
+</div>

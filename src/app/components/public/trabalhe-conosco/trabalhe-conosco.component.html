@@ -1,0 +1,288 @@
+<div class="tc-page">
+
+  <!-- ══════════════════════════ HERO ══════════════════════════ -->
+  <section class="hero">
+    <div class="hero-bg-shape"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow">Faça parte do nosso time</span>
+      <h1 class="hero-title">Trabalhe Conosco</h1>
+      <p class="hero-sub">
+        Buscamos pessoas apaixonadas por desafios. Confira as oportunidades abertas
+        e candidate-se à que mais combina com você.
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">{{ vagasFiltradas.length }}</span>
+          <span class="stat-label">vagas abertas</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-num">{{ opcoesArea.length }}</span>
+          <span class="stat-label">áreas disponíveis</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ FILTROS ═══════════════════════════ -->
+  <section class="filtros-bar">
+    <div class="filtros-inner">
+      <div class="busca-wrap">
+        <i class="pi pi-search"></i>
+        <input class="busca-input" placeholder="Buscar por título ou área..."
+               [(ngModel)]="termoBusca" (ngModelChange)="filtrar()" />
+        <button *ngIf="termoBusca" class="busca-x" (click)="termoBusca=''; filtrar()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <p-select class="area-select" [options]="opcoesArea" [(ngModel)]="areaSelecionada"
+                optionLabel="label" optionValue="value" placeholder="Todas as áreas"
+                [showClear]="true" (onChange)="filtrar()">
+      </p-select>
+      <button *ngIf="filtrosAtivos" class="btn-limpar" (click)="limpar()">
+        <i class="pi pi-filter-slash"></i> Limpar
+      </button>
+    </div>
+  </section>
+
+  <!-- ════════════════════════ CARDS ═══════════════════════════ -->
+  <section class="cards-section">
+
+    <div *ngIf="isLoading" class="cards-grid">
+      <div *ngFor="let s of skeletons" class="card-skeleton">
+        <p-skeleton height="1rem" width="40%" styleClass="mb-3" />
+        <p-skeleton height="1.4rem" width="80%" styleClass="mb-2" />
+        <p-skeleton height=".85rem" width="60%" styleClass="mb-4" />
+        <p-skeleton height=".8rem" width="100%" styleClass="mb-2" />
+        <p-skeleton height=".8rem" width="90%" styleClass="mb-4" />
+        <p-skeleton height="2.2rem" width="7rem" borderRadius="99px" />
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && erro" class="estado-centro">
+      <i class="pi pi-exclamation-triangle estado-icon estado-icon--erro"></i>
+      <p>Não conseguimos carregar as vagas no momento.</p>
+      <button class="btn-retry" (click)="carregarVagas()">
+        <i class="pi pi-refresh"></i> Tentar novamente
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !erro && vagasFiltradas.length === 0" class="estado-centro">
+      <i class="pi pi-search estado-icon"></i>
+      <p *ngIf="filtrosAtivos">Nenhuma vaga encontrada com os filtros aplicados.</p>
+      <p *ngIf="!filtrosAtivos">Não há vagas abertas no momento. Volte em breve!</p>
+      <button *ngIf="filtrosAtivos" class="btn-retry" (click)="limpar()">
+        <i class="pi pi-filter-slash"></i> Limpar filtros
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !erro && vagasFiltradas.length > 0" class="cards-grid">
+      <article *ngFor="let vaga of vagasFiltradas; let i = index"
+               class="vaga-card" [style.animation-delay]="(i * 60) + 'ms'"
+               (click)="abrirVaga(vaga)">
+        <div class="card-top">
+          <span class="card-area">{{ vaga.area || 'Geral' }}</span>
+          <span class="card-data">
+            <i class="pi pi-calendar"></i> até {{ formatarData(vaga.dataEncerramento) }}
+          </span>
+        </div>
+        <h2 class="card-titulo">{{ vaga.titulo }}</h2>
+        <p class="card-descricao">{{ vaga.descricao }}</p>
+        <div class="card-footer">
+          <button class="btn-ver-vaga">Ver vaga <i class="pi pi-arrow-right"></i></button>
+        </div>
+      </article>
+    </div>
+
+  </section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODAL ÚNICO — 4 passos dentro de uma única caixa
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="vagaSelecionada" class="modal-overlay" (click)="fecharModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <!-- ── Barra de progresso de passos ──────────────────────────────────── -->
+    <div class="modal-steps">
+      <div class="step-item" [class.step-item--done]="modalStep === 'form' || modalStep === 'sucesso' || modalStep === 'erro'"
+           [class.step-item--active]="modalStep === 'detalhe'">
+        <span class="step-num">
+          <i *ngIf="modalStep !== 'detalhe'" class="pi pi-check"></i>
+          <span *ngIf="modalStep === 'detalhe'">1</span>
+        </span>
+        <span class="step-label">Detalhes</span>
+      </div>
+      <div class="step-line" [class.step-line--done]="modalStep === 'form' || modalStep === 'sucesso' || modalStep === 'erro'"></div>
+      <div class="step-item" [class.step-item--done]="modalStep === 'sucesso'"
+           [class.step-item--active]="modalStep === 'form' || modalStep === 'erro'">
+        <span class="step-num">
+          <i *ngIf="modalStep === 'sucesso'" class="pi pi-check"></i>
+          <span *ngIf="modalStep !== 'sucesso'">2</span>
+        </span>
+        <span class="step-label">Candidatura</span>
+      </div>
+      <div class="step-line" [class.step-line--done]="modalStep === 'sucesso'"></div>
+      <div class="step-item" [class.step-item--active]="modalStep === 'sucesso'">
+        <span class="step-num">3</span>
+        <span class="step-label">Confirmação</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════ PASSO 1 — DETALHE DA VAGA ═════════════════════════ -->
+    <ng-container *ngIf="modalStep === 'detalhe'">
+
+      <div class="modal-header">
+        <button class="modal-close" (click)="fecharModal()"><i class="pi pi-times"></i></button>
+        <span class="modal-area-badge">{{ vagaSelecionada.area || 'Geral' }}</span>
+        <h2 class="modal-titulo">{{ vagaSelecionada.titulo }}</h2>
+        <div class="modal-datas">
+          <span><i class="pi pi-calendar-plus"></i> Aberta em {{ formatarData(vagaSelecionada.dataAbertura) }}</span>
+          <span><i class="pi pi-calendar-minus"></i> Encerra em {{ formatarData(vagaSelecionada.dataEncerramento) }}</span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3 class="modal-section-title"><span class="dot"></span> Descrição</h3>
+          <p>{{ vagaSelecionada.descricao || 'Não informado.' }}</p>
+        </div>
+        <div class="modal-section">
+          <h3 class="modal-section-title"><span class="dot"></span> Requisitos</h3>
+          <p>{{ vagaSelecionada.requisitos || 'Não informado.' }}</p>
+        </div>
+        <div class="modal-section">
+          <h3 class="modal-section-title"><span class="dot"></span> Benefícios</h3>
+          <p>{{ vagaSelecionada.beneficios || 'Não informado.' }}</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="fecharModal()">Fechar</button>
+        <button class="btn-primario" (click)="irParaForm()">
+          Candidatar-se <i class="pi pi-arrow-right"></i>
+        </button>
+      </div>
+
+    </ng-container>
+
+    <!-- ══════════════════ PASSO 2 — FORMULÁRIO ═══════════════════════════════ -->
+    <ng-container *ngIf="modalStep === 'form'">
+
+      <div class="modal-header modal-header--form">
+        <button class="modal-back" (click)="voltarParaDetalhe()">
+          <i class="pi pi-arrow-left"></i> Voltar
+        </button>
+        <button class="modal-close" (click)="fecharModal()"><i class="pi pi-times"></i></button>
+        <h2 class="modal-titulo">Seus dados</h2>
+        <p class="modal-subtitulo">
+          Candidatando-se para <strong>{{ vagaSelecionada.titulo }}</strong>
+        </p>
+      </div>
+
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="cand-form">
+
+          <div class="field" [class.field--error]="invalid('nome')">
+            <label for="f-nome">Nome completo <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="pi pi-user"></i>
+              <input pInputText id="f-nome" formControlName="nome"
+                     placeholder="João da Silva" autocomplete="name" />
+            </div>
+            <span class="field-err" *ngIf="invalid('nome')">{{ erroCampo('nome') }}</span>
+          </div>
+
+          <div class="field" [class.field--error]="invalid('email')">
+            <label for="f-email">E-mail <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="pi pi-envelope"></i>
+              <input pInputText id="f-email" formControlName="email" type="email"
+                     placeholder="joao@email.com" autocomplete="email" />
+            </div>
+            <span class="field-err" *ngIf="invalid('email')">{{ erroCampo('email') }}</span>
+          </div>
+
+          <div class="field" [class.field--error]="invalid('telefone')">
+            <label for="f-tel">Telefone <span class="req">*</span></label>
+            <div class="input-wrap">
+              <i class="pi pi-phone"></i>
+              <input pInputText id="f-tel" placeholder="(11) 91234-5678"
+                     autocomplete="tel" (input)="onTelefoneInput($event)" />
+            </div>
+            <span class="field-err" *ngIf="invalid('telefone')">{{ erroCampo('telefone') }}</span>
+          </div>
+
+          <div class="field" [class.field--error]="invalid('urlLinkedin')">
+            <label for="f-li">LinkedIn <span class="opcional">(opcional)</span></label>
+            <div class="input-wrap">
+              <i class="pi pi-linkedin"></i>
+              <input pInputText id="f-li" formControlName="urlLinkedin"
+                     placeholder="linkedin.com/in/seu-perfil" autocomplete="off" />
+            </div>
+            <span class="field-err" *ngIf="invalid('urlLinkedin')">{{ erroCampo('urlLinkedin') }}</span>
+          </div>
+
+          <div class="field">
+            <label for="f-cv">Link do Currículo <span class="opcional">(opcional)</span></label>
+            <div class="input-wrap">
+              <i class="pi pi-file-pdf"></i>
+              <input pInputText id="f-cv" formControlName="pathCurriculo"
+                     placeholder="drive.google.com/seu-curriculo" autocomplete="off" />
+            </div>
+            <p class="field-hint">Cole o link do Google Drive, Dropbox, etc.</p>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="voltarParaDetalhe()">
+          <i class="pi pi-arrow-left"></i> Voltar
+        </button>
+        <button class="btn-primario" [disabled]="enviando" (click)="enviar()">
+          <span *ngIf="!enviando"><i class="pi pi-send"></i> Enviar candidatura</span>
+          <span *ngIf="enviando"><i class="pi pi-spin pi-spinner"></i> Enviando...</span>
+        </button>
+      </div>
+
+    </ng-container>
+
+    <!-- ══════════════════ PASSO 3 — SUCESSO ══════════════════════════════════ -->
+    <ng-container *ngIf="modalStep === 'sucesso'">
+      <div class="modal-feedback">
+        <button class="modal-close modal-close--abs" (click)="fecharModal()"><i class="pi pi-times"></i></button>
+        <div class="feedback-icon feedback-icon--ok">
+          <i class="pi pi-check-circle"></i>
+        </div>
+        <h2>Candidatura enviada!</h2>
+        <p>
+          Sua candidatura para <strong>{{ vagaSelecionada.titulo }}</strong> foi registrada.
+          Em breve entraremos em contato pelo e-mail informado.
+        </p>
+        <button class="btn-primario" (click)="fecharModal()">
+          <i class="pi pi-home"></i> Voltar às vagas
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ══════════════════ PASSO 3 — ERRO ════════════════════════════════════ -->
+    <ng-container *ngIf="modalStep === 'erro'">
+      <div class="modal-feedback">
+        <button class="modal-close modal-close--abs" (click)="fecharModal()"><i class="pi pi-times"></i></button>
+        <div class="feedback-icon feedback-icon--erro">
+          <i class="pi pi-times-circle"></i>
+        </div>
+        <h2>Algo deu errado</h2>
+        <p>{{ erroMsg }}</p>
+        <div class="feedback-actions">
+          <button class="btn-secundario" (click)="fecharModal()">Fechar</button>
+          <button class="btn-primario" (click)="tentarNovamente()">
+            <i class="pi pi-refresh"></i> Tentar novamente
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

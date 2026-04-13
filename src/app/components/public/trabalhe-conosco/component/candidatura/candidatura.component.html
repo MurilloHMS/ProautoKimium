@@ -1,0 +1,136 @@
+<!-- ═══════════════════════════ STEP: FORMULÁRIO ═══════════════════════════ -->
+<ng-container *ngIf="step === 'form'">
+
+  <div class="modal-header">
+    <div class="header-badge">
+      <i class="pi pi-briefcase"></i>
+      {{ vaga?.area || 'Vaga' }}
+    </div>
+    <h2 class="modal-titulo">Candidatar-se</h2>
+    <p class="modal-vaga-nome">{{ vaga?.titulo }}</p>
+  </div>
+
+  <div class="modal-divider">
+    <span class="divider-label">
+      <i class="pi pi-user"></i> Seus dados
+    </span>
+  </div>
+
+  <form class="modal-form" [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+
+    <!-- Nome -->
+    <div class="field" [class.field--error]="invalid('nome')">
+      <label class="field-label" for="c-nome">
+        Nome completo <span class="req">*</span>
+      </label>
+      <div class="input-wrap">
+        <i class="pi pi-user input-icon"></i>
+        <input pInputText id="c-nome" class="field-input"
+               formControlName="nome" placeholder="João da Silva" autocomplete="name" />
+      </div>
+      <span class="field-error" *ngIf="invalid('nome')">{{ errocampo('nome') }}</span>
+    </div>
+
+    <!-- E-mail -->
+    <div class="field" [class.field--error]="invalid('email')">
+      <label class="field-label" for="c-email">
+        E-mail <span class="req">*</span>
+      </label>
+      <div class="input-wrap">
+        <i class="pi pi-envelope input-icon"></i>
+        <input pInputText id="c-email" class="field-input"
+               formControlName="email" placeholder="joao@email.com"
+               type="email" autocomplete="email" />
+      </div>
+      <span class="field-error" *ngIf="invalid('email')">{{ errocampo('email') }}</span>
+    </div>
+
+    <!-- Telefone -->
+    <div class="field" [class.field--error]="invalid('telefone')">
+      <label class="field-label" for="c-telefone">
+        Telefone <span class="req">*</span>
+      </label>
+      <div class="input-wrap">
+        <i class="pi pi-phone input-icon"></i>
+        <input pInputText id="c-telefone" class="field-input"
+               placeholder="(11) 91234-5678" autocomplete="tel"
+               (input)="onTelefoneInput($event)" />
+      </div>
+      <span class="field-error" *ngIf="invalid('telefone')">{{ errocampo('telefone') }}</span>
+    </div>
+
+    <!-- LinkedIn -->
+    <div class="field" [class.field--error]="invalid('urlLinkedin')">
+      <label class="field-label" for="c-linkedin">
+        LinkedIn <span class="field-opcional">(opcional)</span>
+      </label>
+      <div class="input-wrap">
+        <i class="pi pi-linkedin input-icon"></i>
+        <input pInputText id="c-linkedin" class="field-input"
+               formControlName="urlLinkedin"
+               placeholder="linkedin.com/in/seu-perfil" autocomplete="off" />
+      </div>
+      <span class="field-error" *ngIf="invalid('urlLinkedin')">{{ errocampo('urlLinkedin') }}</span>
+    </div>
+
+    <!-- Currículo -->
+    <div class="field" [class.field--error]="invalid('pathCurriculo')">
+      <label class="field-label" for="c-curriculo">
+        Link do Currículo <span class="field-opcional">(opcional)</span>
+      </label>
+      <div class="input-wrap">
+        <i class="pi pi-file-pdf input-icon"></i>
+        <input pInputText id="c-curriculo" class="field-input"
+               formControlName="pathCurriculo"
+               placeholder="drive.google.com/seu-curriculo" autocomplete="off" />
+      </div>
+      <p class="field-hint">Cole o link do seu currículo no Google Drive, Dropbox, etc.</p>
+    </div>
+
+    <!-- Ações -->
+    <div class="modal-actions">
+      <button type="button" class="btn-cancelar" (click)="onFechar()">Cancelar</button>
+      <button type="submit" class="btn-enviar" [disabled]="enviando">
+        <span *ngIf="!enviando"><i class="pi pi-send"></i> Enviar candidatura</span>
+        <span *ngIf="enviando" class="loading-row">
+          <i class="pi pi-spin pi-spinner"></i> Enviando...
+        </span>
+      </button>
+    </div>
+
+  </form>
+</ng-container>
+
+<!-- ═══════════════════════════ STEP: SUCESSO ══════════════════════════════ -->
+<ng-container *ngIf="step === 'sucesso'">
+  <div class="step-feedback">
+    <div class="feedback-icon feedback-icon--ok">
+      <i class="pi pi-check-circle"></i>
+    </div>
+    <h2 class="feedback-titulo">Candidatura enviada!</h2>
+    <p class="feedback-sub">
+      Sua candidatura para <strong>{{ vaga?.titulo }}</strong> foi registrada com sucesso.
+      Entraremos em contato pelo e-mail informado.
+    </p>
+    <button class="btn-enviar" (click)="onFechar()">
+      <i class="pi pi-home"></i> Voltar às vagas
+    </button>
+  </div>
+</ng-container>
+
+<!-- ═══════════════════════════ STEP: ERRO ════════════════════════════════ -->
+<ng-container *ngIf="step === 'erro'">
+  <div class="step-feedback">
+    <div class="feedback-icon feedback-icon--erro">
+      <i class="pi pi-times-circle"></i>
+    </div>
+    <h2 class="feedback-titulo">Algo deu errado</h2>
+    <p class="feedback-sub">{{ erroMsg }}</p>
+    <div class="feedback-actions">
+      <button class="btn-cancelar" (click)="onFechar()">Fechar</button>
+      <button class="btn-enviar" (click)="resetar()">
+        <i class="pi pi-refresh"></i> Tentar novamente
+      </button>
+    </div>
+  </div>
+</ng-container>

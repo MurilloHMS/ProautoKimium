@@ -84,8 +84,15 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         ],
       },
       {
+        label: 'RH - Recursos Humanos',
+        icon: 'pi pi-fw pi-users',
+        items: [
+          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
+        ]
+      },
+      {
         label: 'Empresa',
-        icon: 'pi pi-fw pi-briefcase',
+        icon: 'pi pi-fw pi-building',
         items: [
           { label: 'Produtos', icon: 'pi pi-fw pi-tags', routerLink: ['company/products'], roles: ['ADMIN', 'ALMOXARIFADO'] },
           {

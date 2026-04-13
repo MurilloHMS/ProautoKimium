@@ -1,0 +1,397 @@
+@use '../../../../../../styles/variables' as *; // ajuste o caminho conforme seu projeto
+
+// ══════════════════════════════════════════════════════════════════════════════
+// OVERLAY + MODAL
+// ══════════════════════════════════════════════════════════════════════════════
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(20px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($primary-color-dark1, .6);
+  backdrop-filter: blur(5px);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  animation: overlayIn .2s ease;
+}
+
+.modal {
+  position: relative;
+  background: $bg-panel;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 28px 64px rgba($primary-color, .22);
+  animation: modalIn .25s ease;
+  display: flex;
+  flex-direction: column;
+
+  // scrollbar discreta
+  scrollbar-width: thin;
+  scrollbar-color: $tertiary-color-dark transparent;
+}
+
+// ── Fechar ────────────────────────────────────────────────────────────────────
+.btn-fechar {
+  position: sticky;
+  top: 1rem;
+  left: 100%;
+  margin-left: auto;
+  margin-right: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: $tertiary-color;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: $primary-text-color;
+  flex-shrink: 0;
+  transition: background .15s, color .15s;
+  z-index: 10;
+
+  i { font-size: .78rem; }
+
+  &:hover { background: $danger; color: #fff; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HEADER
+// ══════════════════════════════════════════════════════════════════════════════
+.modal-header {
+  padding: 0 1.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  margin-top: -.5rem; // compensa o espaço do btn-fechar
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-family: $menu-font;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: $primary-color;
+  background: rgba($primary-color, .07);
+  border: 1px solid rgba($primary-color, .15);
+  border-radius: 99px;
+  padding: .22rem .75rem;
+  align-self: flex-start;
+
+  i { font-size: .68rem; }
+}
+
+.modal-titulo {
+  font-family: $title-font;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: $primary-color-dark1;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+
+.modal-vaga-nome {
+  font-size: .88rem;
+  color: $secondary-text-color;
+  line-height: 1.4;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DIVISOR
+// ══════════════════════════════════════════════════════════════════════════════
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: 0 1.75rem;
+  margin-bottom: .25rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $tertiary-color-dark;
+  }
+}
+
+.divider-label {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-family: $menu-font;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: $secondary-color-dark1;
+  white-space: nowrap;
+
+  i { font-size: .68rem; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FORMULÁRIO
+// ══════════════════════════════════════════════════════════════════════════════
+.modal-form {
+  padding: .75rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+// ── Campo ─────────────────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  &--error {
+    .input-wrap { border-color: $danger !important; }
+    .field-input { color: darken($danger, 10%); }
+    .input-icon { color: $danger !important; }
+  }
+}
+
+.field-label {
+  font-family: $menu-font;
+  font-size: .78rem;
+  font-weight: 700;
+  color: $primary-color;
+  letter-spacing: .03em;
+
+  .req { color: $danger; margin-left: .15rem; }
+}
+
+.field-opcional {
+  font-weight: 400;
+  color: $secondary-text-color;
+  margin-left: .3rem;
+  font-family: $text-font;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1.5px solid $tertiary-color-dark;
+  border-radius: 10px;
+  background: $bg-base;
+  transition: border-color .18s, box-shadow .18s;
+
+  &:focus-within {
+    border-color: $secondary-color;
+    box-shadow: 0 0 0 3px rgba($secondary-color, .14);
+    background: $bg-panel;
+  }
+}
+
+.input-icon {
+  position: absolute;
+  left: .85rem;
+  color: $secondary-color;
+  font-size: .85rem;
+  pointer-events: none;
+  transition: color .15s;
+}
+
+.field-input {
+  width: 100%;
+  padding: .65rem .85rem .65rem 2.4rem !important;
+  border: none !important;
+  background: transparent !important;
+  font-family: $text-font !important;
+  font-size: .9rem !important;
+  color: $text-primary-color !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  outline: none;
+
+  &::placeholder { color: $secondary-text-color; }
+}
+
+.field-error {
+  font-size: .76rem;
+  color: $danger;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+
+  &::before {
+    content: '!';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: .95rem;
+    height: .95rem;
+    background: $danger;
+    color: #fff;
+    border-radius: 50%;
+    font-size: .6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+}
+
+.field-hint {
+  font-size: .76rem;
+  color: $secondary-text-color;
+  line-height: 1.4;
+}
+
+// ── Ações ─────────────────────────────────────────────────────────────────────
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .75rem;
+  margin-top: .25rem;
+  flex-wrap: wrap;
+}
+
+.btn-cancelar {
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $secondary-text-color;
+  border-radius: 99px;
+  padding: .6rem 1.25rem;
+  font-family: $menu-font;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .18s, color .18s;
+
+  &:hover { border-color: $primary-color; color: $primary-color; }
+}
+
+.btn-enviar {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  background: $secondary-color;
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: .65rem 1.5rem;
+  font-family: $menu-font;
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s, transform .15s, opacity .18s;
+
+  i { font-size: .85rem; }
+
+  &:hover:not(:disabled) {
+    background: $secondary-color-dark1;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FEEDBACK (sucesso / erro)
+// ══════════════════════════════════════════════════════════════════════════════
+
+@keyframes feedbackIn {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+.step-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 2rem 2.5rem;
+  text-align: center;
+  animation: feedbackIn .3s ease;
+}
+
+.feedback-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .25rem;
+
+  i { font-size: 2.2rem; }
+
+  &--ok {
+    background: rgba($success, .1);
+    color: $success;
+    border: 2px solid rgba($success, .25);
+  }
+
+  &--erro {
+    background: rgba($danger, .1);
+    color: $danger;
+    border: 2px solid rgba($danger, .25);
+  }
+}
+
+.feedback-titulo {
+  font-family: $title-font;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: $primary-color-dark1;
+}
+
+.feedback-sub {
+  font-size: .9rem;
+  color: $secondary-text-color;
+  line-height: 1.65;
+  max-width: 360px;
+
+  strong { color: $primary-color; font-weight: 700; }
+}
+
+.feedback-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+// ── Responsivo ────────────────────────────────────────────────────────────────
+@media (max-width: 520px) {
+  .modal { border-radius: 16px 16px 0 0; max-height: 96vh; align-self: flex-end; }
+  .modal-form { padding: .75rem 1.25rem 1.5rem; }
+  .modal-header { padding: 0 1.25rem 1rem; }
+  .modal-divider { padding: 0 1.25rem; }
+  .modal-actions { flex-direction: column-reverse; align-items: stretch; }
+  .btn-cancelar, .btn-enviar { justify-content: center; }
+}

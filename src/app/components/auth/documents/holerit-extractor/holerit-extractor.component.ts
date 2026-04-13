@@ -13,7 +13,7 @@ import {SkeletonModule} from "primeng/skeleton";
 import {TooltipModule} from "primeng/tooltip";
 import {BadgeModule} from "primeng/badge";
 import {MessageModule} from "primeng/message";
-import {PdfPageInfoExtractorDTO} from "../../../../domain/models/holerit.models";
+import {PdfPageInfoExtractorDTO} from "../../../../domain/models/holerit.model";
 import {MessageService} from "primeng/api";
 import * as XLSX from 'xlsx';
 import {environment} from "../../../../../environments/environment";
