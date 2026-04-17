@@ -729,7 +729,7 @@
 }
 
 .req { color: $danger; margin-left: .15rem; }
-.opcional { font-weight: 400; color: $secondary-text-color; margin-left: .3rem; font-family: $text-font; }
+.opcional { font-weight: 400; color: $primary-text-color; margin-left: .3rem; font-family: $text-font; }
 
 .input-wrap {
   position: relative;
@@ -862,6 +862,60 @@
   gap: .75rem;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+// ── Upload de currículo ──────────────────────────────────────────────────────
+.file-input-hidden {
+  display: none;
+}
+
+.file-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: 1.5rem;
+  border: 2px dashed $tertiary-color-dark;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  text-align: center;
+  background: $bg-base;
+
+  &:hover {
+    border-color: $secondary-color;
+    background: rgba($secondary-color, .04);
+  }
+
+  &--selected {
+    border-color: $secondary-color;
+    background: rgba($secondary-color, .08);
+  }
+}
+
+.file-drop-icon {
+  font-size: 1.8rem;
+  color: $secondary-text-color;
+
+  &--ok {
+    color: $secondary-color;
+  }
+}
+
+.file-drop-text {
+  font-size: .875rem;
+  color: $primary-text-color;
+
+  &--ok {
+    color: $primary-color;
+    font-weight: 600;
+  }
+}
+
+.file-drop-size {
+  font-size: .75rem;
+  color: $secondary-text-color;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
