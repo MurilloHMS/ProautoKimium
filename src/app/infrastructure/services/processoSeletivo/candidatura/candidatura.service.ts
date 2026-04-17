@@ -2,16 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import {ResponseCandidaturaDTO} from "../../../../domain/models/candidatura.model";
-
-export interface CreateCandidaturaDTO {
-  vagaID: string;       // UUID da vaga
-  nome: string;
-  email: string;
-  telefone: string;
-  urlLinkedin: string;
-  pathCurriculo: string;
-}
+import {CreateCandidaturaDTO, ResponseCandidaturaDTO} from "../../../../domain/models/candidatura.model";
 
 @Injectable({ providedIn: 'root' })
 export class CandidaturaService {
@@ -19,8 +10,13 @@ export class CandidaturaService {
 
   constructor(private http: HttpClient) {}
 
-  criar(dto: CreateCandidaturaDTO): Observable<string> {
-    return this.http.post(this.base, dto, { responseType: 'text' });
+  criar(dto: CreateCandidaturaDTO, curriculo?:File): Observable<string> {
+    const formData = new FormData();
+    formData.append('dados', new Blob([JSON.stringify(dto)], {type: 'application/json'}));
+    if(curriculo){
+      formData.append('curriculo', curriculo, curriculo.name);
+    }
+    return this.http.post(this.base, formData, { responseType: 'text' });
   }
 
   getByVaga(vagaId: string): Observable<ResponseCandidaturaDTO[]> {

@@ -1,6 +1,14 @@
 export type EtapaCandidatura = 'TRIAGEM' | 'ENTREVISTA_RH' | 'PROPOSTA' | 'CONTRATADO';
 export type StatusCandidatura = 'EM_ANDAMENTO' | 'APROVADO' | 'REPROVADO' | 'ENCERRADO';
 
+export interface CreateCandidaturaDTO {
+  vagaID: string;       // UUID da vaga
+  nome: string;
+  email: string;
+  telefone: string;
+  urlLinkedin: string;
+}
+
 export interface ResponseCandidaturaDTO {
   id: string;
   candidatoNome: string;
