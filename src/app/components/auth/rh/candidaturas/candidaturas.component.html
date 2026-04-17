@@ -170,11 +170,30 @@
                 <i class="pi pi-external-link"></i> Ver perfil
               </a>
             </div>
-            <div class="info-item" *ngIf="selecionada.candidatoCurriculo">
+            <div class="info-item" *ngIf="selecionada && temCurriculo(selecionada)">
               <span class="info-label">Currículo</span>
-              <a class="info-val info-link" [href]="selecionada.candidatoCurriculo" target="_blank" rel="noopener">
-                <i class="pi pi-file-pdf"></i> Abrir currículo
-              </a>
+              <div class="info-val">
+                <button
+                  class="btn-cv-visualizar info-link"
+                  type="button"
+                  (click)="visualizarCurriculo(selecionada)"
+                >
+                  <i class="pi pi-eye"></i> Visualizar
+                </button>
+
+                <button
+                  class="btn-cv-download info-link"
+                  type="button"
+                  (click)="baixarCurriculo(selecionada)"
+                >
+                  <i class="pi pi-download"></i> Baixar
+                </button>
+              </div>
+            </div>
+
+            <div class="info-item" *ngIf="selecionada && !temCurriculo(selecionada)">
+              <span class="info-label">Currículo</span>
+              <span class="info-val">Não enviado</span>
             </div>
             <div class="info-item">
               <span class="info-label">Candidatou-se em</span>

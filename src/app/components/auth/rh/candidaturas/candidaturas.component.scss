@@ -447,7 +447,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: $secondary-text-color;
+  color: $primary-text-color;
   transition: all .2s;
   z-index: 1;
 
@@ -462,7 +462,7 @@
   font-size: .62rem;
   font-weight: 700;
   text-align: center;
-  color: $secondary-text-color;
+  color: $primary-text-color;
   text-transform: uppercase;
   letter-spacing: .04em;
   line-height: 1.2;
@@ -645,6 +645,44 @@
   i { font-size: .78rem; }
   &:hover:not(:disabled) { background: darken($danger, 8%); }
   &:disabled { opacity: .55; cursor: not-allowed; }
+}
+
+.btn-cv-visualizar,
+.btn-cv-download {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  background: rgba($secondary-color, .08);
+  color: $secondary-color;
+  border: 1px solid rgba($secondary-color, .2);
+  border-radius: 6px;
+  padding: .4rem .7rem;
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  margin-right: .5rem;
+
+  &:hover {
+    background: $secondary-color;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  &:last-child { margin-right: 0; }
+
+  i { font-size: .8rem; }
+}
+
+.btn-cv-download {
+  background: rgba($primary-color, .08);
+  color: $primary-color;
+  border-color: rgba($primary-color, .2);
+
+  &:hover {
+    background: $primary-color;
+    color: #fff;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

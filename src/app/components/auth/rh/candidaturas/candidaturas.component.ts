@@ -45,6 +45,54 @@ export class CandidaturasComponent implements OnInit, OnDestroy {
     private router: Router,
   ) {}
 
+  temCurriculo(c: ResponseCandidaturaDTO | null): boolean {
+    return !!c?.candidatoCurriculo?.trim();
+  }
+
+  abrirCurriculo(c: ResponseCandidaturaDTO): void {
+    const url = this.service.getCurriculoUrl(c.candidatoCurriculo);
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  visualizarCurriculo(c: ResponseCandidaturaDTO): void {
+    if (!c.candidatoCurriculo) return;
+
+    this.service.baixarCurriculo(c.candidatoCurriculo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl, '_blank', 'noopener,noreferrer');
+        },
+        error: () => {
+          console.error('Erro ao visualizar currículo');
+        }
+      });
+  }
+
+  baixarCurriculo(c: ResponseCandidaturaDTO): void {
+    if (!c.candidatoCurriculo) return;
+
+    this.service.baixarCurriculo(c.candidatoCurriculo)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = c.candidatoCurriculo;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+        },
+        error: () => {
+          console.error('Erro ao baixar currículo');
+        }
+      });
+  }
+
   ngOnInit(): void {
     // Lê vagaId e vagaTitulo dos queryParams
     this.route.queryParams

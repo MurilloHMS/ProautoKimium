@@ -7,6 +7,8 @@ import {CreateCandidaturaDTO, ResponseCandidaturaDTO} from "../../../../domain/m
 @Injectable({ providedIn: 'root' })
 export class CandidaturaService {
   private base = `${environment.apiUrl}/candidatura`;
+  private curriculosBase = `${environment.apiUrl}/curriculos`;
+
 
   constructor(private http: HttpClient) {}
 
@@ -37,5 +39,17 @@ export class CandidaturaService {
 
   encerrar(id: string): Observable<string> {
     return this.http.put(`${this.base}/${id}/encerrar`, null, { responseType: 'text' });
+  }
+
+  getCurriculoUrl(fileName: string | null | undefined): string | null {
+    if (!fileName?.trim()) return null;
+    return `${this.curriculosBase}/${encodeURIComponent(fileName)}`;
+  }
+
+  baixarCurriculo(fileName: string): Observable<Blob> {
+    return this.http.get(
+      `${this.curriculosBase}/${encodeURIComponent(fileName)}`,
+      { responseType: 'blob' }
+    );
   }
 }
