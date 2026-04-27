@@ -155,11 +155,15 @@
                     (click)="arquivar(vaga)">
             </button>
 
-            <button pButton icon="pi pi-file-edit" class="btn-acao" text rounded severity="secondary"
+            <button pButton icon="pi pi-file-edit" class="btn-acao" text rounded severity="warn"
                     pTooltip="Mover para Rascunho"
                     *ngIf="activeTab === 'arquivadas'"
                     (click)="moverParaRascunho(vaga)">
             </button>
+
+            <button pButton icon="pi pi-link" class="btn-acao" text rounded severity="secondary"
+                    pTooltip="Obter link da vaga"
+                    (click)="obterLink(vaga)"></button>
           </td>
         </tr>
 
@@ -269,5 +273,45 @@
               [disabled]="!formValido">
       </button>
     </ng-container>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="linkModalAberto"
+  header="Vaga criada com sucesso!"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '480px' }"
+>
+  <div class="link-dialog-body">
+    <div class="link-dialog-icon">
+      <i class="pi pi-link"></i>
+    </div>
+    <p class="link-dialog-desc">
+      Compartilhe o link abaixo para que candidatos acessem diretamente esta vaga:
+    </p>
+    <div class="link-field-wrap">
+      <input
+        class="link-field-input"
+        [value]="linkVaga"
+        readonly
+        (click)="$any($event.target).select()"
+      />
+      <button
+        class="link-copy-btn"
+        [class.link-copy-btn--ok]="linkCopiado"
+        (click)="copiarLink()"
+        pTooltip="{{ linkCopiado ? 'Copiado!' : 'Copiar link' }}"
+      >
+        <i class="pi" [ngClass]="linkCopiado ? 'pi-check' : 'pi-copy'"></i>
+      </button>
+    </div>
+    <span class="link-copied-msg" *ngIf="linkCopiado">
+      <i class="pi pi-check-circle"></i> Link copiado para a área de transferência!
+    </span>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Fechar" severity="secondary" (click)="linkModalAberto = false"></button>
   </ng-template>
 </p-dialog>

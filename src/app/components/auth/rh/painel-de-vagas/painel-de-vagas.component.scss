@@ -413,3 +413,77 @@ $shadow-md:    0 4px 12px rgba(0,0,0,.10);
     white-space: pre-line;
   }
 }
+
+.link-dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.link-dialog-icon {
+  i {
+    font-size: 3rem;
+    color: #00d4aa;
+  }
+}
+
+.link-dialog-desc {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.link-field-wrap {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.link-field-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  &:focus {
+    outline: none;
+    border-color: #00d4aa;
+    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+  }
+}
+
+.link-copy-btn {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    border-color: #00d4aa;
+    background: rgba(0, 212, 170, 0.1);
+  }
+  &.link-copy-btn--ok {
+    border-color: #10b981;
+    background: #ecfdf5;
+    color: #059669;
+  }
+}
+
+.link-copied-msg {
+  background: #ecfdf5;
+  color: #059669;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

@@ -101,6 +101,15 @@
         <p class="card-descricao">{{ vaga.descricao }}</p>
         <div class="card-footer">
           <button class="btn-ver-vaga">Ver vaga <i class="pi pi-arrow-right"></i></button>
+          <button
+            class="btn-link-card"
+            [class.btn-link-card--copiado]="linkCopiado === String(vaga.id)"
+            (click)="copiarLink(vaga.id, $event)"
+            title="Copiar link da vaga"
+          >
+            <i class="pi" [ngClass]="linkCopiado === String(vaga.id) ? 'pi-check' : 'pi-link'"></i>
+            <span>{{ linkCopiado === String(vaga.id) ? 'Copiado!' : 'Copiar link' }}</span>
+          </button>
         </div>
       </article>
     </div>
@@ -187,6 +196,15 @@
 
       <div class="modal-footer">
         <button class="btn-secundario" (click)="fecharModal()">Fechar</button>
+        <button
+          class="btn-link-modal"
+          [class.btn-link-modal--copiado]="linkCopiado === String(vagaSelecionada.id)"
+          (click)="copiarLink(vagaSelecionada.id)"
+          title="Copiar link desta vaga"
+        >
+          <i class="pi" [ngClass]="linkCopiado === String(vagaSelecionada.id) ? 'pi-check' : 'pi-link'"></i>
+          <span>{{ linkCopiado === String(vagaSelecionada.id) ? 'Copiado!' : 'Copiar link' }}</span>
+        </button>
         <button class="btn-primario" (click)="irParaForm()">
           Candidatar-se <i class="pi pi-arrow-right"></i>
         </button>
