@@ -1,321 +1,510 @@
 @use '../../../styles/variables.scss';
 
-.header{
+/* ========== VARIÁVEIS ========== */
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+$border-radius: 12px;
+
+/* ========== HEADER ========== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: $shadow-md;
+  z-index: 1000;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== HEADER CONTAINER ========== */
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+}
+
+/* ========== LOGO ========== */
+.logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+
+  a {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 20px;
-    padding: 8px 20px;
-    position: fixed;
-    top: 11px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(90%, 600px);
-    max-width: 600px;
-    height: 50px;
-    border-radius: 50px;
-    z-index: 1000;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid rgba(255,255,255,0.2);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    animation: slideDown .9s ease-in-out;
-}
-
-@keyframes slideDown{
-    from{
-        opacity: 0;
-        transform: translate(-50%, -20px);
-    }
-    to{
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-.content {
-    margin-top: 100px;
-}
-
-.logo img{
-    height: 30px;
-    transition: height 0.3s ease;
-}
-
-.menu ul{
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-    align-items: center;
-    gap: 10px;
-}
-
-.menu li{
-    margin: 0;
-    position: relative;
-}
-
-.menu a{
     text-decoration: none;
-    font-weight: 400;
-    transition: color .3s;
-    color: variables.$text-primary-color;
-    padding: 6px 12px;
-    position: relative;
-    display: block;
-    font-size: 0.9rem;
-    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  img {
+    height: 40px;
+    width: auto;
+    transition: $transition;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
 }
 
-.menu a::before{
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 3px;
-    bottom: 0;
-    left: 0;
-    background-color: variables.$primary-color;
-    visibility: hidden;
-    transform: scaleX(0);
-    transition: all 0.5s ease-in-out 0s;
+/* ========== MENU TOGGLE ========== */
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: variables.$text-primary-color;
+  padding: 8px;
+  transition: $transition;
+  border-radius: 8px;
+  margin-right: 8px;
+
+  &:hover {
+    background: rgba(variables.$primary-color, 0.1);
+    color: variables.$primary-color;
+  }
 }
 
-.menu a:hover::before{
-    visibility: visible;
-    transform: scaleX(1);
-}
+/* ========== MENU PRINCIPAL ========== */
+.menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 
-.grp-menu {
+  ul {
     list-style: none;
     display: flex;
     margin: 0;
     padding: 0;
+    gap: 8px;
     align-items: center;
-    gap: 15px;
-}
+  }
 
-.grp-menu li{
+  li {
     margin: 0;
-}
+    position: relative;
+  }
 
-.grp-menu a{
-    font-size: 1.1rem;
-    color: variables.$secondary-color;
-    transition: color 0.3s ease;
-}
-
-.grp-menu a:hover{
+  a {
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: variables.$text-primary-color;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    color: variables.$primary-color;
+    transition: $transition;
+    border-radius: 8px;
+    position: relative;
+
+    &:hover {
+      color: variables.$primary-color;
+      background: rgba(variables.$primary-color, 0.08);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: variables.$primary-color;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &:hover::after {
+      width: calc(100% - 32px);
+    }
+  }
 }
 
+/* ========== ACTIONS ========== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ========== CARRINHO ========== */
 .carrinho-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .icon-link {
+    font-size: 1.3rem;
+    color: variables.$secondary-color;
+    text-decoration: none;
+    transition: $transition;
     position: relative;
     display: flex;
     align-items: center;
-    gap: 15px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(variables.$primary-color, 0.08);
+
+    &:hover {
+      color: variables.$primary-color;
+      background: rgba(variables.$primary-color, 0.12);
+      transform: scale(1.1);
+    }
+  }
 }
 
 .badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: variables.$primary-color;
-    color: white;
-    font-size: 11px;
-    font-weight: bold;
-    border-radius: 50%;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: variables.$primary-color;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px solid white;
+  box-shadow: $shadow-sm;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* ========== DIVISOR ========== */
+.divider {
+  width: 1px;
+  height: 24px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(variables.$primary-color, 0.3),
+    transparent
+  );
+}
+
+/* ========== AUTH BUTTONS ========== */
+.auth-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-login {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: $transition;
+  background: transparent;
+  color: variables.$text-primary-color;
+  text-decoration: none;
+  white-space: nowrap;
+
+  i {
+    font-size: 1rem;
+  }
+
+  .label-desktop {
+    display: inline;
+  }
+
+  &:hover {
+    background: rgba(variables.$primary-color, 0.08);
+    border-color: variables.$primary-color;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-cliente {
+  &:hover {
+    color: variables.$primary-color;
+  }
+}
+
+.btn-funcionario {
+  &:hover {
+    color: variables.$secondary-color;
+    border-color: variables.$secondary-color;
+  }
+}
+
+/* ========== RESPONSIVIDADE ========== */
+
+// Tablet (992px e abaixo)
+@media (max-width: 992px) {
+  .header-container {
+    gap: 24px;
+    padding: 0 16px;
+  }
+
+  .menu ul {
+    gap: 4px;
+  }
+
+  .menu a {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+
+    &::after {
+      display: none;
+    }
+
+    &:hover {
+      background-color: rgba(variables.$primary-color, 0.1);
+    }
+  }
+
+  .btn-login .label-desktop {
+    display: none;
+  }
+
+  .btn-login {
+    padding: 8px 10px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+}
+
+// Mobile (768px e abaixo)
+@media (max-width: 768px) {
+  .header {
+    height: 65px;
+  }
+
+  .header-container {
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .logo img {
+    height: 32px;
+  }
+
+  .menu-toggle {
+    display: block;
+    order: 2;
+  }
+
+  .logo {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  .menu {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    box-shadow: $shadow-lg;
+    flex-direction: column;
+    display: none;
+    max-height: calc(100vh - 65px);
+    overflow-y: auto;
+    border-bottom: 1px solid rgba(variables.$primary-color, 0.15);
+    order: 3;
+    width: 100%;
+
+    &.active {
+      display: flex;
+    }
+
+    ul {
+      flex-direction: column;
+      width: 100%;
+      gap: 0;
+      padding: 12px 0;
+    }
+
+    li {
+      width: 100%;
+      margin: 0;
+    }
+
+    a {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 0;
+      font-weight: 600;
+      position: relative;
+
+      &::after {
+        display: none;
+      }
+
+      &:hover {
+        background: rgba(variables.$primary-color, 0.1);
+        padding-left: 24px;
+      }
+    }
+  }
+
+  .actions {
+    order: 4;
+    gap: 8px;
+  }
+
+  .auth-buttons {
+    gap: 4px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .carrinho-container .icon-link {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .badge {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+    top: -6px;
+    right: -6px;
+  }
+
+  .btn-login {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+}
+
+// Mobile Pequeno (480px e abaixo)
+@media (max-width: 480px) {
+  .header {
+    height: 60px;
+  }
+
+  .header-container {
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .logo img {
+    height: 28px;
+  }
+
+  .menu-toggle {
+    padding: 6px;
+    font-size: 1.3rem;
+  }
+
+  .menu {
+    top: 60px;
+
+    a {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .actions {
+    gap: 4px;
+  }
+
+  .carrinho-container .icon-link {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .badge {
     width: 18px;
     height: 18px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-}
+    font-size: 8px;
+  }
 
-.menu-toggle {
-    display: none;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: variables.$text-primary-color;
-    padding: 5px;
-    transition: transform 0.3s ease;
-}
+  .btn-login {
+    padding: 5px 6px;
+    font-size: 0.75rem;
 
-.menu-toggle:hover {
-    transform: scale(1.1);
-}
-
-.nav-item{
-    position: relative;
-}
-
-.dropdown-menu{
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    min-width: 200px;
-    z-index: 999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all .3s ease;
-    border-radius: 15px;
-    padding: 8px 0;
-    border: 1px solid rgba(255,255,255,0.3);
-}
-
-.nav-item:hover .dropdown-menu {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.dropdown-item {
-    padding: 12px 20px;
-    color: variables.$text-primary-color;
-    text-decoration: none;
-    display: block;
-    transition: background 0.3s;
-}
-
-.dropdown-item:hover {
-    background-color: rgba(0,0,0,0.05);
-}
-
-// Tablet
-@media (max-width: 992px) {
-    .header {
-        width: min(95%, 900px);
-        padding: 10px 20px;
+    i {
+      font-size: 0.9rem;
     }
-
-    .menu ul {
-        gap: 5px;
-    }
-
-    .menu a {
-        padding: 8px 12px;
-        font-size: 0.95rem;
-    }
+  }
 }
 
-// Mobile
+/* ========== CONTENT ========== */
+:host {
+  ::ng-deep .content {
+    margin-top: 70px;
+  }
+}
+
 @media (max-width: 768px) {
-    .header {
-        width: calc(100% - 20px);
-        padding: 10px 15px;
-        justify-content: space-between;
+  :host {
+    ::ng-deep .content {
+      margin-top: 65px;
     }
-
-    .logo img {
-        height: 30px;
-    }
-
-    .menu {
-        position: fixed;
-        top: 85px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: calc(100% - 20px);
-        max-width: 500px;
-        background: rgba(255,255,255,0.95);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        border-radius: 25px;
-        border: 1px solid rgba(255,255,255,0.3);
-        display: none;
-        flex-direction: column;
-        text-align: center;
-        padding: 20px 0;
-        animation: slideDownMenu 0.3s ease-in-out;
-
-        ul {
-            flex-direction: column;
-            gap: 0;
-        }
-
-        li {
-            width: 100%;
-            margin: 0;
-        }
-
-        a {
-            width: 100%;
-            padding: 15px 20px;
-        }
-
-        a::before {
-            display: none;
-        }
-
-        a:hover {
-            background-color: rgba(0,0,0,0.05);
-            border-radius: 10px;
-        }
-    }
-
-    .menu.active {
-        display: flex;
-    }
-
-    .menu-toggle {
-        display: block;
-    }
-
-    .grp-menu {
-        gap: 12px;
-    }
-
-    .grp-menu a {
-        font-size: 1rem;
-    }
+  }
 }
 
-@keyframes slideDownMenu {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -10px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
-}
-
-// Mobile pequeno
 @media (max-width: 480px) {
-    .header {
-        width: calc(100% - 20px);
-        padding: 8px 12px;
-        height: 55px;
+  :host {
+    ::ng-deep .content {
+      margin-top: 60px;
     }
-
-    .logo img {
-        height: 28px;
-    }
-
-    .menu {
-        top: 80px;
-    }
-
-    .grp-menu a {
-        font-size: 0.95rem;
-    }
-
-    .badge {
-        width: 16px;
-        height: 16px;
-        font-size: 10px;
-        top: -6px;
-        right: -6px;
-    }
+  }
 }
