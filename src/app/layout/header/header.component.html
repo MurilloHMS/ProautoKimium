@@ -1,41 +1,54 @@
 <header class="header">
-
-  <button class="menu-toggle" (click)="toggleMenu()">
-    ☰
-  </button>
-
-  <nav class="menu" [class.active]="menuAberto">
-    <ul>
-      <li><a href="#home" fragment="home">Início</a></li>
-      <!-- <li><a routerLink="produtos/lista">Produtos</a></li> -->
-      <li><a href="#services">Serviços</a></li>
-      <li><a href="#about-us">Sobre nós</a></li>
-      <li><a routerLink="trabalhe-conosco">Trabalhe Conosco</a></li>
-      <li><a href="#contact">Contato</a></li>
-  </ul>
-</nav>
-
-<div>
-  <ul class="grp-menu">
-    <li class="carrinho-container">
-      <a routerLink="carrinho">
-        <i class="fas fa-shopping-cart"></i>
-        @if (quantidadeProdutos > 0) {
-          <span class="badge">{{ quantidadeProdutos }}</span>
-        }
+  <div class="header-container">
+    <!-- Logo -->
+    <div class="logo">
+      <a href="#home" fragment="home">
+        <img src="logo-proauto.png" alt="Logo da Empresa">
       </a>
-    </li>
-  </ul>
-</div>
-</header>
+    </div>
 
-<p-dialog header="Entre em contato"
-    [(visible)]="visible"
-    [modal]="true"
-    [closable]="true"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-    [style]="{width: '50vw'}"
-    [draggable]="false"
-    [resizable]="false">
-  <app-contact></app-contact>
-</p-dialog>
+    <!-- Menu Toggle Mobile -->
+    <button class="menu-toggle" (click)="toggleMenu()" [attr.aria-label]="menuAberto ? 'Fechar menu' : 'Abrir menu'">
+      <i [ngClass]="menuAberto ? 'pi pi-times' : 'pi pi-bars'"></i>
+    </button>
+
+    <!-- Menu Principal -->
+    <nav class="menu" [class.active]="menuAberto" (click)="fecharMenuMobile()">
+      <ul>
+        <li><a href="#home" fragment="home">Início</a></li>
+        <li><a href="#services">Serviços</a></li>
+        <li><a href="#about-us">Sobre nós</a></li>
+        <li><a routerLink="trabalhe-conosco">Trabalhe Conosco</a></li>
+        <li><a href="#contact">Contato</a></li>
+      </ul>
+    </nav>
+
+    <!-- Ações Direita -->
+    <div class="actions">
+      <!-- Carrinho -->
+      <div class="carrinho-container">
+        <a routerLink="carrinho" class="icon-link" title="Carrinho">
+          <i class="pi pi-shopping-cart"></i>
+          @if (quantidadeProdutos > 0) {
+            <span class="badge">{{ quantidadeProdutos }}</span>
+          }
+        </a>
+      </div>
+
+      <!-- Divisor -->
+      <div class="divider"></div>
+
+      <!-- Logins SPA -->
+      <div class="auth-buttons">
+        <a routerLink="client-login" class="btn-login btn-cliente" title="Login Cliente">
+          <i class="pi pi-user"></i>
+          <span class="label-desktop">Cliente</span>
+        </a>
+        <a routerLink="login" class="btn-login btn-funcionario" title="Login Funcionário">
+          <i class="pi pi-id-card"></i>
+          <span class="label-desktop">Funcionário</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
