@@ -323,7 +323,43 @@
   overflow: hidden;
 }
 
-.card-footer { margin-top: .25rem; }
+.card-footer {
+  margin-top: .25rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.btn-link-card {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $primary-text-color;
+  border-radius: 99px;
+  padding: .4rem .85rem;
+  font-family: $menu-font;
+  font-size: .75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+
+  i { font-size: .72rem; }
+
+  &:hover {
+    border-color: $secondary-color;
+    color: $secondary-color;
+    background: rgba($secondary-color, .06);
+  }
+
+  &--copiado {
+    border-color: $success !important;
+    color: $success !important;
+    background: rgba($success, .08) !important;
+  }
+}
 
 .btn-ver-vaga {
   display: inline-flex;
@@ -658,6 +694,37 @@
   gap: .75rem;
   flex-shrink: 0;
   flex-wrap: wrap;
+}
+
+.btn-link-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: .38rem;
+  background: none;
+  border: 1.5px solid $tertiary-color-dark;
+  color: $primary-text-color;
+  border-radius: 99px;
+  padding: .6rem 1.1rem;
+  font-family: $menu-font;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: auto; // empurra os outros botões para a direita
+  transition: border-color .18s, color .18s, background .18s;
+
+  i { font-size: .78rem; }
+
+  &:hover {
+    border-color: $secondary-color;
+    color: $secondary-color;
+    background: rgba($secondary-color, .06);
+  }
+
+  &--copiado {
+    border-color: $success !important;
+    color: $success !important;
+    background: rgba($success, .08) !important;
+  }
 }
 
 .btn-primario {

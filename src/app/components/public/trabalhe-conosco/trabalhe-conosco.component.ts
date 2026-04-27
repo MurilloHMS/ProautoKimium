@@ -7,6 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize, Subject, takeUntil } from 'rxjs';
 
 import { InputTextModule } from 'primeng/inputtext';
@@ -56,10 +57,14 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
   curriculoFile: File | null = null;
   curriculoErro = '';
 
+  linkCopiado: string | null = null; // id da vaga cujo link foi copiado recentemente
+
   constructor(
     private vagaService: VagaService,
     private candidaturaService: CandidaturaService,
     private fb: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
@@ -97,11 +102,22 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
           this.vagas = data;
           this.buildAreas(data);
           this.filtrar();
+          this.abrirVagaPorQueryParam();
         },
         error: () => {
           this.erro = true;
         },
       });
+  }
+
+  private abrirVagaPorQueryParam(): void {
+    const vagaId = this.route.snapshot.queryParamMap.get('vaga');
+    if (!vagaId) return;
+
+    const vaga = this.vagas.find((v) => String(v.id) === vagaId);
+    if (vaga) {
+      this.abrirVaga(vaga);
+    }
   }
 
   private buildAreas(vagas: ResponseVagaDTO[]): void {
@@ -141,6 +157,12 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
     this.curriculoFile = null;
     this.curriculoErro = '';
     document.body.style.overflow = 'hidden';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { vaga: vaga.id },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   irParaForm(): void {
@@ -161,6 +183,12 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
     this.curriculoFile = null;
     this.curriculoErro = '';
     document.body.style.overflow = '';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { vaga: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   tentarNovamente(): void {
@@ -271,6 +299,22 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
     return 'Valor inválido.';
   }
 
+  copiarLink(vagaId: string | number, event?: MouseEvent): void {
+    event?.stopPropagation();
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('vaga', String(vagaId));
+
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      this.linkCopiado = String(vagaId);
+      setTimeout(() => {
+        if (this.linkCopiado === String(vagaId)) {
+          this.linkCopiado = null;
+        }
+      }, 2000);
+    });
+  }
+
   formatarData(iso: string): string {
     if (!iso) return '—';
 
@@ -284,4 +328,6 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
   get skeletons(): number[] {
     return Array.from({ length: 6 }, (_, i) => i);
   }
+
+  protected readonly String = String;
 }

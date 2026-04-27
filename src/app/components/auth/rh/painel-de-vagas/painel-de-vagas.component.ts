@@ -78,6 +78,10 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
   salvando = false;
   vagaEmEdicao: ResponseVagaDTO | null = null;
 
+  vagaCriadaId: string | null = null;   // id da vaga recém-criada para exibir o link
+  linkModalAberto = false;              // controla o dialog de link
+  linkCopiado = false;
+
   formVaga: CreateVagaDTO = this.formVazio();
 
   colunas = [
@@ -182,6 +186,7 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         switchMap((id: string) => {
           const cleanId = id.replace(/"/g, '');
+          this.vagaCriadaId = cleanId;
           return publicar
             ? this.vagaService.publicarVaga(cleanId)
             : of(cleanId);
@@ -193,6 +198,8 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
           this.fecharModal();
           this.activeTab = publicar ? 'publicadas' : 'rascunho';
           this.recarregar();
+          this.linkCopiado = false;
+          this.linkModalAberto = true;
         },
         error: () => this.toast('error', 'Erro ao salvar a vaga.'),
       });
@@ -261,6 +268,19 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
     catch { return '—'; }
   }
 
+  get linkVaga(): string {
+    if (!this.vagaCriadaId) return '';
+    const base = window.location.origin;
+    return `${base}/trabalhe-conosco?vaga=${this.vagaCriadaId}`;
+  }
+
+  copiarLink(): void {
+    navigator.clipboard.writeText(this.linkVaga).then(() => {
+      this.linkCopiado = true;
+      setTimeout(() => (this.linkCopiado = false), 2500);
+    });
+  }
+
   private formVazio(): CreateVagaDTO {
     return { titulo: '', descricao: '', requisitos: '', beneficios: '', area: '', dataAbertura: '', dataEncerramento: '' };
   }
@@ -276,5 +296,11 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
         vagaTitulo: vaga.titulo
       }
     });
+  }
+
+  obterLink(vaga: ResponseVagaDTO) {
+    this.vagaCriadaId = vaga.id.replace('g', '');
+    this.linkModalAberto = true;
+    this.linkCopiado = false;
   }
 }
