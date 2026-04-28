@@ -131,6 +131,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         items: [
           { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], roles: ['ADMIN', 'MARKETING'] },
           { label: 'Disparo de Emails', icon: 'pi pi-fw pi-send', routerLink: ['communication/email'], roles: ['ADMIN','MARKETING','RH','SUPPORT', 'DESIGN'] },
+          { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-lock', routerLink: ['communication/secrets'], roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}
         ],
       },
       {

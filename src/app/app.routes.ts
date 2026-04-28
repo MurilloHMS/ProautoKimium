@@ -35,6 +35,7 @@ import { ExcelCredentialsComponent } from './components/auth/documents/excel-cre
 import { PainelDeVagasComponent } from './components/auth/rh/painel-de-vagas/painel-de-vagas.component';
 import { CandidaturasComponent } from './components/auth/rh/candidaturas/candidaturas.component'; // 👈 novo
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
+import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 
 
 export const routes: Routes = [
@@ -79,6 +80,7 @@ export const routes: Routes = [
       { path: 'partners/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'communication/secrets', component: SecretsComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}},
     ]
   },
   {
