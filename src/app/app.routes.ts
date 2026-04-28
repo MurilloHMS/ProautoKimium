@@ -36,6 +36,7 @@ import { PainelDeVagasComponent } from './components/auth/rh/painel-de-vagas/pai
 import { CandidaturasComponent } from './components/auth/rh/candidaturas/candidaturas.component'; // 👈 novo
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
+import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
 
 
 export const routes: Routes = [
@@ -55,6 +56,7 @@ export const routes: Routes = [
       { path: 'branding', component: BrandingComponent, pathMatch: 'full' },
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
+      { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
     ]
   },
   {
