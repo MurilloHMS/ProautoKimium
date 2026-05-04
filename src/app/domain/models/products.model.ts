@@ -18,3 +18,33 @@ export interface InventoryMovement{
   quantity: number;
   system_code: string;
 }
+
+export interface ProductWebSiteCreateDTO{
+  systemCode: string;
+  name: string;
+  active: boolean;
+  cores: string[];
+  finalidade: string;
+  diluicao: string;
+  descricao: string;
+}
+
+export interface ProductWebSiteUpdateDTO{
+  name: string;
+  active: boolean;
+  cores: string[];
+  finalidade: string;
+  diluicao: string;
+  descricao: string;
+}
+
+export interface ProductWebSiteResponseDTO{
+  id: string;
+  systemCode: string;
+  name: string;
+  active: boolean;
+  cores: string[];
+  finalidade: string;
+  diluicao: string;
+  descricao: string;
+}
