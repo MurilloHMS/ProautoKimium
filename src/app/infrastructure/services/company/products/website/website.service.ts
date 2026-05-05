@@ -36,6 +36,6 @@ export class WebsiteService {
   }
 
   update(entity : ProductWebSiteUpdateDTO, id : string) : Observable<string>{
-    return this.http.post(`${environment.apiUrl}/product/website/${id}`, entity, { responseType: 'text' });
+    return this.http.put(`${environment.apiUrl}/product/website/${id}`, entity, { responseType: 'text' });
   }
 }
