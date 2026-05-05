@@ -1,33 +1,5 @@
 <main class="catalog-page">
-  <header class="topbar">
-    <div class="nav-inner">
-      <a class="nav-logo" href="#">
-        <span class="nav-logo-mark" aria-hidden="true">
-          <svg viewBox="0 0 46 46" fill="none">
-            <circle cx="23" cy="23" r="9" fill="white" opacity=".9" />
-            <path
-              d="M23 13C23 13 14 19 14 27C14 32 18.2 36 23 36C27.8 36 32 32 32 27C32 19 23 13 23 13Z"
-              fill="white"
-              opacity=".25"
-            />
-            <circle cx="23" cy="27" r="5" fill="#00b9b3" />
-          </svg>
-        </span>
-        <span class="nav-logo-name">Proauto Kimium</span>
-      </a>
-
-      <nav class="nav-links" aria-label="Navegação principal">
-        <a class="nav-link" href="#">Empresa</a>
-        <a class="nav-link active" href="#">Produtos</a>
-        <a class="nav-link" href="#">Segmentos</a>
-        <a class="nav-link" href="#">Consultoria</a>
-        <a class="nav-link" href="#">Contato</a>
-      </nav>
-
-      <a class="nav-cta" href="#">Solicitar visita</a>
-    </div>
-  </header>
-
+  &nbsp;
   <section class="hero">
     <div class="hero-left">
       <div class="hero-eyebrow">
@@ -66,20 +38,20 @@
         </button>
       </div>
 
-      <div class="hero-stats">
-        <div>
-          <div class="hero-stat-val">{{ produtos().length }}</div>
-          <div class="hero-stat-lbl">produtos no portfólio</div>
-        </div>
-        <div>
-          <div class="hero-stat-val">{{ departamentos().length }}</div>
-          <div class="hero-stat-lbl">segmentos atendidos</div>
-        </div>
-        <div>
-          <div class="hero-stat-val">+30</div>
-          <div class="hero-stat-lbl">serviços de consultoria</div>
-        </div>
-      </div>
+<!--      <div class="hero-stats">-->
+<!--        <div>-->
+<!--          <div class="hero-stat-val">{{ produtos().length }}</div>-->
+<!--          <div class="hero-stat-lbl">produtos no portfólio</div>-->
+<!--        </div>-->
+<!--        <div>-->
+<!--          <div class="hero-stat-val">{{ departamentos().length }}</div>-->
+<!--          <div class="hero-stat-lbl">segmentos atendidos</div>-->
+<!--        </div>-->
+<!--        <div>-->
+<!--          <div class="hero-stat-val">+30</div>-->
+<!--          <div class="hero-stat-lbl">serviços de consultoria</div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
 
     <div class="hero-right">
@@ -154,7 +126,7 @@
         </div>
       </div>
       <button class="sbanner-cta" type="button" (click)="orcamento.abrirDrawer()">
-        Solicitar consultoria
+        Solicitar orçamento
       </button>
     </div>
   </div>
@@ -206,7 +178,7 @@
                 (error)="$any($event.target).src = 'images/products/kimi-klap.png'"
               />
 
-              <span class="card-badge badge-top">{{ produto.systemCode }}</span>
+<!--              <span class="card-badge badge-top">{{ produto.systemCode }}</span>-->
             </div>
 
             <div class="card-body">
@@ -230,12 +202,12 @@
               </div>
 
               <div class="card-footer">
-                <div class="card-seg">
-                  <span class="card-seg-dot"></span>
-                  {{ produto.finalidade || 'Produto químico' }}
-                </div>
+<!--                <div class="card-seg">-->
+<!--                  <span class="card-seg-dot"></span>-->
+<!--                  {{ produto.finalidade || 'Produto químico' }}-->
+<!--                </div>-->
 
-                <button class="card-action" type="button" (click)="adicionarAoOrcamento(produto)">
+                <button class="card-action btn" type="button" (click)="adicionarAoOrcamento(produto)">
                   Solicitar orçamento
                   <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
@@ -249,20 +221,20 @@
     }
   </section>
 
-  <div class="footer-strip">
-    <div class="fs-inner">
-      <div>
-        <div class="fs-title">Precisa de ajuda para escolher?</div>
-        <div class="fs-sub">
-          Nossa equipe técnica analisa sua operação e recomenda o produto ideal.
-        </div>
-      </div>
+<!--  <div class="footer-strip">-->
+<!--    <div class="fs-inner">-->
+<!--      <div>-->
+<!--        <div class="fs-title">Precisa de ajuda para escolher?</div>-->
+<!--        <div class="fs-sub">-->
+<!--          Nossa equipe técnica analisa sua operação e recomenda o produto ideal.-->
+<!--        </div>-->
+<!--      </div>-->
 
-      <button class="fs-cta" type="button" (click)="orcamento.abrirDrawer()">
-        Falar com um consultor
-      </button>
-    </div>
-  </div>
+<!--      <button class="fs-cta" type="button" (click)="orcamento.abrirDrawer()">-->
+<!--        Falar com um consultor-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
 
   <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar" />
   <app-orcamento-drawer />
