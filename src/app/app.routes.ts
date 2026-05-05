@@ -37,6 +37,7 @@ import { CandidaturasComponent } from './components/auth/rh/candidaturas/candida
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
+import {WebsiteComponent} from "./components/auth/company/products/website/website.component";
 
 
 export const routes: Routes = [
@@ -83,6 +84,7 @@ export const routes: Routes = [
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'communication/secrets', component: SecretsComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}},
+      { path: 'company/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'MARKETING'] } },
     ]
   },
   {
