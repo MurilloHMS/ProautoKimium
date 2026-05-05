@@ -7,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './about-us.component.scss'
 })
 export class AboutUsComponent {
+  currentYear: number = new Date().getFullYear() - 1989;
 
 }

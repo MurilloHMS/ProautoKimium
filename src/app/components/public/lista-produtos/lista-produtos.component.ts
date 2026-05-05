@@ -34,6 +34,7 @@ export interface ProdutoPorDepartamento {
   styleUrl: './lista-produtos.component.scss',
 })
 export class ListaProdutosComponent implements OnInit {
+  currentYear: number = new Date().getFullYear() - 1989;
 
   produtos = signal<ProductWebSitePublicResponseDTO[]>([]);
   loading  = signal(true);
