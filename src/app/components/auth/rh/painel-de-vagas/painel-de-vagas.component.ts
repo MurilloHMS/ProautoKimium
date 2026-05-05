@@ -44,7 +44,7 @@ const CAMPO_LIMITS = {
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     SkeletonModule, TooltipModule, BadgeModule, InputText, Select,
-    DialogModule, TextareaModule, ToastModule, CandidaturasComponent,
+    DialogModule, TextareaModule, ToastModule,
   ],
   providers: [MessageService],
   templateUrl: './painel-de-vagas.component.html',
