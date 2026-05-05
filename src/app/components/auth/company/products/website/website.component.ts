@@ -50,7 +50,6 @@ export type TabKey = 'active' | 'hidden';
   styleUrls: ['./website.component.scss'],
 })
 export class WebsiteComponent implements OnInit {
-  private readonly API_URL = 'http://localhost:5007/api/product/website';
 
   // ── dados ──────────────────────────────────────
   allProducts    = signal<ProductWebSiteResponseDTO[]>([]);
