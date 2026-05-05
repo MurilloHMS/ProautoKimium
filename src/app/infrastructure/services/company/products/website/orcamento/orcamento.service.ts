@@ -149,7 +149,7 @@ export class OrcamentoService {
       `• ${i.produto.name} (${i.produto.systemCode}) — Qtd: ${i.quantidade}`
     );
     return encodeURIComponent(
-      `Olá! Gostaria de solicitar um orçamento.\n\n` +
+      `Olá! Vim do site e gostaria de solicitar um orçamento.\n\n` +
       `*Nome:* ${nome}\n` +
       `*Telefone:* ${telefone}\n` +
       `*Email:* ${email}\n\n` +
