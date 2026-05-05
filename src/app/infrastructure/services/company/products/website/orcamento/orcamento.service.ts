@@ -96,6 +96,11 @@ export class OrcamentoService {
     this.finalizarEnvio();
   }
 
+  abrirWhatsapp() : void{
+    let mensagem = 'Olá, vim pelo site e gostaria de falar com um consultor';
+    window.open(`https://wa.me/${this.WHATSAPP_NUMBER}?text=${mensagem}`, '_blank');
+  }
+
   private finalizarEnvio(): void {
     this.enviado.set(true);
     setTimeout(() => {
