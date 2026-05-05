@@ -1,60 +1,185 @@
-<main>
-  <!-- ═══ SIDEBAR ═══ -->
-  <aside class="menu-categorias">
-    <div class="menu-header">
-      <h2>Categorias</h2>
-      <span class="menu-badge">{{ produtos().length }}</span>
+<main class="catalog-page">
+  <header class="topbar">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#">
+        <span class="nav-logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 46 46" fill="none">
+            <circle cx="23" cy="23" r="9" fill="white" opacity=".9" />
+            <path
+              d="M23 13C23 13 14 19 14 27C14 32 18.2 36 23 36C27.8 36 32 32 32 27C32 19 23 13 23 13Z"
+              fill="white"
+              opacity=".25"
+            />
+            <circle cx="23" cy="27" r="5" fill="#00b9b3" />
+          </svg>
+        </span>
+        <span class="nav-logo-name">Proauto Kimium</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Navegação principal">
+        <a class="nav-link" href="#">Empresa</a>
+        <a class="nav-link active" href="#">Produtos</a>
+        <a class="nav-link" href="#">Segmentos</a>
+        <a class="nav-link" href="#">Consultoria</a>
+        <a class="nav-link" href="#">Contato</a>
+      </nav>
+
+      <a class="nav-cta" href="#">Solicitar visita</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        +35 anos de expertise química
+      </div>
+
+      <h1 class="hero-title">
+        Soluções para<br />
+        <em>cada segmento</em><br />
+        do mercado.
+      </h1>
+
+      <p class="hero-desc">
+        Encontre o produto certo para o seu negócio. Do laticínio à aviação, da
+        lavanderia à indústria — formulações de alta performance com a melhor
+        relação custo-benefício.
+      </p>
+
+      <div class="hero-actions">
+        <button
+          class="btn-primary"
+          type="button"
+          onclick="document.querySelector('.filters-bar').scrollIntoView({ behavior: 'smooth' })"
+        >
+          Ver todos os produtos
+        </button>
+
+        <button class="btn-ghost" type="button" (click)="orcamento.abrirDrawer()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
+            />
+          </svg>
+          Falar com consultor
+        </button>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-val">{{ produtos().length }}</div>
+          <div class="hero-stat-lbl">produtos no portfólio</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">{{ departamentos().length }}</div>
+          <div class="hero-stat-lbl">segmentos atendidos</div>
+        </div>
+        <div>
+          <div class="hero-stat-val">+30</div>
+          <div class="hero-stat-lbl">serviços de consultoria</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="segment-mosaic">
+        <div class="seg-tile featured">
+          <div class="seg-icon">★</div>
+          <div class="seg-name">Linha Kimi</div>
+          <div class="seg-count">Destaques do catálogo</div>
+          <div class="seg-desc">
+            Produtos com apresentação mais premium e foco em performance para
+            operações exigentes.
+          </div>
+        </div>
+
+        @for (dep of departamentos().slice(0, 4); track dep.nome) {
+          <div class="seg-tile">
+            <div class="seg-icon">•</div>
+            <div class="seg-name">{{ dep.nome }}</div>
+            <div class="seg-count">{{ dep.produtos.length }} produtos</div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="filters-bar">
+    <div class="filters-inner">
+      <label class="search-box" for="search-input">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+          />
+        </svg>
+        <input id="search-input" type="text" placeholder="Buscar produto ou segmento?" />
+      </label>
+
+      <div class="segment-pills">
+        <button class="seg-pill active" type="button">Todos</button>
+
+        @for (dep of departamentos(); track dep.nome) {
+          <button class="seg-pill" type="button">
+            {{ dep.nome }}
+          </button>
+        }
+      </div>
+
+      <div class="view-toggle">
+        <button class="view-btn active" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 3h7v7H3zm0 11h7v7H3zm11-11h7v7h-7zm0 11h7v7h-7z" />
+          </svg>
+        </button>
+        <button class="view-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="segment-banner">
+    <div class="sbanner-inner">
+      <div class="sbanner-icon">◆</div>
+      <div class="sbanner-text">
+        <div class="sbanner-title">Portfólio completo</div>
+        <div class="sbanner-sub">
+          Produtos formulados para operações profissionais com foco em rendimento,
+          aplicação prática e atendimento consultivo.
+        </div>
+      </div>
+      <button class="sbanner-cta" type="button" (click)="orcamento.abrirDrawer()">
+        Solicitar consultoria
+      </button>
+    </div>
+  </div>
+
+  <section class="products-section">
+    <div class="products-header">
+      <div class="products-title">Portfólio completo</div>
+      <div class="products-count">{{ produtos().length }} produtos</div>
     </div>
 
     @if (loading()) {
-      <div class="menu-skeleton">
-        @for (i of [1,2,3,4,5]; track i) {
-          <div class="skeleton-link"></div>
-        }
-      </div>
-    }
-
-    @if (!loading()) {
-      <nav class="categorias-nav">
-        @for (dep of menuCategorias(); track dep.nome) {
-          <div class="categoria-item">
-            <h3 class="categoria-titulo">{{ dep.nome }}</h3>
-            <ul class="categoria-lista">
-              @for (item of dep.produtos; track item.id) {
-                <li>
-                  <a [href]="'/produtos/lista/#' + item.id" class="categoria-link">
-                    <span class="link-icon">◆</span>
-                    <span class="link-text">{{ item.nome }}</span>
-                  </a>
-                </li>
-              }
-            </ul>
-          </div>
-        }
-      </nav>
-    }
-  </aside>
-
-  <!-- ═══ CONTEÚDO ═══ -->
-  <section class="produtos-container">
-
-    <!-- LOADING -->
-    @if (loading()) {
-      <div class="produtos-grid">
+      <div class="products-grid">
         @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="produto-card produto-card--skeleton">
+          <article class="product-card produto-card--skeleton">
             <div class="skeleton-img"></div>
             <div class="skeleton-body">
               <div class="skeleton-line w-70"></div>
               <div class="skeleton-line w-50"></div>
               <div class="skeleton-line w-90"></div>
             </div>
-          </div>
+          </article>
         }
       </div>
     }
 
-    <!-- ERRO -->
     @if (!loading() && erro()) {
       <div class="estado-vazio">
         <span class="estado-icon">⚠️</span>
@@ -62,7 +187,6 @@
       </div>
     }
 
-    <!-- VAZIO -->
     @if (!loading() && !erro() && produtos().length === 0) {
       <div class="estado-vazio">
         <span class="estado-icon">📦</span>
@@ -70,147 +194,142 @@
       </div>
     }
 
-    <!-- PRODUTOS -->
     @if (!loading() && !erro()) {
-      @for (dep of departamentos(); track dep.nome) {
-        <section class="categoria-section" [id]="slugDepartamento(dep.nome)">
-          <div class="section-header">
-            <h2>{{ dep.nome }}</h2>
-            <span class="produtos-count">{{ dep.produtos.length }} produto{{ dep.produtos.length !== 1 ? 's' : '' }}</span>
-          </div>
+      <div class="products-grid">
+        @for (produto of produtos(); track produto.systemCode) {
+          <article class="product-card">
+            <div class="card-visual">
+              <img
+                [src]="resolverImagem(produto)"
+                [alt]="produto.name"
+                loading="lazy"
+                (error)="$any($event.target).src = 'images/products/kimi-klap.png'"
+              />
 
-          <div class="produtos-grid">
-            @for (produto of dep.produtos; track produto.systemCode) {
-              <article class="produto-card" [id]="produto.systemCode">
+              <span class="card-badge badge-top">{{ produto.systemCode }}</span>
+            </div>
 
-                <!-- IMAGEM -->
-                <div class="produto-image-wrapper">
-                  <img
-                    [src]="resolverImagem(produto)"
-                    [alt]="produto.name"
-                    loading="lazy"
-                    (error)="$any($event.target).src = 'images/products/kimi-klap.png'"
-                  />
-                  <div class="image-overlay">
-                    <span class="quick-view">Ver detalhes</span>
-                  </div>
+            <div class="card-body">
+              <div class="card-line">Linha profissional</div>
+              <div class="card-name">{{ produto.name }}</div>
+
+              <div class="card-desc">
+                {{ produto.descricao || produto.finalidade }}
+              </div>
+
+              <div class="card-specs">
+                <div class="card-spec">
+                  <span>Finalidade:</span>
+                  <strong>{{ produto.finalidade }}</strong>
                 </div>
 
-                <!-- INFO -->
-                <div class="produto-info">
-                  <h3 class="produto-titulo">{{ produto.name }}</h3>
+                <div class="card-spec">
+                  <span>Diluição:</span>
+                  <strong>{{ produto.diluicao }}</strong>
+                </div>
+              </div>
 
-                  <div class="produto-detalhes">
-                    <div class="detalhe-item">
-                      <span class="detalhe-label">Finalidade:</span>
-                      <span class="detalhe-valor">{{ produto.finalidade }}</span>
-                    </div>
-                    <div class="detalhe-item">
-                      <span class="detalhe-label">Diluição:</span>
-                      <span class="detalhe-valor">{{ produto.diluicao }}</span>
-                    </div>
-                    @if (produto.descricao) {
-                      <div class="detalhe-item detalhe-descricao">
-                        <span class="detalhe-valor">{{ produto.descricao }}</span>
-                      </div>
-                    }
-                  </div>
-
-                  <!-- CORES -->
-                  @if (produto.cores?.length) {
-                    <div class="cores-wrapper">
-                      @for (cor of produto.cores.slice(0, 4); track cor) {
-                        <span class="cor-chip">{{ cor }}</span>
-                      }
-                      @if (produto.cores.length > 4) {
-                        <span class="cor-chip cor-chip--more">+{{ produto.cores.length - 4 }}</span>
-                      }
-                    </div>
-                  }
+              <div class="card-footer">
+                <div class="card-seg">
+                  <span class="card-seg-dot"></span>
+                  {{ produto.finalidade || 'Produto químico' }}
                 </div>
 
-                <!-- AÇÃO -->
-                <div class="produto-actions">
-                  <button class="btn-adicionar" (click)="adicionarAoOrcamento(produto)">
-                    <span class="btn-icon">🛒</span>
-                    <span class="btn-text">Solicitar Orçamento</span>
-                  </button>
-                </div>
-
-              </article>
-            }
-          </div>
-        </section>
-      }
+                <button class="card-action" type="button" (click)="adicionarAoOrcamento(produto)">
+                  Solicitar orçamento
+                  <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
     }
-
-    <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar" />
-
-    <!-- Drawer do carrinho -->
-    <app-orcamento-drawer />
-
   </section>
-</main>
 
-<!-- ═══ MODAL FORA DO DRAWER ═══ -->
-<!-- Fica no nível raiz do componente, não dentro do <section> nem do drawer -->
-@if (orcamento.modalAberto()) {
-  <div class="modal-overlay" (click)="orcamento.fecharModal()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
-
-      @if (!orcamento.enviado()) {
-        <div class="modal-header">
-          <h3>Solicitar Orçamento</h3>
-          <button class="modal-close" (click)="orcamento.fecharModal()" aria-label="Fechar">✕</button>
+  <div class="footer-strip">
+    <div class="fs-inner">
+      <div>
+        <div class="fs-title">Precisa de ajuda para escolher?</div>
+        <div class="fs-sub">
+          Nossa equipe técnica analisa sua operação e recomenda o produto ideal.
         </div>
+      </div>
 
-        <form [formGroup]="orcamento.form" (ngSubmit)="orcamento.enviarWhatsApp()" class="modal-form">
-          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('nome')">
-            <label for="nome">Nome *</label>
-            <input id="nome" type="text" formControlName="nome" placeholder="Seu nome completo" />
-            @if (orcamento.isInvalid('nome')) {
-              <span class="field-error">Informe seu nome (mínimo 2 caracteres).</span>
-            }
-          </div>
-
-          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('email')">
-            <label for="email">E-mail *</label>
-            <input id="email" type="email" formControlName="email" placeholder="seu@email.com" />
-            @if (orcamento.isInvalid('email')) {
-              <span class="field-error">Informe um e-mail válido.</span>
-            }
-          </div>
-
-          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('telefone')">
-            <label for="telefone">Telefone *</label>
-            <input id="telefone" type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
-            @if (orcamento.isInvalid('telefone')) {
-              <span class="field-error">Informe seu telefone.</span>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="mensagem">Mensagem (opcional)</label>
-            <textarea id="mensagem" formControlName="mensagem" rows="3" placeholder="Alguma observação?"></textarea>
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" (click)="orcamento.fecharModal()">Cancelar</button>
-            <button type="submit" class="btn-whatsapp">
-              <span>Enviar pelo WhatsApp</span>
-            </button>
-          </div>
-        </form>
-      }
-
-      @if (orcamento.enviado()) {
-        <div class="modal-sucesso">
-          <span class="sucesso-icon">✅</span>
-          <h3>Solicitação enviada!</h3>
-          <p>Entraremos em contato em breve.</p>
-        </div>
-      }
-
+      <button class="fs-cta" type="button" (click)="orcamento.abrirDrawer()">
+        Falar com um consultor
+      </button>
     </div>
   </div>
-}
+
+  <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar" />
+  <app-orcamento-drawer />
+
+  @if (orcamento.modalAberto()) {
+    <div class="modal-overlay" (click)="orcamento.fecharModal()">
+      <div class="modal-box" (click)="$event.stopPropagation()">
+        @if (!orcamento.enviado()) {
+          <div class="modal-header">
+            <h3>Solicitar Orçamento</h3>
+            <button class="modal-close" (click)="orcamento.fecharModal()" aria-label="Fechar">✕</button>
+          </div>
+
+          <form [formGroup]="orcamento.form" (ngSubmit)="orcamento.enviarWhatsApp()" class="modal-form">
+            <div class="form-group" [class.is-invalid]="orcamento.isInvalid('nome')">
+              <label for="nome">Nome</label>
+              <input id="nome" type="text" formControlName="nome" placeholder="Seu nome completo" />
+              @if (orcamento.isInvalid('nome')) {
+                <span class="field-error">Informe seu nome com mínimo 2 caracteres.</span>
+              }
+            </div>
+
+            <div class="form-group" [class.is-invalid]="orcamento.isInvalid('email')">
+              <label for="email">E-mail</label>
+              <input id="email" type="email" formControlName="email" placeholder="seuemail@empresa.com" />
+              @if (orcamento.isInvalid('email')) {
+                <span class="field-error">Informe um e-mail válido.</span>
+              }
+            </div>
+
+            <div class="form-group" [class.is-invalid]="orcamento.isInvalid('telefone')">
+              <label for="telefone">Telefone</label>
+              <input id="telefone" type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+              @if (orcamento.isInvalid('telefone')) {
+                <span class="field-error">Informe seu telefone.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="mensagem">Mensagem (opcional)</label>
+              <textarea
+                id="mensagem"
+                formControlName="mensagem"
+                rows="3"
+                placeholder="Alguma observação?"
+              ></textarea>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="orcamento.fecharModal()">
+                Cancelar
+              </button>
+              <button type="submit" class="btn-whatsapp">
+                <span>Enviar pelo WhatsApp</span>
+              </button>
+            </div>
+          </form>
+        }
+
+        @if (orcamento.enviado()) {
+          <div class="modal-sucesso">
+            <span class="sucesso-icon">✅</span>
+            <h3>Solicitação enviada!</h3>
+            <p>Entraremos em contato em breve.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</main>
