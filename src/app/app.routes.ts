@@ -1,7 +1,6 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
-import { CarrinhoComponent } from './components/public/carrinho/carrinho.component';
 import { HomeComponent } from './components/public/home/home.component';
 import { ListaProdutosComponent } from './components/public/lista-produtos/lista-produtos.component';
 import { LoginComponent } from './components/public/login/login.component';
@@ -47,7 +46,6 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
     children: [
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'carrinho', component: CarrinhoComponent, pathMatch: 'full' },
       { path: 'produtos', component: ListaProdutosComponent, pathMatch: 'full' },
       { path: '404', component: NotFoundComponent },
       { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full' },
