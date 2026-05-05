@@ -1,0 +1,226 @@
+<!-- BOTÃO FLUTUANTE -->
+<button
+  class="fab-orcamento"
+  [class.fab-orcamento--aberto]="drawerAberto()"
+  (click)="toggleDrawer()"
+  [attr.aria-label]="'Orçamento (' + orcamento.total() + ' produtos)'"
+>
+  <svg class="fab-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/>
+    <line x1="12" y1="18" x2="12" y2="12"/>
+    <line x1="9" y1="15" x2="15" y2="15"/>
+  </svg>
+  <span class="fab-label">Orçamento</span>
+  @if (orcamento.total() > 0) {
+    <span class="fab-badge">{{ orcamento.total() }}</span>
+  }
+</button>
+
+<!-- BACKDROP -->
+<div
+  class="drawer-backdrop"
+  [class.drawer-backdrop--visivel]="drawerAberto()"
+  (click)="toggleDrawer()"
+></div>
+
+<!-- DRAWER LATERAL -->
+<aside class="drawer" [class.drawer--aberto]="drawerAberto()">
+  <div class="drawer-header">
+    <div class="drawer-header-left">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="18" x2="12" y2="12"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      <div>
+        <h2 class="drawer-titulo">Meu Orçamento</h2>
+        <span class="drawer-subtitulo">
+          {{ orcamento.total() }} item{{ orcamento.total() !== 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+    <button class="drawer-fechar" (click)="toggleDrawer()" aria-label="Fechar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="drawer-corpo">
+    @if (orcamento.estaVazio()) {
+      <div class="drawer-vazio">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.99 12
+                   19.79 19.79 0 0 1 1.97 3.42 2 2 0 0 1 3.95 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7
+                   2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45
+                   c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+        <p>Nenhum produto adicionado ainda.</p>
+        <small>Clique em "Solicitar Orçamento" nos produtos que deseja.</small>
+      </div>
+    }
+
+    @for (item of orcamento.lista(); track item.produto.systemCode) {
+      <div class="drawer-item">
+        <div class="drawer-item-info">
+          <span class="drawer-item-nome">{{ item.produto.name }}</span>
+          <span class="drawer-item-code">{{ item.produto.systemCode }}</span>
+          @if (item.produto.finalidade) {
+            <span class="drawer-item-fin">{{ item.produto.finalidade }}</span>
+          }
+        </div>
+        <div class="drawer-item-controls">
+          <button class="qty-btn"
+                  (click)="orcamento.ajustarQuantidade(item.produto.systemCode, -1)"
+                  aria-label="Diminuir">−</button>
+          <span class="qty-valor">{{ item.quantidade }}</span>
+          <button class="qty-btn"
+                  (click)="orcamento.ajustarQuantidade(item.produto.systemCode, +1)"
+                  aria-label="Aumentar">+</button>
+          <button class="remover-btn"
+                  (click)="orcamento.remover(item.produto.systemCode)"
+                  aria-label="Remover">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/><path d="M14 11v6"/>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (!orcamento.estaVazio()) {
+    <div class="drawer-footer">
+      <button class="btn-limpar" (click)="orcamento.limpar()">Limpar tudo</button>
+      <button class="btn-solicitar" (click)="abrirModal()">
+        Solicitar Orçamento
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  }
+</aside>
+
+<!-- MODAL DE ENVIO -->
+@if (modalAberto()) {
+  <div class="modal-backdrop" (click)="fecharModal()"></div>
+
+  <!-- ✅ stopPropagation impede que cliques internos fechem o modal via backdrop -->
+  <div class="modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+
+    @if (enviado()) {
+      <div class="modal-sucesso">
+        <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none"
+             stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <h3>Solicitação enviada!</h3>
+        <p>Em breve entraremos em contato.</p>
+      </div>
+    }
+
+    @if (!enviado()) {
+      <div class="modal-header">
+        <h2>Solicitar Orçamento</h2>
+        <button class="modal-fechar" (click)="fecharModal()" aria-label="Fechar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Resumo dos produtos -->
+      <div class="modal-resumo">
+        <h4>Produtos selecionados</h4>
+        <ul class="resumo-lista">
+          @for (item of orcamento.lista(); track item.produto.systemCode) {
+            <li>
+              <span class="resumo-nome">{{ item.produto.name }}</span>
+              <span class="resumo-qty">Qtd: {{ item.quantidade }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Formulário -->
+      <form [formGroup]="form" class="modal-form" (ngSubmit)="enviarFormulario()">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="m-nome">Nome <span class="req">*</span></label>
+            <input id="m-nome" type="text" formControlName="nome"
+                   placeholder="Seu nome completo"
+                   [class.invalido]="isInvalid('nome')" />
+            @if (isInvalid('nome')) {
+              <small class="erro">Nome obrigatório.</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="m-tel">Telefone <span class="req">*</span></label>
+            <input id="m-tel" type="tel" formControlName="telefone"
+                   placeholder="(11) 99999-9999"
+                   [class.invalido]="isInvalid('telefone')" />
+            @if (isInvalid('telefone')) {
+              <small class="erro">Telefone obrigatório.</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="m-email">E-mail <span class="req">*</span></label>
+          <input id="m-email" type="email" formControlName="email"
+                 placeholder="seu@email.com"
+                 [class.invalido]="isInvalid('email')" />
+          @if (isInvalid('email')) {
+            <small class="erro">E-mail inválido.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="m-msg">Mensagem adicional</label>
+          <textarea id="m-msg" formControlName="mensagem" rows="3"
+                    placeholder="Alguma observação sobre os produtos ou entrega..."></textarea>
+        </div>
+
+        <div class="modal-acoes">
+          <button type="submit" class="btn-form">
+            Enviar solicitação
+          </button>
+          <button type="button" class="btn-whatsapp" (click)="enviarWhatsApp()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                 fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15
+                       -.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463
+                       -2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606
+                       .134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025
+                       -.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008
+                       -.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479
+                       0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306
+                       1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719
+                       2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+              <path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.773.463 3.437 1.27 4.882L2 22l5.255-1.376
+                       A9.953 9.953 0 0 0 12 22c5.523 0 10-4.477 10-10S17.522 2 11.999 2zm.001
+                       18.186a8.154 8.154 0 0 1-4.162-1.14l-.299-.177-3.088.809.825-3.006-.194
+                       -.31A8.186 8.186 0 1 1 12 20.186z"/>
+            </svg>
+            Continuar pelo WhatsApp
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+}

@@ -1,76 +1,216 @@
 <main>
+  <!-- ═══ SIDEBAR ═══ -->
   <aside class="menu-categorias">
     <div class="menu-header">
       <h2>Categorias</h2>
-      <span class="menu-badge">{{ categorias.length }}</span>
+      <span class="menu-badge">{{ produtos().length }}</span>
     </div>
-    <nav class="categorias-nav">
-      @for (categoria of categorias; track categoria) {
-        <div class="categoria-item">
-          <h3 class="categoria-titulo">{{ categoria.nome }}</h3>
-          <ul class="categoria-lista">
-            @for (item of categoria.produtos; track item) {
-              <li>
-                <a [href]="'/produtos/lista/#' + item.id" class="categoria-link">
-                  <span class="link-icon">→</span>
-                  <span class="link-text">{{ item.nome }}</span>
-                </a>
-              </li>
-            }
-          </ul>
-        </div>
-      }
-    </nav>
+
+    @if (loading()) {
+      <div class="menu-skeleton">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="skeleton-link"></div>
+        }
+      </div>
+    }
+
+    @if (!loading()) {
+      <nav class="categorias-nav">
+        @for (dep of menuCategorias(); track dep.nome) {
+          <div class="categoria-item">
+            <h3 class="categoria-titulo">{{ dep.nome }}</h3>
+            <ul class="categoria-lista">
+              @for (item of dep.produtos; track item.id) {
+                <li>
+                  <a [href]="'/produtos/lista/#' + item.id" class="categoria-link">
+                    <span class="link-icon">◆</span>
+                    <span class="link-text">{{ item.nome }}</span>
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </nav>
+    }
   </aside>
 
+  <!-- ═══ CONTEÚDO ═══ -->
   <section class="produtos-container">
-    @for (categoriaKey of produtosKeys; track categoriaKey) {
-      <section class="categoria-section" id="{{ categoriaKey }}">
-        <div class="section-header">
-          <h2>{{ categoriaKey | titlecase}}</h2>
-          <span class="produtos-count">{{ produtos[categoriaKey].length }} produtos</span>
-        </div>
 
-        <div class="produtos-grid">
-          @for (produto of produtos[categoriaKey]; track produto) {
-            <article class="produto-card">
-              <div class="produto-image-wrapper">
-                <img src="images/products/{{ produto.imagem }}" alt="{{ produto.titulo }}" loading="lazy">
-                <div class="image-overlay">
-                  <span class="quick-view">Ver detalhes</span>
-                </div>
-              </div>
-
-              <div class="produto-info">
-                <h3 class="produto-titulo">{{ produto.titulo }}</h3>
-
-                <div class="produto-detalhes">
-                  <div class="detalhe-item">
-                    <span class="detalhe-label">Produto:</span>
-                    <span class="detalhe-valor">{{ produto.descricao }}</span>
-                  </div>
-                  <div class="detalhe-item">
-                    <span class="detalhe-label">Cor:</span>
-                    <span class="detalhe-valor">{{ produto.cor }}</span>
-                  </div>
-                  <div class="detalhe-item">
-                    <span class="detalhe-label">Diluição:</span>
-                    <span class="detalhe-valor">{{ produto.diluicao }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="produto-actions">
-                <button class="btn-adicionar" (click)="adicionarAoCarrinho(produto)">
-                  <span class="btn-icon">🛒</span>
-                  <span class="btn-text">Adicionar ao Carrinho</span>
-                </button>
-              </div>
-            </article>
-          }
-        </div>
-      </section>
+    <!-- LOADING -->
+    @if (loading()) {
+      <div class="produtos-grid">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="produto-card produto-card--skeleton">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line w-70"></div>
+              <div class="skeleton-line w-50"></div>
+              <div class="skeleton-line w-90"></div>
+            </div>
+          </div>
+        }
+      </div>
     }
-    <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar"></app-snackbar>
+
+    <!-- ERRO -->
+    @if (!loading() && erro()) {
+      <div class="estado-vazio">
+        <span class="estado-icon">⚠️</span>
+        <p>Não foi possível carregar os produtos. Tente novamente mais tarde.</p>
+      </div>
+    }
+
+    <!-- VAZIO -->
+    @if (!loading() && !erro() && produtos().length === 0) {
+      <div class="estado-vazio">
+        <span class="estado-icon">📦</span>
+        <p>Nenhum produto disponível no momento.</p>
+      </div>
+    }
+
+    <!-- PRODUTOS -->
+    @if (!loading() && !erro()) {
+      @for (dep of departamentos(); track dep.nome) {
+        <section class="categoria-section" [id]="slugDepartamento(dep.nome)">
+          <div class="section-header">
+            <h2>{{ dep.nome }}</h2>
+            <span class="produtos-count">{{ dep.produtos.length }} produto{{ dep.produtos.length !== 1 ? 's' : '' }}</span>
+          </div>
+
+          <div class="produtos-grid">
+            @for (produto of dep.produtos; track produto.systemCode) {
+              <article class="produto-card" [id]="produto.systemCode">
+
+                <!-- IMAGEM -->
+                <div class="produto-image-wrapper">
+                  <img
+                    [src]="resolverImagem(produto)"
+                    [alt]="produto.name"
+                    loading="lazy"
+                    (error)="$any($event.target).src = 'images/products/kimi-klap.png'"
+                  />
+                  <div class="image-overlay">
+                    <span class="quick-view">Ver detalhes</span>
+                  </div>
+                </div>
+
+                <!-- INFO -->
+                <div class="produto-info">
+                  <h3 class="produto-titulo">{{ produto.name }}</h3>
+
+                  <div class="produto-detalhes">
+                    <div class="detalhe-item">
+                      <span class="detalhe-label">Finalidade:</span>
+                      <span class="detalhe-valor">{{ produto.finalidade }}</span>
+                    </div>
+                    <div class="detalhe-item">
+                      <span class="detalhe-label">Diluição:</span>
+                      <span class="detalhe-valor">{{ produto.diluicao }}</span>
+                    </div>
+                    @if (produto.descricao) {
+                      <div class="detalhe-item detalhe-descricao">
+                        <span class="detalhe-valor">{{ produto.descricao }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- CORES -->
+                  @if (produto.cores?.length) {
+                    <div class="cores-wrapper">
+                      @for (cor of produto.cores.slice(0, 4); track cor) {
+                        <span class="cor-chip">{{ cor }}</span>
+                      }
+                      @if (produto.cores.length > 4) {
+                        <span class="cor-chip cor-chip--more">+{{ produto.cores.length - 4 }}</span>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- AÇÃO -->
+                <div class="produto-actions">
+                  <button class="btn-adicionar" (click)="adicionarAoOrcamento(produto)">
+                    <span class="btn-icon">🛒</span>
+                    <span class="btn-text">Solicitar Orçamento</span>
+                  </button>
+                </div>
+
+              </article>
+            }
+          </div>
+        </section>
+      }
+    }
+
+    <app-snackbar [message]="snackbarMessage" [isOpen]="showSnackbar" />
+
+    <!-- Drawer do carrinho -->
+    <app-orcamento-drawer />
+
   </section>
 </main>
+
+<!-- ═══ MODAL FORA DO DRAWER ═══ -->
+<!-- Fica no nível raiz do componente, não dentro do <section> nem do drawer -->
+@if (orcamento.modalAberto()) {
+  <div class="modal-overlay" (click)="orcamento.fecharModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      @if (!orcamento.enviado()) {
+        <div class="modal-header">
+          <h3>Solicitar Orçamento</h3>
+          <button class="modal-close" (click)="orcamento.fecharModal()" aria-label="Fechar">✕</button>
+        </div>
+
+        <form [formGroup]="orcamento.form" (ngSubmit)="orcamento.enviarWhatsApp()" class="modal-form">
+          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('nome')">
+            <label for="nome">Nome *</label>
+            <input id="nome" type="text" formControlName="nome" placeholder="Seu nome completo" />
+            @if (orcamento.isInvalid('nome')) {
+              <span class="field-error">Informe seu nome (mínimo 2 caracteres).</span>
+            }
+          </div>
+
+          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('email')">
+            <label for="email">E-mail *</label>
+            <input id="email" type="email" formControlName="email" placeholder="seu@email.com" />
+            @if (orcamento.isInvalid('email')) {
+              <span class="field-error">Informe um e-mail válido.</span>
+            }
+          </div>
+
+          <div class="form-group" [class.is-invalid]="orcamento.isInvalid('telefone')">
+            <label for="telefone">Telefone *</label>
+            <input id="telefone" type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+            @if (orcamento.isInvalid('telefone')) {
+              <span class="field-error">Informe seu telefone.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="mensagem">Mensagem (opcional)</label>
+            <textarea id="mensagem" formControlName="mensagem" rows="3" placeholder="Alguma observação?"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="orcamento.fecharModal()">Cancelar</button>
+            <button type="submit" class="btn-whatsapp">
+              <span>Enviar pelo WhatsApp</span>
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (orcamento.enviado()) {
+        <div class="modal-sucesso">
+          <span class="sucesso-icon">✅</span>
+          <h3>Solicitação enviada!</h3>
+          <p>Entraremos em contato em breve.</p>
+        </div>
+      }
+
+    </div>
+  </div>
+}

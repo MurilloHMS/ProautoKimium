@@ -48,3 +48,13 @@ export interface ProductWebSiteResponseDTO{
   diluicao: string;
   descricao: string;
 }
+
+export interface ProductWebSitePublicResponseDTO{
+  systemCode: string;
+  name: string;
+  active: boolean;
+  cores: string[];
+  finalidade: string;
+  diluicao: string;
+  descricao: string;
+}
