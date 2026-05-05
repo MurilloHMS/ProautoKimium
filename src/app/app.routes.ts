@@ -48,7 +48,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'carrinho', component: CarrinhoComponent, pathMatch: 'full' },
-      { path: 'produtos/lista', component: ListaProdutosComponent, pathMatch: 'full' },
+      { path: 'produtos', component: ListaProdutosComponent, pathMatch: 'full' },
       { path: '404', component: NotFoundComponent },
       { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full' },
       { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full' },
