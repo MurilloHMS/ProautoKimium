@@ -103,6 +103,13 @@ export class TopMenuComponent implements OnInit, OnDestroy {
             ],
           },
           {
+            label: 'Website',
+            icon: 'pi pi-fw pi-web',
+            items: [
+              { label: 'Produtos do site', icon: 'pi pi-fw pi-box', routerLink: ['company/products/website'], roles: ['ADMIN', 'DESIGN', 'MARKETING'] },
+            ]
+          },
+          {
             label: 'Veiculos',
             icon: 'pi pi-fw pi-car',
             items: [

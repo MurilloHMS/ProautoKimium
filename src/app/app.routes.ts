@@ -1,7 +1,6 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
-import { CarrinhoComponent } from './components/public/carrinho/carrinho.component';
 import { HomeComponent } from './components/public/home/home.component';
 import { ListaProdutosComponent } from './components/public/lista-produtos/lista-produtos.component';
 import { LoginComponent } from './components/public/login/login.component';
@@ -37,6 +36,7 @@ import { CandidaturasComponent } from './components/auth/rh/candidaturas/candida
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
+import {WebsiteComponent} from "./components/auth/company/products/website/website.component";
 
 
 export const routes: Routes = [
@@ -46,8 +46,7 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
     children: [
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'carrinho', component: CarrinhoComponent, pathMatch: 'full' },
-      { path: 'produtos/lista', component: ListaProdutosComponent, pathMatch: 'full' },
+      { path: 'produtos', component: ListaProdutosComponent, pathMatch: 'full' },
       { path: '404', component: NotFoundComponent },
       { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full' },
       { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full' },
@@ -83,6 +82,7 @@ export const routes: Routes = [
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'communication/secrets', component: SecretsComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}},
+      { path: 'company/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'MARKETING'] } },
     ]
   },
   {
