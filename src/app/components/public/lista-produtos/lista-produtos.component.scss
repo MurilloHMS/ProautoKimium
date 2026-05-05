@@ -1,9 +1,9 @@
-@use "../../../../styles/variables.scss" as v;
+@use "../../../../styles/variables.scss" as *;
 
 :host {
   display: block;
   background: #fff;
-  color: #202a65;
+  color: $primary-color;
 }
 
 *,
@@ -50,7 +50,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #00b9b3, #00d4ce);
+  background: linear-gradient(135deg, $secondary-color, #00d4ce);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,7 +64,7 @@
 .nav-logo-name {
   font-size: 17px;
   font-weight: 700;
-  color: #202a65;
+  color: $primary-color;
   font-family: "Syne", sans-serif;
 }
 
@@ -84,13 +84,13 @@
 
   &:hover,
   &.active {
-    color: #202a65;
+    color: $primary-color;
   }
 }
 
 .nav-cta {
   padding: 9px 22px;
-  background: #202a65;
+  background: $primary-color;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
@@ -99,7 +99,7 @@
   transition: background 0.2s, transform 0.15s;
 
   &:hover {
-    background: #00b9b3;
+    background: $secondary-color;
     transform: translateY(-1px);
   }
 }
@@ -125,7 +125,7 @@
   margin-bottom: 20px;
   font-size: 11px;
   font-weight: 600;
-  color: #00b9b3;
+  color: $secondary-color;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -134,21 +134,21 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #00b9b3;
+  background: $secondary-color;
 }
 
 .hero-title {
   font-family: "Syne", sans-serif;
   font-size: 52px;
   font-weight: 800;
-  color: #202a65;
+  color: $primary-color;
   line-height: 1.07;
   letter-spacing: -0.02em;
   margin-bottom: 16px;
 
   em {
     font-style: normal;
-    color: #00b9b3;
+    color: $secondary-color;
   }
 }
 
@@ -169,7 +169,7 @@
 
 .btn-primary {
   padding: 13px 28px;
-  background: #202a65;
+  background: $primary-color;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
@@ -180,7 +180,7 @@
   box-shadow: 0 4px 16px rgba(32, 42, 101, 0.2);
 
   &:hover {
-    background: #00b9b3;
+    background: $secondary-color;
     transform: translateY(-1px);
     box-shadow: 0 8px 24px rgba(0, 185, 179, 0.28);
   }
@@ -201,8 +201,8 @@
   gap: 8px;
 
   &:hover {
-    border-color: #00b9b3;
-    color: #00b9b3;
+    border-color: $secondary-color;
+    color: $secondary-color;
   }
 }
 
@@ -218,7 +218,7 @@
   font-family: "Syne", sans-serif;
   font-size: 28px;
   font-weight: 700;
-  color: #202a65;
+  color: $primary-color;
 }
 
 .hero-stat-lbl {
@@ -245,14 +245,14 @@
   cursor: pointer;
 
   &:hover {
-    border-color: #00b9b3;
+    border-color: $secondary-color;
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 185, 179, 0.12);
   }
 
   &.featured {
-    background: #202a65;
-    border-color: #202a65;
+    background: $primary-color;
+    border-color: $primary-color;
     grid-row: span 2;
 
     .seg-icon {
@@ -288,13 +288,13 @@
   justify-content: center;
   font-size: 20px;
   flex-shrink: 0;
-  color: #202a65;
+  color: $primary-color;
 }
 
 .seg-name {
   font-size: 13px;
   font-weight: 600;
-  color: #202a65;
+  color: $primary-color;
 }
 
 .seg-count {
@@ -335,7 +335,7 @@
   transition: border-color 0.2s;
 
   &:focus-within {
-    border-color: #00b9b3;
+    border-color: $secondary-color;
   }
 
   svg {
@@ -347,7 +347,7 @@
 
   input {
     font-size: 13px;
-    color: #202a65;
+    color: $primary-color;
     flex: 1;
     border: none;
     outline: none;
@@ -385,14 +385,14 @@
   transition: all 0.18s;
 
   &:hover {
-    border-color: #00b9b3;
-    color: #00b9b3;
+    border-color: $secondary-color;
+    color: $secondary-color;
   }
 
   &.active {
-    background: #202a65;
+    background: $primary-color;
     color: #fff;
-    border-color: #202a65;
+    border-color: $primary-color;
   }
 }
 
@@ -416,7 +416,7 @@
   cursor: pointer;
 
   &.active {
-    color: #202a65;
+    color: $primary-color;
     background: #f7f8fa;
     border-color: #e4e7ed;
   }
@@ -434,7 +434,7 @@
 }
 
 .sbanner-inner {
-  background: #202a65;
+  background: $primary-color;
   border-radius: 20px;
   padding: 32px 40px;
   display: flex;
@@ -451,7 +451,7 @@
     width: 240px;
     height: 240px;
     border-radius: 50%;
-    background: #00b9b3;
+    background: $secondary-color;
     opacity: 0.1;
   }
 }
@@ -496,7 +496,7 @@
   z-index: 1;
   flex-shrink: 0;
   padding: 10px 22px;
-  background: #00b9b3;
+  background: $secondary-color;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
@@ -528,7 +528,7 @@
   font-family: "Syne", sans-serif;
   font-size: 20px;
   font-weight: 700;
-  color: #202a65;
+  color: $primary-color;
 }
 
 .products-count {
@@ -547,19 +547,19 @@
   border: 1.5px solid #e4e7ed;
   border-radius: 20px;
   overflow: hidden;
-  cursor: pointer;
+  //cursor: pointer;
   transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    border-color: #00b9b3;
+    border-color: $secondary-color;
     transform: translateY(-3px);
     box-shadow: 0 12px 36px rgba(0, 185, 179, 0.1);
 
     .card-arrow {
       transform: translateX(3px);
-      color: #00b9b3;
+      color: $secondary-color;
     }
   }
 }
@@ -603,7 +603,7 @@
 }
 
 .badge-top {
-  background: #202a65;
+  background: $primary-color;
   color: #fff;
 }
 
@@ -617,7 +617,7 @@
 .card-line {
   font-size: 10px;
   font-weight: 700;
-  color: #00b9b3;
+  color: $secondary-color;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -627,9 +627,10 @@
   font-family: "Syne", sans-serif;
   font-size: 18px;
   font-weight: 700;
-  color: #202a65;
+  color: $primary-color;
   margin-bottom: 6px;
   line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .card-desc {
@@ -660,14 +661,14 @@
   font-weight: 500;
 
   strong {
-    color: #202a65;
+    color: $primary-color;
   }
 }
 
 .card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding-top: 16px;
   border-top: 1px solid #e4e7ed;
   gap: 12px;
@@ -685,7 +686,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #00b9b3;
+  background: $secondary-color;
 }
 
 .card-action {
@@ -694,7 +695,18 @@
   gap: 5px;
   font-size: 13px;
   font-weight: 600;
-  color: #202a65;
+  color: $primary-color;
+}
+
+.card-btn {
+  padding: .475rem .875rem;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+
+  &:hover {
+    background: #f1f4f9;
+  }
 }
 
 .card-arrow {
@@ -704,7 +716,7 @@
 }
 
 .footer-strip {
-  background: #202a65;
+  background: $primary-color;
   padding: 40px 80px;
   display: flex;
   align-items: center;
@@ -736,7 +748,7 @@
 .fs-cta {
   margin-left: auto;
   padding: 12px 28px;
-  background: #00b9b3;
+  background: $secondary-color;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
@@ -1006,7 +1018,7 @@
     font-size: 1.35rem;
     line-height: 1.1;
     font-weight: 800;
-    color: #202a65;
+    color: $primary-color;
   }
 }
 
@@ -1049,7 +1061,7 @@
   label {
     font-size: 0.84rem;
     font-weight: 700;
-    color: #202a65;
+    color: $primary-color;
   }
 
   input,
@@ -1060,7 +1072,7 @@
     border-radius: 14px;
     padding: 13px 14px;
     font-size: 0.95rem;
-    color: #202a65;
+    color: $primary-color;
     outline: none;
     transition:
       border-color 0.2s ease,
@@ -1072,7 +1084,7 @@
     }
 
     &:focus {
-      border-color: #00b9b3;
+      border-color: $secondary-color;
       background: #ffffff;
       box-shadow: 0 0 0 4px rgba(0, 185, 179, 0.12);
     }
@@ -1125,11 +1137,11 @@
 
 .btn-secondary {
   background: #ffffff;
-  color: #202a65;
+  color: $primary-color;
   border: 1px solid #dbe3ec;
 
   &:hover {
-    border-color: #00b9b3;
+    border-color: $secondary-color;
     color: #00a9a3;
     transform: translateY(-1px);
   }
@@ -1163,7 +1175,7 @@
     margin: 0;
     font-size: 1.35rem;
     font-weight: 800;
-    color: #202a65;
+    color: $primary-color;
   }
 
   p {
