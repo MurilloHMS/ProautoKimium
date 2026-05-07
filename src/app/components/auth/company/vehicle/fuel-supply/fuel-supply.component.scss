@@ -1,4 +1,5 @@
 @use '../../../../../../styles/variables.scss' as *;
+@use "sass:color";
 
 // ─── Página ───────────────────────────────────────────────────────────────────
 .page {
@@ -124,7 +125,7 @@
   font-size: 0.72rem;
   font-weight: 600;
   background: rgba($warning-color, 0.12);
-  color: darken($warning-color, 20%);
+  color: color.adjust($warning-color, $lightness: -20%);
   border: 1px solid rgba($warning-color, 0.3);
   white-space: nowrap;
   flex-shrink: 0;
@@ -133,7 +134,7 @@
 
   &--ready {
     background: rgba($success-color, 0.1);
-    color: darken($success-color, 10%);
+    color: color.adjust($success-color, $lightness: -10%);
     border-color: rgba($success-color, 0.25);
   }
 }

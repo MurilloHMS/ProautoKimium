@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ── Tokens ────────────────────────────────────────────────────────────────────
 $primary:      #2563EB;
 $primary-lt:   #EFF6FF;
@@ -384,7 +386,7 @@ $shadow-md:    0 4px 12px rgba(0,0,0,.10);
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   padding: 1rem 1.25rem 1.25rem;
-  border-top: 1px dashed darken($border, 5%);
+  border-top: 1px dashed color.adjust($border, $lightness: -5%);
 }
 
 .detalhe-card {
