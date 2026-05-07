@@ -5,7 +5,7 @@
   width: 100%;
 
   padding: 72px 0;
-  font-family: variables.$text-font;
+  font-family: variables.$font-body;
 }
 
 // ── Header ────────────────────────────────────────────────────────────────
@@ -19,22 +19,22 @@
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: variables.$secondary-color-dark1;
-  background: rgba(variables.$secondary-color, 0.10);
-  border: 1px solid rgba(variables.$secondary-color, 0.25);
+  color: variables.$secondary-dark;
+  background: rgba(variables.$secondary, 0.10);
+  border: 1px solid rgba(variables.$secondary, 0.25);
   padding: 4px 12px;
   border-radius: 20px;
   margin-bottom: 14px;
 }
 
 .section-title {
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   font-size: 2rem;
   font-weight: 700;
-  color: variables.$primary-color;
+  color: variables.$primary;
   margin: 0 0 12px;
   line-height: 1.25;
   letter-spacing: -0.02em;
@@ -71,17 +71,17 @@
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid variables.$tertiary-color-dark;
+  border: 1px solid variables.$bg-surface-dark;
 }
 
 .block-label {
   display: block;
   font-size: 0.68rem;
   font-weight: 700;
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   text-transform: uppercase;
   letter-spacing: 0.10em;
-  color: variables.$primary-color-light2;
+  color: variables.$primary-lighter;
   margin-bottom: 14px;
 }
 
@@ -98,14 +98,14 @@
   gap: 12px;
   padding: 10px 12px;
   border-radius: 8px;
-  border: 1.5px solid variables.$tertiary-color-dark;
-  background: variables.$tertiary-color;
+  border: 1.5px solid variables.$bg-surface-dark;
+  background: variables.$bg-surface;
   text-decoration: none;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: variables.$secondary-color;
-    background: rgba(variables.$secondary-color, 0.04);
+    border-color: variables.$secondary;
+    background: rgba(variables.$secondary, 0.04);
     transform: translateX(3px);
 
     .canal-arrow { opacity: 1; transform: translateX(3px); }
@@ -128,8 +128,8 @@
   }
 
   &.email {
-    background: rgba(variables.$primary-color, 0.08);
-    color: variables.$primary-color;
+    background: rgba(variables.$primary, 0.08);
+    color: variables.$primary;
   }
 }
 
@@ -144,7 +144,7 @@
 .canal-tipo {
   font-size: 0.68rem;
   font-weight: 700;
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: variables.$text-secondary-color;
@@ -153,14 +153,14 @@
 .canal-valor {
   font-size: 0.82rem;
   font-weight: 600;
-  color: variables.$primary-color;
+  color: variables.$primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .canal-arrow {
-  color: variables.$tertiary-color-dark;
+  color: variables.$bg-surface-dark;
   font-size: 0.72rem;
   opacity: 0;
   transition: all 0.2s ease;
@@ -179,10 +179,10 @@
   align-items: center;
   padding: 8px 12px;
   border-radius: 7px;
-  background: variables.$tertiary-color;
+  background: variables.$bg-surface;
 
   &.feriado {
-    .horario-hora { color: variables.$error-color; }
+    .horario-hora { color: variables.$danger; }
   }
 }
 
@@ -195,8 +195,8 @@
 .horario-hora {
   font-size: 0.82rem;
   font-weight: 700;
-  font-family: variables.$title-font;
-  color: variables.$primary-color;
+  font-family: variables.$font-heading;
+  color: variables.$primary;
 }
 
 // ── Mapa ──────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 12px;
-  border: 1px solid variables.$tertiary-color-dark;
+  border: 1px solid variables.$bg-surface-dark;
 
   iframe { display: block; }
 }
@@ -219,7 +219,7 @@
   color: variables.$text-primary-color;
 
   i {
-    color: variables.$secondary-color-dark1;
+    color: variables.$secondary-dark;
     margin-top: 2px;
     flex-shrink: 0;
   }
@@ -241,17 +241,17 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    border: 1.5px solid variables.$tertiary-color-dark;
-    color: variables.$primary-color-light2;
-    background: variables.$tertiary-color;
+    border: 1.5px solid variables.$bg-surface-dark;
+    color: variables.$primary-lighter;
+    background: variables.$bg-surface;
     text-decoration: none;
     font-size: 0.82rem;
     transition: all 0.2s ease;
 
     &:hover {
-      border-color: variables.$primary-color;
-      color: variables.$primary-color;
-      background: rgba(variables.$primary-color, 0.05);
+      border-color: variables.$primary;
+      color: variables.$primary;
+      background: rgba(variables.$primary, 0.05);
       transform: translateY(-2px);
     }
   }
@@ -261,16 +261,16 @@
 .form-card {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid variables.$tertiary-color-dark;
+  border: 1px solid variables.$bg-surface-dark;
   overflow: hidden;
 }
 
 .form-card-header {
-  background: variables.$primary-color;
+  background: variables.$primary;
   padding: 22px 28px;
 
   h3 {
-    font-family: variables.$title-font;
+    font-family: variables.$font-heading;
     font-size: 1.05rem;
     font-weight: 700;
     color: #fff;
@@ -307,8 +307,8 @@
   label {
     font-size: 0.74rem;
     font-weight: 700;
-    font-family: variables.$title-font;
-    color: variables.$primary-color;
+    font-family: variables.$font-heading;
+    color: variables.$primary;
     text-transform: uppercase;
     letter-spacing: 0.02em;
   }
@@ -323,12 +323,12 @@
 .field-textarea {
   width: 100%;
   padding: 9px 12px;
-  border: 1.5px solid variables.$tertiary-color-dark;
+  border: 1.5px solid variables.$bg-surface-dark;
   border-radius: 7px;
   font-size: 0.875rem;
-  font-family: variables.$text-font;
+  font-family: variables.$font-body;
   color: variables.$text-primary-color;
-  background: variables.$tertiary-color;
+  background: variables.$bg-surface;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 
   &::placeholder { color: #b0bec5; }
@@ -336,7 +336,7 @@
   &:focus {
     outline: none;
     background: #fff;
-    border-color: variables.$secondary-color;
+    border-color: variables.$secondary;
     box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12);
   }
 }
@@ -351,14 +351,14 @@
   .select-field {
     .p-select {
       width: 100% !important;
-      border: 1.5px solid variables.$tertiary-color-dark !important;
+      border: 1.5px solid variables.$bg-surface-dark !important;
       border-radius: 7px !important;
-      background: variables.$tertiary-color !important;
+      background: variables.$bg-surface !important;
       transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
 
       &.p-focus {
         background: #fff !important;
-        border-color: variables.$secondary-color !important;
+        border-color: variables.$secondary !important;
         box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12) !important;
       }
     }
@@ -366,14 +366,14 @@
     .p-select-label {
       padding: 9px 12px !important;
       font-size: 0.875rem !important;
-      font-family: variables.$text-font !important;
+      font-family: variables.$font-body !important;
       color: variables.$text-primary-color !important;
 
       &.p-placeholder { color: #b0bec5 !important; }
     }
 
     .p-select-dropdown {
-      color: variables.$primary-color-light2 !important;
+      color: variables.$primary-lighter !important;
     }
   }
 
@@ -384,16 +384,16 @@
     .p-select-option {
       padding: 8px 12px !important;
       font-size: 0.875rem !important;
-      font-family: variables.$text-font !important;
+      font-family: variables.$font-body !important;
 
       &:hover {
         background: rgba(87, 193, 171, 0.08) !important;
-        color: variables.$secondary-color-dark1 !important;
+        color: variables.$secondary-dark !important;
       }
 
       &.p-select-option-selected {
-        background: rgba(variables.$primary-color, 0.06) !important;
-        color: variables.$primary-color !important;
+        background: rgba(variables.$primary, 0.06) !important;
+        color: variables.$primary !important;
         font-weight: 600 !important;
       }
     }
@@ -404,13 +404,13 @@
 .btn-enviar {
   width: 100%;
   padding: 11px 20px;
-  background: variables.$primary-color;
+  background: variables.$primary;
   color: #fff;
   border: none;
   border-radius: 7px;
   font-size: 0.82rem;
   font-weight: 700;
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -422,8 +422,8 @@
   margin-top: 4px;
 
   &:hover:not(:disabled) {
-    background: variables.$primary-hover-color;
-    box-shadow: 0 4px 16px rgba(variables.$primary-hover-color, 0.32);
+    background: variables.$secondary-hover;
+    box-shadow: 0 4px 16px rgba(variables.$secondary-hover, 0.32);
     transform: translateY(-1px);
   }
 
@@ -488,12 +488,12 @@
   width: 100%;
   padding: 9px 14px;
   border-radius: 7px;
-  border: 1.5px solid variables.$primary-color;
+  border: 1.5px solid variables.$primary;
   background: transparent;
-  color: variables.$primary-color;
+  color: variables.$primary;
   font-size: 0.82rem;
   font-weight: 700;
-  font-family: variables.$title-font;
+  font-family: variables.$font-heading;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   text-decoration: none;
@@ -507,7 +507,7 @@
   }
 
   &:hover {
-    background: variables.$primary-color;
+    background: variables.$primary;
     color: #fff;
     .fa-arrow-right { transform: translateX(3px); }
   }

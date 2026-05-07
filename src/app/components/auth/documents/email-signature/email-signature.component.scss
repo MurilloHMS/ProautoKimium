@@ -31,7 +31,7 @@ $red-600: #dc2626;
 
     .header-icon {
         font-size: 1.8rem;
-        background: linear-gradient(135deg, $primary-color, $secondary-color);
+        background: linear-gradient(135deg, $primary, $secondary);
         width: 54px;
         height: 54px;
         border-radius: 14px;
@@ -171,7 +171,7 @@ input {
   }
 
   &.btn-primary {
-    background: linear-gradient(135deg, $secondary-color, $primary-color);
+    background: linear-gradient(135deg, $secondary, $primary);
     color: #fff;
 
     &:hover:not(:disabled) {

@@ -1,11 +1,11 @@
 @use 'variables' as v;
 
 .refresh-btn {
-  border-color: v.$secondary-color !important;
-  color: v.$primary-color;
+  border-color: v.$secondary !important;
+  color: v.$primary;
 
   &hover {
-    background-color: v.$secondary-color-light1;
+    background-color: v.$secondary-light;
   }
 }
 

@@ -17,7 +17,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba($primary-color-dark1, .6);
+  background: rgba($primary-dark, .6);
   backdrop-filter: blur(5px);
   z-index: 1100;
   display: flex;
@@ -35,14 +35,14 @@
   max-width: 520px;
   max-height: 92vh;
   overflow-y: auto;
-  box-shadow: 0 28px 64px rgba($primary-color, .22);
+  box-shadow: 0 28px 64px rgba($primary, .22);
   animation: modalIn .25s ease;
   display: flex;
   flex-direction: column;
 
   // scrollbar discreta
   scrollbar-width: thin;
-  scrollbar-color: $tertiary-color-dark transparent;
+  scrollbar-color: $bg-surface-dark transparent;
 }
 
 // ── Fechar ────────────────────────────────────────────────────────────────────
@@ -58,11 +58,11 @@
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  background: $tertiary-color;
+  background: $bg-surface;
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  color: $primary-text-color;
+  color: $neutral-700;
   flex-shrink: 0;
   transition: background .15s, color .15s;
   z-index: 10;
@@ -87,14 +87,14 @@
   display: inline-flex;
   align-items: center;
   gap: .35rem;
-  font-family: $menu-font;
+  font-family: $font-heading;
   font-size: .7rem;
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
-  color: $primary-color;
-  background: rgba($primary-color, .07);
-  border: 1px solid rgba($primary-color, .15);
+  color: $primary;
+  background: rgba($primary, .07);
+  border: 1px solid rgba($primary, .15);
   border-radius: 99px;
   padding: .22rem .75rem;
   align-self: flex-start;
@@ -103,17 +103,17 @@
 }
 
 .modal-titulo {
-  font-family: $title-font;
+  font-family: $font-heading;
   font-size: 1.5rem;
   font-weight: 800;
-  color: $primary-color-dark1;
+  color: $primary-dark;
   letter-spacing: -.02em;
   line-height: 1.15;
 }
 
 .modal-vaga-nome {
   font-size: .88rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
   line-height: 1.4;
 }
 
@@ -132,7 +132,7 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: $tertiary-color-dark;
+    background: $bg-surface-dark;
   }
 }
 
@@ -140,12 +140,12 @@
   display: flex;
   align-items: center;
   gap: .3rem;
-  font-family: $menu-font;
+  font-family: $font-heading;
   font-size: .7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: $secondary-color-dark1;
+  color: $secondary-dark;
   white-space: nowrap;
 
   i { font-size: .68rem; }
@@ -175,10 +175,10 @@
 }
 
 .field-label {
-  font-family: $menu-font;
+  font-family: $font-heading;
   font-size: .78rem;
   font-weight: 700;
-  color: $primary-color;
+  color: $primary;
   letter-spacing: .03em;
 
   .req { color: $danger; margin-left: .15rem; }
@@ -186,23 +186,23 @@
 
 .field-opcional {
   font-weight: 400;
-  color: $secondary-text-color;
+  color: $text-secondary;
   margin-left: .3rem;
-  font-family: $text-font;
+  font-family: $font-body;
 }
 
 .input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1.5px solid $tertiary-color-dark;
+  border: 1.5px solid $bg-surface-dark;
   border-radius: 10px;
   background: $bg-base;
   transition: border-color .18s, box-shadow .18s;
 
   &:focus-within {
-    border-color: $secondary-color;
-    box-shadow: 0 0 0 3px rgba($secondary-color, .14);
+    border-color: $secondary;
+    box-shadow: 0 0 0 3px rgba($secondary, .14);
     background: $bg-panel;
   }
 }
@@ -210,7 +210,7 @@
 .input-icon {
   position: absolute;
   left: .85rem;
-  color: $secondary-color;
+  color: $secondary;
   font-size: .85rem;
   pointer-events: none;
   transition: color .15s;
@@ -221,14 +221,14 @@
   padding: .65rem .85rem .65rem 2.4rem !important;
   border: none !important;
   background: transparent !important;
-  font-family: $text-font !important;
+  font-family: $font-body !important;
   font-size: .9rem !important;
   color: $text-primary-color !important;
   border-radius: 10px !important;
   box-shadow: none !important;
   outline: none;
 
-  &::placeholder { color: $secondary-text-color; }
+  &::placeholder { color: $text-secondary; }
 }
 
 .field-error {
@@ -256,7 +256,7 @@
 
 .field-hint {
   font-size: .76rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
   line-height: 1.4;
 }
 
@@ -272,29 +272,29 @@
 
 .btn-cancelar {
   background: none;
-  border: 1.5px solid $tertiary-color-dark;
-  color: $secondary-text-color;
+  border: 1.5px solid $bg-surface-dark;
+  color: $text-secondary;
   border-radius: 99px;
   padding: .6rem 1.25rem;
-  font-family: $menu-font;
+  font-family: $font-heading;
   font-size: .85rem;
   font-weight: 600;
   cursor: pointer;
   transition: border-color .18s, color .18s;
 
-  &:hover { border-color: $primary-color; color: $primary-color; }
+  &:hover { border-color: $primary; color: $primary; }
 }
 
 .btn-enviar {
   display: inline-flex;
   align-items: center;
   gap: .45rem;
-  background: $secondary-color;
+  background: $secondary;
   color: #fff;
   border: none;
   border-radius: 99px;
   padding: .65rem 1.5rem;
-  font-family: $menu-font;
+  font-family: $font-heading;
   font-size: .88rem;
   font-weight: 700;
   cursor: pointer;
@@ -303,7 +303,7 @@
   i { font-size: .85rem; }
 
   &:hover:not(:disabled) {
-    background: $secondary-color-dark1;
+    background: $secondary-dark;
     transform: translateY(-1px);
   }
 
@@ -364,19 +364,19 @@
 }
 
 .feedback-titulo {
-  font-family: $title-font;
+  font-family: $font-heading;
   font-size: 1.4rem;
   font-weight: 800;
-  color: $primary-color-dark1;
+  color: $primary-dark;
 }
 
 .feedback-sub {
   font-size: .9rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
   line-height: 1.65;
   max-width: 360px;
 
-  strong { color: $primary-color; font-weight: 700; }
+  strong { color: $primary; font-weight: 700; }
 }
 
 .feedback-actions {
@@ -409,7 +409,7 @@
   justify-content: center;
   gap: .4rem;
   padding: 1.5rem;
-  border: 2px dashed $tertiary-color-dark;
+  border: 2px dashed $bg-surface-dark;
   border-radius: 10px;
   cursor: pointer;
   transition: border-color .2s, background .2s, transform .15s;
@@ -417,37 +417,37 @@
   background: $bg-base;
 
   &:hover {
-    border-color: $secondary-color;
-    background: rgba($secondary-color, .06);
+    border-color: $secondary;
+    background: rgba($secondary, .06);
   }
 
   &--selected {
-    border-color: $secondary-color;
-    background: rgba($secondary-color, .09);
+    border-color: $secondary;
+    background: rgba($secondary, .09);
   }
 }
 
 .file-drop-icon {
   font-size: 1.8rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
 
   &--ok {
-    color: $secondary-color;
+    color: $secondary;
   }
 }
 
 .file-drop-text {
   font-size: .875rem;
-  color: $primary-text-color;
+  color: $neutral-700;
   line-height: 1.5;
 
   &--ok {
-    color: $primary-color;
+    color: $primary;
     font-weight: 600;
   }
 }
 
 .file-drop-size {
   font-size: .75rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
 }

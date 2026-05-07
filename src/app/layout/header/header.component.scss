@@ -90,8 +90,8 @@ $border-radius: 12px;
   margin-right: 8px;
 
   &:hover {
-    background: rgba(variables.$primary-color, 0.1);
-    color: variables.$primary-color;
+    background: rgba(variables.$primary, 0.1);
+    color: variables.$primary;
   }
 }
 
@@ -129,8 +129,8 @@ $border-radius: 12px;
     position: relative;
 
     &:hover {
-      color: variables.$primary-color;
-      background: rgba(variables.$primary-color, 0.08);
+      color: variables.$primary;
+      background: rgba(variables.$primary, 0.08);
     }
 
     &::after {
@@ -140,7 +140,7 @@ $border-radius: 12px;
       left: 50%;
       width: 0;
       height: 3px;
-      background: variables.$primary-color;
+      background: variables.$primary;
       border-radius: 2px;
       transform: translateX(-50%);
       transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -168,7 +168,7 @@ $border-radius: 12px;
 
   .icon-link {
     font-size: 1.3rem;
-    color: variables.$secondary-color;
+    color: variables.$secondary;
     text-decoration: none;
     transition: $transition;
     position: relative;
@@ -178,11 +178,11 @@ $border-radius: 12px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(variables.$primary-color, 0.08);
+    background: rgba(variables.$primary, 0.08);
 
     &:hover {
-      color: variables.$primary-color;
-      background: rgba(variables.$primary-color, 0.12);
+      color: variables.$primary;
+      background: rgba(variables.$primary, 0.12);
       transform: scale(1.1);
     }
   }
@@ -192,7 +192,7 @@ $border-radius: 12px;
   position: absolute;
   top: -8px;
   right: -8px;
-  background: variables.$primary-color;
+  background: variables.$primary;
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -223,7 +223,7 @@ $border-radius: 12px;
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(variables.$primary-color, 0.3),
+    rgba(variables.$primary, 0.3),
     transparent
   );
 }
@@ -260,8 +260,8 @@ $border-radius: 12px;
   }
 
   &:hover {
-    background: rgba(variables.$primary-color, 0.08);
-    border-color: variables.$primary-color;
+    background: rgba(variables.$primary, 0.08);
+    border-color: variables.$primary;
     transform: translateY(-2px);
   }
 
@@ -272,14 +272,14 @@ $border-radius: 12px;
 
 .btn-cliente {
   &:hover {
-    color: variables.$primary-color;
+    color: variables.$primary;
   }
 }
 
 .btn-funcionario {
   &:hover {
-    color: variables.$secondary-color;
-    border-color: variables.$secondary-color;
+    color: variables.$secondary;
+    border-color: variables.$secondary;
   }
 }
 
@@ -305,7 +305,7 @@ $border-radius: 12px;
     }
 
     &:hover {
-      background-color: rgba(variables.$primary-color, 0.1);
+      background-color: rgba(variables.$primary, 0.1);
     }
   }
 
@@ -360,7 +360,7 @@ $border-radius: 12px;
     display: none;
     max-height: calc(100vh - 65px);
     overflow-y: auto;
-    border-bottom: 1px solid rgba(variables.$primary-color, 0.15);
+    border-bottom: 1px solid rgba(variables.$primary, 0.15);
     order: 3;
     width: 100%;
 
@@ -392,7 +392,7 @@ $border-radius: 12px;
       }
 
       &:hover {
-        background: rgba(variables.$primary-color, 0.1);
+        background: rgba(variables.$primary, 0.1);
         padding-left: 24px;
       }
     }

@@ -1,64 +1,18 @@
-/* Principal colors */
-    $primary-color: #232e61;
-    $primary-color-light1: #3e4b85;
-    $primary-color-light2: #5c6694;
-    $primary-color-dark1: #1b224d;
-    $primary-hover-color: #019a7a;
-    $text-primary-color: #333;
 
-    $secondary-color: #57c1ab;
-    $secondary-color-light1: #85bfb5;
-    $secondary-color-light2: #a4ddd2;
-    $secondary-color-dark1: #3e9e8e;
-    $text-secondary-color: #666;
-    $secondary-text-color: #888888;
-
-    /* Supply colors */
-    $tertiary-color: #f4f5f7;
-    $tertiary-color-dark: #e1e2e6;
-    $tertiary-color-dark2: #e8e8ea;
-
-    $neutral-dark: #1a202c;
-    $neutral-light: #f5f2f7;
-
-    $success-color: #38a169;
-    $warning-color: #f6ad55;
-    $error-color: #e53e3e;
-    $info-color: #3182ce;
-
-    /* typography */
-    $primary-text-color: #4a5568;
-    $secondary-text-color: #fcf7ff;
-
-    /* Fonts */
-    $text-font: "Inter", sans-serif;
-    $form-font: "Inter", sans-serif;
-    $message-font: "Inter", sans-serif;
-
-    $title-font: "Montserrat", sans-serif;
-    $menu-font: "Montserrat", sans-serif;
-
-    $success: #10b981;
-    $warning: #f59e0b;
-    $danger: #ef4444;
-
-    $bg-base: #f0f4f9;
-    $bg-panel: #ffffff;
-    $bg-hover: #f8fafc;
-    $bg-selected: #eff6ff;
-
+$text-primary-color: #333;
+$text-secondary-color: #666;
 
 // ─── Paleta Principal ──────────────────────────────────────────────────────────
 $primary:             #232e61;
 $primary-light:       #3e4b85;
 $primary-lighter:     #5c6694;
 $primary-dark:        #1b224d;
-$primary-hover:       #019a7a;
 
 $secondary:           #57c1ab;
 $secondary-light:     #85bfb5;
 $secondary-lighter:   #a4ddd2;
 $secondary-dark:      #3e9e8e;
+$secondary-hover:     #019a7a;
 
 // ─── Feedback ──────────────────────────────────────────────────────────────────
 $success:             #38a169;
@@ -157,7 +111,6 @@ $z-modal:     1200;
 $z-toast:     1300;
 
 // ─── Icons Size ───────────────────────────────────────────────────────────────────
-
 $icon-sm: 8px;
 $icon-md: 16px;
 $icon-lg: 32px;

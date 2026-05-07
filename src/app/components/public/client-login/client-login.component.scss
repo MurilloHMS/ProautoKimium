@@ -29,8 +29,8 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(v.$primary-color, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(v.$primary-color, 0.04) 1px, transparent 1px);
+      linear-gradient(rgba(v.$primary, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(v.$primary, 0.04) 1px, transparent 1px);
     background-size: 48px 48px;
   }
 
@@ -54,7 +54,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 .accent--tl {
   width: 420px;
   height: 420px;
-  background: radial-gradient(circle, v.$primary-color 0%, transparent 70%);
+  background: radial-gradient(circle, v.$primary 0%, transparent 70%);
   top: -160px;
   left: -160px;
   opacity: 0.18;
@@ -63,7 +63,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 .accent--br {
   width: 360px;
   height: 360px;
-  background: radial-gradient(circle, v.$secondary-color 0%, transparent 70%);
+  background: radial-gradient(circle, v.$secondary 0%, transparent 70%);
   bottom: -120px;
   right: -120px;
   opacity: 0.15;
@@ -92,7 +92,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 
 .card-stripe {
   height: 5px;
-  background: linear-gradient(90deg, v.$primary-color 0%, v.$secondary-color 100%);
+  background: linear-gradient(90deg, v.$primary 0%, v.$secondary 100%);
 }
 
 
@@ -110,7 +110,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 }
 
 .card-body .back_to_home:hover {
-  color: v.$secondary-color;
+  color: v.$secondary;
 }
 
 .card-header {
@@ -125,10 +125,10 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: linear-gradient(135deg, v.$primary-color, v.$secondary-color);
+  background: linear-gradient(135deg, v.$primary, v.$secondary);
   color: #fff;
   margin-bottom: 18px;
-  box-shadow: 0 6px 20px rgba(v.$primary-color, 0.35);
+  box-shadow: 0 6px 20px rgba(v.$primary, 0.35);
 }
 
 .card-title {
@@ -173,7 +173,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 
 .forgot-link {
   font-size: 12px;
-  color: v.$primary-color;
+  color: v.$primary;
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.2s;
@@ -213,19 +213,19 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   &::placeholder { color: #d1d5db; }
 
   &:focus {
-    border-color: v.$primary-color;
+    border-color: v.$primary;
     background: #fff;
-    box-shadow: 0 0 0 3.5px rgba(v.$primary-color, 0.12);
+    box-shadow: 0 0 0 3.5px rgba(v.$primary, 0.12);
 
     & ~ .input-icon,
     .input-wrap:has(&:focus) .input-icon {
-      color: v.$primary-color;
+      color: v.$primary;
     }
   }
 }
 
 .input-wrap:focus-within .input-icon {
-  color: v.$primary-color;
+  color: v.$primary;
 }
 
 .error-banner {
@@ -263,7 +263,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   width: 100%;
   padding: 13.5px 20px;
   margin-top: 4px;
-  background: linear-gradient(135deg, v.$primary-color 0%, v.$secondary-color 100%);
+  background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
   color: #fff;
   font-size: 14.5px;
   font-weight: 600;
@@ -271,17 +271,17 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   border: none;
   border-radius: $input-radius;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(v.$primary-color, 0.38);
+  box-shadow: 0 4px 16px rgba(v.$primary, 0.38);
   transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(v.$primary-color, 0.45);
+    box-shadow: 0 8px 24px rgba(v.$primary, 0.45);
   }
 
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0 3px 10px rgba(v.$primary-color, 0.3);
+    box-shadow: 0 3px 10px rgba(v.$primary, 0.3);
   }
 
   &:disabled {

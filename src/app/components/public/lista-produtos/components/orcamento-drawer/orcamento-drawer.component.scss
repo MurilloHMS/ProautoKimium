@@ -11,7 +11,7 @@
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  background: v.$primary-color;
+  background: v.$primary;
   color: #fff;
   border: none;
   border-radius: 50px;
@@ -35,7 +35,7 @@
   position: absolute;
   top: -6px;
   right: -6px;
-  background: v.$secondary-color;
+  background: v.$secondary;
   color: #fff;
   font-size: 0.7rem;
   font-weight: 800;
@@ -93,7 +93,7 @@
   justify-content: space-between;
   padding: 20px 20px 16px;
   border-bottom: 1px solid #e9ecef;
-  background: v.$primary-color;
+  background: v.$primary;
   color: #fff;
   flex-shrink: 0;
 }
@@ -184,7 +184,7 @@
 .drawer-item-nome {
   font-size: 0.88rem;
   font-weight: 700;
-  color: v.$primary-color;
+  color: v.$primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -221,16 +221,16 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
-  color: v.$primary-color;
+  color: v.$primary;
   font-weight: 700;
 
-  &:hover { background: v.$primary-color; color: #fff; border-color: v.$primary-color; }
+  &:hover { background: v.$primary; color: #fff; border-color: v.$primary; }
 }
 
 .qty-valor {
   font-size: 0.88rem;
   font-weight: 700;
-  color: v.$primary-color;
+  color: v.$primary;
   min-width: 20px;
   text-align: center;
 }
@@ -273,7 +273,7 @@
 }
 
 .btn-solicitar {
-  background: v.$primary-color;
+  background: v.$primary;
   color: #fff;
   border: none;
   padding: 13px;
@@ -326,7 +326,7 @@
   padding: 20px 24px 16px;
   border-bottom: 1px solid #e9ecef;
 
-  h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: v.$primary-color; }
+  h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: v.$primary; }
 }
 
 .modal-fechar {
@@ -370,7 +370,7 @@
   }
 }
 
-.resumo-nome { color: v.$primary-color; font-weight: 600; }
+.resumo-nome { color: v.$primary; font-weight: 600; }
 .resumo-qty  { color: #9ca3af; font-size: 0.78rem; }
 
 .modal-form {
@@ -394,7 +394,7 @@
   label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: v.$primary-color;
+    color: v.$primary;
     .req { color: #ef4444; margin-left: 2px; }
   }
 
@@ -408,7 +408,7 @@
     box-sizing: border-box;
     font-family: inherit;
 
-    &:focus { outline: none; border-color: v.$secondary-color; }
+    &:focus { outline: none; border-color: v.$secondary; }
     &.invalido { border-color: #ef4444; }
   }
 
@@ -427,7 +427,7 @@
 
 .btn-form {
   flex: 1;
-  background: v.$primary-color;
+  background: v.$primary;
   color: #fff;
   border: none;
   padding: 12px;
@@ -470,6 +470,6 @@
   text-align: center;
 
   .sucesso-icon { font-size: 3rem; }
-  h3 { margin: 0; font-size: 1.2rem; color: v.$primary-color; }
+  h3 { margin: 0; font-size: 1.2rem; color: v.$primary; }
   p  { margin: 0; color: #6b7280; font-size: 0.9rem; }
 }

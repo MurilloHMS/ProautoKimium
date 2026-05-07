@@ -1,12 +1,12 @@
 @use '../../../../../../styles/variables.scss' as v;
 
 .blue-logo {
-  color: v.$primary-color;
+  color: v.$primary;
   font-weight: 700;
 }
 
 .green-logo {
-  color: v.$secondary-color;
+  color: v.$secondary;
   font-weight: 700;
 }
 
@@ -24,7 +24,7 @@
     display: inline-block;
     font-size: 0.875rem;
     font-weight: 600;
-    color: v.$secondary-color;
+    color: v.$secondary;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: 16px;
@@ -35,7 +35,7 @@
 
   h1 {
     font-size: 2.5rem;
-    color: v.$primary-text-color;
+    color: v.$neutral-700;
     font-weight: 700;
     line-height: 1.3;
     margin-bottom: 16px;
@@ -97,7 +97,7 @@
 
 .solucao-card {
   &::before {
-    background: linear-gradient(90deg, v.$secondary-color, #45e0c7);
+    background: linear-gradient(90deg, v.$secondary, #45e0c7);
   }
 
   &:hover::before {
@@ -134,7 +134,7 @@
 
   h3 {
     font-size: 1.5rem;
-    color: v.$primary-color;
+    color: v.$primary;
     font-weight: 700;
     margin: 0;
     line-height: 1.3;
@@ -181,7 +181,7 @@
 
     .icon-wrapper.solucao {
       background: linear-gradient(135deg, rgba(87, 193, 171, 0.15) 0%, rgba(69, 224, 199, 0.15) 100%);
-      color: v.$secondary-color;
+      color: v.$secondary;
     }
 
     .text {

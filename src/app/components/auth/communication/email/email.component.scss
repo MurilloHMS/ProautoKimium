@@ -58,7 +58,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
 .header-icon {
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, $primary-color, $accent);
+  background: linear-gradient(135deg, $primary, $accent);
   border-radius: $radius-md;
   display: flex;
   align-items: center;
@@ -125,7 +125,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   gap: 8px;
 
   i {
-    color: $primary-color;
+    color: $primary;
     font-size: 16px;
   }
 }
@@ -143,7 +143,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   &.has-selection {
     background: $primary-glow;
-    color: $primary-color;
+    color: $primary;
     border-color: $border-focus;
   }
 }
@@ -193,8 +193,8 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
 
   &.active {
-    background: $primary-color;
-    border-color: $primary-color;
+    background: $primary;
+    border-color: $primary;
     color: #fff;
     box-shadow: 0 2px 8px $primary-glow;
 
@@ -443,7 +443,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   letter-spacing: 0.5px;
 
   i {
-    color: $primary-color;
+    color: $primary;
     font-size: 14px;
   }
 }
@@ -603,7 +603,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   font-size: 13px;
 
   i {
-    color: $primary-color;
+    color: $primary;
     font-size: 15px;
   }
 }
@@ -657,7 +657,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
 :host ::ng-deep {
   .btn-send-primary {
     &.p-button {
-      background: linear-gradient(135deg, $primary-color, $primary-light);
+      background: linear-gradient(135deg, $primary, $primary-light);
       border: none;
       border-radius: $radius-md;
       font-weight: 600;
@@ -667,7 +667,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
       transition: all 0.2s;
 
       &:enabled:hover {
-        background: linear-gradient(135deg, $primary-dark, $primary-color);
+        background: linear-gradient(135deg, $primary-dark, $primary);
         box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
         transform: translateY(-1px);
       }
@@ -703,7 +703,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
       background: transparent;
       border: 1px solid $primary-light;
       border-radius: $radius-md;
-      color: $primary-color;
+      color: $primary;
       font-size: 14px;
       padding: 10px 18px;
       transition: all 0.2s;
@@ -818,7 +818,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   color: $text-secondary;
 
   i {
-    color: $primary-color;
+    color: $primary;
   }
 }
 
@@ -847,8 +847,8 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.15s;
 
     &.p-highlight {
-      background: $primary-color;
-      border-color: $primary-color;
+      background: $primary;
+      border-color: $primary;
     }
   }
 

@@ -9,7 +9,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  font-family: $text-font;
+  font-family: $font-body;
   color: $text-primary-color;
   background: $bg-base;
   min-height: 100vh;
@@ -17,11 +17,11 @@
 
 // ─── Header ──────────────────────────────────────────────
 .page-header {
-  background: linear-gradient(135deg, $primary-color 0%, $primary-color-light1 60%, $secondary-color-dark1 100%);
+  background: linear-gradient(135deg, $primary 0%, $primary-light 60%, $secondary-dark 100%);
   border-radius: 12px;
   padding: 2rem 2.5rem;
   color: #fff;
-  box-shadow: 0 4px 20px rgba($primary-color, .3);
+  box-shadow: 0 4px 20px rgba($primary, .3);
 
   .header-inner {
     display: flex;
@@ -44,7 +44,7 @@
 
   .page-title {
     margin: 0;
-    font-family: $title-font;
+    font-family: $font-heading;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.2px;
@@ -54,7 +54,7 @@
     margin: .3rem 0 0;
     font-size: .88rem;
     opacity: .8;
-    font-family: $text-font;
+    font-family: $font-body;
   }
 }
 
@@ -64,7 +64,7 @@
   .results-card {
     border-radius: 12px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05) !important;
-    border: 1px solid $tertiary-color-dark !important;
+    border: 1px solid $bg-surface-dark !important;
     overflow: hidden;
     background: $bg-panel !important;
 
@@ -78,18 +78,18 @@
   align-items: center;
   gap: .5rem;
   padding: .875rem 1.5rem;
-  border-bottom: 1px solid $tertiary-color-dark;
-  font-family: $title-font;
+  border-bottom: 1px solid $bg-surface-dark;
+  font-family: $font-heading;
   font-weight: 600;
   font-size: .78rem;
-  color: $primary-color-light2;
-  background: $tertiary-color;
+  color: $primary-lighter;
+  background: $bg-surface;
   text-transform: uppercase;
   letter-spacing: .08em;
 
   .pi {
     font-size: 1rem;
-    color: $primary-color;
+    color: $primary;
   }
 }
 
@@ -97,8 +97,8 @@
 ::ng-deep .custom-upload {
   .p-fileupload-buttonbar {
     padding: .75rem 1rem;
-    background: $tertiary-color !important;
-    border-bottom: 1px solid $tertiary-color-dark !important;
+    background: $bg-surface !important;
+    border-bottom: 1px solid $bg-surface-dark !important;
   }
   .p-fileupload-content {
     border: none !important;
@@ -113,37 +113,37 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 2rem;
-  border: 2px dashed $tertiary-color-dark;
+  border: 2px dashed $bg-surface-dark;
   border-radius: 10px;
-  background: $tertiary-color;
+  background: $bg-surface;
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease;
 
   &:hover {
-    border-color: $secondary-color;
-    background: rgba($secondary-color, .06);
+    border-color: $secondary;
+    background: rgba($secondary, .06);
   }
 
   .drop-icon {
     font-size: 2.75rem;
-    color: $primary-color-light1;
+    color: $primary-light;
     margin-bottom: .875rem;
   }
 
   .drop-text {
-    font-family: $title-font;
+    font-family: $font-heading;
     font-size: 1rem;
     font-weight: 600;
-    color: $primary-color;
+    color: $primary;
     margin: 0 0 .35rem;
   }
 
   .drop-hint {
     font-size: .83rem;
-    color: $secondary-text-color;
+    color: $text-secondary;
     margin: 0;
 
-    strong { color: $primary-color-light1; }
+    strong { color: $primary-light; }
   }
 }
 
@@ -152,34 +152,34 @@
   display: flex;
   gap: 1rem;
   padding: 1.125rem 1.5rem;
-  border-top: 1px solid $tertiary-color-dark;
-  background: $tertiary-color;
+  border-top: 1px solid $bg-surface-dark;
+  background: $bg-surface;
   flex-wrap: wrap;
 }
 
 ::ng-deep {
   .extract-btn.p-button {
-    background: $primary-color !important;
-    border-color: $primary-color !important;
-    font-family: $text-font !important;
+    background: $primary !important;
+    border-color: $primary !important;
+    font-family: $font-body !important;
     font-weight: 600 !important;
 
     &:hover:not(:disabled) {
-      background: $primary-color-dark1 !important;
-      border-color: $primary-color-dark1 !important;
+      background: $primary-dark !important;
+      border-color: $primary-dark !important;
     }
 
     &:disabled { opacity: .55; }
   }
 
   .export-btn.p-button {
-    color: $success-color !important;
-    border-color: $success-color !important;
-    font-family: $text-font !important;
+    color: $success !important;
+    border-color: $success !important;
+    font-family: $font-body !important;
     font-weight: 600 !important;
 
     &:hover {
-      background: rgba($success-color, .07) !important;
+      background: rgba($success, .07) !important;
     }
   }
 }
@@ -209,7 +209,7 @@
   &:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 
   .summary-label {
-    font-family: $title-font;
+    font-family: $font-heading;
     font-size: .72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -218,33 +218,33 @@
   }
 
   .summary-value {
-    font-family: $text-font;
+    font-family: $font-body;
     font-size: 1.3rem;
     font-weight: 700;
   }
 
   &.inss {
-    background: rgba($primary-color, .06);
-    border-color: rgba($primary-color, .12);
-    color: $primary-color;
+    background: rgba($primary, .06);
+    border-color: rgba($primary, .12);
+    color: $primary;
   }
 
   &.irrf {
-    background: rgba($secondary-color-dark1, .08);
-    border-color: rgba($secondary-color-dark1, .15);
-    color: $secondary-color-dark1;
+    background: rgba($secondary-dark, .08);
+    border-color: rgba($secondary-dark, .15);
+    color: $secondary-dark;
   }
 
   &.fgts {
-    background: rgba($success-color, .08);
-    border-color: rgba($success-color, .15);
-    color: color.adjust($success-color, $lightness: -8%);
+    background: rgba($success, .08);
+    border-color: rgba($success, .15);
+    color: color.adjust($success, $lightness: -8%);
   }
 
   &.emprestimo {
-    background: rgba($warning-color, .1);
-    border-color: rgba($warning-color, .2);
-    color: color.adjust($warning-color, $lightness: -20%);
+    background: rgba($warning, .1);
+    border-color: rgba($warning, .2);
+    color: color.adjust($warning, $lightness: -20%);
   }
 }
 
@@ -266,14 +266,14 @@
 ::ng-deep .result-table {
 
   .p-datatable-thead > tr > th {
-    background: $tertiary-color !important;
-    font-family: $title-font !important;
+    background: $bg-surface !important;
+    font-family: $font-heading !important;
     font-size: .73rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    color: $primary-color-light2 !important;
-    border-bottom: 2px solid $tertiary-color-dark !important;
+    color: $primary-lighter !important;
+    border-bottom: 2px solid $bg-surface-dark !important;
     white-space: nowrap;
     padding: .75rem 1rem !important;
   }
@@ -281,13 +281,13 @@
   .p-datatable-tbody > tr > td {
     padding: .7rem 1rem !important;
     font-size: .875rem;
-    font-family: $text-font;
+    font-family: $font-body;
     color: $text-primary-color;
-    border-bottom: 1px solid $tertiary-color-dark2 !important;
+    border-bottom: 1px solid $bg-surface-darker !important;
   }
 
   .p-datatable-tbody > tr:hover > td {
-    background: rgba($secondary-color, .06) !important;
+    background: rgba($secondary, .06) !important;
   }
 }
 
@@ -296,14 +296,14 @@
   align-items: center;
   gap: .625rem;
   font-weight: 600;
-  color: $primary-color;
+  color: $primary;
 }
 
 .name-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary-color, $secondary-color-dark1);
+  background: linear-gradient(135deg, $primary, $secondary-dark);
   color: #fff;
   display: flex;
   align-items: center;
@@ -311,13 +311,13 @@
   font-size: .75rem;
   font-weight: 700;
   flex-shrink: 0;
-  font-family: $title-font;
+  font-family: $font-heading;
 }
 
 .cpf-cell {
   font-family: 'Courier New', monospace;
   font-size: .82rem;
-  color: $secondary-text-color;
+  color: $text-secondary;
 }
 
 .currency-cell {
@@ -334,8 +334,8 @@
     font-size: .7rem;
     font-weight: 600;
     border-radius: 6px;
-    background: rgba($primary-color, .1) !important;
-    color: $primary-color !important;
+    background: rgba($primary, .1) !important;
+    color: $primary !important;
   }
 
   .record-badge {
@@ -345,7 +345,7 @@
 
 .empty-msg {
   text-align: center;
-  color: $secondary-text-color;
+  color: $text-secondary;
   padding: 2.5rem !important;
   font-size: .9rem;
 }

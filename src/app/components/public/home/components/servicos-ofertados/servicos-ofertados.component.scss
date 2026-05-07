@@ -24,7 +24,7 @@ ul {
 }
 
 .site-heading h2 span {
-    color: variables.$secondary-color;
+    color: variables.$secondary;
 }
 
 .site-heading h4 {
@@ -37,7 +37,7 @@ ul {
 }
 
 .site-heading h4::before {
-    background: variables.$secondary-color none repeat scroll 0 0;
+    background: variables.$secondary none repeat scroll 0 0;
     bottom: 0;
     content: "";
     height: 2px;
@@ -68,8 +68,8 @@ ul {
 }
 
 .we-offer-area .our-offer-carousel .owl-dots .owl-dot.active span {
-    background: variables.$secondary-color none repeat scroll 0 0;
-    border-color: variables.$secondary-color;
+    background: variables.$secondary none repeat scroll 0 0;
+    border-color: variables.$secondary;
 }
 
 .we-offer-area .item {
@@ -94,7 +94,7 @@ ul {
 }
 
 .we-offer-area.text-center .item i {
-    background: variables.$secondary-color none repeat scroll 0 0;
+    background: variables.$secondary none repeat scroll 0 0;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     border-radius: 50%;
@@ -115,7 +115,7 @@ ul {
 }
 
 .we-offer-area.text-center .item i::after {
-    border: 2px solid variables.$secondary-color;
+    border: 2px solid variables.$secondary;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     border-radius: 50%;
@@ -166,7 +166,7 @@ ul {
 }
 
 .we-offer-area .item i {
-    color: variables.$secondary-color;
+    color: variables.$secondary;
     display: inline-block;
     font-size: 60px;
     margin-bottom: 20px;
@@ -193,7 +193,7 @@ ul {
 }
 
 .we-offer-area .item::after {
-    background: variables.$secondary-color none repeat scroll 0 0;
+    background: variables.$secondary none repeat scroll 0 0;
     content: "";
     height: 100%;
     left: -100%;
@@ -224,11 +224,11 @@ ul {
 
 .we-offer-area.text-center .item:hover i {
     background-color: #ffffff !important;
-    color: variables.$secondary-color !important;
+    color: variables.$secondary !important;
 }
 
 .we-offer-area.text-left .item i {
-    background: variables.$secondary-color none repeat scroll 0 0;
+    background: variables.$secondary none repeat scroll 0 0;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     border-radius: 50%;
@@ -245,7 +245,7 @@ ul {
 }
 
 .we-offer-area.text-left .item i::after {
-    border: 2px solid variables.$secondary-color;
+    border: 2px solid variables.$secondary;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     border-radius: 50%;

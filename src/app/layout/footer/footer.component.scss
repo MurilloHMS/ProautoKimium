@@ -2,7 +2,7 @@
 
 /* Footer */
 footer {
-    background: variables.$primary-color;
+    background: variables.$primary;
     color: white;
     padding: 5rem 0 0 0;
     position: relative;
@@ -16,7 +16,7 @@ footer::before {
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, variables.$primary-color, variables.$secondary-color);
+    background: linear-gradient(90deg, variables.$primary, variables.$secondary);
 }
 
 .footer-grid {
@@ -48,7 +48,7 @@ footer::before {
     bottom: -8px;
     width: 50px;
     height: 3px;
-    background: variables.$secondary-color;
+    background: variables.$secondary;
     border-radius: 3px;
 }
 
@@ -83,11 +83,11 @@ footer::before {
     left: -5px;
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    color: variables.$secondary-color;
+    color: variables.$secondary;
 }
 
 .footer-links a:hover {
-    color: variables.$secondary-color;
+    color: variables.$secondary;
     padding-left: 1.5rem;
 }
 
@@ -110,7 +110,7 @@ footer::before {
 
 .contact-item i {
     margin-right: 0.75rem;
-    color: variables.$secondary-color;
+    color: variables.$secondary;
     font-size: 1.1rem;
     margin-top: 3px;
 }
@@ -151,7 +151,7 @@ footer::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, variables.$primary-color, variables.$secondary-color);
+    background: linear-gradient(45deg, variables.$primary, variables.$secondary);
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -181,13 +181,13 @@ footer::before {
 }
 
 .copyright a {
-    color: variables.$secondary-color;
+    color: variables.$secondary;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .copyright a:hover {
-    color: variables.$tertiary-color;
+    color: variables.$bg-surface;
     text-decoration: underline;
 }
 
