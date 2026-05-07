@@ -46,3 +46,119 @@
     $bg-panel: #ffffff;
     $bg-hover: #f8fafc;
     $bg-selected: #eff6ff;
+
+
+// ─── Paleta Principal ──────────────────────────────────────────────────────────
+$primary:             #232e61;
+$primary-light:       #3e4b85;
+$primary-lighter:     #5c6694;
+$primary-dark:        #1b224d;
+$primary-hover:       #019a7a;
+
+$secondary:           #57c1ab;
+$secondary-light:     #85bfb5;
+$secondary-lighter:   #a4ddd2;
+$secondary-dark:      #3e9e8e;
+
+// ─── Feedback ──────────────────────────────────────────────────────────────────
+$success:             #38a169;
+$warning:             #f6ad55;
+$danger:              #e53e3e;
+$info:                #3182ce;
+
+// ─── Neutros ───────────────────────────────────────────────────────────────────
+$neutral-900:         #1a202c;
+$neutral-700:         #4a5568;
+$neutral-500:         #718096;
+$neutral-400:         #94a3b8;
+$neutral-300:         #e2e8f0;
+$neutral-100:         #f5f2f7;
+$white:               #ffffff;
+
+// ─── Texto ─────────────────────────────────────────────────────────────────────
+$text-primary:        #4a5568;
+$text-secondary:      #888888;
+$text-muted:          #64748b;
+$text-light:          #94a3b8;
+
+// ─── Backgrounds ───────────────────────────────────────────────────────────────
+$bg-base:             #f0f4f9;
+$bg-panel:            #ffffff;
+$bg-hover:            #f8fafc;
+$bg-selected:         #eff6ff;
+$bg-surface:          #f4f5f7;
+$bg-surface-dark:     #e1e2e6;
+$bg-surface-darker:   #e8e8ea;
+
+// ─── Bordas ────────────────────────────────────────────────────────────────────
+$border:              #e2e8f0;
+$border-dark:         #d1d5db;
+
+// ─── Tipografia ────────────────────────────────────────────────────────────────
+$font-body:           'Inter', sans-serif;
+$font-heading:        'Montserrat', sans-serif;
+$font-mono:           'Courier New', monospace;
+
+$font-size-xs:        0.72rem;
+$font-size-sm:        0.82rem;
+$font-size-base:      0.9rem;
+$font-size-md:        1rem;
+$font-size-lg:        1.25rem;
+$font-size-xl:        1.5rem;
+$font-size-2xl:       2rem;
+
+$line-height-base:    1.5;
+$line-height-relaxed: 1.65;
+
+// ─── Espaçamentos ──────────────────────────────────────────────────────────────
+$space-1:   0.25rem;  //  4px
+$space-2:   0.5rem;   //  8px
+$space-3:   0.75rem;  // 12px
+$space-4:   1rem;     // 16px
+$space-5:   1.25rem;  // 20px
+$space-6:   1.5rem;   // 24px
+$space-8:   2rem;     // 32px
+$space-10:  2.5rem;   // 40px
+$space-12:  3rem;     // 48px
+
+// ─── Bordas Arredondadas ────────────────────────────────────────────────────────
+$radius-sm:   6px;
+$radius-md:   10px;
+$radius-lg:   14px;
+$radius-xl:   18px;
+$radius-full: 9999px;
+
+// ─── Sombras ───────────────────────────────────────────────────────────────────
+$shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+$shadow-md:   0 4px 16px rgba(35, 46, 97, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+$shadow-lg:   0 12px 40px rgba(35, 46, 97, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06);
+$shadow-focus-primary:   0 0 0 3px rgba(35, 46, 97, 0.12);
+$shadow-focus-secondary: 0 0 0 3px rgba(87, 193, 171, 0.18);
+
+// ─── Transições ────────────────────────────────────────────────────────────────
+$transition-fast:   0.12s ease;
+$transition-base:   0.18s ease;
+$transition-slow:   0.28s ease;
+
+// ─── Breakpoints ───────────────────────────────────────────────────────────────
+$bp-xs:  480px;
+$bp-sm:  640px;
+$bp-md:  768px;
+$bp-lg:  1024px;
+$bp-xl:  1200px;
+$bp-2xl: 1440px;
+
+// ─── Z-index ───────────────────────────────────────────────────────────────────
+$z-sticky:    40;
+$z-dropdown:  100;
+$z-overlay:   1000;
+$z-drawer:    1100;
+$z-modal:     1200;
+$z-toast:     1300;
+
+// ─── Icons Size ───────────────────────────────────────────────────────────────────
+
+$icon-sm: 8px;
+$icon-md: 16px;
+$icon-lg: 32px;
+$icon-xlg: 64px;
