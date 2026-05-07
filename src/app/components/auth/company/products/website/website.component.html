@@ -35,21 +35,21 @@
 
   <!-- ───── STATS CARDS ───── -->
   <div class="stats-row">
-    <div class="stat-card stat-total">
+    <div class="app-card app-card--sm stat-total">
       <div class="stat-icon"><i class="pi pi-box"></i></div>
       <div class="stat-info">
         <span class="stat-value">{{ allProducts().length }}</span>
         <span class="stat-label">Total de Produtos</span>
       </div>
     </div>
-    <div class="stat-card stat-active">
+    <div class="app-card app-card--sm stat-active">
       <div class="stat-icon"><i class="pi pi-eye"></i></div>
       <div class="stat-info">
         <span class="stat-value">{{ activeProducts().length }}</span>
         <span class="stat-label">Visíveis no Site</span>
       </div>
     </div>
-    <div class="stat-card stat-hidden">
+    <div class="app-card app-card--sm stat-hidden">
       <div class="stat-icon"><i class="pi pi-eye-slash"></i></div>
       <div class="stat-info">
         <span class="stat-value">{{ hiddenProducts().length }}</span>
@@ -78,21 +78,21 @@
   </nav>
 
   <!-- ───── TABELA CARD ───── -->
-  <div class="table-card">
+  <div class="table-section">
 
     <!-- BUSCA -->
     <div class="table-toolbar">
-      <div class="filtro-busca">
-        <i class="pi pi-search busca-icon"></i>
+      <div class="search-field">
+        <i class="pi pi-search search-icon"></i>
         <input
           pInputText
-          class="busca-input"
+          class="search-input"
           [placeholder]="activeTab() === 'active' ? 'Buscar produto visível...' : 'Buscar produto oculto...'"
           [(ngModel)]="termoBusca"
           (input)="aplicarFiltro()"
         />
         @if (termoBusca) {
-          <button class="busca-clear" (click)="termoBusca = ''; aplicarFiltro()">
+          <button class="search-clear" (click)="termoBusca = ''; aplicarFiltro()">
             <i class="pi pi-times"></i>
           </button>
         }
@@ -130,7 +130,7 @@
         [paginator]="true"
         [rows]="8"
         [rowsPerPageOptions]="[8, 15, 30]"
-        styleClass="p-datatable-sm product-table"
+        styleClass="p-datatable-sm table"
         responsiveLayout="scroll"
       >
         <ng-template pTemplate="header">
@@ -151,12 +151,12 @@
             <td><span class="text-muted">{{ product.finalidade }}</span></td>
             <td><span class="text-muted">{{ product.diluicao }}</span></td>
             <td>
-              <div class="cores-container">
+              <div class="chip-container">
                 @for (cor of product.cores?.slice(0, 3); track cor) {
-                  <span class="cor-chip">{{ cor }}</span>
+                  <span class="chip-color">{{ cor }}</span>
                 }
                 @if (product.cores?.length > 3) {
-                  <span class="cor-chip cor-chip-more">+{{ product.cores.length - 3 }}</span>
+                  <span class="chip-color chip-color-more">+{{ product.cores.length - 3 }}</span>
                 }
               </div>
             </td>
@@ -206,12 +206,12 @@
             <td><span class="text-muted">{{ product.finalidade }}</span></td>
             <td><span class="text-muted">{{ product.diluicao }}</span></td>
             <td>
-              <div class="cores-container">
+              <div class="chip-container">
                 @for (cor of product.cores?.slice(0, 3); track cor) {
-                  <span class="cor-chip cor-chip-muted">{{ cor }}</span>
+                  <span class="chip-color chip-color-muted">{{ cor }}</span>
                 }
                 @if (product.cores?.length > 3) {
-                  <span class="cor-chip cor-chip-more">+{{ product.cores.length - 3 }}</span>
+                  <span class="chip-color chip-color-more">+{{ product.cores.length - 3 }}</span>
                 }
               </div>
             </td>
@@ -246,7 +246,7 @@
   [draggable]="false"
   [resizable]="false"
   [style]="{ width: '600px' }"
-  styleClass="edit-dialog"
+  styleClass="dialog"
   (onHide)="closeDialog()"
 >
   <form [formGroup]="editForm" class="edit-form">
@@ -335,7 +335,7 @@
   [draggable]="false"
   [resizable]="false"
   [style]="{ width: '600px' }"
-  styleClass="edit-dialog"
+  styleClass="dialog"
   (onHide)="closeCreateDialog()"
 >
   <form [formGroup]="createForm" class="edit-form">
