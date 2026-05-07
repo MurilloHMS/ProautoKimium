@@ -50,3 +50,69 @@
     font-size: .85rem;
   }
 }
+
+::ng-deep {
+  .painel-table {
+    .p-datatable-thead > tr > th {
+      background: v.$neutral-100 !important;
+      border-color: v.$border !important;
+      color: v.$neutral-700 !important;
+      font-size: .8rem !important;
+      font-weight: 700 !important;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: .7rem 1rem !important;
+    }
+
+    .p-datatable-tbody > tr > td {
+      border-color: v.$border !important;
+      font-size: .88rem !important;
+      color: v.$neutral-900;
+      padding: .65rem 1rem !important;
+      vertical-align: middle;
+    }
+
+    .p-datatable-tbody > tr:hover > td {
+      background: v.$neutral-300 !important;
+    }
+
+    .p-paginator {
+      border-top: 1px solid v.$border !important;
+      padding: .6rem 1rem !important;
+      font-size: .83rem !important;
+    }
+  }
+}
+
+.btn-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: none;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-sm;
+  cursor: pointer;
+  transition: background .15s, transform .2s, border-color .15s;
+  color: v.$neutral-500;
+
+  i {
+    font-size: .72rem;
+    transition: transform .2s;
+  }
+
+  &--open {
+    background: v.$neutral-100;
+    border-color: v.$primary;
+    color: v.$primary;
+
+    i { transform: rotate(90deg); }
+  }
+
+  &:hover {
+    background: v.$neutral-100;
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+}
