@@ -1,0 +1,22 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+.app-card {
+  @include m.card-base;
+}
+
+.app-card--sm {
+  @include m.card-size(v.$space-4, v.$space-3, 0);
+}
+
+.app-card--md {
+  @include m.card-size(v.$space-4, v.$space-5, 0);
+}
+
+.app-card--lg {
+  @include m.card-size(v.$space-6, v.$space-8, 0);
+}
+
+.app-card-icon--sm {
+  @include m.card-icon(v.$icon-sm, v.$icon-sm, transparent, inherit);
+}

@@ -1,0 +1,35 @@
+@use 'variables' as v;
+
+.refresh-btn {
+  border-color: v.$secondary-color !important;
+  color: v.$primary-color;
+
+  &hover {
+    background-color: v.$secondary-color-light1;
+  }
+}
+
+.new-btn {
+  background: v.$primary !important;
+  border-color: v.$primary !important;
+  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
+}
+
+.save-btn {
+  background: v.$primary !important;
+  border-color: v.$primary !important;
+  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.action-buttons {
+  display: flex;
+  gap: .3rem;
+  justify-content: center;
+}
+
+.btn-acao {
+  &:hover {
+    opacity: .85;
+  }
+}
