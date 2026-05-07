@@ -1,0 +1,50 @@
+@use 'variables' as v;
+
+.tabs-nav {
+  display: flex;
+  gap: .5rem;
+  border-bottom: 2px solid v.$border;
+  padding-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .6rem 1.1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: v.$radius-sm v.$radius-sm 0 0;
+  font-size: .88rem;
+  font-weight: 500;
+  color: v.$neutral-400;
+  cursor: pointer;
+  transition: color .18s, border-color .18s, background .18s;
+
+  i { font-size: .85rem; }
+
+  &:hover {
+    color: v.$primary;
+    background: v.$neutral-100;
+  }
+
+  &--active {
+    color: v.$primary;
+    border-bottom-color: v.$primary;
+    font-weight: 700;
+  }
+
+  .tab-badge {
+    background: v.$primary;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 700;
+    border-radius: 99px;
+    padding: .1rem .45rem;
+    min-width: 1.4rem;
+    text-align: center;
+  }
+}
