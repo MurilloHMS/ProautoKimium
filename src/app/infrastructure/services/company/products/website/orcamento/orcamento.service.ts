@@ -30,6 +30,7 @@ export class OrcamentoService {
     nome:      ['', [Validators.required, Validators.minLength(2)]],
     email:     ['', [Validators.required, Validators.email]],
     telefone:  ['', Validators.required],
+    segmento:  ['', Validators.required],
     mensagem:  [''],
   });
 
@@ -70,8 +71,8 @@ export class OrcamentoService {
       this.form.markAllAsTouched();
       return;
     }
-    const { nome, telefone, email } = this.form.value;
-    const texto = this.gerarTextoWhatsApp(nome!, telefone!, email!);
+    const { nome, telefone, email, segmento} = this.form.value;
+    const texto = this.gerarTextoWhatsApp(nome!, telefone!, email!, segmento!);
     window.open(`https://wa.me/${this.WHATSAPP_NUMBER}?text=${texto}`, '_blank');
     this.finalizarEnvio();
   }
@@ -81,7 +82,7 @@ export class OrcamentoService {
       this.form.markAllAsTouched();
       return;
     }
-    const { nome, email, telefone, mensagem } = this.form.value;
+    const { nome, email, telefone, mensagem, segmento } = this.form.value;
 
     const linhasProdutos = this._itens()
       .map(i => `- ${i.produto.name} (${i.produto.systemCode}) — Qtd: ${i.quantidade}`)
@@ -89,7 +90,7 @@ export class OrcamentoService {
 
     const assunto = encodeURIComponent('Solicitação de Orçamento');
     const corpo = encodeURIComponent(
-      `Nome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}\nMensagem: ${mensagem ?? ''}\n\nProdutos:\n`
+      `Nome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}\nSegmento: ${segmento}\nMensagem: ${mensagem ?? ''}\n\nProdutos:\n`
     ) + linhasProdutos;
 
     window.open(`mailto:seuemail@empresa.com.br?subject=${assunto}&body=${corpo}`, '_blank');
@@ -144,7 +145,7 @@ export class OrcamentoService {
 
   // ── WhatsApp ──────────────────────────────────────────────────────────────
 
-  gerarTextoWhatsApp(nome: string, telefone: string, email : string): string {
+  gerarTextoWhatsApp(nome: string, telefone: string, email : string, segmento : string): string {
     const linhas = this._itens().map(i =>
       `• ${i.produto.name} (${i.produto.systemCode}) — Qtd: ${i.quantidade}`
     );
@@ -152,7 +153,8 @@ export class OrcamentoService {
       `Olá! Vim do site e gostaria de solicitar um orçamento.\n\n` +
       `*Nome:* ${nome}\n` +
       `*Telefone:* ${telefone}\n` +
-      `*Email:* ${email}\n\n` +
+      `*Email:* ${email}\n` +
+      `*Segmento:* ${segmento}\n\n` +
       `*Produtos:*\n${linhas.join('\n')}`
     );
   }
