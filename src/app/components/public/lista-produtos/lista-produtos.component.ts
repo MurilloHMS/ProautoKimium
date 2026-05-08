@@ -94,9 +94,16 @@ export class ListaProdutosComponent implements OnInit {
   }
 
   resolverImagem(produto: ProductWebSitePublicResponseDTO): string {
-    if (!produto.imagem) return 'images/products/placeholder.png';
-    if (produto.imagem.startsWith('http')) return produto.imagem;
-    return `${environment.apiUrl.replace('/api', '')}/${produto.imagem}`;
+    if (!produto.imagem) {
+      return 'images/products/placeholder.png';
+    }
+
+    if (produto.imagem.startsWith('http')) {
+      return produto.imagem;
+    }
+
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}${produto.imagem.startsWith('/') ? '' : '/'}${produto.imagem}`;
   }
 
   slugDepartamento(nome: string): string {
