@@ -1,4 +1,4 @@
-@use '../../../../../styles/variables.scss' as *;
+@use 'variables.scss' as v;
 
 $text-muted:           #888888;
 
@@ -16,9 +16,9 @@ $font-heading:  'Montserrat', sans-serif;
   align-items: center;
   justify-content: space-between;
   padding: 0 1.25rem;
-  background: $primary;
-  border-bottom: 2px solid $primary-dark;
-  box-shadow: 0 2px 8px rgba($neutral-900, 0.2);
+  background: v.$primary;
+  border-bottom: 2px solid v.$primary-dark;
+  box-shadow: 0 2px 8px rgba(v.$neutral-900, 0.2);
 
   &-left {
     display: flex;
@@ -38,7 +38,7 @@ $font-heading:  'Montserrat', sans-serif;
   }
 
   &-title {
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 700;
     color: #ffffff;
@@ -55,7 +55,7 @@ $font-heading:  'Montserrat', sans-serif;
     position: absolute;
     left: 0.6rem;
     font-size: 0.75rem;
-    color: $primary-lighter;
+    color: v.$primary-lighter;
     pointer-events: none;
   }
 
@@ -66,17 +66,17 @@ $font-heading:  'Montserrat', sans-serif;
     height: 32px !important;
     width: 160px;
     border-radius: 8px !important;
-    background: $primary-light !important;
-    border: 1px solid $primary-lighter !important;
+    background: v.$primary-light !important;
+    border: 1px solid v.$primary-lighter !important;
     color: #fff !important;
     transition: width 0.2s ease, border-color 0.15s, background 0.15s;
 
-    &::placeholder { color: $primary-lighter; }
+    &::placeholder { color: v.$primary-lighter; }
 
     &:focus {
       width: 200px;
-      background: $primary-dark !important;
-      border-color: $secondary !important;
+      background: v.$primary-dark !important;
+      border-color: v.$secondary !important;
       outline: none;
     }
 
@@ -89,7 +89,7 @@ $font-heading:  'Montserrat', sans-serif;
     color: rgba(255, 255, 255, 0.75) !important;
 
     &:hover {
-      background: $primary-light !important;
+      background: v.$primary-light !important;
       color: #fff !important;
     }
 
@@ -113,7 +113,7 @@ $font-heading:  'Montserrat', sans-serif;
   flex-shrink: 0;
 
   &:hover {
-    background: $primary-light;
+    background: v.$primary-light;
     color: #ffffff;
   }
 
@@ -125,7 +125,7 @@ $font-heading:  'Montserrat', sans-serif;
   position: fixed;
   inset: 0;
   z-index: 1099;
-  background: rgba($neutral-900, 0.5);
+  background: rgba(v.$neutral-900, 0.5);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -145,8 +145,8 @@ $font-heading:  'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-right: 1px solid $bg-surface-dark;
-  box-shadow: 6px 0 24px rgba($neutral-900, 0.12);
+  border-right: 1px solid v.$bg-surface-dark;
+  box-shadow: 6px 0 24px rgba(v.$neutral-900, 0.12);
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -159,13 +159,13 @@ $font-heading:  'Montserrat', sans-serif;
     gap: 0.65rem;
     padding: 0 1rem;
     height: 56px;
-    background: $primary;
+    background: v.$primary;
     flex-shrink: 0;
   }
 
   &-app-name {
     flex: 1;
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 700;
     color: #ffffff;
@@ -188,7 +188,7 @@ $font-heading:  'Montserrat', sans-serif;
     margin-left: auto;
 
     &:hover {
-      background: $primary-light;
+      background: v.$primary-light;
       color: #ffffff;
     }
   }
@@ -203,15 +203,15 @@ $font-heading:  'Montserrat', sans-serif;
     &::-webkit-scrollbar { width: 3px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
-      background: $bg-surface-dark;
+      background: v.$bg-surface-dark;
       border-radius: 4px;
     }
   }
 
   &-footer {
     padding: 0.75rem 1rem;
-    border-top: 1px solid $bg-surface-dark;
-    background: $bg-surface;
+    border-top: 1px solid v.$bg-surface-dark;
+    background: v.$bg-surface;
     flex-shrink: 0;
   }
 
@@ -225,7 +225,7 @@ $font-heading:  'Montserrat', sans-serif;
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: $primary;
+    background: v.$primary;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,10 +243,10 @@ $font-heading:  'Montserrat', sans-serif;
   }
 
   &-user-name {
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: 0.82rem;
     font-weight: 600;
-    color: $primary;
+    color: v.$primary;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -254,7 +254,7 @@ $font-heading:  'Montserrat', sans-serif;
 
   &-user-role {
     font-size: 0.72rem;
-    color: $text-muted;
+    color: v.$text-muted;
   }
 }
 
@@ -284,7 +284,7 @@ $font-heading:  'Montserrat', sans-serif;
   background: transparent;
   transition: background 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
-  font-family: $font-heading;
+  font-family: v.$font-heading;
 }
 
 .drawer-link {
@@ -293,24 +293,24 @@ $font-heading:  'Montserrat', sans-serif;
   border-radius: 8px;
   font-size: 0.84rem;
   font-weight: 500;
-  color: $neutral-700;
+  color: v.$neutral-700;
 
   &:hover {
-    background: $bg-surface;
-    color: $primary;
+    background: v.$bg-surface;
+    color: v.$primary;
 
-    .drawer-icon-wrap i { color: $primary; }
+    .drawer-icon-wrap i { color: v.$primary; }
   }
 
   &.active-item {
-    background: $primary;
+    background: v.$primary;
     color: #ffffff;
     font-weight: 600;
 
     .drawer-icon-wrap i { color: #ffffff; }
 
     &:hover {
-      background: $primary-light;
+      background: v.$primary-light;
       color: #ffffff;
 
       .drawer-icon-wrap i { color: #ffffff; }
@@ -330,7 +330,7 @@ $font-heading:  'Montserrat', sans-serif;
 
   i {
     font-size: 0.8rem;
-    color: $primary-lighter;
+    color: v.$primary-lighter;
     transition: color 0.15s;
   }
 }
@@ -344,7 +344,7 @@ $font-heading:  'Montserrat', sans-serif;
 
 .drawer-chevron {
   font-size: 0.7rem;
-  color: $primary-lighter;
+  color: v.$primary-lighter;
   transition: transform 0.22s ease;
   flex-shrink: 0;
   margin-left: auto;
@@ -358,7 +358,7 @@ $font-heading:  'Montserrat', sans-serif;
 
 .drawer-badge-pill {
   margin-left: auto;
-  background: $secondary;
+  background: v.$secondary;
   color: #ffffff;
   font-size: 0.65rem;
   font-weight: 700;
@@ -372,10 +372,10 @@ $font-heading:  'Montserrat', sans-serif;
   margin-left: auto;
   font-size: 0.68rem;
   padding: 0.1rem 0.35rem;
-  border: 1px solid $bg-surface-dark;
+  border: 1px solid v.$bg-surface-dark;
   border-radius: 5px;
-  color: $text-muted;
-  background: $bg-surface;
+  color: v.$text-muted;
+  background: v.$bg-surface;
   flex-shrink: 0;
 }
 
@@ -403,24 +403,24 @@ $font-heading:  'Montserrat', sans-serif;
   border-radius: 7px;
   font-size: 0.82rem;
   font-weight: 400;
-  color: $neutral-700;
+  color: v.$neutral-700;
 
   &:hover {
-    background: $bg-surface;
-    color: $primary;
+    background: v.$bg-surface;
+    color: v.$primary;
 
-    .drawer-icon-wrap i { color: $primary; }
+    .drawer-icon-wrap i { color: v.$primary; }
   }
 
   &.active-subitem {
-    background: $primary;
+    background: v.$primary;
     color: #ffffff;
     font-weight: 500;
 
     .drawer-icon-wrap i { color: #ffffff; }
 
     &:hover {
-      background: $primary-light;
+      background: v.$primary-light;
       color: #ffffff;
     }
   }
@@ -433,24 +433,24 @@ $font-heading:  'Montserrat', sans-serif;
   padding: 0.4rem 0.75rem;
   border-radius: 6px;
   font-size: 0.8rem;
-  color: $neutral-700;
+  color: v.$neutral-700;
   gap: 0.5rem;
 
   &:hover {
-    background: $bg-surface;
-    color: $primary;
+    background: v.$bg-surface;
+    color: v.$primary;
 
-    .drawer-dot { background: $secondary; }
+    .drawer-dot { background: v.$secondary; }
   }
 
   &.active-deepitem {
-    background: $primary;
+    background: v.$primary;
     color: #ffffff;
 
-    .drawer-dot { background: $secondary-lighter; }
+    .drawer-dot { background: v.$secondary-lighter; }
 
     &:hover {
-      background: $primary-light;
+      background: v.$primary-light;
       color: #ffffff;
     }
   }
@@ -460,7 +460,7 @@ $font-heading:  'Montserrat', sans-serif;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: $primary-lighter;
+  background: v.$primary-lighter;
   flex-shrink: 0;
   margin-left: 4px;
   transition: background 0.15s;
@@ -488,7 +488,7 @@ $font-heading:  'Montserrat', sans-serif;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: $primary-lighter;
+  color: v.$primary-lighter;
   font-size: 0.7rem;
   padding: 0.15rem;
   display: flex;
@@ -506,9 +506,9 @@ $font-heading:  'Montserrat', sans-serif;
   right: 0;
   width: 320px;
   background: #ffffff;
-  border: 1px solid $bg-surface-dark;
+  border: 1px solid v.$bg-surface-dark;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba($neutral-900, 0.14);
+  box-shadow: 0 8px 24px rgba(v.$neutral-900, 0.14);
   overflow: hidden;
   z-index: 2000;
   animation: dropdownIn 0.15s ease;
@@ -526,16 +526,16 @@ $font-heading:  'Montserrat', sans-serif;
   padding: 0.6rem 0.85rem;
   text-decoration: none;
   transition: background 0.12s;
-  border-bottom: 1px solid $bg-surface-darker;
+  border-bottom: 1px solid v.$bg-surface-darker;
   cursor: pointer;
 
   &:last-child { border-bottom: none; }
 
   &:hover {
-    background: $bg-surface;
+    background: v.$bg-surface;
 
-    .search-result-label { color: $primary; }
-    .search-result-icon i { color: $primary; }
+    .search-result-label { color: v.$primary; }
+    .search-result-icon i { color: v.$primary; }
   }
 }
 
@@ -543,7 +543,7 @@ $font-heading:  'Montserrat', sans-serif;
   width: 30px;
   height: 30px;
   border-radius: 7px;
-  background: $bg-surface;
+  background: v.$bg-surface;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -551,7 +551,7 @@ $font-heading:  'Montserrat', sans-serif;
 
   i {
     font-size: 0.78rem;
-    color: $primary-lighter;
+    color: v.$primary-lighter;
     transition: color 0.12s;
   }
 }
@@ -564,10 +564,10 @@ $font-heading:  'Montserrat', sans-serif;
 }
 
 .search-result-label {
-  font-family: $font-heading;
+  font-family: v.$font-heading;
   font-size: 0.83rem;
   font-weight: 600;
-  color: $neutral-700;
+  color: v.$neutral-700;
   transition: color 0.12s;
   white-space: nowrap;
   overflow: hidden;
@@ -576,7 +576,7 @@ $font-heading:  'Montserrat', sans-serif;
 
 .search-result-breadcrumb {
   font-size: 0.72rem;
-  color: $text-muted;
+  color: v.$text-muted;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -588,10 +588,10 @@ $font-heading:  'Montserrat', sans-serif;
   gap: 0.6rem;
   padding: 1rem 0.85rem;
   font-size: 0.82rem;
-  color: $text-muted;
+  color: v.$text-muted;
 
-  i { font-size: 0.9rem; color: $bg-surface-dark; }
-  strong { color: $neutral-700; }
+  i { font-size: 0.9rem; color: v.$bg-surface-dark; }
+  strong { color: v.$neutral-700; }
 }
 
 .page-content {

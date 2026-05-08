@@ -1,38 +1,17 @@
-@use '../../../../../styles/variables.scss' as *;
+@use 'variables' as v;
 
-// ─── Brand Variables ──────────────────────────────────────────────────────────
-$primary:           #232e61;
-$primary-light:     #3e4b85;
-$primary-dark:      #1b224d;
-$secondary:         #57c1ab;
-$secondary-dark:    #3e9e8e;
-$bg-base:           #f0f4f9;
-$bg-panel:          #ffffff;
-$bg-hover:          #f8fafc;
 $text-main:         #1a202c;
 $text-muted:        #64748b;
 $text-light:        #94a3b8;
-$border:            #e2e8f0;
-$success:           #10b981;
-$danger:            #ef4444;
-
-$radius-sm:  6px;
-$radius-md:  10px;
-$radius-lg:  14px;
-$radius-xl:  18px;
-
-$shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-$shadow-md:  0 4px 16px rgba(35,46,97,.08), 0 1px 4px rgba(0,0,0,.04);
-$shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
 // ─── Page Header ──────────────────────────────────────────────────────────────
 .page-header {
   padding: 1.5rem 1.75rem 1.25rem;
-  background: $bg-panel;
-  border-bottom: 1px solid $border;
+  background: v.$bg-panel;
+  border-bottom: 1px solid v.$border;
   margin-bottom: 1.5rem;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
 
   &__content {
     display: flex;
@@ -51,8 +30,8 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   &__icon {
     width: 48px;
     height: 48px;
-    border-radius: $radius-md;
-    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: v.$radius-md;
+    background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,14 +48,14 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
     font-family: 'Montserrat', sans-serif;
     font-size: 1.35rem;
     font-weight: 700;
-    color: $primary;
+    color: v.$primary;
     margin: 0 0 2px;
     line-height: 1.2;
   }
 
   &__subtitle {
     font-size: .82rem;
-    color: $text-muted;
+    color: v.$text-muted;
     margin: 0;
   }
 
@@ -94,7 +73,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
     margin-top: .75rem;
     background: #f0fdf4;
     border: 1px solid #bbf7d0;
-    border-radius: $radius-sm;
+    border-radius: v.$radius-sm;
     padding: .35rem .75rem;
     font-size: .8rem;
     color: #15803d;
@@ -119,9 +98,9 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
 // ─── Buttons ──────────────────────────────────────────────────────────────────
 .btn-primary.p-button {
-  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
   border: none;
-  border-radius: $radius-sm;
+  border-radius: v.$radius-sm;
   font-weight: 600;
   font-size: .82rem;
   padding: .5rem 1rem;
@@ -136,9 +115,9 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 }
 
 .btn-secondary.p-button {
-  background: linear-gradient(135deg, $secondary-dark, $secondary);
+  background: linear-gradient(135deg, v.$secondary-dark, v.$secondary);
   border: none;
-  border-radius: $radius-sm;
+  border-radius: v.$radius-sm;
   font-weight: 600;
   font-size: .82rem;
   padding: .5rem 1rem;
@@ -154,26 +133,26 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
 .btn-ghost.p-button {
   background: transparent;
-  border: 1px solid $border;
-  border-radius: $radius-sm;
-  color: $text-muted;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-sm;
+  color: v.$text-muted;
   font-weight: 500;
   font-size: .82rem;
   padding: .5rem 1rem;
   transition: background .15s, color .15s, border-color .15s;
 
   &:hover {
-    background: $bg-hover;
-    color: $primary;
-    border-color: $primary;
+    background: v.$bg-hover;
+    color: v.$primary;
+    border-color: v.$primary;
   }
 }
 
 .btn-outlined.p-button {
   background: transparent;
-  border: 1px solid $secondary;
-  border-radius: $radius-sm;
-  color: $secondary-dark;
+  border: 1px solid v.$secondary;
+  border-radius: v.$radius-sm;
+  color: v.$secondary-dark;
   font-weight: 600;
   font-size: .82rem;
   padding: .5rem 1rem;
@@ -188,9 +167,9 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 ::ng-deep .btn-excel-upload {
   .p-fileupload-choose {
     background: transparent !important;
-    border: 1px solid $secondary !important;
-    border-radius: $radius-sm !important;
-    color: $secondary-dark !important;
+    border: 1px solid v.$secondary !important;
+    border-radius: v.$radius-sm !important;
+    color: v.$secondary-dark !important;
     font-weight: 600 !important;
     font-size: .82rem !important;
     padding: .5rem 1rem !important;
@@ -203,9 +182,9 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
 // ─── Table Card ───────────────────────────────────────────────────────────────
 .table-card {
-  background: $bg-panel;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-md;
+  background: v.$bg-panel;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-md;
   overflow: hidden;
 }
 
@@ -215,14 +194,14 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid v.$border;
   flex-wrap: wrap;
   gap: .75rem;
 
   &__count {
     font-size: .85rem;
-    color: $text-muted;
-    strong { color: $primary; font-weight: 700; }
+    color: v.$text-muted;
+    strong { color: v.$primary; font-weight: 700; }
   }
 
   &__search {
@@ -233,7 +212,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
     i {
       position: absolute;
       left: .75rem;
-      color: $text-light;
+      color: v.$text-light;
       font-size: .85rem;
       z-index: 1;
       pointer-events: none;
@@ -243,16 +222,16 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
       padding-left: 2.25rem;
       height: 36px;
       width: 260px;
-      border-radius: $radius-sm;
-      border: 1px solid $border;
+      border-radius: v.$radius-sm;
+      border: 1px solid v.$border;
       font-size: .83rem;
-      background: $bg-base;
+      background: v.$bg-base;
       transition: border-color .15s, box-shadow .15s;
 
       &:focus {
-        border-color: $primary-light;
+        border-color: v.$primary-light;
         box-shadow: 0 0 0 3px rgba(35,46,97,.1);
-        background: $bg-panel;
+        background: v.$bg-panel;
         outline: none;
       }
     }
@@ -263,14 +242,14 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 ::ng-deep .custom-table {
 
   .p-datatable-thead > tr > th {
-    background: $bg-base;
-    color: $text-muted;
+    background: v.$bg-base;
+    color: v.$text-muted;
     font-size: .76rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .05em;
     padding: .75rem 1rem;
-    border-bottom: 2px solid $border;
+    border-bottom: 2px solid v.$border;
     white-space: nowrap;
   }
 
@@ -279,31 +258,31 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
     > td {
       padding: .75rem 1rem;
-      border-bottom: 1px solid $border;
+      border-bottom: 1px solid v.$border;
       font-size: .85rem;
       color: $text-main;
       vertical-align: middle;
     }
 
-    &:hover > td { background: $bg-hover; }
+    &:hover > td { background: v.$bg-hover; }
     &:last-child > td { border-bottom: none; }
   }
 
   .p-paginator {
-    border-top: 1px solid $border;
+    border-top: 1px solid v.$border;
     padding: .75rem 1rem;
-    background: $bg-panel;
+    background: v.$bg-panel;
 
     .p-paginator-element {
-      border-radius: $radius-sm;
+      border-radius: v.$radius-sm;
       font-size: .82rem;
       min-width: 32px;
       height: 32px;
 
       &.p-highlight {
-        background: $primary;
+        background: v.$primary;
         color: #fff;
-        border-color: $primary;
+        border-color: v.$primary;
       }
     }
   }
@@ -316,8 +295,8 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   display: inline-flex;
   align-items: center;
   background: rgba(35,46,97,.08);
-  color: $primary;
-  border-radius: $radius-sm;
+  color: v.$primary;
+  border-radius: v.$radius-sm;
   padding: .2rem .55rem;
   font-size: .78rem;
   font-weight: 700;
@@ -326,7 +305,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
   &--secondary {
     background: rgba(87,193,171,.1);
-    color: $secondary-dark;
+    color: v.$secondary-dark;
   }
 }
 
@@ -340,7 +319,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
   color: #fff;
   font-size: .75rem;
   font-weight: 700;
@@ -358,10 +337,10 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  color: $text-muted;
+  color: v.$text-muted;
   font-size: .83rem;
 
-  i { color: $text-light; font-size: .8rem; }
+  i { color: v.$text-light; font-size: .8rem; }
 }
 
 .status-chip {
@@ -390,24 +369,24 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: $radius-sm;
+  border-radius: v.$radius-sm;
   background: transparent;
-  border: 1px solid $border;
-  color: $text-muted;
+  border: 1px solid v.$border;
+  color: v.$text-muted;
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: $primary;
-    border-color: $primary;
+    background: v.$primary;
+    border-color: v.$primary;
     color: #fff;
     box-shadow: 0 2px 8px rgba(35,46,97,.25);
   }
 }
 
-.text-muted { color: $text-light; font-size: .85rem; }
+.text-muted { color: v.$text-light; font-size: .85rem; }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 .empty-state {
@@ -420,32 +399,32 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
   &__icon {
     font-size: 2.5rem;
-    color: $text-light;
+    color: v.$text-light;
     margin-bottom: 1rem;
   }
 
   &__title {
     font-weight: 600;
-    color: $text-muted;
+    color: v.$text-muted;
     margin: 0 0 .35rem;
     font-size: .95rem;
   }
 
   &__subtitle {
     font-size: .82rem;
-    color: $text-light;
+    color: v.$text-light;
     margin: 0;
   }
 }
 
 // ─── Dialog ───────────────────────────────────────────────────────────────────
 ::ng-deep .custom-dialog {
-  border-radius: $radius-xl !important;
-  box-shadow: $shadow-lg !important;
+  border-radius: v.$radius-xl !important;
+  box-shadow: v.$shadow-lg !important;
   overflow: hidden;
 
   .p-dialog-header {
-    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
     color: #fff;
     padding: 1.25rem 1.5rem;
     border-radius: 0;
@@ -464,13 +443,13 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
   .p-dialog-content {
     padding: 0 !important;
-    background: $bg-panel;
+    background: v.$bg-panel;
   }
 
   .p-dialog-footer {
     padding: 0;
     border-top: none;
-    background: $bg-panel;
+    background: v.$bg-panel;
   }
 }
 
@@ -481,7 +460,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
 .form-section {
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid $border;
+  border-bottom: 1px solid v.$border;
 
   &:last-child { border-bottom: none; }
 
@@ -491,13 +470,13 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    color: $text-muted;
+    color: v.$text-muted;
     margin: 0 0 1rem;
     display: flex;
     align-items: center;
     gap: .5rem;
 
-    i { color: $secondary-dark; font-size: .8rem; }
+    i { color: v.$secondary-dark; font-size: .8rem; }
   }
 }
 
@@ -522,26 +501,26 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
     color: $text-main;
   }
 
-  .required { color: $danger; }
+  .required { color: v.$danger; }
 
   input.p-inputtext {
     height: 38px;
-    border-radius: $radius-sm;
-    border: 1px solid $border;
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$border;
     font-size: .85rem;
     padding: 0 .75rem;
     transition: border-color .15s, box-shadow .15s;
     width: 100%;
 
     &:focus {
-      border-color: $primary-light;
+      border-color: v.$primary-light;
       box-shadow: 0 0 0 3px rgba(35,46,97,.1);
       outline: none;
     }
 
     &[readonly] {
-      background: $bg-base;
-      color: $text-muted;
+      background: v.$bg-base;
+      color: v.$text-muted;
       cursor: not-allowed;
     }
   }
@@ -559,13 +538,13 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   align-items: flex-start;
   gap: .75rem;
   padding: .75rem 1rem;
-  border: 1px solid $border;
-  border-radius: $radius-md;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
   cursor: pointer;
   transition: background .12s, border-color .12s;
 
   &:hover {
-    background: $bg-hover;
+    background: v.$bg-hover;
     border-color: rgba(35,46,97,.2);
   }
 
@@ -584,7 +563,7 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
 
   .toggle-desc {
     font-size: .76rem;
-    color: $text-muted;
+    color: v.$text-muted;
   }
 }
 
@@ -594,6 +573,6 @@ $shadow-lg:  0 12px 40px rgba(35,46,97,.14), 0 2px 8px rgba(0,0,0,.06);
   justify-content: flex-end;
   gap: .625rem;
   padding: 1rem 1.5rem;
-  border-top: 1px solid $border;
-  background: $bg-base;
+  border-top: 1px solid v.$border;
+  background: v.$bg-base;
 }

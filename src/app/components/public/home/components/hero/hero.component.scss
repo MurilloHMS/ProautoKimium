@@ -1,4 +1,4 @@
-@use '../../../../../../styles/variables.scss';
+@use 'variables' as v;
 
 .hero {
     position: relative;
@@ -58,7 +58,7 @@
     gap: 8px;
     background: rgba(87, 193, 171, 0.1);
     border: 1px solid rgba(87, 193, 171, 0.3);
-    color: variables.$secondary;
+    color: v.$secondary;
     padding: 10px 24px;
     border-radius: 50px;
     font-size: 0.9rem;
@@ -83,7 +83,7 @@
 
     .highlight {
         display: block;
-        background: linear-gradient(135deg, variables.$secondary 0%, #45e0c7 50%, #6effde 100%);
+        background: linear-gradient(135deg, v.$secondary 0%, #45e0c7 50%, #6effde 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -113,7 +113,7 @@
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    background: linear-gradient(135deg, variables.$secondary 0%, #45e0c7 100%);
+    background: linear-gradient(135deg, v.$secondary 0%, #45e0c7 100%);
     color: #0a1628;
     padding: 20px 42px;
     border-radius: 12px;
@@ -175,7 +175,7 @@
 
     &:hover {
         background: rgba(255, 255, 255, 0.05);
-        border-color: variables.$secondary;
+        border-color: v.$secondary;
     }
 }
 
@@ -191,7 +191,7 @@
     .stat-number {
         font-size: 2.8rem;
         font-weight: 900;
-        background: linear-gradient(135deg, variables.$secondary 0%, #45e0c7 100%);
+        background: linear-gradient(135deg, v.$secondary 0%, #45e0c7 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -246,7 +246,7 @@
     .card-icon {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, variables.$secondary 0%, #45e0c7 100%);
+        background: linear-gradient(135deg, v.$secondary 0%, #45e0c7 100%);
         border-radius: 12px;
         display: flex;
         align-items: center;

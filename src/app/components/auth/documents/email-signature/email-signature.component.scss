@@ -1,15 +1,5 @@
-@use '../../../../../styles/variables.scss' as *;
+@use 'variables' as v;
 
-$primary-start: #667eea;
-$primary-end: #764ba2;
-$primary: $primary-start;
-$gray-50: #f9fafb;
-$gray-100: #f3f4f6;
-$gray-200: #e5e7eb;
-$gray-400: #9ca3af;
-$gray-600: #6b7280;
-$gray-700: #374151;
-$gray-900: #111827;
 $red-100: #fef2f2;
 $red-300: #fecaca;
 $red-500: #ef4444;
@@ -31,7 +21,7 @@ $red-600: #dc2626;
 
     .header-icon {
         font-size: 1.8rem;
-        background: linear-gradient(135deg, $primary, $secondary);
+        background: linear-gradient(135deg, v.$primary, v.$secondary);
         width: 54px;
         height: 54px;
         border-radius: 14px;
@@ -49,7 +39,7 @@ $red-600: #dc2626;
     }
 
     p {
-        color: $gray-600;
+        color: v.$neutral-500;
         font-size: 0.875rem;
         margin-top: 2px;
     }
@@ -78,10 +68,10 @@ $red-600: #dc2626;
 .card-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: $gray-700;
+  color: v.$neutral-700;
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid $gray-100;
+  border-bottom: 1px solid v.$neutral-300;
 }
 
 .form-group {
@@ -102,7 +92,7 @@ label {
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
-  color: $gray-700;
+  color: v.$neutral-700;
   margin-bottom: 0.4rem;
   letter-spacing: 0.01em;
 }
@@ -110,20 +100,20 @@ label {
 input {
   width: 100%;
   padding: 0.58rem 0.85rem;
-  border: 1.5px solid $gray-200;
+  border: 1.5px solid v.$neutral-300;
   border-radius: 8px;
   font-size: 0.875rem;
-  color: $gray-900;
+  color: v.$neutral-900;
   background: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 
   &::placeholder {
-    color: $gray-400;
+    color: v.$neutral-400;
   }
 
   &:focus {
-    border-color: $primary;
+    border-color: v.$primary;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
   }
 
@@ -171,7 +161,7 @@ input {
   }
 
   &.btn-primary {
-    background: linear-gradient(135deg, $secondary, $primary);
+    background: linear-gradient(135deg, v.$secondary, v.$primary);
     color: #fff;
 
     &:hover:not(:disabled) {
@@ -183,8 +173,8 @@ input {
 
   &.btn-outline {
     background: transparent;
-    color: $primary;
-    border: 1.5px solid $primary;
+    color: v.$primary;
+    border: 1.5px solid v.$primary;
 
     &:hover:not(:disabled) {
       background: #f5f3ff;
@@ -224,8 +214,8 @@ input {
 .preview-area {
   flex: 1;
   min-height: 260px;
-  background: $gray-50;
-  border: 2px dashed $gray-200;
+  background: v.$neutral-100;
+  border: 2px dashed v.$neutral-300;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -235,7 +225,7 @@ input {
 
 .preview-placeholder {
   text-align: center;
-  color: $gray-400;
+  color: v.$neutral-400;
   padding: 2rem;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -251,7 +241,7 @@ input {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  color: $primary;
+  color: v.$primary;
   font-size: 0.9rem;
 }
 
@@ -259,8 +249,8 @@ input {
 .loader {
   width: 36px;
   height: 36px;
-  border: 3px solid $gray-200;
-  border-top-color: $primary;
+  border: 3px solid v.$neutral-300;
+  border-top-color: v.$primary;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }

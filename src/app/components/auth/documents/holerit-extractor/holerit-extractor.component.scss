@@ -1,4 +1,4 @@
-@use '../../../../../styles/variables.scss' as *;
+@use 'variables' as v;
 @use 'sass:color';
 
 // ─── Wrapper ─────────────────────────────────────────────
@@ -9,19 +9,19 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  font-family: $font-body;
-  color: $text-primary-color;
-  background: $bg-base;
+  font-family: v.$font-body;
+  color: v.$text-primary-color;
+  background: v.$bg-base;
   min-height: 100vh;
 }
 
 // ─── Header ──────────────────────────────────────────────
 .page-header {
-  background: linear-gradient(135deg, $primary 0%, $primary-light 60%, $secondary-dark 100%);
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 60%, v.$secondary-dark 100%);
   border-radius: 12px;
   padding: 2rem 2.5rem;
   color: #fff;
-  box-shadow: 0 4px 20px rgba($primary, .3);
+  box-shadow: 0 4px 20px rgba(v.$primary, .3);
 
   .header-inner {
     display: flex;
@@ -44,7 +44,7 @@
 
   .page-title {
     margin: 0;
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -.2px;
@@ -54,7 +54,7 @@
     margin: .3rem 0 0;
     font-size: .88rem;
     opacity: .8;
-    font-family: $font-body;
+    font-family: v.$font-body;
   }
 }
 
@@ -64,9 +64,9 @@
   .results-card {
     border-radius: 12px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05) !important;
-    border: 1px solid $bg-surface-dark !important;
+    border: 1px solid v.$bg-surface-dark !important;
     overflow: hidden;
-    background: $bg-panel !important;
+    background: v.$bg-panel !important;
 
     .p-card-body { padding: 0 !important; }
     .p-card-content { padding: 1.5rem !important; }
@@ -78,18 +78,18 @@
   align-items: center;
   gap: .5rem;
   padding: .875rem 1.5rem;
-  border-bottom: 1px solid $bg-surface-dark;
-  font-family: $font-heading;
+  border-bottom: 1px solid v.$bg-surface-dark;
+  font-family: v.$font-heading;
   font-weight: 600;
   font-size: .78rem;
-  color: $primary-lighter;
-  background: $bg-surface;
+  color: v.$primary-lighter;
+  background: v.$bg-surface;
   text-transform: uppercase;
   letter-spacing: .08em;
 
   .pi {
     font-size: 1rem;
-    color: $primary;
+    color: v.$primary;
   }
 }
 
@@ -97,8 +97,8 @@
 ::ng-deep .custom-upload {
   .p-fileupload-buttonbar {
     padding: .75rem 1rem;
-    background: $bg-surface !important;
-    border-bottom: 1px solid $bg-surface-dark !important;
+    background: v.$bg-surface !important;
+    border-bottom: 1px solid v.$bg-surface-dark !important;
   }
   .p-fileupload-content {
     border: none !important;
@@ -113,37 +113,37 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 2rem;
-  border: 2px dashed $bg-surface-dark;
+  border: 2px dashed v.$bg-surface-dark;
   border-radius: 10px;
-  background: $bg-surface;
+  background: v.$bg-surface;
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease;
 
   &:hover {
-    border-color: $secondary;
-    background: rgba($secondary, .06);
+    border-color: v.$secondary;
+    background: rgba(v.$secondary, .06);
   }
 
   .drop-icon {
     font-size: 2.75rem;
-    color: $primary-light;
+    color: v.$primary-light;
     margin-bottom: .875rem;
   }
 
   .drop-text {
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 600;
-    color: $primary;
+    color: v.$primary;
     margin: 0 0 .35rem;
   }
 
   .drop-hint {
     font-size: .83rem;
-    color: $text-secondary;
+    color: v.$text-secondary;
     margin: 0;
 
-    strong { color: $primary-light; }
+    strong { color: v.$primary-light; }
   }
 }
 
@@ -152,34 +152,34 @@
   display: flex;
   gap: 1rem;
   padding: 1.125rem 1.5rem;
-  border-top: 1px solid $bg-surface-dark;
-  background: $bg-surface;
+  border-top: 1px solid v.$bg-surface-dark;
+  background: v.$bg-surface;
   flex-wrap: wrap;
 }
 
 ::ng-deep {
   .extract-btn.p-button {
-    background: $primary !important;
-    border-color: $primary !important;
-    font-family: $font-body !important;
+    background: v.$primary !important;
+    border-color: v.$primary !important;
+    font-family: v.$font-body !important;
     font-weight: 600 !important;
 
     &:hover:not(:disabled) {
-      background: $primary-dark !important;
-      border-color: $primary-dark !important;
+      background: v.$primary-dark !important;
+      border-color: v.$primary-dark !important;
     }
 
     &:disabled { opacity: .55; }
   }
 
   .export-btn.p-button {
-    color: $success !important;
-    border-color: $success !important;
-    font-family: $font-body !important;
+    color: v.$success !important;
+    border-color: v.$success !important;
+    font-family: v.$font-body !important;
     font-weight: 600 !important;
 
     &:hover {
-      background: rgba($success, .07) !important;
+      background: rgba(v.$success, .07) !important;
     }
   }
 }
@@ -209,7 +209,7 @@
   &:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
 
   .summary-label {
-    font-family: $font-heading;
+    font-family: v.$font-heading;
     font-size: .72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -218,33 +218,33 @@
   }
 
   .summary-value {
-    font-family: $font-body;
+    font-family: v.$font-body;
     font-size: 1.3rem;
     font-weight: 700;
   }
 
   &.inss {
-    background: rgba($primary, .06);
-    border-color: rgba($primary, .12);
-    color: $primary;
+    background: rgba(v.$primary, .06);
+    border-color: rgba(v.$primary, .12);
+    color: v.$primary;
   }
 
   &.irrf {
-    background: rgba($secondary-dark, .08);
-    border-color: rgba($secondary-dark, .15);
-    color: $secondary-dark;
+    background: rgba(v.$secondary-dark, .08);
+    border-color: rgba(v.$secondary-dark, .15);
+    color: v.$secondary-dark;
   }
 
   &.fgts {
-    background: rgba($success, .08);
-    border-color: rgba($success, .15);
-    color: color.adjust($success, $lightness: -8%);
+    background: rgba(v.$success, .08);
+    border-color: rgba(v.$success, .15);
+    color: color.adjust(v.$success, $lightness: -8%);
   }
 
   &.emprestimo {
-    background: rgba($warning, .1);
-    border-color: rgba($warning, .2);
-    color: color.adjust($warning, $lightness: -20%);
+    background: rgba(v.$warning, .1);
+    border-color: rgba(v.$warning, .2);
+    color: color.adjust(v.$warning, $lightness: -20%);
   }
 }
 
@@ -266,14 +266,14 @@
 ::ng-deep .result-table {
 
   .p-datatable-thead > tr > th {
-    background: $bg-surface !important;
-    font-family: $font-heading !important;
+    background: v.$bg-surface !important;
+    font-family: v.$font-heading !important;
     font-size: .73rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    color: $primary-lighter !important;
-    border-bottom: 2px solid $bg-surface-dark !important;
+    color: v.$primary-lighter !important;
+    border-bottom: 2px solid v.$bg-surface-dark !important;
     white-space: nowrap;
     padding: .75rem 1rem !important;
   }
@@ -281,13 +281,13 @@
   .p-datatable-tbody > tr > td {
     padding: .7rem 1rem !important;
     font-size: .875rem;
-    font-family: $font-body;
-    color: $text-primary-color;
-    border-bottom: 1px solid $bg-surface-darker !important;
+    font-family: v.$font-body;
+    color: v.$text-primary-color;
+    border-bottom: 1px solid v.$bg-surface-darker !important;
   }
 
   .p-datatable-tbody > tr:hover > td {
-    background: rgba($secondary, .06) !important;
+    background: rgba(v.$secondary, .06) !important;
   }
 }
 
@@ -296,14 +296,14 @@
   align-items: center;
   gap: .625rem;
   font-weight: 600;
-  color: $primary;
+  color: v.$primary;
 }
 
 .name-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary, $secondary-dark);
+  background: linear-gradient(135deg, v.$primary, v.$secondary-dark);
   color: #fff;
   display: flex;
   align-items: center;
@@ -311,20 +311,20 @@
   font-size: .75rem;
   font-weight: 700;
   flex-shrink: 0;
-  font-family: $font-heading;
+  font-family: v.$font-heading;
 }
 
 .cpf-cell {
   font-family: 'Courier New', monospace;
   font-size: .82rem;
-  color: $text-secondary;
+  color: v.$text-secondary;
 }
 
 .currency-cell {
   font-family: 'Courier New', monospace;
   font-size: .85rem;
   text-align: right;
-  color: $text-primary-color;
+  color: v.$text-primary-color;
 }
 
 .text-right { text-align: right !important; }
@@ -334,8 +334,8 @@
     font-size: .7rem;
     font-weight: 600;
     border-radius: 6px;
-    background: rgba($primary, .1) !important;
-    color: $primary !important;
+    background: rgba(v.$primary, .1) !important;
+    color: v.$primary !important;
   }
 
   .record-badge {
@@ -345,7 +345,7 @@
 
 .empty-msg {
   text-align: center;
-  color: $text-secondary;
+  color: v.$text-secondary;
   padding: 2.5rem !important;
   font-size: .9rem;
 }
