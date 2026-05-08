@@ -1,0 +1,28 @@
+@use 'variables' as v;
+
+::ng-deep .dialog {
+  .p-dialog-header {
+    background: v.$primary;
+    border-bottom: 1px solid v.$secondary;
+    padding: 1.1rem 1.5rem;
+
+    .p-dialog-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+  }
+
+  .p-dialog-content {
+    padding: 0;
+  }
+
+  .p-dialog-footer {
+    border-top: 1px solid v.$secondary;
+    padding: .85rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: .6rem;
+    background: #f8fafc;
+  }
+}

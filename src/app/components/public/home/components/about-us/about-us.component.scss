@@ -1,4 +1,4 @@
-@use "../../../../../../styles/variables.scss" as v;
+@use 'variables' as v;
 
 // ─────────────────────────────────────────────
 //  ABOUT HERO
@@ -25,7 +25,7 @@
     display: inline-block;
     font-size: 0.95rem;
     font-weight: 600;
-    color: v.$secondary-color;
+    color: v.$secondary;
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 20px;
@@ -37,13 +37,13 @@
   h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    color: v.$primary-color;
+    color: v.$primary;
     line-height: 1.2;
     margin-bottom: 24px;
     letter-spacing: -1px;
 
     .highlight {
-      color: v.$secondary-color;
+      color: v.$secondary;
       position: relative;
       display: inline-block;
 
@@ -54,7 +54,7 @@
         left: 0;
         width: 100%;
         height: 3px;
-        background: linear-gradient(90deg, transparent, v.$secondary-color, transparent);
+        background: linear-gradient(90deg, transparent, v.$secondary, transparent);
         opacity: 0.4;
       }
     }
@@ -96,7 +96,7 @@
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, v.$secondary-color, v.$primary-color);
+    background: linear-gradient(90deg, v.$secondary, v.$primary);
     transform: scaleX(0);
     transition: transform 0.4s ease;
   }
@@ -113,7 +113,7 @@
   .stat-number {
     font-size: 3.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, v.$secondary-color, v.$primary-color);
+    background: linear-gradient(135deg, v.$secondary, v.$primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -140,7 +140,7 @@
 .story-content {
   h2 {
     font-size: 2.5rem;
-    color: v.$primary-color;
+    color: v.$primary;
     font-weight: 700;
     margin-bottom: 30px;
     position: relative;
@@ -153,7 +153,7 @@
       left: 0;
       width: 60px;
       height: 4px;
-      background: v.$secondary-color;
+      background: v.$secondary;
       border-radius: 2px;
     }
   }
@@ -165,7 +165,7 @@
     margin-bottom: 20px;
 
     strong {
-      color: v.$primary-color;
+      color: v.$primary;
       font-weight: 600;
     }
   }
@@ -180,7 +180,7 @@
   .pill {
     font-size: 0.85rem;
     font-weight: 600;
-    color: v.$primary-color;
+    color: v.$primary;
     background: rgba(87, 193, 171, 0.08);
     border: 1.5px solid rgba(87, 193, 171, 0.25);
     border-radius: 50px;
@@ -190,7 +190,7 @@
 
     &:hover {
       background: rgba(87, 193, 171, 0.16);
-      border-color: v.$secondary-color;
+      border-color: v.$secondary;
     }
   }
 }
@@ -214,7 +214,7 @@
     right: -20px;
     width: 100%;
     height: 100%;
-    border: 3px solid v.$secondary-color;
+    border: 3px solid v.$secondary;
     border-radius: 20px;
     z-index: -1;
   }
@@ -224,7 +224,7 @@
   position: absolute;
   bottom: 24px;
   left: -20px;
-  background: v.$secondary-color;
+  background: v.$secondary;
   color: #fff;
   border-radius: 16px;
   padding: 16px 22px;
@@ -279,7 +279,7 @@
     display: inline-block;
     font-size: 0.85rem;
     font-weight: 600;
-    color: v.$secondary-color;
+    color: v.$secondary;
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 16px;
@@ -287,7 +287,7 @@
 
   h2 {
     font-size: 2.5rem;
-    color: v.$primary-color;
+    color: v.$primary;
     font-weight: 700;
     margin-bottom: 24px;
   }
@@ -299,7 +299,7 @@
     margin-bottom: 20px;
 
     strong {
-      color: v.$primary-color;
+      color: v.$primary;
       font-weight: 600;
     }
   }
@@ -309,7 +309,7 @@
     padding: 24px;
     background: linear-gradient(135deg, rgba(87, 193, 171, 0.08) 0%, rgba(87, 193, 171, 0.02) 100%);
     border-radius: 12px;
-    border-left: 4px solid v.$secondary-color;
+    border-left: 4px solid v.$secondary;
 
     .contact-label {
       display: block;
@@ -321,13 +321,13 @@
 
     .email-link {
       font-size: 1.2rem;
-      color: v.$secondary-color;
+      color: v.$secondary;
       font-weight: 700;
       text-decoration: none;
       transition: all 0.3s ease;
 
       &:hover {
-        color: v.$primary-color;
+        color: v.$primary;
         text-decoration: underline;
       }
     }
@@ -353,7 +353,7 @@
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    stroke: v.$secondary-color;
+    stroke: v.$secondary;
   }
 }
 
@@ -365,7 +365,7 @@
 
   h2 {
     font-size: 2.8rem;
-    color: v.$primary-color;
+    color: v.$primary;
     font-weight: 700;
     margin-bottom: 60px;
     position: relative;
@@ -379,7 +379,7 @@
       transform: translateX(-50%);
       width: 80px;
       height: 4px;
-      background: linear-gradient(90deg, transparent, v.$secondary-color, transparent);
+      background: linear-gradient(90deg, transparent, v.$secondary, transparent);
     }
   }
 }
@@ -416,7 +416,7 @@
 
   h3 {
     font-size: 1.4rem;
-    color: v.$primary-color;
+    color: v.$primary;
     font-weight: 700;
     margin-bottom: 12px;
   }

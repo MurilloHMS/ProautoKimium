@@ -1,4 +1,4 @@
-@use '../../../../../../styles/variables.scss' as v;
+@use 'variables' as v;
 
 .consultoria-container {
   width: 100%;
@@ -11,7 +11,7 @@
   display: inline-block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: v.$secondary-color;
+  color: v.$secondary;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   margin-bottom: 16px;
@@ -32,7 +32,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  background: linear-gradient(to right, v.$primary-color, v.$secondary-color);
+  background: linear-gradient(to right, v.$primary, v.$secondary);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -43,7 +43,7 @@
   font-size: 1.3rem;
   max-width: 900px;
   margin: 0 auto;
-  color: v.$primary-text-color;
+  color: v.$neutral-700;
   opacity: 0.9;
   line-height: 1.8;
 }
@@ -62,7 +62,7 @@
 .process-box h2 {
   font-size: 2.2rem;
   font-weight: 600;
-  color: v.$primary-text-color;
+  color: v.$neutral-700;
   margin-bottom: 3rem;
   text-align: center;
   text-transform: uppercase;
@@ -80,7 +80,6 @@
 
 .step {
   background: #fff;
-  border-radius: 0;
   padding: 0;
   position: relative;
   overflow: hidden;
@@ -158,7 +157,7 @@
   top: 2rem;
   left: 2rem;
   z-index: 3;
-  background: linear-gradient(135deg, v.$primary-color, v.$secondary-color);
+  background: linear-gradient(135deg, v.$primary, v.$secondary);
   color: #fff;
   font-weight: 700;
   padding: 0.6rem 1.2rem;
@@ -241,7 +240,7 @@
   width: 100%;
   height: 8px;
   transition: height 0.3s ease;
-  background: v.$secondary-color;
+  background: v.$secondary;
   z-index: 3;
 }
 

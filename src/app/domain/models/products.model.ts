@@ -47,6 +47,7 @@ export interface ProductWebSiteResponseDTO{
   finalidade: string;
   diluicao: string;
   descricao: string;
+  imagem: string;
 }
 
 export interface ProductWebSitePublicResponseDTO{
@@ -57,4 +58,5 @@ export interface ProductWebSitePublicResponseDTO{
   finalidade: string;
   diluicao: string;
   descricao: string;
+  imagem: string;
 }

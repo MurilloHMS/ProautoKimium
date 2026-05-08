@@ -1,0 +1,38 @@
+@use 'variables' as v;
+
+@mixin card-base {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  box-shadow: v.$shadow-sm;
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  transition: v.$transition-base;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+  }
+}
+
+@mixin card-size($padding-v, $padding-h, $min-height) {
+  padding: $padding-v $padding-h;
+  min-height: $min-height;
+}
+
+@mixin card-flex($flex-direction, $justify-content) {
+  flex-direction: $flex-direction;
+  justify-content: $justify-content;
+}
+
+@mixin card-icon($width, $height, $bg: v.$bg-hover, $color: v.$primary) {
+  width: $width;
+  height: $height;
+  border-radius: v.$radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $bg;
+  color: $color;
+  flex-shrink: 0;
+}

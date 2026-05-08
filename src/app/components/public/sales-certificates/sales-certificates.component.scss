@@ -1,4 +1,4 @@
-@use "../../../../styles/variables.scss" as v;
+@use 'variables' as v;
 
 :host {
   --navy:     #0f1f3d;
@@ -34,13 +34,13 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 2px solid v.$secondary-color;
+  border-bottom: 2px solid v.$secondary;
 }
 
 .top-bar-logo {
   width: 28px;
   height: 28px;
-  background: v.$secondary-color;
+  background: v.$secondary;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -55,7 +55,7 @@
   letter-spacing: .3px;
 
   strong {
-    color: v.$tertiary-color;
+    color: v.$bg-surface;
     font-weight: 600;
   }
 }
@@ -90,7 +90,7 @@
   width: 64px;
   height: 64px;
   margin: 0 auto 18px;
-  background: linear-gradient(135deg, v.$secondary-color, v.$primary-color);
+  background: linear-gradient(135deg, v.$secondary, v.$primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -99,7 +99,7 @@
   animation: popIn .5s cubic-bezier(.34, 1.56, .64, 1) both;
   position: relative;
   z-index: 1;
-  color: v.$tertiary-color;
+  color: v.$bg-surface;
 }
 
 @keyframes popIn {
@@ -111,7 +111,7 @@
   font-size: 11px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: v.$secondary-color;
+  color: v.$secondary;
   font-weight: 600;
   margin-bottom: 8px;
   position: relative;
@@ -121,7 +121,7 @@
 .hero-title {
   font-family: 'DM Serif Display', Georgia, serif;
   font-size: 26px;
-  color: v.$tertiary-color;
+  color: v.$bg-surface;
   line-height: 1.2;
   margin: 0 0 10px;
   position: relative;
@@ -140,7 +140,7 @@
 .steps {
   display: flex;
   margin-bottom: 16px;
-  background: v.$tertiary-color;
+  background: v.$bg-surface;
   border-radius: var(--r);
   overflow: hidden;
   border: 1px solid var(--border);
@@ -167,21 +167,21 @@
 
   &.done {
     .step-num {
-      background: v.$secondary-color;
-      border-color: v.$secondary-color;
+      background: v.$secondary;
+      border-color: v.$secondary;
       color: white;
     }
-    .step-label { color: v.$secondary-color; }
+    .step-label { color: v.$secondary; }
   }
 
   &.active {
     .step-num {
-      background: v.$primary-color;
-      border-color: v.$primary-color;
+      background: v.$primary;
+      border-color: v.$primary;
       color: white;
     }
     .step-label {
-      color: v.$primary-color;
+      color: v.$primary;
       font-weight: 600;
     }
   }
@@ -231,7 +231,7 @@
 }
 
 .card {
-  background: v.$tertiary-color;
+  background: v.$bg-surface;
   border-radius: var(--r);
   border: 1px solid var(--border);
   margin-bottom: 12px;
@@ -266,7 +266,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: v.$tertiary-color;
+  color: v.$bg-surface;
 }
 
 .card-header-text { flex: 1; }
@@ -345,10 +345,10 @@
   margin-bottom: 6px;
   letter-spacing: .2px;
 
-  svg { color: v.$secondary-color; flex-shrink: 0; }
+  svg { color: v.$secondary; flex-shrink: 0; }
 
   .req {
-    color: v.$error-color;
+    color: v.$danger;
     font-size: 14px;
     line-height: 1;
   }
@@ -362,7 +362,7 @@
   font-size: 15px;
   font-family: 'DM Sans', sans-serif;
   color: var(--navy);
-  background: v.$tertiary-color;
+  background: v.$bg-surface;
   transition: border-color .2s, box-shadow .2s;
   outline: none;
   box-sizing: border-box;
@@ -374,8 +374,8 @@
     box-shadow: 0 0 0 3px rgba(15, 31, 61, .08);
   }
 
-  &.valid   { border-color: v.$secondary-color; }
-  &.invalid { border-color: v.$error-color;   }
+  &.valid   { border-color: v.$secondary; }
+  &.invalid { border-color: v.$danger;   }
 }
 
 .field-hint {
@@ -387,8 +387,8 @@
   align-items: center;
   gap: 4px;
 
-  &.ok  { color: v.$secondary-color; }
-  &.err { color: v.$error-color;   }
+  &.ok  { color: v.$secondary; }
+  &.err { color: v.$danger;   }
 }
 
 .cta-wrapper { padding: 4px 0 0; }

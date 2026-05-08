@@ -2,14 +2,14 @@
 
 <div class="painel-wrapper">
 
-  <div class="painel-header">
+  <div class="page-header">
     <div>
-      <h2 class="header-title">
-        <i class="pi pi-briefcase"></i> Painel de Vagas
+      <h2 class="page-title">
+        <i class="pi pi-briefcase header-icon"></i> Painel de Vagas
       </h2>
-      <p class="header-subtitle">Gerencie as vagas do processo seletivo</p>
+      <p class="page-subtitle">Gerencie as vagas do processo seletivo</p>
     </div>
-    <button pButton class="btn-nova-vaga" icon="pi pi-plus" label="Nova Vaga" (click)="abrirModalNova()"></button>
+    <button pButton class="new-btn" icon="pi pi-plus" label="Nova Vaga" (click)="abrirModalNova()"></button>
   </div>
 
   <nav class="tabs-nav">
@@ -27,18 +27,18 @@
     </button>
   </nav>
 
-  <div class="filtros-section">
-    <div class="filtros-row">
-      <div class="filtro-busca">
-        <i class="pi pi-search busca-icon"></i>
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="search-field">
+        <i class="pi pi-search search-icon"></i>
         <input
           pInputText
-          class="busca-input"
+          class="search-input"
           placeholder="Buscar por título, área..."
           [(ngModel)]="termoBusca"
           (input)="aplicarFiltros()"
         />
-        <button class="busca-clear" *ngIf="termoBusca" (click)="termoBusca = ''; aplicarFiltros()">
+        <button class="search-clear" *ngIf="termoBusca" (click)="termoBusca = ''; aplicarFiltros()">
           <i class="pi pi-times"></i>
         </button>
       </div>
@@ -117,7 +117,7 @@
             </button>
           </td>
           <td class="cell-titulo">{{ vaga.titulo }}</td>
-          <td><span class="tag-area">{{ vaga.area }}</span></td>
+          <td><span class="chip-area">{{ vaga.area }}</span></td>
           <td>{{ formatarData(vaga.dataAbertura) }}</td>
           <td>{{ formatarData(vaga.dataEncerramento) }}</td>
           <td class="cell-acoes">

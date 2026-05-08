@@ -7,20 +7,8 @@ import { environment } from '../../../../environments/environment';
 import {OrcamentoService} from "../../../infrastructure/services/company/products/website/orcamento/orcamento.service";
 import {OrcamentoDrawerComponent} from "./components/orcamento-drawer/orcamento-drawer.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {ProductWebSitePublicResponseDTO} from "../../../domain/models/products.model";
 
-export interface ProductWebSitePublicResponseDTO {
-  systemCode: string;
-  name: string;
-  active: boolean;
-  cores: string[];
-  finalidade: string;
-  diluicao: string;
-  descricao: string;
-  imagem?: string; // path ou URL — opcional até a API definir
-  // departamento?: string; // descomente quando a API suportar
-}
-
-// Agrupamento por departamento (ou "geral" enquanto não houver)
 export interface ProdutoPorDepartamento {
   nome: string;
   produtos: ProductWebSitePublicResponseDTO[];
@@ -94,9 +82,16 @@ export class ListaProdutosComponent implements OnInit {
   }
 
   resolverImagem(produto: ProductWebSitePublicResponseDTO): string {
-    if (!produto.imagem) return 'images/products/placeholder.png';
-    if (produto.imagem.startsWith('http')) return produto.imagem;
-    return `${environment.apiUrl.replace('/api', '')}/${produto.imagem}`;
+    if (!produto.imagem) {
+      return 'images/products/placeholder.png';
+    }
+
+    if (produto.imagem.startsWith('http')) {
+      return produto.imagem;
+    }
+
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}${produto.imagem.startsWith('/') ? '' : '/'}${produto.imagem}`;
   }
 
   slugDepartamento(nome: string): string {

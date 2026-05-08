@@ -2,7 +2,6 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-// PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -16,12 +15,15 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { environment } from '../../../../../../environments/environment';
+
 import {
   ProductWebSiteCreateDTO,
   ProductWebSiteResponseDTO,
   ProductWebSiteUpdateDTO
-} from "../../../../../domain/models/products.model";
-import {WebsiteService} from "../../../../../infrastructure/services/company/products/website/website.service";
+} from '../../../../../domain/models/products.model';
+
+import { WebsiteService } from '../../../../../infrastructure/services/company/products/website/website.service';
 
 export type TabKey = 'active' | 'hidden';
 
@@ -50,70 +52,53 @@ export type TabKey = 'active' | 'hidden';
   styleUrls: ['./website.component.scss'],
 })
 export class WebsiteComponent implements OnInit {
-
-  // ── dados ──────────────────────────────────────
-  allProducts    = signal<ProductWebSiteResponseDTO[]>([]);
+  allProducts = signal<ProductWebSiteResponseDTO[]>([]);
   activeProducts = signal<ProductWebSiteResponseDTO[]>([]);
   hiddenProducts = signal<ProductWebSiteResponseDTO[]>([]);
 
-  loading       = signal(false);
+  loading = signal(false);
   dialogVisible = signal(false);
+  createDialogVisible = signal(false);
   editingProduct = signal<ProductWebSiteResponseDTO | null>(null);
 
-  // ── tabs ───────────────────────────────────────
   activeTab = signal<TabKey>('active');
+  termoBusca = '';
 
-  tabs = [
-    { key: 'active' as TabKey, label: 'Visíveis no Site', icon: 'pi-eye'       },
-    { key: 'hidden' as TabKey, label: 'Ocultos',          icon: 'pi-eye-slash' },
-  ];
+  selectedCreateImage: File | null = null;
+  selectedEditImage: File | null = null;
+  createImagePreview: string | null = null;
+  editImagePreview: string | null = null;
 
   filteredCores: string[] = [];
 
-  filtrarCores(event: any) {
-    const query = event.query?.toLowerCase() || '';
+  tabs = [
+    { key: 'active' as TabKey, label: 'Visíveis no Site', icon: 'pi-eye' },
+    { key: 'hidden' as TabKey, label: 'Ocultos', icon: 'pi-eye-slash' },
+  ];
 
-    const coresBase = ['Vermelho', 'Azul', 'Verde', 'Preto', 'Branco'];
+  private _buscaTrigger = signal(0);
 
-    this.filteredCores = coresBase.filter(c =>
-      c.toLowerCase().includes(query)
-    );
-  }
-
-  setTab(key: TabKey): void {
-    this.activeTab.set(key);
-    this.termoBusca = '';
-  }
-
-  // ── busca ──────────────────────────────────────
-  termoBusca = '';
+  editForm!: FormGroup;
+  createForm!: FormGroup;
 
   produtosFiltrados = computed(() => {
-    const lista = this.activeTab() === 'active'
-      ? this.activeProducts()
-      : this.hiddenProducts();
+    this._buscaTrigger();
+
+    const lista =
+      this.activeTab() === 'active'
+        ? this.activeProducts()
+        : this.hiddenProducts();
 
     const termo = this.termoBusca.toLowerCase().trim();
     if (!termo) return lista;
 
     return lista.filter(p =>
-      p.name.toLowerCase().includes(termo)       ||
-      p.systemCode.toLowerCase().includes(termo) ||
-      p.finalidade.toLowerCase().includes(termo) ||
-      p.diluicao.toLowerCase().includes(termo)
+      (p.name ?? '').toLowerCase().includes(termo) ||
+      (p.systemCode ?? '').toLowerCase().includes(termo) ||
+      (p.finalidade ?? '').toLowerCase().includes(termo) ||
+      (p.diluicao ?? '').toLowerCase().includes(termo)
     );
   });
-
-  // Chamado pelo (input) do campo de busca para forçar atualização do signal
-  aplicarFiltro(): void {
-    // O computed já reage ao termoBusca, mas como termoBusca não é um signal
-    // precisamos de um "trigger". Usamos um signal auxiliar.
-    this._buscaTrigger.update(v => v + 1);
-  }
-  private _buscaTrigger = signal(0);
-
-  // ── form ───────────────────────────────────────
-  editForm!: FormGroup;
 
   constructor(
     private service: WebsiteService,
@@ -123,25 +108,36 @@ export class WebsiteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initForm();
+    this.initEditForm();
     this.initCreateForm();
     this.loadAllProducts();
   }
 
-  initForm(): void {
+  initEditForm(): void {
     this.editForm = this.fb.group({
-      name:       ['', [Validators.required, Validators.minLength(2)]],
-      active:     [true],
-      cores:      [[]],
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      active: [true],
+      cores: [[]],
       finalidade: ['', Validators.required],
-      diluicao:   ['', Validators.required],
-      descricao:  ['', Validators.required],
+      diluicao: ['', Validators.required],
+      descricao: ['', Validators.required],
     });
   }
 
-  // ── API ────────────────────────────────────────
+  initCreateForm(): void {
+    this.createForm = this.fb.group({
+      systemCode: ['', [Validators.required, Validators.minLength(2)]],
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      cores: [[]],
+      finalidade: ['', Validators.required],
+      diluicao: ['', Validators.required],
+      descricao: ['', Validators.required],
+    });
+  }
+
   loadAllProducts(): void {
     this.loading.set(true);
+
     this.service.getAllProducts().subscribe({
       next: (products) => {
         this.allProducts.set(products);
@@ -150,46 +146,144 @@ export class WebsiteComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar produtos.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao carregar produtos.'
+        });
         this.loading.set(false);
       },
     });
   }
 
+  setTab(key: TabKey): void {
+    this.activeTab.set(key);
+    this.termoBusca = '';
+    this.aplicarFiltro();
+  }
+
+  aplicarFiltro(): void {
+    this._buscaTrigger.update(v => v + 1);
+  }
+
+  filtrarCores(event: any): void {
+    const query = event.query?.toLowerCase() || '';
+    const coresBase = ['Vermelho', 'Azul', 'Verde', 'Preto', 'Branco', 'Amarelo', 'Cinza'];
+
+    this.filteredCores = coresBase.filter(c =>
+      c.toLowerCase().includes(query)
+    );
+  }
+
+  openCreateDialog(): void {
+    this.createForm.reset({
+      systemCode: '',
+      name: '',
+      cores: [],
+      finalidade: '',
+      diluicao: '',
+      descricao: '',
+    });
+
+    this.selectedCreateImage = null;
+    this.createImagePreview = null;
+    this.createDialogVisible.set(true);
+  }
+
+  closeCreateDialog(): void {
+    this.createDialogVisible.set(false);
+    this.createForm.reset({ cores: [] });
+    this.selectedCreateImage = null;
+    this.createImagePreview = null;
+  }
+
   openEditDialog(product: ProductWebSiteResponseDTO): void {
     this.editingProduct.set(product);
+    this.selectedEditImage = null;
+    this.editImagePreview = null;
+
     this.editForm.patchValue({
-      name:       product.name,
-      active:     product.active,
-      cores:      product.cores ?? [],
+      name: product.name,
+      active: product.active,
+      cores: product.cores ?? [],
       finalidade: product.finalidade,
-      diluicao:   product.diluicao,
-      descricao:  product.descricao,
+      diluicao: product.diluicao,
+      descricao: product.descricao,
     });
+
     this.dialogVisible.set(true);
   }
 
-  saveEdit(): void {
-    if (this.editForm.invalid) { this.editForm.markAllAsTouched(); return; }
-    const product = this.editingProduct();
-    if (!product) return;
+  closeDialog(): void {
+    this.dialogVisible.set(false);
+    this.editingProduct.set(null);
+    this.editForm.reset({ cores: [] });
+    this.selectedEditImage = null;
+    this.editImagePreview = null;
+  }
 
-    const dto: ProductWebSiteUpdateDTO = this.editForm.value;
-    this.service.update(dto, product.id).subscribe({
+  saveCreate(): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+      return;
+    }
+
+    const dto: ProductWebSiteCreateDTO = this.createForm.getRawValue();
+
+    this.service.create(dto, this.selectedCreateImage).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto atualizado com sucesso!' });
-        this.dialogVisible.set(false);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Produto cadastrado com sucesso!'
+        });
+        this.closeCreateDialog();
         this.loadAllProducts();
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar produto.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao cadastrar produto.'
+        });
+      },
+    });
+  }
+
+  saveEdit(): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
+    }
+
+    const product = this.editingProduct();
+    if (!product) return;
+
+    const dto: ProductWebSiteUpdateDTO = this.editForm.getRawValue();
+
+    this.service.update(dto, product.id, this.selectedEditImage).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Produto atualizado com sucesso!'
+        });
+        this.closeDialog();
+        this.loadAllProducts();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao atualizar produto.'
+        });
       },
     });
   }
 
   confirmHide(product: ProductWebSiteResponseDTO): void {
     this.confirmationService.confirm({
-      message: `Deseja ocultar o produto <strong>${product.name}</strong>? Ele não será mais exibido no site.`,
+      message: `Deseja ocultar o produto ${product.name}? Ele não será mais exibido no site.`,
       header: 'Ocultar Produto',
       icon: 'pi pi-eye-slash',
       acceptLabel: 'Ocultar',
@@ -202,18 +296,26 @@ export class WebsiteComponent implements OnInit {
   hideProduct(product: ProductWebSiteResponseDTO): void {
     this.service.setHide(product.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'warn', summary: 'Produto Ocultado', detail: `${product.name} foi ocultado do site.` });
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Produto ocultado',
+          detail: `${product.name} foi ocultado do site.`
+        });
         this.loadAllProducts();
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao ocultar produto.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao ocultar produto.'
+        });
       },
     });
   }
 
   confirmUnhide(product: ProductWebSiteResponseDTO): void {
     this.confirmationService.confirm({
-      message: `Deseja tornar o produto <strong>${product.name}</strong> visível novamente no site?`,
+      message: `Deseja tornar o produto ${product.name} visível novamente no site?`,
       header: 'Reexibir Produto',
       icon: 'pi pi-eye',
       acceptLabel: 'Reexibir',
@@ -226,19 +328,47 @@ export class WebsiteComponent implements OnInit {
   unhideProduct(product: ProductWebSiteResponseDTO): void {
     this.service.setUnhide(product.id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Produto Reexibido', detail: `${product.name} está visível no site novamente.` });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Produto reexibido',
+          detail: `${product.name} está visível no site novamente.`
+        });
         this.loadAllProducts();
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao reexibir produto.' });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao reexibir produto.'
+        });
       },
     });
   }
 
-  closeDialog(): void {
-    this.dialogVisible.set(false);
-    this.editingProduct.set(null);
-    this.editForm.reset();
+  onCreateImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    this.selectedCreateImage = file;
+    this.createImagePreview = file ? URL.createObjectURL(file) : null;
+  }
+
+  onEditImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+
+    this.selectedEditImage = file;
+    this.editImagePreview = file ? URL.createObjectURL(file) : null;
+  }
+
+  removerImagemCreate(): void {
+    this.selectedCreateImage = null;
+    this.createImagePreview = null;
+  }
+
+  removerImagemEdit(): void {
+    this.selectedEditImage = null;
+    this.editImagePreview = null;
   }
 
   isFieldInvalid(field: string): boolean {
@@ -246,104 +376,90 @@ export class WebsiteComponent implements OnInit {
     return !!(control && control.invalid && control.touched);
   }
 
-  onKeyDown(event: any) {
-    if (event.key !== 'Tab' && event.key !== 'Enter') return;
-
-    const valor = event.target?.value?.trim();
-
-    this.addCores(valor);
-
-    if (event.target) {
-      event.target.value = '';
-    }
-
-    event.preventDefault();
-  }
-
-  onBlurAdd(event: any) {
-    const valor = event.target?.value?.trim();
-
-    this.addCores(valor);
-
-    if (event.target) {
-      event.target.value = '';
-    }
-  }
-
-  private addCores(valor: string) {
-    this.addCoresToForm(this.editForm, valor);
-  }
-
-  createDialogVisible = signal(false);
-  createForm!: FormGroup;
-
-  initCreateForm(): void {
-    this.createForm = this.fb.group({
-      systemCode: ['', [Validators.required, Validators.minLength(2)]],
-      name:       ['', [Validators.required, Validators.minLength(2)]],
-      cores:      [[]],
-      finalidade: ['', Validators.required],
-      diluicao:   ['', Validators.required],
-      descricao:  ['', Validators.required],
-    });
-  }
-
-  openCreateDialog(): void {
-    this.createForm.reset({ cores: [] });
-    this.createDialogVisible.set(true);
-  }
-
-  closeCreateDialog(): void {
-    this.createDialogVisible.set(false);
-    this.createForm.reset({ cores: [] });
-  }
-
-  saveCreate(): void {
-    if (this.createForm.invalid) { this.createForm.markAllAsTouched(); return; }
-
-    const dto: ProductWebSiteCreateDTO = this.createForm.value;
-    this.service.create(dto).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto cadastrado com sucesso!' });
-        this.createDialogVisible.set(false);
-        this.loadAllProducts();
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao cadastrar produto.' });
-      },
-    });
-  }
-
   isCreateFieldInvalid(field: string): boolean {
     const control = this.createForm.get(field);
     return !!(control && control.invalid && control.touched);
   }
 
-  onCreateKeyDown(event: any) {
+  onKeyDown(event: KeyboardEvent): void {
     if (event.key !== 'Tab' && event.key !== 'Enter') return;
-    const valor = event.target?.value?.trim();
-    this.addCoresToForm(this.createForm, valor);
-    if (event.target) event.target.value = '';
+    const target = event.target as HTMLInputElement;
+    const valor = target?.value?.trim();
+    this.addCoresToForm(this.editForm, valor);
+    if (target) target.value = '';
     event.preventDefault();
   }
 
-  onCreateBlurAdd(event: any) {
-    const valor = event.target?.value?.trim();
-    this.addCoresToForm(this.createForm, valor);
-    if (event.target) event.target.value = '';
+  onBlurAdd(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const valor = target?.value?.trim();
+    this.addCoresToForm(this.editForm, valor);
+    if (target) target.value = '';
   }
 
-  private addCoresToForm(form: FormGroup, valor: string) {
-    if (!valor) return;
+  onCreateKeyDown(event: KeyboardEvent): void {
+    if (event.key !== 'Tab' && event.key !== 'Enter') return;
+    const target = event.target as HTMLInputElement;
+    const valor = target?.value?.trim();
+    this.addCoresToForm(this.createForm, valor);
+    if (target) target.value = '';
+    event.preventDefault();
+  }
+
+  onCreateBlurAdd(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const valor = target?.value?.trim();
+    this.addCoresToForm(this.createForm, valor);
+    if (target) target.value = '';
+  }
+
+  removerCor(form: FormGroup, cor: string): void {
     const control = form.get('cores');
     const atual: string[] = control?.value || [];
-    const novas = valor.split(/[,\n;]+/).map(v => v.trim()).filter(v => v.length > 0);
+    control?.setValue(atual.filter(c => c !== cor));
+  }
+
+  private addCoresToForm(form: FormGroup, valor?: string): void {
+    if (!valor) return;
+
+    const control = form.get('cores');
+    const atual: string[] = control?.value || [];
+
+    const novas = valor
+      .split(/[,\n;]+/)
+      .map(v => v.trim())
+      .filter(v => v.length > 0);
+
     const resultado = [...atual];
+
     for (const cor of novas) {
       if (!resultado.some(c => c.toLowerCase() === cor.toLowerCase())) {
         resultado.push(cor);
       }
     }
+
     control?.setValue(resultado);
+    control?.markAsDirty();
+    control?.markAsTouched();
+  }
+
+  resolverImagem(path?: string | null): string {
+    if (!path) return 'images/products/placeholder.png';
+    if (path.startsWith('http')) return path;
+
+    const baseUrl = environment.apiUrl.replace('/api', '');
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+  }
+
+  get totalProdutos(): number {
+    return this.allProducts().length;
+  }
+
+  get totalAtivos(): number {
+    return this.activeProducts().length;
+  }
+
+  get totalOcultos(): number {
+    return this.hiddenProducts().length;
   }
 }

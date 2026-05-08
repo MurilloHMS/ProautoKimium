@@ -1,74 +1,66 @@
+<!-- ─── Hover zone (abre drawer ao encostar na borda esquerda) ─── -->
 <div class="drawer-hover-zone"
      (mouseenter)="onDrawerZoneEnter()"
      (mouseleave)="onDrawerZoneLeave()">
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════════════════════ -->
 <div class="topbar">
+
+  <!-- Lado esquerdo: hamburguer + logo + título -->
   <div class="topbar-left">
     <button class="hamburger" (click)="drawerVisible = true" aria-label="Abrir menu">
       <i class="pi pi-bars"></i>
     </button>
+
     <svg class="topbar-logo" width="26" height="28" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white"/>
       <mask id="mask_top" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
-        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white"/>
       </mask>
       <g mask="url(#mask_top)">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z" fill="white" style="opacity:0.5" />
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z"
+              fill="white" style="opacity:0.5"/>
       </g>
-      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61" />
-      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61" />
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z" fill="#232e61" />
+      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61"/>
+      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61"/>
+      <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z"
+            fill="#232e61"/>
     </svg>
+
     <span class="topbar-title">Proauto Kimium</span>
   </div>
 
+  <!-- Lado direito: busca + ícones de ação -->
   <div class="topbar-right">
 
+    <!-- Campo de busca de páginas -->
     <div class="topbar-search-wrap">
       <i class="pi pi-search topbar-search-icon"></i>
-      <input
-        type="text"
-        pInputText
-        placeholder="Buscar página..."
-        class="topbar-search"
-        [(ngModel)]="searchQuery"
-        (input)="onSearchInput()"
-        (focus)="onSearchFocus()"
-        autocomplete="off"
-      />
+      <input type="text" pInputText
+             placeholder="Buscar página..."
+             class="topbar-search"
+             [(ngModel)]="searchQuery"
+             (input)="onSearchInput()"
+             (focus)="onSearchFocus()"
+             autocomplete="off"/>
+
       @if (searchQuery) {
         <button class="search-clear" (click)="clearSearch()" tabindex="-1">
           <i class="pi pi-times"></i>
         </button>
       }
 
+      <!-- Dropdown de resultados -->
       @if (showSearchResults) {
         <div class="search-dropdown">
           @if (searchResults.length > 0) {
             @for (result of searchResults; track result.label) {
-              @if (result.routerLink) {
-                <a class="search-result"
-                   [routerLink]="result.routerLink"
-                   (click)="navigateToResult(result)">
-                  <span class="search-result-icon"><i [class]="result.icon"></i></span>
-                  <span class="search-result-info">
-                    <span class="search-result-label">{{ result.label }}</span>
-                    <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
-                  </span>
-                </a>
-              } @else {
-                <a class="search-result"
-                   [href]="result.url"
-                   [target]="result.target ?? '_self'"
-                   (click)="navigateToResult(result)">
-                  <span class="search-result-icon"><i [class]="result.icon"></i></span>
-                  <span class="search-result-info">
-                    <span class="search-result-label">{{ result.label }}</span>
-                    <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
-                  </span>
-                </a>
-              }
+              <ng-container *ngTemplateOutlet="searchResultItem; context: { $implicit: result }"/>
             }
           } @else {
             <div class="search-empty">
@@ -84,6 +76,7 @@
             class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
             aria-label="Notificações">
     </button>
+
     <button pButton type="button" icon="pi pi-sign-out"
             class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
             aria-label="Sair"
@@ -92,24 +85,54 @@
   </div>
 </div>
 
+<!-- Template reutilizável: item de resultado de busca -->
+<ng-template #searchResultItem let-result>
+  @if (result.routerLink) {
+    <a class="search-result" [routerLink]="result.routerLink" (click)="navigateToResult(result)">
+      <ng-container *ngTemplateOutlet="searchResultContent; context: { $implicit: result }"/>
+    </a>
+  } @else {
+    <a class="search-result" [href]="result.url" [target]="result.target ?? '_self'" (click)="navigateToResult(result)">
+      <ng-container *ngTemplateOutlet="searchResultContent; context: { $implicit: result }"/>
+    </a>
+  }
+</ng-template>
+
+<ng-template #searchResultContent let-result>
+  <span class="search-result-icon"><i [class]="result.icon"></i></span>
+  <span class="search-result-info">
+    <span class="search-result-label">{{ result.label }}</span>
+    <span class="search-result-breadcrumb">{{ result.breadcrumb }}</span>
+  </span>
+</ng-template>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DRAWER — overlay + painel lateral
+═══════════════════════════════════════════════════════════ -->
 <div class="drawer-overlay" [class.visible]="drawerVisible" (click)="closeDrawer()"></div>
 
 <nav class="drawer" [class.open]="drawerVisible"
      (mouseenter)="onDrawerMouseEnter()"
      (mouseleave)="onDrawerMouseLeave()">
 
+  <!-- Cabeçalho do drawer -->
   <div class="drawer-header">
     <svg width="24" height="26" viewBox="0 0 33 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+      <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white"/>
       <mask id="mask_drawer" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="31" height="33">
-        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white" />
+        <path d="M15.1934 0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z" fill="white"/>
       </mask>
       <g mask="url(#mask_drawer)">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z" fill="white" style="opacity:0.5" />
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M15.1935 0V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z"
+              fill="white" style="opacity:0.5"/>
       </g>
-      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61" />
-      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61" />
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z" fill="#232e61" />
+      <path d="M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z" fill="#232e61"/>
+      <path d="M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z" fill="#232e61"/>
+      <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z"
+            fill="#232e61"/>
     </svg>
     <span class="drawer-app-name">Proauto Kimium</span>
     <button class="drawer-close" (click)="closeDrawer()" aria-label="Fechar menu">
@@ -117,114 +140,59 @@
     </button>
   </div>
 
+  <!-- Corpo: lista de itens do menu -->
   <div class="drawer-body">
     <ul class="drawer-menu">
       @for (item of items; track item.label) {
         <li class="drawer-item">
 
-          @if (item.items && item.items.length > 0) {
-            <button
-              class="drawer-link drawer-toggle"
-              [class.expanded]="asAppItem(item)._expanded"
-              (click)="toggleSubmenu(asAppItem(item))">
+          <!-- Nível 1 com filhos: botão expansível -->
+          @if (item.items?.length) {
+            <button class="drawer-link drawer-toggle"
+                    [class.expanded]="asAppItem(item)._expanded"
+                    (click)="toggleSubmenu(asAppItem(item))">
               <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
               <span class="drawer-label">{{ item.label }}</span>
               @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
               <i class="pi pi-angle-down drawer-chevron"></i>
             </button>
 
+            <!-- Nível 2 -->
             <ul class="drawer-submenu" [class.open]="asAppItem(item)._expanded">
               @for (sub of item.items; track sub.label) {
                 <li class="drawer-subitem">
 
-                  @if (sub.items && sub.items.length > 0) {
-                    <button
-                      class="drawer-sublink drawer-toggle"
-                      [class.expanded]="asAppItem(sub)._expanded"
-                      (click)="toggleSubmenuNested(asAppItem(sub), asAppItems(item.items!))">
+                  <!-- Nível 2 com filhos: expansível -->
+                  @if (sub.items?.length) {
+                    <button class="drawer-sublink drawer-toggle"
+                            [class.expanded]="asAppItem(sub)._expanded"
+                            (click)="toggleSubmenuNested(asAppItem(sub), asAppItems(item.items!))">
                       <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
                       <span>{{ sub.label }}</span>
                       <i class="pi pi-angle-down drawer-chevron drawer-chevron--sm"></i>
                     </button>
 
+                    <!-- Nível 3 (deep) -->
                     <ul class="drawer-submenu drawer-submenu--deep" [class.open]="asAppItem(sub)._expanded">
                       @for (deep of sub.items; track deep.label) {
                         <li>
-                          @if (deep.routerLink) {
-                            <a pRipple class="drawer-deeplink"
-                               [routerLink]="deep.routerLink"
-                               routerLinkActive="active-deepitem"
-                               (click)="closeDrawer()">
-                              <span class="drawer-dot"></span>
-                              <span>{{ deep.label }}</span>
-                              @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
-                            </a>
-                          } @else {
-                            <a pRipple class="drawer-deeplink"
-                               [href]="deep['url']"
-                               [target]="deep['target'] ?? '_self'"
-                               (click)="closeDrawer()">
-                              <span class="drawer-dot"></span>
-                              <span>{{ deep.label }}</span>
-                              @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
-                            </a>
-                          }
+                          <ng-container *ngTemplateOutlet="deepLink; context: { $implicit: deep }"/>
                         </li>
                       }
                     </ul>
-                  }
 
-                  @if (!sub.items || sub.items.length === 0) {
-                    @if (sub.routerLink) {
-                      <a pRipple class="drawer-sublink"
-                         [routerLink]="sub.routerLink"
-                         routerLinkActive="active-subitem"
-                         (click)="closeDrawer()">
-                        <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
-                        <span>{{ sub.label }}</span>
-                        @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
-                        @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
-                      </a>
-                    } @else {
-                      <a pRipple class="drawer-sublink"
-                         [href]="sub['url']"
-                         [target]="sub['target'] ?? '_self'"
-                         (click)="closeDrawer()">
-                        <span class="drawer-icon-wrap"><i [class]="sub.icon"></i></span>
-                        <span>{{ sub.label }}</span>
-                        @if (sub.badge) { <span class="drawer-badge-pill">{{ sub.badge }}</span> }
-                        @if (sub['shortcut']) { <span class="drawer-shortcut">{{ sub['shortcut'] }}</span> }
-                      </a>
-                    }
+                    <!-- Nível 2 sem filhos: link direto -->
+                  } @else {
+                    <ng-container *ngTemplateOutlet="subLink; context: { $implicit: sub }"/>
                   }
 
                 </li>
               }
             </ul>
-          }
 
-          @if (!item.items || item.items.length === 0) {
-            @if (item.routerLink) {
-              <a pRipple class="drawer-link"
-                 [routerLink]="item.routerLink"
-                 routerLinkActive="active-item"
-                 (click)="closeDrawer()">
-                <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
-                <span class="drawer-label">{{ item.label }}</span>
-                @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
-                @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
-              </a>
-            } @else {
-              <a pRipple class="drawer-link"
-                 [href]="item['url']"
-                 [target]="item['target'] ?? '_self'"
-                 (click)="closeDrawer()">
-                <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
-                <span class="drawer-label">{{ item.label }}</span>
-                @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
-                @if (item['shortcut']) { <span class="drawer-shortcut">{{ item['shortcut'] }}</span> }
-              </a>
-            }
+            <!-- Nível 1 sem filhos: link direto -->
+          } @else {
+            <ng-container *ngTemplateOutlet="topLink; context: { $implicit: item }"/>
           }
 
         </li>
@@ -232,6 +200,7 @@
     </ul>
   </div>
 
+  <!-- Rodapé: info do usuário logado -->
   <div class="drawer-footer">
     <div class="drawer-user">
       <div class="drawer-user-avatar">
@@ -248,3 +217,65 @@
     </div>
   </div>
 </nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     TEMPLATES REUTILIZÁVEIS — links do drawer
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Nível 1: link raiz -->
+<ng-template #topLink let-item>
+  @if (item.routerLink) {
+    <a pRipple class="drawer-link" [routerLink]="item.routerLink"
+       routerLinkActive="active-item" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="linkInner; context: { $implicit: item, showShortcut: true }"/>
+    </a>
+  } @else {
+    <a pRipple class="drawer-link" [href]="item.url" [target]="item.target ?? '_self'" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="linkInner; context: { $implicit: item, showShortcut: true }"/>
+    </a>
+  }
+</ng-template>
+
+<!-- Nível 2: sublink -->
+<ng-template #subLink let-sub>
+  @if (sub.routerLink) {
+    <a pRipple class="drawer-sublink" [routerLink]="sub.routerLink"
+       routerLinkActive="active-subitem" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="linkInner; context: { $implicit: sub, showShortcut: true }"/>
+    </a>
+  } @else {
+    <a pRipple class="drawer-sublink" [href]="sub.url" [target]="sub.target ?? '_self'" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="linkInner; context: { $implicit: sub, showShortcut: true }"/>
+    </a>
+  }
+</ng-template>
+
+<!-- Nível 3: deeplink -->
+<ng-template #deepLink let-deep>
+  @if (deep.routerLink) {
+    <a pRipple class="drawer-deeplink" [routerLink]="deep.routerLink"
+       routerLinkActive="active-deepitem" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="deepLinkInner; context: { $implicit: deep }"/>
+    </a>
+  } @else {
+    <a pRipple class="drawer-deeplink" [href]="deep.url" [target]="deep.target ?? '_self'" (click)="closeDrawer()">
+      <ng-container *ngTemplateOutlet="deepLinkInner; context: { $implicit: deep }"/>
+    </a>
+  }
+</ng-template>
+
+<!-- Conteúdo interno dos links (nível 1 e 2) -->
+<ng-template #linkInner let-item let-showShortcut="showShortcut">
+  <span class="drawer-icon-wrap"><i [class]="item.icon"></i></span>
+  <span class="drawer-label">{{ item.label }}</span>
+  @if (item.badge) { <span class="drawer-badge-pill">{{ item.badge }}</span> }
+  @if (showShortcut && item.shortcut) { <span class="drawer-shortcut">{{ item.shortcut }}</span> }
+</ng-template>
+
+<!-- Conteúdo interno dos deeplinks (nível 3) -->
+<ng-template #deepLinkInner let-deep>
+  <span class="drawer-dot"></span>
+  <span>{{ deep.label }}</span>
+  @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
+</ng-template>

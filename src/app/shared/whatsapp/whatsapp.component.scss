@@ -1,5 +1,5 @@
 @use 'sass:color';
-@use '../../../styles/variables.scss' as v;
+@use 'variables' as v;
 
 .whatsapp-component {
     display: flex;
@@ -31,7 +31,7 @@
     }
 
     a{
-        color: v.$secondary-color;
+        color: v.$secondary;
         text-decoration: none;
         font-weight: 500;
         display: inline-block;

@@ -1,4 +1,4 @@
-@use '../../../../../../styles/variables.scss' as *;
+@use 'variables' as v;
 @use "sass:color";
 
 // ─── Página ───────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: $primary-color;
+    background: v.$primary;
     flex-shrink: 0;
 
     i {
@@ -34,17 +34,17 @@
   }
 
   &__title {
-    font-family: $title-font;
+    font-family: v.$font-heading;
     font-size: 1.4rem;
     font-weight: 700;
-    color: $primary-color;
+    color: v.$primary;
     margin: 0 0 0.15rem;
   }
 
   &__sub {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.875rem;
-    color: $text-secondary-color;
+    color: v.$text-secondary-color;
     margin: 0;
   }
 }
@@ -63,8 +63,8 @@
 
 // ─── Panel ────────────────────────────────────────────────────────────────────
 .panel {
-  background: $bg-panel;
-  border: 1px solid $tertiary-color-dark;
+  background: v.$bg-panel;
+  border: 1px solid v.$bg-surface-dark;
   border-radius: 16px;
   padding: 1.75rem;
   transition: opacity 0.2s;
@@ -82,32 +82,32 @@
   }
 
   &__step {
-    font-family: $title-font;
+    font-family: v.$font-heading;
     font-size: 1.1rem;
     font-weight: 800;
-    color: $tertiary-color-dark;
+    color: v.$bg-surface-dark;
     line-height: 1;
     margin-top: 2px;
     flex-shrink: 0;
     transition: color 0.2s;
 
     &--active {
-      color: $primary-color;
+      color: v.$primary;
     }
   }
 
   &__title {
-    font-family: $title-font;
+    font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 700;
-    color: $primary-color;
+    color: v.$primary;
     margin: 0 0 0.2rem;
   }
 
   &__desc {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.82rem;
-    color: $text-secondary-color;
+    color: v.$text-secondary-color;
     margin: 0;
     line-height: 1.4;
   }
@@ -121,21 +121,21 @@
   margin-left: auto;
   padding: 0.2rem 0.65rem;
   border-radius: 20px;
-  font-family: $text-font;
+  font-family: v.$font-body;
   font-size: 0.72rem;
   font-weight: 600;
-  background: rgba($warning-color, 0.12);
-  color: color.adjust($warning-color, $lightness: -20%);
-  border: 1px solid rgba($warning-color, 0.3);
+  background: rgba(v.$warning, 0.12);
+  color: color.adjust(v.$warning, $lightness: -20%);
+  border: 1px solid rgba(v.$warning, 0.3);
   white-space: nowrap;
   flex-shrink: 0;
 
   i { font-size: 0.7rem; }
 
   &--ready {
-    background: rgba($success-color, 0.1);
-    color: color.adjust($success-color, $lightness: -10%);
-    border-color: rgba($success-color, 0.25);
+    background: rgba(v.$success, 0.1);
+    color: color.adjust(v.$success, $lightness: -10%);
+    border-color: rgba(v.$success, 0.25);
   }
 }
 
@@ -156,7 +156,7 @@
   &__line {
     flex: 1;
     width: 1px;
-    background: $tertiary-color-dark;
+    background: v.$bg-surface-dark;
 
     @media (max-width: 768px) {
       width: auto;
@@ -171,17 +171,17 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: $tertiary-color;
-    border: 1px solid $tertiary-color-dark;
-    color: $text-secondary-color;
+    background: v.$bg-surface;
+    border: 1px solid v.$bg-surface-dark;
+    color: v.$text-secondary-color;
     flex-shrink: 0;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
 
     i { font-size: 0.75rem; }
 
     &--active {
-      background: $secondary-color;
-      border-color: $secondary-color-dark1;
+      background: v.$secondary;
+      border-color: v.$secondary-dark;
       color: #fff;
     }
   }
@@ -212,10 +212,10 @@
   gap: 0.4rem;
 
   &__label {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.8rem;
     font-weight: 600;
-    color: $primary-text-color;
+    color: v.$neutral-700;
     letter-spacing: 0.01em;
   }
 }
@@ -224,26 +224,26 @@
 .hidden-input { display: none; }
 
 .dropzone {
-  border: 2px dashed $tertiary-color-dark;
+  border: 2px dashed v.$bg-surface-dark;
   border-radius: 12px;
-  background: $bg-base;
+  background: v.$bg-base;
   cursor: pointer;
   transition: border-color 0.18s, background 0.18s;
   overflow: hidden;
 
   &:hover {
-    border-color: $secondary-color;
-    background: rgba($secondary-color, 0.04);
+    border-color: v.$secondary;
+    background: rgba(v.$secondary, 0.04);
   }
 
   &--filled {
     border-style: solid;
-    border-color: $secondary-color;
-    background: rgba($secondary-color, 0.05);
+    border-color: v.$secondary;
+    background: rgba(v.$secondary, 0.05);
 
     &:hover {
-      border-color: $secondary-color-dark1;
-      background: rgba($secondary-color, 0.08);
+      border-color: v.$secondary-dark;
+      background: rgba(v.$secondary, 0.08);
     }
   }
 
@@ -262,30 +262,30 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: $tertiary-color-dark2;
+    background: v.$bg-surface-darker;
     margin-bottom: 0.25rem;
 
     i {
       font-size: 1.25rem;
-      color: $primary-color-light2;
+      color: v.$primary-lighter;
     }
   }
 
   &__text {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.875rem;
     font-weight: 600;
-    color: $primary-text-color;
+    color: v.$neutral-700;
     margin: 0;
   }
 
   &__hint {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.78rem;
-    color: $text-secondary-color;
+    color: v.$text-secondary-color;
     margin: 0;
 
-    strong { color: $primary-text-color; }
+    strong { color: v.$neutral-700; }
   }
 
   &__filled {
@@ -302,12 +302,12 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: rgba($secondary-color, 0.15);
+    background: rgba(v.$secondary, 0.15);
     flex-shrink: 0;
 
     i {
       font-size: 1.1rem;
-      color: $secondary-color-dark1;
+      color: v.$secondary-dark;
     }
   }
 
@@ -320,19 +320,19 @@
   }
 
   &__file-name {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.85rem;
     font-weight: 600;
-    color: $primary-text-color;
+    color: v.$neutral-700;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   &__file-size {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.75rem;
-    color: $text-secondary-color;
+    color: v.$text-secondary-color;
   }
 
   &__remove {
@@ -343,8 +343,8 @@
     height: 26px;
     border-radius: 50%;
     border: none;
-    background: $tertiary-color-dark2;
-    color: $text-secondary-color;
+    background: v.$bg-surface-darker;
+    color: v.$text-secondary-color;
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
@@ -352,8 +352,8 @@
     i { font-size: 0.65rem; }
 
     &:hover {
-      background: rgba($danger, 0.12);
-      color: $danger;
+      background: rgba(v.$danger, 0.12);
+      color: v.$danger;
     }
   }
 }
@@ -371,22 +371,22 @@
   gap: 0.85rem;
   padding: 0.85rem 1rem;
   border-radius: 10px;
-  border: 1.5px solid $tertiary-color-dark;
-  background: $bg-base;
+  border: 1.5px solid v.$bg-surface-dark;
+  background: v.$bg-base;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 
   &:hover {
-    border-color: $secondary-color;
-    background: rgba($secondary-color, 0.04);
+    border-color: v.$secondary;
+    background: rgba(v.$secondary, 0.04);
   }
 
   &--active {
-    border-color: $primary-color;
-    background: rgba($primary-color, 0.04);
+    border-color: v.$primary;
+    background: rgba(v.$primary, 0.04);
 
-    .format-item__icon { color: $primary-color; }
-    .format-item__label { color: $primary-color; }
+    .format-item__icon { color: v.$primary; }
+    .format-item__label { color: v.$primary; }
     .format-item__check { opacity: 1; }
   }
 
@@ -397,7 +397,7 @@
 
   &__icon {
     font-size: 1.35rem;
-    color: $primary-color-light2;
+    color: v.$primary-lighter;
     flex-shrink: 0;
     transition: color 0.15s;
   }
@@ -410,17 +410,17 @@
   }
 
   &__label {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.875rem;
     font-weight: 700;
-    color: $primary-text-color;
+    color: v.$neutral-700;
     transition: color 0.15s;
   }
 
   &__desc {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-size: 0.75rem;
-    color: $text-secondary-color;
+    color: v.$text-secondary-color;
   }
 
   &__check {
@@ -430,7 +430,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: $primary-color;
+    background: v.$primary;
     opacity: 0;
     transition: opacity 0.15s;
     flex-shrink: 0;
@@ -445,40 +445,40 @@
 // ─── Botões (override PrimeNG via host) ───────────────────────────────────────
 :host ::ng-deep {
   .btn {
-    font-family: $text-font;
+    font-family: v.$font-body;
     font-weight: 600;
     font-size: 0.875rem;
     border-radius: 8px;
     padding: 0.55rem 1.4rem;
 
     &--primary {
-      background: $primary-color !important;
-      border-color: $primary-color !important;
+      background: v.$primary !important;
+      border-color: v.$primary !important;
 
       &:hover:not(:disabled) {
-        background: $primary-color-dark1 !important;
-        border-color: $primary-color-dark1 !important;
+        background: v.$primary-dark !important;
+        border-color: v.$primary-dark !important;
       }
     }
 
     &--secondary {
       background: transparent !important;
-      border-color: $primary-color !important;
-      color: $primary-color !important;
+      border-color: v.$primary !important;
+      color: v.$primary !important;
 
       &:hover:not(:disabled) {
-        background: rgba($primary-color, 0.06) !important;
+        background: rgba(v.$primary, 0.06) !important;
       }
     }
   }
 
   .p-select {
     border-radius: 8px;
-    border-color: $tertiary-color-dark;
-    font-family: $text-font;
+    border-color: v.$bg-surface-dark;
+    font-family: v.$font-body;
     font-size: 0.875rem;
 
-    &:hover { border-color: $secondary-color; }
-    &.p-focus { border-color: $primary-color; box-shadow: 0 0 0 2px rgba($primary-color, 0.15); }
+    &:hover { border-color: v.$secondary; }
+    &.p-focus { border-color: v.$primary; box-shadow: 0 0 0 2px rgba(v.$primary, 0.15); }
   }
 }

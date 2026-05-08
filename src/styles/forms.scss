@@ -1,0 +1,36 @@
+@use 'variables' as v;
+
+.edit-form {
+  padding: .5rem 1.5rem 1rem;
+}
+
+.form-section {
+  margin-bottom: .5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  &.field-full {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: v.$primary;
+
+    .required    { color: v.$danger; margin-left: 2px; }
+    .label-hint  { font-weight: 400; color: v.$primary; font-size: .75rem; }
+  }
+
+  input, textarea { width: 100%; font-size: .88rem; }
+}
