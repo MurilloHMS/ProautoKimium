@@ -58,4 +58,5 @@ export interface ProductWebSitePublicResponseDTO{
   finalidade: string;
   diluicao: string;
   descricao: string;
+  imagem: string;
 }
