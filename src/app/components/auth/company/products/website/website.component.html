@@ -3,7 +3,7 @@
 
 <div class="page-wrapper">
 
-  <!-- ───── HEADER ───── -->
+  <!-- HEADER -->
   <div class="page-header">
     <div class="header-left">
       <div class="header-icon">
@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <!-- ───── STATS CARDS ───── -->
+  <!-- STATS CARDS -->
   <div class="stats-row">
     <div class="app-card app-card--sm stat-total">
       <div class="stat-icon"><i class="pi pi-box"></i></div>
@@ -58,7 +58,7 @@
     </div>
   </div>
 
-  <!-- ───── TABS NAV (mesmo padrão do painel de vagas) ───── -->
+  <!-- TABS NAV -->
   <nav class="tabs-nav">
     @for (tab of tabs; track tab.key) {
       <button
@@ -77,10 +77,9 @@
     }
   </nav>
 
-  <!-- ───── TABELA CARD ───── -->
+  <!-- TABELA -->
   <div class="table-section">
 
-    <!-- BUSCA -->
     <div class="table-toolbar">
       <div class="search-field">
         <i class="pi pi-search search-icon"></i>
@@ -99,23 +98,22 @@
       </div>
     </div>
 
-    <!-- LOADING SKELETON -->
     @if (loading()) {
       <div class="skeleton-wrap">
         @for (i of [1,2,3,4,5]; track i) {
           <div class="skeleton-row">
-            <p-skeleton width="10%"  height="1rem" />
-            <p-skeleton width="30%"  height="1rem" />
-            <p-skeleton width="18%"  height="1rem" />
-            <p-skeleton width="12%"  height="1rem" />
-            <p-skeleton width="14%"  height="1rem" />
+            <p-skeleton width="10%" height="1rem" />
+            <p-skeleton width="14%" height="1rem" />
+            <p-skeleton width="24%" height="1rem" />
+            <p-skeleton width="18%" height="1rem" />
+            <p-skeleton width="12%" height="1rem" />
+            <p-skeleton width="14%" height="1rem" />
             <p-skeleton width="8rem" height="1rem" />
           </div>
         }
       </div>
     }
 
-    <!-- VAZIO -->
     @if (!loading() && produtosFiltrados().length === 0) {
       <div class="estado-vazio">
         <i class="pi pi-inbox"></i>
@@ -123,7 +121,7 @@
       </div>
     }
 
-    <!-- TAB: VISÍVEIS -->
+    <!-- VISÍVEIS -->
     @if (!loading() && activeTab() === 'active' && produtosFiltrados().length > 0) {
       <p-table
         [value]="produtosFiltrados()"
@@ -135,6 +133,7 @@
       >
         <ng-template pTemplate="header">
           <tr>
+            <th style="width: 92px; text-align:center">Imagem</th>
             <th pSortableColumn="systemCode" style="width: 130px">Código <p-sortIcon field="systemCode" /></th>
             <th pSortableColumn="name">Nome <p-sortIcon field="name" /></th>
             <th style="width: 160px">Finalidade</th>
@@ -144,8 +143,16 @@
             <th style="width: 120px; text-align:center">Ações</th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-product>
           <tr class="product-row">
+            <td style="text-align:center">
+              <img
+                [src]="resolverImagem(product.imagem)"
+                [alt]="product.name"
+                class="product-thumb"
+                onerror="this.src='images/products/placeholder.png'" />
+            </td>
             <td><span class="code-badge">{{ product.systemCode }}</span></td>
             <td><span class="product-name">{{ product.name }}</span></td>
             <td><span class="text-muted">{{ product.finalidade }}</span></td>
@@ -165,11 +172,26 @@
             </td>
             <td>
               <div class="action-buttons">
-                <button pButton icon="pi pi-pencil" class="btn-acao" text rounded
-                        pTooltip="Editar" tooltipPosition="top" (click)="openEditDialog(product)">
+                <button
+                  pButton
+                  icon="pi pi-pencil"
+                  class="btn-acao"
+                  text
+                  rounded
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  (click)="openEditDialog(product)">
                 </button>
-                <button pButton icon="pi pi-eye-slash" class="btn-acao" text rounded severity="warn"
-                        pTooltip="Ocultar do site" tooltipPosition="top" (click)="confirmHide(product)">
+                <button
+                  pButton
+                  icon="pi pi-eye-slash"
+                  class="btn-acao"
+                  text
+                  rounded
+                  severity="warn"
+                  pTooltip="Ocultar do site"
+                  tooltipPosition="top"
+                  (click)="confirmHide(product)">
                 </button>
               </div>
             </td>
@@ -178,7 +200,7 @@
       </p-table>
     }
 
-    <!-- TAB: OCULTOS -->
+    <!-- OCULTOS -->
     @if (!loading() && activeTab() === 'hidden' && produtosFiltrados().length > 0) {
       <p-table
         [value]="produtosFiltrados()"
@@ -190,6 +212,7 @@
       >
         <ng-template pTemplate="header">
           <tr>
+            <th style="width: 92px; text-align:center">Imagem</th>
             <th pSortableColumn="systemCode" style="width: 130px">Código <p-sortIcon field="systemCode" /></th>
             <th pSortableColumn="name">Nome <p-sortIcon field="name" /></th>
             <th style="width: 160px">Finalidade</th>
@@ -199,8 +222,16 @@
             <th style="width: 120px; text-align:center">Ações</th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-product>
           <tr class="product-row product-row-hidden">
+            <td style="text-align:center">
+              <img
+                [src]="resolverImagem(product.imagem)"
+                [alt]="product.name"
+                class="product-thumb"
+                onerror="this.src='images/products/placeholder.png'" />
+            </td>
             <td><span class="code-badge code-badge-hidden">{{ product.systemCode }}</span></td>
             <td><span class="product-name product-name-hidden">{{ product.name }}</span></td>
             <td><span class="text-muted">{{ product.finalidade }}</span></td>
@@ -220,11 +251,26 @@
             </td>
             <td>
               <div class="action-buttons">
-                <button pButton icon="pi pi-pencil" class="btn-acao" text rounded
-                        pTooltip="Editar" tooltipPosition="top" (click)="openEditDialog(product)">
+                <button
+                  pButton
+                  icon="pi pi-pencil"
+                  class="btn-acao"
+                  text
+                  rounded
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  (click)="openEditDialog(product)">
                 </button>
-                <button pButton icon="pi pi-eye" class="btn-acao" text rounded severity="success"
-                        pTooltip="Tornar visível no site" tooltipPosition="top" (click)="confirmUnhide(product)">
+                <button
+                  pButton
+                  icon="pi pi-eye"
+                  class="btn-acao"
+                  text
+                  rounded
+                  severity="success"
+                  pTooltip="Tornar visível no site"
+                  tooltipPosition="top"
+                  (click)="confirmUnhide(product)">
                 </button>
               </div>
             </td>
@@ -236,8 +282,7 @@
   </div>
 </div>
 
-
-<!-- ───── EDIT DIALOG ───── -->
+<!-- EDIT DIALOG -->
 <p-dialog
   [visible]="dialogVisible()"
   (visibleChange)="dialogVisible.set($event)"
@@ -258,24 +303,41 @@
       <div class="form-grid">
         <div class="form-field field-full">
           <label for="name">Nome do Produto <span class="required">*</span></label>
-          <input id="name" pInputText formControlName="name" placeholder="Ex: Primer Wash"
-                 [class.ng-invalid]="isFieldInvalid('name')" [class.ng-dirty]="isFieldInvalid('name')" />
+          <input
+            id="name"
+            pInputText
+            formControlName="name"
+            placeholder="Ex: Primer Wash"
+            [class.ng-invalid]="isFieldInvalid('name')"
+            [class.ng-dirty]="isFieldInvalid('name')" />
           @if (isFieldInvalid('name')) {
             <small class="field-error">Nome é obrigatório (mínimo 2 caracteres).</small>
           }
         </div>
+
         <div class="form-field">
           <label for="finalidade">Finalidade <span class="required">*</span></label>
-          <input id="finalidade" pInputText formControlName="finalidade" placeholder="Ex: Anticorrosivo"
-                 [class.ng-invalid]="isFieldInvalid('finalidade')" [class.ng-dirty]="isFieldInvalid('finalidade')" />
+          <input
+            id="finalidade"
+            pInputText
+            formControlName="finalidade"
+            placeholder="Ex: Anticorrosivo"
+            [class.ng-invalid]="isFieldInvalid('finalidade')"
+            [class.ng-dirty]="isFieldInvalid('finalidade')" />
           @if (isFieldInvalid('finalidade')) {
             <small class="field-error">Finalidade é obrigatória.</small>
           }
         </div>
+
         <div class="form-field">
           <label for="diluicao">Diluição <span class="required">*</span></label>
-          <input id="diluicao" pInputText formControlName="diluicao" placeholder="Ex: 20% thinner"
-                 [class.ng-invalid]="isFieldInvalid('diluicao')" [class.ng-dirty]="isFieldInvalid('diluicao')" />
+          <input
+            id="diluicao"
+            pInputText
+            formControlName="diluicao"
+            placeholder="Ex: 20% thinner"
+            [class.ng-invalid]="isFieldInvalid('diluicao')"
+            [class.ng-dirty]="isFieldInvalid('diluicao')" />
           @if (isFieldInvalid('diluicao')) {
             <small class="field-error">Diluição é obrigatória.</small>
           }
@@ -294,7 +356,7 @@
           [multiple]="true"
           [suggestions]="filteredCores"
           (completeMethod)="filtrarCores($event)"
-          (onKeyDown)="onKeyDown($event)"
+          (onKeyUp)="onKeyDown($event)"
           (onBlur)="onBlurAdd($event)"
           placeholder="Digite e pressione Enter..."
           styleClass="w-full"
@@ -308,25 +370,90 @@
       </p-divider>
       <div class="form-field field-full">
         <label for="descricao">Descrição <span class="required">*</span></label>
-        <textarea id="descricao" pTextarea formControlName="descricao" rows="4"
-                  placeholder="Descreva o produto..."
-                  [class.ng-invalid]="isFieldInvalid('descricao')" [class.ng-dirty]="isFieldInvalid('descricao')"
-                  style="width: 100%; resize: vertical;"></textarea>
+        <textarea
+          id="descricao"
+          pTextarea
+          formControlName="descricao"
+          rows="4"
+          placeholder="Descreva o produto..."
+          [class.ng-invalid]="isFieldInvalid('descricao')"
+          [class.ng-dirty]="isFieldInvalid('descricao')"
+          style="width: 100%; resize: vertical;"></textarea>
         @if (isFieldInvalid('descricao')) {
           <small class="field-error">Descrição é obrigatória.</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-image"></i> Imagem do Produto</span>
+      </p-divider>
+
+      <div class="form-grid">
+        <div class="form-field field-full">
+          <label for="imagemEdit">Trocar imagem</label>
+          <input
+            id="imagemEdit"
+            type="file"
+            accept="image/*"
+            class="file-input"
+            (change)="onEditImageSelected($event)" />
+        </div>
+
+        @if (editingProduct()?.imagem && !editImagePreview) {
+          <div class="form-field field-full">
+            <label>Imagem atual</label>
+            <div class="preview-wrap">
+              <img
+                [src]="resolverImagem(editingProduct()?.imagem)"
+                alt="Imagem atual do produto"
+                class="product-preview" />
+            </div>
+          </div>
+        }
+
+        @if (editImagePreview) {
+          <div class="form-field field-full">
+            <label>Nova prévia</label>
+            <div class="preview-wrap">
+              <img
+                [src]="editImagePreview"
+                alt="Nova prévia da imagem"
+                class="product-preview" />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-times"
+                label="Remover imagem"
+                class="p-button-text p-button-danger"
+                (click)="removerImagemEdit()">
+              </button>
+            </div>
+          </div>
         }
       </div>
     </div>
   </form>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancelar" icon="pi pi-times"
-            class="p-button-outlined p-button-secondary" (click)="closeDialog()"></button>
-    <button pButton label="Salvar Alterações" icon="pi pi-check"
-            class="p-button-primary save-btn" [disabled]="editForm.invalid" (click)="saveEdit()"></button>
+    <button
+      pButton
+      label="Cancelar"
+      icon="pi pi-times"
+      class="p-button-outlined p-button-secondary"
+      (click)="closeDialog()"></button>
+    <button
+      pButton
+      label="Salvar Alterações"
+      icon="pi pi-check"
+      class="p-button-primary save-btn"
+      [disabled]="editForm.invalid"
+      (click)="saveEdit()"></button>
   </ng-template>
 </p-dialog>
 
+<!-- CREATE DIALOG -->
 <p-dialog
   [visible]="createDialogVisible()"
   (visibleChange)="createDialogVisible.set($event)"
@@ -347,32 +474,55 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="c-systemCode">Código do Sistema <span class="required">*</span></label>
-          <input id="c-systemCode" pInputText formControlName="systemCode" placeholder="Ex: PRIM-001"
-                 [class.ng-invalid]="isCreateFieldInvalid('systemCode')" [class.ng-dirty]="isCreateFieldInvalid('systemCode')" />
+          <input
+            id="c-systemCode"
+            pInputText
+            formControlName="systemCode"
+            placeholder="Ex: PRIM-001"
+            [class.ng-invalid]="isCreateFieldInvalid('systemCode')"
+            [class.ng-dirty]="isCreateFieldInvalid('systemCode')" />
           @if (isCreateFieldInvalid('systemCode')) {
             <small class="field-error">Código é obrigatório (mínimo 2 caracteres).</small>
           }
         </div>
+
         <div class="form-field">
           <label for="c-name">Nome do Produto <span class="required">*</span></label>
-          <input id="c-name" pInputText formControlName="name" placeholder="Ex: Primer Wash"
-                 [class.ng-invalid]="isCreateFieldInvalid('name')" [class.ng-dirty]="isCreateFieldInvalid('name')" />
+          <input
+            id="c-name"
+            pInputText
+            formControlName="name"
+            placeholder="Ex: Primer Wash"
+            [class.ng-invalid]="isCreateFieldInvalid('name')"
+            [class.ng-dirty]="isCreateFieldInvalid('name')" />
           @if (isCreateFieldInvalid('name')) {
             <small class="field-error">Nome é obrigatório (mínimo 2 caracteres).</small>
           }
         </div>
+
         <div class="form-field">
           <label for="c-finalidade">Finalidade <span class="required">*</span></label>
-          <input id="c-finalidade" pInputText formControlName="finalidade" placeholder="Ex: Anticorrosivo"
-                 [class.ng-invalid]="isCreateFieldInvalid('finalidade')" [class.ng-dirty]="isCreateFieldInvalid('finalidade')" />
+          <input
+            id="c-finalidade"
+            pInputText
+            formControlName="finalidade"
+            placeholder="Ex: Anticorrosivo"
+            [class.ng-invalid]="isCreateFieldInvalid('finalidade')"
+            [class.ng-dirty]="isCreateFieldInvalid('finalidade')" />
           @if (isCreateFieldInvalid('finalidade')) {
             <small class="field-error">Finalidade é obrigatória.</small>
           }
         </div>
+
         <div class="form-field">
           <label for="c-diluicao">Diluição <span class="required">*</span></label>
-          <input id="c-diluicao" pInputText formControlName="diluicao" placeholder="Ex: 20% thinner"
-                 [class.ng-invalid]="isCreateFieldInvalid('diluicao')" [class.ng-dirty]="isCreateFieldInvalid('diluicao')" />
+          <input
+            id="c-diluicao"
+            pInputText
+            formControlName="diluicao"
+            placeholder="Ex: 20% thinner"
+            [class.ng-invalid]="isCreateFieldInvalid('diluicao')"
+            [class.ng-dirty]="isCreateFieldInvalid('diluicao')" />
           @if (isCreateFieldInvalid('diluicao')) {
             <small class="field-error">Diluição é obrigatória.</small>
           }
@@ -391,7 +541,7 @@
           [multiple]="true"
           [suggestions]="filteredCores"
           (completeMethod)="filtrarCores($event)"
-          (onKeyDown)="onCreateKeyDown($event)"
+          (onKeyUp)="onCreateKeyDown($event)"
           (onBlur)="onCreateBlurAdd($event)"
           placeholder="Digite e pressione Enter..."
           styleClass="w-full"
@@ -405,21 +555,73 @@
       </p-divider>
       <div class="form-field field-full">
         <label for="c-descricao">Descrição <span class="required">*</span></label>
-        <textarea id="c-descricao" pTextarea formControlName="descricao" rows="4"
-                  placeholder="Descreva o produto..."
-                  [class.ng-invalid]="isCreateFieldInvalid('descricao')" [class.ng-dirty]="isCreateFieldInvalid('descricao')"
-                  style="width: 100%; resize: vertical;"></textarea>
+        <textarea
+          id="c-descricao"
+          pTextarea
+          formControlName="descricao"
+          rows="4"
+          placeholder="Descreva o produto..."
+          [class.ng-invalid]="isCreateFieldInvalid('descricao')"
+          [class.ng-dirty]="isCreateFieldInvalid('descricao')"
+          style="width: 100%; resize: vertical;"></textarea>
         @if (isCreateFieldInvalid('descricao')) {
           <small class="field-error">Descrição é obrigatória.</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-image"></i> Imagem do Produto</span>
+      </p-divider>
+
+      <div class="form-grid">
+        <div class="form-field field-full">
+          <label for="imagemCreate">Adicionar imagem</label>
+          <input
+            id="imagemCreate"
+            type="file"
+            accept="image/*"
+            class="file-input"
+            (change)="onCreateImageSelected($event)" />
+        </div>
+
+        @if (createImagePreview) {
+          <div class="form-field field-full">
+            <label>Prévia</label>
+            <div class="preview-wrap">
+              <img
+                [src]="createImagePreview"
+                alt="Prévia da imagem"
+                class="product-preview" />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-times"
+                label="Remover imagem"
+                class="p-button-text p-button-danger"
+                (click)="removerImagemCreate()">
+              </button>
+            </div>
+          </div>
         }
       </div>
     </div>
   </form>
 
   <ng-template pTemplate="footer">
-    <button pButton label="Cancelar" icon="pi pi-times"
-            class="p-button-outlined p-button-secondary" (click)="closeCreateDialog()"></button>
-    <button pButton label="Cadastrar Produto" icon="pi pi-check"
-            class="p-button-primary save-btn" [disabled]="createForm.invalid" (click)="saveCreate()"></button>
+    <button
+      pButton
+      label="Cancelar"
+      icon="pi pi-times"
+      class="p-button-outlined p-button-secondary"
+      (click)="closeCreateDialog()"></button>
+    <button
+      pButton
+      label="Cadastrar Produto"
+      icon="pi pi-check"
+      class="p-button-primary save-btn"
+      [disabled]="createForm.invalid"
+      (click)="saveCreate()"></button>
   </ng-template>
 </p-dialog>
