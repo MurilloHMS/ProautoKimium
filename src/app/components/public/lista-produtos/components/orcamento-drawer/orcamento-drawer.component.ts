@@ -23,6 +23,7 @@ export class OrcamentoDrawerComponent {
     nome:      ['', [Validators.required, Validators.minLength(2)]],
     email:     ['', [Validators.required, Validators.email]],
     telefone:  ['', Validators.required],
+    segmento:  ['', Validators.required],
     mensagem:  [''],
   });
 
