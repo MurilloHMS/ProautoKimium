@@ -267,7 +267,7 @@
 
             <div class="form-group" [class.is-invalid]="orcamento.isInvalid('telefone')">
               <label for="telefone">Telefone</label>
-              <input id="telefone" type="tel" formControlName="telefone" placeholder="(11) 99999-9999" />
+              <input id="telefone" type="tel" placeholder="(11) 99999-9999" autocomplete="tel" (input)="onTelefoneInput($event)" />
               @if (orcamento.isInvalid('telefone')) {
                 <span class="field-error">Informe seu telefone.</span>
               }
