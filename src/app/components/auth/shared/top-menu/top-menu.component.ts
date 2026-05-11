@@ -75,72 +75,23 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         routerLink: ['home'],
       },
       {
-        label: 'Administrativo',
-        icon: 'pi pi-fw pi-user',
-        roles: ['ADMIN'],
-        items: [
-          { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['admin'], roles: ['ADMIN'] },
-        ],
-      },
-      {
-        label: 'Documentos',
-        icon: 'pi pi-fw pi-file',
-        items: [
-          { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['documents/holerit'],          roles: ['ADMIN', 'RH'] },
-          { label: 'Coletar Dados NFe',       icon: 'pi pi-fw pi-file',      routerLink: ['documents/nfe-collector'],    roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] },
-          { label: 'Assinatura de Email',     icon: 'pi pi-fw pi-file',      routerLink: ['documents/email-signature'],  roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDOR'] },
-          { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file',      routerLink: ['documents/holerit/extractor'],roles: ['ADMIN', 'RH'] },
-          { label: 'Remover Senha do Excel',  icon: 'pi pi-fw pi-lock',      routerLink: ['documents/excel'] },
-        ],
-      },
-      {
         label: 'RH - Recursos Humanos',
         icon: 'pi pi-fw pi-users',
         items: [
           { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
+          { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit'],          roles: ['ADMIN', 'RH'] },
+          { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
+          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], roles: ['ADMIN', 'RH', 'MARKETING'] }
         ],
       },
       {
         label: 'Empresa',
         icon: 'pi pi-fw pi-building',
         items: [
-          { label: 'Produtos', icon: 'pi pi-fw pi-tags', routerLink: ['company/products'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-          {
-            label: 'Inventário',
-            icon: 'pi pi-fw pi-box',
-            items: [
-              { label: 'Controle de Estoque', icon: 'pi pi-fw pi-box', routerLink: ['company/inventory'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-            ],
-          },
-          {
-            label: 'Website',
-            icon: 'pi pi-fw pi-web',
-            items: [
-              { label: 'Produtos do site', icon: 'pi pi-fw pi-box', routerLink: ['company/products/website'], roles: ['ADMIN', 'DESIGN', 'MARKETING'] },
-            ],
-          },
-          {
-            label: 'Veiculos',
-            icon: 'pi pi-fw pi-car',
-            items: [
-              { label: 'Abastecimento', icon: 'pi pi-fw pi-fuel', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
-            ],
-          },
-        ],
-      },
-      {
-        label: 'Parceiros',
-        icon: 'pi pi-fw pi-users',
-        items: [
-          { label: 'Clientes',     icon: 'pi pi-fw pi-user', routerLink: ['partners/customers'], roles: ['ADMIN', 'RH', 'MARKETING'] },
-          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['partners/employees'], roles: ['ADMIN', 'RH', 'MARKETING'] },
-        ],
-      },
-      {
-        label: 'Suporte',
-        icon: 'fa-solid fa-ticket',
-        items: [
-          { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['support/contact'], roles: ['ADMIN', 'SUPPORT'] },
+          { label: 'Clientes',     icon: 'pi pi-fw pi-user', routerLink: ['company/customers'], roles: ['ADMIN', 'RH', 'MARKETING'] },
+          { label: 'Coletar Dados NFe',       icon: 'pi pi-fw pi-file',      routerLink: ['company/nfe-collector'],    roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] },
+          { label: 'Remover Senha do Excel',  icon: 'pi pi-fw pi-lock',      routerLink: ['company/excel'] },
+          { label: 'Abastecimento', icon: 'pi pi-fw pi-fuel', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
         ],
       },
       {
@@ -150,6 +101,16 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Newsletter',             icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], roles: ['ADMIN', 'MARKETING'] },
           { label: 'Disparo de Emails',      icon: 'pi pi-fw pi-send',     routerLink: ['communication/email'],      roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] },
           { label: 'Comunicação Protegida',  icon: 'pi pi-fw pi-lock',     routerLink: ['communication/secrets'],    roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR'] },
+          { label: 'Assinatura de Email',     icon: 'pi pi-fw pi-file',      routerLink: ['communication/email-signature'],  roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDOR'] },
+          { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['communication/contact'], roles: ['ADMIN', 'SUPPORT'] }
+        ],
+      },
+      {
+        label: 'Configurações',
+        icon: 'pi pi-fw pi-file',
+        items: [
+          { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], roles: ['ADMIN', 'DESIGN', 'MARKETING'] },
+          { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['settings/admin'], roles: ['ADMIN'] },
         ],
       },
       {
