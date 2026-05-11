@@ -228,7 +228,15 @@ export class TrabalheConoscoComponent implements OnInit, OnDestroy {
           this.modalStep = 'sucesso';
         },
         error: (err) => {
-          this.erroMsg = err?.error ?? 'Ocorreu um erro ao enviar a candidatura.';
+          const status = err?.status ?? err?.error?.status;
+          const apiMsg = err?.error?.message;
+
+          if (status === 409) {
+            this.erroMsg = 'Você já se candidatou para esta vaga.';
+          } else {
+            this.erroMsg = apiMsg ?? 'Ocorreu um erro ao enviar a candidatura.';
+          }
+
           this.modalStep = 'erro';
         },
       });
