@@ -406,7 +406,7 @@
             <label>Imagem atual</label>
             <div class="preview-wrap">
               <img
-                [src]="resolverImagem(editingProduct()?.imagem)"
+                [src]="resolverImagem(editingProduct()!)"
                 alt="Imagem atual do produto"
                 class="product-preview" />
             </div>
