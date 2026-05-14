@@ -90,8 +90,9 @@ export class ListaProdutosComponent implements OnInit {
       return produto.imagem;
     }
 
-    const baseUrl = environment.apiUrl.replace('/api', '');
-    return `${baseUrl}${produto.imagem.startsWith('/') ? '' : '/'}${produto.imagem}`;
+    const origem = new URL(environment.apiUrl).origin;
+    const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
+    return `${origem}${caminho}`;
   }
 
   slugDepartamento(nome: string): string {
