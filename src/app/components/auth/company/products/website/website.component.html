@@ -448,7 +448,8 @@
       label="Salvar Alterações"
       icon="pi pi-check"
       class="p-button-primary save-btn"
-      [disabled]="editForm.invalid"
+      [loading]="saving()"
+      [disabled]="editForm.invalid || saving()"
       (click)="saveEdit()"></button>
   </ng-template>
 </p-dialog>
@@ -621,7 +622,8 @@
       label="Cadastrar Produto"
       icon="pi pi-check"
       class="p-button-primary save-btn"
-      [disabled]="createForm.invalid"
+      [loading]="saving()"
+      [disabled]="createForm.invalid || saving()"
       (click)="saveCreate()"></button>
   </ng-template>
 </p-dialog>

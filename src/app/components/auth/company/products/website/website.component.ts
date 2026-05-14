@@ -57,6 +57,7 @@ export class WebsiteComponent implements OnInit {
   hiddenProducts = signal<ProductWebSiteResponseDTO[]>([]);
 
   loading = signal(false);
+  saving = signal(false);
   dialogVisible = signal(false);
   createDialogVisible = signal(false);
   editingProduct = signal<ProductWebSiteResponseDTO | null>(null);
@@ -229,6 +230,7 @@ export class WebsiteComponent implements OnInit {
     }
 
     const dto: ProductWebSiteCreateDTO = this.createForm.getRawValue();
+    this.saving.set(true);
 
     this.service.create(dto, this.selectedCreateImage).subscribe({
       next: () => {
@@ -247,6 +249,7 @@ export class WebsiteComponent implements OnInit {
           detail: 'Falha ao cadastrar produto.'
         });
       },
+      complete: () => this.saving.set(false),
     });
   }
 
@@ -260,6 +263,7 @@ export class WebsiteComponent implements OnInit {
     if (!product) return;
 
     const dto: ProductWebSiteUpdateDTO = this.editForm.getRawValue();
+    this.saving.set(true);
 
     this.service.update(dto, product.id, this.selectedEditImage).subscribe({
       next: () => {
@@ -278,6 +282,7 @@ export class WebsiteComponent implements OnInit {
           detail: 'Falha ao atualizar produto.'
         });
       },
+      complete: () => this.saving.set(false),
     });
   }
 
