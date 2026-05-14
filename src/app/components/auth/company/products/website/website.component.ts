@@ -18,7 +18,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { environment } from '../../../../../../environments/environment';
 
 import {
-  ProductWebSiteCreateDTO,
+  ProductWebSiteCreateDTO, ProductWebSitePublicResponseDTO,
   ProductWebSiteResponseDTO,
   ProductWebSiteUpdateDTO
 } from '../../../../../domain/models/products.model';
@@ -443,12 +443,18 @@ export class WebsiteComponent implements OnInit {
     control?.markAsTouched();
   }
 
-  resolverImagem(path?: string | null): string {
-    if (!path) return 'images/products/placeholder.png';
-    if (path.startsWith('http')) return path;
+  resolverImagem(produto: ProductWebSiteResponseDTO): string {
+    if (!produto.imagem) {
+      return 'images/products/placeholder.png';
+    }
 
-    const baseUrl = environment.apiUrl.replace('/api', '');
-    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+    if (produto.imagem.startsWith('http')) {
+      return produto.imagem;
+    }
+
+    const origem = new URL(environment.apiUrl).origin;
+    const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
+    return `${origem}${caminho}`;
   }
 
   get totalProdutos(): number {
