@@ -1,0 +1,178 @@
+<div class="rrg-page">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <div class="rrg-header">
+    <div class="rrg-header__inner">
+      <div class="rrg-header__icon" aria-hidden="true">
+        <i class="pi pi-file-excel"></i>
+      </div>
+      <div>
+        <h1 class="rrg-header__title">Gerador de Recibos</h1>
+        <p class="rrg-header__subtitle">Importe a planilha Excel e gere os recibos de aluguel</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="rrg-container">
+
+    <!-- Upload Card -->
+    <section class="rrg-card">
+      <div class="rrg-card__header">
+        <span class="rrg-card__header-icon" aria-hidden="true">
+          <i class="pi pi-upload"></i>
+        </span>
+        <div>
+          <h2 class="rrg-card__title">Upload do Arquivo Excel</h2>
+          <p class="rrg-card__subtitle">Selecione ou arraste a planilha no formato <strong>.xlsx</strong></p>
+        </div>
+      </div>
+
+      <div *ngIf="!processing" class="rrg-upload-area">
+        <p-fileupload
+          #upload
+          name="arquivoExcel"
+          [multiple]="false"
+          [customUpload]="true"
+          (uploadHandler)="onUpload($event)"
+          fileLimit="1"
+          accept=".xlsx"
+          maxFileSize="1000000"
+          mode="advanced"
+          chooseLabel="Selecionar Planilha"
+          uploadLabel="Enviar"
+          cancelLabel="Cancelar"
+          styleClass="rrg-fileupload">
+
+          <ng-template #empty>
+            <div class="rrg-drop-zone">
+              <div class="rrg-drop-zone__icon" aria-hidden="true">
+                <i class="pi pi-cloud-upload"></i>
+              </div>
+              <p class="rrg-drop-zone__text">Arraste e solte a planilha aqui</p>
+              <p class="rrg-drop-zone__hint">ou clique em <strong>Selecionar Planilha</strong> · Máx. 1 arquivo .xlsx</p>
+            </div>
+          </ng-template>
+        </p-fileupload>
+      </div>
+
+      <div *ngIf="processing" class="rrg-processing">
+        <p-progressSpinner
+          [style]="{width: '48px', height: '48px'}"
+          strokeWidth="4">
+        </p-progressSpinner>
+        <p class="rrg-processing__text">Processando arquivo... Por favor, aguarde.</p>
+      </div>
+    </section>
+
+    <!-- Results Card -->
+    <section class="rrg-card" *ngIf="processId">
+      <div class="rrg-card__header rrg-card__header--between">
+        <div class="rrg-card__header-left">
+          <span class="rrg-card__header-icon" aria-hidden="true">
+            <i class="pi pi-list"></i>
+          </span>
+          <div>
+            <h2 class="rrg-card__title">Recibos Identificados</h2>
+            <p class="rrg-card__subtitle">Defina as datas de vencimento e gere os recibos</p>
+          </div>
+        </div>
+
+        <div class="rrg-toolbar">
+          <p-floatlabel variant="on" class="rrg-toolbar__month">
+            <p-select
+              inputId="monthId"
+              [options]="meses"
+              [(ngModel)]="selectedMonth"
+              class="w-full"
+              variant="outlined"/>
+            <label for="monthId">Mês de Referência</label>
+          </p-floatlabel>
+
+          <button
+            pButton
+            type="button"
+            label="Apagar Datas"
+            icon="pi pi-trash"
+            class="p-button-outlined rrg-btn-clear"
+            (click)="apagarDatas()"
+            [loading]="loading">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            label="Gerar Recibos"
+            icon="pi pi-send"
+            class="rrg-btn-generate"
+            [disabled]="!selectedMonth || matrizes.length === 0"
+            [loading]="loading"
+            (click)="gerarRecibos()">
+          </button>
+        </div>
+      </div>
+
+      <div class="rrg-table-wrapper">
+        <p-table
+          [value]="matrizes"
+          [loading]="loading"
+          [paginator]="true"
+          [rows]="50"
+          [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm rrg-table">
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="codMatriz">
+                Cód. Matriz <p-sortIcon field="codMatriz"></p-sortIcon>
+              </th>
+              <th pSortableColumn="nomeMatriz">
+                Nome da Matriz <p-sortIcon field="nomeMatriz"></p-sortIcon>
+              </th>
+              <th pSortableColumn="dataVencimento">
+                Data de Vencimento <p-sortIcon field="dataVencimento"></p-sortIcon>
+              </th>
+              <th class="text-right">Total Unidades</th>
+              <th class="text-right">Total Máquinas</th>
+              <th class="text-right">Total Matriz</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-matriz>
+            <tr>
+              <td>
+                <span class="rrg-cod-badge">{{ matriz.codMatriz }}</span>
+              </td>
+              <td class="rrg-nome-cell">{{ matriz.nomeMatriz }}</td>
+              <td>
+                <p-datepicker
+                  [(ngModel)]="matriz.dataVencimento"
+                  [showIcon]="true"
+                  dateFormat="dd/mm/yy"
+                  appendTo="body"
+                  styleClass="rrg-datepicker">
+                </p-datepicker>
+              </td>
+              <td class="text-right">{{ matriz.totalUnidades }}</td>
+              <td class="text-right">{{ matriz.totalMaquinas }}</td>
+              <td class="text-right rrg-total-cell">{{ matriz.totalMatriz | number:'1.2-2' }}</td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" class="rrg-empty">
+                <i class="pi pi-inbox" aria-hidden="true"></i>
+                <span>Nenhum registro encontrado</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </section>
+
+  </div>
+</div>

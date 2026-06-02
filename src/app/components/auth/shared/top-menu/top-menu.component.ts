@@ -80,9 +80,16 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         items: [
           { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
           { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit'],          roles: ['ADMIN', 'RH'] },
-          { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
+          { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file-arrow-up',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
           { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], roles: ['ADMIN', 'RH', 'MARKETING'] }
         ],
+      },
+      {
+        label: 'Financeiro',
+        icon: 'pi pi-fw pi-money-bill',
+        items: [
+          { label: 'Gerar Recibos Locação', icon: 'pi pi-fw pi-file-export', routerLink: ['finance/rent-receipt-generator'], roles: ['ADMIN', 'FINANCEIRO'] },
+        ]
       },
       {
         label: 'Empresa',
@@ -91,7 +98,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Clientes',     icon: 'pi pi-fw pi-user', routerLink: ['company/customers'], roles: ['ADMIN', 'RH', 'MARKETING'] },
           { label: 'Coletar Dados NFe',       icon: 'pi pi-fw pi-file',      routerLink: ['company/nfe-collector'],    roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] },
           { label: 'Remover Senha do Excel',  icon: 'pi pi-fw pi-lock',      routerLink: ['company/excel'] },
-          { label: 'Abastecimento', icon: 'pi pi-fw pi-fuel', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
+          { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
         ],
       },
       {
@@ -107,7 +114,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
       },
       {
         label: 'Configurações',
-        icon: 'pi pi-fw pi-file',
+        icon: 'pi pi-fw pi-cog',
         items: [
           { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], roles: ['ADMIN', 'DESIGN', 'MARKETING'] },
           { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['settings/admin'], roles: ['ADMIN'] },
