@@ -1,0 +1,168 @@
+<div class="section">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <p-card class="mb-4">
+    <ng-template pTemplate="header">
+      <div class="p-3 border-bottom-1 surface-border">
+        <h2 class="text-2xl font-semibold m-0">
+          <i class="pi pi-cloud-upload mr-2">
+            Upload do Arquivo Excel
+          </i>
+        </h2>
+      </div>
+    </ng-template>
+
+    <div class="upload-section">
+      <div class="grid">
+        <div class="col-12 md:col-6 lg:col-12">
+          <div class="upload-box p-3 border-round surface-border border0">
+            <div class="flex align-items-center justify-content-between mb-3">
+              <h3 class="text-lg font-semibold m-0">
+                <i class="pi pi-box text-blue-900 mr-2">
+                  Planilha Excel
+                </i>
+              </h3>
+            </div>
+
+            <div *ngIf="!processing">
+              <p-fileupload
+                #upload
+                name="arquivoExcel"
+                [multiple]="false"
+                [customUpload]="true"
+                (uploadHandler)="onUpload($event)"
+                fileLimit="1"
+                accept=".xlsx"
+                maxFileSize="1000000"
+                mode="advanced"
+                chooseLabel="Selecionar Planilha"
+                uploadLabel="Enviar"
+                cancelLabel="Cancelar">
+
+                <ng-template #empty>
+                  <div class="p-d-flex p-ai-center p-jc-center p-4" style="height: 150px; border: 2px dashed #ccc; border-radius: 8px;">
+                    <div class="p-text-center">
+                      <i class="pi pi-upload" style="font-size: 2em; color: #888;"></i>
+                      <p class="p-mt-2" style="color: #888;">Arraste e solte a planilha aqui ou clique para selecionar</p>
+                      <p style="color: #888; font-size: 0.9em;">(Máx. 1 arquivo xlsx)</p>
+                    </div>
+                  </div>
+                </ng-template>
+              </p-fileupload>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="processing" class="mt-4 text-center">
+        <p-progressSpinner
+          [style]="{width: '50px', height: '50px'}"
+          strokeWidth="4">
+        </p-progressSpinner>
+        <p class="mt-2 text-lg font-medium text-primary">
+          Processando arquivo... Por favor, aguarde.
+        </p>
+      </div>
+    </div>
+  </p-card>
+
+  <p-card *ngIf="processId">
+    <ng-template pTemplate="header">
+      <p-toolbar styleClass="border-none p-3">
+        <ng-template pTemplate="left">
+          <h2 class="text-2xl font-semibold m-0">
+            <i class="pi pi-list mr-2"></i>
+            Recibos identificados
+          </h2>
+        </ng-template>
+
+        <ng-template pTemplate="right">
+          <p-floatlabel variant="on" class="w-full mr-4">
+            <p-select
+              inputId="monthId"
+              [options]="meses"
+              [(ngModel)]="selectedMonth"
+              class="w-full"
+              variant="outlined"/>
+            <label for="monthId">Selecione o Mês</label>
+          </p-floatlabel>
+          <button
+            pButton
+            type="button"
+            label="Apagar Datas"
+            icon="pi pi-trash"
+            class="p-button-outlined mr-2 w-full"
+            (click)="apagarDatas()"
+            [loading]="loading">
+          </button>
+          <button
+            pButton
+            type="button"
+            label="Gerar Recibos"
+            icon="pi pi-send"
+            class="p-button-outlined p-button-success w-full"
+            [disabled]="!selectedMonth || matrizes.length === 0"
+            (click)="gerarRecibos()">
+          </button>
+        </ng-template>
+      </p-toolbar>
+    </ng-template>
+
+    <p-table
+      [value]="matrizes"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="50"
+      [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [globalFilterFields]="[]"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="codMatriz">
+            Cód Matriz <p-sortIcon field="codMatriz"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nomeMatriz">
+            Nome Matriz <p-sortIcon field="nomeMatriz"></p-sortIcon>
+          </th>
+          <th pSortableColumn="dataVencimento" [contentEditable]="true">
+            Data Vencimento <p-sortIcon field="dataVencimento"></p-sortIcon>
+          </th>
+          <th>
+            Total Unidades
+          </th>
+          <th>
+            Total Máquinas
+          </th>
+          <th>
+            Total Matriz
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-matriz>
+        <tr>
+          <td>{{ matriz.codMatriz }}</td>
+
+          <td>{{ matriz.nomeMatriz }}</td>
+
+          <td>
+            <p-datepicker
+              [(ngModel)]="matriz.dataVencimento"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              appendTo="body">
+            </p-datepicker>
+          </td>
+
+          <td>{{ matriz.totalUnidades }}</td>
+          <td>{{ matriz.totalMaquinas }}</td>
+          <td>{{ matriz.totalMatriz | number:'1.2-2' }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
