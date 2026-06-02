@@ -1,3 +1,442 @@
 @use 'variables' as v;
-@use 'cards';
-@use 'buttons';
+
+.rrg-page {
+  min-height: 94vh;
+  background: v.$bg-base;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.rrg-header {
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
+  padding: 2rem 2.5rem;
+  border-bottom: 3px solid v.$secondary;
+}
+
+.rrg-header__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.rrg-header__icon{
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1.5rem;
+    color: v.$secondary;
+  }
+}
+
+.rrg-header__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: v.$white;
+  margin: 0 0 0.2rem;
+  letter-spacing: -0.01em;
+}
+
+.rrg-header__subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.rrg-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rrg-card {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
+  overflow: hidden;
+  transition: box-shadow v.$transition-base;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+  }
+}
+
+.rrg-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid v.$border;
+  background: v.$bg-hover;
+
+  &--between {
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+}
+
+.rrg-card__header-left{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rrg-card__header-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: v.$radius-md;
+  background: v.$primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    color: v.$white;
+    font-size: 1.1rem;
+  }
+}
+
+.rrg-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0 0 0.15rem;
+}
+
+.rrg-card__subtitle {
+  font-size: 0.8rem;
+  color: v.$text-muted;
+  margin: 0;
+}
+
+.rrg-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rrg-toolbar__month {
+  min-width: 200px;
+}
+
+.rrg-btn-clear {
+  border-color: v.$border-dark !important;
+  color: v.$neutral-700 !important;
+  font-size: 0.85rem !important;
+
+  &:hover {
+    border-color: v.$danger !important;
+    color: v.$danger !important;
+    background: rgba(v.$danger, 0.05) !important;
+  }
+}
+
+.rrg-btn-generate {
+  background: v.$secondary !important;
+  border-color: v.$secondary !important;
+  color: v.$white !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+
+  &:hover:not(:disabled) {
+    background: v.$secondary-dark !important;
+    border-color: v.$secondary-dark !important;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.rrg-upload-area {
+  padding: 2rem;
+}
+
+.rrg-drop-zone{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  border: 2px dashed v.$border-dark;
+  border-radius: v.$radius-md;
+  background: v.$bg-hover;
+  text-align: center;
+  transition: border-color v.$transition-base, background v.$transition-base;
+
+  &:hover {
+    border-color: v.$secondary;
+    background: rgba(v.$secondary, 0.04);
+  }
+}
+
+.rrg-drop-zone__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(v.$primary, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+
+  i {
+    font-size: 1.75rem;
+    color: v.$primary;
+  }
+}
+
+.rrg-drop-zone__text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: v.$primary;
+  margin: 0 0 0.4rem;
+}
+
+.rrg-drop-zone__hint {
+  font-size: 0.8rem;
+  color: v.$text-muted;
+  margin: 0;
+}
+
+.rrg-processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1rem;
+}
+
+.rrg-processing__text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: v.$primary;
+  margin: 0;
+}
+
+.rrg-table-wrapper{
+  padding: 1.5rem 2rem;
+}
+
+::ng-deep .rrg-table {
+  .p-datatable-thead > tr > th {
+    background: v.$bg-hover;
+    border-bottom: 2px solid v.$border;
+    color: v.$primary;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+  }
+
+  .p-datatable-tbody > tr {
+    border-bottom: 1px solid v.$border;
+    transition: background v.$transition-fast;
+
+    > td {
+      padding: 0.65rem 1rem;
+      font-size: 0.875rem;
+      vertical-align: middle;
+      color: v.$neutral-900;
+    }
+
+    &:hover > td {
+      background: v.$bg-selected;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .p-paginator {
+    border-top: 1px solid v.$border;
+    background: v.$bg-hover;
+    padding: 0.5rem 1rem;
+    font-size: 0.83rem;
+    color: v.$text-muted;
+  }
+}
+
+.rrg-cod-badge {
+  display: inline-block;
+  background: rgba(v.$primary, 0.08);
+  color: v.$primary;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: v.$radius-sm;
+  letter-spacing: 0.03em;
+}
+
+.rrg-nome-cell {
+  font-weight: 500;
+}
+
+.rrg-total-cell {
+  font-weight: 700;
+  color: v.$primary !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+.rrg-empty {
+  text-align: center;
+  padding: 3rem 1rem !important;
+  color: v.$text-muted;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  i {
+    font-size: 2.5rem;
+    color: v.$border-dark;
+    display: block;
+  }
+
+  span {
+    font-size: 0.9rem;
+  }
+}
+
+::ng-deep .rrg-fileupload {
+  .p-fileupload-buttonbar {
+    background: transparent;
+    border: none;
+    padding: 0 0 1rem;
+    display: flex;
+    gap: 0.5rem;
+
+    .p-button {
+      &.p-fileupload-choose {
+        background: v.$primary !important;
+        border-color: v.$primary !important;
+        font-size: 0.85rem;
+
+        &:hover {
+          background: v.$primary-dark !important;
+          border-color: v.$primary-dark !important;
+        }
+      }
+
+      &.p-fileupload-upload {
+        background: v.$secondary !important;
+        border-color: v.$secondary !important;
+        font-size: 0.85rem;
+
+        &:hover {
+          background: v.$secondary-dark !important;
+          border-color: v.$secondary-dark !important;
+        }
+      }
+
+      &.p-fileupload-cancel {
+        background: transparent !important;
+        border-color: v.$border-dark !important;
+        color: v.$neutral-700 !important;
+        font-size: 0.85rem;
+
+        &:hover {
+          border-color: v.$danger !important;
+          color: v.$danger !important;
+        }
+      }
+    }
+  }
+
+  .p-fileupload-content {
+    border: none;
+    background: transparent;
+    padding: 0;
+  }
+}
+
+::ng-deep .rrg-datepicker {
+  .p-inputtext {
+    font-size: 0.85rem !important;
+    border-color: v.$border !important;
+
+    &:focus {
+      border-color: v.$primary !important;
+      box-shadow: v.$shadow-focus-primary !important;
+    }
+  }
+}
+
+
+@media (max-width: v.$bp-md) {
+  .rrg-header {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .rrg-container {
+    padding: 1.25rem;
+  }
+
+  .rrg-card__header {
+    padding: 1.25rem;
+
+    &--between {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .rrg-toolbar {
+    width: 100%;
+
+    .rrg-toolbar__month {
+      min-width: 0;
+      flex: 1 1 100%;
+    }
+  }
+
+  .rrg-table-wrapper {
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .rrg-upload-area {
+    padding: 1.25rem;
+  }
+
+  .rrg-header__title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .rrg-header__icon {
+    display: none;
+  }
+
+  .rrg-btn-clear,
+  .rrg-btn-generate {
+    font-size: 0.8rem !important;
+  }
+}
