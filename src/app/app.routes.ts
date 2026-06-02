@@ -37,6 +37,9 @@ import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/t
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
 import {WebsiteComponent} from "./components/auth/company/products/website/website.component";
+import {
+  RentReceiptGeneratorComponent
+} from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
 
 
 export const routes: Routes = [
@@ -83,6 +86,7 @@ export const routes: Routes = [
       { path: 'communication/contact', component: ContactsComponent, data: { roles: ['ADMIN', 'SUPPORT'] } },
       { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'MARKETING'] } },
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
+      { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
     ]
   },
   {
