@@ -1,0 +1,436 @@
+@use 'variables' as v;
+@use 'typography';
+
+// ─── Layout ────────────────────────────────────────────────────────────────────
+
+.guide-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (max-width: v.$bp-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Products Panel ────────────────────────────────────────────────────────────
+
+.products-panel {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 14rem);
+}
+
+.panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid v.$border;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.panel-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: v.$primary;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  i { font-size: 0.9rem; }
+}
+
+.selected-badge {
+  background: v.$primary;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.6rem;
+  border-radius: v.$radius-full;
+  letter-spacing: 0.02em;
+}
+
+// ─── Product Table ─────────────────────────────────────────────────────────────
+
+.product-table-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+.select-all-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid v.$border;
+  background: v.$neutral-100;
+}
+
+.select-all-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: v.$neutral-700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.product-list {
+  overflow-y: auto;
+  flex: 1;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: v.$neutral-300;
+    border-radius: v.$radius-full;
+  }
+}
+
+.product-row {
+  display: grid;
+  grid-template-columns: auto 5.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background v.$transition-fast;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover { background: v.$bg-hover; }
+
+  &--selected {
+    background: v.$bg-selected;
+
+    &:hover { background: #e0edff; }
+
+    .product-name { color: v.$primary; font-weight: 600; }
+    .product-code { color: v.$primary; }
+  }
+}
+
+.product-check {
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.product-code {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: v.$neutral-500;
+  font-family: v.$font-mono;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color v.$transition-fast;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.product-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: v.$neutral-700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color v.$transition-fast;
+}
+
+.product-finalidade {
+  font-size: 0.7rem;
+  color: v.$text-muted;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: v.$neutral-300;
+  flex-shrink: 0;
+
+  &.active { background: v.$secondary; }
+}
+
+.empty-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: v.$neutral-400;
+  font-size: 0.85rem;
+
+  i { font-size: 2rem; }
+}
+
+// ─── Config Panel ──────────────────────────────────────────────────────────────
+
+.config-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.config-card {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-sm;
+  padding: 1.25rem;
+}
+
+.config-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin-bottom: 1rem;
+
+  i { font-size: 0.95rem; }
+}
+
+// ─── Title Input ───────────────────────────────────────────────────────────────
+
+.guide-title-input {
+  width: 100%;
+  font-size: 0.9rem !important;
+}
+
+.field-error {
+  color: v.$danger;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+// ─── Logo Drop Area ────────────────────────────────────────────────────────────
+
+.logo-drop-area {
+  border: 2px dashed v.$border-dark;
+  border-radius: v.$radius-md;
+  padding: 1.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all v.$transition-base;
+  position: relative;
+  text-align: center;
+  min-height: 130px;
+  background: #fafbfc;
+
+  &:hover,
+  &--active {
+    border-color: v.$primary;
+    background: v.$bg-selected;
+  }
+
+  &--filled {
+    border-style: solid;
+    border-color: v.$secondary;
+    background: #f0faf8;
+    padding: 1rem;
+  }
+}
+
+.drop-icon {
+  font-size: 2rem;
+  color: v.$neutral-400;
+}
+
+.drop-text {
+  font-size: 0.82rem;
+  color: v.$neutral-700;
+  margin: 0;
+
+  strong { color: v.$primary; }
+}
+
+.drop-hint {
+  font-size: 0.72rem;
+  color: v.$text-muted;
+  margin: 0;
+}
+
+.logo-preview-img {
+  max-height: 90px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: v.$radius-sm;
+}
+
+.logo-remove-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+}
+
+// ─── Selected Summary ──────────────────────────────────────────────────────────
+
+.selected-summary {
+  .config-card-header { margin-bottom: 0.75rem; }
+}
+
+.selected-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 180px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: v.$neutral-300;
+    border-radius: v.$radius-full;
+  }
+}
+
+.selected-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: v.$bg-selected;
+  border: 1px solid #c7d7f8;
+  border-radius: v.$radius-sm;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.chip-code {
+  font-weight: 700;
+  font-family: v.$font-mono;
+  color: v.$primary;
+  flex-shrink: 0;
+}
+
+.chip-name {
+  color: v.$neutral-700;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: v.$neutral-400;
+  display: flex;
+  align-items: center;
+  padding: 0.1rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: color v.$transition-fast, background v.$transition-fast;
+
+  i { font-size: 0.65rem; }
+
+  &:hover {
+    color: v.$danger;
+    background: #fee2e2;
+  }
+}
+
+// ─── No products card ──────────────────────────────────────────────────────────
+
+.no-products-card {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #fffbeb;
+  border-color: #fcd34d;
+
+  i {
+    font-size: 1.1rem;
+    color: v.$warning;
+    flex-shrink: 0;
+  }
+
+  p {
+    font-size: 0.82rem;
+    color: #92400e;
+    margin: 0;
+  }
+}
+
+// ─── Generate Section ──────────────────────────────────────────────────────────
+
+.generate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+::ng-deep .generate-btn {
+  width: 100%;
+  background: v.$primary !important;
+  border-color: v.$primary !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  padding: 0.8rem 1.5rem !important;
+  border-radius: v.$radius-md !important;
+  transition: background v.$transition-base !important;
+
+  &:hover:not(:disabled) {
+    background: v.$primary-dark !important;
+    border-color: v.$primary-dark !important;
+  }
+
+  &:disabled { opacity: 0.5; }
+}
+
+.generate-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: v.$text-muted;
+  justify-content: center;
+
+  i { font-size: 0.8rem; color: v.$warning; }
+}
+
+// ─── Skeleton overrides ────────────────────────────────────────────────────────
+
+.skeleton-wrap { padding: 0.75rem 1.25rem; }
+
+.skeleton-row {
+  display: grid;
+  grid-template-columns: auto 5.5rem 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+
+  ::ng-deep .p-skeleton { border-radius: v.$radius-sm; }
+}
