@@ -1,0 +1,229 @@
+<div class="painel-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-file-pdf"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Gerar Guia de Utilização</h1>
+        <p class="page-subtitle">Selecione os produtos, configure e gere o guia em PDF</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="guide-layout">
+
+    <!-- LEFT: Product List -->
+    <div class="products-panel">
+
+      <div class="panel-header">
+        <div class="panel-header-top">
+          <span class="panel-title">
+            <i class="pi pi-list"></i>
+            Produtos
+          </span>
+          <span class="selected-badge" *ngIf="selectedProducts.length > 0">
+            {{ selectedProducts.length }} selecionado{{ selectedProducts.length > 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <div class="search-field">
+          <i class="pi pi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar produto..."
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearch()"
+            pInputText />
+          <button
+            *ngIf="searchTerm"
+            class="search-clear"
+            (click)="clearSearch()"
+            type="button">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div *ngIf="loadingProducts" class="skeleton-wrap">
+        <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6]">
+          <p-skeleton width="1.1rem" height="1.1rem" borderRadius="4px" />
+          <p-skeleton width="5rem" height="0.85rem" borderRadius="4px" />
+          <p-skeleton width="100%" height="0.85rem" borderRadius="4px" />
+        </div>
+      </div>
+
+      <!-- Product table -->
+      <div class="product-table-wrap" *ngIf="!loadingProducts">
+
+        <!-- Select all row -->
+        <div class="select-all-row">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="allSelected"
+            (ngModelChange)="toggleAll($event)"
+            inputId="selectAll" />
+          <label for="selectAll" class="select-all-label">
+            Selecionar todos ({{ filteredProducts.length }})
+          </label>
+        </div>
+
+        <div class="product-list">
+          <div
+            *ngFor="let product of filteredProducts; trackBy: trackById"
+            class="product-row"
+            [class.product-row--selected]="isSelected(product.id)"
+            (click)="toggleProduct(product)">
+
+            <div class="product-check">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="isSelected(product.id)"
+                (ngModelChange)="toggleProduct(product)"
+                (click)="$event.stopPropagation()" />
+            </div>
+
+            <span class="product-code">{{ product.systemCode }}</span>
+
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-finalidade" *ngIf="product.finalidade">{{ product.finalidade }}</span>
+            </div>
+
+            <div class="product-status-dot" [class.active]="product.active"></div>
+          </div>
+
+          <div *ngIf="filteredProducts.length === 0" class="empty-list">
+            <i class="pi pi-inbox"></i>
+            <span>Nenhum produto encontrado</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Config + Preview -->
+    <div class="config-panel">
+
+      <!-- Guide title -->
+      <div class="config-card">
+        <div class="config-card-header">
+          <i class="pi pi-pencil"></i>
+          <span>Título do Guia</span>
+        </div>
+        <div class="form-field">
+          <label for="guideTitle">
+            Título <span class="required">*</span>
+          </label>
+          <input
+            id="guideTitle"
+            type="text"
+            pInputText
+            [(ngModel)]="guideTitle"
+            placeholder="Ex: Guia Geral de Utilização"
+            [class.ng-invalid]="titleInvalid"
+            class="guide-title-input" />
+          <small class="field-error" *ngIf="titleInvalid">O título é obrigatório.</small>
+        </div>
+      </div>
+
+      <!-- Logo upload -->
+      <div class="config-card">
+        <div class="config-card-header">
+          <i class="pi pi-image"></i>
+          <span>Logo do Cliente</span>
+        </div>
+
+        <div
+          class="logo-drop-area"
+          [class.logo-drop-area--active]="isDragging"
+          [class.logo-drop-area--filled]="logoPreview"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()">
+
+          <ng-container *ngIf="!logoPreview">
+            <i class="pi pi-cloud-upload drop-icon"></i>
+            <p class="drop-text">Arraste a logo aqui ou <strong>clique para selecionar</strong></p>
+            <p class="drop-hint">PNG ou JPG — recomendado fundo transparente</p>
+          </ng-container>
+
+          <ng-container *ngIf="logoPreview">
+            <img [src]="logoPreview" alt="Logo cliente" class="logo-preview-img" />
+            <button
+              class="logo-remove-btn"
+              type="button"
+              (click)="removeLogo($event)"
+              pButton
+              icon="pi pi-times"
+              severity="danger"
+              [rounded]="true"
+              [text]="true"
+              size="small">
+            </button>
+          </ng-container>
+        </div>
+
+        <input
+          #fileInput
+          type="file"
+          accept="image/png,image/jpeg"
+          hidden
+          (change)="onFileSelected($event)" />
+      </div>
+
+      <!-- Selected products summary -->
+      <div class="config-card selected-summary" *ngIf="selectedProducts.length > 0">
+        <div class="config-card-header">
+          <i class="pi pi-check-square"></i>
+          <span>Produtos Selecionados ({{ selectedProducts.length }})</span>
+        </div>
+
+        <div class="selected-chips">
+          <div
+            *ngFor="let p of selectedProducts"
+            class="selected-chip">
+            <span class="chip-code">{{ p.systemCode }}</span>
+            <span class="chip-name">{{ p.name }}</span>
+            <button
+              type="button"
+              class="chip-remove"
+              (click)="toggleProduct(p)">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state for no products -->
+      <div class="config-card no-products-card" *ngIf="selectedProducts.length === 0">
+        <i class="pi pi-info-circle"></i>
+        <p>Selecione ao menos um produto na lista para gerar o guia.</p>
+      </div>
+
+      <!-- Generate button -->
+      <div class="generate-section">
+        <p-button
+          label="Gerar Guia PDF"
+          icon="pi pi-file-pdf"
+          iconPos="left"
+          styleClass="generate-btn"
+          [loading]="generating"
+          [disabled]="!canGenerate"
+          (onClick)="gerarGuia()">
+        </p-button>
+
+        <p class="generate-hint" *ngIf="!canGenerate && !generating">
+          <i class="pi pi-exclamation-circle"></i>
+          Preencha o título e selecione ao menos um produto.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>

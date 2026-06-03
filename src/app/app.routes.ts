@@ -40,6 +40,7 @@ import {WebsiteComponent} from "./components/auth/company/products/website/websi
 import {
   RentReceiptGeneratorComponent
 } from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
+import {GuideComponent} from "./components/auth/guide/guide.component";
 
 
 export const routes: Routes = [
@@ -87,6 +88,7 @@ export const routes: Routes = [
       { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'MARKETING'] } },
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
+      { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
     ]
   },
   {
