@@ -26,6 +26,8 @@ export interface ProductWebSiteCreateDTO{
   cores: string[];
   finalidade: string;
   diluicao: string;
+  concentracao: string;
+  localUso: string;
   descricao: string;
 }
 
@@ -35,6 +37,8 @@ export interface ProductWebSiteUpdateDTO{
   cores: string[];
   finalidade: string;
   diluicao: string;
+  concentracao: string;
+  localUso: string;
   descricao: string;
 }
 
@@ -46,6 +50,8 @@ export interface ProductWebSiteResponseDTO{
   cores: string[];
   finalidade: string;
   diluicao: string;
+  concentracao: string;
+  localUso: string;
   descricao: string;
   imagem: string;
 }

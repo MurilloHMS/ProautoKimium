@@ -342,6 +342,34 @@
             <small class="field-error">Diluição é obrigatória.</small>
           }
         </div>
+
+        <div class="form-field">
+          <label for="concentracao">Concentração <span class="required">*</span></label>
+          <input
+            id="concentracao"
+            pInputText
+            formControlName="concentracao"
+            placeholder="Ex: 10%"
+            [class.ng-invalid]="isFieldInvalid('concentracao')"
+            [class.ng-dirty]="isFieldInvalid('concentracao')" />
+          @if (isFieldInvalid('concentracao')) {
+            <small class="field-error">Concentração é obrigatória.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="localUso">Local de Uso <span class="required">*</span></label>
+          <input
+            id="localUso"
+            pInputText
+            formControlName="localUso"
+            placeholder="Ex: Padaria / Açougue"
+            [class.ng-invalid]="isFieldInvalid('localUso')"
+            [class.ng-dirty]="isFieldInvalid('localUso')" />
+          @if (isFieldInvalid('localUso')) {
+            <small class="field-error">Local de Uso é obrigatória.</small>
+          }
+        </div>
       </div>
     </div>
 
@@ -526,6 +554,34 @@
             [class.ng-dirty]="isCreateFieldInvalid('diluicao')" />
           @if (isCreateFieldInvalid('diluicao')) {
             <small class="field-error">Diluição é obrigatória.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="c-concentracao">Concentração <span class="required">*</span></label>
+          <input
+            id="c-concentracao"
+            pInputText
+            formControlName="concentracao"
+            placeholder="Ex: 10%"
+            [class.ng-invalid]="isCreateFieldInvalid('concentracao')"
+            [class.ng-dirty]="isCreateFieldInvalid('concentracao')" />
+          @if (isCreateFieldInvalid('concentracao')) {
+            <small class="field-error">Concentração é obrigatória.</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="c-localUso">Local de Uso <span class="required">*</span></label>
+          <input
+            id="c-localUso"
+            pInputText
+            formControlName="localUso"
+            placeholder="Ex: Padaria / Açougue"
+            [class.ng-invalid]="isCreateFieldInvalid('localUso')"
+            [class.ng-dirty]="isCreateFieldInvalid('localUso')" />
+          @if (isCreateFieldInvalid('localUso')) {
+            <small class="field-error">Local de Uso é obrigatória.</small>
           }
         </div>
       </div>
