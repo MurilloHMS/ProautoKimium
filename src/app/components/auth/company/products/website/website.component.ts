@@ -121,6 +121,8 @@ export class WebsiteComponent implements OnInit {
       cores: [[]],
       finalidade: ['', Validators.required],
       diluicao: ['', Validators.required],
+      concentracao: ['', Validators.required],
+      localUso: ['', Validators.required],
       descricao: ['', Validators.required],
     });
   }
@@ -132,6 +134,8 @@ export class WebsiteComponent implements OnInit {
       cores: [[]],
       finalidade: ['', Validators.required],
       diluicao: ['', Validators.required],
+      concentracao: ['', Validators.required],
+      localUso: ['', Validators.required],
       descricao: ['', Validators.required],
     });
   }
@@ -183,6 +187,8 @@ export class WebsiteComponent implements OnInit {
       cores: [],
       finalidade: '',
       diluicao: '',
+      concentracao: '',
+      localUso: '',
       descricao: '',
     });
 
@@ -209,6 +215,8 @@ export class WebsiteComponent implements OnInit {
       cores: product.cores ?? [],
       finalidade: product.finalidade,
       diluicao: product.diluicao,
+      concentracao: product.concentracao,
+      localUso: product.localUso,
       descricao: product.descricao,
     });
 
