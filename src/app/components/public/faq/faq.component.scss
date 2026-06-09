@@ -1,191 +1,208 @@
 @use 'variables' as v;
 
-section {
-    padding: 100px 0;
-    min-height: 70vh;
+.faq-section {
+  padding: 100px 0 100px;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: flex-start;
+  background: #f8fafc;
 }
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+// ── Section title ─────────────────────────────────────────────────────────────
 
 .section-title {
-    position: relative;
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.section-title label {
-    font-weight: 600;
-    text-transform: uppercase;
-    opacity: 0.6;
-    margin: 0 0 7px;
-    display: none;
-}
-
-.section-title .st-icon i {
-    width: 60px;
-    height: 60px;
-    line-height: 60px;
-    border-radius: 50%;
-    font-size: 20px;
-    background: #fff;
-    display: inline-block;
-    box-shadow: 0 1px 27px -3px rgba(0, 0, 0, 0.2);
-    margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 50px;
 }
 
 .section-title h2 {
-    font-weight: 700;
-    font-size: 32px;
-    margin-bottom: 30px;
-    text-transform: uppercase;
-    position: relative;
-    z-index: 1;
-    padding-bottom: 22px;
-    color: v.$primary;
+  font-weight: 700;
+  font-size: 32px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 22px;
+  color: v.$primary;
 }
 
 .section-title h2::after {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    content: '';
-    width: 40%;
-    height: 4px;
-    margin: auto;
-    z-index: -1;
-    background-color: v.$secondary;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  content: '';
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  background-color: v.$secondary;
 }
 
 .section-title p {
-    text-align: center;
-    font-weight: 400;
-    color: #797676;
-    margin: 0;
+  font-weight: 400;
+  color: v.$neutral-500;
+  margin: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.65;
+  font-size: .95rem;
 }
 
+// ── FAQ question / answer ─────────────────────────────────────────────────────
+
 .faq-question {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  color: #333;
+  color: v.$neutral-900;
+  line-height: 1.5;
 }
 
 .faq-answer {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.7;
-  color: #555;
+  font-size: 14px;
+  line-height: 1.75;
+  color: v.$neutral-700;
 }
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+.faq-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-item {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.faq-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: v.$neutral-400;
+
+  i    { font-size: 2.5rem; opacity: .4; }
+  p    { font-size: .95rem; margin: 0; color: v.$neutral-500; }
+}
+
+// ── Accordion overrides ───────────────────────────────────────────────────────
 
 ::ng-deep {
-    .p-accordion {
-        max-width: 900px;
-        margin: 0 auto;
+  .p-accordion {
+    .p-accordionpanel {
+      margin-bottom: 8px;
+      border-radius: v.$radius-md !important;
+      overflow: hidden;
+      box-shadow: v.$shadow-sm;
+      transition: box-shadow v.$transition-base, transform v.$transition-base;
+      border: 1px solid v.$border !important;
 
-        .p-accordionpanel {
-            margin-bottom: 10px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            border: 1px solid #e9ecef;
-
-            &:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-                transform: translateY(-2px);
-            }
-        }
-
-        .p-accordion-header {
-            background: #fff;
-            border: none;
-            border-radius: 8px;
-
-            .p-accordion-header-link {
-                padding: 18px 24px;
-                border: none;
-                background: transparent;
-                transition: all 0.3s ease;
-
-                &:hover {
-                    background: rgba(v.$primary, 0.03);
-                }
-
-                &:focus {
-                    box-shadow: none;
-                    outline: 2px solid rgba(v.$primary, 0.3);
-                    outline-offset: -2px;
-                }
-            }
-
-            h3 {
-                margin: 0;
-                font-size: 16px;
-                font-weight: 600;
-                color: #333;
-                line-height: 1.5;
-            }
-
-            .p-accordion-toggle-icon {
-                color: v.$primary;
-                font-size: 18px;
-            }
-        }
-
-        .p-accordionpanel-active {
-            .p-accordion-header {
-                .p-accordion-header-link {
-                    background: rgba(v.$primary, 0.05);
-                }
-
-                h3 {
-                    color: v.$primary;
-                }
-            }
-        }
-
-        .p-accordion-content {
-            padding: 20px 24px;
-            background: #fafafa;
-            border: none;
-            border-top: 1px solid #e9ecef;
-
-            p {
-                margin: 0;
-                font-size: 15px;
-                line-height: 1.7;
-                color: #555;
-            }
-        }
+      &:hover {
+        box-shadow: v.$shadow-md;
+        transform: translateY(-1px);
+      }
     }
+
+    .p-accordion-header {
+      background: v.$bg-panel;
+      border: none;
+
+      .p-accordion-header-link {
+        padding: 18px 22px;
+        border: none !important;
+        background: transparent;
+        transition: background v.$transition-base;
+
+        &:hover { background: rgba(v.$primary, .03); }
+
+        &:focus {
+          box-shadow: none;
+          outline: 2px solid rgba(v.$primary, .25);
+          outline-offset: -2px;
+        }
+      }
+
+      .p-accordion-toggle-icon {
+        color: v.$secondary;
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+    }
+
+    .p-accordionpanel-active {
+      box-shadow: v.$shadow-md !important;
+      border-color: rgba(v.$secondary, .3) !important;
+
+      .p-accordion-header .p-accordion-header-link {
+        background: rgba(v.$primary, .04);
+      }
+
+      .faq-question { color: v.$primary; }
+
+      .p-accordion-toggle-icon { color: v.$primary; }
+    }
+
+    .p-accordion-content {
+      padding: 16px 22px 20px;
+      background: #fafbfc;
+      border: none !important;
+      border-top: 1px solid v.$border !important;
+    }
+  }
 }
 
-@media (max-width: 768px) {
-    section {
-        padding: 60px 0;
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (max-width: #{v.$bp-md}) {
+  .faq-section {
+    padding: 100px 0 80px;
+  }
+
+  .section-title h2 {
+    font-size: 24px;
+  }
+
+  .section-title p {
+    font-size: .88rem;
+  }
+
+  ::ng-deep {
+    .p-accordion {
+      .p-accordion-header .p-accordion-header-link {
+        padding: 14px 16px;
+      }
+
+      .faq-question { font-size: 14px; }
+
+      .p-accordion-content {
+        padding: 14px 16px 18px;
+      }
     }
+  }
+}
 
-    .section-title h2 {
-        font-size: 26px;
-    }
+@media (max-width: #{v.$bp-sm}) {
+  .faq-section {
+    padding: 100px 0 60px;
+    min-height: auto;
+  }
 
-    ::ng-deep {
-        .p-accordion {
-            .p-accordion-header {
-                .p-accordion-header-link {
-                    padding: 14px 18px;
-                }
+  .container { padding: 0 1rem; }
 
-                h3 {
-                    font-size: 15px;
-                }
-            }
+  .section-title { margin-bottom: 36px; }
 
-            .p-accordion-content {
-                padding: 16px 18px;
-
-                p {
-                    font-size: 14px;
-                }
-            }
-        }
-    }
+  .section-title h2 { font-size: 20px; padding-bottom: 16px; }
 }

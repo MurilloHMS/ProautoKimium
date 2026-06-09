@@ -118,6 +118,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         icon: 'pi pi-fw pi-cog',
         items: [
           { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], roles: ['ADMIN', 'DESIGN', 'MARKETING'] },
+          { label: 'Faq', icon: 'pi pi-question-circle', routerLink: ['faq/manager'], roles: ['ADMIN']},
           { label: 'Admin', icon: 'pi pi-fw pi-user', routerLink: ['settings/admin'], roles: ['ADMIN'] },
         ],
       },
