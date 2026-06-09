@@ -42,6 +42,7 @@ import {
 } from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
 import {GuideComponent} from "./components/auth/guide/guide.component";
 import {FaqManagerComponent} from "./components/auth/faq-manager/faq-manager.component";
+import {ContatoEventosComponent} from "./components/public/contato-eventos/contato-eventos.component";
 
 
 export const routes: Routes = [
@@ -61,6 +62,7 @@ export const routes: Routes = [
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
+      { path: 'contato/eventos', component: ContatoEventosComponent, pathMatch: 'full' },
     ]
   },
   {
