@@ -1,0 +1,243 @@
+<p-toast position="top-right" />
+
+<div class="painel-wrapper">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-question-circle"></i>
+      </div>
+      <div>
+        <h1 class="page-title">FAQ</h1>
+        <p class="page-subtitle">Gerencie as perguntas frequentes do site</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <p-button
+        label="Nova Pergunta"
+        icon="pi pi-plus"
+        class="new-btn"
+        (onClick)="openCreateDialog()"
+      />
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="search-field">
+        <i class="pi pi-search search-icon"></i>
+        <input
+          pInputText
+          class="search-input"
+          placeholder="Buscar por título ou conteúdo..."
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()"
+        />
+        <button *ngIf="searchTerm" class="search-clear" (click)="clearSearch()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="status-filter-group">
+        <button
+          *ngFor="let opt of statusOptions"
+          class="status-filter-btn"
+          [class.active]="selectedStatus === opt.value"
+          (click)="filterByStatus(opt.value)"
+        >
+          <span class="status-dot" [ngClass]="opt.dotClass"></span>
+          {{ opt.label }}
+          <span class="status-count">{{ getCountByStatus(opt.value) }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-section">
+    <div class="table-toolbar">
+      <span class="divider-label">
+        <i class="pi pi-list"></i>
+        {{ filteredItems.length }} {{ filteredItems.length === 1 ? 'item' : 'itens' }}
+      </span>
+    </div>
+
+    <p-table
+      [value]="filteredItems"
+      [loading]="loading"
+      styleClass="table painel-table"
+      [rowHover]="true"
+      [paginator]="filteredItems.length > 10"
+      [rows]="10"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 35%">Título</th>
+          <th style="width: 40%">Conteúdo</th>
+          <th style="width: 12%; text-align:center">Status</th>
+          <th style="width: 13%; text-align:center">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td><span class="faq-title-cell">{{ item.title }}</span></td>
+          <td><span class="faq-body-cell">{{ item.body }}</span></td>
+          <td style="text-align:center">
+            <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+              {{ getStatusLabel(item.status) }}
+            </span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button
+                pButton
+                icon="pi pi-pencil"
+                class="p-button-sm p-button-text btn-acao"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                (click)="openEditDialog(item)"
+              ></button>
+
+              <button
+                *ngIf="item.status !== 'PUBLICADO'"
+                pButton
+                icon="pi pi-send"
+                class="p-button-sm p-button-text btn-publish btn-acao"
+                pTooltip="Publicar"
+                tooltipPosition="top"
+                [loading]="loadingAction[item.id] === 'publish'"
+                (click)="publish(item)"
+              ></button>
+
+              <button
+                *ngIf="item.status === 'PUBLICADO'"
+                pButton
+                icon="pi pi-inbox"
+                class="p-button-sm p-button-text btn-archive btn-acao"
+                pTooltip="Arquivar"
+                tooltipPosition="top"
+                [loading]="loadingAction[item.id] === 'archive'"
+                (click)="archive(item)"
+              ></button>
+
+              <button
+                *ngIf="item.status === 'ARQUIVADO'"
+                pButton
+                icon="pi pi-undo"
+                class="p-button-sm p-button-text btn-draft btn-acao"
+                pTooltip="Mover para Rascunho"
+                tooltipPosition="top"
+                [loading]="loadingAction[item.id] === 'draft'"
+                (click)="setDraft(item)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4">
+            <div class="empty-state">
+              <i class="pi pi-question-circle empty-icon"></i>
+              <p class="empty-title">Nenhum item encontrado</p>
+              <p class="empty-subtitle">
+                {{ searchTerm ? 'Tente um termo diferente.' : 'Crie a primeira pergunta frequente.' }}
+              </p>
+              <p-button
+                *ngIf="!searchTerm"
+                label="Nova Pergunta"
+                icon="pi pi-plus"
+                class="new-btn"
+                size="small"
+                (onClick)="openCreateDialog()"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Create / Edit Dialog -->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="editingItem ? 'Editar Pergunta' : 'Nova Pergunta'"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="dialog faq-dialog"
+  [style]="{ width: '560px' }"
+  (onHide)="resetForm()"
+>
+  <div class="edit-form">
+    <div class="form-section">
+
+      <div class="form-field field-full">
+        <label for="faqTitle">
+          Título <span class="required">*</span>
+          <span class="label-hint"> (máx. 150 caracteres)</span>
+        </label>
+        <input
+          id="faqTitle"
+          pInputText
+          [(ngModel)]="form.title"
+          placeholder="Ex: Como faço para rastrear meu pedido?"
+          maxlength="150"
+          [class.ng-invalid]="submitted && !form.title.trim()"
+        />
+        <span class="char-count" [class.char-warn]="form.title.length > 120">
+          {{ form.title.length }}/150
+        </span>
+        <small *ngIf="submitted && !form.title.trim()" class="field-error">
+          <i class="pi pi-exclamation-circle"></i> Título é obrigatório
+        </small>
+      </div>
+
+      <div class="form-field field-full" style="margin-top: 1rem;">
+        <label for="faqBody">
+          Resposta <span class="required">*</span>
+          <span class="label-hint"> (máx. 500 caracteres)</span>
+        </label>
+        <textarea
+          id="faqBody"
+          pTextarea
+          [(ngModel)]="form.body"
+          placeholder="Descreva a resposta de forma clara e objetiva..."
+          [rows]="5"
+          maxlength="500"
+          style="width:100%; font-size:.88rem; resize: vertical;"
+          [class.ng-invalid]="submitted && !form.body.trim()"
+        ></textarea>
+        <span class="char-count" [class.char-warn]="form.body.length > 450">
+          {{ form.body.length }}/500
+        </span>
+        <small *ngIf="submitted && !form.body.trim()" class="field-error">
+          <i class="pi pi-exclamation-circle"></i> Resposta é obrigatória
+        </small>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      (onClick)="dialogVisible = false"
+    />
+    <p-button
+      [label]="editingItem ? 'Salvar Alterações' : 'Criar Pergunta'"
+      [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+      class="save-btn"
+      [loading]="saving"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>
