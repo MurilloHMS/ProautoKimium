@@ -41,6 +41,7 @@ import {
   RentReceiptGeneratorComponent
 } from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
 import {GuideComponent} from "./components/auth/guide/guide.component";
+import {FaqManagerComponent} from "./components/auth/faq-manager/faq-manager.component";
 
 
 export const routes: Routes = [
@@ -89,6 +90,7 @@ export const routes: Routes = [
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
+      { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
     ]
   },
   {
