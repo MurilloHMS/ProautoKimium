@@ -1,0 +1,154 @@
+<div class="page-container">
+  <div class="hero">
+
+    <div class="hero-logo-ring">
+      <div class="hero-logo-fallback">
+        <span>PK</span>
+        <span>Proauto</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="hero-name">
+        Proauto Kimium
+      </div>
+
+      <div class="hero-tagline">
+        Central de Contatos
+      </div>
+    </div>
+
+  </div>
+
+  <p-card class="contact-card">
+
+    <div class="card-label">
+      Fale Conosco
+    </div>
+
+    <div class="contact-list">
+
+      @for(item of whatsappContacts; track item.value){
+
+        <a
+          [href]="item.link"
+          target="_blank"
+          class="contact-btn"
+          [ngClass]="item.cssClass">
+
+          <div class="btn-icon">
+            <i [class]="item.icon"></i>
+          </div>
+
+          <div class="btn-text">
+            <div class="btn-label">
+              {{item.label}}
+            </div>
+
+            <div class="btn-value">
+              {{item.value}}
+            </div>
+          </div>
+
+          <i class="pi pi-angle-right"></i>
+
+        </a>
+
+      }
+
+    </div>
+
+  </p-card>
+
+  <p-card class="contact-card">
+
+    <div class="card-label">
+      Digital
+    </div>
+
+    <div class="contact-list">
+
+      @for(item of digitalContacts; track item.value){
+
+        <a
+          [href]="item.link"
+          target="_blank"
+          class="contact-btn"
+          [ngClass]="item.cssClass">
+
+          <div class="btn-icon">
+            <i [class]="item.icon"></i>
+          </div>
+
+          <div class="btn-text">
+            <div class="btn-label">
+              {{item.label}}
+            </div>
+
+            <div class="btn-value">
+              {{item.value}}
+            </div>
+          </div>
+
+          <i class="pi pi-angle-right"></i>
+
+        </a>
+
+      }
+
+    </div>
+
+  </p-card>
+
+  <p-card class="contact-card">
+
+    <div class="card-label">
+      Redes Sociais
+    </div>
+
+    <div class="contact-list">
+
+      @for(item of socialContacts; track item.value){
+
+        <a
+          [href]="item.link"
+          target="_blank"
+          class="contact-btn"
+          [ngClass]="item.cssClass">
+
+          <div class="btn-icon">
+            <i [class]="item.icon"></i>
+          </div>
+
+          <div class="btn-text">
+            <div class="btn-label">
+              {{item.label}}
+            </div>
+
+            <div class="btn-value">
+              {{item.value}}
+            </div>
+          </div>
+
+          <i class="pi pi-angle-right"></i>
+
+        </a>
+
+      }
+
+    </div>
+
+  </p-card>
+
+  <button
+    pButton
+    type="button"
+    class="save-contact-btn"
+    (click)="saveContact()">
+
+    <i class="pi pi-user-plus"></i>
+    Adicionar à Agenda
+
+  </button>
+
+</div>
