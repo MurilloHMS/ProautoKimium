@@ -1,0 +1,31 @@
+@use 'variables' as v;
+
+.btn-acao{
+  color: v.$white;
+}
+
+.qr-dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1rem;
+}
+
+.qr-url {
+  font-size: .72rem;
+  color: v.$text-muted;
+  word-break: break-all;
+  text-align: center;
+}
+
+.qr-open-link {
+  color: v.$secondary-dark;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  &:hover { text-decoration: underline; }
+}

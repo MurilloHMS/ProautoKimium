@@ -1,0 +1,34 @@
+<button
+  pButton
+  type="button"
+  [icon]="icon"
+  class="p-button-text p-button-sm p-button-secondary btn-acao"
+  [pTooltip]="tooltip"
+  (click)="open()">
+</button>
+
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '320px' }"
+  [header]="title">
+
+  <div class="qr-dialog-body">
+    <qrcode
+      [qrdata]="url"
+      [width]="220"
+      [errorCorrectionLevel]="'M'">
+    </qrcode>
+
+    <p class="qr-url">{{ url }}</p>
+
+    <a
+      [href]="url"
+      target="_blank"
+      class="qr-open-link">
+      <i class="pi pi-external-link"></i>
+      Abrir link
+    </a>
+  </div>
+
+</p-dialog>
