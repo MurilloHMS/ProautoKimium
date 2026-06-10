@@ -7,6 +7,7 @@ import {ActivatedRoute} from "@angular/router";
 import {ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
 import {PkBtnSharedComponent} from "../../../../shared/pk-btn-shared/pk-btn-shared.component";
+import {PkQrcodeComponent} from "../../../../shared/pk-qrcode/pk-qrcode.component";
 
 interface ContactItem {
   label: string;
@@ -39,7 +40,8 @@ const SOCIAL_MAP: Record<string, { cssClass: string; icon: string; label: string
     CardModule,
     ButtonModule,
     SkeletonModule,
-    PkBtnSharedComponent
+    PkBtnSharedComponent,
+    PkQrcodeComponent
   ],
   templateUrl: './vcard.component.html',
   styleUrl: './vcard.component.scss',
@@ -100,6 +102,10 @@ export class VcardComponent implements OnInit {
       link.click();
       URL.revokeObjectURL(url);
     });
+  }
+
+  publicUrl(): string{
+    return window.location.href;
   }
 
 
