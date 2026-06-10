@@ -1,0 +1,282 @@
+<div class="painel-wrapper">
+  <p-toast />
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-id-card"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Perfis de Contato</h1>
+        <p class="page-subtitle">Gerencie os cartões digitais da equipe</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button pButton type="button" icon="pi pi-refresh" class="refresh-btn p-button-outlined p-button-sm"
+              (click)="load()" [loading]="loading" pTooltip="Atualizar"></button>
+      <button pButton type="button" icon="pi pi-plus" label="Novo Perfil" class="new-btn p-button-sm"
+              (click)="openNew()"></button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-section">
+    <div class="table-toolbar">
+      <div class="filter-row">
+        <div class="search-field">
+          <i class="pi pi-search search-icon"></i>
+          <input pInputText type="text" placeholder="Buscar por nome, cargo, slug…"
+                 class="search-input" [(ngModel)]="searchTerm" (input)="onSearch()" />
+          @if (searchTerm) {
+            <button class="search-clear" (click)="clearSearch()"><i class="pi pi-times"></i></button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <p-table #dt [value]="filtered" [loading]="loading" [paginator]="true" [rows]="10"
+             styleClass="table painel-table" [rowHover]="true" [sortField]="'nome'" [sortOrder]="1">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nome">Nome <p-sortIcon field="nome" /></th>
+          <th pSortableColumn="cargo">Cargo <p-sortIcon field="cargo" /></th>
+          <th>Slug / Link</th>
+          <th>Contatos</th>
+          <th pSortableColumn="ativo">Status <p-sortIcon field="ativo" /></th>
+          <th style="width:120px">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-p>
+        <tr>
+          <td>
+            <div class="profile-cell">
+              @if (p.imagem) {
+                <img [src]="p.imagem" class="profile-thumb" [alt]="p.nome" />
+              } @else {
+                <div class="profile-thumb profile-thumb--fallback">{{ initials(p.nome) }}</div>
+              }
+              <span class="profile-name">{{ p.nome }}</span>
+            </div>
+          </td>
+          <td><span class="text-sm">{{ p.cargo }}</span></td>
+          <td>
+            <div class="slug-cell">
+              <span class="slug-text">/{{ p.slug }}</span>
+              <a [href]="publicUrl(p.slug)" target="_blank" pTooltip="Abrir link público"
+                 class="slug-link"><i class="pi pi-external-link"></i></a>
+            </div>
+          </td>
+          <td>
+            <div class="contact-chips">
+              @for (t of p.telefones?.slice(0,2); track t.numero) {
+                <span class="chip-area">{{ t.numero }}</span>
+              }
+              @if (p.telefones?.length > 2) {
+                <span class="chip-area chip-area--more">+{{ p.telefones.length - 2 }}</span>
+              }
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="p.ativo ? 'Ativo' : 'Inativo'"
+                   [severity]="p.ativo ? 'success' : 'secondary'" />
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-pencil"
+                      class="p-button-text p-button-sm p-button-secondary btn-acao"
+                      (click)="openEdit(p)" pTooltip="Editar"></button>
+              <button pButton type="button" icon="pi pi-qrcode"
+                      class="p-button-text p-button-sm p-button-secondary btn-acao"
+                      (click)="openQr(p)" pTooltip="QR Code"></button>
+              <button pButton type="button" icon="pi pi-trash"
+                      class="p-button-text p-button-sm p-button-danger btn-acao"
+                      (click)="confirmDelete(p)" pTooltip="Excluir"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="6" style="text-align:center; padding: 2rem; color: #888;">
+          Nenhum perfil encontrado.
+        </td></tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- ====================================================
+     DIALOG CRIAR / EDITAR
+==================================================== -->
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{width:'680px'}"
+          styleClass="dialog" [closable]="true" [closeOnEscape]="true"
+          [header]="editingId ? 'Editar Perfil' : 'Novo Perfil'">
+
+  <div class="edit-form">
+
+    <!-- Dados Básicos -->
+    <div class="form-section">
+      <div class="divider-label"><i class="pi pi-user"></i> Dados Básicos</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Nome <span class="required">*</span></label>
+          <input pInputText [(ngModel)]="form.nome" placeholder="Nome completo" />
+          @if (submitted && !form.nome) { <small class="p-error">Obrigatório</small> }
+        </div>
+        <div class="form-field">
+          <label>Slug <span class="required">*</span> <span class="label-hint">(URL pública)</span></label>
+          <input pInputText [(ngModel)]="form.slug" placeholder="ex: joao-silva" (input)="slugify()" />
+          @if (submitted && !form.slug) { <small class="p-error">Obrigatório</small> }
+        </div>
+        <div class="form-field">
+          <label>Cargo</label>
+          <input pInputText [(ngModel)]="form.cargo" placeholder="Consultor de Vendas" />
+        </div>
+        <div class="form-field">
+          <label>Empresa</label>
+          <input pInputText [(ngModel)]="form.empresa" placeholder="Proauto Kimium" />
+        </div>
+        <div class="form-field">
+          <label>E-mail</label>
+          <input pInputText [(ngModel)]="form.email" placeholder="nome@proautokimium.com.br" />
+        </div>
+        <div class="form-field">
+          <label>Imagem (URL)</label>
+          <input pInputText [(ngModel)]="form.imagem" placeholder="https://…" />
+        </div>
+        <div class="form-field field-full">
+          <label>Descrição <span class="label-hint">({{ form.descricao.length }}/200)</span></label>
+          <textarea pInputTextarea [(ngModel)]="form.descricao" [rows]="3" [maxlength]="200"
+                    placeholder="Breve apresentação…" style="width:100%; font-size:.88rem;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Telefones -->
+    <div class="form-section">
+      <div class="divider-label"><i class="pi pi-phone"></i> Telefones
+        <button type="button" class="add-inline-btn" (click)="addPhone()"><i class="pi pi-plus"></i></button>
+      </div>
+      @for (tel of form.telefones; track $index; let i = $index) {
+        <div class="inline-row">
+          <p-select [(ngModel)]="tel.tipo" [options]="phoneTypes" optionLabel="label" optionValue="value"
+                    placeholder="Tipo" styleClass="inline-select" />
+          <input pInputText [(ngModel)]="tel.numero" placeholder="(11) 9 0000-0000" class="inline-input" />
+          <button type="button" class="remove-btn" (click)="removePhone(i)"><i class="pi pi-trash"></i></button>
+        </div>
+      }
+      @if (!form.telefones.length) {
+        <p class="empty-hint">Nenhum telefone adicionado.</p>
+      }
+    </div>
+
+    <!-- Redes Sociais -->
+    <div class="form-section">
+      <div class="divider-label"><i class="pi pi-share-alt"></i> Redes Sociais
+        <button type="button" class="add-inline-btn" (click)="addSocial()"><i class="pi pi-plus"></i></button>
+      </div>
+      @for (rs of form.redesSociais; track $index; let i = $index) {
+        <div class="inline-row">
+          <p-select [(ngModel)]="rs.tipo" [options]="socialTypes" optionLabel="label" optionValue="value"
+                    placeholder="Rede" styleClass="inline-select" />
+          <input pInputText [(ngModel)]="rs.url" placeholder="https://instagram.com/…" class="inline-input" />
+          <button type="button" class="remove-btn" (click)="removeSocial(i)"><i class="pi pi-trash"></i></button>
+        </div>
+      }
+      @if (!form.redesSociais.length) {
+        <p class="empty-hint">Nenhuma rede adicionada.</p>
+      }
+    </div>
+
+    <!-- Regiões -->
+    <div class="form-section">
+      <div class="divider-label">
+        <i class="pi pi-map-marker"></i>
+        Regiões de Atendimento
+        <button type="button" class="add-inline-btn" (click)="addRegiao()">
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      @for (regiao of form.regioesAtendimento; track $index; let i = $index) {
+        <div class="inline-row">
+          <input
+            pInputText
+            [(ngModel)]="form.regioesAtendimento[i]"
+            placeholder="Ex: São Paulo Capital"
+            class="inline-input"
+          />
+          <button type="button" class="remove-btn" (click)="removeRegiao(i)">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      }
+
+      @if (!form.regioesAtendimento.length) {
+        <p class="empty-hint">Nenhuma região adicionada.</p>
+      }
+    </div>
+
+    <!-- Segmentos -->
+    <div class="form-section">
+      <div class="divider-label">
+        <i class="pi pi-tag"></i>
+        Segmentos
+        <button type="button" class="add-inline-btn" (click)="addSegmento()">
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      @for (segmento of form.segmentosAtendimento; track $index; let i = $index) {
+        <div class="inline-row">
+          <input
+            pInputText
+            [(ngModel)]="form.segmentosAtendimento[i]"
+            placeholder="Ex: Indústria Química"
+            class="inline-input"
+          />
+          <button type="button" class="remove-btn" (click)="removeSegmento(i)">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      }
+
+      @if (!form.segmentosAtendimento.length) {
+        <p class="empty-hint">Nenhum segmento adicionado.</p>
+      }
+    </div>
+
+    <!-- Status -->
+    <div class="form-section status-row">
+      <label class="status-label">Status</label>
+      <p-toggleswitch [(ngModel)]="form.ativo" />
+      <span class="status-text">{{ form.ativo ? 'Ativo' : 'Inativo' }}</span>
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" class="p-button-outlined p-button-sm"
+            (click)="closeDialog()"></button>
+    <button pButton type="button" [label]="editingId ? 'Salvar' : 'Criar'" class="save-btn p-button-sm"
+            (click)="save()" [loading]="saving"></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog />
+
+<p-dialog [(visible)]="qrVisible" [modal]="true" [style]="{width:'320px'}"
+          styleClass="dialog" header="QR Code — Link Público">
+  @if (qrProfile) {
+    <div class="qr-dialog-body">
+      <qrcode [qrdata]="publicUrl(qrProfile.slug)" [width]="220" [errorCorrectionLevel]="'M'" />
+      <p class="qr-url">{{ publicUrl(qrProfile.slug) }}</p>
+      <a [href]="publicUrl(qrProfile.slug)" target="_blank" class="qr-open-link">
+        <i class="pi pi-external-link"></i> Abrir link
+      </a>
+    </div>
+  }
+</p-dialog>

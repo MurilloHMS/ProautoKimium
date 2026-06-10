@@ -1,0 +1,187 @@
+@use 'variables' as v;
+
+/* -------------------------------------------------------
+   PROFILE CELL
+------------------------------------------------------- */
+.profile-cell {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.profile-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid v.$border;
+  flex-shrink: 0;
+
+  &--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: v.$primary;
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 700;
+    border: none;
+  }
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: .875rem;
+  color: v.$neutral-900;
+}
+
+.text-sm { font-size: .875rem; color: v.$neutral-700; }
+
+/* -------------------------------------------------------
+   SLUG CELL
+------------------------------------------------------- */
+.slug-cell {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.slug-text {
+  font-size: .78rem;
+  font-family: monospace;
+  color: v.$primary-light;
+  background: v.$bg-selected;
+  padding: .15rem .45rem;
+  border-radius: v.$radius-sm;
+}
+
+.slug-link {
+  color: v.$secondary-dark;
+  font-size: .8rem;
+  text-decoration: none;
+  opacity: .7;
+  &:hover { opacity: 1; }
+}
+
+/* -------------------------------------------------------
+   CONTACT CHIPS (na tabela)
+------------------------------------------------------- */
+.contact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+
+.chip-area {
+  display: inline-flex;
+  align-items: center;
+  padding: .15rem .5rem;
+  background: v.$secondary-lighter;
+  color: v.$primary;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &--more {
+    background: v.$bg-surface;
+    color: v.$text-muted;
+    font-style: italic;
+  }
+}
+
+/* -------------------------------------------------------
+   INLINE ROWS (telefones / redes)
+------------------------------------------------------- */
+.inline-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .5rem;
+}
+
+.inline-select { width: 140px !important; flex-shrink: 0; }
+.inline-input  { flex: 1; font-size: .88rem !important; }
+
+.add-inline-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid v.$secondary;
+  color: v.$secondary-dark;
+  border-radius: v.$radius-sm;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background v.$transition-fast;
+  i { font-size: .75rem; }
+  &:hover { background: v.$secondary-lighter; }
+}
+
+.remove-btn {
+  background: none;
+  border: 1px solid v.$border;
+  color: v.$danger;
+  border-radius: v.$radius-sm;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background v.$transition-fast;
+  i { font-size: .75rem; }
+  &:hover { background: #fef2f2; }
+}
+
+.empty-hint {
+  font-size: .78rem;
+  color: v.$text-muted;
+  font-style: italic;
+  margin: 0 0 .5rem;
+}
+
+/* -------------------------------------------------------
+   STATUS ROW
+------------------------------------------------------- */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+.status-label { font-size: .82rem; font-weight: 600; color: v.$primary; }
+.status-text  { font-size: .82rem; color: v.$text-muted; }
+
+/* -------------------------------------------------------
+   QR DIALOG
+------------------------------------------------------- */
+.qr-dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1rem;
+}
+
+.qr-url {
+  font-size: .72rem;
+  color: v.$text-muted;
+  word-break: break-all;
+  text-align: center;
+}
+
+.qr-open-link {
+  color: v.$secondary-dark;
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  &:hover { text-decoration: underline; }
+}

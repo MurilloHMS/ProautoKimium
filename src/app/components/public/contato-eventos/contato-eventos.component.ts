@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {ButtonModule} from "primeng/button";
 import {CardModule} from "primeng/card";
 import {CommonModule} from "@angular/common";
+import {PkBtnSharedComponent} from "../../../shared/pk-btn-shared/pk-btn-shared.component";
 
 interface ContactItem {
   type: string;
@@ -17,7 +18,8 @@ interface ContactItem {
   imports: [
     CommonModule,
     CardModule,
-    ButtonModule
+    ButtonModule,
+    PkBtnSharedComponent
   ],
   templateUrl: './contato-eventos.component.html',
   styleUrl: './contato-eventos.component.scss',

@@ -1,0 +1,149 @@
+<div class="page-container">
+
+  @if (loading) {
+    <div class="hero hero--skeleton">
+      <div class="hero-logo-ring">
+        <p-skeleton shape="circle" size="100px" />
+      </div>
+      <p-skeleton width="160px" height="22px" borderRadius="8px" />
+      <p-skeleton width="120px" height="14px" borderRadius="8px" />
+    </div>
+
+    <p-card class="contact-card contact-card--first">
+      <p-skeleton width="100%" height="52px" borderRadius="10px" styleClass="mb-2" />
+      <p-skeleton width="100%" height="52px" borderRadius="10px" styleClass="mb-2" />
+      <p-skeleton width="100%" height="52px" borderRadius="10px" />
+    </p-card>
+  }
+
+  @if (!loading && notFound) {
+    <div class="not-found">
+      <i class="pi pi-user-minus"></i>
+      <p>Perfil não encontrado.</p>
+    </div>
+  }
+
+  @if (!loading && profile) {
+
+    <div class="hero">
+      <div class="hero-logo-ring">
+        @if (profile.imagem) {
+          <img [src]="profile.imagem" [alt]="profile.nome" class="hero-logo" />
+        } @else {
+          <div class="hero-logo-fallback">
+            <span>{{ initials }}</span>
+          </div>
+        }
+      </div>
+
+      <div>
+        <div class="hero-row">
+          <div class="hero-name">
+            {{ profile.nome }}
+          </div>
+
+          <div class="hero-actions">
+            <app-pk-btn-shared message="Veja meus contatos:" />
+            <app-pk-qrcode
+              [url]="publicUrl()"
+              title="QR Code — Meus Contatos" />
+          </div>
+        </div>
+        <div class="hero-tagline">{{ profile.cargo }} · {{ profile.empresa }}</div>
+      </div>
+
+      @if (profile.descricao) {
+        <p class="hero-desc">{{ profile.descricao }}</p>
+      }
+    </div>
+
+    <!-- Regiões / Segmentos -->
+    @if (profile.regioesAtendimento.length || profile.segmentosAtendimento.length) {
+      <p-card class="contact-card contact-card--first">
+        @if (profile.regioesAtendimento.length) {
+          <div class="card-label">Regiões de Atendimento</div>
+          <div class="chip-row">
+            @for (r of profile.regioesAtendimento; track r) {
+              <span class="chip">{{ r }}</span>
+            }
+          </div>
+        }
+        @if (profile.segmentosAtendimento.length) {
+          <div class="card-label" [style.marginTop]="profile.regioesAtendimento.length ? '1.2rem' : '0'">
+            Segmentos
+          </div>
+          <div class="chip-row">
+            @for (s of profile.segmentosAtendimento; track s) {
+              <span class="chip chip--secondary">{{ s }}</span>
+            }
+          </div>
+        }
+      </p-card>
+    }
+
+    <!-- Telefones -->
+    @if (phoneContacts.length) {
+      <p-card class="contact-card">
+        <div class="card-label">Meu Contato</div>
+        <div class="contact-list">
+          @for (item of phoneContacts; track item.value) {
+            <a [href]="item.link" target="_blank" class="contact-btn" [ngClass]="item.cssClass">
+              <div class="btn-icon"><i [class]="item.icon"></i></div>
+              <div class="btn-text">
+                <div class="btn-label">{{ item.label }}</div>
+                <div class="btn-value">{{ item.value }}</div>
+              </div>
+              <i class="pi pi-angle-right"></i>
+            </a>
+          }
+        </div>
+      </p-card>
+    }
+
+    <!-- E-mail / Site -->
+    @if (digitalContacts.length) {
+      <p-card class="contact-card">
+        <div class="card-label">Digital</div>
+        <div class="contact-list">
+          @for (item of digitalContacts; track item.value) {
+            <a [href]="item.link" target="_blank" class="contact-btn" [ngClass]="item.cssClass">
+              <div class="btn-icon"><i [class]="item.icon"></i></div>
+              <div class="btn-text">
+                <div class="btn-label">{{ item.label }}</div>
+                <div class="btn-value">{{ item.value }}</div>
+              </div>
+              <i class="pi pi-angle-right"></i>
+            </a>
+          }
+        </div>
+      </p-card>
+    }
+
+    <!-- Redes Sociais -->
+    @if (socialContacts.length) {
+      <p-card class="contact-card">
+        <div class="card-label">Redes Sociais</div>
+        <div class="contact-list">
+          @for (item of socialContacts; track item.value) {
+            <a [href]="item.link" target="_blank" class="contact-btn" [ngClass]="item.cssClass">
+              <div class="btn-icon"><i [class]="item.icon"></i></div>
+              <div class="btn-text">
+                <div class="btn-label">{{ item.label }}</div>
+                <div class="btn-value">{{ item.value }}</div>
+              </div>
+              <i class="pi pi-angle-right"></i>
+            </a>
+          }
+        </div>
+      </p-card>
+    }
+
+    <button pButton type="button" class="save-contact-btn" (click)="saveContact()">
+      <i class="pi pi-user-plus"></i>
+      Adicionar à Agenda
+    </button>
+
+    <div class="footer">Proauto Kimium · proautokimium.com.br</div>
+  }
+
+</div>

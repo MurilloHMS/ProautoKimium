@@ -1,0 +1,200 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  background: #f0f4f9;
+  min-height: 100vh;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* PAGE */
+.page-container {
+  min-height: 100vh;
+  background: #f0f4f9;
+  padding-bottom: 4rem;
+  padding-top: 4rem;
+}
+
+/* HERO */
+.hero {
+  width: 100%;
+  background: linear-gradient(145deg, v.$primary-dark 0%, v.$primary 55%, v.$primary-light 100%);
+  padding: 2.5rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 48px;
+    background: #f0f4f9;
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+}
+
+.hero--skeleton { min-height: 240px; }
+
+.hero-logo-ring {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(v.$secondary, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-logo { width: 100px; height: 100px; object-fit: contain; }
+
+.hero-logo-fallback {
+  width: 62px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  span {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: v.$secondary;
+  }
+}
+
+.hero-row {
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.hero-name    { color: #fff; font-size: 1.45rem; font-weight: 700; text-align: center; text-transform: capitalize; }
+.hero-tagline { color: v.$secondary-lighter; font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.8px; text-align: center; }
+.hero-desc    { color: rgba(255,255,255,.78); font-size: .82rem; text-align: center; max-width: 340px; line-height: 1.5; text-transform: capitalize;}
+
+/* CARDS */
+.contact-card {
+  display: block;
+  width: min(420px, calc(100% - 2rem));
+  margin: 1rem auto 0;
+  &--first { margin-top: -2rem; position: relative; z-index: 10; }
+}
+
+:host ::ng-deep .contact-card .p-card {
+  border-radius: 18px;
+  border: 1px solid v.$border;
+  box-shadow: 0 4px 20px rgba(35,46,97,.1), 0 1px 4px rgba(0,0,0,.04);
+  overflow: hidden;
+}
+:host ::ng-deep .contact-card .p-card-body  { padding: 1.5rem; }
+:host ::ng-deep .contact-card .p-card-content { padding: 0; }
+
+/* LABEL */
+.card-label {
+  font-size: .68rem; font-weight: 700;
+  color: v.$primary-light;
+  text-transform: uppercase; letter-spacing: 1.4px;
+  margin-bottom: .85rem;
+  display: flex; align-items: center; gap: .4rem;
+  &::after { content: ''; flex: 1; height: 1px; background: v.$border; }
+}
+
+/* CONTACTS */
+.contact-list { display: flex; flex-direction: column; gap: .65rem; }
+
+.contact-btn {
+  display: flex; align-items: center; gap: .9rem;
+  padding: .85rem 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1px solid v.$border;
+  transition: all .18s ease;
+  color: inherit;
+  &:hover { transform: translateY(-1px); }
+  &:active { transform: scale(.98); }
+  &.whatsapp  { border-color: #d1fae5; background: #f0fdf4; }
+  &.phone     { border-color: #dbeafe; background: #eff6ff; }
+  &.email     { border-color: #fce7f3; background: #fdf2f8; }
+  &.website   { border-color: #e0e7ff; background: #eef2ff; }
+  &.instagram { border-color: #fce7f3; background: #fdf2f8; }
+  &.linkedin  { border-color: #dbeafe; background: #eff6ff; }
+  &.facebook  { border-color: #dbeafe; background: #eff6ff; }
+  &.youtube   { border-color: #fee2e2; background: #fff5f5; }
+  &.tiktok    { border-color: v.$border; background: #f9fafb; }
+  &.twitter   { border-color: #dbeafe; background: #eff6ff; }
+}
+
+.btn-icon {
+  width: 40px; height: 40px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  i { color: #fff; font-size: 1rem; }
+}
+
+.contact-btn.whatsapp  .btn-icon { background: #22c55e; }
+.contact-btn.phone     .btn-icon { background: v.$primary; }
+.contact-btn.email     .btn-icon { background: #db2777; }
+.contact-btn.website   .btn-icon { background: v.$primary-light; }
+.contact-btn.instagram .btn-icon { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+.contact-btn.linkedin  .btn-icon { background: #0a66c2; }
+.contact-btn.facebook  .btn-icon { background: #1877f2; }
+.contact-btn.youtube   .btn-icon { background: #ff0000; }
+.contact-btn.tiktok    .btn-icon { background: #010101; }
+.contact-btn.twitter   .btn-icon { background: #1d9bf0; }
+
+.btn-text { flex: 1; }
+.btn-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; color: v.$text-muted; margin-bottom: 2px; }
+.btn-value { font-size: .88rem; font-weight: 600; color: v.$primary; line-height: 1.3; }
+.pi-angle-right { color: v.$text-muted; opacity: .5; }
+
+/* CHIPS */
+.chip-row { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip {
+  display: inline-block; padding: .25rem .65rem;
+  background: v.$bg-selected; color: v.$primary;
+  border-radius: 99px; font-size: .72rem; font-weight: 600;
+  border: 1px solid rgba(v.$primary, .15);
+  &--secondary { background: rgba(v.$secondary, .12); color: v.$secondary-dark; border-color: rgba(v.$secondary, .25); }
+}
+
+/* SAVE BTN */
+.save-contact-btn {
+  width: min(420px, calc(100% - 2rem));
+  margin: 1rem auto 0;
+  display: flex; align-items: center; justify-content: center; gap: .75rem;
+  border: none; padding: 1rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, v.$primary, v.$primary-light);
+  color: #fff; font-weight: 700; font-size: .92rem;
+  box-shadow: 0 2px 8px rgba(35,46,97,.18);
+  cursor: pointer; transition: all .18s ease;
+  &:hover { transform: translateY(-1px); }
+  &:active { transform: scale(.98); }
+  i { font-size: 1rem; }
+}
+
+/* NOT FOUND */
+.not-found {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60vh; gap: 1rem; color: v.$text-muted;
+  i { font-size: 3rem; }
+  p { font-size: .95rem; font-weight: 500; }
+}
+
+/* FOOTER */
+.footer {
+  margin-top: 1.5rem; text-align: center;
+  color: v.$text-muted; font-size: .68rem; letter-spacing: .3px;
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 2rem 1rem 4rem; }
+  .hero-name { font-size: 1.25rem; }
+  .btn-value { font-size: .82rem; }
+}
