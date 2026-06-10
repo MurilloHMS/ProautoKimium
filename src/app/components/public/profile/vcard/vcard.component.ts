@@ -99,4 +99,31 @@ export class VcardComponent implements OnInit {
       URL.revokeObjectURL(url);
     });
   }
+
+  async shareProfile(): Promise<void>{
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: document.title,
+          text: 'Veja meus contatos:',
+          url: url,
+        });
+      } catch (err) {
+        alert('Compartilhamento cancelado');
+      }
+    } else {
+      await this.copiarLink(url);
+    }
+  }
+
+  async copiarLink(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link copiado!');
+    } catch {
+      alert('Não foi possível copiar o link.');
+    }
+  }
 }
