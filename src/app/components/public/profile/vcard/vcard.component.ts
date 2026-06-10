@@ -6,6 +6,7 @@ import {SkeletonModule} from "primeng/skeleton";
 import {ActivatedRoute} from "@angular/router";
 import {ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
+import {PkBtnSharedComponent} from "../../../../shared/pk-btn-shared/pk-btn-shared.component";
 
 interface ContactItem {
   label: string;
@@ -37,7 +38,8 @@ const SOCIAL_MAP: Record<string, { cssClass: string; icon: string; label: string
     CommonModule,
     CardModule,
     ButtonModule,
-    SkeletonModule
+    SkeletonModule,
+    PkBtnSharedComponent
   ],
   templateUrl: './vcard.component.html',
   styleUrl: './vcard.component.scss',
@@ -100,30 +102,5 @@ export class VcardComponent implements OnInit {
     });
   }
 
-  async shareProfile(): Promise<void>{
-    const url = window.location.href;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: document.title,
-          text: 'Veja meus contatos:',
-          url: url,
-        });
-      } catch (err) {
-        alert('Compartilhamento cancelado');
-      }
-    } else {
-      await this.copiarLink(url);
-    }
-  }
-
-  async copiarLink(url: string) {
-    try {
-      await navigator.clipboard.writeText(url);
-      alert('Link copiado!');
-    } catch {
-      alert('Não foi possível copiar o link.');
-    }
-  }
 }

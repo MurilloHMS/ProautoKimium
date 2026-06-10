@@ -131,19 +131,6 @@
   i { color: #fff; font-size: 1rem; }
 }
 
-.btn-share {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: transparent;
-  border: none;
-  color: white;
-
-  &:hover{
-    color: v.$secondary;
-  }
-}
-
 .contact-btn.whatsapp  .btn-icon { background: #22c55e; }
 .contact-btn.phone     .btn-icon { background: v.$primary; }
 .contact-btn.email     .btn-icon { background: #db2777; }
