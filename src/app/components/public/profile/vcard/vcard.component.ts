@@ -108,5 +108,4 @@ export class VcardComponent implements OnInit {
     return window.location.href;
   }
 
-
 }

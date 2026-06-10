@@ -1,7 +1,16 @@
 @use 'variables' as v;
 
 .btn-acao{
-  color: v.$white;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: white;
+
+  &:hover{
+    color: v.$secondary;
+  }
 }
 
 .qr-dialog-body {
