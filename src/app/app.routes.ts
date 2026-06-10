@@ -96,7 +96,7 @@ export const routes: Routes = [
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
-      { path: 'profile/manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
+      { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
     ]
   },
   {
