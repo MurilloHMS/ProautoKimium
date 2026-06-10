@@ -64,7 +64,7 @@ export const routes: Routes = [
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
-      { path: 'contato/:slug', component: VcardComponent, pathMatch: 'full' },
+      { path: 'profile/:slug', component: VcardComponent, pathMatch: 'full' },
       { path: 'contato/eventos', component: ContatoEventosComponent, pathMatch: 'full' },
     ]
   },
