@@ -43,6 +43,8 @@ import {
 import {GuideComponent} from "./components/auth/guide/guide.component";
 import {FaqManagerComponent} from "./components/auth/faq-manager/faq-manager.component";
 import {ContatoEventosComponent} from "./components/public/contato-eventos/contato-eventos.component";
+import {ProfileManagerComponent} from "./components/auth/profile/profile-manager/profile-manager.component";
+import {VcardComponent} from "./components/public/profile/vcard/vcard.component";
 
 
 export const routes: Routes = [
@@ -62,6 +64,7 @@ export const routes: Routes = [
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
+      { path: 'contato/:slug', component: VcardComponent, pathMatch: 'full' },
       { path: 'contato/eventos', component: ContatoEventosComponent, pathMatch: 'full' },
     ]
   },
@@ -93,6 +96,7 @@ export const routes: Routes = [
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
+      { path: 'profile/manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
     ]
   },
   {
