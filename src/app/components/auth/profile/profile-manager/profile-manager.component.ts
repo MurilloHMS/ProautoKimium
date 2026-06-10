@@ -203,7 +203,7 @@ export class ProfileManagerComponent implements OnInit {
     });
   }
 
-  publicUrl(slug: string): string { return `${window.location.origin}/contato/${slug}`; }
+  publicUrl(slug: string): string { return `${window.location.origin}/profile/${slug}`; }
 
   initials(nome: string): string {
     return (nome ?? '').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
