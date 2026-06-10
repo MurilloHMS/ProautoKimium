@@ -191,17 +191,62 @@
       }
     </div>
 
-    <!-- Regiões / Segmentos -->
+    <!-- Regiões -->
     <div class="form-section">
-      <div class="divider-label"><i class="pi pi-map-marker"></i> Regiões de Atendimento</div>
-      <p-chips [(ngModel)]="form.regioesAtendimento" placeholder="Digite e pressione Enter"
-               styleClass="w-full"></p-chips>
+      <div class="divider-label">
+        <i class="pi pi-map-marker"></i>
+        Regiões de Atendimento
+        <button type="button" class="add-inline-btn" (click)="addRegiao()">
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      @for (regiao of form.regioesAtendimento; track $index; let i = $index) {
+        <div class="inline-row">
+          <input
+            pInputText
+            [(ngModel)]="form.regioesAtendimento[i]"
+            placeholder="Ex: São Paulo Capital"
+            class="inline-input"
+          />
+          <button type="button" class="remove-btn" (click)="removeRegiao(i)">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      }
+
+      @if (!form.regioesAtendimento.length) {
+        <p class="empty-hint">Nenhuma região adicionada.</p>
+      }
     </div>
 
+    <!-- Segmentos -->
     <div class="form-section">
-      <div class="divider-label"><i class="pi pi-tag"></i> Segmentos</div>
-      <p-chips [(ngModel)]="form.segmentosAtendimento" placeholder="Digite e pressione Enter"
-               styleClass="w-full"></p-chips>
+      <div class="divider-label">
+        <i class="pi pi-tag"></i>
+        Segmentos
+        <button type="button" class="add-inline-btn" (click)="addSegmento()">
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      @for (segmento of form.segmentosAtendimento; track $index; let i = $index) {
+        <div class="inline-row">
+          <input
+            pInputText
+            [(ngModel)]="form.segmentosAtendimento[i]"
+            placeholder="Ex: Indústria Química"
+            class="inline-input"
+          />
+          <button type="button" class="remove-btn" (click)="removeSegmento(i)">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      }
+
+      @if (!form.segmentosAtendimento.length) {
+        <p class="empty-hint">Nenhum segmento adicionado.</p>
+      }
     </div>
 
     <!-- Status -->

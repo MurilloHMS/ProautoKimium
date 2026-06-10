@@ -131,22 +131,38 @@ export class ProfileManagerComponent implements OnInit {
     this.submitted = true;
     if (!this.form.nome || !this.form.slug) return;
 
+    this.form.regioesAtendimento = this.form.regioesAtendimento
+      .map(r => r?.trim())
+      .filter(Boolean) as string[];
+
+    this.form.segmentosAtendimento = this.form.segmentosAtendimento
+      .map(s => s?.trim())
+      .filter(Boolean) as string[];
+
     this.saving = true;
-    const req$ = this.editingId
+    const req = this.editingId
       ? this.service.update(this.editingId, this.form)
       : this.service.create(this.form);
 
-    req$.subscribe({
+    req.subscribe({
       next: () => {
         this.saving = false;
         this.dialogVisible = false;
-        this.toast.add({ severity: 'success', summary: 'Sucesso', detail: this.editingId ? 'Perfil atualizado.' : 'Perfil criado.' });
+        this.toast.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: this.editingId ? 'Perfil atualizado.' : 'Perfil criado.'
+        });
         this.load();
       },
       error: () => {
         this.saving = false;
-        this.toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível salvar.' });
-      },
+        this.toast.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Não foi possível salvar.'
+        });
+      }
     });
   }
 
@@ -191,5 +207,21 @@ export class ProfileManagerComponent implements OnInit {
 
   initials(nome: string): string {
     return (nome ?? '').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+  }
+
+  addRegiao(): void {
+    this.form.regioesAtendimento.push('');
+  }
+
+  removeRegiao(i: number): void {
+    this.form.regioesAtendimento.splice(i, 1);
+  }
+
+  addSegmento(): void {
+    this.form.segmentosAtendimento.push('');
+  }
+
+  removeSegmento(i: number): void {
+    this.form.segmentosAtendimento.splice(i, 1);
   }
 }
