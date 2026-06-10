@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input, input} from '@angular/core';
 
 @Component({
   selector: 'app-pk-btn-shared',
@@ -8,14 +8,16 @@ import { Component } from '@angular/core';
 })
 export class PkBtnSharedComponent {
 
-  async shared(message: string): Promise<void>{
+  @Input() message: string = '';
+
+  async shared(): Promise<void>{
     const url = window.location.href;
 
     if (navigator.share) {
       try {
         await navigator.share({
           title: document.title,
-          text: message,
+          text: this.message,
           url: url,
         });
       } catch (err) {
