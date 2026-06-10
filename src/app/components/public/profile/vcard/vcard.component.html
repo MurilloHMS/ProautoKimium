@@ -46,9 +46,33 @@
       }
     </div>
 
+    <!-- Regiões / Segmentos -->
+    @if (profile.regioesAtendimento.length || profile.segmentosAtendimento.length) {
+      <p-card class="contact-card contact-card--first">
+        @if (profile.regioesAtendimento.length) {
+          <div class="card-label">Regiões de Atendimento</div>
+          <div class="chip-row">
+            @for (r of profile.regioesAtendimento; track r) {
+              <span class="chip">{{ r }}</span>
+            }
+          </div>
+        }
+        @if (profile.segmentosAtendimento.length) {
+          <div class="card-label" [style.marginTop]="profile.regioesAtendimento.length ? '1.2rem' : '0'">
+            Segmentos
+          </div>
+          <div class="chip-row">
+            @for (s of profile.segmentosAtendimento; track s) {
+              <span class="chip chip--secondary">{{ s }}</span>
+            }
+          </div>
+        }
+      </p-card>
+    }
+
     <!-- Telefones -->
     @if (phoneContacts.length) {
-      <p-card class="contact-card contact-card--first">
+      <p-card class="contact-card">
         <div class="card-label">Fale Conosco</div>
         <div class="contact-list">
           @for (item of phoneContacts; track item.value) {
@@ -100,30 +124,6 @@
             </a>
           }
         </div>
-      </p-card>
-    }
-
-    <!-- Regiões / Segmentos -->
-    @if (profile.regioesAtendimento.length || profile.segmentosAtendimento.length) {
-      <p-card class="contact-card">
-        @if (profile.regioesAtendimento.length) {
-          <div class="card-label">Regiões de Atendimento</div>
-          <div class="chip-row">
-            @for (r of profile.regioesAtendimento; track r) {
-              <span class="chip">{{ r }}</span>
-            }
-          </div>
-        }
-        @if (profile.segmentosAtendimento.length) {
-          <div class="card-label" [style.marginTop]="profile.regioesAtendimento.length ? '1.2rem' : '0'">
-            Segmentos
-          </div>
-          <div class="chip-row">
-            @for (s of profile.segmentosAtendimento; track s) {
-              <span class="chip chip--secondary">{{ s }}</span>
-            }
-          </div>
-        }
       </p-card>
     }
 
