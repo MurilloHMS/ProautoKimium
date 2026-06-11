@@ -13,24 +13,6 @@
 // ─── Table Cell Styles ────────────────────────────────────────────────────────
 .col-center { text-align: center !important; }
 
-.cod-badge {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(35,46,97,.08);
-  color: v.$primary;
-  border-radius: v.$radius-sm;
-  padding: .2rem .55rem;
-  font-size: .78rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  font-family: 'Courier New', monospace;
-
-  &--secondary {
-    background: rgba(87,193,171,.1);
-    color: v.$secondary-dark;
-  }
-}
-
 .doc-cell {
   font-family: 'Courier New', monospace;
   font-size: .82rem;
