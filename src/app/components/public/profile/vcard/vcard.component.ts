@@ -6,8 +6,8 @@ import {SkeletonModule} from "primeng/skeleton";
 import {ActivatedRoute} from "@angular/router";
 import {ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
-import {PkBtnSharedComponent} from "../../../../shared/pk-btn-shared/pk-btn-shared.component";
-import {PkQrcodeComponent} from "../../../../shared/pk-qrcode/pk-qrcode.component";
+import {PkBtnSharedComponent} from "../../../theme/ProautoKimium/pk-btn-shared/pk-btn-shared.component";
+import {PkQrcodeComponent} from "../../../theme/ProautoKimium/pk-qrcode/pk-qrcode.component";
 
 interface ContactItem {
   label: string;
