@@ -13,7 +13,8 @@ export type PkButtonType =
   | 'upload'
   | 'download'
   | 'cancel'
-  | 'filter';
+  | 'filter'
+  | 'excel';
 
 export type PkButtonSize = 'sm' | 'md' | 'lg';
 
@@ -34,6 +35,8 @@ const BUTTON_CONFIG: Record<PkButtonType, ButtonConfig> = {
   download: { icon: 'pi pi-download',    label: 'Exportar',  styleClass: 'pk-btn--download' },
   cancel:   { icon: 'pi pi-times',       label: 'Cancelar',  styleClass: 'pk-btn--cancel'   },
   filter:   { icon: 'pi pi-filter',      label: 'Filtrar',   styleClass: 'pk-btn--filter'   },
+  excel:    { icon: 'pi pi-file-excel',  label: '',          styleClass: 'pk-btn--excel'    },
+
 };
 
 @Component({
