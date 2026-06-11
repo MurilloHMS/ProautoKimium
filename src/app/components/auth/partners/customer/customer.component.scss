@@ -153,36 +153,6 @@ $text-light:        #94a3b8;
   gap: .375rem;
 
   &--full { grid-column: 1 / -1; }
-
-  label {
-    font-size: .8rem;
-    font-weight: 600;
-    color: $text-main;
-  }
-
-  .required { color: v.$danger; }
-
-  input.p-inputtext {
-    height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
-    font-size: .85rem;
-    padding: 0 .75rem;
-    transition: border-color .15s, box-shadow .15s;
-    width: 100%;
-
-    &:focus {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
-      outline: none;
-    }
-
-    &[readonly] {
-      background: v.$bg-base;
-      color: v.$text-muted;
-      cursor: not-allowed;
-    }
-  }
 }
 
 // ─── Toggle Group ─────────────────────────────────────────────────────────────
