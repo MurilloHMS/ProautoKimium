@@ -1,0 +1,50 @@
+<div class="pk-field" [class.pk-field--error]="showError" [class.pk-field--disabled]="isDisabled">
+
+  <label class="pk-label" *ngIf="label()">
+    {{ label() }}
+    <span class="pk-required" *ngIf="pkRequired()">*</span>
+  </label>
+
+  <div class="pk-input-wrapper"
+       [class.pk-input-wrapper--icon-left]="hasIcon() && iconPos() === 'left'"
+       [class.pk-input-wrapper--icon-right]="hasIcon() && iconPos() === 'right'">
+
+    <i *ngIf="hasIcon() && iconPos() === 'left'" [class]="icon() + ' pk-icon pk-icon--left'"></i>
+
+    <input
+      pInputText
+      [type]="type()"
+      [placeholder]="placeholder()"
+      [readOnly]="pkReadonly()"
+      [disabled]="isDisabled"
+      [class.pk-input--error]="showError"
+      [attr.maxlength]="pkMaxLength()"
+      [value]="innerValue"
+      (input)="onInput($any($event.target).value)"
+      (blur)="onBlur()"
+      class="pk-input" />
+
+    <i *ngIf="hasIcon() && iconPos() === 'right'" [class]="icon() + ' pk-icon pk-icon--right'"></i>
+  </div>
+
+  <!-- Rodapé do campo: hint/erro à esquerda, contador à direita -->
+  <div class="pk-field-footer" *ngIf="hint() || showError || pkMaxLength()">
+
+    <span class="pk-hint" *ngIf="hint() && !showError">{{ hint() }}</span>
+    <span class="pk-error" *ngIf="showError">
+    <i class="pi pi-exclamation-circle"></i>
+      {{ resolvedError }}
+  </span>
+    <span *ngIf="!hint() && !showError"></span>
+
+    <span
+      *ngIf="pkMaxLength()"
+      class="pk-char-count"
+      [class.pk-char-count--warn]="isNearLimit"
+      [class.pk-char-count--limit]="isAtLimit">
+    {{ charCount }}/{{ pkMaxLength() }}
+  </span>
+
+  </div>
+
+</div>
