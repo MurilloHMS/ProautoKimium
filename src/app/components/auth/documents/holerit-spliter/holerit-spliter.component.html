@@ -1,13 +1,15 @@
-<div class="spliter-page">
+<div class="painel-wrapper">
   <p-toast position="bottom-right"></p-toast>
 
   <div class="page-header">
-    <div class="header-icon">
-      <i class="pi pi-file-pdf"></i>
-    </div>
-    <div class="header-text">
-      <h1>Separador de Holerites</h1>
-      <p>Faça upload do PDF, renomeie cada página e baixe os arquivos separados</p>
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-file-pdf"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Separador de Holerites</h1>
+        <p class="page-subtitle">Faça upload do PDF, renomeie cada página e baixe os arquivos separados</p>
+      </div>
     </div>
   </div>
 
@@ -91,16 +93,12 @@
           />
         </div>
 
-        <p-button
-          icon="pi pi-undo"
-          [text]="true"
-          severity="secondary"
-          [rounded]="true"
-          size="small"
+        <pk-button
+          pkType="refresh"
           pTooltip="Restaurar nome original"
-          tooltipPosition="left"
+          tooltipPosition="right"
           (click)="restoreOriginalName(i)">
-        </p-button>
+        </pk-button>
       </div>
     </div>
 
@@ -110,21 +108,18 @@
         <span>Os PDFs serão baixados em um arquivo <strong>.zip</strong></span>
       </div>
       <div class="footer-actions">
-        <p-button
-          label="Resetar"
-          icon="pi pi-refresh"
-          severity="secondary"
-          outlined
-          (click)="resetForm()">
-        </p-button>
-        <p-button
-          label="Baixar PDFs separados"
-          icon="pi pi-download"
-          (click)="saveRenamedPages()"
-          [loading]="isSaving"
-          [disabled]="isSaving"
-          severity="success">
-        </p-button>
+        <pk-button
+          pkLabel="Resetar"
+          pkType="refresh"
+          (clicked)="resetForm()"
+        />
+        <pk-button
+          pkLabel="Baixar PDFs separados"
+          pkType="download"
+          (clicked)="saveRenamedPages()"
+          [pkLoading]="isSaving"
+          [pkDisabled]="isSaving">
+        </pk-button>
       </div>
     </div>
   </div>

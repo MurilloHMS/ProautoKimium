@@ -11,6 +11,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { environment } from '../../../../../environments/environment';
+import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 
 interface PdfPageInfoDTO {
   name: string;
@@ -36,6 +37,7 @@ interface UploadResponse {
     ProgressSpinnerModule,
     ToastModule,
     TooltipModule,
+    PkButtonComponent,
   ],
   templateUrl: './holerit-spliter.component.html',
   styleUrl: './holerit-spliter.component.scss',
