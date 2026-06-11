@@ -213,20 +213,18 @@
           <i class="pi pi-sliders-h"></i> Configurações
         </h3>
         <div class="toggle-group">
-          <div class="toggle-item">
-            <p-checkbox inputId="ativo" formControlName="ativo" binary="true"></p-checkbox>
-            <label for="ativo">
-              <span class="toggle-label">Ativo</span>
-              <span class="toggle-desc">O cliente está habilitado na plataforma</span>
-            </label>
-          </div>
-          <div class="toggle-item">
-            <p-checkbox inputId="recebeEmail" formControlName="recebeEmail" binary="true"></p-checkbox>
-            <label for="recebeEmail">
-              <span class="toggle-label">Recebe Email</span>
-              <span class="toggle-desc">Notificações e comunicados por email</span>
-            </label>
-          </div>
+          <pk-checkbox
+            inputId="ativo"
+            label="Ativo"
+            description="O cliente está habilitado na plataforma"
+            formControlName="ativo"
+          />
+          <pk-checkbox
+            inputId="recebeEmail"
+            label="Recebe Email"
+            description="Notificações e comunicados por email"
+            formControlName="recebeEmail"
+          />
         </div>
       </div>
 
