@@ -1,0 +1,12 @@
+<button
+  pButton
+  pRipple
+  type="button"
+  [label]="resolvedLabel()"
+  [icon]="resolvedIcon()"
+  [disabled]="pkDisabled() || pkLoading()"
+  [ngClass]="hostClasses()"
+  [pTooltip]="pkTooltip()"
+  tooltipPosition="top"
+  (click)="onClick($event)">
+</button>
