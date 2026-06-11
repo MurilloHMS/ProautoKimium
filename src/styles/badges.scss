@@ -9,5 +9,10 @@
   padding: .2rem .55rem;
   border-radius: 6px;
 
+  &--secondary {
+    background: rgba(87,193,171,.1);
+    color: v.$secondary-dark;
+  }
+
   &.code-badge-hidden { background: #f1f5f9; color: v.$primary; }
 }

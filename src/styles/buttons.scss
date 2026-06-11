@@ -1,35 +1,30 @@
 @use 'variables' as v;
 
-.refresh-btn {
-  border-color: v.$secondary !important;
-  color: v.$primary;
-
-  &hover {
-    background-color: v.$secondary-light;
-  }
-}
-
-.new-btn {
-  background: v.$primary !important;
-  border-color: v.$primary !important;
-  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
-}
-
-.save-btn {
-  background: v.$primary !important;
-  border-color: v.$primary !important;
-  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
-  &:disabled { opacity: .5; cursor: not-allowed; }
-}
-
 .action-buttons {
   display: flex;
   gap: .3rem;
   justify-content: center;
 }
 
-.btn-acao {
-  &:hover {
-    opacity: .85;
-  }
+
+// Todo: remover após migrar botoes para pk-button
+.new-btn {
+  background: v.$primary !important;
+  border-color: v.$primary !important;
+  color: #fff !important;
+  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
+}
+
+.save-btn {
+  background: v.$primary !important;
+  border-color: v.$primary !important;
+  color: #fff !important;
+  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.refresh-btn {
+  border-color: v.$secondary !important;
+  color: v.$primary !important;
+  &:hover { background-color: v.$secondary-light !important; }  // corrigido: era &hover sem :
 }
