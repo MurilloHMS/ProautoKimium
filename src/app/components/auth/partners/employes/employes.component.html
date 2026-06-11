@@ -147,22 +147,18 @@
 </div>
 
 <!-- Dialog -->
-<p-dialog
-  [header]="dialogTitle"
-  [(visible)]="visible"
-  [modal]="true"
-  [closable]="true"
-  [style]="{ width: '640px', maxWidth: '95vw' }"
-  styleClass="custom-dialog"
-  [draggable]="false"
-  [resizable]="false">
 
-  <ng-template pTemplate="content">
+<pk-dialog
+  [header]="dialogTitle"
+  [visible]="visible"
+  (visibleChange)="visible = $event">
+
+  <div pkDialogContent>
     <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
 
       <!-- Identificação -->
-      <div class="form-section">
-        <h3 class="form-section__title">
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
           <i class="pi pi-id-card"></i> Identificação
         </h3>
         <div class="form-grid">
@@ -188,8 +184,8 @@
       </div>
 
       <!-- Dados pessoais -->
-      <div class="form-section">
-        <h3 class="form-section__title">
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
           <i class="pi pi-user"></i> Dados Pessoais
         </h3>
         <div class="form-grid">
@@ -225,8 +221,8 @@
       </div>
 
       <!-- Cargo e departamento -->
-      <div class="form-section">
-        <h3 class="form-section__title">
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
           <i class="pi pi-sitemap"></i> Cargo & Departamento
         </h3>
         <div class="form-grid">
@@ -271,8 +267,8 @@
       </div>
 
       <!-- Configurações -->
-      <div class="form-section">
-        <h3 class="form-section__title">
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
           <i class="pi pi-sliders-h"></i> Configurações
         </h3>
         <div class="toggle-group">
@@ -287,12 +283,11 @@
       </div>
 
     </form>
-  </ng-template>
+  </div>
 
-  <ng-template pTemplate="footer">
-    <div class="dialog-footer">
-      <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
-      <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
-    </div>
-  </ng-template>
-</p-dialog>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
+  </div>
+
+</pk-dialog>

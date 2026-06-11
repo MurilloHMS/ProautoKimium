@@ -15,13 +15,14 @@ import { DatePickerModule } from 'primeng/datepicker';
 import {Toast} from "primeng/toast";
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {Tooltip} from "primeng/tooltip";
+import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
 
 
 
 @Component({
     selector: 'app-employes',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
     providers: [MessageService],
