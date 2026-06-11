@@ -144,14 +144,26 @@
         </h3>
         <div class="form-grid">
           <div class="form-field">
-            <label for="codParceiro">Cód Parceiro <span class="required">*</span></label>
-            <input id="codParceiro" type="text" pInputText formControlName="codParceiro"
-                   [readOnly]="customerToEdit !== null" placeholder="Ex: 001234" />
+            <pk-input
+              label="Cód Parceiro"
+              type="number"
+              icon="pi pi-lock"
+              placeholder="Ex: 1234"
+              [pkRequired]="true"
+              formControlName="codParceiro"
+              [pkMaxLength]="9"
+            />
           </div>
           <div class="form-field">
-            <label for="documento">Documento <span class="required">*</span></label>
-            <input id="documento" type="text" pInputText formControlName="documento"
-                   placeholder="CPF ou CNPJ" />
+            <pk-input
+              label="Documento"
+              type="text"
+              placeholder="Cpf ou Cnpj"
+              icon="pi pi-id-card"
+              [pkRequired]="true"
+              formControlName="documento"
+              [pkMaxLength]="14"
+              />
           </div>
         </div>
       </div>
@@ -162,19 +174,36 @@
         </h3>
         <div class="form-grid">
           <div class="form-field form-field--full">
-            <label for="nome">Nome <span class="required">*</span></label>
-            <input id="nome" type="text" pInputText formControlName="nome"
-                   placeholder="Nome completo" />
+            <pk-input
+              label="Nome"
+              icon="pi pi-user"
+              type="text"
+              formControlName="nome"
+              [pkRequired]="true"
+              placeholder="Nome Completo"
+              [pkMaxLength]="200"
+            />
           </div>
           <div class="form-field form-field--full">
-            <label for="email">Email <span class="required">*</span></label>
-            <input id="email" type="text" pInputText formControlName="email"
-                   placeholder="email@empresa.com" />
+            <pk-input
+              label="Email"
+              icon="pi pi-envelope"
+              type="email"
+              placeholder="email@empresa.com"
+              [pkRequired]="true"
+              [pkMaxLength]="200"
+              formControlName="email"
+              />
           </div>
           <div class="form-field">
-            <label for="codMatriz">Cód Matriz</label>
-            <input id="codMatriz" type="text" pInputText formControlName="codMatriz"
-                   placeholder="Opcional" />
+            <pk-input
+              label="Cód Matriz"
+              icon="pi pi-envelope"
+              type="number"
+              placeholder="Opcional"
+              formControlName="codMatriz"
+              [pkMaxLength]="9"
+              />
           </div>
         </div>
       </div>
