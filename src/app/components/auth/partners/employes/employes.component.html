@@ -20,61 +20,32 @@
 
   <!-- Table Card -->
   <div class="table-card">
-    <p-table
-      #dt1
-      [value]="employes"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20]"
+
+    <pk-table
+      [data]="employes"
       [loading]="loading"
-      [responsiveLayout]="'scroll'"
-      [globalFilterFields]="['name', 'email', 'partnerCode', 'hierarchy']"
-      [rowHover]="true"
-      styleClass="custom-table"
-      size="small">
+      totalLabel="funcionários encontrados"
+      searchPlaceholder="Buscar por nome, email, código…"
+      [filterFields]="['name', 'email', 'partnerCode', 'hierarchy']"
+      emptyIcon="pi pi-users"
+      emptyTitle="Nenhum funcionário encontrado"
+      emptySubtitle="Adicione um novo funcionário para começar.">
 
-      <ng-template pTemplate="caption">
-        <div class="table-caption">
-        <span class="table-caption__count">
-          <strong>{{ employes.length }}</strong> registros encontrados
-        </span>
-          <span class="p-input-icon-left table-caption__search">
-          <i class="pi pi-search"></i>
-          <input pInputText type="text" placeholder="Buscar por nome, email, código…"
-                 (input)="dt1.filterGlobal($any($event.target).value, 'contains')" />
-        </span>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="header">
+      <ng-template #headerTpl>
         <tr>
-          <th pSortableColumn="partnerCode">
-            Cód Parceiro <p-sortIcon field="partnerCode"></p-sortIcon>
-          </th>
-          <th pSortableColumn="document">
-            CPF <p-sortIcon field="document"></p-sortIcon>
-          </th>
-          <th pSortableColumn="name">
-            Nome <p-sortIcon field="name"></p-sortIcon>
-          </th>
-          <th pSortableColumn="email">
-            Email <p-sortIcon field="email"></p-sortIcon>
-          </th>
+          <th pSortableColumn="partnerCode">Cód Parceiro <p-sortIcon field="partnerCode"></p-sortIcon></th>
+          <th pSortableColumn="document">CPF <p-sortIcon field="document"></p-sortIcon></th>
+          <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
           <th class="col-center">Ativo</th>
-          <th pSortableColumn="managerCode">
-            Cód Gerente <p-sortIcon field="managerCode"></p-sortIcon>
-          </th>
-          <th pSortableColumn="hierarchy">
-            Hierarquia <p-sortIcon field="hierarchy"></p-sortIcon>
-          </th>
-          <th pSortableColumn="birthday">
-            Aniversário <p-sortIcon field="birthday"></p-sortIcon>
-          </th>
+          <th pSortableColumn="managerCode">Cód Gerente <p-sortIcon field="managerCode"></p-sortIcon></th>
+          <th pSortableColumn="hierarchy">Hierarquia <p-sortIcon field="hierarchy"></p-sortIcon></th>
+          <th pSortableColumn="birthday">Aniversário <p-sortIcon field="birthday"></p-sortIcon></th>
           <th class="col-center">Ações</th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-e>
+      <ng-template #bodyTpl let-e>
         <tr class="table-row">
           <td>
             <span class="cod-badge">{{ e.partnerCode }}</span>
@@ -131,21 +102,8 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="9">
-            <div class="empty-state">
-              <i class="pi pi-users empty-state__icon"></i>
-              <p class="empty-state__title">Nenhum funcionário encontrado</p>
-              <p class="empty-state__subtitle">Adicione um novo funcionário para começar.</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+    </pk-table>
 </div>
-
 <!-- Dialog -->
 
 <pk-dialog
