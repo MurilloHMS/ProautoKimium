@@ -2,13 +2,15 @@ import {Component, ContentChild, forwardRef, input, TemplateRef, ViewChild} from
 import {CommonModule} from "@angular/common";
 import {Table, TableModule, TableService} from "primeng/table";
 import {InputTextModule} from "primeng/inputtext";
+import {PkInputComponent} from "../pk-input/pk-input.component";
 
 @Component({
   selector: 'pk-table',
   imports: [
     CommonModule,
     TableModule,
-    InputTextModule
+    InputTextModule,
+    PkInputComponent
   ],
   templateUrl: './pk-table.component.html',
   styleUrl: './pk-table.component.scss',

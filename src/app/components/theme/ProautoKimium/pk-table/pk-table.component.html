@@ -18,10 +18,9 @@
           <strong>{{ data().length }}</strong> {{ totalLabel() }}
         </span>
         <span class="pk-table-caption__search">
-          <i class="pi pi-search"></i>
-          <input
-            pInputText
+          <pk-input
             type="text"
+            icon="pi pi-search"
             [placeholder]="searchPlaceholder()"
             (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
         </span>
