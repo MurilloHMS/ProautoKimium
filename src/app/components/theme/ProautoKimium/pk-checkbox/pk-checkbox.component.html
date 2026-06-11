@@ -1,0 +1,14 @@
+<div class="checkbox-item">
+  <p-checkbox
+    [inputId]="inputId()"
+    [binary]="true"
+    [disabled]="isDisabled"
+    [(ngModel)]="innerValue"
+    (ngModelChange)="onValueChange($event)">
+  </p-checkbox>
+
+  <label [for]="inputId()">
+    <span class="checkbox-label">{{ label() }}</span>
+    <span class="checkbox-desc">{{ description() }}</span>
+  </label>
+</div>

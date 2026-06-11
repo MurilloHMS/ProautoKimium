@@ -1,0 +1,35 @@
+@use 'variables' as v;
+
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+
+  &:hover {
+    background: v.$bg-hover;
+    border-color: rgba(35, 46, 97, .2);
+  }
+
+  label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+
+  .checkbox-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: v.$text-primary;
+  }
+
+  .checkbox-desc {
+    font-size: .76rem;
+    color: v.$text-muted;
+  }
+}
