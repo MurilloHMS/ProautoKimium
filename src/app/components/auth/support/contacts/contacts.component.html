@@ -1,25 +1,23 @@
-<div class="contacts-page">
+<div class="painel-wrapper">
 
   <div class="page-header">
-    <div class="header-content">
-      <div class="header-title">
-        <div class="title-icon">
-          <i class="pi pi-envelope"></i>
-        </div>
-        <div>
-          <h1>Pedidos de Contatos</h1>
-          <span class="subtitle">Gerencie todas as solicitações de contato recebidas</span>
-        </div>
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-envelope"></i>
       </div>
-      <div class="header-stats">
-        <div class="stat-badge">
-          <span class="stat-number">{{ contacts.length }}</span>
-          <span class="stat-label">Total</span>
-        </div>
-        <div class="stat-badge accent">
-          <span class="stat-number">{{ getUnreadCount() }}</span>
-          <span class="stat-label">Novos</span>
-        </div>
+      <div>
+        <h1 class="page-title">Pedidos de Contatos</h1>
+        <span class="page-subtitle">Gerencie todas as solicitações de contato recebidas</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="stat-badge">
+        <span class="stat-number">{{ contacts.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-badge accent">
+        <span class="stat-number">{{ getUnreadCount() }}</span>
+        <span class="stat-label">Novos</span>
       </div>
     </div>
   </div>
@@ -27,13 +25,13 @@
   <div class="filters-bar">
     <div class="search-wrapper">
       <i class="pi pi-search search-icon"></i>
-      <input
-          pInputText
-          type="text"
-          placeholder="Buscar por nome, email ou empresa..."
-          [(ngModel)]="searchTerm"
-          (input)="dt1.filterGlobal(searchTerm, 'contains')"
-          class="search-input">
+      <pk-input
+        icon="pi pi-search"
+        type="text"
+        placeholder="Buscar por nome, email ou empresa..."
+        [(ngModel)]="searchTerm"
+        (input)="dt1.filterGlobal(searchTerm, 'contains')"
+        class="search-input"/>
           <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-search">
             <i class="pi pi-times"></i>
           </button>
@@ -47,14 +45,12 @@
         (onChange)="filterByType($event)"
         styleClass="type-filter"/>
 
-        <p-button
-          icon="pi pi-refresh"
-          [loading]="loading"
+        <pk-button
+          pkType="refresh"
           (click)="loadContacts()"
-          severity="secondary"
-          outlined
-          pTooltip="Atualizar Lista"
-          tooltipPosition="bottom"/>
+          [pkLoading]="loading"
+          pkTooltip="Atualizar Lista"
+        />
 
           <p-button label="Expandir Todos" icon="pi pi-arrows-v" text (click)="expandAll()" size="small"/>
           <p-button label="Recolher Todos" icon="pi pi-minus" text (click)="collapseAll()" size="small"/>
