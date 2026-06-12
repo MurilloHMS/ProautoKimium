@@ -51,7 +51,12 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
 
   // ── ControlValueAccessor ──────────────────────────────────
   writeValue(val: any): void {
-    this.innerValue = val ?? '';
+    let value = val ?? '';
+    const max = this.pkMaxLength();
+    if (max && value.length > max) {
+      value = value.slice(0, max);
+    }
+    this.innerValue = value;
     this.cdr.markForCheck();
   }
 
@@ -63,12 +68,34 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
   }
 
   onInput(val: string): void {
+    const max = this.pkMaxLength();
+
+    if (max !== null && val.length > max) {
+      val = val.slice(0, max);
+      this.innerValue = val;
+      this.cdr.markForCheck();
+      return;
+    }
+
     this.innerValue = val;
     this.onChange(val);
   }
 
   onBlur(): void {
     this.onTouched();
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    const max = this.pkMaxLength();
+    if (!max || this.type() !== 'number') return;
+
+    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+    if (allowedKeys.includes(event.key)) return;
+
+    const input = event.target as HTMLInputElement;
+    if (input.value.length >= max) {
+      event.preventDefault();
+    }
   }
 
   validate(control: AbstractControl): ValidationErrors | null {
@@ -113,4 +140,6 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
     if (!max) return false;
     return this.charCount >= max;
   }
+
+  protected readonly matchMedia = matchMedia;
 }

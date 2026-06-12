@@ -21,8 +21,9 @@
       [attr.maxlength]="pkMaxLength()"
       [value]="innerValue"
       (input)="onInput($any($event.target).value)"
+      (keydown)="onKeydown($event)"
       (blur)="onBlur()"
-      class="pk-input" />
+      class="pk-input"/>
 
     <i *ngIf="hasIcon() && iconPos() === 'right'" [class]="icon() + ' pk-icon pk-icon--right'"></i>
   </div>
