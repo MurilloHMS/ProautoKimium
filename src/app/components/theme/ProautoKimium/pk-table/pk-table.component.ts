@@ -34,6 +34,7 @@ export class PkTableComponent<T> {
   emptyIcon     = input<string>('pi pi-inbox');
   emptyTitle    = input<string>('Nenhum registro encontrado');
   emptySubtitle = input<string>('');
+  pageReportTitle = input<string>('Registros encontrados');
 
   @ViewChild('dt', { static: true }) dt!: Table;
 

@@ -10,7 +10,9 @@
     [globalFilterFields]="filterFields()"
     [rowHover]="true"
     styleClass="pk-table"
-    size="small">
+    size="small"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} {{ pageReportTitle()}}">
 
     <ng-template pTemplate="caption">
       <div class="pk-table-caption">
