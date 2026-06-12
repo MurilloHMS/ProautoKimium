@@ -11,12 +11,24 @@
     [showUploadButton]="false"
     [showCancelButton]="false"
     [chooseLabel]="chooseLabel()"
+    [disabled]="loading()"
     styleClass="pk-upload-dropzone"
     (onSelect)="onSelect($event)">
 
-    <ng-template pTemplate="empty">
-      <div class="pk-drop-zone">
-        <i [class]="'pi pi-cloud-upload pk-drop-icon'"></i>
+    <ng-template pTemplate="content">
+      <div *ngIf="loading()" class="pk-upload-loading">
+        <p-progressSpinner
+          [style]="{ width: '44px', height: '44px' }"
+          strokeWidth="3"
+          animationDuration=".8s" />
+        <div class="pk-upload-loading__text">
+          <strong>{{ loadingTitle() }}</strong>
+          <span>{{ loadingSubtitle() }}</span>
+        </div>
+      </div>
+
+      <div class="pk-drop-zone" *ngIf="!loading() && files.length === 0">
+        <i class="pi pi-cloud-upload pk-drop-icon"></i>
         <p class="pk-drop-title">{{ dropTitle() }}</p>
         <p class="pk-drop-hint" [innerHTML]="resolvedHint()"></p>
       </div>
@@ -46,7 +58,7 @@
     (click)="triggerUpload()" />
 
   <!-- LISTA DE ARQUIVOS SELECIONADOS -->
-  <div class="pk-file-list" *ngIf="files.length > 0">
+  <div class="pk-file-list" *ngIf="files.length > 0 && !loading()">
     <div class="pk-file-chip" *ngFor="let file of files; let i = index">
       <i [class]="fileIcon() + ' pk-file-chip__icon'"></i>
       <div class="pk-file-chip__meta">

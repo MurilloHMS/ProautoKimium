@@ -2,6 +2,7 @@ import {Component, computed, input, output, viewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {FileSelectEvent, FileUpload, FileUploadModule} from "primeng/fileupload";
 import {PkButtonComponent, PkButtonType} from "../pk-button/pk-button.component";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 export type PkUploadMode = 'button' | 'dropzone' | 'both';
 
@@ -10,7 +11,8 @@ export type PkUploadMode = 'button' | 'dropzone' | 'both';
   imports: [
     CommonModule,
     FileUploadModule,
-    PkButtonComponent
+    PkButtonComponent,
+    ProgressSpinnerModule
   ],
   templateUrl: './pk-file-upload.component.html',
   styleUrl: './pk-file-upload.component.scss',
@@ -20,6 +22,9 @@ export class PkFileUploadComponent {
   accept = input<string>('');
   maxFileSize = input<number>(10_000_000);
   multiple = input<boolean>(false);
+  loading = input<boolean>(false);
+  loadingTitle = input<string>('Processando...');
+  loadingSubtitle = input<string>('Aguarde um momento');
 
   // ── Labels / textos ─────────────────────────────────────
   chooseLabel = input<string>('Selecionar Arquivo');
@@ -46,6 +51,8 @@ export class PkFileUploadComponent {
   });
 
   onSelect(event: FileSelectEvent): void {
+    if (!event.files || event.files.length === 0) return;
+
     if (this.multiple()) {
       this.files = [...this.files, ...event.files];
     } else {

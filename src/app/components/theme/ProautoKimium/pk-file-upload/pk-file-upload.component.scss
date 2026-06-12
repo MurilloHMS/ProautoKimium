@@ -143,3 +143,69 @@
     }
   }
 }
+
+.pk-upload-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  gap: .75rem;
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .15rem;
+    text-align: center;
+
+    strong { font-size: v.$font-size-base; color: v.$neutral-900; }
+    span   { font-size: v.$font-size-xs; color: v.$text-muted; }
+  }
+}
+
+::ng-deep .pk-upload-dropzone {
+  width: 100%;
+
+  .p-fileupload-content {
+    border: 2px dashed v.$border;
+    border-radius: v.$radius-lg;
+    background: v.$bg-base;
+    transition: border-color v.$transition-base, background v.$transition-base;
+    padding: 0;
+
+    &:hover, &.p-dragenter {
+      border-color: v.$secondary;
+      background: v.$bg-hover;
+    }
+  }
+
+  .pk-drop-hint strong { color: v.$secondary-dark; }
+
+  .p-fileupload-buttonbar {
+    background: transparent;
+    border: none;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .p-button {
+    background: v.$secondary !important;
+    border-color: v.$secondary !important;
+    color: v.$white !important;
+    font-family: v.$font-heading !important;
+    font-weight: 600 !important;
+    font-size: v.$font-size-sm !important;
+    border-radius: v.$radius-sm !important;
+    padding: .45rem 1rem !important;
+    height: 2.25rem !important;
+
+    &:hover {
+      background: v.$secondary-dark !important;
+      border-color: v.$secondary-dark !important;
+    }
+
+    .p-button-icon { margin-right: .4rem !important; }
+  }
+}
