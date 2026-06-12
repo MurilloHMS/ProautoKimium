@@ -18,11 +18,12 @@ import {Tooltip} from "primeng/tooltip";
 import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
+import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component";
 
 @Component({
     selector: 'app-customer',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, FileUpload, PkButtonComponent, PkTableComponent, Tooltip, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, FileUpload, PkButtonComponent, PkTableComponent, Tooltip, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
     templateUrl: './customer.component.html',
     styleUrl: './customer.component.scss',
     providers: [MessageService]

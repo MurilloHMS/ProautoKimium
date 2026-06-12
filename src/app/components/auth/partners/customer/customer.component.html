@@ -23,30 +23,24 @@
               (click)="showDialog()">
       </pk-button>
 
-      <p-fileUpload
-        mode="basic"
-        chooseLabel="Importar Excel"
-        chooseIcon="pi pi-file-excel"
+      <pk-fileUpload
+        mode="button"
+        chooseLabel="ImportarExcel"
+        chooseType="upload"
         accept=".xlsx"
-        maxFileSize="1000000"
-        [auto]="false"
-        [customUpload]="true"
-        (onSelect)="onFileSelect($event)"
-        styleClass="btn-excel-upload"
-      ></p-fileUpload>
-      @if(selectedFile){
-        <pk-button
-          pkType="upload"
-          pkLabel="Enviar"
-          (click)="importByExcel()"
-        />
+        [maxFileSize]="1000000"
+        fileIcon="pi pi-file-excel"
+        (filesSelected)="onFileSelect($event)"
+        (cleared)="selectedFile = null">
 
-        <div class="page-header__file-badge">
-          <i class="pi pi-file-excel"></i>
-          <span>{{ selectedFile.name }}</span>
-          <button class="badge-remove" (click)="selectedFile = null"><i class="pi pi-times"></i></button>
-        </div>
-      }
+        @if(selectedFile){
+          <pk-button
+            pkType="upload"
+            pkLabel="Enviar"
+            (click)="importByExcel()"
+          />
+        }
+      </pk-fileUpload>
     </div>
   </div>
 
