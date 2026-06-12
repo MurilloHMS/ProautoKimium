@@ -1,0 +1,62 @@
+<div class="pk-upload" [class.pk-upload--dropzone]="isDropzone()">
+
+  <!-- ÁREA DE DROPZONE -->
+  <p-fileUpload
+    *ngIf="isDropzone()"
+    [multiple]="multiple()"
+    [accept]="accept()"
+    [maxFileSize]="maxFileSize()"
+    [auto]="false"
+    [customUpload]="true"
+    [showUploadButton]="false"
+    [showCancelButton]="false"
+    [chooseLabel]="chooseLabel()"
+    styleClass="pk-upload-dropzone"
+    (onSelect)="onSelect($event)">
+
+    <ng-template pTemplate="empty">
+      <div class="pk-drop-zone">
+        <i [class]="'pi pi-cloud-upload pk-drop-icon'"></i>
+        <p class="pk-drop-title">{{ dropTitle() }}</p>
+        <p class="pk-drop-hint" [innerHTML]="resolvedHint()"></p>
+      </div>
+    </ng-template>
+  </p-fileUpload>
+
+  <!-- BOTÃO SIMPLES (sem dropzone) -->
+  <p-fileUpload
+    *ngIf="!isDropzone()"
+    mode="basic"
+    [chooseLabel]="chooseLabel()"
+    [accept]="accept()"
+    [maxFileSize]="maxFileSize()"
+    [multiple]="multiple()"
+    [auto]="false"
+    [customUpload]="true"
+    chooseIcon=""
+    styleClass="pk-upload-basic-hidden"
+    (onSelect)="onSelect($event)"
+    #fu>
+  </p-fileUpload>
+
+  <pk-button
+    *ngIf="!isDropzone()"
+    [pkType]="chooseType()"
+    [pkLabel]="chooseLabel()"
+    (click)="triggerUpload()" />
+
+  <!-- LISTA DE ARQUIVOS SELECIONADOS -->
+  <div class="pk-file-list" *ngIf="files.length > 0">
+    <div class="pk-file-chip" *ngFor="let file of files; let i = index">
+      <i [class]="fileIcon() + ' pk-file-chip__icon'"></i>
+      <div class="pk-file-chip__meta">
+        <span class="pk-file-chip__name">{{ file.name }}</span>
+        <span class="pk-file-chip__size">{{ formatSize(file.size) }}</span>
+      </div>
+      <button type="button" class="pk-file-chip__remove" (click)="onRemove(file, i)">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
