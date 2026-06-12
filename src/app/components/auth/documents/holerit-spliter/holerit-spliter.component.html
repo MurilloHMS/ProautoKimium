@@ -20,43 +20,21 @@
       <span>Selecionar arquivo</span>
     </div>
 
-    <p-fileUpload
-      name="file"
+    <pk-fileUpload
+      mode="both"
+      dropTitle="Arraste o PDF aqui"
+      chooseLabel="Selecionar PDF"
+      chooseType="upload"
       accept="application/pdf"
       [maxFileSize]="10000000"
-      [auto]="false"
-      [customUpload]="true"
-      (onSelect)="onFileSelect($event)"
-      (onClear)="onClear()"
-      [showUploadButton]="false"
-      [showCancelButton]="true"
-      chooseLabel="Selecionar PDF"
-      [disabled]="isUploading"
-      styleClass="custom-upload">
-
-      <ng-template pTemplate="content">
-        <div *ngIf="isUploading" class="uploading-state">
-          <div class="spinner-wrapper">
-            <p-progressSpinner
-              [style]="{ width: '48px', height: '48px' }"
-              strokeWidth="3"
-              animationDuration=".8s">
-            </p-progressSpinner>
-          </div>
-          <div class="uploading-text">
-            <strong>Processando PDF...</strong>
-            <span>Extraindo páginas, aguarde</span>
-          </div>
-        </div>
-
-        <div *ngIf="!isUploading && !selectedFile" class="drop-hint">
-          <i class="pi pi-cloud-upload drop-icon"></i>
-          <span>Arraste o PDF aqui ou clique em <em>Selecionar PDF</em></span>
-          <small>Máximo 10 MB · Somente PDF</small>
-        </div>
-      </ng-template>
-    </p-fileUpload>
-  </div>
+      fileIcon="pi pi-file-pdf"
+      (filesSelected)="onFileSelect($event)"
+      (cleared)="onClear()"
+      [loading]="isUploading"
+      loadingTitle="Processando PDF..."
+      loadingSubtitle="Extraindo páginas, aguarde"
+    >
+    </pk-fileUpload>
 
   <div class="section-card pages-card" *ngIf="pages.length > 0 && !isUploading" @fadeIn>
 

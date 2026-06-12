@@ -53,25 +53,6 @@
   }
 }
 
-.upload-card {
-  :host ::ng-deep .custom-upload {
-    .p-fileupload-header {
-      border-radius: 0;
-      border: none;
-      border-bottom: 1px solid var(--p-surface-border);
-      background: var(--p-surface-card);
-      padding: 0.75rem 1.25rem;
-    }
-
-    .p-fileupload-content {
-      border: none;
-      padding: 1.25rem;
-      background: var(--p-surface-card);
-      min-height: 80px;
-    }
-  }
-}
-
 .drop-hint {
   display: flex;
   flex-direction: column;
@@ -96,30 +77,6 @@
   small {
     font-size: 0.75rem;
     opacity: 0.6;
-  }
-}
-
-.uploading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  padding: 1.5rem;
-
-  .uploading-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-
-    strong {
-      font-size: 0.95rem;
-      color: var(--p-text-color);
-    }
-
-    span {
-      font-size: 0.82rem;
-      color: var(--p-text-muted-color);
-    }
   }
 }
 
