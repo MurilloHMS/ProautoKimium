@@ -115,20 +115,14 @@
           <i class="pi pi-pencil"></i>
           <span>Título do Guia</span>
         </div>
-        <div class="form-field">
-          <label for="guideTitle">
-            Título <span class="required">*</span>
-          </label>
-          <input
-            id="guideTitle"
-            type="text"
-            pInputText
-            [(ngModel)]="guideTitle"
-            placeholder="Ex: Guia Geral de Utilização"
-            [class.ng-invalid]="titleInvalid"
-            class="guide-title-input" />
-          <small class="field-error" *ngIf="titleInvalid">O título é obrigatório.</small>
-        </div>
+        <pk-input
+          label="Título"
+          type="text"
+          placeholder="Ex: Geral"
+          [pkRequired]="true"
+          [(ngModel)]="guideTitle"
+          errorMsg="O título é obrigatório."
+        />
       </div>
 
       <!-- Logo upload -->
