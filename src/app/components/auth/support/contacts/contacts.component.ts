@@ -14,6 +14,9 @@ import { SelectModule } from 'primeng/select';
 import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import {Ripple} from "primeng/ripple";
+import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
+import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 
 @Component({
   selector: 'app-contacts',
@@ -30,7 +33,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     InputTextModule,
     SelectModule,
     ConfirmDialogModule,
-    ToastModule
+    ToastModule,
+    Ripple,
+    PkButtonComponent,
+    PkInputComponent
   ],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss',
