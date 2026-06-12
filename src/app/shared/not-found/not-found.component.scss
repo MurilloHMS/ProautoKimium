@@ -1,33 +1,98 @@
-/* Certifica-se que o fundo da página seja branco e ocupe toda a tela */
+@use 'variables' as v;
+
 :host {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background-color: #ffffff;
-    margin: 0;
-  }
-  
-  .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-  }
-  
-  .notFound img {
-    max-width: 80%;
-    height: auto;
-  }
-
-  .notFound h1 {
-    color: #555;
-    font-weight: 600;
-    font-size: 3rem;
-  }
-
-  @media (max-width: 720px) {
-    .notFound h1 {
-        font-size: 2rem;
-    }
+  display: block;
+  width: 100%;
+  min-height: 100%;
 }
-  
+
+.nf-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 94vh;
+  padding: 2rem;
+  background: v.$bg-base;
+}
+
+.nf-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+}
+
+// ── Ilustração 404 ──────────────────────────────────────────────────────────
+.nf-illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  margin-bottom: 2rem;
+}
+
+.nf-digit {
+  font-family: v.$font-heading;
+  font-size: 6rem;
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nf-icon-wrapper {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: v.$radius-full;
+  background: linear-gradient(135deg, v.$secondary 0%, v.$secondary-dark 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: v.$shadow-lg;
+  animation: nf-float 3s ease-in-out infinite;
+}
+
+.nf-icon {
+  font-size: 2.75rem;
+  color: v.$white;
+}
+
+@keyframes nf-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-8px) rotate(8deg); }
+}
+
+// ── Texto ──────────────────────────────────────────────────────────────────
+.nf-title {
+  font-family: v.$font-heading;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0 0 .5rem;
+}
+
+.nf-subtitle {
+  font-size: v.$font-size-base;
+  color: v.$text-muted;
+  margin: 0 0 2rem;
+  line-height: v.$line-height-relaxed;
+}
+
+// ── Ações ──────────────────────────────────────────────────────────────────
+.nf-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+// ── Responsivo ────────────────────────────────────────────────────────────
+@media (max-width: 480px) {
+  .nf-digit { font-size: 4rem; }
+  .nf-icon-wrapper { width: 4rem; height: 4rem; }
+  .nf-icon { font-size: 2rem; }
+  .nf-title { font-size: 1.25rem; }
+}
