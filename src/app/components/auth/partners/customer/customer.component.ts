@@ -9,7 +9,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { Customer } from '../../../../domain/models/customer.model';
 import { CustomerService } from '../../../../infrastructure/services/partners/customer/customer.service';
 import { CheckboxModule } from 'primeng/checkbox';
-import { FileUpload } from "primeng/fileupload";
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
@@ -23,7 +22,7 @@ import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload
 @Component({
     selector: 'app-customer',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, FileUpload, PkButtonComponent, PkTableComponent, Tooltip, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, Tooltip, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
     templateUrl: './customer.component.html',
     styleUrl: './customer.component.scss',
     providers: [MessageService]
@@ -84,7 +83,7 @@ export class CustomerComponent {
   }
 
   deleteCustomer(customer: Customer) {
-    console.log('Deletar cliente:', customer);
+    //Todo criar metodo para deletar cliente
   }
   showDialog() {
     this.dialogTitle = 'Adicionar Cliente';
