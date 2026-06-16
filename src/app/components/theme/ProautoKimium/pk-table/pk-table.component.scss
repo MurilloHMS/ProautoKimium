@@ -1,0 +1,121 @@
+@use 'variables' as v;
+
+// ─── Container ────────────────────────────────────────────────────────────────
+.pk-table-card {
+  background: v.$bg-panel;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-md;
+  overflow: hidden;
+}
+
+// ─── Caption ──────────────────────────────────────────────────────────────────
+.pk-table-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid v.$border;
+  flex-wrap: wrap;
+  gap: .75rem;
+
+  &__count {
+    font-size: .85rem;
+    color: v.$text-muted;
+    strong { color: v.$primary; font-weight: 700; }
+  }
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    i {
+      position: absolute;
+      left: .75rem;
+      color: v.$text-light;
+      font-size: .85rem;
+      pointer-events: none;
+    }
+
+    input.p-inputtext {
+      padding-left: 2.25rem;
+      height: 36px;
+      width: 260px;
+      border-radius: v.$radius-sm;
+      border: 1px solid v.$border;
+      font-size: .83rem;
+      background: v.$bg-base;
+      transition: border-color .15s, box-shadow .15s;
+
+      &:focus {
+        border-color: v.$primary-light;
+        box-shadow: 0 0 0 3px rgba(35, 46, 97, .1);
+        background: v.$bg-panel;
+        outline: none;
+      }
+    }
+  }
+}
+
+// ─── PrimeNG overrides ────────────────────────────────────────────────────────
+::ng-deep .pk-table {
+
+  .p-datatable-thead > tr > th {
+    background: v.$bg-base;
+    color: v.$text-muted;
+    font-size: .76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: .75rem 1rem;
+    border-bottom: 2px solid v.$border;
+    white-space: nowrap;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: background .12s;
+
+    > td {
+      padding: .75rem 1rem;
+      border-bottom: 1px solid v.$border;
+      font-size: .85rem;
+      color: v.$neutral-900;
+      vertical-align: middle;
+    }
+
+    &:hover > td { background: v.$bg-hover; }
+    &:last-child > td { border-bottom: none; }
+  }
+
+  .p-paginator {
+    border-top: 1px solid v.$border;
+    padding: .75rem 1rem;
+    background: v.$bg-panel;
+
+    .p-paginator-element {
+      border-radius: v.$radius-sm;
+      font-size: .82rem;
+      min-width: 32px;
+      height: 32px;
+
+      &.p-highlight {
+        background: v.$primary;
+        color: #fff;
+        border-color: v.$primary;
+      }
+    }
+  }
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+.pk-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3.5rem 1rem;
+  text-align: center;
+
+  &__icon { font-size: 2.5rem; color: v.$text-light; margin-bottom: 1rem; }
+  &__title { font-weight: 600; color: v.$text-muted; margin: 0 0 .35rem; font-size: .95rem; }
+  &__subtitle { font-size: .82rem; color: v.$text-light; margin: 0; }
+}

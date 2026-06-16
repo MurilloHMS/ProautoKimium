@@ -6,8 +6,8 @@ import {SkeletonModule} from "primeng/skeleton";
 import {ActivatedRoute} from "@angular/router";
 import {ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
-import {PkBtnSharedComponent} from "../../../../shared/pk-btn-shared/pk-btn-shared.component";
-import {PkQrcodeComponent} from "../../../../shared/pk-qrcode/pk-qrcode.component";
+import {PkBtnSharedComponent} from "../../../theme/ProautoKimium/pk-btn-shared/pk-btn-shared.component";
+import {PkQrcodeComponent} from "../../../theme/ProautoKimium/pk-qrcode/pk-qrcode.component";
 
 interface ContactItem {
   label: string;
@@ -88,7 +88,20 @@ export class VcardComponent implements OnInit {
 
     this.socialContacts = (redesSociais ?? []).map(r => {
       const meta = SOCIAL_MAP[r.tipo?.toUpperCase()] ?? { cssClass: 'website', icon: 'pi pi-link', label: r.tipo };
-      return { label: meta.label, value: r.url.replace(/^https?:\/\/(www\.)?/, ''), link: r.url, cssClass: meta.cssClass, icon: meta.icon };
+
+      let link = r.url;
+
+      if (r.tipo?.toUpperCase() === 'INSTAGRAM') {
+        link = this.formatInstagram(r.url);
+      }
+
+      return {
+        label: meta.label,
+        value: this.formatInstagramDisplay(r.url),
+        link,
+        cssClass: meta.cssClass,
+        icon: meta.icon
+      };
     });
   }
 
@@ -108,4 +121,22 @@ export class VcardComponent implements OnInit {
     return window.location.href;
   }
 
+  private formatInstagram(value: string): string {
+    const clean = value.trim();
+
+    if(clean.startsWith('http')) {return clean}
+
+    const username = clean.replace('@', '').trim();
+    return `https://instagram.com/${username}`;
+  }
+
+  private formatInstagramDisplay(value: string): string {
+    let clean = value.trim();
+
+    clean = clean
+      .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
+      .replace(/^@/, '');
+
+    return `@${clean}`;
+  }
 }

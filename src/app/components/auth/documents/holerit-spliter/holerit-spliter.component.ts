@@ -11,6 +11,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { environment } from '../../../../../environments/environment';
+import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
+import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component";
 
 interface PdfPageInfoDTO {
   name: string;
@@ -36,6 +38,8 @@ interface UploadResponse {
     ProgressSpinnerModule,
     ToastModule,
     TooltipModule,
+    PkButtonComponent,
+    PkFileUploadComponent,
   ],
   templateUrl: './holerit-spliter.component.html',
   styleUrl: './holerit-spliter.component.scss',
@@ -61,8 +65,8 @@ export class HoleritSpliterComponent {
     private messageService: MessageService
   ) {}
 
-  onFileSelect(event: any): void {
-    const file = event.files[0];
+  onFileSelect(files: File[]): void {
+    const file = files[0];
     if (file) {
       this.selectedFile = file;
       this.uploadPdf();

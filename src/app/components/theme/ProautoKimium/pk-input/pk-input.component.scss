@@ -1,0 +1,129 @@
+@use 'variables' as v;
+
+.pk-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--disabled {
+    opacity: .55;
+    pointer-events: none;
+  }
+}
+
+// ── Label ─────────────────────────────────────────────────────────────────────
+.pk-label {
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: v.$neutral-900;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+
+.pk-required {
+  color: v.$danger;
+}
+
+// ── Wrapper com ícone ─────────────────────────────────────────────────────────
+.pk-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &--icon-left  .pk-input { padding-left: 2.4rem !important; }
+  &--icon-right .pk-input { padding-right: 2.4rem !important; }
+}
+
+.pk-icon {
+  position: absolute;
+  font-size: .85rem;
+  color: v.$neutral-400;
+  pointer-events: none;
+  z-index: 1;
+
+  &--left  { left: .85rem; }
+  &--right { right: .85rem; }
+}
+
+// ── Input ─────────────────────────────────────────────────────────────────────
+.pk-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 .85rem !important;
+  border: 1px solid v.$border !important;
+  border-radius: v.$radius-md !important;
+  font-size: v.$font-size-sm !important;
+  font-family: v.$font-body !important;
+  color: v.$neutral-900 !important;
+  background: v.$bg-base !important;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base,
+  background v.$transition-base !important;
+
+  &::placeholder {
+    color: v.$neutral-400 !important;
+  }
+
+  &:focus {
+    border-color: v.$primary-light !important;
+    background: v.$bg-panel !important;
+    box-shadow: v.$shadow-focus-primary !important;
+    outline: none !important;
+  }
+
+  &[readonly] {
+    background: v.$bg-surface !important;
+    color: v.$text-muted !important;
+    cursor: not-allowed !important;
+  }
+
+  // Estado de erro
+  &--error {
+    border-color: v.$danger !important;
+    background: rgba(v.$danger, .03) !important;
+
+    &:focus {
+      border-color: v.$danger !important;
+      box-shadow: 0 0 0 3px rgba(229, 62, 62, .12) !important;
+    }
+  }
+}
+
+// Erro no wrapper também afeta o ícone
+.pk-field--error .pk-icon {
+  color: v.$danger;
+}
+
+// ── Hint & Error ──────────────────────────────────────────────────────────────
+.pk-hint {
+  font-size: v.$font-size-xs;
+  color: v.$text-muted;
+}
+
+.pk-error {
+  font-size: v.$font-size-xs;
+  color: v.$danger;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+
+  i { font-size: .7rem; }
+}
+
+// ── Max Length ──────────────────────────────────────────────────────────────
+.pk-field-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1rem;
+}
+
+.pk-char-count {
+  font-size: v.$font-size-xs;
+  color: v.$neutral-400;
+  margin-left: auto;
+  transition: color v.$transition-base;
+
+  &--warn  { color: v.$warning; }
+  &--limit { color: v.$danger;  font-weight: 600; }
+}

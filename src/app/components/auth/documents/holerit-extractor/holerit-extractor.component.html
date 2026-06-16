@@ -1,10 +1,10 @@
 <p-toast position="top-right" />
 
-<div class="extractor-wrapper">
+<div class="painel-wrapper">
 
   <!-- ── HEADER ── -->
-  <header class="page-header">
-    <div class="header-inner">
+  <div class="page-header">
+    <div class="header-left">
       <div class="header-icon">
         <i class="pi pi-file-pdf"></i>
       </div>
@@ -13,7 +13,7 @@
         <p class="page-subtitle">Faça upload do PDF para extrair e analisar os dados de folha de pagamento</p>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- ── UPLOAD CARD ── -->
   <p-card styleClass="upload-card">
@@ -47,23 +47,18 @@
     </p-fileUpload>
 
     <div class="action-row">
-      <p-button
-        label="Extrair Dados"
-        icon="pi pi-cog"
-        [loading]="isLoading()"
-        [disabled]="!selectedFile() || isLoading()"
-        (onClick)="extractData()"
-        styleClass="extract-btn"
-      />
+      <pk-button
+        pkLabel="Extrair Dados"
+        pkType="download"
+        [pkLoading]="isLoading()"
+        [pkDisabled]="!selectedFile() || isLoading()"
+        (clicked)="extractData()"/>
 
       @if (hasData()) {
-        <p-button
-          label="Exportar Excel"
-          icon="pi pi-file-excel"
-          severity="success"
-          [outlined]="true"
-          (onClick)="exportToExcel()"
-          styleClass="export-btn"
+        <pk-button
+          pkLabel="Exportar Excel"
+          pkType="excel"
+          (clicked)="exportToExcel()"
         />
       }
     </div>

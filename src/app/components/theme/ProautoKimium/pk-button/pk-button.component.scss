@@ -1,0 +1,91 @@
+@use 'variables' as v;
+
+.pk-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: v.$font-heading !important;
+  font-weight: 600 !important;
+  border-radius: v.$radius-sm !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: background v.$transition-base, border-color v.$transition-base,
+  box-shadow v.$transition-base !important;
+  white-space: nowrap !important;
+
+  &:focus-visible {
+    outline: none !important;
+    box-shadow: v.$shadow-focus-primary !important;
+  }
+
+  // ── Tamanhos ──────────────────────────────────────────────────────────────
+  &--sm { font-size: v.$font-size-xs !important; padding: .3rem .7rem !important;  height: 1.9rem !important;  }
+  &--md { font-size: v.$font-size-sm !important; padding: .45rem 1rem !important;  height: 2.25rem !important; }
+  &--lg { font-size: v.$font-size-base !important; padding: .6rem 1.4rem !important; height: 2.75rem !important; }
+
+  // ── Tipos — mesmos tokens do buttons.scss global ──────────────────────────
+
+  &--new, &--save {
+    background: v.$primary !important;
+    border-color: v.$primary !important;
+    color: v.$white !important;
+    &:hover:not(:disabled) {
+      background: v.$primary-dark !important;
+      border-color: v.$primary-dark !important;
+    }
+  }
+
+  &--edit, &--filter , &--home{
+    background: transparent !important;
+    border-color: v.$primary !important;
+    color: v.$primary !important;
+    &:hover:not(:disabled) {
+      background: v.$primary !important;
+      color: v.$white !important;
+    }
+  }
+
+  &--delete {
+    background: transparent !important;
+    border-color: v.$danger !important;
+    color: v.$danger !important;
+    &:hover:not(:disabled) {
+      background: v.$danger !important;
+      color: v.$white !important;
+    }
+  }
+
+  &--refresh, &--cancel {
+    background: transparent !important;
+    border-color: v.$secondary !important;
+    color: v.$primary !important;
+    &:hover:not(:disabled) {
+      background: v.$secondary-light !important;
+      border-color: v.$secondary !important;
+    }
+  }
+
+  &--upload, &--download, &--excel {
+    background: v.$secondary !important;
+    border-color: v.$secondary !important;
+    color: v.$white !important;
+    &:hover:not(:disabled) {
+      background: v.$secondary-dark !important;
+      border-color: v.$secondary-dark !important;
+    }
+    &:focus-visible {
+      box-shadow: v.$shadow-focus-secondary !important;
+    }
+  }
+
+  // ── Estados ───────────────────────────────────────────────────────────────
+  &--loading { opacity: .75 !important; cursor: wait !important; pointer-events: none !important; }
+
+  &:disabled { opacity: .5 !important; cursor: not-allowed !important; pointer-events: none !important; }
+
+  &--icon-only {
+    &.pk-btn--sm { width: 1.9rem !important;  padding: 0 !important; }
+    &.pk-btn--md { width: 2.25rem !important; padding: 0 !important; }
+    &.pk-btn--lg { width: 2.75rem !important; padding: 0 !important; }
+  }
+}

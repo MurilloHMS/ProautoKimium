@@ -1,63 +1,6 @@
 @use 'variables' as v;
 @use 'sass:color';
 
-// ─── Wrapper ─────────────────────────────────────────────
-.extractor-wrapper {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  font-family: v.$font-body;
-  color: v.$text-primary-color;
-  background: v.$bg-base;
-  min-height: 100vh;
-}
-
-// ─── Header ──────────────────────────────────────────────
-.page-header {
-  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 60%, v.$secondary-dark 100%);
-  border-radius: 12px;
-  padding: 2rem 2.5rem;
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(v.$primary, .3);
-
-  .header-inner {
-    display: flex;
-    align-items: center;
-    gap: 1.25rem;
-  }
-
-  .header-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
-    background: rgba(#fff, .15);
-    border: 1px solid rgba(#fff, .2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    flex-shrink: 0;
-  }
-
-  .page-title {
-    margin: 0;
-    font-family: v.$font-heading;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -.2px;
-  }
-
-  .page-subtitle {
-    margin: .3rem 0 0;
-    font-size: .88rem;
-    opacity: .8;
-    font-family: v.$font-body;
-  }
-}
-
 // ─── Cards PrimeNG override ───────────────────────────────
 ::ng-deep {
   .upload-card,

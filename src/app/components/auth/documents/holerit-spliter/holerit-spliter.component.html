@@ -1,13 +1,15 @@
-<div class="spliter-page">
+<div class="painel-wrapper">
   <p-toast position="bottom-right"></p-toast>
 
   <div class="page-header">
-    <div class="header-icon">
-      <i class="pi pi-file-pdf"></i>
-    </div>
-    <div class="header-text">
-      <h1>Separador de Holerites</h1>
-      <p>Faça upload do PDF, renomeie cada página e baixe os arquivos separados</p>
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-file-pdf"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Separador de Holerites</h1>
+        <p class="page-subtitle">Faça upload do PDF, renomeie cada página e baixe os arquivos separados</p>
+      </div>
     </div>
   </div>
 
@@ -18,43 +20,21 @@
       <span>Selecionar arquivo</span>
     </div>
 
-    <p-fileUpload
-      name="file"
+    <pk-fileUpload
+      mode="both"
+      dropTitle="Arraste o PDF aqui"
+      chooseLabel="Selecionar PDF"
+      chooseType="upload"
       accept="application/pdf"
       [maxFileSize]="10000000"
-      [auto]="false"
-      [customUpload]="true"
-      (onSelect)="onFileSelect($event)"
-      (onClear)="onClear()"
-      [showUploadButton]="false"
-      [showCancelButton]="true"
-      chooseLabel="Selecionar PDF"
-      [disabled]="isUploading"
-      styleClass="custom-upload">
-
-      <ng-template pTemplate="content">
-        <div *ngIf="isUploading" class="uploading-state">
-          <div class="spinner-wrapper">
-            <p-progressSpinner
-              [style]="{ width: '48px', height: '48px' }"
-              strokeWidth="3"
-              animationDuration=".8s">
-            </p-progressSpinner>
-          </div>
-          <div class="uploading-text">
-            <strong>Processando PDF...</strong>
-            <span>Extraindo páginas, aguarde</span>
-          </div>
-        </div>
-
-        <div *ngIf="!isUploading && !selectedFile" class="drop-hint">
-          <i class="pi pi-cloud-upload drop-icon"></i>
-          <span>Arraste o PDF aqui ou clique em <em>Selecionar PDF</em></span>
-          <small>Máximo 10 MB · Somente PDF</small>
-        </div>
-      </ng-template>
-    </p-fileUpload>
-  </div>
+      fileIcon="pi pi-file-pdf"
+      (filesSelected)="onFileSelect($event)"
+      (cleared)="onClear()"
+      [loading]="isUploading"
+      loadingTitle="Processando PDF..."
+      loadingSubtitle="Extraindo páginas, aguarde"
+    >
+    </pk-fileUpload>
 
   <div class="section-card pages-card" *ngIf="pages.length > 0 && !isUploading" @fadeIn>
 
@@ -91,16 +71,12 @@
           />
         </div>
 
-        <p-button
-          icon="pi pi-undo"
-          [text]="true"
-          severity="secondary"
-          [rounded]="true"
-          size="small"
+        <pk-button
+          pkType="refresh"
           pTooltip="Restaurar nome original"
-          tooltipPosition="left"
+          tooltipPosition="right"
           (click)="restoreOriginalName(i)">
-        </p-button>
+        </pk-button>
       </div>
     </div>
 
@@ -110,23 +86,21 @@
         <span>Os PDFs serão baixados em um arquivo <strong>.zip</strong></span>
       </div>
       <div class="footer-actions">
-        <p-button
-          label="Resetar"
-          icon="pi pi-refresh"
-          severity="secondary"
-          outlined
-          (click)="resetForm()">
-        </p-button>
-        <p-button
-          label="Baixar PDFs separados"
-          icon="pi pi-download"
-          (click)="saveRenamedPages()"
-          [loading]="isSaving"
-          [disabled]="isSaving"
-          severity="success">
-        </p-button>
+        <pk-button
+          pkLabel="Resetar"
+          pkType="refresh"
+          (clicked)="resetForm()"
+        />
+        <pk-button
+          pkLabel="Baixar PDFs separados"
+          pkType="download"
+          (clicked)="saveRenamedPages()"
+          [pkLoading]="isSaving"
+          [pkDisabled]="isSaving">
+        </pk-button>
       </div>
     </div>
   </div>
 
+</div>
 </div>

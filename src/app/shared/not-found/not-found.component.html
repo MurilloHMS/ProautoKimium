@@ -1,6 +1,30 @@
-<div class="container">
-    <div class="notFound">
-        <img src="../../../assets/images/not-found.png" alt="Page Not Found">
-        <h1>Página não encontrada</h1>
+<div class="nf-page">
+  <div class="nf-content">
+
+    <div class="nf-illustration">
+      <span class="nf-digit">4</span>
+      <div class="nf-icon-wrapper">
+        <i class="pi pi-compass nf-icon"></i>
+      </div>
+      <span class="nf-digit">4</span>
     </div>
+
+    <h1 class="nf-title">Página não encontrada</h1>
+    <p class="nf-subtitle">
+      O endereço que você tentou acessar não existe ou foi movido.
+    </p>
+
+    <div class="nf-actions">
+      <pk-button
+        pkType="left"
+        pkLabel="Voltar"
+        (clicked)="goBack()" />
+
+      <pk-button
+        pkType="home"
+        pkLabel="Ir para o início"
+        (clicked)="goHome()" />
+    </div>
+
+  </div>
 </div>

@@ -9,6 +9,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import {ProductWebSiteResponseDTO} from "../../../domain/models/products.model";
 import {WebsiteService} from "../../../infrastructure/services/company/products/website/website.service";
 import {environment} from "../../../../environments/environment";
+import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.component";
 
 @Component({
   selector: 'app-guide',
@@ -19,6 +20,7 @@ import {environment} from "../../../../environments/environment";
     CheckboxModule,
     InputTextModule,
     SkeletonModule,
+    PkInputComponent,
   ],
   templateUrl: './guide.component.html',
   styleUrl: './guide.component.scss',

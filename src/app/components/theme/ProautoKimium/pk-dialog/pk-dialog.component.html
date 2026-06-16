@@ -1,0 +1,19 @@
+<p-dialog
+  [header]="header()"
+  [visible]="visible()"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: width(), maxWidth: '95vw' }"
+  styleClass="pk-dialog"
+  (onHide)="onHide()">
+
+  <ng-template pTemplate="content">
+    <ng-content select="[pkDialogContent]" />
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <ng-content select="[pkDialogFooter]" />
+  </ng-template>
+</p-dialog>

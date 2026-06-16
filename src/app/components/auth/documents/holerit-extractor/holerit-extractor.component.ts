@@ -17,6 +17,7 @@ import {PdfPageInfoExtractorDTO} from "../../../../domain/models/holerit.model";
 import {MessageService} from "primeng/api";
 import * as XLSX from 'xlsx';
 import {environment} from "../../../../../environments/environment";
+import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 
 @Component({
   selector: 'app-holerit-extractor',
@@ -35,6 +36,7 @@ import {environment} from "../../../../../environments/environment";
     TooltipModule,
     BadgeModule,
     MessageModule,
+    PkButtonComponent,
   ],
   templateUrl: './holerit-extractor.component.html',
   styleUrl: './holerit-extractor.component.scss',

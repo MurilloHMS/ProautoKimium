@@ -1,5 +1,4 @@
 @use 'variables' as v;
-@use 'typography';
 
 // ─── Layout ────────────────────────────────────────────────────────────────────
 
@@ -217,19 +216,6 @@
   margin-bottom: 1rem;
 
   i { font-size: 0.95rem; }
-}
-
-// ─── Title Input ───────────────────────────────────────────────────────────────
-
-.guide-title-input {
-  width: 100%;
-  font-size: 0.9rem !important;
-}
-
-.field-error {
-  color: v.$danger;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
 }
 
 // ─── Logo Drop Area ────────────────────────────────────────────────────────────
