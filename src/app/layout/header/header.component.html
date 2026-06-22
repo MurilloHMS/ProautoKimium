@@ -2,18 +2,13 @@
   <div class="header-container">
     <!-- Logo -->
     <div class="logo">
-      <a href="#home" fragment="home">
-        <img src="logo-proauto.png" alt="Logo da Empresa">
+      <a href="#home" fragment="home" aria-label="Início — Proauto Kimium">
+        <img src="logo-proauto.png" alt="Proauto Kimium">
       </a>
     </div>
 
-    <!-- Menu Toggle Mobile -->
-    <button class="menu-toggle" (click)="toggleMenu()" [attr.aria-label]="menuAberto ? 'Fechar menu' : 'Abrir menu'">
-      <i [ngClass]="menuAberto ? 'pi pi-times' : 'pi pi-bars'"></i>
-    </button>
-
-    <!-- Menu Principal -->
-    <nav class="menu" [class.active]="menuAberto" (click)="fecharMenuMobile()">
+    <!-- Navegação (desktop) -->
+    <nav class="nav-desktop">
       <ul>
         <li><a href="#home" fragment="home">Início</a></li>
         <li><a routerLink="produtos">Produtos</a></li>
@@ -24,12 +19,9 @@
       </ul>
     </nav>
 
-    <!-- Ações Direita -->
+    <!-- Ações à direita (desktop) -->
     <div class="actions">
-      <!-- Divisor -->
       <div class="divider"></div>
-
-      <!-- Logins SPA -->
       <div class="auth-buttons">
         <a routerLink="client-login" class="btn-login btn-cliente" title="Login Cliente">
           <i class="pi pi-user"></i>
@@ -43,3 +35,67 @@
     </div>
   </div>
 </header>
+
+<!-- Bottom navigation (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <a class="bottom-nav__item" href="#home" fragment="home">
+    <i class="pi pi-home"></i>
+    <span>Início</span>
+  </a>
+  <a class="bottom-nav__item" routerLink="produtos" routerLinkActive="is-active">
+    <i class="pi pi-box"></i>
+    <span>Produtos</span>
+  </a>
+  <a class="bottom-nav__item" href="#services">
+    <i class="pi pi-briefcase"></i>
+    <span>Serviços</span>
+  </a>
+  <a class="bottom-nav__item" href="#contact">
+    <i class="pi pi-envelope"></i>
+    <span>Contato</span>
+  </a>
+  <button
+    class="bottom-nav__item"
+    type="button"
+    (click)="toggleMenu()"
+    [class.is-active]="menuAberto"
+    [attr.aria-expanded]="menuAberto"
+    aria-controls="menu-drawer"
+    aria-label="Abrir menu">
+    <i class="pi pi-bars"></i>
+    <span>Menu</span>
+  </button>
+</nav>
+
+<!-- Overlay do drawer (mobile) -->
+<div class="menu-overlay" [class.active]="menuAberto" (click)="fecharMenuMobile()" aria-hidden="true"></div>
+
+<!-- Drawer lateral (mobile) — aberto pelo item "Menu" -->
+<aside id="menu-drawer" class="drawer" [class.active]="menuAberto">
+  <div class="drawer-head">
+    <img class="drawer-logo" src="logo-proauto.png" alt="Proauto Kimium">
+    <button class="drawer-close" type="button" (click)="fecharMenuMobile()" aria-label="Fechar menu">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <ul class="drawer-links">
+    <li><a href="#home" fragment="home" (click)="fecharMenuMobile()">Início</a></li>
+    <li><a routerLink="produtos" (click)="fecharMenuMobile()">Produtos</a></li>
+    <li><a href="#services" (click)="fecharMenuMobile()">Serviços</a></li>
+    <li><a href="#about-us" (click)="fecharMenuMobile()">Sobre nós</a></li>
+    <li><a routerLink="trabalhe-conosco" (click)="fecharMenuMobile()">Trabalhe Conosco</a></li>
+    <li><a href="#contact" (click)="fecharMenuMobile()">Contato</a></li>
+  </ul>
+
+  <div class="drawer-auth">
+    <a routerLink="client-login" class="btn-login btn-cliente" (click)="fecharMenuMobile()">
+      <i class="pi pi-user"></i>
+      <span>Entrar como Cliente</span>
+    </a>
+    <a routerLink="login" class="btn-login btn-funcionario" (click)="fecharMenuMobile()">
+      <i class="pi pi-id-card"></i>
+      <span>Entrar como Funcionário</span>
+    </a>
+  </div>
+</aside>

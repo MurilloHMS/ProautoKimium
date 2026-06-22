@@ -1,27 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, HostListener } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, CommonModule, DialogModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  quantidadeProdutos = 0;
   menuAberto = false;
-  visible = false;
-
-  constructor() {}
 
   toggleMenu() {
     this.menuAberto = !this.menuAberto;
+    this.atualizarScrollLock();
   }
 
   fecharMenuMobile() {
+    if (!this.menuAberto) return;
     this.menuAberto = false;
+    this.atualizarScrollLock();
+  }
+
+  /** Fecha o drawer ao pressionar ESC. */
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    this.fecharMenuMobile();
+  }
+
+  /** Garante que o drawer não fique aberto ao voltar para a largura desktop. */
+  @HostListener('window:resize')
+  onResize() {
+    if (window.innerWidth >= 992 && this.menuAberto) {
+      this.fecharMenuMobile();
+    }
+  }
+
+  /** Trava o scroll do fundo enquanto o drawer está aberto. */
+  private atualizarScrollLock() {
+    document.body.style.overflow = this.menuAberto ? 'hidden' : '';
   }
 }

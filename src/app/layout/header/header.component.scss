@@ -1,53 +1,48 @@
 @use 'variables' as v;
 
-/* ========== VARIÁVEIS ========== */
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+$header-h-mobile: 56px;
+$header-h-desktop: 70px;
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-$border-radius: 12px;
 
-/* ========== HEADER ========== */
+// Camadas: header e bottom-nav abaixo do overlay; drawer no topo.
+$z-header: 1000;
+$z-overlay: 1100;
+$z-drawer: 1200;
+
+/* ===========================================================================
+   TOP BAR (mobile-first) — barra slim só com a logo
+   =========================================================================== */
 .header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  height: $header-h-mobile;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: $shadow-md;
-  z-index: 1000;
+  border-bottom: 1px solid rgba(v.$primary, 0.08);
+  box-shadow: v.$shadow-md;
+  z-index: $z-header;
   animation: slideDown 0.5s ease-out;
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ========== HEADER CONTAINER ========== */
 .header-container {
   max-width: 1500px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   height: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;   // logo centralizada no mobile
   align-items: center;
-  gap: 32px;
-  width: 100%;
+  gap: 16px;
 }
 
-/* ========== LOGO ========== */
 .logo {
   flex-shrink: 0;
   display: flex;
@@ -59,182 +54,206 @@ $border-radius: 12px;
     text-decoration: none;
     transition: $transition;
 
-    &:hover {
-      opacity: 0.85;
-    }
+    &:hover { opacity: 0.85; }
   }
 
   img {
-    height: 40px;
+    height: 32px;
     width: auto;
-    transition: $transition;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
-
-    &:hover {
-      transform: scale(1.05);
-    }
+    transition: $transition;
   }
 }
 
-/* ========== MENU TOGGLE ========== */
-.menu-toggle {
+/* Nav desktop e ações ficam escondidas no mobile */
+.nav-desktop,
+.actions {
   display: none;
-  font-size: 1.5rem;
+}
+
+/* ===========================================================================
+   BOTTOM NAV (mobile) — padrão de app
+   =========================================================================== */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(#{v.$bottom-nav-h} + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-top: 1px solid v.$border;
+  box-shadow: 0 -4px 20px rgba(v.$primary, 0.08);
+  z-index: $z-header;
+}
+
+.bottom-nav__item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
   background: none;
   border: none;
   cursor: pointer;
-  color: v.$text-primary-color;
-  padding: 8px;
-  transition: $transition;
-  border-radius: 8px;
-  margin-right: 8px;
+  text-decoration: none;
+  color: v.$neutral-500;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  transition: color v.$transition-base, background v.$transition-base;
 
-  &:hover {
-    background: rgba(v.$primary, 0.1);
+  i {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  span { line-height: 1; }
+
+  &:hover,
+  &.is-active {
     color: v.$primary;
   }
+
+  &.is-active i {
+    transform: translateY(-1px);
+  }
 }
 
-/* ========== MENU PRINCIPAL ========== */
-.menu {
-  flex: 1;
+/* ===========================================================================
+   OVERLAY + DRAWER (mobile)
+   =========================================================================== */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(v.$primary-dark, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  z-index: $z-overlay;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(84vw, 340px);
+  background: #fff;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  box-shadow: v.$shadow-lg;
+  z-index: $z-drawer;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom);
 
-  ul {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-    gap: 8px;
-    align-items: center;
-  }
-
-  li {
-    margin: 0;
-    position: relative;
-  }
-
-  a {
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: v.$text-primary-color;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: $transition;
-    border-radius: 8px;
-    position: relative;
-
-    &:hover {
-      color: v.$primary;
-      background: rgba(v.$primary, 0.08);
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 50%;
-      width: 0;
-      height: 3px;
-      background: v.$primary;
-      border-radius: 2px;
-      transform: translateX(-50%);
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    &:hover::after {
-      width: calc(100% - 32px);
-    }
-  }
+  &.active { transform: translateX(0); }
 }
 
-/* ========== ACTIONS ========== */
-.actions {
+.drawer-head {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid v.$border;
 
-/* ========== CARRINHO ========== */
-.carrinho-container {
-  position: relative;
-  display: flex;
-  align-items: center;
+  .drawer-logo {
+    height: 34px;
+    width: auto;
+  }
 
-  .icon-link {
-    font-size: 1.3rem;
-    color: v.$secondary;
-    text-decoration: none;
-    transition: $transition;
-    position: relative;
-    display: flex;
+  .drawer-close {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: rgba(v.$primary, 0.08);
+    font-size: 1.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: v.$neutral-700;
+    border-radius: v.$radius-md;
+    transition: $transition;
+
+    &:hover { background: rgba(v.$primary, 0.1); color: v.$primary; }
+  }
+}
+
+.drawer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 8px 0;
+
+  li { width: 100%; }
+
+  a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 15px 22px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    color: v.$neutral-700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: $transition;
 
     &:hover {
+      background: rgba(v.$primary, 0.08);
       color: v.$primary;
-      background: rgba(v.$primary, 0.12);
-      transform: scale(1.1);
+      padding-left: 26px;
     }
   }
 }
 
-.badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: v.$primary;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
+.drawer-auth {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 3px solid white;
-  box-shadow: $shadow-sm;
-  animation: pulse 2s infinite;
-}
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid v.$border;
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+  .btn-login {
+    justify-content: center;
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 0.95rem;
   }
-  50% {
-    transform: scale(1.08);
+
+  .btn-cliente {
+    background: rgba(v.$primary, 0.06);
+    color: v.$primary;
+
+    &:hover { background: rgba(v.$primary, 0.12); }
+  }
+
+  .btn-funcionario {
+    background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
+    color: #fff;
+
+    &:hover { box-shadow: 0 6px 18px rgba(v.$primary, 0.35); }
   }
 }
 
-/* ========== DIVISOR ========== */
-.divider {
-  width: 1px;
-  height: 24px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(v.$primary, 0.3),
-    transparent
-  );
-}
-
-/* ========== AUTH BUTTONS ========== */
-.auth-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
+/* ── Botões de login (base, compartilhada) ─────────────────────────────────── */
 .btn-login {
   display: flex;
   align-items: center;
@@ -243,268 +262,121 @@ $border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
   border: 2px solid transparent;
-  border-radius: 8px;
+  border-radius: v.$radius-md;
   cursor: pointer;
-  transition: $transition;
   background: transparent;
-  color: v.$text-primary-color;
+  color: v.$neutral-700;
   text-decoration: none;
   white-space: nowrap;
+  transition: $transition;
 
-  i {
-    font-size: 1rem;
+  i { font-size: 1rem; }
+}
+
+/* ===========================================================================
+   DESKTOP (≥ 1024px) — nav inline + ações; sem bottom-nav/drawer
+   =========================================================================== */
+@media (min-width: 1024px) {
+  .header { height: $header-h-desktop; }
+
+  .header-container {
+    justify-content: space-between;
+    padding: 0 24px;
+    gap: 32px;
   }
 
-  .label-desktop {
-    display: inline;
+  .logo img { height: 42px; }
+
+  .bottom-nav,
+  .menu-overlay,
+  .drawer {
+    display: none;
   }
 
-  &:hover {
+  /* Nav central */
+  .nav-desktop {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+
+    ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      gap: 8px;
+    }
+
+    li { position: relative; }
+
+    a {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      padding: 8px 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: v.$neutral-700;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: v.$radius-md;
+      transition: $transition;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: v.$primary;
+        border-radius: 2px;
+        transform: translateX(-50%);
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      &:hover {
+        color: v.$primary;
+        background: rgba(v.$primary, 0.08);
+
+        &::after { width: calc(100% - 32px); }
+      }
+    }
+  }
+
+  /* Ações */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: linear-gradient(180deg, transparent, rgba(v.$primary, 0.3), transparent);
+  }
+
+  .auth-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-login:hover {
     background: rgba(v.$primary, 0.08);
     border-color: v.$primary;
     transform: translateY(-2px);
   }
 
-  &:active {
-    transform: translateY(0);
-  }
-}
+  .btn-login:active { transform: translateY(0); }
 
-.btn-cliente {
-  &:hover {
-    color: v.$primary;
-  }
-}
+  .btn-cliente:hover { color: v.$primary; }
 
-.btn-funcionario {
-  &:hover {
+  .btn-funcionario:hover {
     color: v.$secondary;
     border-color: v.$secondary;
-  }
-}
-
-/* ========== RESPONSIVIDADE ========== */
-
-// Tablet (992px e abaixo)
-@media (max-width: 992px) {
-  .header-container {
-    gap: 24px;
-    padding: 0 16px;
-  }
-
-  .menu ul {
-    gap: 4px;
-  }
-
-  .menu a {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-
-    &::after {
-      display: none;
-    }
-
-    &:hover {
-      background-color: rgba(v.$primary, 0.1);
-    }
-  }
-
-  .btn-login .label-desktop {
-    display: none;
-  }
-
-  .btn-login {
-    padding: 8px 10px;
-  }
-
-  .actions {
-    gap: 8px;
-  }
-}
-
-// Mobile (768px e abaixo)
-@media (max-width: 768px) {
-  .header {
-    height: 65px;
-  }
-
-  .header-container {
-    gap: 12px;
-    padding: 0 12px;
-  }
-
-  .logo img {
-    height: 32px;
-  }
-
-  .menu-toggle {
-    display: block;
-    order: 2;
-  }
-
-  .logo {
-    order: 1;
-    flex: 0 0 auto;
-  }
-
-  .menu {
-    position: fixed;
-    top: 65px;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    box-shadow: $shadow-lg;
-    flex-direction: column;
-    display: none;
-    max-height: calc(100vh - 65px);
-    overflow-y: auto;
-    border-bottom: 1px solid rgba(v.$primary, 0.15);
-    order: 3;
-    width: 100%;
-
-    &.active {
-      display: flex;
-    }
-
-    ul {
-      flex-direction: column;
-      width: 100%;
-      gap: 0;
-      padding: 12px 0;
-    }
-
-    li {
-      width: 100%;
-      margin: 0;
-    }
-
-    a {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 0;
-      font-weight: 600;
-      position: relative;
-
-      &::after {
-        display: none;
-      }
-
-      &:hover {
-        background: rgba(v.$primary, 0.1);
-        padding-left: 24px;
-      }
-    }
-  }
-
-  .actions {
-    order: 4;
-    gap: 8px;
-  }
-
-  .auth-buttons {
-    gap: 4px;
-  }
-
-  .divider {
-    display: none;
-  }
-
-  .carrinho-container .icon-link {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
-  }
-
-  .badge {
-    width: 20px;
-    height: 20px;
-    font-size: 9px;
-    top: -6px;
-    right: -6px;
-  }
-
-  .btn-login {
-    padding: 6px 8px;
-    font-size: 0.85rem;
-  }
-}
-
-// Mobile Pequeno (480px e abaixo)
-@media (max-width: 480px) {
-  .header {
-    height: 60px;
-  }
-
-  .header-container {
-    gap: 8px;
-    padding: 0 8px;
-  }
-
-  .logo img {
-    height: 28px;
-  }
-
-  .menu-toggle {
-    padding: 6px;
-    font-size: 1.3rem;
-  }
-
-  .menu {
-    top: 60px;
-
-    a {
-      padding: 12px 16px;
-      font-size: 0.9rem;
-    }
-  }
-
-  .actions {
-    gap: 4px;
-  }
-
-  .carrinho-container .icon-link {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
-
-  .badge {
-    width: 18px;
-    height: 18px;
-    font-size: 8px;
-  }
-
-  .btn-login {
-    padding: 5px 6px;
-    font-size: 0.75rem;
-
-    i {
-      font-size: 0.9rem;
-    }
-  }
-}
-
-/* ========== CONTENT ========== */
-:host {
-  ::ng-deep .content {
-    margin-top: 70px;
-  }
-}
-
-@media (max-width: 768px) {
-  :host {
-    ::ng-deep .content {
-      margin-top: 65px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  :host {
-    ::ng-deep .content {
-      margin-top: 60px;
-    }
   }
 }
