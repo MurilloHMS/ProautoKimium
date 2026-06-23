@@ -28,6 +28,19 @@ export class ListaProdutosComponent implements OnInit {
   loading  = signal(true);
   erro     = signal(false);
 
+  // Busca
+  busca = signal('');
+
+  produtosFiltrados = computed<ProductWebSitePublicResponseDTO[]>(() => {
+    const termo = this.busca().trim().toLowerCase();
+    const lista = this.produtos();
+    if (!termo) return lista;
+    return lista.filter(p =>
+      [p.name, p.finalidade, p.descricao, p.systemCode]
+        .some(campo => (campo ?? '').toLowerCase().includes(termo))
+    );
+  });
+
   snackbarMessage = '';
   showSnackbar    = false;
 
@@ -67,6 +80,9 @@ export class ListaProdutosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Ao entrar na página de produtos, sempre começar no topo.
+    window.scrollTo({ top: 0, left: 0 });
+
     this.http
       .get<ProductWebSitePublicResponseDTO[]>(`${environment.apiUrl}/product/website/active`)
       .subscribe({
@@ -102,6 +118,10 @@ export class ListaProdutosComponent implements OnInit {
   adicionarAoOrcamento(produto: ProductWebSitePublicResponseDTO): void {
     this.orcamento.adicionar(produto);
     this.orcamento.abrirDrawer();
+  }
+
+  onBusca(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
   }
 
   onTelefoneInput(event: Event): void {

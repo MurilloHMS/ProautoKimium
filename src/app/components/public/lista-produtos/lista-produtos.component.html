@@ -85,33 +85,17 @@
             d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
           />
         </svg>
-        <input id="search-input" type="text" placeholder="Buscar produto ou segmento?" />
-      </label>
-
-      <div class="segment-pills">
-        <button class="seg-pill active" type="button">Todos</button>
-
-        @for (dep of departamentos(); track dep.nome) {
-          <button class="seg-pill" type="button">
-            {{ dep.nome }}
-          </button>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Buscar por nome, finalidade ou código…"
+          [value]="busca()"
+          (input)="onBusca($event)"
+        />
+        @if (busca()) {
+          <button class="search-clear" type="button" (click)="busca.set('')" aria-label="Limpar busca">✕</button>
         }
-      </div>
-
-      <div class="view-toggle">
-        <button class="view-btn active" type="button">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 3h7v7H3zm0 11h7v7H3zm11-11h7v7h-7zm0 11h7v7h-7z" />
-          </svg>
-        </button>
-        <button class="view-btn" type="button">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"
-            />
-          </svg>
-        </button>
-      </div>
+      </label>
     </div>
   </div>
 
@@ -134,7 +118,7 @@
   <section class="products-section">
     <div class="products-header">
       <div class="products-title">Portfólio completo</div>
-      <div class="products-count">{{ produtos().length }} produtos</div>
+      <div class="products-count">{{ produtosFiltrados().length }} produtos</div>
     </div>
 
     @if (loading()) {
@@ -166,11 +150,21 @@
       </div>
     }
 
-    @if (!loading() && !erro()) {
+    @if (!loading() && !erro() && produtos().length > 0 && produtosFiltrados().length === 0) {
+      <div class="estado-vazio">
+        <span class="estado-icon">🔍</span>
+        <p>Nenhum produto encontrado para “{{ busca() }}”.</p>
+        <button class="btn-ghost" type="button" (click)="busca.set('')">Limpar busca</button>
+      </div>
+    }
+
+    @if (!loading() && !erro() && produtosFiltrados().length > 0) {
       <div class="products-grid">
-        @for (produto of produtos(); track produto.systemCode) {
+        @for (produto of produtosFiltrados(); track produto.systemCode) {
           <article class="product-card">
             <div class="card-visual">
+              <span class="card-code">{{ produto.systemCode }}</span>
+
               <img
                 [src]="resolverImagem(produto)"
                 [alt]="produto.name"
@@ -178,42 +172,74 @@
                 (error)="$any($event.target).src = 'images/products/placeholder.png'"
               />
 
-<!--              <span class="card-badge badge-top">{{ produto.systemCode }}</span>-->
+              <button
+                class="card-quickadd"
+                type="button"
+                (click)="adicionarAoOrcamento(produto)"
+                aria-label="Adicionar ao orçamento"
+                title="Adicionar ao orçamento"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
             </div>
 
             <div class="card-body">
-              <div class="card-line">Linha profissional</div>
-              <div class="card-name">{{ produto.name }}</div>
+              <span class="card-line">Linha profissional</span>
+              <h3 class="card-name">{{ produto.name }}</h3>
 
-              <div class="card-desc">
-                {{ produto.descricao || produto.finalidade }}
-              </div>
+              @if (produto.descricao || produto.finalidade) {
+                <p class="card-desc">{{ produto.descricao || produto.finalidade }}</p>
+              }
 
-              <div class="card-specs">
-                <div class="card-spec">
-                  <span>Finalidade:</span>
-                  <strong>{{ produto.finalidade }}</strong>
+              <ul class="card-facts">
+                @if (produto.finalidade) {
+                  <li class="fact">
+                    <span class="fact-ico">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4" />
+                      </svg>
+                    </span>
+                    <span class="fact-text">
+                      <span class="fact-label">Finalidade</span>
+                      <strong>{{ produto.finalidade }}</strong>
+                    </span>
+                  </li>
+                }
+
+                @if (produto.diluicao) {
+                  <li class="fact">
+                    <span class="fact-ico">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+                        <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" />
+                      </svg>
+                    </span>
+                    <span class="fact-text">
+                      <span class="fact-label">Diluição / Rendimento</span>
+                      <strong>{{ produto.diluicao }}</strong>
+                    </span>
+                  </li>
+                }
+              </ul>
+
+              @if (produto.cores && produto.cores.length) {
+                <div class="card-colors">
+                  <span class="fact-label">Cores</span>
+                  <div class="colors-list">
+                    @for (cor of produto.cores; track cor) {
+                      <span class="color-chip">{{ cor }}</span>
+                    }
+                  </div>
                 </div>
+              }
 
-                <div class="card-spec">
-                  <span>Diluição:</span>
-                  <strong>{{ produto.diluicao }}</strong>
-                </div>
-              </div>
-
-              <div class="card-footer">
-<!--                <div class="card-seg">-->
-<!--                  <span class="card-seg-dot"></span>-->
-<!--                  {{ produto.finalidade || 'Produto químico' }}-->
-<!--                </div>-->
-
-                <button class="card-action card-btn" type="button" (click)="adicionarAoOrcamento(produto)">
-                  Solicitar orçamento
-                  <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
-                  </svg>
-                </button>
-              </div>
+              <button class="card-cta" type="button" (click)="adicionarAoOrcamento(produto)">
+                <span>Solicitar orçamento</span>
+                <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
+                </svg>
+              </button>
             </div>
           </article>
         }
@@ -244,9 +270,35 @@
       <div class="modal-box" (click)="$event.stopPropagation()">
         @if (!orcamento.enviado()) {
           <div class="modal-header">
-            <h3>Solicitar Orçamento</h3>
-            <button class="modal-close" (click)="orcamento.fecharModal()" aria-label="Fechar">✕</button>
+            <div class="modal-header-left">
+              <span class="modal-header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+              </span>
+              <div>
+                <h3>Solicitar orçamento</h3>
+                <p class="modal-sub">Preencha seus dados — enviamos seu pedido pelo WhatsApp.</p>
+              </div>
+            </div>
+            <button class="modal-close" (click)="orcamento.fecharModal()" aria-label="Fechar">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
+
+          @if (orcamento.total() > 0) {
+            <div class="modal-resumo">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span><strong>{{ orcamento.total() }}</strong> {{ orcamento.total() === 1 ? 'item' : 'itens' }} no seu orçamento</span>
+            </div>
+          }
 
           <form [formGroup]="orcamento.form" (ngSubmit)="orcamento.enviarWhatsApp()" class="modal-form">
             <div class="form-group" [class.is-invalid]="orcamento.isInvalid('nome')">
@@ -296,6 +348,9 @@
                 Cancelar
               </button>
               <button type="submit" class="btn-whatsapp">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
                 <span>Enviar pelo WhatsApp</span>
               </button>
             </div>
@@ -304,9 +359,14 @@
 
         @if (orcamento.enviado()) {
           <div class="modal-sucesso">
-            <span class="sucesso-icon">✅</span>
+            <span class="sucesso-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </span>
             <h3>Solicitação enviada!</h3>
-            <p>Entraremos em contato em breve.</p>
+            <p>Recebemos seu pedido. Entraremos em contato em breve.</p>
           </div>
         }
       </div>
