@@ -10,22 +10,24 @@ $z-overlay: 1100;
 $z-drawer: 1200;
 
 // ── Material Liquid Glass ──────────────────────────────────────────────────────
-$glass-bg:        rgba(255, 255, 255, 0.55);
-$glass-bg-strong: rgba(255, 255, 255, 0.72);
-$glass-border:    rgba(255, 255, 255, 0.55);
-$glass-blur:      saturate(180%) blur(22px);
-// Realce especular (borda de luz no topo + base) + sombra de profundidade.
+// Mais translúcido + brilho/saturação = vidro luminoso (look iOS, compatível Safari).
+$glass-bg:        rgba(255, 255, 255, 0.44);
+$glass-bg-strong: rgba(255, 255, 255, 0.62);
+$glass-border:    rgba(255, 255, 255, 0.6);
+$glass-blur:      saturate(190%) brightness(1.06) blur(18px);
+// Borda de luz no topo + rim (espessura do vidro) + brilho interno + profundidade.
 $glass-shadow:
-  0 10px 34px rgba(35, 46, 97, 0.16),
-  inset 0 1px 1px rgba(255, 255, 255, 0.9),
-  inset 0 -1px 2px rgba(255, 255, 255, 0.28);
+  0 12px 36px rgba(35, 46, 97, 0.18),
+  inset 0 1px 1px rgba(255, 255, 255, 0.95),
+  inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+  inset 0 -12px 22px -12px rgba(255, 255, 255, 0.32);
 
 /* ===========================================================================
    TOP BAR — cápsula flutuante de vidro (mobile-first)
    =========================================================================== */
 .header {
   position: fixed;
-  top: 10px;
+  top: calc(10px + env(safe-area-inset-top));   // abaixo do notch / Dynamic Island
   left: 12px;
   right: 12px;
   height: 54px;
@@ -45,20 +47,23 @@ $glass-shadow:
     background 0.4s ease,
     box-shadow 0.4s ease;
 
-  // Brilho difuso na parte superior (sheen) — reforça o vidro.
+  // Sheen + lente (reflexo no topo) — reforça o aspecto de vidro.
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 42%);
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 45%),
+      radial-gradient(140% 90% at 50% -25%, rgba(255, 255, 255, 0.4), transparent 60%);
     pointer-events: none;
+    z-index: 0;
   }
 
   // Redimensionamento ao rolar: encolhe e o vidro fica mais denso.
   &.is-scrolled {
     height: 46px;
-    top: 6px;
+    top: calc(6px + env(safe-area-inset-top));
     border-radius: 23px;
     background: $glass-bg-strong;
     box-shadow:
@@ -76,6 +81,7 @@ $glass-shadow:
 
 .header-container {
   position: relative;
+  z-index: 1;                  // acima do sheen (::before)
   height: 100%;
   display: flex;
   justify-content: center;     // logo centralizada no mobile
@@ -249,9 +255,9 @@ $glass-shadow:
 
 .drawer {
   position: fixed;
-  top: 10px;
+  top: calc(10px + env(safe-area-inset-top));
   right: 10px;
-  bottom: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
   width: min(82vw, 330px);
   display: flex;
   flex-direction: column;
@@ -424,6 +430,32 @@ $glass-shadow:
   transition: $transition;
 
   i { font-size: 1rem; }
+}
+
+// Container do filtro SVG fica oculto.
+.glass-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   REFRAÇÃO REAL (Liquid Glass) — só Chromium (Chrome/Edge/Android), só mobile.
+   `@supports (background: paint(x))` é verdadeiro apenas no Chromium (CSS Paint
+   API / Houdini). Safari (iOS e macOS) e Firefox NÃO entram aqui e mantêm o
+   vidro com blur da base — barra totalmente preenchida, sem ficar branca.
+   (Safari não renderiza filtro SVG no backdrop e pintaria branco com url().)
+   =========================================================================== */
+@media (max-width: 1023.98px) {
+  @supports (background: paint(x)) {
+    .header,
+    .bottom-nav,
+    .drawer {
+      backdrop-filter: saturate(190%) brightness(1.05) blur(10px) url(#liquidGlass);
+    }
+  }
 }
 
 /* ===========================================================================

@@ -15,6 +15,11 @@
 
 html {
     scroll-behavior: smooth;
+    // Hardening iOS / iPhone
+    -webkit-text-size-adjust: 100%;            // não inflar texto no landscape
+    -webkit-tap-highlight-color: transparent;  // sem flash cinza ao tocar
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 html, body{
     height: 100%;

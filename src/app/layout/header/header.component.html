@@ -1,3 +1,12 @@
+<!-- Filtro de refração "liquid glass" (aplicado só em navegadores Chromium) -->
+<svg class="glass-defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <filter id="liquidGlass" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.015" numOctaves="2" seed="17" result="noise"/>
+    <feGaussianBlur in="noise" stdDeviation="2" result="softNoise"/>
+    <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="26" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
 <header class="header" [class.is-scrolled]="scrolled">
   <div class="header-container">
     <!-- Logo -->
