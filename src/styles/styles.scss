@@ -15,6 +15,11 @@
 
 html {
     scroll-behavior: smooth;
+    // Hardening iOS / iPhone
+    -webkit-text-size-adjust: 100%;            // não inflar texto no landscape
+    -webkit-tap-highlight-color: transparent;  // sem flash cinza ao tocar
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 html, body{
     height: 100%;
@@ -37,4 +42,33 @@ app-root{
 
 app-footer{
     text-align: center;
+}
+
+/* ===========================================================================
+   Scroll reveal — usado pela RevealDirective ([appReveal])
+   =========================================================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+.reveal--left  { transform: translateX(-36px); }
+.reveal--right { transform: translateX(36px); }
+.reveal--scale { transform: scale(0.94); }
+.reveal--none  { transform: none; }
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
 }

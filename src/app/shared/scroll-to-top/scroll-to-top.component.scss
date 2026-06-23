@@ -2,8 +2,9 @@
 
 .scroll-to-top {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    // Acima da pílula flutuante do bottom nav no mobile.
+    bottom: calc(#{v.$bottom-nav-h} + 26px + env(safe-area-inset-bottom));
+    left: 16px;
     z-index: 1000;
     cursor: pointer;
     width: 50px;
@@ -24,4 +25,11 @@
   .scroll-to-top.show {
     opacity: 1;
     visibility: visible;
+  }
+
+  @media (min-width: 1024px) {
+    .scroll-to-top {
+      bottom: 20px;
+      left: 20px;
+    }
   }

@@ -1,21 +1,26 @@
 @use 'variables' as v;
 
 $card-radius: 20px;
-$input-radius: 10px;
-$font: 'DM Sans', 'Segoe UI', sans-serif;
+$input-radius: 12px;
+// Fonte oficial da marca (Montserrat já é pré-carregada no index.html).
+$font: v.$font-heading, 'Segoe UI', Arial, sans-serif;
 
+/* ===========================================================================
+   MOBILE-FIRST — base = celular (foco principal): tela cheia, edge-to-edge
+   =========================================================================== */
 
 .login-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   min-height: 100vh;
+  min-height: 100dvh;          // viewport dinâmico (barra do navegador mobile)
   background: #f0f2f8;
   overflow: hidden;
   font-family: $font;
-  padding: 24px;
+  padding: 0;                  // edge-to-edge no mobile
 }
 
 .bg-grid {
@@ -42,18 +47,16 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   }
 }
 
-
 .accent {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
   filter: blur(64px);
-  opacity: 0.55;
 }
 
 .accent--tl {
-  width: 420px;
-  height: 420px;
+  width: 360px;
+  height: 360px;
   background: radial-gradient(circle, v.$primary 0%, transparent 70%);
   top: -160px;
   left: -160px;
@@ -61,81 +64,106 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 }
 
 .accent--br {
-  width: 360px;
-  height: 360px;
+  width: 320px;
+  height: 320px;
   background: radial-gradient(circle, v.$secondary 0%, transparent 70%);
   bottom: -120px;
   right: -120px;
   opacity: 0.15;
 }
 
-
+/* ── Card: no mobile ocupa a tela toda, sem bordas/sombra ──────────────────── */
 .login-card {
   position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  max-width: 420px;
+  min-height: 100dvh;
   background: #fff;
-  border-radius: $card-radius;
-  box-shadow:
-    0 1px 3px rgba(0,0,0,0.06),
-    0 8px 24px rgba(0,0,0,0.08),
-    0 32px 64px rgba(0,0,0,0.06);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
-  animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(20px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 
 .card-stripe {
   height: 5px;
+  flex-shrink: 0;
   background: linear-gradient(90deg, v.$primary 0%, v.$secondary 100%);
 }
 
-
 .card-body {
-  padding: 40px 40px 44px;
-}
-
-.card-body .back_to_home {
   display: flex;
-  justify-content: end;
-  font-size: 0.8rem;
+  flex-direction: column;
+  flex: 1;
+  // Espaço seguro para notch / barra inferior dos celulares.
+  padding:
+    calc(20px + env(safe-area-inset-top))
+    24px
+    calc(20px + env(safe-area-inset-bottom));
+}
+
+.back_to_home {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 6px 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: #6b7280;
-  cursor: pointer;
   text-decoration: none;
+  transition: color v.$transition-base;
+
+  &:hover { color: v.$secondary; }
 }
 
-.card-body .back_to_home:hover {
-  color: v.$secondary;
+/* Bloco central (logo + título + form) — centralizado verticalmente no mobile */
+.card-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
 }
-
 
 .card-header {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   text-align: center;
 }
 
-.card-icon {
+.card-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, v.$primary, v.$secondary);
-  color: #fff;
-  margin-bottom: 18px;
-  box-shadow: 0 6px 20px rgba(v.$primary, 0.35);
+  width: 76px;
+  height: 76px;
+  margin-bottom: 22px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow:
+    0 10px 28px rgba(v.$primary, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+
+  img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
 }
 
 .card-title {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: v.$primary;
   letter-spacing: -0.4px;
   margin: 0 0 8px;
 }
@@ -166,22 +194,6 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   letter-spacing: 0.2px;
 }
 
-.label-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.forgot-link {
-  font-size: 12px;
-  color: v.$primary;
-  text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.2s;
-
-  &:hover { opacity: 0.7; }
-}
-
 .input-wrap {
   position: relative;
   display: flex;
@@ -195,20 +207,21 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   display: flex;
   align-items: center;
   pointer-events: none;
-  transition: color 0.2s;
+  transition: color v.$transition-base;
 }
 
 .form-input {
   width: 100%;
-  padding: 12px 14px 12px 42px;
-  font-size: 14px;
+  // Altura confortável para toque (~50px) — prioridade mobile.
+  padding: 14px 14px 14px 44px;
+  font-size: 16px;             // 16px evita zoom automático no iOS
   font-family: inherit;
   color: #111827;
   background: #f9fafb;
   border: 1.5px solid #e5e7eb;
   border-radius: $input-radius;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base, background v.$transition-base;
   box-sizing: border-box;
 
   &::placeholder { color: #d1d5db; }
@@ -216,17 +229,18 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   &:focus {
     border-color: v.$primary;
     background: #fff;
-    box-shadow: 0 0 0 3.5px rgba(v.$primary, 0.12);
-
-    & ~ .input-icon,
-    .input-wrap:has(&:focus) .input-icon {
-      color: v.$primary;
-    }
+    box-shadow: v.$shadow-focus-primary;
   }
 }
 
 .input-wrap:focus-within .input-icon {
   color: v.$primary;
+}
+
+.form-feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .error-banner {
@@ -237,7 +251,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 10px;
-  color: #dc2626;
+  color: v.$danger;
   animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97);
 
   svg { flex-shrink: 0; }
@@ -250,10 +264,21 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%       { transform: translateX(-5px); }
-  40%       { transform: translateX(5px); }
-  60%       { transform: translateX(-4px); }
-  80%       { transform: translateX(4px); }
+  20%      { transform: translateX(-5px); }
+  40%      { transform: translateX(5px); }
+  60%      { transform: translateX(-4px); }
+  80%      { transform: translateX(4px); }
+}
+
+.forgot-link {
+  align-self: flex-end;
+  font-size: 12.5px;
+  color: v.$primary;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity v.$transition-base;
+
+  &:hover { opacity: 0.7; }
 }
 
 .submit-button {
@@ -262,22 +287,23 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 13.5px 20px;
-  margin-top: 4px;
+  // Botão alto (~54px) para fácil toque com o polegar.
+  padding: 16px 20px;
+  margin-top: 6px;
   background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
   color: #fff;
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 600;
   font-family: inherit;
   border: none;
   border-radius: $input-radius;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(v.$primary, 0.38);
-  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 16px rgba(v.$primary, 0.32);
+  transition: transform 0.15s, box-shadow v.$transition-base, opacity v.$transition-base;
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(v.$primary, 0.45);
+    box-shadow: 0 8px 24px rgba(v.$primary, 0.42);
   }
 
   &:active:not(:disabled) {
@@ -295,7 +321,7 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 .submit-arrow {
   display: flex;
   align-items: center;
-  transition: transform 0.2s;
+  transition: transform v.$transition-base;
 
   .submit-button:hover:not(:disabled) & {
     transform: translateX(3px);
@@ -303,24 +329,75 @@ $font: 'DM Sans', 'Segoe UI', sans-serif;
 }
 
 .login-footer {
-  margin-top: 24px;
+  margin: 20px 0 0;
+  text-align: center;
   font-size: 12px;
   color: #9ca3af;
   letter-spacing: 0.2px;
-  animation: fadeIn 0.6s 0.3s both;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+/* ===========================================================================
+   DESKTOP / TABLET — vira card flutuante centralizado (≥ 640px)
+   =========================================================================== */
+@media (min-width: 640px) {
+  .login-container {
+    padding: 24px;
+  }
 
-@media (max-width: 480px) {
+  .accent { opacity: 0.55; }
+  .accent--tl { width: 420px; height: 420px; opacity: 0.18; }
+  .accent--br { width: 360px; height: 360px; opacity: 0.15; }
+
+  .login-card {
+    min-height: auto;
+    max-width: 430px;
+    margin: auto;
+    border-radius: $card-radius;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.08),
+      0 32px 64px rgba(0, 0, 0, 0.06);
+    animation: cardInDesktop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .card-body {
-    padding: 32px 28px 36px;
+    flex: none;
+    padding: 36px 40px 40px;
   }
 
-  .card-title {
-    font-size: 21px;
+  .card-main {
+    flex: none;
+    max-width: none;
   }
+
+  .card-logo {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+
+    img {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
+  .form-input {
+    padding: 12px 14px 12px 42px;
+    font-size: 14px;
+  }
+
+  .submit-button {
+    padding: 14px 20px;
+    font-size: 14.5px;
+  }
+
+  .login-footer {
+    margin-top: 22px;
+  }
+}
+
+@keyframes cardInDesktop {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }

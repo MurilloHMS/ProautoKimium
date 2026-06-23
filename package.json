@@ -23,6 +23,7 @@
     "angularx-qrcode": "^20.0.0",
     "bootstrap": "^5.3.8",
     "ngx-mask": "^20.0.3",
+    "npm": "^11.17.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^20.1.2",

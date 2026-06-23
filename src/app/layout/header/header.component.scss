@@ -1,53 +1,94 @@
 @use 'variables' as v;
 
-/* ========== VARIÁVEIS ========== */
-$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+$header-h-desktop: 70px;
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-$border-radius: 12px;
+$spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-/* ========== HEADER ========== */
+// Camadas
+$z-header: 1000;
+$z-overlay: 1100;
+$z-drawer: 1200;
+
+// ── Material Liquid Glass ──────────────────────────────────────────────────────
+// Mais translúcido + brilho/saturação = vidro luminoso (look iOS, compatível Safari).
+$glass-bg:        rgba(255, 255, 255, 0.44);
+$glass-bg-strong: rgba(255, 255, 255, 0.62);
+$glass-border:    rgba(255, 255, 255, 0.6);
+$glass-blur:      saturate(190%) brightness(1.06) blur(18px);
+// Borda de luz no topo + rim (espessura do vidro) + brilho interno + profundidade.
+$glass-shadow:
+  0 12px 36px rgba(35, 46, 97, 0.18),
+  inset 0 1px 1px rgba(255, 255, 255, 0.95),
+  inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+  inset 0 -12px 22px -12px rgba(255, 255, 255, 0.32);
+
+/* ===========================================================================
+   TOP BAR — cápsula flutuante de vidro (mobile-first)
+   =========================================================================== */
 .header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 70px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: $shadow-md;
-  z-index: 1000;
-  animation: slideDown 0.5s ease-out;
+  top: calc(10px + env(safe-area-inset-top));   // abaixo do notch / Dynamic Island
+  left: 12px;
+  right: 12px;
+  height: 54px;
+  border-radius: 27px;
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: 1px solid $glass-border;
+  box-shadow: $glass-shadow;
+  z-index: $z-header;
+  overflow: hidden;
+  animation: glassIn 0.6s $spring both;
+  transition:
+    height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+
+  // Sheen + lente (reflexo no topo) — reforça o aspecto de vidro.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 45%),
+      radial-gradient(140% 90% at 50% -25%, rgba(255, 255, 255, 0.4), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Redimensionamento ao rolar: encolhe e o vidro fica mais denso.
+  &.is-scrolled {
+    height: 46px;
+    top: calc(6px + env(safe-area-inset-top));
+    border-radius: 23px;
+    background: $glass-bg-strong;
+    box-shadow:
+      0 6px 22px rgba(35, 46, 97, 0.18),
+      inset 0 1px 1px rgba(255, 255, 255, 0.95);
+
+    .logo img { height: 26px; }
+  }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes glassIn {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ========== HEADER CONTAINER ========== */
 .header-container {
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 0 24px;
+  position: relative;
+  z-index: 1;                  // acima do sheen (::before)
   height: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;     // logo centralizada no mobile
   align-items: center;
-  gap: 32px;
-  width: 100%;
+  padding: 0 18px;
 }
 
-/* ========== LOGO ========== */
 .logo {
   flex-shrink: 0;
   display: flex;
@@ -57,184 +98,321 @@ $border-radius: 12px;
     display: flex;
     align-items: center;
     text-decoration: none;
-    transition: $transition;
+    transition: opacity $transition;
 
-    &:hover {
-      opacity: 0.85;
-    }
+    &:hover { opacity: 0.85; }
   }
 
   img {
-    height: 40px;
+    height: 30px;
     width: auto;
-    transition: $transition;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1));
-
-    &:hover {
-      transform: scale(1.05);
-    }
+    filter: drop-shadow(0 1px 2px rgba(35, 46, 97, 0.18));
+    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-/* ========== MENU TOGGLE ========== */
-.menu-toggle {
+/* Nav desktop e ações ficam escondidas no mobile */
+.nav-desktop,
+.actions {
   display: none;
-  font-size: 1.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: v.$text-primary-color;
-  padding: 8px;
-  transition: $transition;
-  border-radius: 8px;
-  margin-right: 8px;
-
-  &:hover {
-    background: rgba(v.$primary, 0.1);
-    color: v.$primary;
-  }
 }
 
-/* ========== MENU PRINCIPAL ========== */
-.menu {
-  flex: 1;
+/* ===========================================================================
+   BOTTOM NAV — pílula flutuante de vidro com indicador líquido
+   =========================================================================== */
+.bottom-nav {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  height: 66px;
+  border-radius: 33px;
   display: flex;
-  justify-content: center;
+  align-items: stretch;
+  background: $glass-bg;
+  backdrop-filter: $glass-blur;
+  -webkit-backdrop-filter: $glass-blur;
+  border: 1px solid $glass-border;
+  box-shadow: $glass-shadow;
+  z-index: $z-header;
+  overflow: hidden;
+  animation: glassUp 0.6s $spring both;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.4s;
 
-  ul {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-    gap: 8px;
-    align-items: center;
-  }
+  // Indicador líquido que desliza sob a aba ativa.
+  &__indicator {
+    position: absolute;
+    top: 9px;
+    bottom: 9px;
+    left: 0;
+    width: 20%;                 // 1 de 5 slots
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(v.$primary, 0.20), rgba(v.$secondary, 0.18));
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.7),
+      0 4px 12px rgba(35, 46, 97, 0.14);
+    transition: transform 0.45s $spring;
+    pointer-events: none;
+    overflow: hidden;
 
-  li {
-    margin: 0;
-    position: relative;
-  }
-
-  a {
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    color: v.$text-primary-color;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: $transition;
-    border-radius: 8px;
-    position: relative;
-
-    &:hover {
-      color: v.$primary;
-      background: rgba(v.$primary, 0.08);
-    }
-
+    // Reflexo deslizante (efeito líquido).
     &::after {
       content: '';
       position: absolute;
-      bottom: -2px;
-      left: 50%;
-      width: 0;
-      height: 3px;
-      background: v.$primary;
-      border-radius: 2px;
-      transform: translateX(-50%);
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    &:hover::after {
-      width: calc(100% - 32px);
+      inset: 0;
+      background: linear-gradient(115deg, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 255, 255, 0) 65%);
+      background-size: 250% 100%;
+      animation: shimmer 3.2s ease-in-out infinite;
     }
   }
-}
 
-/* ========== ACTIONS ========== */
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-/* ========== CARRINHO ========== */
-.carrinho-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-
-  .icon-link {
-    font-size: 1.3rem;
-    color: v.$secondary;
-    text-decoration: none;
-    transition: $transition;
+  &__item {
     position: relative;
+    z-index: 1;
+    flex: 1 1 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    color: v.$neutral-500;
+    font-family: inherit;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    transition: color 0.25s ease;
+
+    i {
+      font-size: 1.3rem;
+      line-height: 1;
+      transition: transform 0.4s $spring;
+    }
+
+    span {
+      line-height: 1;
+      max-height: 16px;
+      opacity: 1;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin 0.35s ease;
+    }
+
+    &.is-active {
+      color: v.$primary;
+
+      i { transform: translateY(-2px) scale(1.08); }
+    }
+
+    &:active i { transform: scale(0.9); }
+  }
+
+  // Condensado (rolando para baixo): some os rótulos, ícones maiores, barra menor.
+  &.is-condensed {
+    height: 56px;
+
+    .bottom-nav__item {
+      span { max-height: 0; opacity: 0; margin: 0; }
+      i { font-size: 1.45rem; }
+    }
+
+    .bottom-nav__indicator { top: 8px; bottom: 8px; }
+  }
+}
+
+@keyframes glassUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 180% 0; }
+  60%  { background-position: -80% 0; }
+  100% { background-position: -80% 0; }
+}
+
+/* ===========================================================================
+   OVERLAY + DRAWER — Liquid Glass
+   =========================================================================== */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(v.$primary-dark, 0.32);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  opacity: 0;
+  visibility: hidden;
+  z-index: $z-overlay;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.drawer {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  width: min(82vw, 330px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: saturate(180%) blur(30px);
+  -webkit-backdrop-filter: saturate(180%) blur(30px);
+  border: 1px solid $glass-border;
+  box-shadow:
+    -16px 0 48px rgba(35, 46, 97, 0.20),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  z-index: $z-drawer;
+  overflow: hidden;
+  transform: translateX(calc(100% + 16px));
+  opacity: 0;
+  transition: transform 0.5s $spring, opacity 0.4s ease;
+
+  &.active {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+
+  .drawer-logo {
+    height: 32px;
+    width: auto;
+    // Encolhe sem distorcer e sem ser cortada pelo overflow do drawer estreito.
+    min-width: 0;
+    max-width: 100%;
+    flex: 0 1 auto;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .drawer-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: rgba(v.$primary, 0.08);
+    font-size: 1.25rem;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    color: v.$neutral-700;
+    border-radius: v.$radius-full;
+    transition: $transition;
+
+    &:hover { background: rgba(v.$primary, 0.1); color: v.$primary; }
+    &:active { transform: scale(0.92); }
+  }
+}
+
+.drawer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+
+  li {
+    width: 100%;
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    margin: 1px 0;
+    border-radius: v.$radius-lg;
+    font-weight: 600;
+    font-size: 0.98rem;
+    color: v.$neutral-700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 
     &:hover {
+      background: rgba(v.$primary, 0.08);
       color: v.$primary;
-      background: rgba(v.$primary, 0.12);
-      transform: scale(1.1);
     }
+
+    &:active { transform: scale(0.98); }
   }
 }
 
-.badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: v.$primary;
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
+.drawer-auth {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 3px solid white;
-  box-shadow: $shadow-sm;
-  animation: pulse 2s infinite;
-}
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transform: translateY(12px);
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+  .btn-login {
+    justify-content: center;
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 0.95rem;
+
+    &:active { transform: scale(0.98); }
   }
-  50% {
-    transform: scale(1.08);
+
+  .btn-cliente {
+    background: rgba(v.$primary, 0.08);
+    color: v.$primary;
+
+    &:hover { background: rgba(v.$primary, 0.14); }
+  }
+
+  .btn-funcionario {
+    background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
+    color: #fff;
+
+    &:hover { box-shadow: 0 6px 18px rgba(v.$primary, 0.35); }
   }
 }
 
-/* ========== DIVISOR ========== */
-.divider {
-  width: 1px;
-  height: 24px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(v.$primary, 0.3),
-    transparent
-  );
+// Entrada escalonada dos itens quando o drawer abre.
+.drawer.active {
+  .drawer-links li {
+    animation: itemIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @for $i from 1 through 6 {
+    .drawer-links li:nth-child(#{$i}) { animation-delay: #{0.10 + $i * 0.05}s; }
+  }
+  .drawer-auth {
+    animation: authIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.42s forwards;
+  }
 }
 
-/* ========== AUTH BUTTONS ========== */
-.auth-buttons {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+@keyframes itemIn {
+  to { opacity: 1; transform: translateX(0); }
 }
 
+@keyframes authIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Botões de login (base, compartilhada) ─────────────────────────────────── */
 .btn-login {
   display: flex;
   align-items: center;
@@ -243,268 +421,178 @@ $border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
   border: 2px solid transparent;
-  border-radius: 8px;
+  border-radius: v.$radius-md;
   cursor: pointer;
-  transition: $transition;
   background: transparent;
-  color: v.$text-primary-color;
+  color: v.$neutral-700;
   text-decoration: none;
   white-space: nowrap;
+  transition: $transition;
 
-  i {
-    font-size: 1rem;
+  i { font-size: 1rem; }
+}
+
+// Container do filtro SVG fica oculto.
+.glass-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ===========================================================================
+   REFRAÇÃO REAL (Liquid Glass) — só Chromium (Chrome/Edge/Android), só mobile.
+   `@supports (background: paint(x))` é verdadeiro apenas no Chromium (CSS Paint
+   API / Houdini). Safari (iOS e macOS) e Firefox NÃO entram aqui e mantêm o
+   vidro com blur da base — barra totalmente preenchida, sem ficar branca.
+   (Safari não renderiza filtro SVG no backdrop e pintaria branco com url().)
+   =========================================================================== */
+@media (max-width: 1023.98px) {
+  @supports (background: paint(x)) {
+    .header,
+    .bottom-nav,
+    .drawer {
+      backdrop-filter: saturate(190%) brightness(1.05) blur(10px) url(#liquidGlass);
+    }
+  }
+}
+
+/* ===========================================================================
+   DESKTOP (≥ 1024px) — header sólido tradicional; sem vidro flutuante
+   =========================================================================== */
+@media (min-width: 1024px) {
+  .header {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: $header-h-desktop;
+    border-radius: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+    border: none;
+    border-bottom: 1px solid rgba(v.$primary, 0.08);
+    box-shadow: v.$shadow-md;
+    overflow: visible;
+    animation: none;
+
+    &::before { display: none; }
+    &.is-scrolled { height: $header-h-desktop; top: 0; border-radius: 0; }
   }
 
-  .label-desktop {
-    display: inline;
+  .header-container {
+    max-width: 1500px;
+    margin: 0 auto;
+    justify-content: space-between;
+    padding: 0 24px;
+    gap: 32px;
   }
 
-  &:hover {
+  .logo img { height: 42px; }
+
+  .bottom-nav,
+  .menu-overlay,
+  .drawer {
+    display: none;
+  }
+
+  /* Nav central */
+  .nav-desktop {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+
+    ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      gap: 8px;
+    }
+
+    li { position: relative; }
+
+    a {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      padding: 8px 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: v.$neutral-700;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: v.$radius-md;
+      transition: $transition;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: v.$primary;
+        border-radius: 2px;
+        transform: translateX(-50%);
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      &:hover {
+        color: v.$primary;
+        background: rgba(v.$primary, 0.08);
+
+        &::after { width: calc(100% - 32px); }
+      }
+    }
+  }
+
+  /* Ações */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: linear-gradient(180deg, transparent, rgba(v.$primary, 0.3), transparent);
+  }
+
+  .auth-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn-login:hover {
     background: rgba(v.$primary, 0.08);
     border-color: v.$primary;
     transform: translateY(-2px);
   }
 
-  &:active {
-    transform: translateY(0);
-  }
-}
+  .btn-login:active { transform: translateY(0); }
 
-.btn-cliente {
-  &:hover {
-    color: v.$primary;
-  }
-}
+  .btn-cliente:hover { color: v.$primary; }
 
-.btn-funcionario {
-  &:hover {
+  .btn-funcionario:hover {
     color: v.$secondary;
     border-color: v.$secondary;
   }
 }
 
-/* ========== RESPONSIVIDADE ========== */
-
-// Tablet (992px e abaixo)
-@media (max-width: 992px) {
-  .header-container {
-    gap: 24px;
-    padding: 0 16px;
-  }
-
-  .menu ul {
-    gap: 4px;
-  }
-
-  .menu a {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-
-    &::after {
-      display: none;
-    }
-
-    &:hover {
-      background-color: rgba(v.$primary, 0.1);
-    }
-  }
-
-  .btn-login .label-desktop {
-    display: none;
-  }
-
-  .btn-login {
-    padding: 8px 10px;
-  }
-
-  .actions {
-    gap: 8px;
-  }
-}
-
-// Mobile (768px e abaixo)
-@media (max-width: 768px) {
-  .header {
-    height: 65px;
-  }
-
-  .header-container {
-    gap: 12px;
-    padding: 0 12px;
-  }
-
-  .logo img {
-    height: 32px;
-  }
-
-  .menu-toggle {
-    display: block;
-    order: 2;
-  }
-
-  .logo {
-    order: 1;
-    flex: 0 0 auto;
-  }
-
-  .menu {
-    position: fixed;
-    top: 65px;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    box-shadow: $shadow-lg;
-    flex-direction: column;
-    display: none;
-    max-height: calc(100vh - 65px);
-    overflow-y: auto;
-    border-bottom: 1px solid rgba(v.$primary, 0.15);
-    order: 3;
-    width: 100%;
-
-    &.active {
-      display: flex;
-    }
-
-    ul {
-      flex-direction: column;
-      width: 100%;
-      gap: 0;
-      padding: 12px 0;
-    }
-
-    li {
-      width: 100%;
-      margin: 0;
-    }
-
-    a {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 0;
-      font-weight: 600;
-      position: relative;
-
-      &::after {
-        display: none;
-      }
-
-      &:hover {
-        background: rgba(v.$primary, 0.1);
-        padding-left: 24px;
-      }
-    }
-  }
-
-  .actions {
-    order: 4;
-    gap: 8px;
-  }
-
-  .auth-buttons {
-    gap: 4px;
-  }
-
-  .divider {
-    display: none;
-  }
-
-  .carrinho-container .icon-link {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
-  }
-
-  .badge {
-    width: 20px;
-    height: 20px;
-    font-size: 9px;
-    top: -6px;
-    right: -6px;
-  }
-
-  .btn-login {
-    padding: 6px 8px;
-    font-size: 0.85rem;
-  }
-}
-
-// Mobile Pequeno (480px e abaixo)
-@media (max-width: 480px) {
-  .header {
-    height: 60px;
-  }
-
-  .header-container {
-    gap: 8px;
-    padding: 0 8px;
-  }
-
-  .logo img {
-    height: 28px;
-  }
-
-  .menu-toggle {
-    padding: 6px;
-    font-size: 1.3rem;
-  }
-
-  .menu {
-    top: 60px;
-
-    a {
-      padding: 12px 16px;
-      font-size: 0.9rem;
-    }
-  }
-
-  .actions {
-    gap: 4px;
-  }
-
-  .carrinho-container .icon-link {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
-  }
-
-  .badge {
-    width: 18px;
-    height: 18px;
-    font-size: 8px;
-  }
-
-  .btn-login {
-    padding: 5px 6px;
-    font-size: 0.75rem;
-
-    i {
-      font-size: 0.9rem;
-    }
-  }
-}
-
-/* ========== CONTENT ========== */
-:host {
-  ::ng-deep .content {
-    margin-top: 70px;
-  }
-}
-
-@media (max-width: 768px) {
-  :host {
-    ::ng-deep .content {
-      margin-top: 65px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  :host {
-    ::ng-deep .content {
-      margin-top: 60px;
-    }
+/* Respeita quem prefere menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .bottom-nav,
+  .drawer,
+  .bottom-nav__indicator,
+  .bottom-nav__indicator::after,
+  .drawer.active .drawer-links li,
+  .drawer.active .drawer-auth {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
   }
 }
