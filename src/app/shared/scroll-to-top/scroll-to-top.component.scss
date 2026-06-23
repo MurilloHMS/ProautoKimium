@@ -2,8 +2,8 @@
 
 .scroll-to-top {
     position: fixed;
-    // Acima do bottom nav no mobile.
-    bottom: calc(#{v.$bottom-nav-h} + 16px + env(safe-area-inset-bottom));
+    // Acima da pílula flutuante do bottom nav no mobile.
+    bottom: calc(#{v.$bottom-nav-h} + 26px + env(safe-area-inset-bottom));
     left: 16px;
     z-index: 1000;
     cursor: pointer;

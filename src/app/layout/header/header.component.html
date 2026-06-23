@@ -1,4 +1,4 @@
-<header class="header">
+<header class="header" [class.is-scrolled]="scrolled">
   <div class="header-container">
     <!-- Logo -->
     <div class="logo">
@@ -36,29 +36,31 @@
   </div>
 </header>
 
-<!-- Bottom navigation (mobile) -->
-<nav class="bottom-nav" aria-label="Navegação principal">
-  <a class="bottom-nav__item" href="#home" fragment="home">
+<!-- Bottom navigation — Liquid Glass (mobile) -->
+<nav class="bottom-nav" [class.is-condensed]="navCondensed" aria-label="Navegação principal">
+  <span class="bottom-nav__indicator" [style.transform]="'translateX(' + activeIndex * 100 + '%)'" aria-hidden="true"></span>
+
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 0 && !menuAberto" (click)="setActive(0)" href="#home" fragment="home">
     <i class="pi pi-home"></i>
     <span>Início</span>
   </a>
-  <a class="bottom-nav__item" routerLink="produtos" routerLinkActive="is-active">
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 1 && !menuAberto" (click)="setActive(1)" routerLink="produtos">
     <i class="pi pi-box"></i>
     <span>Produtos</span>
   </a>
-  <a class="bottom-nav__item" href="#services">
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 2 && !menuAberto" (click)="setActive(2)" href="#services">
     <i class="pi pi-briefcase"></i>
     <span>Serviços</span>
   </a>
-  <a class="bottom-nav__item" href="#contact">
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 3 && !menuAberto" (click)="setActive(3)" href="#contact">
     <i class="pi pi-envelope"></i>
     <span>Contato</span>
   </a>
   <button
     class="bottom-nav__item"
     type="button"
-    (click)="toggleMenu()"
     [class.is-active]="menuAberto"
+    (click)="toggleMenu()"
     [attr.aria-expanded]="menuAberto"
     aria-controls="menu-drawer"
     aria-label="Abrir menu">
@@ -70,7 +72,7 @@
 <!-- Overlay do drawer (mobile) -->
 <div class="menu-overlay" [class.active]="menuAberto" (click)="fecharMenuMobile()" aria-hidden="true"></div>
 
-<!-- Drawer lateral (mobile) — aberto pelo item "Menu" -->
+<!-- Drawer lateral — Liquid Glass (mobile) -->
 <aside id="menu-drawer" class="drawer" [class.active]="menuAberto">
   <div class="drawer-head">
     <img class="drawer-logo" src="logo-proauto.png" alt="Proauto Kimium">
