@@ -6,7 +6,7 @@
     </div>
 
     <div class="motivos-grid">
-        <div class="motivo-card problema-card">
+        <div class="motivo-card problema-card" appReveal="left">
             <div class="card-header">
                 <div class="card-icon problema-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,7 +44,7 @@
             </ul>
         </div>
 
-        <div class="motivo-card solucao-card">
+        <div class="motivo-card solucao-card" appReveal="right">
             <div class="card-header">
                 <div class="card-icon solucao-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -80,5 +80,18 @@
                 </li>
             </ul>
         </div>
+    </div>
+
+    <div class="motivos-cta" appReveal [revealDelay]="120">
+        <div class="motivos-cta-text">
+            <h3>Identificou-se com algum desses pontos?</h3>
+            <p>Nossa equipe técnica faz um diagnóstico gratuito da sua operação e mostra onde dá pra economizar.</p>
+        </div>
+        <a href="#contact" class="motivos-cta-btn">
+            Fale com um consultor
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </a>
     </div>
 </div>

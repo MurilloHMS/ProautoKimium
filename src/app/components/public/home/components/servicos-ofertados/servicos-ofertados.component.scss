@@ -2,7 +2,7 @@
 
 .we-offer-area {
   padding: 96px 5%;
-  background: #ffffff;
+  background: transparent;
 }
 
 .we-offer-area .container {
@@ -15,9 +15,22 @@ a, a:hover, a:focus, a:active {
   outline: none;
 }
 
-/* ── Cabeçalho da seção ─────────────────────────────────────────────────────── */
+/* ── Cabeçalho ──────────────────────────────────────────────────────────────── */
 .site-heading {
   margin-bottom: 52px;
+
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: v.$secondary-dark;
+    background: rgba(87, 193, 171, 0.10);
+    padding: 7px 18px;
+    border-radius: 30px;
+    margin-bottom: 16px;
+  }
 
   h2 {
     font-family: v.$font-heading;
@@ -33,7 +46,7 @@ a, a:hover, a:focus, a:active {
   h4 {
     display: inline-block;
     font-size: 1.05rem;
-    font-weight: 500;
+    font-weight: 400;
     color: #6b7492;
     text-transform: none;
     padding: 0;
@@ -41,13 +54,12 @@ a, a:hover, a:focus, a:active {
   }
 }
 
-/* ── Cards de serviço ───────────────────────────────────────────────────────── */
+/* ── Cards ──────────────────────────────────────────────────────────────────── */
 .our-offer-items .equal-height {
   margin-bottom: 24px;
 }
 
 .we-offer-area .item {
-  position: relative;
   height: 100%;
   background: #ffffff;
   border: 1px solid #e6e9f0;
