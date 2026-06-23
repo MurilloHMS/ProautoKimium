@@ -6,10 +6,11 @@ import { ServicosOfertadosComponent } from "./components/servicos-ofertados/serv
 import { AboutUsComponent } from "./components/about-us/about-us.component";
 import {ContactComponent} from "../../../shared/contact/contact.component";
 import {FraudAlertComponent} from "../alerts/fraud-alert/fraud-alert.component";
+import {RevealDirective} from "../../../shared/directives/reveal.directive";
 
 @Component({
     selector: 'app-home',
-  imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, AboutUsComponent, ContactComponent, FraudAlertComponent],
+  imports: [HeroComponent, ProcessoConsultoriaComponent, MotivosContratarComponent, ServicosOfertadosComponent, AboutUsComponent, ContactComponent, FraudAlertComponent, RevealDirective],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './home.component.html',
     styleUrl: './home.component.scss'

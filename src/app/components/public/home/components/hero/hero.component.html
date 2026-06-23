@@ -1,65 +1,84 @@
 <section class="hero">
-    <div class="hero-container">
-        <div class="hero-content">
-            <div class="hero-badge">{{ currentYear }} anos transformando indústrias</div>
+  <div class="hero-bg" aria-hidden="true">
+    <span class="hero-glow"></span>
+    <span class="hero-grid"></span>
+  </div>
 
-            <h1 class="hero-title">
-                Higienização que <span class="highlight">impulsiona resultados</span>
-            </h1>
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Indústria química • Consultoria personalizada
+      </div>
 
-            <p class="hero-subtitle">
-                Soluções completas em higienização industrial para elevar a eficiência e segurança do seu negócio.
-                Menos desperdício, mais performance.
-            </p>
+      <h1 class="hero-title">
+        Vamos além de produtos químicos:
+        <span class="highlight">soluções sob medida</span> para cada cliente.
+      </h1>
 
-            <div class="hero-cta">
-                <a routerLink="produtos" class="btn-primary">Lidere com nossos produtos</a>
-                <a href="#contact" class="btn-secondary">Entrar em contato</a>
-            </div>
+      <p class="hero-subtitle">
+        Fabricamos linhas concentradas de alta performance e, com consultoria técnica
+        especializada, diagnosticamos a sua operação para reduzir custos, eliminar
+        desperdício e elevar resultados — com o suporte de quem entende do seu segmento.
+      </p>
 
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number">{{ currentYear }}+</span>
-                    <span class="stat-label">Anos de mercado</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">30+</span>
-                    <span class="stat-label">Serviços de consultoria</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number">5000+</span>
-                    <span class="stat-label">Clientes satisfeitos</span>
-                </div>
-            </div>
+      <div class="hero-cta">
+        <a routerLink="produtos" class="btn-primary">Conhecer os produtos</a>
+        <a href="#contact" class="btn-secondary">Falar com um consultor</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ currentYear }}+</span>
+          <span class="stat-label">Anos de indústria</span>
         </div>
-
-        <div class="hero-visual">
-            <div class="visual-card">
-                <div class="card-icon">🧪</div>
-                <h4>Ultra Concentrados</h4>
-                <p>2 litros rendem até 200 litros de solução pronta</p>
-            </div>
-            <div class="visual-card">
-                <div class="card-icon">⚡</div>
-                <h4>Consultoria Técnica</h4>
-                <p>Equipe especializada para otimizar seus processos</p>
-            </div>
-            <div class="visual-card">
-                <div class="card-icon">🌱</div>
-                <h4>Sustentável</h4>
-                <p>Soluções que respeitam o meio ambiente</p>
-            </div>
+        <div class="stat-item">
+          <span class="stat-number">30+</span>
+          <span class="stat-label">Serviços de consultoria</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-number">5&nbsp;mil+</span>
+          <span class="stat-label">Clientes atendidos</span>
+        </div>
+      </div>
     </div>
-</section>
 
-<p-dialog header="Entre em contato"
-    [(visible)]="visible"
-    [modal]="true"
-    [closable]="true"
-    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }"
-    [style]="{width: '50vw'}"
-    [draggable]="false"
-    [resizable]="false">
-  <app-contact></app-contact>
-</p-dialog>
+    <div class="hero-visual">
+      <article class="pillar">
+        <span class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 20h20"/><path d="M4 20V9l5 3.5V9l5 3.5V9l5 3.5V20"/><path d="M9 20v-4h2v4"/>
+          </svg>
+        </span>
+        <div>
+          <h4>Indústria própria</h4>
+          <p>Linhas concentradas de alto rendimento — 2 litros rendem até 200 de solução pronta.</p>
+        </div>
+      </article>
+
+      <article class="pillar">
+        <span class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="m8.5 13 2 2 4-4"/>
+          </svg>
+        </span>
+        <div>
+          <h4>Consultoria personalizada</h4>
+          <p>Diagnóstico técnico da sua operação e um plano sob medida para cada segmento.</p>
+        </div>
+      </article>
+
+      <article class="pillar">
+        <span class="pillar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+          </svg>
+        </span>
+        <div>
+          <h4>Resultados mensuráveis</h4>
+          <p>Menos custo e desperdício, mais performance — com acompanhamento contínuo.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

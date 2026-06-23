@@ -1,258 +1,105 @@
 @use 'variables' as v;
-section {
-    padding: 60px 0;
-    min-height: 60vh;
+
+.we-offer-area {
+  padding: 96px 5%;
+  background: #ffffff;
+}
+
+.we-offer-area .container {
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 a, a:hover, a:focus, a:active {
-    text-decoration: none;
-    outline: none;
+  text-decoration: none;
+  outline: none;
 }
 
-ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-
-.site-heading h2 {
-    display: block;
-    font-weight: 500;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-}
-
-.site-heading h2 span {
-    color: v.$secondary;
-}
-
-.site-heading h4 {
-    display: inline-block;
-    padding-bottom: 20px;
-    position: relative;
-    text-transform: capitalize;
-    font-weight: 400;
-    z-index: 1;
-}
-
-.site-heading h4::before {
-    background: v.$secondary none repeat scroll 0 0;
-    bottom: 0;
-    content: "";
-    height: 2px;
-    left: 50%;
-    margin-left: -25px;
-    position: absolute;
-    width: 50px;
-}
-
+/* ── Cabeçalho da seção ─────────────────────────────────────────────────────── */
 .site-heading {
-    margin-bottom: 60px;
-    overflow: hidden;
-    margin-top: -5px;
+  margin-bottom: 52px;
+
+  h2 {
+    font-family: v.$font-heading;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: v.$primary;
+    text-transform: none;
+    margin: 0 0 10px;
+
+    span { color: v.$secondary-dark; }
+  }
+
+  h4 {
+    display: inline-block;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #6b7492;
+    text-transform: none;
+    padding: 0;
+    margin: 0;
+  }
 }
 
-
-.carousel-shadow .owl-stage-outer {
-    margin: -15px -15px 0;
-    padding: 15px;
-}
-
-.we-offer-area .our-offer-carousel .owl-dots .owl-dot span {
-    background: #ffffff none repeat scroll 0 0;
-    border: 2px solid;
-    height: 15px;
-    margin: 0 5px;
-    width: 15px;
-}
-
-.we-offer-area .our-offer-carousel .owl-dots .owl-dot.active span {
-    background: v.$secondary none repeat scroll 0 0;
-    border-color: v.$secondary;
+/* ── Cards de serviço ───────────────────────────────────────────────────────── */
+.our-offer-items .equal-height {
+  margin-bottom: 24px;
 }
 
 .we-offer-area .item {
-    background: #ffffff none repeat scroll 0 0;
-    border-left: 2px solid #00a01d;
-    -moz-box-shadow: 0 0 10px #cccccc;
-    -webkit-box-shadow: 0 0 10px #cccccc;
-    -o-box-shadow: 0 0 10px #cccccc;
-    box-shadow: 0 0 10px #cccccc;
-    overflow: hidden;
-    padding: 30px;
-    position: relative;
-    z-index: 1;
-    font-size: 14px;
-    font-weight: 300;
-}
+  position: relative;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 20px;
+  padding: 44px 32px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
-.we-offer-area.text-center .item {
-    background: #ffffff none repeat scroll 0 0;
-    border: medium none;
-    padding: 67px 40px 64px;
-}
+  i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    color: v.$primary;
+    font-size: 28px;
+    margin-bottom: 24px;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  }
 
-.we-offer-area.text-center .item i {
-    background: v.$secondary none repeat scroll 0 0;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    color: #ffffff;
-    font-size: 40px;
-    height: 80px;
-    line-height: 80px;
-    position: relative;
-    text-align: center;
-    width: 80px;
-    z-index: 1;
-    transition: all 0.35s ease-in-out;
-    -webkit-transition: all 0.35s ease-in-out;
-    -moz-transition: all 0.35s ease-in-out;
-    -ms-transition: all 0.35s ease-in-out;
-    -o-transition: all 0.35s ease-in-out;
-    margin-bottom: 25px;
-}
+  h4 {
+    font-family: v.$font-heading;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: v.$primary;
+    text-transform: none;
+    margin: 0 0 12px;
+  }
 
-.we-offer-area.text-center .item i::after {
-    border: 2px solid v.$secondary;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    content: "";
-    height: 90px;
-    left: -5px;
-    position: absolute;
-    top: -5px;
-    width: 90px;
-    z-index: -1;
-    transition: all 0.35s ease-in-out;
-    -webkit-transition: all 0.35s ease-in-out;
-    -moz-transition: all 0.35s ease-in-out;
-    -ms-transition: all 0.35s ease-in-out;
-    -o-transition: all 0.35s ease-in-out;
-}
-
-.we-offer-area.item-border-less .item {
-    border: medium none;
-}
-
-.we-offer-area .our-offer-items.less-carousel .equal-height {
-    margin-bottom: 30px;
-}
-
-.we-offer-area.item-border-less .item .number {
-    font-family: "Poppins", sans-serif;
-    font-size: 50px;
-    font-weight: 900;
-    opacity: 0.1;
-    position: absolute;
-    right: 30px;
-    top: 30px;
-}
-
-.our-offer-carousel.center-active .owl-item:nth-child(2n) .item,
-.we-offer-area.center-active .single-item:nth-child(2n) .item {
-    background: #00a01d none repeat scroll 0 0;
-}
-
-.our-offer-carousel.center-active .owl-item:nth-child(2n) .item i,
-.our-offer-carousel.center-active .owl-item:nth-child(2n) .item h4,
-.our-offer-carousel.center-active .owl-item:nth-child(2n) .item p,
-.we-offer-area.center-active .single-item:nth-child(2n) .item i,
-.we-offer-area.center-active .single-item:nth-child(2n) .item h4,
-.we-offer-area.center-active .single-item:nth-child(2n) .item p {
-    color: #ffffff;
-}
-
-.we-offer-area .item i {
-    color: v.$secondary;
-    display: inline-block;
-    font-size: 60px;
-    margin-bottom: 20px;
-}
-
-.we-offer-area .item h4 {
-    font-weight: 600;
-    text-transform: capitalize;
-    font-size: 1.4rem;
-}
-
-.we-offer-area .item p {
+  p {
+    color: #6b7492;
+    font-size: 0.95rem;
+    line-height: 1.65;
     margin: 0;
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: rgba(87, 193, 171, 0.5);
+    box-shadow: 0 18px 44px rgba(35, 46, 97, 0.10);
+
+    i {
+      background: linear-gradient(135deg, v.$primary, v.$secondary);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+  }
 }
 
-.we-offer-area .item i,
-.we-offer-area .item h4,
-.we-offer-area .item p {
-    transition: all 0.35s ease-in-out;
-    -webkit-transition: all 0.35s ease-in-out;
-    -moz-transition: all 0.35s ease-in-out;
-    -ms-transition: all 0.35s ease-in-out;
-    -o-transition: all 0.35s ease-in-out;
-}
-
-.we-offer-area .item::after {
-    background: v.$secondary none repeat scroll 0 0;
-    content: "";
-    height: 100%;
-    left: -100%;
-    position: absolute;
-    top: 0;
-    transition: all 0.35s ease-in-out;
-    -webkit-transition: all 0.35s ease-in-out;
-    -moz-transition: all 0.35s ease-in-out;
-    -ms-transition: all 0.35s ease-in-out;
-    -o-transition: all 0.35s ease-in-out;
-    width: 100%;
-    z-index: -1;
-}
-
-.we-offer-area .item:hover::after {
-    left: 0;
-}
-
-.we-offer-area .item:hover i,
-.we-offer-area .item:hover h4,
-.we-offer-area .item:hover p {
-    color: #ffffff !important;
-}
-
-.we-offer-area.text-center .item:hover i::after {
-    border-color: #ffffff !important;
-}
-
-.we-offer-area.text-center .item:hover i {
-    background-color: #ffffff !important;
-    color: v.$secondary !important;
-}
-
-.we-offer-area.text-left .item i {
-    background: v.$secondary none repeat scroll 0 0;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    color: #ffffff;
-    display: inline-block;
-    font-size: 60px;
-    height: 100px;
-    line-height: 100px;
-    margin-bottom: 30px;
-    position: relative;
-    width: 100px;
-    z-index: 1;
-    text-align: center;
-}
-
-.we-offer-area.text-left .item i::after {
-    border: 2px solid v.$secondary;
-    -webkit-border-radius: 50%;
-    -moz-border-radius: 50%;
-    border-radius: 50%;
-    content: "";
-    height: 120px;
-    left: -10px;
-    position: absolute;
-    top: -10px;
-    width: 120px;
+@media (max-width: 768px) {
+  .we-offer-area { padding: 64px 24px; }
+  .site-heading h2 { font-size: 1.8rem; }
+  .we-offer-area .item { padding: 36px 26px; }
 }

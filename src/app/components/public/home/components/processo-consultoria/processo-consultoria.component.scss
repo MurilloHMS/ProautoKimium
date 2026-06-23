@@ -28,11 +28,11 @@
 }
 
 .consultoria-container h1 {
-  font-size: 3.2rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  background: linear-gradient(to right, v.$primary, v.$secondary);
+  font-family: v.$font-heading;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(to right, v.$primary, v.$secondary-dark);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -60,13 +60,13 @@
 }
 
 .process-box h2 {
-  font-size: 2.2rem;
-  font-weight: 600;
-  color: v.$neutral-700;
+  font-family: v.$font-heading;
+  font-size: 2rem;
+  font-weight: 700;
+  color: v.$primary;
   margin-bottom: 3rem;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: -0.3px;
 }
 
 .steps {
