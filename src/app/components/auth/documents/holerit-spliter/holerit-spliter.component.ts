@@ -68,6 +68,7 @@ export class HoleritSpliterComponent {
 
   // Vínculo aos funcionários
   competencia = '';          // "AAAA-MM"
+  tipo: 'SALARIO' | 'ADIANTAMENTO' = 'SALARIO';   // dia 05 = SALARIO, dia 20 = ADIANTAMENTO
   isLinking = false;
   linkResult: VincularResult | null = null;
 
@@ -183,6 +184,10 @@ export class HoleritSpliterComponent {
       this.showError('Selecione a competência (mês/ano)');
       return;
     }
+    if (!this.tipo) {
+      this.showError('Selecione o tipo (adiantamento ou salário)');
+      return;
+    }
 
     this.isLinking = true;
     this.linkResult = null;
@@ -190,6 +195,7 @@ export class HoleritSpliterComponent {
     const formData = new FormData();
     formData.append('file', this.selectedFile);
     formData.append('competencia', this.competencia);
+    formData.append('tipo', this.tipo);
 
     this.http.post<VincularResult>(`${environment.apiUrl}/holerite/vincular`, formData)
       .subscribe({

@@ -21,7 +21,10 @@
           <span class="hl-card__icon"><i class="pi pi-file-pdf"></i></span>
           <div class="hl-card__info">
             <span class="hl-card__comp">{{ competenciaLabel(h.competencia) }}</span>
-            <span class="hl-card__meta">Demonstrativo de pagamento</span>
+            <span class="hl-card__badge"
+                  [class.hl-card__badge--adiant]="h.tipo === 'ADIANTAMENTO'">
+              {{ tipoLabel(h.tipo) }}
+            </span>
           </div>
           <button class="hl-card__btn" (click)="baixar(h)" [disabled]="baixandoId() === h.id" aria-label="Baixar holerite">
             <i class="pi" [ngClass]="baixandoId() === h.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>

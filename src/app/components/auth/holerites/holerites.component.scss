@@ -109,6 +109,24 @@
     color: #8a93a8;
   }
 
+  &__badge {
+    align-self: flex-start;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    // Salário (padrão): verde da marca
+    background: rgba(87, 193, 171, 0.16);
+    color: v.$secondary-dark;
+
+    // Adiantamento: âmbar
+    &--adiant {
+      background: rgba(246, 173, 85, 0.18);
+      color: #b06d12;
+    }
+  }
+
   &__btn {
     flex-shrink: 0;
     width: 44px;
