@@ -135,6 +135,23 @@ export class AuthService {
     );
   }
 
+  /** Vincula um usuário a um funcionário (parceiro) pelo código do parceiro. */
+  linkEmployee(login: string, codParceiro: string): Observable<string> {
+    return this.http.put(
+      `${environment.apiUrl}/auth/users/${login}/employee`,
+      { codParceiro },
+      { responseType: 'text' }
+    );
+  }
+
+  /** Remove o vínculo de um usuário com o funcionário. */
+  unlinkEmployee(login: string): Observable<string> {
+    return this.http.delete(
+      `${environment.apiUrl}/auth/users/${login}/employee`,
+      { responseType: 'text' }
+    );
+  }
+
   private decodeToken(): any {
     const token = this.getToken();
     if (!token) return null;

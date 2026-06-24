@@ -102,5 +102,47 @@
     </div>
   </div>
 
+  <!-- Vincular holerites aos funcionários -->
+  <div class="section-card vincular-card" *ngIf="pages.length > 0 && !isUploading" @fadeIn>
+
+    <div class="section-label">
+      <i class="pi pi-link"></i>
+      <span>Vincular aos funcionários</span>
+    </div>
+
+    <p class="vincular-hint">
+      Cada holerite é identificado pelo <strong>CPF</strong> e vinculado automaticamente ao funcionário —
+      que passa a ver o arquivo no menu <strong>Holerites</strong>.
+    </p>
+
+    <div class="vincular-row">
+      <div class="vincular-field">
+        <label for="competencia">Competência</label>
+        <input id="competencia" type="month" [(ngModel)]="competencia" class="competencia-input" />
+      </div>
+      <button class="btn-vincular" (click)="vincularHolerites()" [disabled]="isLinking || !competencia">
+        <i class="pi" [ngClass]="isLinking ? 'pi-spin pi-spinner' : 'pi-link'"></i>
+        {{ isLinking ? 'Vinculando...' : 'Salvar e vincular' }}
+      </button>
+    </div>
+
+    <div class="vincular-result" *ngIf="linkResult">
+      <div class="vr-summary">
+        <i class="pi pi-check-circle"></i>
+        <span><strong>{{ linkResult.vinculados }}</strong> de {{ linkResult.totalPaginas }} holerite(s) vinculado(s) com sucesso.</span>
+      </div>
+      <div class="vr-warn" *ngIf="linkResult.naoEncontrados.length > 0">
+        <i class="pi pi-exclamation-triangle"></i>
+        <div>
+          <strong>{{ linkResult.naoEncontrados.length }} não vinculado(s)</strong> — CPF não encontrado entre os funcionários:
+          <ul>
+            <li *ngFor="let n of linkResult.naoEncontrados">{{ n }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 </div>
