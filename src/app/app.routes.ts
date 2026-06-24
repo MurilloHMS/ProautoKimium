@@ -45,6 +45,10 @@ import {FaqManagerComponent} from "./components/auth/faq-manager/faq-manager.com
 import {ContatoEventosComponent} from "./components/public/contato-eventos/contato-eventos.component";
 import {ProfileManagerComponent} from "./components/auth/profile/profile-manager/profile-manager.component";
 import {VcardComponent} from "./components/public/profile/vcard/vcard.component";
+import { DocumentosComponent } from './components/auth/documentos/documentos.component';
+import { NotificacoesComponent } from './components/auth/notificacoes/notificacoes.component';
+import { PerfilComponent } from './components/auth/perfil/perfil.component';
+import { HoleritesComponent } from './components/auth/holerites/holerites.component';
 
 
 export const routes: Routes = [
@@ -97,6 +101,11 @@ export const routes: Routes = [
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
+      { path: 'documentos', component: DocumentosComponent },
+      { path: 'documentos/logos', component: BrandingComponent },
+      { path: 'documentos/holerites', component: HoleritesComponent },
+      { path: 'notificacoes', component: NotificacoesComponent },
+      { path: 'perfil', component: PerfilComponent },
     ]
   },
   {

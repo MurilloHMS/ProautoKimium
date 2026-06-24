@@ -27,6 +27,12 @@ interface UploadResponse {
   pages: PdfPageInfoDTO[];
 }
 
+interface VincularResult {
+  totalPaginas: number;
+  vinculados: number;
+  naoEncontrados: string[];
+}
+
 @Component({
   selector: 'app-holerit-spliter',
   imports: [
@@ -59,6 +65,11 @@ export class HoleritSpliterComponent {
   pages: PageItem[] = [];
   isUploading = false;
   isSaving = false;
+
+  // Vínculo aos funcionários
+  competencia = '';          // "AAAA-MM"
+  isLinking = false;
+  linkResult: VincularResult | null = null;
 
   constructor(
     private http: HttpClient,
@@ -163,6 +174,42 @@ export class HoleritSpliterComponent {
     });
   }
 
+  vincularHolerites(): void {
+    if (!this.selectedFile) {
+      this.showError('Selecione o PDF dos holerites primeiro');
+      return;
+    }
+    if (!this.competencia) {
+      this.showError('Selecione a competência (mês/ano)');
+      return;
+    }
+
+    this.isLinking = true;
+    this.linkResult = null;
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+    formData.append('competencia', this.competencia);
+
+    this.http.post<VincularResult>(`${environment.apiUrl}/holerite/vincular`, formData)
+      .subscribe({
+        next: (res) => {
+          this.isLinking = false;
+          this.linkResult = res;
+          this.messageService.add({
+            severity: res.vinculados > 0 ? 'success' : 'warn',
+            summary: 'Vínculo concluído',
+            detail: `${res.vinculados} de ${res.totalPaginas} holerite(s) vinculado(s).`,
+            life: 5000
+          });
+        },
+        error: (err) => {
+          this.isLinking = false;
+          this.showError(typeof err.error === 'string' ? err.error : 'Erro ao vincular os holerites');
+        }
+      });
+  }
+
   getOriginalName(index: number): string {
     return this.pages[index]?.originalName ?? '';
   }
@@ -177,6 +224,8 @@ export class HoleritSpliterComponent {
     this.selectedFile = null;
     this.uploadId = '';
     this.pages = [];
+    this.competencia = '';
+    this.linkResult = null;
   }
 
   onClear(): void {

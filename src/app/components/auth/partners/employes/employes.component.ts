@@ -1,7 +1,9 @@
 import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Department, Employee, Hierarchy } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { AuthService } from '../../../../infrastructure/services/auth.service';
+import { UserResponseDTO } from '../../../../domain/models/user.model';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -25,7 +27,7 @@ import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-c
 @Component({
     selector: 'app-employes',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, PkInputComponent, PkCheckboxComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, PkInputComponent, PkCheckboxComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
     providers: [MessageService],
@@ -42,8 +44,16 @@ export class EmployesComponent{
   hierarchyList: {label: string, value: Hierarchy} [] = []
   departmentList: {label: string, value: Department} [] = []
 
+  // Vínculo usuário <-> funcionário
+  users: UserResponseDTO[] = [];
+  linkVisible = false;
+  linkTarget: Employee | null = null;
+  selectedUserLogin: string | null = null;
+  linkSaving = false;
+
   constructor(
     private employeService: EmployeeService,
+    private authService: AuthService,
     private fb: FormBuilder,
     private msgService: MessageService
   ){
@@ -63,6 +73,71 @@ export class EmployesComponent{
   ngOnInit(){
     this.loadHierarchyList();
     this.loadDepartmentList();
+    this.loadUsers();
+  }
+
+  loadUsers(){
+    this.authService.getUsers().subscribe({
+      next: (list) => this.users = list ?? [],
+      error: () => this.users = []   // 404 = nenhum usuário cadastrado ainda
+    });
+  }
+
+  /** Login do usuário vinculado a um funcionário, ou null. */
+  linkedUserOf(emp: Employee): string | null {
+    return this.users.find(u => u.codParceiro === emp.partnerCode)?.login ?? null;
+  }
+
+  /** Quantos funcionários (já carregados) ainda não têm usuário vinculado. */
+  get unlinkedCount(): number {
+    return this.employes.filter(e => !this.linkedUserOf(e)).length;
+  }
+
+  /** Usuários ainda sem funcionário vinculado (mais o já vinculado a este funcionário, ao reabrir). */
+  get selectableUsers(): { label: string, value: string }[] {
+    const currentLink = this.linkTarget ? this.linkedUserOf(this.linkTarget) : null;
+    return this.users
+      .filter(u => !u.codParceiro || u.login === currentLink)
+      .map(u => ({ label: u.login, value: u.login }));
+  }
+
+  openLinkDialog(emp: Employee){
+    this.linkTarget = emp;
+    this.selectedUserLogin = this.linkedUserOf(emp);
+    this.linkVisible = true;
+  }
+
+  confirmLink(){
+    if(!this.linkTarget || !this.selectedUserLogin) return;
+    this.linkSaving = true;
+    this.authService.linkEmployee(this.selectedUserLogin, this.linkTarget.partnerCode).subscribe({
+      next: () => {
+        this.linkSaving = false;
+        this.linkVisible = false;
+        this.loadUsers();
+        this.msgService.add({ severity: 'success', summary: 'Vinculado', detail: 'Usuário vinculado ao funcionário.' });
+      },
+      error: (err) => {
+        this.linkSaving = false;
+        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.linkErrorMessage(err) });
+      }
+    });
+  }
+
+  unlink(emp: Employee){
+    const login = this.linkedUserOf(emp);
+    if(!login) return;
+    this.authService.unlinkEmployee(login).subscribe({
+      next: () => {
+        this.loadUsers();
+        this.msgService.add({ severity: 'info', summary: 'Desvinculado', detail: 'Vínculo removido.' });
+      },
+      error: (err) => this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.linkErrorMessage(err) })
+    });
+  }
+
+  private linkErrorMessage(err: any): string {
+    return typeof err?.error === 'string' && err.error ? err.error : this.getErrorMessage(err);
   }
 
   loadHierarchyList(){

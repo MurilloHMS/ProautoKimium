@@ -7,6 +7,7 @@ export interface RegisterDTO {
 export interface UserResponseDTO {
   login: string;
   roles: string[];
+  codParceiro?: string | null;   // funcionário vinculado, se houver
 }
 
 export interface UserRole {

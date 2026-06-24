@@ -279,3 +279,34 @@
   <span>{{ deep.label }}</span>
   @if (deep.badge) { <span class="drawer-badge-pill">{{ deep.badge }}</span> }
 </ng-template>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BOTTOM NAV (mobile) — navegação estilo app
+═══════════════════════════════════════════════════════════ -->
+<nav class="mobile-bottom-nav" aria-label="Navegação principal">
+  <button type="button" class="mbn-item" [class.is-active]="drawerVisible" (click)="drawerVisible = true">
+    <i class="pi pi-bars"></i>
+    <span>Menu</span>
+  </button>
+
+  <a class="mbn-item" routerLink="documentos" routerLinkActive="is-active">
+    <i class="pi pi-folder"></i>
+    <span>Documentos</span>
+  </a>
+
+  <a class="mbn-item" routerLink="home" routerLinkActive="is-active">
+    <i class="pi pi-home"></i>
+    <span>Home</span>
+  </a>
+
+  <a class="mbn-item" routerLink="notificacoes" routerLinkActive="is-active">
+    <i class="pi pi-bell"></i>
+    <span>Notificações</span>
+  </a>
+
+  <a class="mbn-item" routerLink="perfil" routerLinkActive="is-active">
+    <i class="pi pi-user"></i>
+    <span>Perfil</span>
+  </a>
+</nav>
