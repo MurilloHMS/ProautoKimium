@@ -1,0 +1,33 @@
+<section class="holerites-page">
+  <header class="hl-header">
+    <h1>Holerites</h1>
+    <p>Seus demonstrativos de pagamento.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="hl-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hl-state">Não foi possível carregar seus holerites. Tente novamente mais tarde.</div>
+  } @else if (holerites().length === 0) {
+    <div class="hl-empty">
+      <span class="hl-empty-icon"><i class="pi pi-receipt"></i></span>
+      <p>Nenhum holerite disponível ainda</p>
+      <small>Quando o RH disponibilizar, ele aparece aqui automaticamente.</small>
+    </div>
+  } @else {
+    <div class="hl-grid">
+      @for (h of holerites(); track h.id) {
+        <div class="hl-card">
+          <span class="hl-card__icon"><i class="pi pi-file-pdf"></i></span>
+          <div class="hl-card__info">
+            <span class="hl-card__comp">{{ competenciaLabel(h.competencia) }}</span>
+            <span class="hl-card__meta">Demonstrativo de pagamento</span>
+          </div>
+          <button class="hl-card__btn" (click)="baixar(h)" [disabled]="baixandoId() === h.id" aria-label="Baixar holerite">
+            <i class="pi" [ngClass]="baixandoId() === h.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>

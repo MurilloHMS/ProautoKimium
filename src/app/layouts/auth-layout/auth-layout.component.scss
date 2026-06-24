@@ -1,0 +1,6 @@
+// Respiro para o conteúdo não ficar atrás do bottom nav no mobile.
+@media (max-width: 768px) {
+  .content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
