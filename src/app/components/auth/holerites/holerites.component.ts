@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 
+type HoleriteTipo = 'ADIANTAMENTO' | 'SALARIO';
+
 interface Holerite {
   id: string;
   competencia: string;      // "2026-06-01"
+  tipo: HoleriteTipo;       // ADIANTAMENTO (dia 20) ou SALARIO (dia 05)
   originalFilename: string;
   createdAt: string;
 }
@@ -49,6 +52,10 @@ export class HoleritesComponent implements OnInit {
     return `${this.meses[idx] ?? ''} de ${ano}`;
   }
 
+  tipoLabel(tipo: HoleriteTipo): string {
+    return tipo === 'ADIANTAMENTO' ? 'Adiantamento' : 'Salário';
+  }
+
   baixar(h: Holerite): void {
     this.baixandoId.set(h.id);
     this.http
@@ -58,7 +65,7 @@ export class HoleritesComponent implements OnInit {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = `holerite-${h.competencia.slice(0, 7)}.pdf`;
+          a.download = `holerite-${h.competencia.slice(0, 7)}-${h.tipo.toLowerCase()}.pdf`;
           a.click();
           URL.revokeObjectURL(url);
           this.baixandoId.set(null);
