@@ -1,12 +1,3 @@
-<!-- Filtro de refração "liquid glass" (aplicado só em navegadores Chromium) -->
-<svg class="glass-defs" aria-hidden="true" focusable="false" width="0" height="0">
-  <filter id="liquidGlass" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
-    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.015" numOctaves="2" seed="17" result="noise"/>
-    <feGaussianBlur in="noise" stdDeviation="2" result="softNoise"/>
-    <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="26" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</svg>
-
 <header class="header" [class.is-scrolled]="scrolled">
   <div class="header-container">
     <!-- Logo -->
@@ -28,19 +19,12 @@
       </ul>
     </nav>
 
-    <!-- Ações à direita (desktop) -->
+    <!-- Ação à direita (desktop) -->
     <div class="actions">
-      <div class="divider"></div>
-      <div class="auth-buttons">
-        <a routerLink="client-login" class="btn-login btn-cliente" title="Login Cliente">
-          <i class="pi pi-user"></i>
-          <span class="label-desktop">Cliente</span>
-        </a>
-        <a routerLink="login" class="btn-login btn-funcionario" title="Login Funcionário">
-          <i class="pi pi-id-card"></i>
-          <span class="label-desktop">Funcionário</span>
-        </a>
-      </div>
+      <a routerLink="login" class="btn-login" title="Entrar">
+        <i class="pi pi-sign-in"></i>
+        <span>Entrar</span>
+      </a>
     </div>
   </div>
 </header>
@@ -100,13 +84,9 @@
   </ul>
 
   <div class="drawer-auth">
-    <a routerLink="client-login" class="btn-login btn-cliente" (click)="fecharMenuMobile()">
-      <i class="pi pi-user"></i>
-      <span>Entrar como Cliente</span>
-    </a>
-    <a routerLink="login" class="btn-login btn-funcionario" (click)="fecharMenuMobile()">
-      <i class="pi pi-id-card"></i>
-      <span>Entrar como Funcionário</span>
+    <a routerLink="login" class="btn-login" (click)="fecharMenuMobile()">
+      <i class="pi pi-sign-in"></i>
+      <span>Entrar</span>
     </a>
   </div>
 </aside>
