@@ -72,10 +72,12 @@
       }
     </div>
 
-    <button pButton type="button" icon="pi pi-bell"
-            class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
-            aria-label="Notificações">
-    </button>
+    <a routerLink="notificacoes" class="topbar-bell" aria-label="Notificações">
+      <i class="pi pi-bell"></i>
+      @if (notifications.unreadCount() > 0) {
+        <span class="topbar-bell-badge">{{ notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount() }}</span>
+      }
+    </a>
 
     <button pButton type="button" icon="pi pi-sign-out"
             class="p-button-text p-button-rounded p-button-plain topbar-icon-btn"
@@ -301,7 +303,12 @@
   </a>
 
   <a class="mbn-item" routerLink="notificacoes" routerLinkActive="is-active">
-    <i class="pi pi-bell"></i>
+    <span class="mbn-icon-wrap">
+      <i class="pi pi-bell"></i>
+      @if (notifications.unreadCount() > 0) {
+        <span class="mbn-badge">{{ notifications.unreadCount() > 9 ? '9+' : notifications.unreadCount() }}</span>
+      }
+    </span>
     <span>Notificações</span>
   </a>
 
