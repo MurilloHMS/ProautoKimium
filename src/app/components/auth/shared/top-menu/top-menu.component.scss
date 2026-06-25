@@ -642,4 +642,62 @@ $text-muted: #888888;
       i { transform: translateY(-2px); }
     }
   }
+
+  .mbn-icon-wrap {
+    position: relative;
+    display: inline-flex;
+    overflow: visible;
+  }
+
+  .mbn-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #e5484d;
+    color: #fff;
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff;
+  }
+}
+
+// ── Sino de notificações (topbar) ─────────────────────────────
+.topbar-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: v.$neutral-500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  i { font-size: 1.15rem; }
+
+  &:hover { background: rgba(v.$primary, 0.08); color: v.$primary; }
+
+  .topbar-bell-badge {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #e5484d;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    box-shadow: 0 0 0 2px #fff;
+  }
 }

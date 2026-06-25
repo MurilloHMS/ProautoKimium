@@ -234,6 +234,42 @@
   }
 }
 
+.tipo-toggle {
+  display: inline-flex;
+  border: 1px solid var(--p-surface-border, #dbe3ec);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 42px;
+
+  .tipo-opt {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    padding: 0 16px;
+    border: none;
+    background: var(--p-surface-card, #fff);
+    color: #232e61;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+
+    small { font-size: 0.66rem; font-weight: 500; opacity: 0.6; }
+
+    & + .tipo-opt { border-left: 1px solid var(--p-surface-border, #dbe3ec); }
+
+    &.active {
+      background: linear-gradient(135deg, #232e61, #57c1ab);
+      color: #fff;
+      small { opacity: 0.85; }
+    }
+
+    &:not(.active):hover { background: rgba(87, 193, 171, 0.10); }
+  }
+}
+
 .btn-vincular {
   display: inline-flex;
   align-items: center;

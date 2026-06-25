@@ -120,6 +120,23 @@
         <label for="competencia">Competência</label>
         <input id="competencia" type="month" [(ngModel)]="competencia" class="competencia-input" />
       </div>
+
+      <div class="vincular-field">
+        <label>Tipo</label>
+        <div class="tipo-toggle">
+          <button type="button" class="tipo-opt"
+                  [class.active]="tipo === 'ADIANTAMENTO'"
+                  (click)="tipo = 'ADIANTAMENTO'">
+            Adiantamento <small>dia 20</small>
+          </button>
+          <button type="button" class="tipo-opt"
+                  [class.active]="tipo === 'SALARIO'"
+                  (click)="tipo = 'SALARIO'">
+            Salário <small>dia 05</small>
+          </button>
+        </div>
+      </div>
+
       <button class="btn-vincular" (click)="vincularHolerites()" [disabled]="isLinking || !competencia">
         <i class="pi" [ngClass]="isLinking ? 'pi-spin pi-spinner' : 'pi-link'"></i>
         {{ isLinking ? 'Vinculando...' : 'Salvar e vincular' }}
