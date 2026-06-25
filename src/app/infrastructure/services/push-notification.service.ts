@@ -18,6 +18,17 @@ export class PushNotificationService {
     return this.swPush.isEnabled;
   }
 
+  /** Já existe uma inscrição de push ativa neste navegador? (estado real, persistente) */
+  async isSubscribed(): Promise<boolean> {
+    if (!this.swPush.isEnabled) return false;
+    try {
+      const sub = await firstValueFrom(this.swPush.subscription);
+      return !!sub;
+    } catch {
+      return false;
+    }
+  }
+
   /** Navega para a rota da notificação quando o usuário clica nela. */
   initClickHandling(): void {
     if (!this.swPush.isEnabled) return;
@@ -27,16 +38,20 @@ export class PushNotificationService {
     });
   }
 
-  /** Pede permissão, assina o push e registra a inscrição no backend. */
+  /** Pede permissão, assina o push e registra a inscrição no backend. Idempotente. */
   async enable(): Promise<boolean> {
     if (!this.swPush.isEnabled) return false;
     try {
-      const res = await firstValueFrom(
-        this.http.get<{ publicKey: string }>(`${environment.apiUrl}/push/public-key`)
-      );
-      if (!res?.publicKey) return false;
+      // Reusa a inscrição existente; só pede uma nova se ainda não houver.
+      let sub = await firstValueFrom(this.swPush.subscription);
+      if (!sub) {
+        const res = await firstValueFrom(
+          this.http.get<{ publicKey: string }>(`${environment.apiUrl}/push/public-key`)
+        );
+        if (!res?.publicKey) return false;
+        sub = await this.swPush.requestSubscription({ serverPublicKey: res.publicKey });
+      }
 
-      const sub = await this.swPush.requestSubscription({ serverPublicKey: res.publicKey });
       await firstValueFrom(
         this.http.post(`${environment.apiUrl}/push/subscribe`, sub.toJSON(), { responseType: 'text' })
       );

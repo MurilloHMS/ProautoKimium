@@ -28,6 +28,14 @@ export class NotificacoesComponent implements OnInit {
 
   ngOnInit(): void {
     this.notifications.refresh();
+    this.syncPushState();
+  }
+
+  /** Reflete o estado real da inscrição (persiste ao voltar/recarregar a tela). */
+  private async syncPushState(): Promise<void> {
+    if (this.pushSuportado) {
+      this.pushAtivado = await this.push.isSubscribed();
+    }
   }
 
   abrir(n: AppNotification): void {
