@@ -1,7 +1,62 @@
-<section class="placeholder-page">
-  <div class="placeholder-card">
-    <span class="placeholder-icon"><i class="pi pi-bell"></i></span>
-    <h1>Notificações</h1>
-    <p>Em breve você verá aqui seus avisos e atualizações.</p>
-  </div>
+<section class="nt-page">
+  <header class="nt-header">
+    <div>
+      <h1>Notificações</h1>
+      <p>Avisos do sistema e novidades para você.</p>
+    </div>
+    @if (notifications.notifications().length > 0) {
+      <button class="nt-mark-all" (click)="marcarTodas()" [disabled]="notifications.unreadCount() === 0">
+        <i class="pi pi-check"></i> Marcar todas como lidas
+      </button>
+    }
+  </header>
+
+  <!-- Ativar push nativo (só aparece se o navegador/PWA suportar) -->
+  @if (pushSuportado && !pushAtivado) {
+    <div class="nt-push-cta">
+      <div class="nt-push-cta__text">
+        <i class="pi pi-bell"></i>
+        <div>
+          <strong>Ative as notificações no dispositivo</strong>
+          <span>Receba avisos mesmo com o site fechado, como um app.</span>
+        </div>
+      </div>
+      <button class="nt-push-btn" (click)="ativarPush()" [disabled]="pushAtivando">
+        <i class="pi" [ngClass]="pushAtivando ? 'pi-spin pi-spinner' : 'pi-check-circle'"></i>
+        {{ pushAtivando ? 'Ativando...' : 'Ativar' }}
+      </button>
+    </div>
+  }
+  @if (pushAtivado) {
+    <div class="nt-push-ok">
+      <i class="pi pi-check-circle"></i> Notificações ativadas neste dispositivo.
+    </div>
+  }
+
+  <!-- Lista -->
+  @if (notifications.notifications().length === 0) {
+    <div class="nt-empty">
+      <span class="nt-empty-icon"><i class="pi pi-bell"></i></span>
+      <p>Nenhuma notificação ainda</p>
+      <small>Quando algo novo acontecer, aparece aqui.</small>
+    </div>
+  } @else {
+    <ul class="nt-list">
+      @for (n of notifications.notifications(); track n.id) {
+        <li class="nt-item" [class.is-unread]="!n.read" (click)="abrir(n)">
+          <span class="nt-item__icon" [attr.data-type]="n.type">
+            <i [class]="iconFor(n.type)"></i>
+          </span>
+          <div class="nt-item__body">
+            <span class="nt-item__title">{{ n.title }}</span>
+            <span class="nt-item__msg">{{ n.message }}</span>
+          </div>
+          <div class="nt-item__meta">
+            <span class="nt-item__time">{{ tempo(n.createdAt) }}</span>
+            @if (!n.read) { <span class="nt-dot" aria-label="Não lida"></span> }
+          </div>
+        </li>
+      }
+    </ul>
+  }
 </section>

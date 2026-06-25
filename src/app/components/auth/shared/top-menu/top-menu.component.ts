@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
+import { NotificationService } from '../../../../infrastructure/services/notification.service';
 
 // ─── Interfaces ────────────────────────────────────────────────
 
@@ -61,7 +62,11 @@ export class TopMenuComponent implements OnInit, OnDestroy {
   private readonly HOVER_OPEN_DELAY  = 300;
   private readonly HOVER_CLOSE_DELAY = 400;
 
-  constructor(public auth: AuthService, private elRef: ElementRef) {}
+  constructor(
+    public auth: AuthService,
+    public notifications: NotificationService,
+    private elRef: ElementRef
+  ) {}
 
   // ═══════════════════════════════════════════════════════════
   // LIFECYCLE
