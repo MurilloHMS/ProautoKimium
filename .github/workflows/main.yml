@@ -3,12 +3,12 @@ name: deploy angular web app
 on:
   push:
     tags:
-        - '*.*.*'
+      - '*.*.*'
 
 jobs:
   deploy:
     environment:
-      name: deploy locaweb
+      name: production
       url: https://proautokimium.com.br
     runs-on: ubuntu-latest
     steps:
@@ -16,23 +16,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build Angular
+      - name: Build Angular (produção)
         run: npm run build -- --configuration production
 
-      - name: FTP Deploy Locaweb
-        uses: MurilloHMS/ftp-deploy-locaweb@main
+      - name: Deploy para a VPS (rsync over SSH)
+        uses: burnett01/rsync-deployments@7.0.2
         with:
-          host: ${{ secrets.HOST }}
-          user: ${{ secrets.USER }}
-          password: ${{ secrets.PASS }}
-          localDir: dist/proauto-kimium/browser
-          remoteDir: 'public_html'
-          forceSsl: "false"
-
+          switches: -avzr --delete
+          path: dist/proauto-kimium/browser/
+          remote_path: /var/www/proautokimium-app/browser/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.VPS_SSH_KEY }}
