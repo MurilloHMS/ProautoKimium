@@ -110,6 +110,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Remover Senha do Excel',  icon: 'pi pi-fw pi-lock',      routerLink: ['company/excel'] },
           { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
           { label: 'Guia de Utilização', icon: 'pi pi-file-pdf', routerLink: ['company/guide'], roles: ['ADMIN', 'ADMINISTRATIVO'] },
+          { label: 'Equipamentos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/equipments'], roles: ['ADMIN', 'CONTRATOS', 'MARKETING', 'DESIGN'] },
         ],
       },
       {

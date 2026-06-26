@@ -37,6 +37,7 @@ import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/t
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
 import {WebsiteComponent} from "./components/auth/company/products/website/website.component";
+import {EquipmentsComponent} from "./components/auth/company/equipments/equipments.component";
 import {
   RentReceiptGeneratorComponent
 } from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
@@ -99,6 +100,7 @@ export const routes: Routes = [
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
+      { path: 'company/equipments', component: EquipmentsComponent, data: { roles: ['ADMIN', 'CONTRATOS', 'MARKETING', 'DESIGN'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'documentos', component: DocumentosComponent },
