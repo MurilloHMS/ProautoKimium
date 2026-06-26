@@ -1,44 +1,46 @@
-<section id="services" class="we-offer-area text-center">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="site-heading text-center">
-                    <span class="section-eyebrow">Nossas soluções</span>
-                    <h2>O que nós <span>Oferecemos</span></h2>
-                    <h4>Descubra como podemos ajudar sua empresa!</h4>
-                </div>
-            </div>
-        </div>
-        <div class="row our-offer-items less-carousel">
-            <div class="col-md-4 col-sm-6 equal-height">
-                <div class="item" appReveal [revealDelay]="0">
+<section id="services" class="services">
+    <div class="services-container">
+        <header class="section-head">
+            <p class="section-eyebrow">
+                <span class="eyebrow-rule"></span>
+                Nossas soluções
+            </p>
+            <h2 class="section-title">O que nós <span class="highlight">Oferecemos</span></h2>
+            <p class="section-intro">Descubra como podemos ajudar sua empresa!</p>
+        </header>
+
+        <div class="services-grid">
+            <article class="service-card" appReveal [revealDelay]="0">
+                <span class="card-icon" aria-hidden="true">
                     <i class="fas fa-handshake"></i>
-                    <h4>Consultoria Personalizada</h4>
-                    <p>
-                        Soluções estratégicas sob medida para otimizar processos e melhorar os resultados do seu
-                        negócio.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 equal-height">
-                <div class="item" appReveal [revealDelay]="120">
+                </span>
+                <h3 class="card-title">Consultoria personalizada</h3>
+                <p class="card-text">
+                    Soluções estratégicas sob medida para otimizar processos e melhorar os resultados do seu
+                    negócio.
+                </p>
+            </article>
+
+            <article class="service-card" appReveal [revealDelay]="120">
+                <span class="card-icon" aria-hidden="true">
                     <i class="fas fa-flask"></i>
-                    <h4>Produtos de alto rendimento</h4>
-                    <p>
-                        Linha de produtos com alta performance e eficiência para maximizar produtividade e reduzir
-                        custos.
-                    </p>
-                </div>
-            </div>
-            <div class="col-md-4 col-sm-6 equal-height">
-                <div class="item" appReveal [revealDelay]="240">
+                </span>
+                <h3 class="card-title">Produtos de alto rendimento</h3>
+                <p class="card-text">
+                    Linha de produtos com alta performance e eficiência para maximizar produtividade e reduzir
+                    custos.
+                </p>
+            </article>
+
+            <article class="service-card" appReveal [revealDelay]="240">
+                <span class="card-icon" aria-hidden="true">
                     <i class="fas fa-users-cog"></i>
-                    <h4>Equipe Tecnica Especializada</h4>
-                    <p>
-                        Profissionais capacitados e experientes, prontos para oferecer suporte técnico.
-                    </p>
-                </div>
-            </div>
+                </span>
+                <h3 class="card-title">Equipe técnica especializada</h3>
+                <p class="card-text">
+                    Profissionais capacitados e experientes, prontos para oferecer suporte técnico.
+                </p>
+            </article>
         </div>
     </div>
 </section>
