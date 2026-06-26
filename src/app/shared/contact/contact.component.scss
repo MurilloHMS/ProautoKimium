@@ -1,294 +1,189 @@
 @use 'variables' as v;
 
-// ── Seção ─────────────────────────────────────────────────────────────────
+/* ════════════════════════════════════════════════════════════════════════
+   Contato — sistema claro (página #f6f8fc contínua → seção transparente)
+   Ordem no mobile: Fale agora → Formulário → Info
+   ════════════════════════════════════════════════════════════════════════ */
 .contact-section {
-  width: 100%;
-
-  padding: 72px 0;
+  background: transparent;
+  padding: clamp(64px, 9vw, 104px) 0;
   font-family: v.$font-body;
+  color: #51607a;
 }
 
-// ── Header ────────────────────────────────────────────────────────────────
-.section-header {
-  text-align: center;
-  margin-bottom: 48px;
-  padding: 0 24px;
-}
-
-.section-tag {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: v.$font-heading;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: v.$secondary-dark;
-  background: rgba(v.$secondary, 0.10);
-  border: 1px solid rgba(v.$secondary, 0.25);
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 14px;
-}
-
-.section-title {
-  font-family: v.$font-heading;
-  font-size: 2rem;
-  font-weight: 700;
-  color: v.$primary;
-  margin: 0 0 12px;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-}
-
-.section-desc {
-  font-size: 0.95rem;
-  color: v.$text-secondary-color;
-  margin: 0;
-  max-width: 480px;
-  margin-inline: auto;
-  line-height: 1.6;
-}
-
-// ── Grid principal ────────────────────────────────────────────────────────
-.contact-grid {
-  max-width: 1200px;
+.contact-inner {
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 24px;
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 32px;
-  align-items: start;
 }
 
-// ── Aside ─────────────────────────────────────────────────────────────────
-.contact-aside {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* ── Cabeçalho ─────────────────────────────────────────────────────────── */
+.contact-head {
+  max-width: 660px;
+  margin: 0 0 40px;
 }
 
-.aside-block {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid v.$bg-surface-dark;
-}
-
-.block-label {
-  display: block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  font-family: v.$font-heading;
-  text-transform: uppercase;
-  letter-spacing: 0.10em;
-  color: v.$primary-lighter;
-  margin-bottom: 14px;
-}
-
-// ── Canais ────────────────────────────────────────────────────────────────
-.canais-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.canal-card {
+.eyebrow {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1.5px solid v.$bg-surface-dark;
-  background: v.$bg-surface;
+  margin: 0 0 18px;
+  font-family: v.$font-heading;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: v.$secondary-dark;
+
+  .eyebrow-rule { width: 30px; height: 2px; background: v.$secondary; border-radius: 2px; }
+}
+
+.contact-title {
+  font-family: v.$font-heading;
+  font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #1b224d;
+  margin: 0 0 14px;
+
+  .hl { color: v.$secondary-dark; }
+}
+
+.contact-lead {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: #6b7790;
+  margin: 0;
+}
+
+/* ── Grid: desktop 2 colunas (form à direita ocupa as 2 linhas) ───────────
+   Áreas garantem a ordem mobile (canais → form → info) sem mexer no DOM. */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  grid-template-areas:
+    "channels form"
+    "info     form";
+  gap: 20px 24px;
+  align-items: start;
+}
+
+.channels-card { grid-area: channels; }
+.form-card     { grid-area: form; }
+.info-stack    { grid-area: info; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Card base ─────────────────────────────────────────────────────────── */
+.card {
+  background: #ffffff;
+  border: 1px solid #e6ecf5;
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(35, 46, 97, 0.08);
+}
+
+.card-label {
+  display: block;
+  font-family: v.$font-heading;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a93a8;
+  margin-bottom: 14px;
+}
+
+/* ── Fale agora (canais) ───────────────────────────────────────────────── */
+.channels-card { padding: 22px; }
+
+.channels { display: flex; flex-direction: column; gap: 10px; }
+
+.channel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  min-height: 62px;
+  border: 1px solid #e6ecf5;
+  border-radius: 13px;
+  background: #ffffff;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 
   &:hover {
     border-color: v.$secondary;
-    background: rgba(v.$secondary, 0.04);
-    transform: translateX(3px);
+    background: rgba(87, 193, 171, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(35, 46, 97, 0.08);
 
-    .canal-arrow { opacity: 1; transform: translateX(3px); }
+    .channel-go { color: v.$secondary-dark; transform: translateX(3px); }
   }
+
+  &:focus-visible { outline: 2px solid v.$secondary; outline-offset: 3px; }
 }
 
-.canal-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+.channel-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
+  font-size: 1.1rem;
 
-  &.wpp {
-    background: rgba(37, 211, 102, 0.12);
-    color: #16a34a;
-  }
-
-  &.email {
-    background: rgba(v.$primary, 0.08);
-    color: v.$primary;
-  }
+  &.wpp { background: rgba(37, 211, 102, 0.12); color: #1aa64b; }
+  &.email { background: rgba(87, 193, 171, 0.12); color: v.$secondary-dark; }
 }
 
-.canal-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
+.channel-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 
-.canal-tipo {
-  font-size: 0.68rem;
-  font-weight: 700;
+.channel-name {
   font-family: v.$font-heading;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: v.$text-secondary-color;
+  color: #8a93a8;
 }
 
-.canal-valor {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: v.$primary;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.canal-arrow {
-  color: v.$bg-surface-dark;
-  font-size: 0.72rem;
-  opacity: 0;
-  transition: all 0.2s ease;
-}
-
-// ── Horário ───────────────────────────────────────────────────────────────
-.horario-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.horario-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 7px;
-  background: v.$bg-surface;
-
-  &.feriado {
-    .horario-hora { color: v.$danger; }
-  }
-}
-
-.horario-dia {
-  font-size: 0.82rem;
-  color: v.$text-primary-color;
-  font-weight: 500;
-}
-
-.horario-hora {
-  font-size: 0.82rem;
+.channel-value {
+  font-size: 1rem;
   font-weight: 700;
-  font-family: v.$font-heading;
-  color: v.$primary;
+  color: #1b224d;
+  word-break: break-word;   // nunca cortar com reticências no mobile
 }
 
-// ── Mapa ──────────────────────────────────────────────────────────────────
-.mapa-block { padding-bottom: 16px; }
-
-.mapa-wrap {
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 12px;
-  border: 1px solid v.$bg-surface-dark;
-
-  iframe { display: block; }
+.channel-go {
+  flex-shrink: 0;
+  color: #c2cce0;
+  font-size: 0.85rem;
+  transition: color 0.2s, transform 0.2s;
 }
 
-.endereco {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: v.$text-primary-color;
+/* ── Formulário ────────────────────────────────────────────────────────── */
+.form-card { overflow: hidden; }
 
-  i {
-    color: v.$secondary-dark;
-    margin-top: 2px;
-    flex-shrink: 0;
-  }
-
-  span { line-height: 1.45; }
-}
-
-// ── Social ────────────────────────────────────────────────────────────────
-.social-block { padding: 16px 20px; }
-
-.social-icons {
-  display: flex;
-  gap: 8px;
-
-  a {
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1.5px solid v.$bg-surface-dark;
-    color: v.$primary-lighter;
-    background: v.$bg-surface;
-    text-decoration: none;
-    font-size: 0.82rem;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: v.$primary;
-      color: v.$primary;
-      background: rgba(v.$primary, 0.05);
-      transform: translateY(-2px);
-    }
-  }
-}
-
-// ── Form card ─────────────────────────────────────────────────────────────
-.form-card {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid v.$bg-surface-dark;
-  overflow: hidden;
-}
-
-.form-card-header {
-  background: v.$primary;
-  padding: 22px 28px;
+.form-head {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid #eef2f8;
 
   h3 {
     font-family: v.$font-heading;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff;
+    font-size: 1.18rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #1b224d;
     margin: 0 0 4px;
   }
 
-  p {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.60);
-    margin: 0;
-  }
+  p { font-size: 0.9rem; color: #6b7790; margin: 0; }
 }
 
 .contato-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 24px 28px 28px;
+  gap: 16px;
+  padding: 22px 28px 26px;
 }
 
 .form-row {
@@ -300,17 +195,18 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  min-width: 0;
 
   &.full { grid-column: 1 / -1; }
 
   label {
+    font-family: v.$font-heading;
     font-size: 0.74rem;
     font-weight: 700;
-    font-family: v.$font-heading;
-    color: v.$primary;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    color: #1b224d;
   }
 
   small {
@@ -322,77 +218,69 @@
 .field-input,
 .field-textarea {
   width: 100%;
-  padding: 9px 12px;
-  border: 1.5px solid v.$bg-surface-dark;
-  border-radius: 7px;
-  font-size: 0.875rem;
+  padding: 12px 14px;
+  border: 1.5px solid #dfe6f1;
+  border-radius: 11px;
+  font-size: 16px;            // 16px evita o zoom automático no iOS ao focar
   font-family: v.$font-body;
-  color: v.$text-primary-color;
-  background: v.$bg-surface;
+  color: #1b224d;
+  background: #f8fafc;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 
-  &::placeholder { color: #b0bec5; }
+  &::placeholder { color: #aab4c5; }
 
   &:focus {
     outline: none;
-    background: #fff;
+    background: #ffffff;
     border-color: v.$secondary;
-    box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12);
+    box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.15);
   }
 }
 
-.field-textarea {
-  resize: none;
-  line-height: 1.55;
-}
+.field-textarea { resize: vertical; min-height: 110px; line-height: 1.55; }
 
-// ── p-select ──────────────────────────────────────────────────────────────
+/* p-select alinhado aos inputs */
 ::ng-deep {
   .select-field {
     .p-select {
       width: 100% !important;
-      border: 1.5px solid v.$bg-surface-dark !important;
-      border-radius: 7px !important;
-      background: v.$bg-surface !important;
+      border: 1.5px solid #dfe6f1 !important;
+      border-radius: 11px !important;
+      background: #f8fafc !important;
       transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
 
       &.p-focus {
-        background: #fff !important;
+        background: #ffffff !important;
         border-color: v.$secondary !important;
-        box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.15) !important;
       }
     }
 
     .p-select-label {
-      padding: 9px 12px !important;
-      font-size: 0.875rem !important;
+      padding: 12px 14px !important;
+      font-size: 16px !important;
       font-family: v.$font-body !important;
-      color: v.$text-primary-color !important;
+      color: #1b224d !important;
 
-      &.p-placeholder { color: #b0bec5 !important; }
+      &.p-placeholder { color: #aab4c5 !important; }
     }
 
-    .p-select-dropdown {
-      color: v.$primary-lighter !important;
-    }
+    .p-select-dropdown { color: #8a93a8 !important; }
   }
 
   .p-select-overlay {
-    border-radius: 8px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.10) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 18px 50px rgba(35, 46, 97, 0.14) !important;
 
     .p-select-option {
-      padding: 8px 12px !important;
-      font-size: 0.875rem !important;
+      padding: 10px 14px !important;
+      font-size: 0.92rem !important;
       font-family: v.$font-body !important;
 
-      &:hover {
-        background: rgba(87, 193, 171, 0.08) !important;
-        color: v.$secondary-dark !important;
-      }
+      &:hover { background: rgba(87, 193, 171, 0.08) !important; color: v.$secondary-dark !important; }
 
       &.p-select-option-selected {
-        background: rgba(v.$primary, 0.06) !important;
+        background: rgba(35, 46, 97, 0.06) !important;
         color: v.$primary !important;
         font-weight: 600 !important;
       }
@@ -400,115 +288,187 @@
   }
 }
 
-// ── Botão ─────────────────────────────────────────────────────────────────
 .btn-enviar {
   width: 100%;
-  padding: 11px 20px;
+  margin-top: 4px;
+  padding: 14px 20px;
   background: v.$primary;
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: 7px;
-  font-size: 0.82rem;
-  font-weight: 700;
+  border-radius: 12px;
   font-family: v.$font-heading;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  margin-top: 4px;
+  gap: 9px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
 
   &:hover:not(:disabled) {
-    background: v.$secondary-hover;
-    box-shadow: 0 4px 16px rgba(v.$secondary-hover, 0.32);
-    transform: translateY(-1px);
+    background: #1b224d;
+    box-shadow: 0 14px 30px rgba(35, 46, 97, 0.24);
+    transform: translateY(-2px);
   }
 
   &:active:not(:disabled) { transform: translateY(0); }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid v.$secondary; outline-offset: 3px; }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  i { font-size: 0.82rem; }
+  i { font-size: 0.9rem; }
 }
 
-// ── Responsivo ────────────────────────────────────────────────────────────
-@media (max-width: 1024px) {
-  .contact-grid {
-    grid-template-columns: 300px 1fr;
-    gap: 24px;
+/* ── Info card (horário + localização) ─────────────────────────────────── */
+.info-card { padding: 22px; }
+
+.info-section + .info-section { margin-top: 0; }
+
+.info-divider { height: 1px; background: #eef2f8; margin: 18px 0; }
+
+.hours { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.hours li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .day { font-size: 0.88rem; color: #51607a; }
+  .hour {
+    font-family: v.$font-heading;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #1b224d;
+    white-space: nowrap;
   }
+
+  &.closed .hour { color: v.$danger; }
 }
 
-@media (max-width: 768px) {
-  .contact-section { padding: 48px 0; }
+.address {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0 0 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #51607a;
 
-  .section-title { font-size: 1.5rem; }
+  i { color: v.$secondary-dark; margin-top: 3px; flex-shrink: 0; }
+}
 
+.map {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e6ecf5;
+
+  iframe { display: block; }
+}
+
+/* ── Extras (redes + FAQ) ──────────────────────────────────────────────── */
+.extras-card { padding: 20px 22px; display: flex; flex-direction: column; gap: 18px; }
+
+.social-row { display: flex; gap: 10px; }
+
+.social-row a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  border: 1px solid #e6ecf5;
+  background: #ffffff;
+  color: #5c6694;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+
+  &:hover {
+    border-color: v.$secondary;
+    color: v.$secondary-dark;
+    background: rgba(87, 193, 171, 0.06);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible { outline: 2px solid v.$secondary; outline-offset: 3px; }
+}
+
+.faq-link {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 14px;
+  border-radius: 13px;
+  border: 1px solid #e6ecf5;
+  background: #f8fafc;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+
+  &:hover {
+    border-color: v.$secondary;
+    background: rgba(87, 193, 171, 0.06);
+    transform: translateY(-2px);
+
+    .fa-arrow-right { transform: translateX(3px); color: v.$secondary-dark; }
+  }
+
+  &:focus-visible { outline: 2px solid v.$secondary; outline-offset: 3px; }
+
+  .faq-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(87, 193, 171, 0.12);
+    color: v.$secondary-dark;
+    font-size: 1rem;
+  }
+
+  .faq-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .faq-title { font-family: v.$font-heading; font-weight: 700; font-size: 0.92rem; color: #1b224d; }
+  .faq-sub { font-size: 0.78rem; color: #6b7790; }
+
+  .fa-arrow-right { flex-shrink: 0; color: #c2cce0; font-size: 0.82rem; transition: transform 0.2s, color 0.2s; }
+}
+
+/* ── Responsivo ────────────────────────────────────────────────────────── */
+@media (max-width: 920px) {
   .contact-grid {
     grid-template-columns: 1fr;
-    padding: 0 16px;
+    grid-template-areas:
+      "channels"
+      "form"
+      "info";
+    gap: 16px;
   }
+}
 
-  .contact-aside {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .mapa-block { grid-column: 1 / -1; }
+@media (max-width: 560px) {
+  .contact-inner { padding: 0 16px; }
+  .contact-head { margin-bottom: 28px; }
 
   .form-row { grid-template-columns: 1fr; }
 
-  .contato-form { padding: 20px; }
+  .channels-card,
+  .info-card { padding: 18px; }
 
-  .form-card-header { padding: 18px 20px; }
+  .form-head { padding: 20px 20px 16px; }
+  .contato-form { padding: 18px 20px 22px; }
+  .extras-card { padding: 18px; }
 }
 
-@media (max-width: 480px) {
-  .contact-aside { grid-template-columns: 1fr; }
-  .section-title { font-size: 1.3rem; }
-}
-
-
-.faq-block { padding: 18px 20px; }
-
-.faq-desc {
-  font-size: 0.78rem;
-  color: v.$text-secondary-color;
-  line-height: 1.55;
-  margin: 0 0 14px;
-}
-
-.btn-faq {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 9px 14px;
-  border-radius: 7px;
-  border: 1.5px solid v.$primary;
-  background: transparent;
-  color: v.$primary;
-  font-size: 0.82rem;
-  font-weight: 700;
-  font-family: v.$font-heading;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  text-decoration: none;
-  transition: all 0.2s ease;
-
-  span { flex: 1; }
-
-  .fa-arrow-right {
-    font-size: 0.72rem;
-    transition: transform 0.2s;
-  }
-
-  &:hover {
-    background: v.$primary;
-    color: #fff;
-    .fa-arrow-right { transform: translateX(3px); }
-  }
+@media (prefers-reduced-motion: reduce) {
+  .channel,
+  .faq-link,
+  .social-row a,
+  .channel-go,
+  .btn-enviar,
+  .field-input,
+  .field-textarea { transition: none; }
 }

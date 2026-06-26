@@ -1,33 +1,41 @@
-<section id="about-us" class="about-hero">
-  <div class="container">
+<section id="about-us" class="about">
+  <div class="about-container">
 
     <!-- Header -->
-    <div class="about-header">
-      <span class="label">Sobre a Proauto Kimium</span>
-      <h1>Transformando desafios em <span class="highlight">soluções inteligentes</span></h1>
-      <p class="subtitle">{{ currentYear }} anos de evolução, confiança e consciência.</p>
-    </div>
+    <header class="about-header" appReveal>
+      <p class="section-eyebrow">
+        <span class="eyebrow-rule"></span>
+        Sobre a Proauto Kimium
+      </p>
+      <h2 class="section-title">Transformando desafios em <span class="highlight">soluções inteligentes</span></h2>
+      <p class="section-intro">{{ currentYear }} anos de evolução, confiança e consciência.</p>
+    </header>
 
     <!-- Stats -->
-    <div class="stats-grid" appReveal>
-      <div class="stat-card">
-        <div class="stat-number">{{ currentYear }}</div>
-        <div class="stat-label">Anos de experiência</div>
+    <div class="stats" appReveal [revealDelay]="100">
+      <div class="stat">
+        <span class="stat-number">{{ currentYear }}</span>
+        <span class="stat-label">Anos de experiência</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">7000+</div>
-        <div class="stat-label">Clientes atendidos</div>
+      <div class="stat">
+        <span class="stat-number">7000+</span>
+        <span class="stat-label">Clientes atendidos</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">30+</div>
-        <div class="stat-label">Serviços de consultoria</div>
+      <div class="stat">
+        <span class="stat-number">30+</span>
+        <span class="stat-label">Serviços de consultoria</span>
       </div>
     </div>
 
     <!-- Story Section -->
-    <div class="story-section" appReveal>
-      <div class="story-content">
-        <h2>Nossa História</h2>
+    <div class="about-block about-block--story" appReveal>
+      <div class="block-text">
+        <p class="section-eyebrow">
+          <span class="eyebrow-rule"></span>
+          Nossa história
+        </p>
+        <h3 class="block-title">Três décadas elevando <span class="highlight">padrões</span></h3>
+
         <p>Há mais de três décadas, a <strong>Proauto Kimium</strong> é referência nacional em soluções inteligentes para higienização profissional e industrial.
           Nascemos com o propósito de transformar a forma como empresas lidam com <strong>limpeza, segurança e sustentabilidade</strong> e, desde então, evoluímos com
           um compromisso inegociável: <strong>a excelência.</strong></p>
@@ -40,90 +48,109 @@
           do setor e da aplicação prática do conhecimento adquirido ao longo de décadas. Essa é a essência que nos tornou referência entre <strong>indústrias,
             restaurantes, hospitais</strong> e empresas de diversos segmentos em todo o <strong>Brasil.</strong></p>
 
-        <p><strong>Mais do que fornecer produtos, entregamos confiança</strong>.</p>
-        <p><strong>Mais do que higienizar, elevamos padrões.</strong></p>
+        <p class="block-emphasis">Mais do que fornecer produtos, entregamos confiança. Mais do que higienizar, elevamos padrões.</p>
 
-        <!-- NEW: segment pills -->
-        <div class="story-pills">
-          <span class="pill">🏭 Indústrias</span>
-          <span class="pill">🍽️ Restaurantes</span>
-          <span class="pill">🏥 Hospitais</span>
-          <span class="pill">🇧🇷 Todo o Brasil</span>
+        <!-- segment pills -->
+        <div class="pills">
+          <span class="pill">Indústrias</span>
+          <span class="pill">Restaurantes</span>
+          <span class="pill">Hospitais</span>
+          <span class="pill">Todo o Brasil</span>
         </div>
       </div>
-      <div class="story-image">
-        <img src="images/enterprise_photos/empresa.png" alt="Proauto Kimium Estoque" loading="lazy">
-        <!-- NEW: floating years badge -->
-        <div class="story-badge">
-          <span class="badge-years">{{ currentYear }}</span>
-          <span class="badge-text">anos de<br>experiência</span>
+
+      <div class="block-media">
+        <div class="media-frame">
+          <img src="images/enterprise_photos/empresa.png" alt="Proauto Kimium Estoque" loading="lazy">
         </div>
       </div>
     </div>
 
     <!-- Mission Section -->
-    <div class="mission-section" appReveal>
-      <div class="mission-image">
-        <img src="images/hero/consultoria1.jpg" alt="Consultoria Personalizada" loading="lazy">
+    <div class="about-block about-block--mission" appReveal>
+      <div class="block-media">
+        <div class="media-frame">
+          <img src="images/hero/consultoria1.jpg" alt="Consultoria Personalizada" loading="lazy">
+        </div>
       </div>
-      <div class="mission-content">
-        <span class="label-small">O que fazemos</span>
-        <h2>Consultoria Personalizada</h2>
+
+      <div class="block-text">
+        <p class="section-eyebrow">
+          <span class="eyebrow-rule"></span>
+          O que fazemos
+        </p>
+        <h3 class="block-title">Consultoria <span class="highlight">personalizada</span></h3>
+
         <p>Mais do que distribuir produtos químicos, <strong>entregamos consultoria, economia e performance.</strong> Com um time técnico especializado, diagnosticamos gargalos operacionais, reduzimos desperdícios e indicamos as melhores soluções para cada realidade.</p>
 
         <p>Na <strong>Proauto Kimium</strong>, acreditamos que <strong>cada produto precisa ter um propósito e cada cliente, uma solução personalizada.</strong> Nosso compromisso é com o resultado, com a sustentabilidade e, acima de tudo, com a confiança construída ao longo de cada atendimento.</p>
 
-        <!-- NEW: checklist benefits -->
-        <div class="mission-benefits">
-          <div class="benefit-item">
-            <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <!-- checklist benefits -->
+        <ul class="checklist">
+          <li class="check-item">
+            <span class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
             <span>Redução de custos operacionais</span>
-          </div>
-          <div class="benefit-item">
-            <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </li>
+          <li class="check-item">
+            <span class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
             <span>Diagnóstico técnico especializado</span>
-          </div>
-          <div class="benefit-item">
-            <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </li>
+          <li class="check-item">
+            <span class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
             <span>Treinamentos para sua equipe</span>
-          </div>
-          <div class="benefit-item">
-            <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </li>
+          <li class="check-item">
+            <span class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
             <span>Gestão de consumo e desperdício</span>
-          </div>
-        </div>
+          </li>
+        </ul>
 
-        <div class="contact-info">
-          <span class="contact-label">Fale conosco:</span>
-          <a href="mailto:sac@proautokimium.com.br" class="email-link">sac&#64;proautokimium.com.br</a>
+        <div class="contact">
+          <span class="contact-label">Fale conosco</span>
+          <a href="mailto:sac@proautokimium.com.br" class="contact-email">sac&#64;proautokimium.com.br</a>
         </div>
       </div>
     </div>
 
     <!-- Values Section -->
-    <div class="values-section">
-      <h2>Nossos Valores</h2>
-      <div class="values-grid" appReveal>
-        <div class="value-card">
-          <div class="value-icon"><img class="image-icon" src="images/home/our-values/excelencia.png" alt="imagem excelência"></div>
-          <h3>Excelência</h3>
-          <p>Comprometidos com a máxima qualidade em cada solução entregue</p>
-        </div>
-        <div class="value-card">
-          <div class="value-icon"><img class="image-icon" src="images/home/our-values/inovacao.png" alt="imagem inovação"></div>
-          <h3>Inovação</h3>
-          <p>Tecnologia de ponta aplicada aos desafios do dia a dia</p>
-        </div>
-        <div class="value-card">
-          <div class="value-icon"><img class="image-icon" src="images/home/our-values/sustentavel.png" alt="imagem sustentabilidade"></div>
-          <h3>Sustentabilidade</h3>
-          <p>Soluções que respeitam o meio ambiente e o futuro</p>
-        </div>
-        <div class="value-card">
-          <div class="value-icon"><img class="image-icon" src="images/home/our-values/parceria.png" alt="imagem parceria"></div>
-          <h3>Parceria</h3>
-          <p>Crescemos junto com nossos clientes, lado a lado</p>
-        </div>
+    <div class="values" appReveal>
+      <header class="values-header">
+        <p class="section-eyebrow">
+          <span class="eyebrow-rule"></span>
+          Nossos valores
+        </p>
+        <h3 class="block-title">O que nos move <span class="highlight">todos os dias</span></h3>
+      </header>
+
+      <div class="values-grid">
+        <article class="value-card">
+          <div class="value-icon"><img class="value-image" src="images/home/our-values/excelencia.png" alt="imagem excelência"></div>
+          <h4>Excelência</h4>
+          <p>Comprometidos com a máxima qualidade em cada solução entregue.</p>
+        </article>
+        <article class="value-card">
+          <div class="value-icon"><img class="value-image" src="images/home/our-values/inovacao.png" alt="imagem inovação"></div>
+          <h4>Inovação</h4>
+          <p>Tecnologia de ponta aplicada aos desafios do dia a dia.</p>
+        </article>
+        <article class="value-card">
+          <div class="value-icon"><img class="value-image" src="images/home/our-values/sustentavel.png" alt="imagem sustentabilidade"></div>
+          <h4>Sustentabilidade</h4>
+          <p>Soluções que respeitam o meio ambiente e o futuro.</p>
+        </article>
+        <article class="value-card">
+          <div class="value-icon"><img class="value-image" src="images/home/our-values/parceria.png" alt="imagem parceria"></div>
+          <h4>Parceria</h4>
+          <p>Crescemos junto com nossos clientes, lado a lado.</p>
+        </article>
       </div>
     </div>
 

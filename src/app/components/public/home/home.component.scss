@@ -3,7 +3,8 @@
 .container {
     max-width: 100%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0;
+    background: #f6f8fc;   // superfície única da página — seções ficam transparentes
 }
 
 .home-about-us,
