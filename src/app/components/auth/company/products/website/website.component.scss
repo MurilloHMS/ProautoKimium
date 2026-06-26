@@ -98,3 +98,79 @@
   border: 1px solid #e5e7eb;
   background: #fff;
 }
+
+/* ── Seletor de cores (color picker + lista de hex) ─────────────────────────── */
+.cor-add-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cor-hex-input {
+  width: 130px;
+  height: 38px;
+  text-transform: lowercase;
+}
+
+.cor-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, v.$primary, v.$secondary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.86rem;
+  transition: transform 0.15s, box-shadow 0.2s;
+
+  &:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(35, 46, 97, 0.22); }
+}
+
+.cores-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px 5px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+
+  .cor-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.18);
+    color: inherit;
+    transition: background 0.15s;
+
+    i { font-size: 0.6rem; }
+    &:hover { background: rgba(0, 0, 0, 0.38); }
+  }
+}
+
+.cores-vazio {
+  font-size: 0.82rem;
+  color: v.$neutral-100;
+  font-style: italic;
+}
