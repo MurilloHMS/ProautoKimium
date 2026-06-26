@@ -6,79 +6,94 @@
 
   <div class="hero-container">
     <div class="hero-content">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        Indústria química • Consultoria personalizada
-      </div>
+      <p class="hero-eyebrow">
+        <span class="eyebrow-rule"></span>
+        Indústria química <span class="eyebrow-dot">•</span> Consultoria técnica
+      </p>
 
       <h1 class="hero-title">
-        Vamos além de produtos químicos:
-        <span class="highlight">soluções sob medida</span> para cada cliente.
+        Mais que produtos químicos:
+        <span class="highlight">soluções sob medida</span>
+        para cada operação.
       </h1>
 
       <p class="hero-subtitle">
         Fabricamos linhas concentradas de alta performance e, com consultoria técnica
-        especializada, diagnosticamos a sua operação para reduzir custos, eliminar
-        desperdício e elevar resultados — com o suporte de quem entende do seu segmento.
+        especializada, diagnosticamos sua operação para reduzir custos, eliminar
+        desperdício e elevar resultados.
       </p>
 
       <div class="hero-cta">
-        <a routerLink="produtos" class="btn-primary">Conhecer os produtos</a>
+        <a routerLink="produtos" class="btn-primary">Ver produtos</a>
         <a href="#contact" class="btn-secondary">Falar com um consultor</a>
       </div>
 
-      <div class="hero-stats">
+      <dl class="hero-stats">
         <div class="stat-item">
-          <span class="stat-number">{{ currentYear }}+</span>
-          <span class="stat-label">Anos de indústria</span>
+          <dt class="stat-number">{{ currentYear }}+</dt>
+          <dd class="stat-label">Anos de indústria</dd>
         </div>
         <div class="stat-item">
-          <span class="stat-number">30+</span>
-          <span class="stat-label">Serviços de consultoria</span>
+          <dt class="stat-number">30+</dt>
+          <dd class="stat-label">Serviços de consultoria</dd>
         </div>
         <div class="stat-item">
-          <span class="stat-number">5&nbsp;mil+</span>
-          <span class="stat-label">Clientes atendidos</span>
+          <dt class="stat-number">5&nbsp;mil+</dt>
+          <dd class="stat-label">Clientes atendidos</dd>
+        </div>
+      </dl>
+    </div>
+
+    <aside class="hero-panel" aria-label="Diferenciais Proauto Kimium">
+      <div class="yield">
+        <div class="yield-head">
+          <span class="yield-label">Rendimento concentrado</span>
+          <span class="yield-ratio">1<span class="yield-colon">:</span>100</span>
+        </div>
+        <div class="yield-bar" aria-hidden="true"><span class="yield-conc"></span></div>
+        <div class="yield-legend">
+          <span class="yield-from"><b>2 L</b> de concentrado</span>
+          <span class="yield-to"><b>200 L</b> de solução pronta</span>
         </div>
       </div>
-    </div>
 
-    <div class="hero-visual">
-      <article class="pillar">
-        <span class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 20h20"/><path d="M4 20V9l5 3.5V9l5 3.5V9l5 3.5V20"/><path d="M9 20v-4h2v4"/>
-          </svg>
-        </span>
-        <div>
-          <h4>Indústria própria</h4>
-          <p>Linhas concentradas de alto rendimento — 2 litros rendem até 200 de solução pronta.</p>
-        </div>
-      </article>
+      <ul class="caps">
+        <li class="cap">
+          <span class="cap-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 20h20"/><path d="M4 20V9l5 3.5V9l5 3.5V9l5 3.5V20"/><path d="M9 20v-4h2v4"/>
+            </svg>
+          </span>
+          <div class="cap-text">
+            <h4>Indústria própria</h4>
+            <p>Linhas concentradas de alto rendimento, formuladas internamente.</p>
+          </div>
+        </li>
 
-      <article class="pillar">
-        <span class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="m8.5 13 2 2 4-4"/>
-          </svg>
-        </span>
-        <div>
-          <h4>Consultoria personalizada</h4>
-          <p>Diagnóstico técnico da sua operação e um plano sob medida para cada segmento.</p>
-        </div>
-      </article>
+        <li class="cap">
+          <span class="cap-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><path d="m8.5 13 2 2 4-4"/>
+            </svg>
+          </span>
+          <div class="cap-text">
+            <h4>Consultoria personalizada</h4>
+            <p>Diagnóstico técnico da sua operação, com plano por segmento.</p>
+          </div>
+        </li>
 
-      <article class="pillar">
-        <span class="pillar-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
-          </svg>
-        </span>
-        <div>
-          <h4>Resultados mensuráveis</h4>
-          <p>Menos custo e desperdício, mais performance — com acompanhamento contínuo.</p>
-        </div>
-      </article>
-    </div>
+        <li class="cap">
+          <span class="cap-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+            </svg>
+          </span>
+          <div class="cap-text">
+            <h4>Resultados mensuráveis</h4>
+            <p>Menos custo e desperdício, mais performance — com acompanhamento contínuo.</p>
+          </div>
+        </li>
+      </ul>
+    </aside>
   </div>
 </section>
