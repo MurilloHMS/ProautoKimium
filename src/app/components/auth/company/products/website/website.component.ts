@@ -15,7 +15,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { SelectModule } from 'primeng/select';
 import { environment } from '../../../../../../environments/environment';
+
+import { EquipmentService } from '../../../../../infrastructure/services/company/equipment/equipment.service';
+import { EquipmentResponseDTO } from '../../../../../domain/models/equipment.model';
 
 import {
   ProductWebSiteCreateDTO, ProductWebSitePublicResponseDTO,
@@ -45,6 +50,8 @@ export type TabKey = 'active' | 'hidden';
     SkeletonModule,
     TooltipModule,
     AutoCompleteModule,
+    ColorPickerModule,
+    SelectModule,
     DividerModule,
   ],
   providers: [MessageService, ConfirmationService],
@@ -71,6 +78,13 @@ export class WebsiteComponent implements OnInit {
   editImagePreview: string | null = null;
 
   filteredCores: string[] = [];
+
+  /** Modelos do seletor de cor (picker em hex sem '#') e do campo de texto (hex com '#'). */
+  corSelector = '';
+  novaCor = '';
+
+  /** Equipamentos disponíveis para vincular ao produto (1 por produto). */
+  equipamentos = signal<EquipmentResponseDTO[]>([]);
 
   tabs = [
     { key: 'active' as TabKey, label: 'Visíveis no Site', icon: 'pi-eye' },
@@ -103,6 +117,7 @@ export class WebsiteComponent implements OnInit {
 
   constructor(
     private service: WebsiteService,
+    private equipmentService: EquipmentService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private fb: FormBuilder
@@ -112,6 +127,14 @@ export class WebsiteComponent implements OnInit {
     this.initEditForm();
     this.initCreateForm();
     this.loadAllProducts();
+    this.loadEquipamentos();
+  }
+
+  loadEquipamentos(): void {
+    this.equipmentService.getAll().subscribe({
+      next: (lista) => this.equipamentos.set(lista ?? []),
+      error: () => this.equipamentos.set([]),
+    });
   }
 
   initEditForm(): void {
@@ -124,6 +147,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: ['', Validators.required],
       localUso: ['', Validators.required],
       descricao: ['', Validators.required],
+      equipmentId: [null],
     });
   }
 
@@ -137,6 +161,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: ['', Validators.required],
       localUso: ['', Validators.required],
       descricao: ['', Validators.required],
+      equipmentId: [null],
     });
   }
 
@@ -190,6 +215,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: '',
       localUso: '',
       descricao: '',
+      equipmentId: null,
     });
 
     this.selectedCreateImage = null;
@@ -218,6 +244,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: product.concentracao,
       localUso: product.localUso,
       descricao: product.descricao,
+      equipmentId: product.equipmentId ?? null,
     });
 
     this.dialogVisible.set(true);
@@ -424,6 +451,52 @@ export class WebsiteComponent implements OnInit {
     const valor = target?.value?.trim();
     this.addCoresToForm(this.createForm, valor);
     if (target) target.value = '';
+  }
+
+  /** Recebe a cor escolhida no seletor visual e reflete no campo de hex (com '#'). */
+  onCorPicker(event: any): void {
+    const v: string = (event?.value ?? '') + '';
+    if (!v) return;
+    this.novaCor = v.startsWith('#') ? v : '#' + v;
+  }
+
+  /** Valida e adiciona o hex atual à lista de cores do formulário. */
+  adicionarCor(form: FormGroup): void {
+    let hex = (this.novaCor || '').trim();
+    if (!hex) return;
+    if (!hex.startsWith('#')) hex = '#' + hex;
+    hex = hex.toLowerCase();
+
+    if (!/^#[0-9a-f]{6}$/.test(hex)) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cor inválida',
+        detail: 'Use um hex no formato #RRGGBB (ex.: #1E90FF).'
+      });
+      return;
+    }
+
+    const control = form.get('cores');
+    const atual: string[] = control?.value || [];
+    if (!atual.some(c => (c || '').toLowerCase() === hex)) {
+      control?.setValue([...atual, hex]);
+      control?.markAsDirty();
+      control?.markAsTouched();
+    }
+
+    this.novaCor = '';
+    this.corSelector = '';
+  }
+
+  /** Texto legível (escuro/claro) para sobrepor a uma amostra de cor. */
+  corContraste(hex: string): string {
+    const c = (hex || '').replace('#', '');
+    if (c.length < 6) return '#1f2937';
+    const r = parseInt(c.slice(0, 2), 16);
+    const g = parseInt(c.slice(2, 4), 16);
+    const b = parseInt(c.slice(4, 6), 16);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return lum > 0.6 ? '#1f2937' : '#ffffff';
   }
 
   removerCor(form: FormGroup, cor: string): void {

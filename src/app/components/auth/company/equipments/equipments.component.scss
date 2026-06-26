@@ -1,0 +1,125 @@
+@use 'variables.scss' as v;
+
+// ─── Table Card ───────────────────────────────────────────────────────────────
+.table-card {
+  background: v.$bg-panel;
+  border-radius: v.$radius-lg;
+  box-shadow: v.$shadow-md;
+  overflow: hidden;
+}
+
+.col-center { text-align: center !important; }
+
+// ─── Table Cell Styles ────────────────────────────────────────────────────────
+.equipment-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: v.$radius-sm;
+  border: 1px solid v.$border;
+  background: v.$bg-base;
+}
+
+.equipment-name {
+  font-weight: 500;
+  font-size: .88rem;
+  color: v.$text-primary;
+}
+
+// ─── Action Buttons ───────────────────────────────────────────────────────────
+.action-buttons {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  justify-content: center;
+}
+
+.action-btn.p-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: v.$radius-sm;
+  background: transparent;
+  border: 1px solid v.$border;
+  color: v.$text-muted;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: v.$primary;
+    border-color: v.$primary;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+  }
+}
+
+.action-btn--danger.p-button {
+  &:hover {
+    background: v.$danger;
+    border-color: v.$danger;
+    box-shadow: 0 2px 8px rgba(220,38,38,.25);
+  }
+}
+
+// ─── Dialog Form ──────────────────────────────────────────────────────────────
+.dialog-form { padding: 0; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--full { grid-column: 1 / -1; }
+
+  label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: v.$neutral-900;
+
+    .required { color: v.$danger; }
+  }
+}
+
+// ─── Upload de imagem ─────────────────────────────────────────────────────────
+.file-input {
+  width: 100%;
+  font-size: .85rem;
+  padding: .55rem .65rem;
+  border: 1px dashed v.$border;
+  border-radius: v.$radius-sm;
+  background: v.$bg-base;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+
+  &:hover {
+    border-color: v.$primary-light;
+    background: v.$bg-hover;
+  }
+}
+
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .65rem;
+}
+
+.equipment-preview {
+  max-width: 180px;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: v.$radius-sm;
+  border: 1px solid v.$border;
+  background: v.$bg-base;
+  padding: .35rem;
+}
