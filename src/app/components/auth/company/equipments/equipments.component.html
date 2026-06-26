@@ -1,0 +1,239 @@
+<div class="painel-wrapper">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog [style]="{ width: '440px' }"></p-confirmDialog>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-wrench"></i>
+      </div>
+      <div>
+        <h1 class="page-title">Equipamentos</h1>
+        <p class="page-subtitle">Gerencie os equipamentos exibidos no site</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
+      <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div class="table-card">
+
+    <pk-table
+      [data]="equipments()"
+      [loading]="loading()"
+      totalLabel="equipamentos encontrados"
+      searchPlaceholder="Buscar por nome…"
+      [filterFields]="['nome']"
+      emptyIcon="pi pi-wrench"
+      emptyTitle="Nenhum equipamento encontrado"
+      emptySubtitle="Adicione um novo equipamento para começar."
+      pageReportTitle="Equipamentos">
+
+      <ng-template #headerTpl>
+        <tr>
+          <th class="col-center" style="width: 92px">Imagem</th>
+          <th pSortableColumn="nome">Nome <p-sortIcon field="nome"></p-sortIcon></th>
+          <th class="col-center" style="width: 130px">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #bodyTpl let-e>
+        <tr class="table-row">
+          <td class="col-center">
+            <img
+              [src]="resolverImagem(e.imagem)"
+              [alt]="e.nome"
+              class="equipment-thumb"
+              onerror="this.src='images/products/placeholder.png'" />
+          </td>
+          <td>
+            <span class="equipment-name">{{ e.nome }}</span>
+          </td>
+          <td class="col-center">
+            <div class="action-buttons">
+              <button pButton
+                      type="button"
+                      icon="pi pi-pencil"
+                      class="action-btn"
+                      pTooltip="Editar equipamento"
+                      tooltipPosition="left"
+                      (click)="openEditDialog(e)">
+              </button>
+              <button pButton
+                      type="button"
+                      icon="pi pi-trash"
+                      class="action-btn action-btn--danger"
+                      severity="danger"
+                      pTooltip="Excluir equipamento"
+                      tooltipPosition="left"
+                      (click)="confirmDelete(e)">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </pk-table>
+  </div>
+
+  <!-- CREATE DIALOG -->
+  <pk-dialog
+    header="Novo Equipamento"
+    [visible]="createDialogVisible()"
+    (visibleChange)="createDialogVisible() ? closeCreateDialog() : null">
+
+    <div pkDialogContent>
+      <form [formGroup]="createForm" class="dialog-form">
+
+        <div class="pk-form-section">
+          <h3 class="pk-form-section__title">
+            <i class="pi pi-info-circle"></i> Informações Gerais
+          </h3>
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <pk-input
+                label="Nome do Equipamento"
+                placeholder="Ex: Lavadora de Alta Pressão"
+                [pkRequired]="true"
+                [pkMaxLength]="200"
+                type="text"
+                formControlName="nome"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="pk-form-section">
+          <h3 class="pk-form-section__title">
+            <i class="pi pi-image"></i> Imagem do Equipamento
+          </h3>
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <label for="imagemCreate">Adicionar imagem <span class="required">*</span></label>
+              <input
+                id="imagemCreate"
+                type="file"
+                accept="image/*"
+                class="file-input"
+                (change)="onCreateImageSelected($event)" />
+            </div>
+
+            @if (createImagePreview) {
+              <div class="form-field form-field--full">
+                <label>Prévia</label>
+                <div class="preview-wrap">
+                  <img
+                    [src]="createImagePreview"
+                    alt="Prévia da imagem"
+                    class="equipment-preview" />
+                  <pk-button
+                    pkType="cancel"
+                    pkLabel="Remover imagem"
+                    pkSize="sm"
+                    (clicked)="removerImagemCreate()"/>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="closeCreateDialog()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="saveCreate()" pkLabel="Cadastrar" pkSize="sm"
+                 [pkDisabled]="createForm.invalid || saving()" [pkLoading]="saving()"/>
+    </div>
+
+  </pk-dialog>
+
+  <!-- EDIT DIALOG -->
+  <pk-dialog
+    [header]="'Editar: ' + (editingEquipment()?.nome ?? '')"
+    [visible]="editDialogVisible()"
+    (visibleChange)="editDialogVisible() ? closeEditDialog() : null">
+
+    <div pkDialogContent>
+      <form [formGroup]="editForm" class="dialog-form">
+
+        <div class="pk-form-section">
+          <h3 class="pk-form-section__title">
+            <i class="pi pi-info-circle"></i> Informações Gerais
+          </h3>
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <pk-input
+                label="Nome do Equipamento"
+                placeholder="Ex: Lavadora de Alta Pressão"
+                [pkRequired]="true"
+                [pkMaxLength]="200"
+                type="text"
+                formControlName="nome"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="pk-form-section">
+          <h3 class="pk-form-section__title">
+            <i class="pi pi-image"></i> Imagem do Equipamento
+          </h3>
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <label for="imagemEdit">Trocar imagem</label>
+              <input
+                id="imagemEdit"
+                type="file"
+                accept="image/*"
+                class="file-input"
+                (change)="onEditImageSelected($event)" />
+            </div>
+
+            @if (editingEquipment()?.imagem && !editImagePreview) {
+              <div class="form-field form-field--full">
+                <label>Imagem atual</label>
+                <div class="preview-wrap">
+                  <img
+                    [src]="resolverImagem(editingEquipment()!.imagem)"
+                    alt="Imagem atual do equipamento"
+                    class="equipment-preview" />
+                </div>
+              </div>
+            }
+
+            @if (editImagePreview) {
+              <div class="form-field form-field--full">
+                <label>Nova prévia</label>
+                <div class="preview-wrap">
+                  <img
+                    [src]="editImagePreview"
+                    alt="Nova prévia da imagem"
+                    class="equipment-preview" />
+                  <pk-button
+                    pkType="cancel"
+                    pkLabel="Remover imagem"
+                    pkSize="sm"
+                    (clicked)="removerImagemEdit()"/>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="closeEditDialog()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="saveEdit()" pkLabel="Salvar Alterações" pkSize="sm"
+                 [pkDisabled]="editForm.invalid || saving()" [pkLoading]="saving()"/>
+    </div>
+
+  </pk-dialog>
+
+</div>
