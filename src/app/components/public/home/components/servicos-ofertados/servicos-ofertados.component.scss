@@ -1,117 +1,155 @@
 @use 'variables' as v;
 
-.we-offer-area {
-  padding: 96px 5%;
+/* ── Seção ──────────────────────────────────────────────────────────────────── */
+/* REGRA ABSOLUTA: o fundo da seção é transparent — a profundidade vem dos cards. */
+.services {
+  padding: clamp(64px, 9vw, 110px) 5%;
   background: transparent;
+  font-family: v.$font-body;
+  color: #1b224d;
 }
 
-.we-offer-area .container {
-  max-width: 1240px;
+.services-container {
+  max-width: 1180px;
   margin: 0 auto;
 }
 
-a, a:hover, a:focus, a:active {
-  text-decoration: none;
-  outline: none;
+/* ── Cabeçalho padrão (eyebrow → título → intro) ────────────────────────────── */
+.section-head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto clamp(40px, 6vw, 64px);
 }
 
-/* ── Cabeçalho ──────────────────────────────────────────────────────────────── */
-.site-heading {
-  margin-bottom: 52px;
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  font-family: v.$font-heading;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: v.$secondary-dark;
 
-  .section-eyebrow {
-    display: inline-block;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: v.$secondary-dark;
-    background: rgba(87, 193, 171, 0.10);
-    padding: 7px 18px;
-    border-radius: 30px;
-    margin-bottom: 16px;
-  }
-
-  h2 {
-    font-family: v.$font-heading;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: v.$primary;
-    text-transform: none;
-    margin: 0 0 10px;
-
-    span { color: v.$secondary-dark; }
-  }
-
-  h4 {
-    display: inline-block;
-    font-size: 1.05rem;
-    font-weight: 400;
-    color: #6b7492;
-    text-transform: none;
-    padding: 0;
-    margin: 0;
+  .eyebrow-rule {
+    width: 30px;
+    height: 2px;
+    background: v.$secondary;
+    border-radius: 2px;
   }
 }
 
-/* ── Cards ──────────────────────────────────────────────────────────────────── */
-.our-offer-items .equal-height {
-  margin-bottom: 24px;
+.section-title {
+  font-family: v.$font-heading;
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #1b224d;
+  margin: 0 0 16px;
+
+  .highlight { color: v.$secondary-dark; }
 }
 
-.we-offer-area .item {
-  height: 100%;
+.section-intro {
+  font-size: 1.08rem;
+  line-height: 1.7;
+  color: #51607a;
+  margin: 0;
+}
+
+/* ── Grid de cards ──────────────────────────────────────────────────────────── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 26px;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.service-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
-  border: 1px solid #e6e9f0;
-  border-radius: 20px;
-  padding: 44px 32px;
+  border: 1px solid #e6ecf5;
+  border-radius: 18px;
+  padding: 38px 32px 34px;
+  box-shadow: 0 18px 50px rgba(35, 46, 97, 0.08);
+  overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
-  i {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 72px;
-    height: 72px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
-    font-size: 28px;
-    margin-bottom: 24px;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
-  }
-
-  h4 {
-    font-family: v.$font-heading;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: v.$primary;
-    text-transform: none;
-    margin: 0 0 12px;
-  }
-
-  p {
-    color: #6b7492;
-    font-size: 0.95rem;
-    line-height: 1.65;
-    margin: 0;
-  }
-
-  &:hover {
-    transform: translateY(-6px);
-    border-color: rgba(87, 193, 171, 0.5);
-    box-shadow: 0 18px 44px rgba(35, 46, 97, 0.10);
-
-    i {
-      background: linear-gradient(135deg, v.$primary, v.$secondary);
-      color: #ffffff;
-      transform: translateY(-2px);
-    }
+  /* régua verde superior que cresce no hover */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0;
+    background: linear-gradient(90deg, v.$secondary, v.$secondary-dark);
+    border-radius: 0 0 3px 0;
+    transition: width 0.3s ease;
   }
 }
 
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  background: rgba(87, 193, 171, 0.12);
+  border: 1px solid rgba(87, 193, 171, 0.3);
+  color: v.$secondary-dark;
+  margin-bottom: 22px;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+
+  i { font-size: 21px; line-height: 1; }
+}
+
+.card-title {
+  font-family: v.$font-heading;
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #1b224d;
+  margin: 0 0 12px;
+}
+
+.card-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #51607a;
+  margin: 0;
+  flex: 1;
+}
+
+.service-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(87, 193, 171, 0.5);
+  box-shadow: 0 22px 56px rgba(35, 46, 97, 0.12);
+
+  &::before { width: 64px; }
+
+  .card-icon {
+    background: rgba(87, 193, 171, 0.18);
+    border-color: v.$secondary;
+    transform: translateY(-2px);
+  }
+}
+
+/* ── Piso de qualidade ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .we-offer-area { padding: 64px 24px; }
-  .site-heading h2 { font-size: 1.8rem; }
-  .we-offer-area .item { padding: 36px 26px; }
+  .service-card { padding: 32px 26px 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .service-card::before,
+  .card-icon { transition: none; }
+
+  .service-card:hover { transform: none; }
+  .service-card:hover .card-icon { transform: none; }
 }

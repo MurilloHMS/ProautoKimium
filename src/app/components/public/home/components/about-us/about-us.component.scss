@@ -1,642 +1,433 @@
 @use 'variables' as v;
 
-// ─────────────────────────────────────────────
-//  ABOUT HERO
-// ─────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  SOBRE — sistema de design claro ("Higiene é engenharia")
+//  A página é UMA superfície contínua (#f6f8fc, definida pela home).
+//  A raiz da seção é SEMPRE transparent — a profundidade vem dos cards brancos.
+// ════════════════════════════════════════════════════════════════════════════
 
-.about-hero {
-  padding: 80px 0;
+.about {
+  position: relative;
+  padding: clamp(64px, 9vw, 110px) 0;
+  background: transparent;
+  font-family: v.$font-body;
+  color: #51607a;
+}
 
-  h1, h2, h3 { font-family: v.$font-heading; }
+.about-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 40px;
+// ─── Cabeçalho padrão de seção ────────────────────────────────────────────────
+
+.section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  font-family: v.$font-heading;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: v.$secondary-dark;
+
+  .eyebrow-rule {
+    width: 30px;
+    height: 2px;
+    background: v.$secondary;
+    border-radius: 2px;
   }
 }
 
-// ─── Header ───────────────────────────────────
+.section-title {
+  font-family: v.$font-heading;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: #1b224d;
+  margin: 0 0 18px;
+
+  .highlight { color: v.$secondary-dark; }
+}
+
+.section-intro {
+  font-size: 1.12rem;
+  line-height: 1.7;
+  color: #6b7790;
+  max-width: 640px;
+  margin: 0;
+}
 
 .about-header {
   text-align: center;
-  margin-bottom: 80px;
-  animation: fadeInUp 0.7s ease-out;
+  margin-bottom: clamp(44px, 6vw, 72px);
 
-  .label {
-    display: inline-block;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: v.$secondary;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 20px;
-    padding: 8px 24px;
-    background: rgba(87, 193, 171, 0.1);
-    border-radius: 50px;
-  }
-
-  h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    color: v.$primary;
-    line-height: 1.2;
-    margin-bottom: 24px;
-    letter-spacing: -1px;
-
-    .highlight {
-      color: v.$secondary;
-      position: relative;
-      display: inline-block;
-
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: 8px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: linear-gradient(90deg, transparent, v.$secondary, transparent);
-        opacity: 0.4;
-      }
-    }
-  }
-
-  .subtitle {
-    font-size: 1.3rem;
-    color: #6c757d;
-    line-height: 1.6;
-    max-width: 700px;
-    margin: 0 auto;
-  }
+  .section-eyebrow { justify-content: center; }
+  .section-intro { margin: 0 auto; }
 }
 
-// ─── Stats ────────────────────────────────────
+// Cabeçalho de bloco (história / missão / valores)
+.block-title {
+  font-family: v.$font-heading;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: #1b224d;
+  margin: 0 0 22px;
 
-.stats-grid {
+  .highlight { color: v.$secondary-dark; }
+}
+
+// ─── Stats (card branco contido, números navy + divisórias hairline) ──────────
+
+.stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  margin-bottom: 100px;
+  gap: 0;
+  margin-bottom: clamp(56px, 8vw, 92px);
+  padding: 44px 32px;
+  background: #ffffff;
+  border: 1px solid #e6ecf5;
+  border-radius: 20px;
+  box-shadow: 0 18px 50px rgba(35, 46, 97, 0.08);
 }
 
-.stat-card {
-  background: #ffffff;
-  padding: 40px 30px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.stat {
   position: relative;
-  overflow: hidden;
+  text-align: center;
+  padding: 4px 24px;
 
-  &::before {
-    content: "";
+  &:not(:last-child)::after {
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, v.$secondary, v.$primary);
-    transform: scaleX(0);
-    transition: transform 0.4s ease;
-  }
-
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-
-    &::before {
-      transform: scaleX(1);
-    }
+    right: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 1px;
+    background: #e6ecf5;
   }
 
   .stat-number {
-    font-size: 3.5rem;
+    display: block;
+    font-family: v.$font-heading;
+    font-size: clamp(2.6rem, 5vw, 3.4rem);
     font-weight: 800;
-    background: linear-gradient(135deg, v.$secondary, v.$primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: v.$primary;
+    margin-bottom: 10px;
   }
 
   .stat-label {
-    font-size: 1.05rem;
-    color: #6c757d;
+    display: block;
+    font-size: 0.95rem;
     font-weight: 600;
+    color: #6b7790;
   }
 }
 
-// ─── Story ────────────────────────────────────
+// ─── Blocos imagem + texto (história / missão) como cards brancos contidos ────
+//  Layout TEXT-FORWARD: o texto é a coluna larga (primária) e a imagem é apoio.
 
-.story-section {
+.about-block {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
-  margin-bottom: 100px;
-}
-
-.story-content {
-  h2 {
-    font-size: 2.5rem;
-    color: v.$primary;
-    font-weight: 700;
-    margin-bottom: 30px;
-    position: relative;
-    padding-bottom: 20px;
-
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 60px;
-      height: 4px;
-      background: v.$secondary;
-      border-radius: 2px;
-    }
-  }
+  grid-template-columns: 1.55fr 1fr;   // texto domina; imagem vira coluna de apoio
+  gap: clamp(36px, 4.5vw, 64px);
+  align-items: start;                  // texto comanda a altura; imagem ancorada no topo
+  margin-bottom: clamp(28px, 4vw, 48px);
+  padding: clamp(28px, 4vw, 52px);
+  background: #ffffff;
+  border: 1px solid #e6ecf5;
+  border-radius: 20px;
+  box-shadow: 0 18px 50px rgba(35, 46, 97, 0.08);
 
   p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 20px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #51607a;
+    margin: 0 0 18px;
 
     strong {
       color: v.$primary;
-      font-weight: 600;
+      font-weight: 700;
     }
+  }
+
+  .block-emphasis {
+    font-family: v.$font-heading;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #1b224d;
+    margin-top: 22px;
+    margin-bottom: 0;
   }
 }
 
-.story-pills {
+// Na missão a IMAGEM é a 1ª coluna do grid (HTML) → inverter a razão para o
+// texto continuar sendo a coluna larga também aqui.
+.about-block--mission {
+  grid-template-columns: 1fr 1.55fr;
+
+  .block-text p:last-of-type { margin-bottom: 0; }
+}
+
+// ─── Mídia (moldura de apoio, sóbria) ─────────────────────────────────────────
+
+.block-media {
+  position: relative;
+  align-self: start;   // retrato contido ancorado no topo da coluna
+}
+
+.media-frame {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #eef2f8;                       // hairline quase fundida ao card
+  box-shadow: 0 8px 22px rgba(35, 46, 97, 0.08);   // sombra leve: a foto não "salta"
+
+  img {
+    display: block;
+    width: 100%;
+    height: 300px;            // altura de apoio (era 440px)
+    object-fit: cover;
+    object-position: center;  // enquadramento centrado na coluna mais estreita
+  }
+}
+
+// ─── Pills de segmento ────────────────────────────────────────────────────────
+
+.pills {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 28px;
+}
 
-  .pill {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: v.$primary;
-    background: rgba(87, 193, 171, 0.08);
-    border: 1.5px solid rgba(87, 193, 171, 0.25);
-    border-radius: 50px;
-    padding: 6px 16px;
-    white-space: nowrap;
-    transition: all 0.25s ease;
+.pill {
+  font-family: v.$font-heading;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: v.$secondary-dark;
+  background: rgba(87, 193, 171, 0.12);
+  border: 1px solid rgba(87, 193, 171, 0.3);
+  border-radius: 999px;
+  padding: 7px 16px;
+  white-space: nowrap;
+  transition: transform 0.2s, border-color 0.2s, background 0.2s;
 
-    &:hover {
-      background: rgba(87, 193, 171, 0.16);
-      border-color: v.$secondary;
-    }
+  &:hover {
+    transform: translateY(-2px);
+    background: rgba(87, 193, 171, 0.18);
+    border-color: v.$secondary;
   }
 }
 
-.story-image {
-  position: relative;
+// ─── Checklist (missão) ───────────────────────────────────────────────────────
 
-  img {
-    width: 100%;
-    height: 500px;
-    object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-    display: block;
-  }
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: -20px;
-    right: -20px;
-    width: 100%;
-    height: 100%;
-    border: 3px solid v.$secondary;
-    border-radius: 20px;
-    z-index: -1;
-  }
-}
-
-.story-badge {
-  position: absolute;
-  bottom: 24px;
-  left: -20px;
-  background: v.$secondary;
-  color: #fff;
-  border-radius: 16px;
-  padding: 16px 22px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 8px 28px rgba(87, 193, 171, 0.45);
-  z-index: 2;
-
-  .badge-years {
-    font-size: 2.2rem;
-    font-weight: 900;
-    line-height: 1;
-  }
-
-  .badge-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.4;
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-// ─── Mission ──────────────────────────────────
-
-.mission-section {
+.checklist {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
-  margin-bottom: 100px;
-  padding: 60px;
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  gap: 14px;
 }
 
-.mission-image {
-  img {
-    width: 100%;
-    height: 450px;
-    object-fit: cover;
-    border-radius: 16px;
-    display: block;
-  }
-}
-
-.mission-content {
-  .label-small {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: v.$secondary;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
-
-  h2 {
-    font-size: 2.5rem;
-    color: v.$primary;
-    font-weight: 700;
-    margin-bottom: 24px;
-  }
-
-  p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 20px;
-
-    strong {
-      color: v.$primary;
-      font-weight: 600;
-    }
-  }
-
-  .contact-info {
-    margin-top: 40px;
-    padding: 24px;
-    background: linear-gradient(135deg, rgba(87, 193, 171, 0.08) 0%, rgba(87, 193, 171, 0.02) 100%);
-    border-radius: 12px;
-    border-left: 4px solid v.$secondary;
-
-    .contact-label {
-      display: block;
-      font-size: 0.9rem;
-      color: #6c757d;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .email-link {
-      font-size: 1.2rem;
-      color: v.$secondary;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.3s ease;
-
-      &:hover {
-        color: v.$primary;
-        text-decoration: underline;
-      }
-    }
-  }
-}
-
-.mission-benefits {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 24px 0 4px;
-}
-
-.benefit-item {
+.check-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.97rem;
-  color: #444;
-  font-weight: 500;
+  gap: 13px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1b224d;
 
-  .benefit-icon {
-    width: 18px;
-    height: 18px;
+  .check-icon {
     flex-shrink: 0;
-    stroke: v.$secondary;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(87, 193, 171, 0.12);
+    border: 1px solid rgba(87, 193, 171, 0.3);
+    color: v.$secondary-dark;
+
+    svg { width: 16px; height: 16px; }
   }
 }
 
-// ─── Values ───────────────────────────────────
+// ─── Contato (missão) — card de ação contido ──────────────────────────────────
 
-.values-section {
-  text-align: center;
-  margin-bottom: 60px;
+.contact {
+  margin-top: 30px;
+  padding: 22px 24px;
+  background: #f5f8fc;
+  border: 1px solid #e6ecf5;
+  border-left: 3px solid v.$secondary;
+  border-radius: 14px;
 
-  h2 {
-    font-size: 2.8rem;
-    color: v.$primary;
+  .contact-label {
+    display: block;
+    font-family: v.$font-heading;
+    font-size: 0.72rem;
     font-weight: 700;
-    margin-bottom: 60px;
-    position: relative;
-    display: inline-block;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 4px;
-      background: linear-gradient(90deg, transparent, v.$secondary, transparent);
-    }
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8a93a8;
+    margin-bottom: 8px;
   }
+
+  .contact-email {
+    font-family: v.$font-heading;
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: v.$secondary-dark;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover { color: v.$primary; }
+    &:focus-visible { outline: 2px solid v.$secondary; outline-offset: 3px; border-radius: 4px; }
+  }
+}
+
+// ─── Valores ──────────────────────────────────────────────────────────────────
+
+.values {
+  margin-top: clamp(28px, 5vw, 56px);
+}
+
+.values-header {
+  text-align: center;
+  margin-bottom: clamp(36px, 5vw, 56px);
+
+  .section-eyebrow { justify-content: center; }
 }
 
 .values-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  gap: 24px;
 }
 
 .value-card {
   background: #ffffff;
-  padding: 40px 30px;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  border: 1px solid #e6ecf5;
+  border-radius: 18px;
+  padding: 34px 26px;
   text-align: center;
+  box-shadow: 0 18px 50px rgba(35, 46, 97, 0.08);
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
 
   &:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-    border-color: rgba(87, 193, 171, 0.3);
+    transform: translateY(-2px);
+    border-color: rgba(87, 193, 171, 0.5);
+    box-shadow: 0 22px 56px rgba(35, 46, 97, 0.12);
   }
 
   .value-icon {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(87, 193, 171, 0.12);
+    border: 1px solid rgba(87, 193, 171, 0.3);
   }
 
-  h3 {
-    font-size: 1.4rem;
-    color: v.$primary;
+  .value-image {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  h4 {
+    font-family: v.$font-heading;
+    font-size: 1.2rem;
     font-weight: 700;
-    margin-bottom: 12px;
+    color: v.$primary;
+    margin: 0 0 10px;
   }
 
   p {
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.6;
-    color: #6c757d;
-    flex: 1;
+    color: #6b7790;
+    margin: 0;
   }
 }
 
-.image-icon {
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-  margin-bottom: 20px;
-}
-
-// ─── Animation ────────────────────────────────
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  RESPONSIVE
-// ─────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════════════════════
+//  RESPONSIVO
+// ════════════════════════════════════════════════════════════════════════════
 
 @media (max-width: 1024px) {
-  .about-header h1 {
-    font-size: 2.8rem;
-  }
+  .values-grid { grid-template-columns: repeat(2, 1fr); }
 
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .story-section,
-  .mission-section {
-    gap: 40px;
-  }
-
-  .values-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .media-frame img { height: 260px; }
 }
 
 @media (max-width: 768px) {
-  .about-hero {
-    padding: 60px 0;
+  .about-container { padding: 0 20px; }
 
-    .container {
-      padding: 0 20px;
-    }
-  }
-
-  .about-header {
-    margin-bottom: 48px;
-
-    h1 {
-      font-size: 2rem;
-      letter-spacing: -0.5px;
-    }
-
-    .subtitle {
-      font-size: 1rem;
-    }
-  }
-
-  // Stats: coluna única
-  .stats-grid {
+  // Stats em coluna única com divisórias horizontais
+  .stats {
     grid-template-columns: 1fr;
-    gap: 16px;
-    margin-bottom: 60px;
-    overflow-x: unset;
+    padding: 12px 22px;
   }
 
-  .stat-card {
-    min-width: unset;
-    scroll-snap-align: unset;
-    padding: 28px 24px;
+  .stat {
+    padding: 22px 0;
 
-    .stat-number {
-      font-size: 2.8rem;
+    &:not(:last-child) {
+      border-bottom: 1px solid #e6ecf5;
+
+      &::after { display: none; }
     }
   }
 
-  .story-section {
-    grid-template-columns: 1fr;
-    gap: 48px;
-    margin-bottom: 60px;
-  }
-
-  .story-image {
-    order: -1;
-
-    &::before { display: none; }
-
-    img { height: 280px; }
-  }
-
-  .story-badge {
-    bottom: 16px;
-    left: 16px;
-    padding: 12px 16px;
-
-    .badge-years { font-size: 1.8rem; }
-    .badge-text  { font-size: 0.7rem; }
-  }
-
-  .story-pills {
-    gap: 8px;
-
-    .pill { font-size: 0.8rem; padding: 5px 12px; }
-  }
-
-  .mission-section {
+  // Blocos empilham; na história a imagem vem primeiro
+  .about-block {
     grid-template-columns: 1fr;
     gap: 32px;
-    padding: 32px 24px;
-    margin-bottom: 60px;
   }
 
-  .mission-image img { height: 240px; }
+  // Reset do override da missão ao empilhar
+  .about-block--mission { grid-template-columns: 1fr; }
 
-  .mission-content {
-    h2 { font-size: 1.8rem; }
-    p  { font-size: 1rem; }
+  .about-block--story .block-media { order: -1; }
 
-    .contact-info {
-      padding: 18px;
+  .media-frame img { height: 240px; }
 
-      .email-link { font-size: 1rem; }
-    }
-  }
-
-  // Values: 2 colunas, cards verticais com alturas iguais
-  .values-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-  }
-
-  .value-card {
-    padding: 28px 18px;
-    // mantém flex-direction: column e align-items: center do base
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-
-    .value-icon {
-      margin-bottom: 14px;
-    }
-
-    .image-icon {
-      width: 54px;
-      height: 54px;
-      margin-bottom: 0;
-    }
-
-    h3 { font-size: 1.05rem; margin-bottom: 8px; }
-    p  { font-size: 0.88rem; }
-  }
-
-  .values-section h2 {
-    font-size: 2rem;
-    margin-bottom: 40px;
-  }
+  .values-grid { gap: 16px; }
 }
 
 @media (max-width: 480px) {
-  .about-hero .container {
-    padding: 0 16px;
-  }
+  .about-container { padding: 0 16px; }
 
-  .about-header h1 {
-    font-size: 1.6rem;
-  }
+  .media-frame img { height: 200px; }
 
-  .about-header .label {
-    font-size: 0.78rem;
-    padding: 6px 14px;
-  }
+  .pill { font-size: 0.78rem; padding: 6px 13px; }
 
-  .story-content h2 {
-    font-size: 1.7rem;
-  }
+  .values-grid { grid-template-columns: 1fr; }
 
-  // Values: 1 coluna abaixo de 480px
-  .values-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
+  .contact .contact-email { font-size: 1.05rem; }
+}
 
-  .value-card {
-    padding: 24px 20px;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+// ─── Acessibilidade / motion ──────────────────────────────────────────────────
 
-    .image-icon {
-      width: 52px;
-      height: 52px;
-    }
-
-    h3 { font-size: 1.1rem; }
-    p  { font-size: 0.9rem; }
-  }
-
-  .mission-section {
-    padding: 24px 16px;
+@media (prefers-reduced-motion: reduce) {
+  .pill,
+  .value-card,
+  .contact-email {
+    transition: none;
   }
 }
