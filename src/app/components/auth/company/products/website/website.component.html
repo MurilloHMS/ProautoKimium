@@ -160,7 +160,7 @@
             <td>
               <div class="chip-container">
                 @for (cor of product.cores?.slice(0, 3); track cor) {
-                  <span class="chip-color">{{ cor }}</span>
+                  <span class="chip-color" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">{{ cor }}</span>
                 }
                 @if (product.cores?.length > 3) {
                   <span class="chip-color chip-color-more">+{{ product.cores.length - 3 }}</span>
@@ -239,7 +239,7 @@
             <td>
               <div class="chip-container">
                 @for (cor of product.cores?.slice(0, 3); track cor) {
-                  <span class="chip-color chip-color-muted">{{ cor }}</span>
+                  <span class="chip-color" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">{{ cor }}</span>
                 }
                 @if (product.cores?.length > 3) {
                   <span class="chip-color chip-color-more">+{{ product.cores.length - 3 }}</span>
@@ -378,17 +378,50 @@
         <span class="divider-label"><i class="pi pi-palette"></i> Cores Disponíveis</span>
       </p-divider>
       <div class="form-field field-full">
-        <label>Cores <small class="label-hint">(pressione Enter para adicionar)</small></label>
-        <p-autocomplete
-          formControlName="cores"
-          [multiple]="true"
-          [suggestions]="filteredCores"
-          (completeMethod)="filtrarCores($event)"
-          (onKeyUp)="onKeyDown($event)"
-          (onBlur)="onBlurAdd($event)"
-          placeholder="Digite e pressione Enter..."
-          styleClass="w-full"
-        />
+        <label>Cores <small class="label-hint">(escolha no seletor ou digite o hex e clique em Adicionar)</small></label>
+        <div class="cor-add-row">
+          <p-colorPicker [(ngModel)]="corSelector" [ngModelOptions]="{ standalone: true }"
+                         (onChange)="onCorPicker($event)" appendTo="body" />
+          <input type="text" pInputText [(ngModel)]="novaCor" [ngModelOptions]="{ standalone: true }"
+                 placeholder="#1E90FF" maxlength="7" class="cor-hex-input"
+                 (keydown.enter)="adicionarCor(editForm); $event.preventDefault()" />
+          <button type="button" class="cor-add-btn" (click)="adicionarCor(editForm)">
+            <i class="pi pi-plus"></i> Adicionar
+          </button>
+        </div>
+        <div class="cores-lista">
+          @for (cor of editForm.get('cores')?.value || []; track cor) {
+            <span class="cor-tag" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">
+              {{ cor }}
+              <button type="button" class="cor-remove" (click)="removerCor(editForm, cor)" aria-label="Remover cor">
+                <i class="pi pi-times"></i>
+              </button>
+            </span>
+          }
+          @if (!(editForm.get('cores')?.value?.length)) {
+            <span class="cores-vazio">Nenhuma cor adicionada.</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-wrench"></i> Equipamento</span>
+      </p-divider>
+      <div class="form-field field-full">
+        <label>Equipamento <small class="label-hint">(opcional — aparece no Guia de Utilização)</small></label>
+        <p-select
+          [options]="equipamentos()"
+          formControlName="equipmentId"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione o equipamento…"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome"
+          appendTo="body"
+          styleClass="w-full" />
       </div>
     </div>
 
@@ -592,17 +625,50 @@
         <span class="divider-label"><i class="pi pi-palette"></i> Cores Disponíveis</span>
       </p-divider>
       <div class="form-field field-full">
-        <label>Cores <small class="label-hint">(pressione Enter para adicionar)</small></label>
-        <p-autocomplete
-          formControlName="cores"
-          [multiple]="true"
-          [suggestions]="filteredCores"
-          (completeMethod)="filtrarCores($event)"
-          (onKeyUp)="onCreateKeyDown($event)"
-          (onBlur)="onCreateBlurAdd($event)"
-          placeholder="Digite e pressione Enter..."
-          styleClass="w-full"
-        />
+        <label>Cores <small class="label-hint">(escolha no seletor ou digite o hex e clique em Adicionar)</small></label>
+        <div class="cor-add-row">
+          <p-colorPicker [(ngModel)]="corSelector" [ngModelOptions]="{ standalone: true }"
+                         (onChange)="onCorPicker($event)" appendTo="body" />
+          <input type="text" pInputText [(ngModel)]="novaCor" [ngModelOptions]="{ standalone: true }"
+                 placeholder="#1E90FF" maxlength="7" class="cor-hex-input"
+                 (keydown.enter)="adicionarCor(createForm); $event.preventDefault()" />
+          <button type="button" class="cor-add-btn" (click)="adicionarCor(createForm)">
+            <i class="pi pi-plus"></i> Adicionar
+          </button>
+        </div>
+        <div class="cores-lista">
+          @for (cor of createForm.get('cores')?.value || []; track cor) {
+            <span class="cor-tag" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">
+              {{ cor }}
+              <button type="button" class="cor-remove" (click)="removerCor(createForm, cor)" aria-label="Remover cor">
+                <i class="pi pi-times"></i>
+              </button>
+            </span>
+          }
+          @if (!(createForm.get('cores')?.value?.length)) {
+            <span class="cores-vazio">Nenhuma cor adicionada.</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-wrench"></i> Equipamento</span>
+      </p-divider>
+      <div class="form-field field-full">
+        <label>Equipamento <small class="label-hint">(opcional — aparece no Guia de Utilização)</small></label>
+        <p-select
+          [options]="equipamentos()"
+          formControlName="equipmentId"
+          optionLabel="nome"
+          optionValue="id"
+          placeholder="Selecione o equipamento…"
+          [showClear]="true"
+          [filter]="true"
+          filterBy="nome"
+          appendTo="body"
+          styleClass="w-full" />
       </div>
     </div>
 
