@@ -106,55 +106,11 @@
 }
 
 // ------------------------------------------------------------
-//  Cabecalho — logo (timbrado) + badge de aviso (ambar)
+//  Cabecalho — badge de aviso (ambar)
 // ------------------------------------------------------------
 .alert-header {
-  flex: 1;
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-// Lockup de marca inline (timbrado) — glifo verde + wordmark bicolor
-.alert-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.alert-brand-mark {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  background: linear-gradient(135deg, #57c1ab, #3e9e8e);
-  box-shadow: 0 2px 6px rgba(62, 158, 142, 0.28);
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.alert-brand-name {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--pa-ink);
-  white-space: nowrap;
-}
-
-.alert-brand-accent {
-  color: var(--pa-accent);
 }
 
 .alert-badge {
