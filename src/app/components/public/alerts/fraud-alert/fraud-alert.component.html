@@ -4,8 +4,10 @@
   [closable]="false"
   [draggable]="false"
   [resizable]="false"
+  role="alertdialog"
   [style]="{ width: '640px', maxWidth: '95vw' }"
   styleClass="fraud-alert-dialog"
+  maskStyleClass="fraud-alert-mask"
   [baseZIndex]="9999"
 >
   <ng-template pTemplate="header">
@@ -22,11 +24,13 @@
 
       <div class="alert-icon-row">
         <div class="alert-icon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 9v4" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17h.01" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div class="alert-title-group">
@@ -44,32 +48,53 @@
       </p>
 
       <div class="alert-tips">
+        <p class="alert-tips-title">Como se proteger</p>
+
         <div class="tip-item">
-          <div class="tip-check">
-            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
-                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
+          <span class="tip-check">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 2.5 19 5.2V11c0 4.8-3.1 8.4-7 10-3.9-1.6-7-5.2-7-10V5.2L12 2.5z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.8 11.6 11 13.8 15.4 9"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
           <span>Confirme todos os boletos <strong>diretamente conosco</strong> antes de pagar</span>
         </div>
+
         <div class="tip-item">
-          <div class="tip-check">
-            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
-                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
+          <span class="tip-check">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 2.5 19 5.2V11c0 4.8-3.1 8.4-7 10-3.9-1.6-7-5.2-7-10V5.2L12 2.5z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.8 11.6 11 13.8 15.4 9"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
           <span>Verifique se o CNPJ beneficiário é <strong>Proauto Industria Quimica Ltda</strong></span>
         </div>
+
         <div class="tip-item">
-          <div class="tip-check">
-            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
-                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
+          <span class="tip-check">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 2.5 19 5.2V11c0 4.8-3.1 8.4-7 10-3.9-1.6-7-5.2-7-10V5.2L12 2.5z"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8.8 11.6 11 13.8 15.4 9"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
           <span>Verifique se o email veio do nosso dominio <strong>&#64;proautokimium.com.br</strong></span>
         </div>
-        <div class="tip-item">
-          <div class="tip-check">
-            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3"
-                                                           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
+
+        <div class="tip-item tip-item--critical">
+          <span class="tip-check tip-check--warn">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 6.5v6.5" stroke="currentColor" stroke-width="2.4"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 16.6h.01" stroke="currentColor" stroke-width="2.6"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
           <span>Em caso de dúvida, <strong>não efetue o pagamento</strong> e entre em contato</span>
         </div>
       </div>
@@ -79,8 +104,13 @@
 
   <ng-template pTemplate="footer">
     <div class="alert-footer">
-      <button class="btn-close-alert" (click)="close()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <button
+        class="btn-close-alert"
+        type="button"
+        (click)="close()"
+        aria-label="Estou ciente, fechar aviso"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5"
                 stroke-linecap="round"/>
         </svg>

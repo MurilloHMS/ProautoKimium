@@ -1,83 +1,103 @@
 // ============================================================
-// Fraud Alert Dialog — Proauto Kimium
-// Paleta oficial Proauto
-// --primary:    #57c1ab  (Verde Principal)
-// --light:      #a4ddd2  (Verde Claro)
-// --dark:       #3e9e8e  (Verde Escuro)
-// --medium:     #85bfb5  (Verde Médio)
-// --bg-light:   #f5f2f7
+// Fraud Alert Dialog — Proauto Kimium  ·  TEMA CLARO (FINAL)
+// Angulo: Comunicado institucional oficial (carta timbrada).
+//   Base = Variante #1 (ambar = cautela, verde = marca), com:
+//   - Seletores ::ng-deep CORRIGIDOS p/ o DOM real do PrimeNG 20
+//     (styleClass cai no proprio .p-dialog; a mask e o elemento PAI).
+//   - Lockup de marca Proauto (inline SVG) no cabecalho: timbrado
+//     auto-contido, sem dependencia de asset externo (autenticidade).
+//   - Menos movimento perpetuo (icone estatico) + prefers-reduced-motion.
+//   - Botao/acento derivados do verde oficial, com contraste WCAG AA.
+//   - Hierarquia nos avisos: 3 passos de verificacao (verde) +
+//     1 diretriz critica destacada em ambar ("nao efetue o pagamento").
+//
+// Paleta oficial Proauto (destaque/marca):
+//   --primary: #57c1ab · --light: #a4ddd2 · --dark: #3e9e8e
+//   --medium:  #85bfb5 · --bg-light: #f5f2f7
 // ============================================================
 
 :host {
+  // Paleta oficial da marca (mantida)
   --proauto-primary: #57c1ab;
   --proauto-light:   #a4ddd2;
   --proauto-dark:    #3e9e8e;
   --proauto-medium:  #85bfb5;
   --proauto-bg:      #f5f2f7;
+
+  // Tokens de apoio do tema claro (contraste AA verificado)
+  --pa-surface:        #ffffff;   // fundo do dialog
+  --pa-letterhead:     #f3faf8;   // banda de cabecalho / callout de dicas
+  --pa-ink:            #12211e;   // titulos            16.6:1
+  --pa-body:           #374151;   // texto corrido      10.3:1
+  --pa-accent:         #1f7265;   // verde de marca p/ texto (AA)  5.75:1
+  --pa-accent-strong:  #17614f;   // verde hover/forte             7.3:1
+  --pa-hairline:       #e4efec;   // linhas divisorias
+
+  // Sinal de atencao (ambar serio, nao agressivo)
+  --pa-warn:         #b45309;                 // icone/grafico de alerta
+  --pa-warn-text:    #92400e;                 // texto ambar (AA sobre tint)  6.5:1
+  --pa-warn-bg:      #fdf4e7;                 // fundo ambar suave
+  --pa-warn-border:  rgba(180, 83, 9, 0.28);
+
+  display: block;
 }
 
-// Override do p-dialog via ::ng-deep para estilizar o wrapper
+// ============================================================
+//  Overrides do wrapper PrimeNG — TEMA CLARO
+//  DOM real (PrimeNG 20): <div .p-dialog-mask [maskStyleClass]>
+//                           > <div .p-dialog [styleClass]> ...
+//  Ou seja: styleClass cai NO PROPRIO .p-dialog e a mask e o PAI.
+// ============================================================
 :host ::ng-deep {
 
-  .fraud-alert-dialog {
-
-    // Overlay suave com tom esverdeado
-    & + .p-dialog-mask {
-      background: rgba(14, 40, 36, 0.55) !important;
-      backdrop-filter: blur(3px);
-    }
-
-    .p-dialog {
-      border: 0;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px rgba(87, 193, 171, 0.2),
-        0 25px 60px rgba(0, 0, 0, 0.35),
-        0 0 80px rgba(87, 193, 171, 0.06);
-      background: #0e1f1d;
-      animation: dialogIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .p-dialog-header {
-      background: #0e1f1d;
-      padding: 20px 24px 0;
-      border-bottom: none;
-    }
-
-    .p-dialog-content {
-      background: #0e1f1d;
-      padding: 0 24px;
-      color: #e5e7eb;
-    }
-
-    .p-dialog-footer {
-      background: #0e1f1d;
-      padding: 0 24px 24px;
-      border-top: none;
-    }
+  // Overlay escuro esverdeado (mask = PAI) -> via maskStyleClass
+  .fraud-alert-mask {
+    background: rgba(9, 30, 26, 0.55) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
-}
 
-@keyframes dialogIn {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(12px);
+  // O card: styleClass esta no proprio .p-dialog (compound, sem espaco)
+  .fraud-alert-dialog.p-dialog {
+    border: 0 !important;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--pa-surface) !important;
+    box-shadow:
+      0 0 0 1px rgba(87, 193, 171, 0.20),
+      0 24px 60px rgba(14, 40, 36, 0.22),
+      0 4px 14px rgba(14, 40, 36, 0.08);
   }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
-// ---- Faixa animada no topo ----
-:host ::ng-deep .fraud-alert-dialog .p-dialog::before {
-  content: '';
-  display: block;
-  height: 4px;
-  background: linear-gradient(90deg, #3e9e8e, #57c1ab, #a4ddd2, #57c1ab, #3e9e8e);
-  background-size: 200% 100%;
-  animation: stripeMove 2.5s linear infinite;
+  // Faixa verde animada da marca (::before no PROPRIO root)
+  .fraud-alert-dialog.p-dialog::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #3e9e8e, #57c1ab, #a4ddd2, #57c1ab, #3e9e8e);
+    background-size: 200% 100%;
+    animation: stripeMove 3s linear infinite;
+  }
+
+  // Cabecalho: banda "timbrada" off-white esverdeada
+  .fraud-alert-dialog .p-dialog-header {
+    background: linear-gradient(180deg, var(--pa-letterhead) 0%, var(--pa-surface) 100%) !important;
+    padding: 18px 26px 0 !important;
+    border-bottom: none !important;
+  }
+
+  .fraud-alert-dialog .p-dialog-content {
+    background: var(--pa-surface) !important;
+    padding: 0 26px !important;
+    color: var(--pa-body) !important;
+  }
+
+  .fraud-alert-dialog .p-dialog-footer {
+    background: var(--pa-surface) !important;
+    padding: 0 26px 24px !important;
+    border-top: none !important;
+  }
 }
 
 @keyframes stripeMove {
@@ -85,7 +105,9 @@
   100% { background-position: 200% 0%; }
 }
 
-// ---- Header ----
+// ------------------------------------------------------------
+//  Cabecalho — badge de aviso (ambar)
+// ------------------------------------------------------------
 .alert-header {
   display: flex;
   align-items: center;
@@ -95,74 +117,73 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(87, 193, 171, 0.1);
-  border: 1px solid rgba(87, 193, 171, 0.3);
-  color: var(--proauto-light);
+  background: var(--pa-warn-bg);
+  border: 1px solid var(--pa-warn-border);
+  color: var(--pa-warn-text);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.8px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
   text-transform: uppercase;
-  padding: 5px 12px;
+  padding: 6px 13px;
   border-radius: 100px;
+  white-space: nowrap;
 }
 
 .badge-dot {
   width: 7px;
   height: 7px;
-  background: var(--proauto-primary);
+  background: var(--pa-warn);
   border-radius: 50%;
-  animation: dotPulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(180, 83, 9, 0.35);
+  animation: dotPulse 1.6s ease-in-out infinite;
 }
 
 @keyframes dotPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.55); }
+  0%, 100% { opacity: 1;   transform: scale(1);   box-shadow: 0 0 0 0 rgba(180, 83, 9, 0.35); }
+  50%      { opacity: 0.5; transform: scale(0.6); box-shadow: 0 0 0 4px rgba(180, 83, 9, 0); }
 }
 
-// ---- Body ----
+// ------------------------------------------------------------
+//  Corpo
+// ------------------------------------------------------------
 .alert-body {
-  padding: 20px 0 4px;
+  padding: 18px 0 4px;
 }
 
 .alert-icon-row {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
+// Icone de alerta (triangulo) — sinal ambar de atencao (estatico)
 .alert-icon {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 14px;
-  background: rgba(87, 193, 171, 0.1);
-  border: 1px solid rgba(87, 193, 171, 0.25);
+  background: var(--pa-warn-bg);
+  border: 1px solid var(--pa-warn-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--proauto-primary);
-  animation: iconGlow 2.5s ease-in-out infinite;
+  color: var(--pa-warn);
 
   svg {
-    width: 28px;
-    height: 28px;
+    width: 27px;
+    height: 27px;
   }
 }
 
-@keyframes iconGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(87, 193, 171, 0.3); }
-  50%       { box-shadow: 0 0 0 8px rgba(87, 193, 171, 0); }
-}
-
 .alert-title-group {
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 .alert-title {
   font-size: 22px;
   font-weight: 800;
-  color: #fff;
+  color: var(--pa-ink);
   letter-spacing: -0.4px;
   line-height: 1.2;
   margin: 0 0 4px;
@@ -170,112 +191,192 @@
 
 .alert-subtitle {
   font-size: 13px;
-  color: var(--proauto-primary);
-  font-weight: 500;
+  color: var(--pa-accent);
+  font-weight: 600;
   margin: 0;
 }
 
+// Divider fino esverdeado (marca)
 .alert-divider {
   height: 1px;
-  background: linear-gradient(90deg, rgba(87, 193, 171, 0.2), transparent);
+  background: linear-gradient(90deg,
+    rgba(87, 193, 171, 0.55),
+    rgba(87, 193, 171, 0.14),
+    transparent);
   margin-bottom: 18px;
 }
 
 .alert-message {
-  font-size: 14.5px;
-  color: #9ca3af;
+  font-size: 15px;
+  color: var(--pa-body);
   line-height: 1.7;
   margin-bottom: 20px;
 
   strong {
-    color: #e5e7eb;
-    font-weight: 600;
+    color: var(--pa-ink);
+    font-weight: 700;
   }
 }
 
-// ---- Tips ----
+// ------------------------------------------------------------
+//  Bloco de dicas — callout oficial delimitado
+// ------------------------------------------------------------
 .alert-tips {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: rgba(87, 193, 171, 0.05);
-  border: 1px solid rgba(87, 193, 171, 0.12);
+  gap: 11px;
+  background: var(--pa-letterhead);
+  border: 1px solid rgba(87, 193, 171, 0.28);
+  border-left: 3px solid var(--proauto-dark);
   border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 4px;
+  padding: 15px 18px 16px;
+  margin-bottom: 2px;
+}
+
+.alert-tips-title {
+  margin: 0 0 3px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--pa-accent);
 }
 
 .tip-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  font-size: 13.5px;
-  color: #d1d5db;
+  gap: 11px;
+  font-size: 14px;
+  color: var(--pa-body);
   line-height: 1.5;
 
   strong {
-    color: var(--proauto-light);
-    font-weight: 600;
+    color: var(--pa-accent);
+    font-weight: 700;
   }
 }
 
+// Marcador dos passos de verificacao — escudo (protecao) verde marca
 .tip-check {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: rgba(87, 193, 171, 0.15);
-  border: 1px solid rgba(87, 193, 171, 0.3);
+  background: linear-gradient(135deg, #57c1ab, #3e9e8e);
+  border: 1px solid rgba(62, 158, 142, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 1px;
-  color: var(--proauto-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(62, 158, 142, 0.28);
 
   svg {
-    width: 11px;
-    height: 11px;
+    width: 13px;
+    height: 13px;
   }
 }
 
-// ---- Footer ----
+// Diretriz critica — destaque ambar ("nao efetue o pagamento")
+.tip-item--critical {
+  margin: 3px -8px 0;
+  padding: 10px 8px;
+  background: var(--pa-warn-bg);
+  border: 1px solid var(--pa-warn-border);
+  border-radius: 9px;
+
+  strong {
+    color: var(--pa-warn-text);
+  }
+}
+
+.tip-check--warn {
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+  border-color: var(--pa-warn-border);
+  box-shadow: 0 2px 5px rgba(180, 83, 9, 0.28);
+}
+
+// ------------------------------------------------------------
+//  Rodape — botao primario "ciente"
+// ------------------------------------------------------------
 .alert-footer {
   display: flex;
   justify-content: flex-end;
-  padding-top: 16px;
-  border-top: 1px solid #162e2b;
+  padding-top: 18px;
+  border-top: 1px solid var(--pa-hairline);
 }
 
 .btn-close-alert {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  border: 1px solid #1e3532;
-  color: #6b7280;
+  background: var(--pa-accent);
+  border: 1px solid var(--pa-accent);
+  color: #ffffff;
   font-size: 13px;
-  font-weight: 600;
-  padding: 10px 18px;
-  border-radius: 9px;
+  font-weight: 700;
+  padding: 11px 20px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.12s ease;
   letter-spacing: 0.1px;
+  box-shadow: 0 4px 12px rgba(31, 114, 101, 0.24);
 
   svg {
-    transition: transform 0.2s;
+    transition: transform 0.25s ease;
   }
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.4);
-    color: var(--proauto-light);
-    background: rgba(87, 193, 171, 0.06);
+    background: var(--pa-accent-strong);
+    border-color: var(--pa-accent-strong);
+    box-shadow: 0 6px 18px rgba(23, 97, 79, 0.32);
 
     svg {
       transform: rotate(90deg);
     }
   }
 
+  &:focus-visible {
+    outline: 3px solid var(--pa-accent);
+    outline-offset: 2px;
+  }
+
   &:active {
     transform: scale(0.97);
+  }
+}
+
+// ------------------------------------------------------------
+//  Responsivo
+// ------------------------------------------------------------
+@media (max-width: 480px) {
+  :host ::ng-deep {
+    .fraud-alert-dialog .p-dialog-header { padding: 16px 20px 0 !important; }
+    .fraud-alert-dialog .p-dialog-content { padding: 0 20px !important; }
+    .fraud-alert-dialog .p-dialog-footer { padding: 0 20px 22px !important; }
+  }
+
+  .alert-icon-row { gap: 14px; }
+  .alert-icon { width: 46px; height: 46px; svg { width: 24px; height: 24px; } }
+  .alert-title { font-size: 20px; }
+
+  .alert-footer { justify-content: stretch; }
+  .btn-close-alert { width: 100%; justify-content: center; }
+}
+
+// ------------------------------------------------------------
+//  Acessibilidade — respeitar reducao de movimento (WCAG 2.2.2)
+// ------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .fraud-alert-dialog.p-dialog::before {
+    animation: none !important;
+    background-position: 0 0 !important;
+  }
+
+  .badge-dot,
+  .btn-close-alert,
+  .btn-close-alert svg {
+    animation: none !important;
+    transition: none !important;
   }
 }

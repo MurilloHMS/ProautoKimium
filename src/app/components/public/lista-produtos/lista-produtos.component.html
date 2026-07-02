@@ -228,7 +228,7 @@
                   <span class="fact-label">Cores</span>
                   <div class="colors-list">
                     @for (cor of produto.cores; track cor) {
-                      <span class="color-chip">{{ cor }}</span>
+                      <span class="color-chip" [style.background-color]="cor"></span>
                     }
                   </div>
                 </div>
