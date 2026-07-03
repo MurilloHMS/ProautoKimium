@@ -78,8 +78,6 @@ $text-muted: #888888;
       border-color: v.$secondary !important;
       outline: none;
     }
-
-    @media (max-width: 480px) { display: none; }
   }
 
   // ── Botões de ação (sino, sair) ────────────────────────────
@@ -574,6 +572,70 @@ $text-muted: #888888;
 
 // ── Utilitário de espaçamento do conteúdo principal ───────────
 .page-content { padding-top: 52px; }
+
+// ═══════════════════════════════════════════════════════════════
+// TOPBAR — responsivo (mobile): evita a busca sobrepor o sino
+// ═══════════════════════════════════════════════════════════════
+@media (max-width: 768px) {
+  .topbar {
+    padding: 0 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .topbar-left {
+    flex: 0 1 auto;   // pode ceder espaço para a busca
+    min-width: 0;
+    gap: 0.5rem;
+  }
+
+  .topbar-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar-right {
+    flex: 1 1 auto;   // ocupa o restante da barra
+    min-width: 0;
+    gap: 0.25rem;
+    justify-content: flex-end;
+  }
+
+  // Busca passa a preencher o espaço livre em vez de largura fixa
+  .topbar-search-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 260px;
+  }
+
+  .topbar .topbar-search {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;      // permite encolher sem transbordar
+
+    &:focus { width: 100% !important; }
+  }
+
+  // Ícones ficam fixos e nunca são cobertos pela busca
+  .topbar-bell,
+  .topbar-icon-btn { flex-shrink: 0; }
+
+  // Logout já existe no rodapé do drawer → remove duplicidade e libera espaço
+  .topbar-icon-btn { display: none !important; }
+
+  // Dropdown de resultados acompanha a largura disponível
+  .search-dropdown {
+    width: auto;
+    left: 0;
+    right: 0;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  // Em telas bem estreitas o título cede lugar para a busca
+  .topbar-title { display: none; }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // BOTTOM NAV (mobile) — estilo app
