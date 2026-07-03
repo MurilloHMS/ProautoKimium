@@ -1,13 +1,12 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { NotFoundComponent } from './components/shared/not-found/not-found.component';
 import { HomeComponent } from './components/public/home/home.component';
 import { ListaProdutosComponent } from './components/public/lista-produtos/lista-produtos.component';
 import { LoginComponent } from './components/public/login/login.component';
 import { InstitucionalComponent } from './components/public/institucional/institucional.component';
 import { SalesCertificatesComponent } from './components/public/sales-certificates/sales-certificates.component';
 import { FaqComponent } from './components/public/faq/faq.component';
-import { SellerComponent } from './components/public/profile/seller/seller.component';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { AuthGuard } from './infrastructure/guard/auth.guard';
@@ -64,7 +63,6 @@ export const routes: Routes = [
       { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full' },
       { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full' },
       { path: 'support/faq', component: FaqComponent, pathMatch: 'full' },
-      { path: 'profile', component: SellerComponent, pathMatch: 'full' },
       { path: 'branding', component: BrandingComponent, pathMatch: 'full' },
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
@@ -82,7 +80,7 @@ export const routes: Routes = [
       { path: 'home', component: AuthHomeComponent, data: { roles: ['ADMIN'] } },
       { path: 'rh/holerit', component: HoleritSpliterComponent },
       { path: 'rh/holerit/extractor', component: HoleritExtractorComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
+      { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
@@ -94,13 +92,13 @@ export const routes: Routes = [
       { path: 'communication/newsletter', component: NewsletterComponent, data: { roles: ['ADMIN', 'MARKETING'] } },
       { path: 'communication/email', component: EmailComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] } },
       { path: 'communication/secrets', component: SecretsComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}},
-      { path: 'communication/email-signature', component: EmailSignatureComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN', 'VENDEDOR'] } },
+      { path: 'communication/email-signature', component: EmailSignatureComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN'] } },
       { path: 'communication/contact', component: ContactsComponent, data: { roles: ['ADMIN', 'SUPPORT'] } },
-      { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'MARKETING'] } },
+      { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'DESIGN'] } },
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
       { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
-      { path: 'company/equipments', component: EquipmentsComponent, data: { roles: ['ADMIN', 'CONTRATOS', 'MARKETING', 'DESIGN'] } },
+      { path: 'company/equipments', component: EquipmentsComponent, data: { roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'documentos', component: DocumentosComponent },

@@ -4,9 +4,9 @@ import { ProcessoConsultoriaComponent } from "./components/processo-consultoria/
 import { MotivosContratarComponent } from "./components/motivos-contratar/motivos-contratar.component";
 import { ServicosOfertadosComponent } from "./components/servicos-ofertados/servicos-ofertados.component";
 import { AboutUsComponent } from "./components/about-us/about-us.component";
-import {ContactComponent} from "../../../shared/contact/contact.component";
+import {ContactComponent} from "../../shared/contact/contact.component";
 import {FraudAlertComponent} from "../alerts/fraud-alert/fraud-alert.component";
-import {RevealDirective} from "../../../shared/directives/reveal.directive";
+import {RevealDirective} from "../../shared/directives/reveal.directive";
 
 @Component({
     selector: 'app-home',
