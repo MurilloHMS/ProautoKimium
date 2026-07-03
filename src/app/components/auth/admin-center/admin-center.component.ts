@@ -1,33 +1,31 @@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './../../../infrastructure/services/auth.service';
-import {Component, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { UserRole, RegisterDTO, UserResponseDTO } from '../../../domain/models/user.model';
+
+// ── Componentes do tema ProautoKimium ────────────────────────────────────────
+import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
+import { PkPasswordComponent } from '../../theme/ProautoKimium/pk-password/pk-password.component';
+import { PkMultiselectComponent } from '../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
+import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.component';
 
 @Component({
   selector: 'app-admin-center',
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    MultiSelectModule,
     ToastModule,
-    TableModule,
-    TagModule,
-    TooltipModule
+    PkButtonComponent,
+    PkInputComponent,
+    PkPasswordComponent,
+    PkMultiselectComponent,
+    PkDialogComponent,
+    PkTableComponent
   ],
   templateUrl: './admin-center.component.html',
   styleUrl: './admin-center.component.scss',
@@ -40,6 +38,9 @@ export class AdminCenterComponent {
   isSubmitting = false;
   isLoadingUsers = false;
   users: UserResponseDTO[] = [];
+
+  // Controla o modal de criar/editar
+  showDialog = false;
 
   // Controla se estamos editando um usuário existente
   editingUser: UserResponseDTO | null = null;
@@ -75,40 +76,59 @@ export class AdminCenterComponent {
   private buildRegisterForm(): void {
     this.registerForm = this.fb.group({
       login: ['', [Validators.required, Validators.minLength(3), Validators.pattern('^[a-zA-Z0-9.]+$')]],
-      password: [''],
-      confirmPassword: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
       roles: [[], [Validators.required]]
     }, { validators: this.passwordMatchValidator });
   }
 
-  // ── Seleção de usuário na tabela ──────────────────────────────────────────
+  // ── Abertura do modal (criar / editar) ─────────────────────────────────────
 
+  /** Abre o modal em branco para registrar um novo usuário. */
+  openCreateDialog(): void {
+    this.editingUser = null;
+    this.registerForm.get('login')?.enable();
+    this.buildRegisterForm();
+    this.showDialog = true;
+  }
+
+  /** Abre o modal já preenchido para editar as permissões de um usuário. */
   selectUserToEdit(user: UserResponseDTO): void {
     this.editingUser = user;
+    this.buildRegisterForm();
 
-    // Remove validações de senha no modo edição
-    this.registerForm.get('password')?.clearValidators();
-    this.registerForm.get('confirmPassword')?.clearValidators();
+    // Na edição só as permissões mudam: login travado; e-mail e senha não se aplicam
+    ['email', 'password', 'confirmPassword'].forEach(name => {
+      const control = this.registerForm.get(name);
+      control?.clearValidators();
+      control?.updateValueAndValidity();
+    });
     this.registerForm.get('login')?.disable();
 
     this.registerForm.patchValue({
       login: user.login,
-      password: '',
-      confirmPassword: '',
       roles: [...user.roles]
     });
 
-    this.registerForm.get('password')?.updateValueAndValidity();
-    this.registerForm.get('confirmPassword')?.updateValueAndValidity();
-
-    // Scroll suave até o formulário
-    document.querySelector('.form-section')?.scrollIntoView({ behavior: 'smooth' });
+    this.showDialog = true;
   }
 
-  cancelEdit(): void {
+  /** Fecha o modal e restaura o formulário ao estado inicial. */
+  closeDialog(): void {
+    this.showDialog = false;
     this.editingUser = null;
     this.registerForm.get('login')?.enable();
     this.buildRegisterForm();
+  }
+
+  cancelEdit(): void {
+    this.closeDialog();
+  }
+
+  /** Fecha e limpa quando o modal é ocultado (X, ESC, clique fora). */
+  onDialogVisibleChange(visible: boolean): void {
+    if (!visible) this.closeDialog();
   }
 
   // ── Submit: cria ou atualiza ──────────────────────────────────────────────
@@ -131,12 +151,13 @@ export class AdminCenterComponent {
     this.isSubmitting = true;
     const roles: string[] = this.registerForm.get('roles')?.value;
 
-    this.authService.updateUserRoles(this.editingUser!.login, roles).subscribe({
+    const editingLogin = this.editingUser!.login;
+    this.authService.updateUserRoles(editingLogin, roles).subscribe({
       next: () => {
         this.editingUser!.roles = [...roles]; // atualiza linha na tabela sem recarregar
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: `Permissões de "${this.editingUser!.login}" atualizadas!` });
+        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: `Permissões de "${editingLogin}" atualizadas!` });
         this.isSubmitting = false;
-        this.cancelEdit();
+        this.closeDialog();
       },
       error: (err) => {
         this.isSubmitting = false;
@@ -150,6 +171,7 @@ export class AdminCenterComponent {
     const formValue = this.registerForm.value;
     const registerData: RegisterDTO = {
       login: formValue.login,
+      email: formValue.email,
       password: formValue.password,
       roles: formValue.roles
     };
@@ -158,7 +180,7 @@ export class AdminCenterComponent {
       next: () => {
         this.isSubmitting = false;
         this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Usuário registrado com sucesso!' });
-        this.registerForm.reset({ roles: [] });
+        this.closeDialog();
         this.loadUsers();
       },
       error: (error) => {
@@ -230,7 +252,9 @@ export class AdminCenterComponent {
     const field = this.registerForm.get(fieldName);
     if (field?.errors) {
       if (field.errors['required']) return 'Este campo é obrigatório';
+      if (field.errors['email']) return 'E-mail inválido';
       if (field.errors['minlength']) return `Mínimo de ${field.errors['minlength'].requiredLength} caracteres`;
+      if (field.errors['pattern']) return 'Use apenas letras, números e ponto';
       if (field.errors['passwordMismatch']) return 'As senhas não coincidem';
     }
     return '';

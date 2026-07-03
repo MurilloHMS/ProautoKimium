@@ -1,5 +1,6 @@
 export interface RegisterDTO {
   login: string;
+  email: string;
   password: string;
   roles: string[];
 }
@@ -13,12 +14,6 @@ export interface UserResponseDTO {
 export interface UserRole {
   label: string;
   value: string;
-}
-
-export interface RegisterDTO {
-  login: string;
-  password: string;
-  roles: string[];
 }
 
 export interface User {

@@ -2,13 +2,10 @@
 :host {
   --c-border:       1px solid #e9ecef;
   --c-radius:       10px;
-  --c-radius-sm:    6px;
   --c-text:         #111827;
   --c-muted:        #6b7280;
-  --c-bg:           #f8f9fb;
   --c-surface:      #ffffff;
   --c-danger:       #dc2626;
-  --c-primary:      #111827;
   --c-edit-bg:      #eff6ff;
   --c-edit-border:  #3b82f6;
   --c-edit-text:    #1d4ed8;
@@ -19,6 +16,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 0 2rem;
   height: 60px;
   background: var(--c-surface);
@@ -32,6 +30,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .ac-topbar-icon {
@@ -44,6 +43,7 @@
   justify-content: center;
   color: #444441;
   font-size: 16px;
+  flex-shrink: 0;
 }
 
 .ac-topbar-title {
@@ -63,6 +63,7 @@
 .ac-topbar-right {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 // ─── Conteúdo ─────────────────────────────────────────────────────────────────
@@ -71,65 +72,16 @@
   min-height: 88vh;
   margin: 0 auto;
   padding: 1.5rem 2rem 3rem;
+}
+
+// ─── Campos do modal ──────────────────────────────────────────────────────────
+.ac-fields {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-// ─── Painéis ─────────────────────────────────────────────────────────────────
-.ac-panel {
-  background: var(--c-surface);
-  border: var(--c-border);
-  border-radius: var(--c-radius);
-  overflow: hidden;
-}
-
-.ac-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-bottom: var(--c-border);
-  background: #fafafa;
-}
-
-.ac-panel-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-  color: var(--c-muted);
-}
-
-.ac-edit-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--c-edit-bg);
-  border: 1px solid #bfdbfe;
-  border-radius: 4px;
-  padding: 3px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--c-edit-text);
-
-  i { font-size: 10px; }
-}
-
-.ac-count-badge {
-  background: #f1f0e8;
-  border-radius: 20px;
-  padding: 2px 10px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #5f5e5a;
-}
-
-.ac-panel-body {
-  padding: 20px;
-}
-
-// ─── Edit banner ──────────────────────────────────────────────────────────────
+// ─── Banner de edição ─────────────────────────────────────────────────────────
 .edit-banner {
   display: flex;
   align-items: center;
@@ -138,7 +90,7 @@
   border-left: 3px solid var(--c-edit-border);
   border-radius: 0 6px 6px 0;
   padding: 10px 14px;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
   font-size: 13px;
   color: var(--c-edit-text);
   line-height: 1.4;
@@ -147,170 +99,10 @@
   strong { font-weight: 600; }
 }
 
-// ─── Form horizontal ──────────────────────────────────────────────────────────
-.ac-form-row {
-  display: grid;
-  grid-template-columns: 200px 1fr 1fr 1.5fr auto;
-  gap: 12px;
-  align-items: start;
-}
-
-.ac-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-
-.ac-field-roles {
-  min-width: 0;
-}
-
-.ac-field-actions {
-  flex-shrink: 0;
-}
-
-.ac-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  color: var(--c-muted);
-}
-
-.ac-required { color: var(--c-danger); }
-
-.ac-error {
-  font-size: 11px;
-  color: var(--c-danger);
-  margin-top: 2px;
-}
-
-.ac-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-// ─── Inputs ───────────────────────────────────────────────────────────────────
-::ng-deep {
-  .ac-form-row .p-inputtext {
-    width: 100%;
-    height: 36px;
-    border-radius: var(--c-radius-sm) !important;
-    border: var(--c-border) !important;
-    font-size: 13px !important;
-    padding: 0 10px !important;
-    transition: border-color .15s, box-shadow .15s;
-
-    &:focus {
-      border-color: #6366f1 !important;
-      box-shadow: 0 0 0 3px rgba(99,102,241,.1) !important;
-    }
-    &.ng-invalid { border-color: var(--c-danger) !important; }
-    &:disabled { background: #fafafa !important; color: var(--c-muted) !important; }
-  }
-
-  .ac-form-row .p-password { width: 100%; }
-  .ac-form-row .p-password input {
-    width: 100%;
-    height: 36px;
-    border-radius: var(--c-radius-sm) !important;
-    border: var(--c-border) !important;
-    font-size: 13px !important;
-    padding: 0 36px 0 10px !important;
-    transition: border-color .15s, box-shadow .15s;
-
-    &:focus {
-      border-color: #6366f1 !important;
-      box-shadow: 0 0 0 3px rgba(99,102,241,.1) !important;
-    }
-    &.ng-invalid { border-color: var(--c-danger) !important; }
-  }
-
-  .ac-form-row .p-multiselect {
-    width: 100%;
-    min-height: 36px;
-    border-radius: var(--c-radius-sm) !important;
-    border: var(--c-border) !important;
-    font-size: 13px !important;
-    transition: border-color .15s, box-shadow .15s;
-
-    &:not(.p-disabled):hover { border-color: #6366f1 !important; }
-    &.p-focus {
-      border-color: #6366f1 !important;
-      box-shadow: 0 0 0 3px rgba(99,102,241,.1) !important;
-    }
-    &.ng-invalid { border-color: var(--c-danger) !important; }
-
-    .p-multiselect-chip {
-      background: #eef2ff !important;
-      color: #4338ca !important;
-      border-radius: 4px !important;
-      font-size: 11px !important;
-      font-weight: 600 !important;
-      padding: 2px 6px !important;
-    }
-  }
-
-  .ac-form-row .p-button {
-    height: 36px;
-    border-radius: var(--c-radius-sm) !important;
-    font-size: 12px !important;
-    white-space: nowrap;
-  }
-}
-
-// ─── Tabela ───────────────────────────────────────────────────────────────────
-::ng-deep .ac-table {
-  .p-datatable-thead > tr > th {
-    background: #fafafa !important;
-    color: var(--c-muted) !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    letter-spacing: .06em !important;
-    text-transform: uppercase !important;
-    padding: 10px 20px !important;
-    border-bottom: var(--c-border) !important;
-    border-top: none !important;
-  }
-
-  .p-datatable-tbody > tr {
-    transition: background .1s;
-
-    > td {
-      padding: 12px 20px !important;
-      border-bottom: var(--c-border) !important;
-      border-top: none !important;
-      vertical-align: middle;
-      font-size: 13px;
-      color: var(--c-text);
-    }
-
-    &:hover > td { background: #fafbff !important; }
-    &:last-child > td { border-bottom: none !important; }
-    &.ac-row-active > td { background: var(--c-edit-bg) !important; }
-  }
-
-  .p-datatable-emptymessage td { border-bottom: none !important; }
-
-  .p-paginator {
-    border-top: var(--c-border) !important;
-    background: #fafafa !important;
-    padding: 8px 20px !important;
-    font-size: 12px !important;
-    border-radius: 0 0 var(--c-radius) var(--c-radius) !important;
-
-    .p-paginator-element {
-      border-radius: var(--c-radius-sm) !important;
-      height: 28px !important;
-      min-width: 28px !important;
-      font-size: 12px !important;
-    }
-  }
-}
-
+// ─── Célula de login + linha em edição ────────────────────────────────────────
 .ac-login-cell { font-weight: 500; }
+
+.ac-row-active > td { background: var(--c-edit-bg) !important; }
 
 // ─── Tags de role ─────────────────────────────────────────────────────────────
 .ac-tag {
@@ -319,49 +111,27 @@
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 600;
-  margin-right: 4px;
+  margin: 2px 4px 2px 0;
   letter-spacing: .02em;
   background: #f1f0e8;
   color: #5f5e5a;
 
-  &[data-role="ADMIN"]   { background: #fee2e2; color: #991b1b; }
-  &[data-role="USER"]    { background: #dbeafe; color: #1e40af; }
-  &[data-role="RH"]      { background: #d1fae5; color: #065f46; }
-  &[data-role="DEVELOPER"] { background: #ede9fe; color: #5b21b6; }
+  &[data-role="ADMIN"]      { background: #fee2e2; color: #991b1b; }
+  &[data-role="USER"]       { background: #dbeafe; color: #1e40af; }
+  &[data-role="RH"]         { background: #d1fae5; color: #065f46; }
+  &[data-role="DEVELOPER"]  { background: #ede9fe; color: #5b21b6; }
   &[data-role="FINANCEIRO"] { background: #fef3c7; color: #92400e; }
-}
-
-// ─── Empty state ──────────────────────────────────────────────────────────────
-.ac-empty {
-  text-align: center;
-  padding: 3rem 1rem !important;
-  color: var(--c-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-
-  i { font-size: 28px; opacity: .35; }
-  span { font-size: 13px; }
+  &[data-role="MARKETING"]  { background: #ffe4e6; color: #9f1239; }
 }
 
 // ─── Responsivo ───────────────────────────────────────────────────────────────
-@media (max-width: 1024px) {
-  .ac-form-row {
-    grid-template-columns: 1fr 1fr;
-  }
-  .ac-field-roles,
-  .ac-field-actions {
-    grid-column: span 2;
-  }
-  .ac-actions { justify-content: flex-start; }
-}
-
 @media (max-width: 640px) {
-  .ac-topbar { padding: 0 1rem; }
+  .ac-topbar {
+    height: auto;
+    flex-wrap: wrap;
+    padding: 10px 1rem;
+  }
+  .ac-topbar-right { width: 100%; }
   .ac-content { padding: 1rem; }
-  .ac-form-row { grid-template-columns: 1fr; }
-  .ac-field-roles,
-  .ac-field-actions { grid-column: span 1; }
   .ac-topbar-sub { display: none; }
 }
