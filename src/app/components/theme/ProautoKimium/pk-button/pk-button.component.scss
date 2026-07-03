@@ -35,7 +35,7 @@
     }
   }
 
-  &--edit, &--filter , &--home{
+  &--edit, &--filter , &--home, &--token {
     background: transparent !important;
     border-color: v.$primary !important;
     color: v.$primary !important;

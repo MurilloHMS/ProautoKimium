@@ -16,7 +16,8 @@ export type PkButtonType =
   | 'filter'
   | 'home'
   | 'left'
-  | 'excel';
+  | 'excel'
+  | 'token';
 
 export type PkButtonSize = 'sm' | 'md' | 'lg';
 
@@ -40,6 +41,7 @@ const BUTTON_CONFIG: Record<PkButtonType, ButtonConfig> = {
   excel:    { icon: 'pi pi-file-excel',  label: '',          styleClass: 'pk-btn--excel'    },
   home:    { icon: 'pi pi-home',         label: '',          styleClass: 'pk-btn--home'     },
   left:    { icon: 'pi pi-arrow-left',   label: '',          styleClass: 'pk-btn--arrow'    },
+  token:   { icon: 'pi pi-key',          label: 'Gerar Token', styleClass: 'pk-btn--token'  },
 
 };
 
