@@ -80,7 +80,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: AuthHomeComponent, data: { roles: ['ADMIN'] } },
-      { path: 'rh/holerit', component: HoleritSpliterComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/holerit', component: HoleritSpliterComponent },
       { path: 'rh/holerit/extractor', component: HoleritExtractorComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
