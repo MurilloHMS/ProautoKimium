@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { SnackbarComponent } from '../../../shared/snackbar/snackbar.component';
+import { SnackbarComponent } from '../../shared/snackbar/snackbar.component';
 import { environment } from '../../../../environments/environment';
 import {OrcamentoService} from "../../../infrastructure/services/company/products/website/orcamento/orcamento.service";
 import {OrcamentoDrawerComponent} from "./components/orcamento-drawer/orcamento-drawer.component";

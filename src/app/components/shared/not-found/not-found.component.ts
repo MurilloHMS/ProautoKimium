@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {Router} from "@angular/router";
-import {PkButtonComponent} from "../../components/theme/ProautoKimium/pk-button/pk-button.component";
+import {PkButtonComponent} from "../../theme/ProautoKimium/pk-button/pk-button.component";
 
 @Component({
     selector: 'app-not-found',
