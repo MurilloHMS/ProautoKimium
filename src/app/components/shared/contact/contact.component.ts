@@ -8,11 +8,11 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast'
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { Select } from "primeng/select";
-import { Contact, TipoContato } from '../../domain/models/contact.model';
-import { ContactService } from '../../infrastructure/services/contact/contact.service';
+import { Contact, TipoContato } from '../../../domain/models/contact.model';
+import { ContactService } from '../../../infrastructure/services/contact/contact.service';
 import { NgStyle } from '@angular/common';
 import {RouterLink} from "@angular/router";
 
