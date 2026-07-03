@@ -1,93 +1,97 @@
-<div class="home-container">
+<div class="home">
 
-  <section class="welcome-section">
-    <div class="welcome-content">
-      <div>
-        <h2>Olá, bem-vindo de volta! <span class="wave-emoji">👋</span></h2>
-        <p class="welcome-date">{{ currentDate | date:'EEEE, dd MMMM yyyy':'':'pt-BR' }}</p>
+  <!-- ═══════════════════════════════════════════════════
+       HERO — saudação personalizada
+  ═══════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero__bg" aria-hidden="true"></div>
+
+    <div class="hero__content">
+      <p class="hero__date">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
+
+      <h1 class="hero__greeting">
+        {{ greeting }}@if (firstName) {, {{ firstName }}}!
+        <span class="hero__wave">👋</span>
+      </h1>
+
+      <p class="hero__lead">
+        Bem-vindo ao portal interno da <strong>Proauto Kimium</strong> —
+        seus sistemas e ferramentas reunidos em um só lugar.
+      </p>
+
+      <div class="hero__meta">
+        <a routerLink="/notificacoes" class="hero-pill">
+          <i class="pi pi-bell"></i>
+          @if (notifications.unreadCount() > 0) {
+            {{ notifications.unreadCount() }}
+            {{ notifications.unreadCount() === 1 ? 'nova notificação' : 'novas notificações' }}
+          } @else {
+            Nenhuma notificação nova
+          }
+        </a>
+
+        @if (primaryRole) {
+          <span class="hero-pill hero-pill--ghost">
+            <i class="pi pi-shield"></i>{{ primaryRole }}
+          </span>
+        }
       </div>
     </div>
   </section>
 
-  <section class="apps-section">
-    <h3 class="section-title">
-      <i class="pi pi-external-link"></i>
-      Apps Externos
-    </h3>
-    <div class="apps-grid">
+  <!-- ═══════════════════════════════════════════════════
+       ATALHOS RÁPIDOS — módulos internos (por papel)
+  ═══════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section__head">
+      <h2 class="section__title"><i class="pi pi-th-large"></i> Atalhos rápidos</h2>
+      <span class="section__hint">Acesso direto aos módulos que você utiliza</span>
+    </div>
 
-      <a href="https://cloud.proautokimium.com.br/" target="_blank" class="app-card app-card--nextcloud">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-cloud"></i>
-        </div>
-        <div class="app-card__info">
-          <span class="app-card__name">NextCloud</span>
-          <span class="app-card__desc">Armazenamento & Arquivos</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
+    <div class="quick-grid">
+      @for (link of quickLinks; track link.link) {
+        <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
+          <span class="quick-card__icon"><i [class]="link.icon"></i></span>
+          <span class="quick-card__body">
+            <span class="quick-card__label">{{ link.label }}</span>
+            <span class="quick-card__desc">{{ link.description }}</span>
+          </span>
+          <i class="pi pi-arrow-right quick-card__arrow"></i>
+        </a>
+      }
+    </div>
+  </section>
 
-      <a href="https://n8n.proautokimium.com.br/" target="_blank" class="app-card app-card--n8n">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-sitemap"></i>
-        </div>
-        <div class="app-card__info">
-          <span class="app-card__name">N8N</span>
-          <span class="app-card__desc">Automação de Fluxos</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
+  <!-- ═══════════════════════════════════════════════════
+       NOTIFICAÇÕES RECENTES
+  ═══════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section__head">
+      <h2 class="section__title"><i class="pi pi-bell"></i> Notificações recentes</h2>
+      <a routerLink="/notificacoes" class="section__link">Ver todas <i class="pi pi-angle-right"></i></a>
+    </div>
 
-      <a href="https://pdf.proautokimium.com.br/" target="_blank" class="app-card app-card--pdf">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-file-pdf"></i>
+    <div class="notif-panel">
+      @if (recentNotifications().length > 0) {
+        @for (n of recentNotifications(); track n.id) {
+          <a routerLink="/notificacoes" class="notif-row" [class.notif-row--unread]="!n.read">
+            <span class="notif-row__icon" [class.is-holerite]="n.type === 'HOLERITE'">
+              <i class="pi" [ngClass]="n.type === 'HOLERITE' ? 'pi-file' : 'pi-megaphone'"></i>
+            </span>
+            <span class="notif-row__body">
+              <span class="notif-row__title">{{ n.title }}</span>
+              <span class="notif-row__msg">{{ n.message }}</span>
+            </span>
+            <span class="notif-row__time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+          </a>
+        }
+      } @else {
+        <div class="notif-empty">
+          <span class="notif-empty__icon"><i class="pi pi-check-circle"></i></span>
+          <p class="notif-empty__title">Você está em dia!</p>
+          <span class="notif-empty__sub">Nenhuma notificação por aqui no momento.</span>
         </div>
-        <div class="app-card__info">
-          <span class="app-card__name">PDF</span>
-          <span class="app-card__desc">Gestão de Documentos</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
-
-      <a href="https://jenkins.proautokimium.com.br/" target="_blank" class="app-card app-card--jenkins">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-cog"></i>
-        </div>
-        <div class="app-card__info">
-          <span class="app-card__name">Jenkins</span>
-          <span class="app-card__desc">CI/CD & Deploy</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
-
-      <a href="https://api.proautokimium.com/swagger-ui/index.html" target="_blank" class="app-card app-card--api">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-code"></i>
-        </div>
-        <div class="app-card__info">
-          <span class="app-card__name">API</span>
-          <span class="app-card__desc">Documentação Swagger</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
-
-      <a href="https://infra.proautokimium.com.br/" target="_blank" class="app-card app-card--glpi">
-        <div class="app-card__glow"></div>
-        <div class="app-card__icon">
-          <i class="pi pi-ticket"></i>
-        </div>
-        <div class="app-card__info">
-          <span class="app-card__name">GLPI</span>
-          <span class="app-card__desc">Chamados & Suporte</span>
-        </div>
-        <i class="pi pi-arrow-up-right app-card__arrow"></i>
-      </a>
-
+      }
     </div>
   </section>
 

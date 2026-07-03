@@ -37,17 +37,17 @@
     <i class="pi pi-home"></i>
     <span>Início</span>
   </a>
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 3 && !menuAberto" (click)="setActive(3)" href="#contact">
+    <i class="pi pi-envelope"></i>
+    <span>Contato</span>
+  </a>
   <a class="bottom-nav__item" [class.is-active]="activeIndex === 1 && !menuAberto" (click)="setActive(1)" routerLink="produtos">
     <i class="pi pi-box"></i>
     <span>Produtos</span>
   </a>
-  <a class="bottom-nav__item" [class.is-active]="activeIndex === 2 && !menuAberto" (click)="setActive(2)" href="#services">
-    <i class="pi pi-briefcase"></i>
-    <span>Serviços</span>
-  </a>
-  <a class="bottom-nav__item" [class.is-active]="activeIndex === 3 && !menuAberto" (click)="setActive(3)" href="#contact">
-    <i class="pi pi-envelope"></i>
-    <span>Contato</span>
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 2 && !menuAberto" (click)="setActive(2)" routerLink="login">
+    <i class="pi pi-sign-in"></i>
+    <span>Login</span>
   </a>
   <button
     class="bottom-nav__item"
