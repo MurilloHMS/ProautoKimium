@@ -1,0 +1,76 @@
+@use 'variables' as v;
+
+.pk-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--disabled { opacity: .55; pointer-events: none; }
+}
+
+.pk-label {
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: v.$neutral-900;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+
+.pk-required { color: v.$danger; }
+
+.pk-field-footer { display: flex; align-items: center; min-height: 1rem; }
+
+.pk-error {
+  font-size: v.$font-size-xs;
+  color: v.$danger;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+
+  i { font-size: .7rem; }
+}
+
+// ── MultiSelect PrimeNG alinhado ao pk-input ──────────────────────────────────
+::ng-deep .pk-multiselect {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid v.$border !important;
+  border-radius: v.$radius-md !important;
+  background: v.$bg-base !important;
+  font-size: v.$font-size-sm !important;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base !important;
+
+  &:not(.p-disabled):hover { border-color: v.$primary-light !important; }
+
+  &.p-focus,
+  &.p-inputwrapper-focus {
+    border-color: v.$primary-light !important;
+    box-shadow: v.$shadow-focus-primary !important;
+  }
+
+  .p-multiselect-label {
+    padding: .5rem .75rem !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    align-items: center;
+  }
+
+  .p-multiselect-label.p-placeholder { color: v.$neutral-400 !important; }
+
+  .p-multiselect-chip,
+  .p-chip {
+    background: rgba(v.$primary, .1) !important;
+    color: v.$primary !important;
+    border-radius: v.$radius-sm !important;
+    font-size: v.$font-size-xs !important;
+    font-weight: 600 !important;
+    padding: .1rem .45rem !important;
+  }
+
+  &--error {
+    border-color: v.$danger !important;
+    background: rgba(v.$danger, .03) !important;
+  }
+}
