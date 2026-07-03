@@ -385,11 +385,22 @@ $text-muted: #888888;
   margin: 0; padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+}
+
+// Rótulo de seção no topo da lista — dá um ponto de partida claro
+.drawer-section-label {
+  margin: 0.35rem 0.6rem 0.4rem;
+  font-family: v.$font-heading;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: v.$text-light;
 }
 
 .drawer-item  { display: flex; flex-direction: column; }
-.drawer-subitem { display: flex; flex-direction: column; padding-left: 0.5rem; }
+.drawer-subitem { display: flex; flex-direction: column; }
 
 // ── Placeholder de estilos comuns aos links ────────────────────
 %link-reset {
@@ -410,15 +421,25 @@ $text-muted: #888888;
 // ── Nível 1 ────────────────────────────────────────────────────
 .drawer-link {
   @extend %link-reset;
-  padding: 0.55rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.84rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 9px;
+  font-size: 0.85rem;
   font-weight: 500;
   color: v.$neutral-700;
 
   &:hover {
     background: v.$bg-surface;
     color: v.$primary;
+    .drawer-icon-wrap { background: rgba(v.$primary, 0.10); }
+    .drawer-icon-wrap i { color: v.$primary; }
+  }
+
+  // Grupo aberto: fundo sutil indica qual seção está expandida
+  &.drawer-toggle.expanded {
+    background: v.$bg-surface;
+    color: v.$primary;
+    font-weight: 600;
+    .drawer-icon-wrap { background: rgba(v.$primary, 0.10); }
     .drawer-icon-wrap i { color: v.$primary; }
   }
 
@@ -426,6 +447,8 @@ $text-muted: #888888;
     background: v.$primary;
     color: #ffffff;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(v.$primary, 0.28);
+    .drawer-icon-wrap { background: rgba(#ffffff, 0.16); }
     .drawer-icon-wrap i { color: #ffffff; }
 
     &:hover {
@@ -439,11 +462,22 @@ $text-muted: #888888;
 // ── Nível 2 ────────────────────────────────────────────────────
 .drawer-sublink {
   @extend %link-reset;
-  padding: 0.45rem 0.75rem;
+  position: relative;
+  gap: 0.55rem;
+  padding: 0.42rem 0.6rem;
   border-radius: 7px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 400;
-  color: v.$neutral-700;
+  color: v.$neutral-500;
+
+  // Ícone menor e plano — reforça que o item é subordinado ao nível 1
+  .drawer-icon-wrap {
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border-radius: 5px;
+    i { font-size: 0.72rem; }
+  }
 
   &:hover {
     background: v.$bg-surface;
@@ -452,38 +486,50 @@ $text-muted: #888888;
   }
 
   &.active-subitem {
-    background: v.$primary;
-    color: #ffffff;
-    font-weight: 500;
-    .drawer-icon-wrap i { color: #ffffff; }
+    background: rgba(v.$primary, 0.10);
+    color: v.$primary;
+    font-weight: 600;
+    .drawer-icon-wrap i { color: v.$primary; }
 
-    &:hover { background: v.$primary-light; color: #ffffff; }
+    // Marcador sobre a guia lateral: mostra o item ativo dentro do grupo
+    &::before {
+      content: '';
+      position: absolute;
+      left: -0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 58%;
+      border-radius: 2px;
+      background: v.$primary;
+    }
+
+    &:hover { background: rgba(v.$primary, 0.14); color: v.$primary; }
   }
 
-  &.drawer-toggle { font-weight: 500; }
+  &.drawer-toggle { font-weight: 500; color: v.$neutral-700; }
 }
 
 // ── Nível 3 ────────────────────────────────────────────────────
 .drawer-deeplink {
   @extend %link-reset;
-  padding: 0.4rem 0.75rem;
+  padding: 0.38rem 0.6rem;
   border-radius: 6px;
-  font-size: 0.8rem;
-  color: v.$neutral-700;
+  font-size: 0.78rem;
+  color: v.$neutral-500;
   gap: 0.5rem;
 
   &:hover {
     background: v.$bg-surface;
     color: v.$primary;
-    .drawer-dot { background: v.$secondary; }
+    .drawer-dot { background: v.$primary; }
   }
 
   &.active-deepitem {
-    background: v.$primary;
-    color: #ffffff;
-    .drawer-dot { background: v.$secondary-lighter; }
-
-    &:hover { background: v.$primary-light; color: #ffffff; }
+    background: rgba(v.$primary, 0.10);
+    color: v.$primary;
+    font-weight: 600;
+    .drawer-dot { background: v.$primary; }
   }
 }
 
@@ -498,7 +544,8 @@ $text-muted: #888888;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 7px;
+  background: v.$bg-surface;         // tile suave nos itens de nível 1
   flex-shrink: 0;
   transition: background 0.15s;
 
@@ -560,14 +607,15 @@ $text-muted: #888888;
 // ── Submenus (animação de abertura) ───────────────────────────
 .drawer-submenu {
   list-style: none;
-  margin: 2px 0 0;
-  padding: 0;
+  margin: 3px 0 5px 1.5rem;         // indenta e alinha ~ao centro do ícone do pai
+  padding-left: 0.7rem;             // respiro entre a guia e os itens
+  border-left: 1.5px solid v.$border; // guia vertical conectando o grupo
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.28s ease;
 
-  &.open    { max-height: 1000px; }
-  &--deep   { padding-left: 0.5rem; }
+  &.open  { max-height: 1000px; }
+  &--deep { margin-left: 1rem; }
 }
 
 // ── Utilitário de espaçamento do conteúdo principal ───────────
