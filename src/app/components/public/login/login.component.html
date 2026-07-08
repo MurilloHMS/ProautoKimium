@@ -80,7 +80,10 @@
                 <span class="error-message">{{ errorMessage }}</span>
               </div>
             }
-            <a routerLink="forgot-password" class="forgot-link">Esqueceu a senha?</a>
+            <div class="links">
+              <a routerLink="first-access" class="item-link">Primeiro acesso?</a>
+              <a routerLink="forgot-password" class="item-link">Esqueceu a senha?</a>
+            </div>
           </div>
 
           <button type="submit" class="submit-button" [disabled]="form.invalid || loading">
