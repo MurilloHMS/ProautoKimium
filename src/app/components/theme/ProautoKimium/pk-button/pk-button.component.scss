@@ -65,7 +65,7 @@
     }
   }
 
-  &--upload, &--download, &--excel {
+  &--upload, &--download, &--excel, &--send{
     background: v.$secondary !important;
     border-color: v.$secondary !important;
     color: v.$white !important;
