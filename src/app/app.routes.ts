@@ -49,6 +49,7 @@ import { DocumentosComponent } from './components/auth/documentos/documentos.com
 import { NotificacoesComponent } from './components/auth/notificacoes/notificacoes.component';
 import { PerfilComponent } from './components/auth/perfil/perfil.component';
 import { HoleritesComponent } from './components/auth/holerites/holerites.component';
+import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
 export const routes: Routes = [
@@ -65,6 +66,7 @@ export const routes: Routes = [
       { path: 'support/faq', component: FaqComponent, pathMatch: 'full' },
       { path: 'branding', component: BrandingComponent, pathMatch: 'full' },
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
+      { path: 'login/first-access', component: FirstAccessComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
       { path: 'profile/:slug', component: VcardComponent, pathMatch: 'full' },

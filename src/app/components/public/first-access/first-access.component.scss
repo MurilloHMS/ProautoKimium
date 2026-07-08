@@ -1,0 +1,371 @@
+@use 'variables' as v;
+@use 'sass:color';
+
+
+.fa-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: v.$bg-surface;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 60% -10%, rgba(v.$primary, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(v.$secondary, 0.10) 0%, transparent 60%);
+  padding: 2rem 1rem;
+  font-family: v.$font-body;
+}
+
+.fa-card {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: v.$radius-sm;
+  box-shadow: v.$shadow-sm;
+  padding: 2.5rem 2.25rem 2rem;
+  border: 1px solid v.$bg-surface-dark;
+  animation: fa-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fa-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.fa-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.fa-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
+  color: #fff;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 16px rgba(v.$primary, 0.28);
+}
+
+.fa-title {
+  font-family: v.$font-heading;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.fa-subtitle {
+  font-size: 0.88rem;
+  color: v.$text-secondary-color;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.fa-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.75rem;
+}
+
+.fa-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  .fa-step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid v.$bg-surface-dark;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: v.$font-heading;
+    color: v.$text-secondary-color;
+    transition: all 0.3s ease;
+  }
+
+  .fa-step-label {
+    font-size: 0.7rem;
+    font-family: v.$font-heading;
+    font-weight: 600;
+    color: v.$text-secondary-color;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+  }
+
+  &.active {
+    .fa-step-dot {
+      border-color: v.$primary;
+      background: v.$primary;
+      color: #fff;
+    }
+    .fa-step-label { color: v.$primary; }
+  }
+
+  &.done {
+    .fa-step-dot {
+      border-color: v.$success;
+      background: v.$success;
+      color: #fff;
+    }
+    .fa-step-label { color: v.$success; }
+  }
+}
+
+.fa-step-line {
+  flex: 1;
+  height: 2px;
+  background: v.$bg-surface-dark;
+  min-width: 40px;
+  max-width: 60px;
+  margin: 0 8px 20px;
+  border-radius: 2px;
+  transition: background 0.3s;
+
+  &.done { background: v.$success; }
+}
+
+.fa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.fa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fa-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: v.$font-heading;
+  color: v.$primary;
+  letter-spacing: 0.01em;
+}
+
+.fa-input-wrap {
+  width: 100%;
+
+  .fa-input {
+    width: 100%;
+    height: 44px;
+    border-radius: 8px;
+    border: 1.5px solid v.$bg-surface-dark;
+    font-size: 0.9rem;
+    font-family: v.$font-body;
+    padding-left: 2.5rem !important;
+    color: v.$text-primary-color;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &::placeholder { color: color.adjust(v.$text-secondary-color, $lightness: 20%); }
+
+    &:focus {
+      border-color: v.$primary !important;
+      box-shadow: 0 0 0 3px rgba(v.$primary, 0.10) !important;
+      outline: none;
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: v.$danger !important;
+      box-shadow: 0 0 0 3px rgba(v.$danger, 0.10) !important;
+    }
+  }
+}
+
+.fa-otp-wrap {
+  display: flex;
+  justify-content: center;
+
+  ::ng-deep .fa-otp {
+    gap: 8px;
+
+    input {
+      width: 46px !important;
+      height: 52px !important;
+      font-size: 1.4rem !important;
+      font-weight: 700 !important;
+      font-family: v.$font-heading !important;
+      border-radius: 8px !important;
+      border: 1.5px solid v.$bg-surface-dark !important;
+      text-align: center !important;
+      color: v.$primary !important;
+      background: #fff !important;
+      transition: border-color 0.2s, box-shadow 0.2s !important;
+
+      &:focus {
+        border-color: v.$secondary !important;
+        box-shadow: 0 0 0 3px rgba(v.$secondary, 0.18) !important;
+        outline: none !important;
+      }
+    }
+  }
+}
+
+::ng-deep .fa-password {
+  width: 100%;
+
+  .p-password-input,
+  .fa-input {
+    width: 100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1.5px solid v.$bg-surface-dark !important;
+    font-size: 0.9rem !important;
+    font-family: v.$font-body !important;
+    color: v.$text-primary-color !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+
+    &:focus {
+      border-color: v.$primary !important;
+      box-shadow: 0 0 0 3px rgba(v.$primary, 0.10) !important;
+    }
+  }
+
+  // Strength meter
+  .p-password-strength-label { font-family: v.$font-body !important; }
+}
+
+.fa-error {
+  font-size: 0.78rem;
+  color: v.$danger;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: v.$font-body;
+}
+
+.fa-hint {
+  font-size: 0.8rem;
+  color: v.$text-secondary-color;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: v.$font-body;
+}
+
+.fa-resend-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: v.$secondary-dark;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: v.$font-body;
+  padding: 0;
+  text-decoration: underline;
+  transition: color 0.2s;
+
+  &:hover:not(:disabled) { color: v.$secondary-hover; }
+
+  &:disabled {
+    color: v.$text-secondary-color;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
+::ng-deep .fa-btn-primary {
+  width: 100%;
+  margin-top: 0.25rem;
+
+  .p-button {
+    width: 100%;
+    height: 44px;
+    border-radius: 8px;
+    background: v.$primary !important;
+    border-color: v.$primary !important;
+    font-family: v.$font-heading !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s !important;
+
+    &:hover:not(:disabled) {
+      background: v.$secondary-hover !important;
+      border-color: v.$secondary-hover !important;
+      box-shadow: 0 4px 16px rgba(v.$secondary-hover, 0.32) !important;
+    }
+
+    &:active:not(:disabled) { transform: scale(0.99); }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.fa-back-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-family: v.$font-body;
+  color: v.$text-secondary-color;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.2s;
+
+  &:hover { color: v.$primary; }
+}
+
+.fa-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  animation: fa-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fa-success-icon {
+  font-size: 3.5rem;
+  color: v.$success;
+  line-height: 1;
+}
+
+.fa-success-title {
+  font-family: v.$font-heading;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0;
+}
+
+.fa-success-msg {
+  font-size: 0.88rem;
+  font-family: v.$font-body;
+  color: v.$text-secondary-color;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.btn-div  {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
