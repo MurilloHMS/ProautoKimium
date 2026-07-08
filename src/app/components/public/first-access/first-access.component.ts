@@ -127,7 +127,7 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
 
     const { token, newPassword } = this.resetForm.value;
 
-    this.authService.firstAccessCreateUsername(token, newPassword).subscribe({
+    this.authService.firstAccessCreateUsername(token, newPassword, this.lastEmail).subscribe({
       next: (message: string) => {
         this.loading = false;
         this.step = 3;
