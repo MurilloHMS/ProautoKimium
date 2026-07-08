@@ -9,6 +9,8 @@ import {
   ResetPasswordDTO,
   ChangePasswordDTO,
   LoginResponseDTO,
+  NewAccessDTO,
+  NewAccessPasswordDTO
 } from '../../domain/models/auth.model';
 import {
   RegisterDTO,
@@ -157,5 +159,25 @@ export class AuthService {
     if (!token) return null;
     try { return JSON.parse(atob(token.split('.')[1])); }
     catch { return null; }
+  }
+
+  firstAccessGenerateToken(cpf: string, email: string): Observable<string> {
+    const body: NewAccessDTO = { cpf, email };
+    return this.http.post(
+      `${environment.apiUrl}/auth/first-access`,
+      body,
+      { responseType: 'text' }
+    );
+  }
+
+  firstAccessValidateToken(token: string){
+    return this.http.post(`${environment.apiUrl}/auth/first-access/${token}/is-valid`, null);
+  }
+
+  firstAccessCreateUsername(token: string, password: string, email: string): Observable<string>{
+    const body: NewAccessPasswordDTO = { password, email };
+    return this.http.post(
+      `${environment.apiUrl}/auth/first-access/${token}/sign-in`, body, { responseType: 'text' },
+    );
   }
 }
