@@ -192,4 +192,15 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
       if (this.resendCooldown <= 0) clearInterval(this.cooldownInterval);
     }, 1000);
   }
+
+  get passwordChecks() {
+    const value: string = this.resetForm?.get('newPassword')?.value ?? '';
+    return {
+      lower: /[a-z]/.test(value),
+      upper: /[A-Z]/.test(value),
+      number: /\d/.test(value),
+      special: /[@$!%*?&#]/.test(value),
+      minLength: value.length >= 8,
+    };
+  }
 }
