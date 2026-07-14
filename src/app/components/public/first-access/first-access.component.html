@@ -115,9 +115,29 @@
           styleClass="fa-password"
           inputStyleClass="fa-input"
         ></p-password>
-        <small class="fa-error" *ngIf="resetForm.get('newPassword')?.invalid && resetForm.get('newPassword')?.touched">
-          <i class="pi pi-exclamation-circle"></i> Senha deve ter no mínimo 8 caracteres.
-        </small>
+
+        <ul class="fa-password-rules">
+          <li [class.valid]="passwordChecks.minLength">
+            <i class="pi" [ngClass]="passwordChecks.minLength ? 'pi-check-circle' : 'pi-circle'"></i>
+            No mínimo 8 caracteres
+          </li>
+          <li [class.valid]="passwordChecks.lower">
+            <i class="pi" [ngClass]="passwordChecks.lower ? 'pi-check-circle' : 'pi-circle'"></i>
+            Uma letra minúscula
+          </li>
+          <li [class.valid]="passwordChecks.upper">
+            <i class="pi" [ngClass]="passwordChecks.upper ? 'pi-check-circle' : 'pi-circle'"></i>
+            Uma letra maiúscula
+          </li>
+          <li [class.valid]="passwordChecks.number">
+            <i class="pi" [ngClass]="passwordChecks.number ? 'pi-check-circle' : 'pi-circle'"></i>
+            Um número
+          </li>
+          <li [class.valid]="passwordChecks.special">
+            <i class="pi" [ngClass]="passwordChecks.special ? 'pi-check-circle' : 'pi-circle'"></i>
+            Um caractere especial (&#64;$!%*?&amp;#)
+          </li>
+        </ul>
       </div>
 
       <div class="fa-field">
