@@ -45,9 +45,11 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
   resendCooldown = 0;
 
   requestForm!: FormGroup;
-  resetForm!: FormGroup;
+  tokenForm!: FormGroup;
+  passwordForm!: FormGroup;
 
-  usernameApi = '';
+  createdUsername = '';
+  private validatedToken = '';
   private lastDocument = '';
   private lastEmail = '';
   private cooldownInterval?: ReturnType<typeof setInterval>;
@@ -65,9 +67,12 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
       email: ['', [Validators.required, Validators.email]],
     });
 
-    this.resetForm = this.fb.group(
+    this.tokenForm = this.fb.group({
+      token: ['', [Validators.required, Validators.minLength(6)]],
+    });
+
+    this.passwordForm = this.fb.group(
       {
-        token: ['', Validators.required],
         newPassword: [
           '',
           [
@@ -87,6 +92,7 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
     if (this.cooldownInterval) clearInterval(this.cooldownInterval);
   }
 
+  // ── Step 1: solicitar código ─────────────────────────────────────────────
   onRequestToken(): void {
     if (this.requestForm.invalid) return;
     this.loading = true;
@@ -120,27 +126,66 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
     });
   }
 
-  // ── Step 2: redefinir senha ──────────────────────────────────────────────
-  onResetPassword(): void {
-    if (this.resetForm.invalid) return;
+  // ── Step 2: validar código ───────────────────────────────────────────────
+  onValidateToken(): void {
+    if (this.tokenForm.invalid) return;
     this.loading = true;
 
-    const { token, newPassword } = this.resetForm.value;
+    const token: string = this.tokenForm.value.token;
 
-    this.authService.firstAccessCreateUsername(token, newPassword, this.lastEmail).subscribe({
-      next: (message: string) => {
+    this.authService.firstAccessValidateToken(token).subscribe({
+      next: () => {
         this.loading = false;
+        this.validatedToken = token;
         this.step = 3;
-        this.usernameApi = message;
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
+        this.tokenForm.get('token')?.setErrors({ invalidToken: true });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Código inválido',
+          detail: err.status === 400
+            ? 'Código inválido ou expirado. Verifique o e-mail ou solicite um novo.'
+            : 'Não foi possível validar o código. Tente novamente.',
+          life: 5000,
+        });
+      },
+    });
+  }
+
+  // ── Step 3: criar usuário ────────────────────────────────────────────────
+  onCreateUser(): void {
+    if (this.passwordForm.invalid) return;
+    this.loading = true;
+
+    const newPassword: string = this.passwordForm.value.newPassword;
+
+    this.authService.firstAccessCreateUsername(this.validatedToken, newPassword, this.lastEmail).subscribe({
+      next: (message: string) => {
+        this.loading = false;
+        this.createdUsername = this.extractUsername(message);
+        this.step = 4;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+
+        if (err.status === 400) {
+          this.step = 2;
+          this.tokenForm.reset();
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Código expirado',
+            detail: 'O código expirou. Solicite um novo e tente de novo.',
+            life: 5000,
+          });
+          return;
+        }
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: err.status === 400
-            ? (err.error ?? 'Token inválido ou expirado.')
-            : 'Erro ao redefinir senha. Tente novamente.',
+          detail: 'Erro ao criar o usuário. Tente novamente.',
           life: 5000,
         });
       },
@@ -173,8 +218,13 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
   }
 
   goBack(): void {
+    if (this.step === 3) {
+      this.step = 2;
+      this.passwordForm.reset();
+      return;
+    }
     this.step = 1;
-    this.resetForm.reset();
+    this.tokenForm.reset();
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -182,6 +232,11 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
     const pw = group.get('newPassword')?.value;
     const confirm = group.get('confirmPassword')?.value;
     return pw && confirm && pw !== confirm ? { passwordMismatch: true } : null;
+  }
+
+  private extractUsername(message: string): string {
+    const match = message.match(/usuário:\s*(\S+)/i);
+    return match ? match[1] : message;
   }
 
   private startResendCooldown(seconds = 60): void {
@@ -194,7 +249,7 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
   }
 
   get passwordChecks() {
-    const value: string = this.resetForm?.get('newPassword')?.value ?? '';
+    const value: string = this.passwordForm?.get('newPassword')?.value ?? '';
     return {
       lower: /[a-z]/.test(value),
       upper: /[A-Z]/.test(value),
