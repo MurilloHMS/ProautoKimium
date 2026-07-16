@@ -5,19 +5,22 @@
         <i class="pi-pi-lock"></i>
       </div>
       <h1 class="fa-title">
-        {{ step === 1 ? 'Primeiro acesso?' : step === 2 ? 'Nova senha' : 'Tudo certo!' }}
+        {{ step === 1 ? 'Primeiro acesso?' : step === 2 ? 'Código de verificação' : step === 3 ? 'Nova senha' : 'Tudo certo!' }}
       </h1>
       <p class="fa-subtitle">
         <ng-container *ngIf="step === 1">
           Informe seu CPF e Email para enviarmos um código de verificação.
         </ng-container>
-        <ng-container *ngIf="step ===2">
-          Digite o código recebido e crie uma senha.
+        <ng-container *ngIf="step === 2">
+          Digite o código de 6 caracteres recebido no seu e-mail.
+        </ng-container>
+        <ng-container *ngIf="step === 3">
+          Código confirmado! Agora crie a sua senha.
         </ng-container>
       </p>
     </div>
 
-    <div class="fa-steps" *ngIf="step < 3">
+    <div class="fa-steps" *ngIf="step < 4">
       <div class="fa-step" [class.active]="step >= 1" [class.done]="step > 1">
         <span class="fa-step-dot">
           <i class="pi-pi-check" *ngIf="step > 1"></i>
@@ -26,12 +29,21 @@
         <span class="fa-step-label">Identificação</span>
       </div>
       <div class="fa-step-line" [class.done]="step > 1"></div>
-      <div class="fa-step" [class.active]="step >= 2">
-        <span class="fa-step-dot"><span>2</span></span>
-        <span class="fa-step-label">Definição</span>
+      <div class="fa-step" [class.active]="step >= 2" [class.done]="step > 2">
+        <span class="fa-step-dot">
+          <i class="pi-pi-check" *ngIf="step > 2"></i>
+          <span *ngIf="step <= 2">2</span>
+        </span>
+        <span class="fa-step-label">Código</span>
+      </div>
+      <div class="fa-step-line" [class.done]="step > 2"></div>
+      <div class="fa-step" [class.active]="step >= 3">
+        <span class="fa-step-dot"><span>3</span></span>
+        <span class="fa-step-label">Senha</span>
       </div>
     </div>
 
+    <!-- STEP 1: Identificação -->
     <form *ngIf="step === 1" [formGroup]="requestForm" class="fa-form">
       <div class="fa-field">
         <label for="document" class="fa-label">CPF</label>
@@ -81,7 +93,8 @@
       </div>
     </form>
 
-    <form *ngIf="step === 2" [formGroup]="resetForm" (ngSubmit)="onResetPassword()" class="fa-form">
+    <!-- STEP 2: Código -->
+    <form *ngIf="step === 2" [formGroup]="tokenForm" (ngSubmit)="onValidateToken()" class="fa-form">
       <div class="fa-field">
         <label class="fa-label">Código de verificação</label>
         <div class="fa-otp-wrap">
@@ -91,6 +104,9 @@
             styleClass="fa-otp"
           ></p-inputOtp>
         </div>
+        <small class="fa-error" *ngIf="tokenForm.get('token')?.hasError('invalidToken')">
+          <i class="pi pi-exclamation-circle"></i> Código inválido ou expirado.
+        </small>
         <small class="fa-hint">
           <i class="pi pi-info-circle"></i>
           Não recebeu?
@@ -100,6 +116,23 @@
         </small>
       </div>
 
+      <p-button
+        type="submit"
+        label="Validar código"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="fa-btn-primary"
+        [loading]="loading"
+        [disabled]="tokenForm.invalid"
+      ></p-button>
+
+      <button type="button" class="fa-back-link" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i> Voltar
+      </button>
+    </form>
+
+    <!-- STEP 3: Senha -->
+    <form *ngIf="step === 3" [formGroup]="passwordForm" (ngSubmit)="onCreateUser()" class="fa-form">
       <div class="fa-field">
         <label for="newPassword" class="fa-label">Senha</label>
         <p-password
@@ -151,7 +184,7 @@
           styleClass="fa-password"
           inputStyleClass="fa-input"
         ></p-password>
-        <small class="fa-error" *ngIf="resetForm.hasError('passwordMismatch') && resetForm.get('confirmPassword')?.touched">
+        <small class="fa-error" *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmPassword')?.touched">
           <i class="pi pi-exclamation-circle"></i> As senhas não coincidem.
         </small>
       </div>
@@ -163,7 +196,7 @@
         iconPos="right"
         styleClass="fa-btn-primary"
         [loading]="loading"
-        [disabled]="resetForm.invalid"
+        [disabled]="passwordForm.invalid"
       ></p-button>
 
       <button type="button" class="fa-back-link" (click)="goBack()">
@@ -171,13 +204,15 @@
       </button>
     </form>
 
-    <!-- STEP 3: Sucesso -->
-    <div *ngIf="step === 3" class="fa-success">
+    <!-- STEP 4: Sucesso -->
+    <div *ngIf="step === 4" class="fa-success">
       <div class="fa-success-icon">
         <i class="pi pi-check-circle"></i>
       </div>
       <h2 class="fa-success-title">Usuário criado com sucesso!</h2>
-      <p class="fa-success-msg">{{ usernameApi }}</p>
+      <p class="fa-success-msg">
+        Seu usuário para login é: <strong>{{ createdUsername }}</strong>
+      </p>
       <p-button
         label="Ir para o login"
         icon="pi pi-sign-in"

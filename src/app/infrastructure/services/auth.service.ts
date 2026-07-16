@@ -170,8 +170,12 @@ export class AuthService {
     );
   }
 
-  firstAccessValidateToken(token: string){
-    return this.http.post(`${environment.apiUrl}/auth/first-access/${token}/is-valid`, null);
+  firstAccessValidateToken(token: string): Observable<string> {
+    return this.http.post(
+      `${environment.apiUrl}/auth/first-access/${token}/is-valid`,
+      null,
+      { responseType: 'text' }
+    );
   }
 
   firstAccessCreateUsername(token: string, password: string, email: string): Observable<string>{
