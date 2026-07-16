@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
@@ -57,6 +57,7 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private messageService: MessageService,
     private authService: AuthService,
   ) {}
@@ -86,6 +87,31 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
       },
       { validators: this.passwordMatchValidator }
     );
+
+    this.applyDeepLink();
+  }
+
+  /**
+   * Deep link do e-mail (/first-access?token=...&email=...): pula a identificação
+   * e valida o código automaticamente. Só ativa com os dois parâmetros presentes —
+   * sem o e-mail não seria possível criar o usuário no passo da senha.
+   */
+  private applyDeepLink(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const token = params.get('token');
+    const email = params.get('email');
+    if (!token || !email) return;
+
+    this.lastEmail = email;
+    this.tokenForm.patchValue({ token });
+    this.step = 2;
+
+    // Remove os parâmetros da barra de endereço sem recarregar (token não fica visível/na navegação subsequente)
+    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+
+    if (this.tokenForm.valid) {
+      this.onValidateToken();
+    }
   }
 
   ngOnDestroy(): void {
