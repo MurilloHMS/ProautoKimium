@@ -99,7 +99,7 @@ export const routes: Routes = [
       { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'DESIGN'] } },
       { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
       { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
-      { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'ADMINISTRATIVO'] } },
+      { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'CONTRATOS'] } },
       { path: 'company/equipments', component: EquipmentsComponent, data: { roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
