@@ -109,7 +109,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Coletar Dados NFe',       icon: 'pi pi-fw pi-file',      routerLink: ['company/nfe-collector'],    roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] },
           { label: 'Remover Senha do Excel',  icon: 'pi pi-fw pi-lock',      routerLink: ['company/excel'] },
           { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], roles: ['ADMIN', 'COMPRADOR'] },
-          { label: 'Guia de Utilização', icon: 'pi pi-file-pdf', routerLink: ['company/guide'], roles: ['ADMIN', 'ADMINISTRATIVO'] },
+          { label: 'Guia de Utilização', icon: 'pi pi-file-pdf', routerLink: ['company/guide'], roles: ['ADMIN', 'CONTRATOS'] },
           { label: 'Equipamentos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/equipments'], roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] },
         ],
       },
