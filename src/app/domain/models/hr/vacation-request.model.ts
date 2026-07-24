@@ -18,3 +18,7 @@ export interface EmployeeVacationOverview {
   vacationBalanceDays: number | null;
   requests: VacationRequest[];
 }
+
+export interface ReviewVacationRequestPayload {
+  notes: string;
+}

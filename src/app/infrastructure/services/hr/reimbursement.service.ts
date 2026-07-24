@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Reimbursement } from '../../../domain/models/hr/reimbursement.model';
+import {
+  PayReimbursementPayload,
+  Reimbursement,
+  ReimbursementStatus,
+  ReviewReimbursementPayload
+} from '../../../domain/models/hr/reimbursement.model';
 
 export interface RequestReimbursementPayload {
   expenseDate: string;
@@ -38,5 +43,24 @@ export class ReimbursementService {
     return this.http.get(`${environment.apiUrl}/hr/reimbursements/${id}/receipt`, {
       responseType: 'blob'
     });
+  }
+
+  /** Gerenciador do RH — sem status, lista tudo. */
+  getAll(status?: ReimbursementStatus): Observable<Reimbursement[]> {
+    const params: Record<string, string> = {};
+    if (status) params['status'] = status;
+    return this.http.get<Reimbursement[]>(`${environment.apiUrl}/hr/reimbursements`, { params });
+  }
+
+  approve(id: string, payload: ReviewReimbursementPayload): Observable<Reimbursement> {
+    return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements/${id}/approve`, payload);
+  }
+
+  reject(id: string, payload: ReviewReimbursementPayload): Observable<Reimbursement> {
+    return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements/${id}/reject`, payload);
+  }
+
+  pay(id: string, payload: PayReimbursementPayload): Observable<Reimbursement> {
+    return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements/${id}/pay`, payload);
   }
 }
