@@ -1,4 +1,4 @@
-export type NotificationType = 'HOLERITE' | 'GERAL';
+export type NotificationType = 'HOLERITE' | 'DOCUMENTO' | 'REEMBOLSO' | 'PERSONALIZADA' | 'GERAL';
 
 export interface AppNotification {
   id: string;
