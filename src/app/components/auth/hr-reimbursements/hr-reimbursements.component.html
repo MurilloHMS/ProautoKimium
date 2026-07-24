@@ -1,0 +1,119 @@
+<section class="hrr-page">
+  <header class="hrr-header">
+    <h1>Reembolsos</h1>
+    <p>Solicite reembolsos e acompanhe o status.</p>
+  </header>
+
+  <div class="hrr-form-card">
+    <h2 class="hrr-form-card__title"><i class="pi pi-plus-circle"></i> Novo reembolso</h2>
+
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="expenseDate">Data do gasto <span class="required">*</span></label>
+          <p-datepicker
+            id="expenseDate"
+            formControlName="expenseDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+        <div class="form-field">
+          <pk-input
+            label="Valor (R$)"
+            placeholder="0,00"
+            [pkRequired]="true"
+            type="number"
+            formControlName="amount"
+          />
+        </div>
+        <div class="form-field">
+          <pk-input
+            label="Categoria"
+            placeholder="Ex: Restaurante, Gasolina, Hotel"
+            [pkRequired]="true"
+            [pkMaxLength]="100"
+            type="text"
+            formControlName="category"
+          />
+        </div>
+      </div>
+
+      <div class="form-field hrr-reason">
+        <label for="reason">Motivo <span class="required">*</span></label>
+        <textarea
+          id="reason"
+          formControlName="reason"
+          rows="3"
+          maxlength="500"
+          placeholder="Explique o motivo do gasto">
+        </textarea>
+      </div>
+
+      <div class="hrr-upload">
+        <label class="hrr-upload__label" for="receiptInput">
+          <i class="pi pi-camera"></i> Enviar comprovante (foto ou arquivo)
+        </label>
+        <input id="receiptInput" type="file" accept="image/*,.pdf" (change)="onReceiptSelected($event)" />
+
+        @if (selectedReceipt) {
+          <span class="hrr-upload__filename"><i class="pi pi-file"></i> {{ selectedReceipt.name }}</span>
+        }
+      </div>
+
+      <div class="hrr-form-actions">
+        <pk-button
+          pkType="save"
+          pkLabel="Solicitar reembolso"
+          pkSize="sm"
+          [pkDisabled]="!podeEnviar || enviando()"
+          (clicked)="enviar()">
+        </pk-button>
+      </div>
+    </form>
+  </div>
+
+  <h2 class="hrr-history-title">Meus reembolsos</h2>
+
+  @if (loading()) {
+    <div class="hrr-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hrr-state">Não foi possível carregar seus reembolsos. Tente novamente mais tarde.</div>
+  } @else if (reimbursements().length === 0) {
+    <div class="hrr-empty">
+      <span class="hrr-empty-icon"><i class="pi pi-wallet"></i></span>
+      <p>Nenhum reembolso solicitado ainda</p>
+    </div>
+  } @else {
+    <div class="hrr-grid">
+      @for (r of reimbursements(); track r.id) {
+        <div class="hrr-card">
+          <div class="hrr-card__top">
+            <div class="hrr-card__main">
+              <span class="hrr-card__category">{{ r.category }}</span>
+              <span class="hrr-card__amount">{{ r.amount | currency:'BRL' }}</span>
+            </div>
+            <span class="hrr-badge" [ngClass]="'hrr-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+          </div>
+
+          <p class="hrr-card__reason">{{ r.reason }}</p>
+          <span class="hrr-card__date">{{ formatDate(r.expenseDate) }}</span>
+
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <p class="hrr-card__notes hrr-card__notes--rejected"><i class="pi pi-info-circle"></i> {{ r.reviewNotes }}</p>
+          }
+          @if (r.status === 'PAID' && r.paymentDate) {
+            <p class="hrr-card__notes hrr-card__notes--paid"><i class="pi pi-check-circle"></i> Pago em {{ formatDate(r.paymentDate) }}</p>
+          }
+
+          <button class="hrr-card__btn" (click)="baixarComprovante(r)" [disabled]="baixandoId() === r.id">
+            <i class="pi" [ngClass]="baixandoId() === r.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+            Ver comprovante
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>

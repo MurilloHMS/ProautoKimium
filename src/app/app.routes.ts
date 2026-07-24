@@ -52,6 +52,7 @@ import { HoleritesComponent } from './components/auth/holerites/holerites.compon
 import { HrHubComponent } from './components/auth/hr-hub/hr-hub.component';
 import { HrDocumentsComponent } from './components/auth/hr-documents/hr-documents.component';
 import { HrMedicalCertificatesComponent } from './components/auth/hr-medical-certificates/hr-medical-certificates.component';
+import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/hr-reimbursements.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
@@ -112,6 +113,7 @@ export const routes: Routes = [
       { path: 'documentos/rh', component: HrHubComponent },
       { path: 'documentos/rh/documents', component: HrDocumentsComponent },
       { path: 'documentos/rh/medical-certificates', component: HrMedicalCertificatesComponent },
+      { path: 'documentos/rh/reimbursements', component: HrReimbursementsComponent },
       { path: 'notificacoes', component: NotificacoesComponent },
       { path: 'perfil', component: PerfilComponent },
     ]
