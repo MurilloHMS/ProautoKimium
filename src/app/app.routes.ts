@@ -33,6 +33,7 @@ import { ExcelCredentialsComponent } from './components/auth/documents/excel-cre
 import { PainelDeVagasComponent } from './components/auth/rh/painel-de-vagas/painel-de-vagas.component';
 import { CandidaturasComponent } from './components/auth/rh/candidaturas/candidaturas.component'; // 👈 novo
 import { OrgStructureComponent } from './components/auth/rh/org-structure/org-structure.component';
+import { CareerStructureComponent } from './components/auth/rh/career-structure/career-structure.component';
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
@@ -90,6 +91,7 @@ export const routes: Routes = [
       { path: 'rh/holerit/extractor', component: HoleritExtractorComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/organizational-structure', component: OrgStructureComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/career-structure', component: CareerStructureComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
