@@ -1,0 +1,52 @@
+@use 'variables' as v;
+
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin: 20px 0 24px;
+
+  .form-field {
+    min-width: 150px;
+  }
+}
+
+.event-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: v.$primary;
+  font-size: 0.85rem;
+}
+
+.hc-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+
+  &--pending {
+    background: rgba(107, 116, 146, 0.14);
+    color: #6b7492;
+  }
+
+  &--approved {
+    background: rgba(87, 193, 171, 0.16);
+    color: v.$secondary-dark;
+  }
+
+  &--rejected {
+    background: rgba(217, 45, 32, 0.10);
+    color: #d92d20;
+  }
+}
+
+@media (max-width: 700px) {
+  .filters-bar { gap: 10px; }
+  .filters-bar .form-field { min-width: 130px; }
+}
