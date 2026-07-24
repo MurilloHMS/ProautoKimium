@@ -8,7 +8,19 @@ export interface Employee{
   managerCode: string,
   hierarchy: Hierarchy,
   birthday: Date,
-  department: Department
+  department: Department,
+  companyId?: string | null,
+  teamId?: string | null,
+  // Só usados na criação — cargo/nível/contrato geram o primeiro CareerHistory (HIRING) e não são editáveis por aqui depois
+  positionId?: string | null,
+  positionLevelId?: string | null,
+  contractType?: ContractType | null,
+  hiringDate?: Date | string | null
+}
+
+export enum ContractType {
+  CLT = 'CLT',
+  PJ = 'PJ'
 }
 
 export enum Hierarchy {
