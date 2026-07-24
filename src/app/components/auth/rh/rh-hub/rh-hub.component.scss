@@ -1,0 +1,622 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  background: #f5f6fa;
+  min-height: 100%;
+}
+
+.dash {
+  width: 100%;
+  padding: 28px clamp(16px, 3vw, 40px) 56px;
+  box-sizing: border-box;
+}
+
+// ── Header ──────────────────────────────────────────────────
+
+.dash__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    font-family: v.$font-heading;
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 800;
+    color: v.$primary;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+    color: #7d84a0;
+    font-size: 0.94rem;
+  }
+}
+
+.dash__alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: #fff4de;
+  color: #8a5a09;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  i { font-size: 1rem; }
+  strong { font-size: 1rem; }
+}
+
+// ── KPI row ─────────────────────────────────────────────────
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: v.$radius-lg;
+  border: 1px solid #ecedf4;
+  box-shadow: v.$shadow-sm;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+
+  &:is(a):hover {
+    transform: translateY(-2px);
+    box-shadow: v.$shadow-md;
+  }
+
+  &__label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #9aa1b8;
+  }
+
+  &__value {
+    font-family: v.$font-body;
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: v.$primary;
+    line-height: 1.1;
+    font-variant-numeric: proportional-nums;
+  }
+
+  &__sub {
+    font-size: 0.78rem;
+    color: #9aa1b8;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  &__breakdown {
+    display: flex;
+    gap: 12px;
+    margin-top: 2px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #8a5a09;
+
+    span { display: flex; align-items: center; gap: 5px; }
+  }
+}
+
+.kpi__value--money {
+  font-size: 1.5rem;
+}
+
+.kpi--org {
+  .kpi__label { margin-bottom: 2px; }
+}
+
+.kpi__org-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  margin-top: 2px;
+
+  span {
+    font-size: 0.78rem;
+    color: #9aa1b8;
+    white-space: nowrap;
+  }
+
+  strong {
+    color: v.$primary;
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-right: 3px;
+  }
+}
+
+.kpi--hero {
+  background: linear-gradient(135deg, #fff8ec, #ffffff);
+  border-color: rgba(245, 166, 35, 0.4);
+
+  .kpi__value { color: #a6690f; }
+
+  &.kpi--quiet {
+    background: #ffffff;
+    border-color: #ecedf4;
+    .kpi__value { color: v.$secondary-dark; }
+    .kpi__breakdown { color: #9aa1b8; }
+  }
+}
+
+// ── Distribuições (por empresa/cargo/departamento) ─────────
+
+.dist-row-wrap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.dist-card {
+  background: #ffffff;
+  border-radius: v.$radius-lg;
+  border: 1px solid #ecedf4;
+  box-shadow: v.$shadow-sm;
+  padding: 16px 18px;
+}
+
+.dist-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: v.$font-heading;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin-bottom: 12px;
+}
+
+.dist-legend {
+  display: flex;
+  gap: 10px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #9aa1b8;
+    text-transform: uppercase;
+  }
+}
+
+.dist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &--clt { background: v.$primary; }
+  &--pj  { background: v.$secondary; }
+}
+
+.dist-empty {
+  font-size: 0.8rem;
+  color: #b3b9cc;
+  margin: 4px 0;
+}
+
+.dist-item {
+  display: grid;
+  grid-template-columns: 96px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+
+  &__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4a5170;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__track {
+    display: flex;
+    height: 8px;
+    background: #f0f1f6;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__value {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: v.$primary;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.dist-seg {
+  height: 100%;
+  border-radius: 4px;
+
+  &--clt {
+    background: v.$primary;
+    margin-right: 2px;
+  }
+
+  &--pj {
+    background: v.$secondary;
+  }
+
+  &--single {
+    background: v.$primary;
+  }
+}
+
+// ── Main grid: calendário + feed ───────────────────────────
+
+.dash__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+// Calendário
+
+.cal {
+  background: #ffffff;
+  border-radius: v.$radius-lg;
+  border: 1px solid #ecedf4;
+  box-shadow: v.$shadow-sm;
+  padding: 20px 22px 16px;
+}
+
+.cal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cal__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: v.$font-heading;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: v.$primary;
+  text-transform: capitalize;
+
+  i:first-child { color: v.$secondary; }
+}
+
+.cal__spinner { color: #9aa1b8; font-size: 0.85rem; }
+
+.cal__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cal__nav-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid #e6e9f0;
+  background: #fff;
+  color: v.$primary;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover { border-color: v.$secondary; color: v.$secondary-dark; }
+
+  &--icon { width: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+}
+
+.cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 2px;
+  margin-bottom: 4px;
+
+  span {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #b3b9cc;
+    padding-bottom: 6px;
+  }
+}
+
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal__day {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 74px;
+  padding: 6px 6px 5px;
+  border-radius: 10px;
+  cursor: default;
+  background: #fbfbfd;
+  transition: background 0.15s ease;
+
+  &--outside {
+    opacity: 0.35;
+  }
+
+  &--today {
+    background: rgba(87, 193, 171, 0.12);
+    .cal__day-num { color: v.$secondary-dark; font-weight: 800; }
+  }
+
+  &--has-events {
+    cursor: pointer;
+    &:hover { background: rgba(35, 46, 97, 0.05); }
+  }
+}
+
+.cal__day-num {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7492;
+}
+
+.cal__day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cal__chip {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+
+.cal__more {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #9aa1b8;
+  padding-left: 2px;
+}
+
+.cal__legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f1f6;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: #9aa1b8;
+    font-weight: 600;
+  }
+}
+
+.cal__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Status colors (compartilhado com feed)
+
+.act--pending   { background: #9aa1b8; }
+.act--approved  { background: v.$secondary; }
+.act--rejected  { background: #d92d20; }
+.act--paid      { background: v.$primary; }
+.act--neutral   { background: #6b7492; }
+.act--announcement { background: v.$secondary-dark; }
+
+// Feed de atividade
+
+.feed {
+  background: #ffffff;
+  border-radius: v.$radius-lg;
+  border: 1px solid #ecedf4;
+  box-shadow: v.$shadow-sm;
+  padding: 18px 18px 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: 640px;
+}
+
+.feed__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: v.$font-heading;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: v.$primary;
+  margin-bottom: 12px;
+
+  i { color: v.$secondary; }
+}
+
+.feed__state {
+  padding: 24px 0;
+  text-align: center;
+  color: #9aa1b8;
+  font-size: 0.85rem;
+}
+
+.feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.feed__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+
+  &:hover { background: #f7f8fc; }
+}
+
+.feed__icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  i { font-size: 0.82rem; }
+}
+
+.feed__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feed__text {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #2c3350;
+  line-height: 1.35;
+}
+
+.feed__sub {
+  font-size: 0.74rem;
+  color: #9aa1b8;
+}
+
+// ── Atalhos ─────────────────────────────────────────────────
+
+.shortcuts {
+  h2 {
+    font-family: v.$font-heading;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9aa1b8;
+    margin: 0 0 12px;
+  }
+}
+
+.shortcuts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #ecedf4;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #3c4260;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+
+  i { color: v.$primary; font-size: 1rem; flex-shrink: 0; }
+
+  &:hover {
+    border-color: rgba(87, 193, 171, 0.5);
+    box-shadow: v.$shadow-sm;
+    transform: translateY(-1px);
+  }
+}
+
+// ── Dialog: eventos do dia ─────────────────────────────────
+
+.day-dialog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-dialog-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  &__meta {
+    font-size: 0.8rem;
+    color: #8a93a8;
+    margin-top: 2px;
+  }
+}
+
+// ── Responsivo ──────────────────────────────────────────────
+
+@media (max-width: 1080px) {
+  .dash__main { grid-template-columns: 1fr; }
+  .feed { max-height: none; }
+  .dist-row-wrap { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .dist-item { grid-template-columns: 78px 1fr 24px; gap: 6px; }
+}
+
+@media (max-width: 600px) {
+  .dash { padding: 20px 14px 40px; }
+  .cal__day { min-height: 58px; }
+  .cal__chip { font-size: 0.6rem; }
+}

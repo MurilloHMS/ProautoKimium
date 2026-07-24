@@ -1,0 +1,234 @@
+<div class="dash">
+
+  <header class="dash__header">
+    <div>
+      <h1>Painel RH</h1>
+      <p>Tudo o que está acontecendo na equipe, num só lugar.</p>
+    </div>
+    @if (!loading && pendingTotal > 0) {
+      <div class="dash__alert">
+        <i class="pi pi-exclamation-circle"></i>
+        <span><strong>{{ pendingTotal }}</strong> {{ pendingTotal === 1 ? 'pendência aguardando você' : 'pendências aguardando você' }}</span>
+      </div>
+    }
+  </header>
+
+  <section class="kpi-row">
+    <a routerLink="/rh/vacation-requests" class="kpi kpi--hero" [class.kpi--quiet]="loading || pendingTotal === 0">
+      <span class="kpi__label">Pendências</span>
+      <span class="kpi__value">{{ loading ? '—' : pendingTotal }}</span>
+      <span class="kpi__breakdown">
+        <span><i class="pi pi-sun"></i> {{ pendingVacations }} férias</span>
+        <span><i class="pi pi-wallet"></i> {{ pendingReimbursements }} reembolsos</span>
+      </span>
+    </a>
+
+    <div class="kpi">
+      <span class="kpi__label">Funcionários ativos</span>
+      <span class="kpi__value">{{ loading ? '—' : activeEmployees }}</span>
+      <span class="kpi__sub"><i class="pi pi-user"></i> total no quadro</span>
+    </div>
+
+    <a routerLink="/rh/team-overview" class="kpi">
+      <span class="kpi__label">De férias agora</span>
+      <span class="kpi__value">{{ loading ? '—' : onVacationNow }}</span>
+      <span class="kpi__sub"><i class="pi pi-sun"></i> fora hoje</span>
+    </a>
+
+    <a routerLink="/rh/equipment-assignments" class="kpi">
+      <span class="kpi__label">Equipamentos em posse</span>
+      <span class="kpi__value">{{ loading ? '—' : equipmentInUse }}</span>
+      <span class="kpi__sub"><i class="pi pi-desktop"></i> com funcionários</span>
+    </a>
+
+    <div class="kpi">
+      <span class="kpi__label">Eventos este mês</span>
+      <span class="kpi__value">{{ loading ? '—' : eventsThisMonth }}</span>
+      <span class="kpi__sub"><i class="pi pi-calendar"></i> no calendário</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Folha total</span>
+      <span class="kpi__value kpi__value--money">{{ loading ? '—' : formatCurrency(summary?.totalSalaries ?? 0) }}</span>
+      <span class="kpi__sub"><i class="pi pi-money-bill"></i> salário atual somado</span>
+    </div>
+
+    <a routerLink="/rh/organizational-structure" class="kpi kpi--org">
+      <span class="kpi__label">Estrutura Organizacional</span>
+      <span class="kpi__org-grid">
+        <span><strong>{{ loading ? '—' : summary?.orgStructure?.companies }}</strong> empresas</span>
+        <span><strong>{{ loading ? '—' : summary?.orgStructure?.departments }}</strong> deptos</span>
+        <span><strong>{{ loading ? '—' : summary?.orgStructure?.teams }}</strong> setores</span>
+        <span><strong>{{ loading ? '—' : summary?.orgStructure?.positions }}</strong> cargos</span>
+      </span>
+    </a>
+  </section>
+
+  <section class="dist-row-wrap">
+    <div class="dist-card">
+      <div class="dist-card__header">
+        <span>Funcionários por empresa</span>
+        <span class="dist-legend">
+          <span class="dist-legend__item"><i class="dist-dot dist-dot--clt"></i> CLT</span>
+          <span class="dist-legend__item"><i class="dist-dot dist-dot--pj"></i> PJ</span>
+        </span>
+      </div>
+      @if (!loading && (summary?.employeesByCompany?.length ?? 0) === 0) {
+        <p class="dist-empty">Sem dados de empresa ainda.</p>
+      }
+      @for (c of summary?.employeesByCompany ?? []; track c.companyName) {
+        <div class="dist-item">
+          <span class="dist-item__label">{{ c.companyName }}</span>
+          <span class="dist-item__track">
+            <span class="dist-seg dist-seg--clt" [style.width.%]="pct(c.clt, maxCompanyTotal)"></span>
+            <span class="dist-seg dist-seg--pj" [style.width.%]="pct(c.pj, maxCompanyTotal)"></span>
+          </span>
+          <span class="dist-item__value">{{ c.total }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-card__header"><span>Funcionários por cargo</span></div>
+      @if (!loading && topPositions.length === 0) {
+        <p class="dist-empty">Sem dados de cargo ainda.</p>
+      }
+      @for (p of topPositions; track p.name) {
+        <div class="dist-item">
+          <span class="dist-item__label">{{ p.name }}</span>
+          <span class="dist-item__track">
+            <span class="dist-seg dist-seg--single" [style.width.%]="pct(p.count, maxPositionCount)"></span>
+          </span>
+          <span class="dist-item__value">{{ p.count }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-card__header"><span>Funcionários por departamento</span></div>
+      @if (!loading && topDepartments.length === 0) {
+        <p class="dist-empty">Sem dados de departamento ainda.</p>
+      }
+      @for (d of topDepartments; track d.name) {
+        <div class="dist-item">
+          <span class="dist-item__label">{{ d.name }}</span>
+          <span class="dist-item__track">
+            <span class="dist-seg dist-seg--single" [style.width.%]="pct(d.count, maxDepartmentCount)"></span>
+          </span>
+          <span class="dist-item__value">{{ d.count }}</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="dash__main">
+
+    <div class="cal">
+      <div class="cal__header">
+        <div class="cal__title">
+          <i class="pi pi-calendar"></i>
+          <span>{{ monthLabel }}</span>
+          @if (calendarLoading) { <i class="pi pi-spin pi-spinner cal__spinner"></i> }
+        </div>
+        <div class="cal__nav">
+          <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
+          <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior"><i class="pi pi-chevron-left"></i></button>
+          <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês"><i class="pi pi-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="cal__weekdays">
+        @for (w of weekdayLabels; track w) {
+          <span>{{ w }}</span>
+        }
+      </div>
+
+      <div class="cal__grid">
+        @for (week of weeks; track $index) {
+          @for (day of week; track day.getTime()) {
+            <button
+              type="button"
+              class="cal__day"
+              [class.cal__day--outside]="!isCurrentMonth(day)"
+              [class.cal__day--today]="isToday(day)"
+              [class.cal__day--has-events]="eventsFor(day).length > 0"
+              (click)="openDay(day)">
+              <span class="cal__day-num">{{ day.getDate() }}</span>
+              <span class="cal__day-events">
+                @for (ev of eventsFor(day).slice(0, 2); track ev.id) {
+                  <span class="cal__chip" [ngClass]="statusColorClass(ev.status)">{{ ev.employeeName }}</span>
+                }
+                @if (eventsFor(day).length > 2) {
+                  <span class="cal__more">+{{ eventsFor(day).length - 2 }}</span>
+                }
+              </span>
+            </button>
+          }
+        }
+      </div>
+
+      <div class="cal__legend">
+        <span><i class="cal__dot act--pending"></i> pendente</span>
+        <span><i class="cal__dot act--approved"></i> aprovado</span>
+      </div>
+    </div>
+
+    <aside class="feed">
+      <div class="feed__header">
+        <i class="pi pi-history"></i>
+        <span>Atividade recente</span>
+      </div>
+
+      @if (loading) {
+        <div class="feed__state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+      } @else if (activity.length === 0) {
+        <div class="feed__state">Nenhuma atividade recente.</div>
+      } @else {
+        <div class="feed__list">
+          @for (item of activity; track item.timestamp + item.text) {
+            <a [routerLink]="item.route" class="feed__item">
+              <span class="feed__icon" [ngClass]="item.colorClass"><i [class]="item.icon"></i></span>
+              <span class="feed__body">
+                <span class="feed__text">{{ item.text }}</span>
+                <span class="feed__sub">{{ item.subtext }} · {{ relativeLabel(item.timestamp) }}</span>
+              </span>
+            </a>
+          }
+        </div>
+      }
+    </aside>
+
+  </section>
+
+  <section class="shortcuts">
+    <h2>Ferramentas</h2>
+    <div class="shortcuts__grid">
+      @for (tool of tools; track tool.key) {
+        <a [routerLink]="tool.route" class="shortcut">
+          <i [class]="tool.icon"></i>
+          <span>{{ tool.title }}</span>
+        </a>
+      }
+    </div>
+  </section>
+
+</div>
+
+<pk-dialog
+  [header]="selectedDay ? ('Eventos em ' + formatDateObj(selectedDay)) : 'Eventos'"
+  [visible]="dayDialogVisible"
+  (visibleChange)="dayDialogVisible = $event">
+  <div pkDialogContent>
+    <div class="day-dialog-list">
+      @for (ev of selectedDayEvents; track ev.id) {
+        <div class="day-dialog-item">
+          <span class="day-dialog-item__dot" [ngClass]="statusColorClass(ev.status)"></span>
+          <div>
+            <strong>{{ ev.employeeName }}</strong>
+            <div class="day-dialog-item__meta">{{ ev.teamName ?? 'Sem setor' }} · {{ formatDate(ev.startDate) }} a {{ formatDate(ev.endDate) }} · {{ statusLabel(ev.status) }}</div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</pk-dialog>

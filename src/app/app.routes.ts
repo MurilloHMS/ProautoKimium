@@ -65,6 +65,7 @@ import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/h
 import { HrVacationRequestsComponent } from './components/auth/hr-vacation-requests/hr-vacation-requests.component';
 import { HrAnnouncementsComponent } from './components/auth/hr-announcements/hr-announcements.component';
 import { HrAnnouncementsManagerComponent } from './components/auth/rh/hr-announcements-manager/hr-announcements-manager.component';
+import { RhHubComponent } from './components/auth/rh/rh-hub/rh-hub.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
@@ -96,6 +97,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: AuthHomeComponent, data: { roles: ['ADMIN'] } },
+      { path: 'rh/hub', component: RhHubComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/holerit', component: HoleritSpliterComponent },
       { path: 'rh/holerit/extractor', component: HoleritExtractorComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH'] } },

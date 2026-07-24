@@ -88,6 +88,7 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         label: 'RH - Recursos Humanos',
         icon: 'pi pi-fw pi-users',
         items: [
+          { label: 'Painel RH', icon: 'pi pi-fw pi-th-large', routerLink: ['rh/hub'], roles: ['ADMIN', 'RH'] },
           { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
           { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit'],          roles: ['ADMIN', 'RH'] },
           { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file-arrow-up',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
