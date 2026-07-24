@@ -39,6 +39,7 @@ import { ReimbursementsManagerComponent } from './components/auth/rh/reimburseme
 import { HrCalendarComponent } from './components/auth/rh/hr-calendar/hr-calendar.component';
 import { TeamOverviewComponent } from './components/auth/rh/team-overview/team-overview.component';
 import { HrCalculatorsComponent } from './components/auth/rh/hr-calculators/hr-calculators.component';
+import { HrEquipmentAssignmentsComponent } from './components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component';
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
 import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
@@ -102,6 +103,7 @@ export const routes: Routes = [
       { path: 'rh/calendar', component: HrCalendarComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/team-overview', component: TeamOverviewComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/calculators', component: HrCalculatorsComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/equipment-assignments', component: HrEquipmentAssignmentsComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
