@@ -1,0 +1,220 @@
+@use 'variables' as v;
+
+.hrmc-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.hrmc-header {
+  margin-bottom: 28px;
+
+  h1 {
+    font-family: v.$font-heading;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: v.$primary;
+    margin: 0 0 6px;
+  }
+
+  p {
+    color: #6b7492;
+    font-size: 0.98rem;
+    margin: 0;
+  }
+}
+
+.hrmc-form-card {
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 40px;
+
+  &__title {
+    font-family: v.$font-heading;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: v.$primary;
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.hrmc-upload {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1px dashed rgba(35, 46, 97, 0.35);
+    color: v.$primary;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      border-color: v.$secondary;
+      background: rgba(87, 193, 171, 0.08);
+    }
+  }
+
+  input[type='file'] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  &__filename {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #6b7492;
+  }
+}
+
+.hrmc-legibility {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(246, 173, 85, 0.10);
+  border: 1px solid rgba(246, 173, 85, 0.35);
+  border-radius: 12px;
+}
+
+.hrmc-form-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hrmc-history-title {
+  font-family: v.$font-heading;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0 0 16px;
+}
+
+.hrmc-state {
+  padding: 40px 0;
+  color: #6b7492;
+  text-align: center;
+}
+
+.hrmc-empty {
+  text-align: center;
+  color: #9aa6bd;
+  padding: 56px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  .hrmc-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    color: v.$primary;
+    i { font-size: 2.2rem; }
+  }
+
+  p { margin: 0; font-weight: 700; color: #6b7492; }
+}
+
+.hrmc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hrmc-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: rgba(87, 193, 171, 0.5);
+    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(35, 46, 97, 0.08);
+    color: v.$primary;
+    i { font-size: 1.4rem; }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__title {
+    font-family: v.$font-heading;
+    font-size: 1.0rem;
+    font-weight: 700;
+    color: v.$primary;
+  }
+
+  &__meta {
+    font-size: 0.82rem;
+    color: #8a93a8;
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, v.$primary, v.$secondary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    box-shadow: 0 6px 16px rgba(35, 46, 97, 0.22);
+
+    i { font-size: 1.05rem; }
+
+    &:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(35, 46, 97, 0.30); }
+    &:disabled { opacity: 0.6; cursor: default; }
+  }
+}
+
+@media (max-width: 600px) {
+  .hrmc-page { padding: 24px 16px 40px; }
+  .hrmc-header h1 { font-size: 1.6rem; }
+}
