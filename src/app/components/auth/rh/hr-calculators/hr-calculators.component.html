@@ -1,0 +1,197 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-calculator"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Calculadoras</h1>
+      <p class="page-subtitle">Vale transporte, vale refeição, combustível e comparativo CLT × PJ</p>
+    </div>
+  </div>
+</div>
+
+<div class="calc-switcher">
+  @for (section of sections; track section.key) {
+    <button
+      type="button"
+      class="calc-switcher__item"
+      [class.calc-switcher__item--active]="activeSection() === section.key"
+      (click)="select(section.key)">
+      <i [class]="section.icon"></i>
+      {{ section.label }}
+    </button>
+  }
+</div>
+
+@switch (activeSection()) {
+
+  @case ('vt') {
+    <div class="calc-card">
+      <form [formGroup]="vtForm" (ngSubmit)="calculateVt()" class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="vtEmployee">Funcionário <span class="required">*</span></label>
+          <p-select
+            id="vtEmployee"
+            [options]="employeeOptions"
+            formControlName="employeeId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <pk-input label="Valor da passagem (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="fareValue"/>
+        </div>
+        <div class="form-field">
+          <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
+        </div>
+      </form>
+
+      <div class="calc-actions">
+        <pk-button pkType="save" (clicked)="calculateVt()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="vtForm.invalid" [pkLoading]="vtLoading"/>
+      </div>
+
+      @if (vtResult) {
+        <div class="calc-result">
+          <div class="calc-result__row"><span>Funcionário</span><strong>{{ vtResult.employeeName }}</strong></div>
+          <div class="calc-result__row"><span>Deslocamentos por dia</span><strong>{{ vtResult.dailyCommutesCount }}</strong></div>
+          <div class="calc-result__row"><span>Valor da passagem</span><strong>{{ vtResult.fareValue | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>Dias trabalhados</span><strong>{{ vtResult.workingDays }}</strong></div>
+          <div class="calc-result__row calc-result__row--total"><span>Total</span><strong>{{ vtResult.totalAmount | currency:'BRL' }}</strong></div>
+        </div>
+      }
+    </div>
+  }
+
+  @case ('vr') {
+    <div class="calc-card">
+      <form [formGroup]="vrForm" (ngSubmit)="calculateVr()" class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="vrEmployee">Funcionário <span class="required">*</span></label>
+          <p-select
+            id="vrEmployee"
+            [options]="employeeOptions"
+            formControlName="employeeId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <pk-input label="Valor da refeição (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="mealValue"/>
+        </div>
+        <div class="form-field">
+          <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
+        </div>
+      </form>
+
+      <div class="calc-actions">
+        <pk-button pkType="save" (clicked)="calculateVr()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="vrForm.invalid" [pkLoading]="vrLoading"/>
+      </div>
+
+      @if (vrResult) {
+        <div class="calc-result">
+          <div class="calc-result__row"><span>Funcionário</span><strong>{{ vrResult.employeeName }}</strong></div>
+          <div class="calc-result__row"><span>Refeições por dia</span><strong>{{ vrResult.dailyMealsCount }}</strong></div>
+          <div class="calc-result__row"><span>Valor da refeição</span><strong>{{ vrResult.mealValue | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>Dias trabalhados</span><strong>{{ vrResult.workingDays }}</strong></div>
+          <div class="calc-result__row calc-result__row--total"><span>Total</span><strong>{{ vrResult.totalAmount | currency:'BRL' }}</strong></div>
+        </div>
+      }
+    </div>
+  }
+
+  @case ('fuel') {
+    <div class="calc-card">
+      <form [formGroup]="fuelForm" (ngSubmit)="calculateFuel()" class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="fuelEmployee">Funcionário <span class="required">*</span></label>
+          <p-select
+            id="fuelEmployee"
+            [options]="employeeOptions"
+            formControlName="employeeId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <pk-input label="Distância (km)" placeholder="Ex: 120" [pkRequired]="true" type="number" formControlName="distanceKm"/>
+        </div>
+        <div class="form-field">
+          <pk-input label="Consumo do veículo (km/l)" placeholder="Ex: 12" [pkRequired]="true" type="number" formControlName="vehicleConsumptionKmPerLiter"/>
+        </div>
+        <div class="form-field">
+          <pk-input label="Preço do litro (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="literPrice"/>
+        </div>
+      </form>
+
+      <div class="calc-actions">
+        <pk-button pkType="save" (clicked)="calculateFuel()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="fuelForm.invalid" [pkLoading]="fuelLoading"/>
+      </div>
+
+      @if (fuelResult) {
+        <div class="calc-result">
+          <div class="calc-result__row"><span>Funcionário</span><strong>{{ fuelResult.employeeName }}</strong></div>
+          <div class="calc-result__row"><span>Distância</span><strong>{{ fuelResult.distanceKm }} km</strong></div>
+          <div class="calc-result__row"><span>Litros necessários</span><strong>{{ fuelResult.litersNeeded }} l</strong></div>
+          <div class="calc-result__row"><span>Preço do litro</span><strong>{{ fuelResult.literPrice | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row calc-result__row--total"><span>Total</span><strong>{{ fuelResult.totalAmount | currency:'BRL' }}</strong></div>
+        </div>
+      }
+    </div>
+  }
+
+  @case ('clt-pj') {
+    <div class="calc-card">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <label for="cltPjEmployee">Funcionário <span class="required">*</span></label>
+          <p-select
+            id="cltPjEmployee"
+            [options]="employeeOptions"
+            [(ngModel)]="cltPjEmployeeId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="calc-actions">
+        <pk-button pkType="save" (clicked)="calculateCltPj()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="!cltPjEmployeeId" [pkLoading]="cltPjLoading"/>
+      </div>
+
+      @if (cltPjResult) {
+        <div class="calc-result">
+          <div class="calc-result__row"><span>Funcionário</span><strong>{{ cltPjResult.employeeName }}</strong></div>
+          <div class="calc-result__row"><span>Salário base</span><strong>{{ cltPjResult.baseSalary | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>INSS patronal</span><strong>{{ cltPjResult.inssPatronal | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>FGTS</span><strong>{{ cltPjResult.fgts | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>Provisão 13º salário</span><strong>{{ cltPjResult.thirteenthSalaryProvision | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row"><span>Provisão de férias</span><strong>{{ cltPjResult.vacationProvision | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row calc-result__row--total"><span>Custo total CLT</span><strong>{{ cltPjResult.totalCltCost | currency:'BRL' }}</strong></div>
+          <div class="calc-result__row calc-result__row--total"><span>Valor equivalente PJ</span><strong>{{ cltPjResult.pjEquivalentValue | currency:'BRL' }}</strong></div>
+        </div>
+        <p class="calc-hint">
+          <i class="pi pi-info-circle"></i>
+          Valor equivalente PJ = quanto a empresa pagaria a um prestador PJ para manter o mesmo custo total do funcionário CLT.
+        </p>
+      }
+    </div>
+  }
+}
