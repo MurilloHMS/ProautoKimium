@@ -49,6 +49,8 @@ import { DocumentosComponent } from './components/auth/documentos/documentos.com
 import { NotificacoesComponent } from './components/auth/notificacoes/notificacoes.component';
 import { PerfilComponent } from './components/auth/perfil/perfil.component';
 import { HoleritesComponent } from './components/auth/holerites/holerites.component';
+import { HrHubComponent } from './components/auth/hr-hub/hr-hub.component';
+import { HrDocumentsComponent } from './components/auth/hr-documents/hr-documents.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
@@ -106,6 +108,8 @@ export const routes: Routes = [
       { path: 'documentos', component: DocumentosComponent },
       { path: 'documentos/logos', component: BrandingComponent },
       { path: 'documentos/holerites', component: HoleritesComponent },
+      { path: 'documentos/rh', component: HrHubComponent },
+      { path: 'documentos/rh/documents', component: HrDocumentsComponent },
       { path: 'notificacoes', component: NotificacoesComponent },
       { path: 'perfil', component: PerfilComponent },
     ]

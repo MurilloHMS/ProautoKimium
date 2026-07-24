@@ -1,0 +1,33 @@
+<section class="hrd-page">
+  <header class="hrd-header">
+    <h1>Meus Documentos</h1>
+    <p>Documentos vinculados pelo RH ao seu cadastro.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="hrd-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hrd-state">Não foi possível carregar seus documentos. Tente novamente mais tarde.</div>
+  } @else if (documents().length === 0) {
+    <div class="hrd-empty">
+      <span class="hrd-empty-icon"><i class="pi pi-id-card"></i></span>
+      <p>Nenhum documento disponível ainda</p>
+      <small>Quando o RH vincular um documento ao seu cadastro, ele aparece aqui automaticamente.</small>
+    </div>
+  } @else {
+    <div class="hrd-grid">
+      @for (doc of documents(); track doc.id) {
+        <div class="hrd-card">
+          <span class="hrd-card__icon"><i class="pi pi-file"></i></span>
+          <div class="hrd-card__info">
+            <span class="hrd-card__title">{{ doc.title }}</span>
+            <span class="hrd-card__meta">{{ formatDate(doc.uploadedAt) }}</span>
+          </div>
+          <button class="hrd-card__btn" (click)="baixar(doc)" [disabled]="baixandoId() === doc.id" aria-label="Baixar documento">
+            <i class="pi" [ngClass]="baixandoId() === doc.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>
