@@ -1,0 +1,120 @@
+<section class="hrmc-page">
+  <header class="hrmc-header">
+    <h1>Atestados</h1>
+    <p>Envie seus atestados médicos e acompanhe o histórico.</p>
+  </header>
+
+  <div class="hrmc-form-card">
+    <h2 class="hrmc-form-card__title"><i class="pi pi-plus-circle"></i> Novo atestado</h2>
+
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="startDate">Data inicial <span class="required">*</span></label>
+          <p-datepicker
+            id="startDate"
+            formControlName="startDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+        <div class="form-field">
+          <label for="endDate">Data final <span class="required">*</span></label>
+          <p-datepicker
+            id="endDate"
+            formControlName="endDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+        <div class="form-field">
+          <label for="submissionType">Como vai enviar? <span class="required">*</span></label>
+          <p-select
+            id="submissionType"
+            [options]="submissionTypes"
+            formControlName="submissionType"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            styleClass="select-field"
+            (onChange)="onSubmissionTypeChange()">
+          </p-select>
+        </div>
+      </div>
+
+      <div class="hrmc-upload">
+        @if (isPhoto) {
+          <label class="hrmc-upload__label" for="fileInput">
+            <i class="pi pi-camera"></i> Tirar foto ou escolher da galeria
+          </label>
+          <input id="fileInput" type="file" accept="image/*" capture="environment" (change)="onFileSelected($event)" />
+        } @else {
+          <label class="hrmc-upload__label" for="fileInput">
+            <i class="pi pi-upload"></i> Escolher arquivo
+          </label>
+          <input id="fileInput" type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFileSelected($event)" />
+        }
+
+        @if (selectedFile) {
+          <span class="hrmc-upload__filename"><i class="pi pi-file"></i> {{ selectedFile.name }}</span>
+        }
+      </div>
+
+      @if (isPhoto && selectedFile) {
+        <div class="hrmc-legibility">
+          <pk-checkbox
+            inputId="legibility"
+            label="Confirmo que os dados da foto estão legíveis"
+            description="Confira se as informações do atestado estão nítidas antes de enviar"
+            [(ngModel)]="legibilityConfirmed"
+            [ngModelOptions]="{ standalone: true }">
+          </pk-checkbox>
+        </div>
+      }
+
+      <div class="hrmc-form-actions">
+        <pk-button
+          pkType="save"
+          pkLabel="Enviar atestado"
+          pkSize="sm"
+          [pkDisabled]="!podeEnviar || enviando()"
+          (clicked)="enviar()">
+        </pk-button>
+      </div>
+    </form>
+  </div>
+
+  <h2 class="hrmc-history-title">Meus atestados</h2>
+
+  @if (loading()) {
+    <div class="hrmc-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hrmc-state">Não foi possível carregar seus atestados. Tente novamente mais tarde.</div>
+  } @else if (certificates().length === 0) {
+    <div class="hrmc-empty">
+      <span class="hrmc-empty-icon"><i class="pi pi-heart"></i></span>
+      <p>Nenhum atestado enviado ainda</p>
+    </div>
+  } @else {
+    <div class="hrmc-grid">
+      @for (cert of certificates(); track cert.id) {
+        <div class="hrmc-card">
+          <span class="hrmc-card__icon">
+            <i class="pi" [ngClass]="cert.submissionType === 'PHOTO' ? 'pi-camera' : 'pi-file'"></i>
+          </span>
+          <div class="hrmc-card__info">
+            <span class="hrmc-card__title">{{ formatDate(cert.startDate) }} — {{ formatDate(cert.endDate) }}</span>
+            <span class="hrmc-card__meta">{{ cert.daysCount }} dia(s) · enviado em {{ formatDate(cert.submittedAt) }}</span>
+          </div>
+          <button class="hrmc-card__btn" (click)="baixar(cert)" [disabled]="baixandoId() === cert.id" aria-label="Baixar atestado">
+            <i class="pi" [ngClass]="baixandoId() === cert.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+          </button>
+        </div>
+      }
+    </div>
+  }
+</section>
