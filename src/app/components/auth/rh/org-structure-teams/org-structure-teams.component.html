@@ -1,0 +1,68 @@
+<div class="section-actions">
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Setor" pkSize="sm"/>
+</div>
+
+<div class="table-card">
+  <p-toast position="top-right"></p-toast>
+
+  <pk-table
+    [data]="teams"
+    [loading]="loading"
+    totalLabel="setores encontrados"
+    searchPlaceholder="Buscar por nome…"
+    [filterFields]="['name']"
+    emptyIcon="pi pi-users"
+    emptyTitle="Nenhum setor cadastrado"
+    emptySubtitle="Adicione um novo setor para começar."
+    pageReportTitle="Setores">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+        <th>Departamento</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-t>
+      <tr class="table-row">
+        <td>{{ t.name }}</td>
+        <td>{{ t.department?.name }}</td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+<pk-dialog header="Novo Setor" [visible]="visible" (visibleChange)="visible = $event">
+  <div pkDialogContent>
+    <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <pk-input label="Nome" placeholder="Ex: Compras" [pkRequired]="true" [pkMaxLength]="100" type="text" formControlName="name"/>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="departmentId">Departamento <span class="required">*</span></label>
+          <p-select
+            id="departmentId"
+            [options]="departmentOptions"
+            formControlName="departmentId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+          <small class="field-error" *ngIf="form.get('departmentId')?.invalid && form.get('departmentId')?.touched">
+            Campo obrigatório
+          </small>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
+  </div>
+</pk-dialog>
