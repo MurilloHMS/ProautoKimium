@@ -1,0 +1,172 @@
+@use 'variables' as v;
+
+.filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  margin: 20px 0 20px;
+
+  .form-field {
+    min-width: 180px;
+  }
+}
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  &--available {
+    background: rgba(87, 193, 171, 0.16);
+    color: v.$secondary-dark;
+  }
+
+  &--vacation {
+    background: rgba(246, 173, 85, 0.18);
+    color: #b06d12;
+  }
+
+  &--scheduled {
+    background: rgba(35, 46, 97, 0.10);
+    color: v.$primary;
+  }
+}
+
+.to-state {
+  padding: 40px 0;
+  color: #6b7492;
+  text-align: center;
+}
+
+.to-empty {
+  text-align: center;
+  color: #9aa6bd;
+  padding: 56px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  .to-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    color: v.$primary;
+    i { font-size: 2.2rem; }
+  }
+
+  p { margin: 0; font-weight: 700; color: #6b7492; }
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.team-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-left: 4px solid #cbd3e1;
+  border-radius: 14px;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.08);
+  }
+
+  &--available { border-left-color: v.$secondary; }
+  &--on_vacation { border-left-color: #f6ad55; }
+  &--vacation_scheduled { border-left-color: v.$primary; }
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, v.$primary, v.$secondary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    font-family: v.$font-heading;
+    font-weight: 700;
+    color: v.$primary;
+    font-size: 0.95rem;
+  }
+
+  &__meta {
+    font-size: 0.78rem;
+    color: #8a93a8;
+  }
+
+  &__badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+}
+
+.to-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+
+  &--available {
+    background: rgba(87, 193, 171, 0.16);
+    color: v.$secondary-dark;
+  }
+
+  &--on_vacation {
+    background: rgba(246, 173, 85, 0.18);
+    color: #b06d12;
+  }
+
+  &--vacation_scheduled {
+    background: rgba(35, 46, 97, 0.10);
+    color: v.$primary;
+  }
+
+  &--contract {
+    background: #f1f3f8;
+    color: #6b7492;
+  }
+}

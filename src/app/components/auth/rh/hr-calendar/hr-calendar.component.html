@@ -1,0 +1,75 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-calendar"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Calendário RH</h1>
+      <p class="page-subtitle">Tudo que está agendado no período, com filtros</p>
+    </div>
+  </div>
+</div>
+
+<div class="filters-bar">
+  <div class="form-field">
+    <label for="startDate">De</label>
+    <p-datepicker id="startDate" [(ngModel)]="startDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+  </div>
+  <div class="form-field">
+    <label for="endDate">Até</label>
+    <p-datepicker id="endDate" [(ngModel)]="endDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+  </div>
+  <div class="form-field">
+    <label for="teamFilter">Setor</label>
+    <p-select id="teamFilter" [options]="teamOptions" [(ngModel)]="teamFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todos" [showClear]="true" styleClass="select-field"></p-select>
+  </div>
+  <div class="form-field">
+    <label for="companyFilter">Empresa</label>
+    <p-select id="companyFilter" [options]="companyOptions" [(ngModel)]="companyFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todas" [showClear]="true" styleClass="select-field"></p-select>
+  </div>
+  <div class="form-field">
+    <label for="statusFilter">Status</label>
+    <p-select id="statusFilter" [options]="statusOptions" [(ngModel)]="statusFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" styleClass="select-field"></p-select>
+  </div>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Buscar" pkSize="sm"/>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="events"
+    [loading]="loading"
+    totalLabel="eventos encontrados"
+    searchPlaceholder="Buscar por funcionário…"
+    [filterFields]="['employeeName']"
+    emptyIcon="pi pi-calendar"
+    emptyTitle="Nenhum evento no período"
+    emptySubtitle="Ajuste o período ou os filtros pra ver outros eventos."
+    pageReportTitle="Eventos">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th>Tipo</th>
+        <th>Funcionário</th>
+        <th>Setor</th>
+        <th>Período</th>
+        <th>Status</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-e>
+      <tr class="table-row">
+        <td><span class="event-type-badge"><i class="pi pi-sun"></i> {{ eventTypeLabel(e.eventType) }}</span></td>
+        <td>{{ e.employeeName }}</td>
+        <td>{{ e.teamName ?? '—' }}</td>
+        <td>{{ formatDate(e.startDate) }} — {{ formatDate(e.endDate) }}</td>
+        <td><span class="hc-badge" [ngClass]="'hc-badge--' + e.status.toLowerCase()">{{ statusLabel(e.status) }}</span></td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>

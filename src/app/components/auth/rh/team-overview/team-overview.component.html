@@ -1,0 +1,66 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-users"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Visão de Equipe</h1>
+      <p class="page-subtitle">Quem está disponível, de férias ou com férias agendadas</p>
+    </div>
+  </div>
+</div>
+
+<div class="filters-bar">
+  <div class="form-field">
+    <label for="teamFilter">Setor</label>
+    <p-select id="teamFilter" [options]="teamOptions" [(ngModel)]="teamFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todos" [showClear]="true" styleClass="select-field"></p-select>
+  </div>
+  <div class="form-field">
+    <label for="companyFilter">Empresa</label>
+    <p-select id="companyFilter" [options]="companyOptions" [(ngModel)]="companyFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todas" [showClear]="true" styleClass="select-field"></p-select>
+  </div>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+</div>
+
+<div class="summary-row">
+  <div class="summary-chip summary-chip--available">
+    <i class="pi pi-check-circle"></i> {{ availableCount }} disponíveis
+  </div>
+  <div class="summary-chip summary-chip--vacation">
+    <i class="pi pi-sun"></i> {{ onVacationCount }} de férias
+  </div>
+  <div class="summary-chip summary-chip--scheduled">
+    <i class="pi pi-calendar"></i> {{ scheduledCount }} com férias agendadas
+  </div>
+</div>
+
+@if (loading) {
+  <div class="to-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+} @else if (entries.length === 0) {
+  <div class="to-empty">
+    <span class="to-empty-icon"><i class="pi pi-users"></i></span>
+    <p>Nenhum funcionário encontrado</p>
+  </div>
+} @else {
+  <div class="team-grid">
+    @for (e of entries; track e.employeeId) {
+      <div class="team-card" [ngClass]="'team-card--' + e.availabilityStatus.toLowerCase()">
+        <div class="team-card__avatar">{{ initials(e.name) }}</div>
+        <div class="team-card__info">
+          <span class="team-card__name">{{ e.name }}</span>
+          <span class="team-card__meta">{{ e.teamName ?? 'Sem setor' }} @if (e.companyName) { · {{ e.companyName }} }</span>
+        </div>
+        <div class="team-card__badges">
+          <span class="to-badge" [ngClass]="'to-badge--' + e.availabilityStatus.toLowerCase()">{{ statusLabel(e.availabilityStatus) }}</span>
+          @if (e.contractType) {
+            <span class="to-badge to-badge--contract">{{ e.contractType }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
