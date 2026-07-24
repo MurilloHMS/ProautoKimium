@@ -20,7 +20,7 @@ export class HrHubComponent {
   categorias: HrCategoria[] = [
     { titulo: 'Meus Documentos', descricao: 'Documentos vinculados pelo RH ao seu cadastro',       icon: 'pi pi-id-card', rota: '/documentos/rh/documents' },
     { titulo: 'Atestados',       descricao: 'Envie atestados e acompanhe seu histórico',            icon: 'pi pi-heart', rota: '/documentos/rh/medical-certificates' },
-    { titulo: 'Reembolsos',      descricao: 'Solicite reembolsos e acompanhe o status',              icon: 'pi pi-wallet' },
+    { titulo: 'Reembolsos',      descricao: 'Solicite reembolsos e acompanhe o status',              icon: 'pi pi-wallet', rota: '/documentos/rh/reimbursements' },
     { titulo: 'Férias',          descricao: 'Solicite férias e acompanhe seu saldo',                 icon: 'pi pi-sun' },
   ];
 
