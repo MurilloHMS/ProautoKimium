@@ -1,9 +1,13 @@
 import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Department, Employee, Hierarchy } from '../../../../domain/models/employee.model';
+import { ContractType, Department, Employee, Hierarchy } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
+import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
+import { TeamService } from '../../../../infrastructure/services/hr/team.service';
+import { PositionService } from '../../../../infrastructure/services/hr/position.service';
+import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -44,6 +48,16 @@ export class EmployesComponent{
   hierarchyList: {label: string, value: Hierarchy} [] = []
   departmentList: {label: string, value: Department} [] = []
 
+  // Vínculo organizacional / cargo inicial (Estrutura Organizacional + Cargos & Níveis)
+  companyOptions: {label: string, value: string}[] = [];
+  teamOptions: {label: string, value: string}[] = [];
+  positionOptions: {label: string, value: string}[] = [];
+  positionLevelOptions: {label: string, value: string}[] = [];
+  contractTypeOptions: {label: string, value: ContractType}[] = [
+    { label: 'CLT', value: ContractType.CLT },
+    { label: 'PJ', value: ContractType.PJ },
+  ];
+
   // Vínculo usuário <-> funcionário
   users: UserResponseDTO[] = [];
   linkVisible = false;
@@ -54,6 +68,10 @@ export class EmployesComponent{
   constructor(
     private employeService: EmployeeService,
     private authService: AuthService,
+    private companyService: CompanyService,
+    private teamService: TeamService,
+    private positionService: PositionService,
+    private positionLevelService: PositionLevelService,
     private fb: FormBuilder,
     private msgService: MessageService
   ){
@@ -66,14 +84,63 @@ export class EmployesComponent{
       managerCode: [''],
       hierarchy: [Hierarchy.ASSISTENTE, Validators.required],
       birthday: [null],
-      department: [Department.ALIMENTOS, Validators.required]
+      department: [Department.ALIMENTOS, Validators.required],
+      companyId: [null, Validators.required],
+      teamId: [null, Validators.required],
+      positionId: [null, Validators.required],
+      positionLevelId: [{ value: null, disabled: true }, Validators.required],
+      contractType: [ContractType.CLT, Validators.required],
+      hiringDate: [null, Validators.required],
     });
+
+    this.form.get('positionId')?.valueChanges.subscribe((positionId) => this.onPositionChange(positionId));
   }
 
   ngOnInit(){
     this.loadHierarchyList();
     this.loadDepartmentList();
     this.loadUsers();
+    this.loadOrgOptions();
+  }
+
+  loadOrgOptions(): void {
+    this.companyService.getAll().subscribe({
+      next: (list) => (this.companyOptions = list.map((c) => ({ label: c.name, value: c.id }))),
+      error: () => (this.companyOptions = []),
+    });
+    this.teamService.getAll().subscribe({
+      next: (list) => (this.teamOptions = list.map((t) => ({ label: t.name, value: t.id }))),
+      error: () => (this.teamOptions = []),
+    });
+    this.positionService.getAll().subscribe({
+      next: (list) => (this.positionOptions = list.map((p) => ({ label: p.name, value: p.id }))),
+      error: () => (this.positionOptions = []),
+    });
+  }
+
+  onPositionChange(positionId: string | null): void {
+    const levelControl = this.form.get('positionLevelId');
+    levelControl?.reset(null);
+    this.positionLevelOptions = [];
+
+    if (!positionId) {
+      levelControl?.disable();
+      return;
+    }
+
+    this.positionLevelService.getByPosition(positionId).subscribe({
+      next: (levels) => {
+        this.positionLevelOptions = levels.map((l) => ({
+          label: `${l.name} — ${l.resolvedSalary.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+          value: l.id,
+        }));
+        levelControl?.enable();
+      },
+      error: () => {
+        this.positionLevelOptions = [];
+        levelControl?.disable();
+      },
+    });
   }
 
   loadUsers(){
@@ -180,6 +247,12 @@ export class EmployesComponent{
     this.dialogTitle = 'Editar funcionário';
     this.employeToEdit = employee;
 
+    // Cargo/nível/contrato/admissão só existem na criação (viram o primeiro CareerHistory) — não editáveis por aqui.
+    this.form.get('positionId')?.disable();
+    this.form.get('positionLevelId')?.disable();
+    this.form.get('contractType')?.disable();
+    this.form.get('hiringDate')?.disable();
+
     this.form.patchValue({
       partnerCode: employee.partnerCode,
       document: employee.document,
@@ -190,6 +263,12 @@ export class EmployesComponent{
       hierarchy: employee.hierarchy,
       birthday: employee.birthday,
       department: employee.department,
+      companyId: employee.companyId ?? null,
+      teamId: employee.teamId ?? null,
+      positionId: null,
+      positionLevelId: null,
+      contractType: null,
+      hiringDate: null,
     });
 
     this.visible = true;
@@ -198,8 +277,14 @@ export class EmployesComponent{
   showDialog() {
     this.dialogTitle = 'Adicionar Funcionário';
     this.employeToEdit = null;
+
+    this.form.get('positionId')?.enable();
+    this.form.get('contractType')?.enable();
+    this.form.get('hiringDate')?.enable();
+
     this.form.reset({
-      ativo: true
+      ativo: true,
+      contractType: ContractType.CLT,
     });
     this.visible = true;
   }
@@ -210,6 +295,9 @@ export class EmployesComponent{
 
       if(employee.birthday instanceof Date){
         employee.birthday = employee.birthday.toISOString().split('T')[0];
+      }
+      if(employee.hiringDate instanceof Date){
+        employee.hiringDate = employee.hiringDate.toISOString().split('T')[0];
       }
 
       if(this.employeToEdit){
