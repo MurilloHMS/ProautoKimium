@@ -1,0 +1,228 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-briefcase"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Cargos & Níveis</h1>
+      <p class="page-subtitle">Estrutura de cargos, níveis salariais e dissídio</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
+    <pk-button pkType="new" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm"/>
+    <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="positions"
+    [loading]="loadingPositions"
+    totalLabel="cargos encontrados"
+    searchPlaceholder="Buscar por nome…"
+    [filterFields]="['name']"
+    emptyIcon="pi pi-briefcase"
+    emptyTitle="Nenhum cargo cadastrado"
+    emptySubtitle="Adicione um novo cargo para começar."
+    pageReportTitle="Cargos">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-p>
+      <tr class="table-row" [class.table-row--selected]="selectedPosition?.id === p.id">
+        <td>{{ p.name }}</td>
+        <td class="col-center">
+          <button pButton type="button" icon="pi pi-list" label="Ver Níveis" class="action-btn" (click)="selectPosition(p)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+@if (selectedPosition) {
+  <div class="levels-section">
+    <div class="page-header page-header--sub">
+      <div class="header-left">
+        <div>
+          <h2 class="page-title page-title--sm">Níveis — {{ selectedPosition.name }}</h2>
+          <p class="page-subtitle">Cada nível é fixo ou percentual sobre o nível imediatamente anterior</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <pk-button pkType="new" (clicked)="showLevelDialog()" pkLabel="Novo Nível" pkSize="sm"/>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <pk-table
+        [data]="levels"
+        [loading]="loadingLevels"
+        totalLabel="níveis encontrados"
+        searchPlaceholder="Buscar por nome…"
+        [filterFields]="['name']"
+        emptyIcon="pi pi-sort-amount-down"
+        emptyTitle="Nenhum nível cadastrado"
+        emptySubtitle="Adicione o primeiro nível deste cargo — o nível 1 precisa ser fixo."
+        pageReportTitle="Níveis">
+
+        <ng-template #headerTpl>
+          <tr>
+            <th>Ordem</th>
+            <th>Nome</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Salário calculado</th>
+          </tr>
+        </ng-template>
+
+        <ng-template #bodyTpl let-l>
+          <tr class="table-row">
+            <td><span class="code-badge">{{ l.levelOrder }}</span></td>
+            <td>{{ l.name }}</td>
+            <td>{{ l.adjustmentType === 'FIXED' ? 'Fixo' : 'Percentual' }}</td>
+            <td>
+              @if (l.adjustmentType === 'FIXED') {
+                {{ l.fixedAmount | currency:'BRL' }}
+              } @else {
+                +{{ l.percentageIncrease }}%
+              }
+            </td>
+            <td><strong>{{ l.resolvedSalary | currency:'BRL' }}</strong></td>
+          </tr>
+        </ng-template>
+
+      </pk-table>
+    </div>
+  </div>
+}
+
+<!-- Dialog: Novo Cargo -->
+<pk-dialog header="Novo Cargo" [visible]="positionDialogVisible" (visibleChange)="positionDialogVisible = $event">
+  <div pkDialogContent>
+    <form [formGroup]="positionForm" (ngSubmit)="savePosition()" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <pk-input label="Nome" placeholder="Ex: Desenvolvedor Java" [pkRequired]="true" [pkMaxLength]="100" type="text" formControlName="name"/>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="positionDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="savePosition()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="positionForm.invalid"/>
+  </div>
+</pk-dialog>
+
+<!-- Dialog: Novo Nível -->
+<pk-dialog header="Novo Nível" [visible]="levelDialogVisible" (visibleChange)="levelDialogVisible = $event">
+  <div pkDialogContent>
+    <form [formGroup]="levelForm" (ngSubmit)="saveLevel()" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <pk-input label="Nome" placeholder="Ex: Júnior" [pkRequired]="true" [pkMaxLength]="50" type="text" formControlName="name"/>
+        </div>
+        <div class="form-field">
+          <pk-input label="Ordem" placeholder="1, 2, 3…" [pkRequired]="true" type="number" formControlName="levelOrder"/>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="adjustmentType">Tipo de reajuste <span class="required">*</span></label>
+          <p-select
+            id="adjustmentType"
+            [options]="adjustmentTypeOptions"
+            formControlName="adjustmentType"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            styleClass="select-field">
+          </p-select>
+        </div>
+
+        @if (isFixedLevel) {
+          <div class="form-field form-field--full">
+            <pk-input label="Valor fixo (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="fixedAmount"/>
+          </div>
+        } @else {
+          <div class="form-field form-field--full">
+            <pk-input label="Percentual sobre o nível anterior (%)" placeholder="Ex: 5" [pkRequired]="true" type="number" formControlName="percentageIncrease"/>
+          </div>
+        }
+      </div>
+    </form>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="levelDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="saveLevel()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="levelForm.invalid"/>
+  </div>
+</pk-dialog>
+
+<!-- Dialog: Aplicar Dissídio -->
+<pk-dialog header="Aplicar Dissídio" [visible]="adjustmentDialogVisible" (visibleChange)="adjustmentDialogVisible = $event">
+  <div pkDialogContent>
+    <form [formGroup]="adjustmentForm" (ngSubmit)="applyAdjustment()" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <pk-input label="Percentual (%)" placeholder="Ex: 5" [pkRequired]="true" type="number" formControlName="percentage"/>
+        </div>
+        <div class="form-field">
+          <label for="effectiveDate">Data efetiva <span class="required">*</span></label>
+          <p-datepicker
+            id="effectiveDate"
+            formControlName="effectiveDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+        <div class="form-field form-field--full">
+          <label for="scope">Escopo <span class="required">*</span></label>
+          <p-select
+            id="scope"
+            [options]="scopeOptions"
+            formControlName="scope"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            styleClass="select-field">
+          </p-select>
+        </div>
+
+        @if (isSpecificPositionScope) {
+          <div class="form-field form-field--full">
+            <label for="positionId">Cargo <span class="required">*</span></label>
+            <p-select
+              id="positionId"
+              [options]="positions"
+              formControlName="positionId"
+              optionLabel="name"
+              optionValue="id"
+              appendTo="body"
+              placeholder="Selecione…"
+              styleClass="select-field">
+            </p-select>
+          </div>
+        }
+      </div>
+    </form>
+
+    @if (adjustmentResult) {
+      <div class="adjustment-result">
+        <i class="pi pi-check-circle"></i>
+        {{ adjustmentResult.positionLevelsUpdated }} nível(is) atualizado(s), {{ adjustmentResult.employeesAffected }} funcionário(s) afetado(s).
+      </div>
+    }
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="adjustmentDialogVisible = false" pkLabel="Fechar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="applyAdjustment()" pkLabel="Aplicar" pkSize="sm" [pkDisabled]="adjustmentForm.invalid" [pkLoading]="applyingAdjustment"/>
+  </div>
+</pk-dialog>

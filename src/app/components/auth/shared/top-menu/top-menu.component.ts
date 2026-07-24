@@ -92,7 +92,8 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit'],          roles: ['ADMIN', 'RH'] },
           { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file-arrow-up',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
           { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], roles: ['ADMIN', 'RH'] },
-          { label: 'Estrutura Organizacional', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], roles: ['ADMIN', 'RH'] }
+          { label: 'Estrutura Organizacional', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], roles: ['ADMIN', 'RH'] },
+          { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], roles: ['ADMIN', 'RH'] }
         ],
       },
       {
