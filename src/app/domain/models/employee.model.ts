@@ -1,4 +1,5 @@
 export interface Employee{
+  id?: string, // presente na resposta da API; opcional pra não quebrar telas antigas que montam Employee só com os campos do form
   partnerCode: string,
   document: string,
   name: string,

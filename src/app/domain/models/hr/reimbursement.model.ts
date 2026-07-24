@@ -16,3 +16,11 @@ export interface Reimbursement {
   paymentDate: string | null;
   paidAt: string | null;
 }
+
+export interface ReviewReimbursementPayload {
+  notes: string;
+}
+
+export interface PayReimbursementPayload {
+  paymentDate: string;
+}

@@ -1,0 +1,149 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-wallet"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Gerenciador de Reembolsos</h1>
+      <p class="page-subtitle">Analise, aprove e registre o pagamento dos reembolsos</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="filter-field">
+      <p-select
+        [options]="statusOptions"
+        [(ngModel)]="statusFilter"
+        (onChange)="load()"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        styleClass="select-field">
+      </p-select>
+    </div>
+    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="reimbursements"
+    [loading]="loading"
+    totalLabel="reembolsos encontrados"
+    searchPlaceholder="Buscar…"
+    emptyIcon="pi pi-wallet"
+    emptyTitle="Nenhum reembolso encontrado"
+    emptySubtitle="Troque o filtro de status pra ver outros reembolsos."
+    pageReportTitle="Reembolsos">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th>Funcionário</th>
+        <th>Categoria</th>
+        <th>Valor</th>
+        <th>Data do gasto</th>
+        <th>Status</th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-r>
+      <tr class="table-row">
+        <td>{{ employeeName(r.employeeId) }}</td>
+        <td>{{ r.category }}</td>
+        <td>{{ r.amount | currency:'BRL' }}</td>
+        <td>{{ formatDate(r.expenseDate) }}</td>
+        <td>
+          <span class="rm-badge" [ngClass]="'rm-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <div class="rm-notes">{{ r.reviewNotes }}</div>
+          }
+          @if (r.status === 'PAID' && r.paymentDate) {
+            <div class="rm-notes rm-notes--paid">Pago em {{ formatDate(r.paymentDate) }}</div>
+          }
+        </td>
+        <td class="col-center">
+          @if (r.status === 'PENDING') {
+            <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve" pTooltip="Aprovar" tooltipPosition="left" (click)="openReview(r, 'approve')"></button>
+            <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject" pTooltip="Recusar" tooltipPosition="left" (click)="openReview(r, 'reject')"></button>
+          } @else if (r.status === 'APPROVED') {
+            <button pButton type="button" icon="pi pi-money-bill" label="Pagar" class="action-btn action-btn--pay" (click)="openPay(r)"></button>
+          }
+          <button pButton type="button" icon="pi" [ngClass]="baixandoId === r.id ? 'pi-spin pi-spinner' : 'pi-download'"
+                  class="action-btn" pTooltip="Ver comprovante" tooltipPosition="left"
+                  [disabled]="baixandoId === r.id" (click)="baixarComprovante(r)"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+<!-- Dialog: Aprovar/Recusar -->
+<pk-dialog
+  [header]="reviewAction === 'approve' ? 'Aprovar reembolso' : 'Recusar reembolso'"
+  [visible]="reviewDialogVisible"
+  (visibleChange)="reviewDialogVisible = $event">
+
+  <div pkDialogContent>
+    @if (reviewTarget) {
+      <p class="review-target">
+        <i class="pi pi-user"></i>
+        <strong>{{ employeeName(reviewTarget.employeeId) }}</strong>
+        — {{ reviewTarget.category }} · {{ reviewTarget.amount | currency:'BRL' }}
+      </p>
+    }
+
+    <div class="form-field form-field--full">
+      <label for="reviewNotes">
+        Observação
+        @if (reviewAction === 'reject') { <span class="required">*</span> }
+      </label>
+      <textarea id="reviewNotes" [(ngModel)]="reviewNotes" rows="3" maxlength="500"
+                placeholder="{{ reviewAction === 'reject' ? 'Explique o motivo da recusa' : 'Opcional' }}"></textarea>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="reviewDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button
+      [pkType]="reviewAction === 'approve' ? 'save' : 'cancel'"
+      (clicked)="confirmReview()"
+      [pkLabel]="reviewAction === 'approve' ? 'Aprovar' : 'Recusar'"
+      pkSize="sm"
+      [pkDisabled]="!canConfirmReview"
+      [pkLoading]="reviewSaving">
+    </pk-button>
+  </div>
+</pk-dialog>
+
+<!-- Dialog: Pagar -->
+<pk-dialog header="Registrar pagamento" [visible]="payDialogVisible" (visibleChange)="payDialogVisible = $event">
+  <div pkDialogContent>
+    @if (payTarget) {
+      <p class="review-target">
+        <i class="pi pi-user"></i>
+        <strong>{{ employeeName(payTarget.employeeId) }}</strong>
+        — {{ payTarget.category }} · {{ payTarget.amount | currency:'BRL' }}
+      </p>
+    }
+
+    <div class="form-field form-field--full">
+      <label for="payDate">Data do pagamento <span class="required">*</span></label>
+      <p-datepicker
+        id="payDate"
+        [(ngModel)]="payDate"
+        [showButtonBar]="true"
+        dateFormat="dd/mm/yy"
+        styleClass="datepicker-field"
+        placeholder="dd/mm/aaaa">
+      </p-datepicker>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="payDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="confirmPay()" pkLabel="Confirmar pagamento" pkSize="sm" [pkDisabled]="!payDate" [pkLoading]="paySaving"/>
+  </div>
+</pk-dialog>

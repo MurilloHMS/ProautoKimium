@@ -1,0 +1,112 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-sun"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Aprovação de Férias</h1>
+      <p class="page-subtitle">Analise as solicitações de férias dos funcionários</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="filter-field">
+      <p-select
+        [options]="statusOptions"
+        [(ngModel)]="statusFilter"
+        (onChange)="load()"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        styleClass="select-field">
+      </p-select>
+    </div>
+    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="requests"
+    [loading]="loading"
+    totalLabel="solicitações encontradas"
+    searchPlaceholder="Buscar…"
+    emptyIcon="pi pi-sun"
+    emptyTitle="Nenhuma solicitação encontrada"
+    emptySubtitle="Troque o filtro de status pra ver outras solicitações."
+    pageReportTitle="Férias">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th>Funcionário</th>
+        <th>Período</th>
+        <th>Dias</th>
+        <th>Status</th>
+        <th>Solicitado em</th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-r>
+      <tr class="table-row">
+        <td>{{ employeeName(r.employeeId) }}</td>
+        <td>{{ formatDate(r.startDate) }} — {{ formatDate(r.endDate) }}</td>
+        <td><span class="code-badge">{{ r.daysRequested }}</span></td>
+        <td>
+          <span class="vr-badge" [ngClass]="'vr-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <div class="vr-notes">{{ r.reviewNotes }}</div>
+          }
+        </td>
+        <td>{{ formatDate(r.requestedAt) }}</td>
+        <td class="col-center">
+          @if (r.status === 'PENDING') {
+            <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve" pTooltip="Aprovar" tooltipPosition="left" (click)="openReview(r, 'approve')"></button>
+            <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject" pTooltip="Recusar" tooltipPosition="left" (click)="openReview(r, 'reject')"></button>
+          } @else {
+            <span class="text-muted">—</span>
+          }
+        </td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+<pk-dialog
+  [header]="reviewAction === 'approve' ? 'Aprovar solicitação' : 'Recusar solicitação'"
+  [visible]="reviewDialogVisible"
+  (visibleChange)="reviewDialogVisible = $event">
+
+  <div pkDialogContent>
+    @if (reviewTarget) {
+      <p class="review-target">
+        <i class="pi pi-user"></i>
+        <strong>{{ employeeName(reviewTarget.employeeId) }}</strong>
+        — {{ formatDate(reviewTarget.startDate) }} a {{ formatDate(reviewTarget.endDate) }} ({{ reviewTarget.daysRequested }} dias)
+      </p>
+    }
+
+    <div class="form-field form-field--full">
+      <label for="reviewNotes">
+        Observação
+        @if (reviewAction === 'reject') { <span class="required">*</span> }
+      </label>
+      <textarea id="reviewNotes" [(ngModel)]="reviewNotes" rows="3" maxlength="500"
+                placeholder="{{ reviewAction === 'reject' ? 'Explique o motivo da recusa' : 'Opcional' }}"></textarea>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="reviewDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button
+      [pkType]="reviewAction === 'approve' ? 'save' : 'cancel'"
+      (clicked)="confirmReview()"
+      [pkLabel]="reviewAction === 'approve' ? 'Aprovar' : 'Recusar'"
+      pkSize="sm"
+      [pkDisabled]="!canConfirmReview"
+      [pkLoading]="reviewSaving">
+    </pk-button>
+  </div>
+</pk-dialog>
