@@ -1,0 +1,98 @@
+<section class="hrv-page">
+  <header class="hrv-header">
+    <h1>Férias</h1>
+    <p>Solicite férias e acompanhe seu saldo.</p>
+  </header>
+
+  @if (!loading() && !erro()) {
+    <div class="hrv-balance">
+      <span class="hrv-balance__icon"><i class="pi pi-sun"></i></span>
+      <div class="hrv-balance__info">
+        <span class="hrv-balance__label">Saldo disponível</span>
+        <span class="hrv-balance__value">
+          {{ balance() !== null ? balance() + ' dia(s)' : 'Não informado — fale com o RH' }}
+        </span>
+      </div>
+    </div>
+  }
+
+  <div class="hrv-form-card">
+    <h2 class="hrv-form-card__title"><i class="pi pi-plus-circle"></i> Nova solicitação</h2>
+
+    <form [formGroup]="form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="startDate">Data inicial <span class="required">*</span></label>
+          <p-datepicker
+            id="startDate"
+            formControlName="startDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+        <div class="form-field">
+          <label for="endDate">Data final <span class="required">*</span></label>
+          <p-datepicker
+            id="endDate"
+            formControlName="endDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+      </div>
+
+      @if (daysRequested !== null) {
+        <p class="hrv-days-preview" [class.hrv-days-preview--over]="excedeSaldo">
+          <i class="pi" [ngClass]="excedeSaldo ? 'pi-exclamation-triangle' : 'pi-info-circle'"></i>
+          {{ daysRequested }} dia(s) solicitado(s)
+          @if (excedeSaldo) {
+            — maior que o seu saldo disponível
+          }
+        </p>
+      }
+
+      <div class="hrv-form-actions">
+        <pk-button
+          pkType="save"
+          pkLabel="Solicitar férias"
+          pkSize="sm"
+          [pkDisabled]="!podeEnviar || enviando()"
+          (clicked)="enviar()">
+        </pk-button>
+      </div>
+    </form>
+  </div>
+
+  <h2 class="hrv-history-title">Minhas solicitações</h2>
+
+  @if (loading()) {
+    <div class="hrv-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hrv-state">Não foi possível carregar suas férias. Tente novamente mais tarde.</div>
+  } @else if (requests().length === 0) {
+    <div class="hrv-empty">
+      <span class="hrv-empty-icon"><i class="pi pi-calendar"></i></span>
+      <p>Nenhuma solicitação de férias ainda</p>
+    </div>
+  } @else {
+    <div class="hrv-grid">
+      @for (r of requests(); track r.id) {
+        <div class="hrv-card">
+          <div class="hrv-card__top">
+            <span class="hrv-card__period">{{ formatDate(r.startDate) }} — {{ formatDate(r.endDate) }}</span>
+            <span class="hrv-badge" [ngClass]="'hrv-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+          </div>
+          <span class="hrv-card__days">{{ r.daysRequested }} dia(s)</span>
+
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <p class="hrv-card__notes"><i class="pi pi-info-circle"></i> {{ r.reviewNotes }}</p>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

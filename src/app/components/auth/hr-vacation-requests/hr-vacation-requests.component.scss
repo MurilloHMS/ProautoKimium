@@ -1,0 +1,224 @@
+@use 'variables' as v;
+
+.hrv-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.hrv-header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-family: v.$font-heading;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: v.$primary;
+    margin: 0 0 6px;
+  }
+
+  p {
+    color: #6b7492;
+    font-size: 0.98rem;
+    margin: 0;
+  }
+}
+
+.hrv-balance {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, v.$primary, v.$secondary);
+  color: #fff;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 30px rgba(35, 46, 97, 0.20);
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    i { font-size: 1.6rem; }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    opacity: 0.85;
+  }
+
+  &__value {
+    font-family: v.$font-heading;
+    font-size: 1.3rem;
+    font-weight: 800;
+  }
+}
+
+.hrv-form-card {
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 40px;
+
+  &__title {
+    font-family: v.$font-heading;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: v.$primary;
+    margin: 0 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.hrv-days-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+  color: v.$secondary-dark;
+
+  &--over {
+    color: #d92d20;
+  }
+}
+
+.hrv-form-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hrv-history-title {
+  font-family: v.$font-heading;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0 0 16px;
+}
+
+.hrv-state {
+  padding: 40px 0;
+  color: #6b7492;
+  text-align: center;
+}
+
+.hrv-empty {
+  text-align: center;
+  color: #9aa6bd;
+  padding: 56px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  .hrv-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    color: v.$primary;
+    i { font-size: 2.2rem; }
+  }
+
+  p { margin: 0; font-weight: 700; color: #6b7492; }
+}
+
+.hrv-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hrv-card {
+  padding: 16px 18px;
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: rgba(87, 193, 171, 0.5);
+    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__period {
+    font-family: v.$font-heading;
+    font-size: 1.0rem;
+    font-weight: 700;
+    color: v.$primary;
+  }
+
+  &__days {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.82rem;
+    color: #8a93a8;
+  }
+
+  &__notes {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(217, 45, 32, 0.08);
+    color: #b3261e;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+.hrv-badge {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+
+  &--pending {
+    background: rgba(107, 116, 146, 0.14);
+    color: #6b7492;
+  }
+
+  &--approved {
+    background: rgba(87, 193, 171, 0.16);
+    color: v.$secondary-dark;
+  }
+
+  &--rejected {
+    background: rgba(217, 45, 32, 0.10);
+    color: #d92d20;
+  }
+}
+
+@media (max-width: 600px) {
+  .hrv-page { padding: 24px 16px 40px; }
+  .hrv-header h1 { font-size: 1.6rem; }
+}
