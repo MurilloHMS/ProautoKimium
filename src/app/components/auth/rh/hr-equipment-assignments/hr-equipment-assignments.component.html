@@ -1,0 +1,158 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-desktop"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Controle de Equipamentos</h1>
+      <p class="page-subtitle">Controle de entrega e devolução de equipamentos por funcionário</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="filter-field">
+      <p-select
+        [options]="employeeOptions"
+        [(ngModel)]="employeeFilter"
+        (onChange)="load()"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        [filter]="true"
+        [showClear]="true"
+        placeholder="Todos os funcionários"
+        styleClass="select-field">
+      </p-select>
+    </div>
+    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+    <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="assignments"
+    [loading]="loading"
+    totalLabel="equipamentos encontrados"
+    searchPlaceholder="Buscar…"
+    emptyIcon="pi pi-desktop"
+    [emptyTitle]="employeeFilter ? 'Nenhum equipamento no histórico deste funcionário' : 'Nenhum equipamento em posse'"
+    emptySubtitle="Registre um novo equipamento para começar."
+    [pageReportTitle]="listTitle">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th>Funcionário</th>
+        <th>Tipo</th>
+        <th>Descrição</th>
+        <th>Entregue em</th>
+        <th>Status</th>
+        <th class="col-center">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-a>
+      <tr class="table-row">
+        <td>{{ employeeName(a.employeeId) }}</td>
+        <td>{{ a.equipmentType }}</td>
+        <td>{{ a.description || '—' }}</td>
+        <td>{{ formatDate(a.deliveredAt) }}</td>
+        <td>
+          @if (a.withEmployee) {
+            <span class="ea-badge ea-badge--with">Em posse</span>
+          } @else {
+            <span class="ea-badge ea-badge--returned">Devolvido em {{ formatDate(a.returnedAt) }}</span>
+          }
+          @if (a.notes) {
+            <div class="ea-notes">{{ a.notes }}</div>
+          }
+        </td>
+        <td class="col-center">
+          @if (a.withEmployee) {
+            <button pButton type="button" icon="pi pi-undo" label="Registrar devolução" class="action-btn action-btn--return" (click)="openReturn(a)"></button>
+          }
+        </td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+<!-- Dialog: Novo Equipamento -->
+<pk-dialog header="Novo Equipamento" [visible]="deliverDialogVisible" (visibleChange)="deliverDialogVisible = $event">
+  <div pkDialogContent>
+    <div class="form-grid">
+      <div class="form-field form-field--full">
+        <label for="deliverEmployee">Funcionário <span class="required">*</span></label>
+        <p-select
+          id="deliverEmployee"
+          [options]="employeeOptions"
+          [(ngModel)]="deliverEmployeeId"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          [filter]="true"
+          placeholder="Selecione…"
+          styleClass="select-field">
+        </p-select>
+      </div>
+      <div class="form-field form-field--full">
+        <label for="equipmentType">Tipo de equipamento <span class="required">*</span></label>
+        <input id="equipmentType" type="text" [(ngModel)]="deliverEquipmentType" maxlength="100" placeholder="Ex: Notebook Dell Latitude"/>
+      </div>
+      <div class="form-field form-field--full">
+        <label for="equipmentDescription">Descrição</label>
+        <input id="equipmentDescription" type="text" [(ngModel)]="deliverDescription" maxlength="300" placeholder="Ex: Nº de série ABC123, com carregador"/>
+      </div>
+      <div class="form-field form-field--full">
+        <label for="deliveredAt">Data de entrega <span class="required">*</span></label>
+        <p-datepicker
+          id="deliveredAt"
+          [(ngModel)]="deliverDeliveredAt"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          styleClass="datepicker-field"
+          placeholder="dd/mm/aaaa">
+        </p-datepicker>
+      </div>
+      <div class="form-field form-field--full">
+        <label for="deliverNotes">Observações</label>
+        <textarea id="deliverNotes" [(ngModel)]="deliverNotes" rows="3" maxlength="500" placeholder="Opcional"></textarea>
+      </div>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="deliverDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="confirmDeliver()" pkLabel="Registrar" pkSize="sm" [pkDisabled]="!canConfirmDeliver" [pkLoading]="deliverSaving"/>
+  </div>
+</pk-dialog>
+
+<!-- Dialog: Registrar devolução -->
+<pk-dialog header="Registrar devolução" [visible]="returnDialogVisible" (visibleChange)="returnDialogVisible = $event">
+  <div pkDialogContent>
+    @if (returnTarget) {
+      <p class="review-target">
+        <i class="pi pi-user"></i>
+        <strong>{{ employeeName(returnTarget.employeeId) }}</strong>
+        — {{ returnTarget.equipmentType }}
+      </p>
+    }
+
+    <div class="form-field form-field--full">
+      <label for="returnDate">Data da devolução <span class="required">*</span></label>
+      <p-datepicker
+        id="returnDate"
+        [(ngModel)]="returnDate"
+        [showButtonBar]="true"
+        dateFormat="dd/mm/yy"
+        styleClass="datepicker-field"
+        placeholder="dd/mm/aaaa">
+      </p-datepicker>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="returnDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="confirmReturn()" pkLabel="Confirmar devolução" pkSize="sm" [pkDisabled]="!returnDate" [pkLoading]="returnSaving"/>
+  </div>
+</pk-dialog>

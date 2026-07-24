@@ -98,7 +98,8 @@ export class TopMenuComponent implements OnInit, OnDestroy {
           { label: 'Gerenciar Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], roles: ['ADMIN', 'RH'] },
           { label: 'Calendário RH', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], roles: ['ADMIN', 'RH'] },
           { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], roles: ['ADMIN', 'RH'] },
-          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], roles: ['ADMIN', 'RH'] }
+          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], roles: ['ADMIN', 'RH'] },
+          { label: 'Controle de Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], roles: ['ADMIN', 'RH'] }
         ],
       },
       {
