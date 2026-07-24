@@ -1,0 +1,60 @@
+<div class="section-actions">
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Nova Empresa" pkSize="sm"/>
+</div>
+
+<div class="table-card">
+  <p-toast position="top-right"></p-toast>
+
+  <pk-table
+    [data]="companies"
+    [loading]="loading"
+    totalLabel="empresas encontradas"
+    searchPlaceholder="Buscar por nome, CNPJ…"
+    [filterFields]="['name', 'legalName', 'cnpj']"
+    emptyIcon="pi pi-building"
+    emptyTitle="Nenhuma empresa cadastrada"
+    emptySubtitle="Adicione uma nova empresa para começar."
+    pageReportTitle="Empresas">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+        <th pSortableColumn="legalName">Razão Social <p-sortIcon field="legalName"></p-sortIcon></th>
+        <th pSortableColumn="cnpj">CNPJ <p-sortIcon field="cnpj"></p-sortIcon></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-c>
+      <tr class="table-row">
+        <td>{{ c.name }}</td>
+        <td>{{ c.legalName }}</td>
+        <td>{{ c.cnpj }}</td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
+
+<pk-dialog header="Nova Empresa" [visible]="visible" (visibleChange)="visible = $event">
+  <div pkDialogContent>
+    <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <pk-input label="Nome" placeholder="Ex: Proauto Kimium" [pkRequired]="true" [pkMaxLength]="100" type="text" formControlName="name"/>
+        </div>
+        <div class="form-field form-field--full">
+          <pk-input label="Razão Social" placeholder="Razão social completa" [pkRequired]="true" [pkMaxLength]="150" type="text" formControlName="legalName"/>
+        </div>
+        <div class="form-field form-field--full">
+          <pk-input label="CNPJ" placeholder="00.000.000/0000-00" [pkRequired]="true" [pkMaxLength]="18" type="text" formControlName="cnpj"/>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
+  </div>
+</pk-dialog>

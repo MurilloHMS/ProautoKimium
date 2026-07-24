@@ -1,0 +1,39 @@
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-sitemap"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Estrutura Organizacional</h1>
+      <p class="page-subtitle">Empresas, departamentos, setores e hierarquias</p>
+    </div>
+  </div>
+</div>
+
+<div class="org-switcher">
+  @for (section of sections; track section.key) {
+    <button
+      type="button"
+      class="org-switcher__item"
+      [class.org-switcher__item--active]="activeSection() === section.key"
+      (click)="select(section.key)">
+      <i [class]="section.icon"></i>
+      {{ section.label }}
+    </button>
+  }
+</div>
+
+@switch (activeSection()) {
+  @case ('companies') {
+    <app-org-structure-companies />
+  }
+  @case ('departments') {
+    <app-org-structure-departments />
+  }
+  @case ('teams') {
+    <app-org-structure-teams />
+  }
+  @case ('hierarchies') {
+    <app-org-structure-hierarchies />
+  }
+}
