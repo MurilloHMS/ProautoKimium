@@ -56,6 +56,9 @@ export class NotificacoesComponent implements OnInit {
   iconFor(type: string): string {
     switch (type) {
       case 'HOLERITE': return 'pi pi-receipt';
+      case 'DOCUMENTO': return 'pi pi-file';
+      case 'REEMBOLSO': return 'pi pi-wallet';
+      case 'PERSONALIZADA': return 'pi pi-megaphone';
       default: return 'pi pi-bell';
     }
   }
