@@ -22,6 +22,7 @@ export class HrHubComponent {
     { titulo: 'Atestados',       descricao: 'Envie atestados e acompanhe seu histórico',            icon: 'pi pi-heart', rota: '/documentos/rh/medical-certificates' },
     { titulo: 'Reembolsos',      descricao: 'Solicite reembolsos e acompanhe o status',              icon: 'pi pi-wallet', rota: '/documentos/rh/reimbursements' },
     { titulo: 'Férias',          descricao: 'Solicite férias e acompanhe seu saldo',                 icon: 'pi pi-sun', rota: '/documentos/rh/vacation-requests' },
+    { titulo: 'Mural de Avisos', descricao: 'Comunicados publicados pelo RH',                          icon: 'pi pi-megaphone', rota: '/documentos/rh/announcements' },
   ];
 
   constructor(private router: Router) {}
