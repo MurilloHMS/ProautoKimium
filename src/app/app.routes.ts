@@ -53,6 +53,7 @@ import { HrHubComponent } from './components/auth/hr-hub/hr-hub.component';
 import { HrDocumentsComponent } from './components/auth/hr-documents/hr-documents.component';
 import { HrMedicalCertificatesComponent } from './components/auth/hr-medical-certificates/hr-medical-certificates.component';
 import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/hr-reimbursements.component';
+import { HrVacationRequestsComponent } from './components/auth/hr-vacation-requests/hr-vacation-requests.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
@@ -114,6 +115,7 @@ export const routes: Routes = [
       { path: 'documentos/rh/documents', component: HrDocumentsComponent },
       { path: 'documentos/rh/medical-certificates', component: HrMedicalCertificatesComponent },
       { path: 'documentos/rh/reimbursements', component: HrReimbursementsComponent },
+      { path: 'documentos/rh/vacation-requests', component: HrVacationRequestsComponent },
       { path: 'notificacoes', component: NotificacoesComponent },
       { path: 'perfil', component: PerfilComponent },
     ]
