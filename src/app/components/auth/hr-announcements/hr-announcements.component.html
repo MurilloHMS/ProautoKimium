@@ -1,0 +1,31 @@
+<section class="hrd-page">
+  <header class="hrd-header">
+    <h1>Mural de Avisos</h1>
+    <p>Comunicados publicados pelo RH para todos os funcionários.</p>
+  </header>
+
+  @if (loading()) {
+    <div class="hrd-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="hrd-state">Não foi possível carregar o mural. Tente novamente mais tarde.</div>
+  } @else if (announcements().length === 0) {
+    <div class="hrd-empty">
+      <span class="hrd-empty-icon"><i class="pi pi-megaphone"></i></span>
+      <p>Nenhum aviso publicado ainda</p>
+      <small>Quando o RH publicar um aviso, ele aparece aqui automaticamente.</small>
+    </div>
+  } @else {
+    <div class="hrd-grid">
+      @for (a of announcements(); track a.id) {
+        <div class="hrd-card hrd-card--announcement">
+          <span class="hrd-card__icon"><i class="pi pi-megaphone"></i></span>
+          <div class="hrd-card__info">
+            <span class="hrd-card__title">{{ a.title }}</span>
+            <p class="hrd-card__content">{{ a.content }}</p>
+            <span class="hrd-card__meta">{{ a.publishedByName }} · {{ formatDate(a.publishedAt) }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

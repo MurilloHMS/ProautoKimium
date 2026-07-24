@@ -63,6 +63,8 @@ import { HrDocumentsComponent } from './components/auth/hr-documents/hr-document
 import { HrMedicalCertificatesComponent } from './components/auth/hr-medical-certificates/hr-medical-certificates.component';
 import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/hr-reimbursements.component';
 import { HrVacationRequestsComponent } from './components/auth/hr-vacation-requests/hr-vacation-requests.component';
+import { HrAnnouncementsComponent } from './components/auth/hr-announcements/hr-announcements.component';
+import { HrAnnouncementsManagerComponent } from './components/auth/rh/hr-announcements-manager/hr-announcements-manager.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
 
@@ -106,6 +108,7 @@ export const routes: Routes = [
       { path: 'rh/calculators', component: HrCalculatorsComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/equipment-assignments', component: HrEquipmentAssignmentsComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/notifications', component: HrNotificationsComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/announcements', component: HrAnnouncementsManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
@@ -134,6 +137,7 @@ export const routes: Routes = [
       { path: 'documentos/rh/medical-certificates', component: HrMedicalCertificatesComponent },
       { path: 'documentos/rh/reimbursements', component: HrReimbursementsComponent },
       { path: 'documentos/rh/vacation-requests', component: HrVacationRequestsComponent },
+      { path: 'documentos/rh/announcements', component: HrAnnouncementsComponent },
       { path: 'notificacoes', component: NotificacoesComponent },
       { path: 'perfil', component: PerfilComponent },
     ]

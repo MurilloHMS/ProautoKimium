@@ -1,0 +1,56 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-megaphone"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Mural de Avisos</h1>
+      <p class="page-subtitle">Publique avisos para todos os funcionários</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="calc-card">
+  <form [formGroup]="form" (ngSubmit)="publish()" class="form-grid">
+    <div class="form-field form-field--full">
+      <pk-input label="Título" placeholder="Ex: Mudança no horário de almoço" [pkRequired]="true" [pkMaxLength]="200" type="text" formControlName="title"/>
+    </div>
+    <div class="form-field form-field--full">
+      <label for="content">Conteúdo <span class="required">*</span></label>
+      <textarea id="content" formControlName="content" rows="5" maxlength="4000" placeholder="Escreva o aviso completo"></textarea>
+    </div>
+  </form>
+
+  <div class="calc-actions">
+    <pk-button pkType="save" (clicked)="publish()" pkLabel="Publicar aviso" pkSize="sm" [pkDisabled]="form.invalid" [pkLoading]="publishing"/>
+  </div>
+</div>
+
+<h2 class="section-title">Avisos publicados</h2>
+
+@if (loading) {
+  <div class="am-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+} @else if (announcements.length === 0) {
+  <div class="am-empty">
+    <span class="am-empty-icon"><i class="pi pi-megaphone"></i></span>
+    <p>Nenhum aviso publicado ainda</p>
+  </div>
+} @else {
+  <div class="am-list">
+    @for (a of announcements; track a.id) {
+      <div class="am-card">
+        <div class="am-card__header">
+          <span class="am-card__title">{{ a.title }}</span>
+          <span class="am-card__date">{{ formatDate(a.publishedAt) }}</span>
+        </div>
+        <p class="am-card__content">{{ a.content }}</p>
+        <span class="am-card__author"><i class="pi pi-user"></i> {{ a.publishedByName }}</span>
+      </div>
+    }
+  </div>
+}

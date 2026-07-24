@@ -1,0 +1,114 @@
+@use 'variables' as v;
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calc-card {
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.calc-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eef0f5;
+}
+
+.section-title {
+  font-family: v.$font-heading;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: v.$primary;
+  margin: 32px 0 16px;
+}
+
+.am-state {
+  padding: 32px 0;
+  color: v.$text-muted;
+  text-align: center;
+}
+
+.am-empty {
+  text-align: center;
+  color: #9aa6bd;
+  padding: 40px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  .am-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    color: v.$primary;
+    i { font-size: 1.8rem; }
+  }
+
+  p { margin: 0; font-weight: 700; color: #6b7492; }
+}
+
+.am-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.am-card {
+  background: #ffffff;
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    font-family: v.$font-heading;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: v.$primary;
+  }
+
+  &__date {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    color: #9aa6bd;
+    white-space: nowrap;
+  }
+
+  &__content {
+    margin: 0 0 12px;
+    color: v.$text-primary;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  &__author {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: v.$text-muted;
+    font-weight: 600;
+
+    i { color: v.$secondary-dark; }
+  }
+}
