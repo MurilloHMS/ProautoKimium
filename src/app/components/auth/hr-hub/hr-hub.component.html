@@ -1,0 +1,23 @@
+<section class="hrh-page">
+  <header class="hrh-header">
+    <h1>Portal de RH</h1>
+    <p>Seus atendimentos e solicitações junto ao RH.</p>
+  </header>
+
+  <div class="hrh-grid">
+    @for (cat of categorias; track cat.titulo) {
+      <button type="button" class="hrh-card" (click)="abrir(cat)" [class.hrh-card--disabled]="!cat.rota">
+        <span class="hrh-card__icon"><i [class]="cat.icon"></i></span>
+        <span class="hrh-card__body">
+          <span class="hrh-card__title">{{ cat.titulo }}</span>
+          <span class="hrh-card__desc">{{ cat.descricao }}</span>
+        </span>
+        @if (cat.rota) {
+          <i class="pi pi-chevron-right hrh-card__arrow"></i>
+        } @else {
+          <span class="hrh-card__soon">em breve</span>
+        }
+      </button>
+    }
+  </div>
+</section>

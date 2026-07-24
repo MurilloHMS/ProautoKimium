@@ -21,7 +21,7 @@ export class DocumentosComponent {
     { titulo: 'Apresentações', descricao: 'Materiais institucionais e de vendas',   icon: 'pi pi-desktop' },
     { titulo: 'Logos',         descricao: 'Identidade visual e arquivos da marca',   icon: 'pi pi-palette',  rota: '/documentos/logos' },
     { titulo: 'Holerites',     descricao: 'Seus demonstrativos de pagamento',        icon: 'pi pi-receipt',  rota: '/documentos/holerites' },
-    { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card' },
+    { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card',  rota: '/documentos/rh' },
     { titulo: 'Propostas',     descricao: 'Modelos e propostas comerciais',          icon: 'pi pi-file-edit' },
   ];
 
