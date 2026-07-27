@@ -7,67 +7,207 @@
     </div>
     <div>
       <h1 class="page-title">Calculadoras</h1>
-      <p class="page-subtitle">Vale transporte, vale refeição, combustível e comparativo CLT × PJ</p>
+      <p class="page-subtitle">Transporte em massa, vale refeição e comparativo CLT × PJ</p>
     </div>
   </div>
 </div>
 
+<!-- Main Tabs -->
 <div class="calc-switcher">
-  @for (section of sections; track section.key) {
+  @for (tab of tabs; track tab.key) {
     <button
       type="button"
       class="calc-switcher__item"
-      [class.calc-switcher__item--active]="activeSection() === section.key"
-      (click)="select(section.key)">
-      <i [class]="section.icon"></i>
-      {{ section.label }}
+      [class.calc-switcher__item--active]="activeTab() === tab.key"
+      (click)="selectTab(tab.key)">
+      <i [class]="tab.icon"></i>
+      {{ tab.label }}
     </button>
   }
 </div>
 
-@switch (activeSection()) {
+@switch (activeTab()) {
 
-  @case ('vt') {
-    <div class="calc-card">
-      <form [formGroup]="vtForm" (ngSubmit)="calculateVt()" class="form-grid">
-        <div class="form-field form-field--full">
-          <label for="vtEmployee">Funcionário <span class="required">*</span></label>
-          <p-select
-            id="vtEmployee"
-            [options]="employeeOptions"
-            formControlName="employeeId"
-            optionLabel="label"
-            optionValue="value"
-            appendTo="body"
-            [filter]="true"
-            placeholder="Selecione…"
-            styleClass="select-field">
-          </p-select>
-        </div>
-        <div class="form-field">
-          <pk-input label="Valor da passagem (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="fareValue"/>
-        </div>
-        <div class="form-field">
-          <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
-        </div>
-      </form>
+  <!-- ════════════════ TRANSPORTE ════════════════ -->
+  @case ('transport') {
 
-      <div class="calc-actions">
-        <pk-button pkType="save" (clicked)="calculateVt()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="vtForm.invalid" [pkLoading]="vtLoading"/>
-      </div>
-
-      @if (vtResult) {
-        <div class="calc-result">
-          <div class="calc-result__row"><span>Funcionário</span><strong>{{ vtResult.employeeName }}</strong></div>
-          <div class="calc-result__row"><span>Deslocamentos por dia</span><strong>{{ vtResult.dailyCommutesCount }}</strong></div>
-          <div class="calc-result__row"><span>Valor da passagem</span><strong>{{ vtResult.fareValue | currency:'BRL' }}</strong></div>
-          <div class="calc-result__row"><span>Dias trabalhados</span><strong>{{ vtResult.workingDays }}</strong></div>
-          <div class="calc-result__row calc-result__row--total"><span>Total</span><strong>{{ vtResult.totalAmount | currency:'BRL' }}</strong></div>
-        </div>
+    <!-- Sub-pills -->
+    <div class="sub-pills">
+      @for (sub of transportSubs; track sub.key) {
+        <button
+          type="button"
+          class="sub-pills__item"
+          [class.sub-pills__item--active]="activeSub() === sub.key"
+          (click)="selectSub(sub.key)">
+          {{ sub.label }}
+        </button>
       }
     </div>
+
+    <!-- Municipal / Intermunicipal -->
+    @if (activeSub() === 'municipal' || activeSub() === 'intermunicipal') {
+      <div class="calc-card">
+        <form [formGroup]="bulkVtForm" (ngSubmit)="calculateBulkVt()" class="calc-inline-form">
+          <div class="form-field">
+            <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
+          </div>
+          <div class="calc-inline-form__actions">
+            <pk-button pkType="save" (clicked)="calculateBulkVt()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="bulkVtForm.invalid" [pkLoading]="bulkVtLoading"/>
+          </div>
+        </form>
+
+        @if (bulkVtResult.length > 0) {
+          <div class="bulk-results">
+            @for (group of bulkVtResult; track group.companyId) {
+              <div class="company-group">
+                <div class="company-group__header">
+                  <i class="pi pi-building"></i>
+                  <span>{{ group.companyName }}</span>
+                  <strong>{{ group.grandTotal | currency:'BRL' }}</strong>
+                </div>
+                <div class="company-group__table-wrap">
+                  <table class="company-group__table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th class="col-right">Pass./dia</th>
+                        <th class="col-right">Valor</th>
+                        <th class="col-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (emp of group.employees; track emp.employeeId) {
+                        <tr>
+                          <td>{{ emp.employeeName }}</td>
+                          <td class="mono">{{ emp.document }}</td>
+                          <td class="col-right">{{ emp.dailyTicketCount }}</td>
+                          <td class="col-right">{{ emp.ticketPrice | currency:'BRL' }}</td>
+                          <td class="col-right total-cell">{{ emp.totalAmount | currency:'BRL' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+
+            <div class="grand-total-bar">
+              <span>Total Geral</span>
+              <strong>{{ bulkVtGrandTotal | currency:'BRL' }}</strong>
+            </div>
+
+            <div class="export-bar">
+              <pk-button pkType="new" (clicked)="exportBulkVt()" pkLabel="Exportar Excel" pkSize="sm"/>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Combustível -->
+    @if (activeSub() === 'fuel') {
+      <div class="calc-card">
+        <form [formGroup]="bulkFuelForm" (ngSubmit)="calculateBulkFuel()" class="calc-inline-form">
+          <div class="form-field">
+            <pk-input label="Preço do litro (R$)" placeholder="Ex: 5.50" [pkRequired]="true" type="number" formControlName="fuelPricePerLiter"/>
+          </div>
+          <div class="form-field">
+            <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
+          </div>
+          <div class="calc-inline-form__actions">
+            <pk-button pkType="save" (clicked)="calculateBulkFuel()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="bulkFuelForm.invalid" [pkLoading]="bulkFuelLoading"/>
+          </div>
+        </form>
+
+        @if (bulkFuelResult.length > 0) {
+          <div class="bulk-results">
+            @for (group of bulkFuelResult; track group.companyId) {
+              <div class="company-group">
+                <div class="company-group__header">
+                  <i class="pi pi-building"></i>
+                  <span>{{ group.companyName }}</span>
+                  <strong>{{ group.grandTotal | currency:'BRL' }}</strong>
+                </div>
+                <div class="company-group__table-wrap">
+                  <table class="company-group__table">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>CPF</th>
+                        <th class="col-right">Km/dia</th>
+                        <th class="col-right">Km/l</th>
+                        <th class="col-right">Litros</th>
+                        <th class="col-right">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (emp of group.employees; track emp.employeeId) {
+                        <tr>
+                          <td>{{ emp.employeeName }}</td>
+                          <td class="mono">{{ emp.document }}</td>
+                          <td class="col-right">{{ emp.dailyDistanceKm }}</td>
+                          <td class="col-right">{{ emp.vehicleKmPerLiter }}</td>
+                          <td class="col-right">{{ emp.litersNeeded }}</td>
+                          <td class="col-right total-cell">{{ emp.totalAmount | currency:'BRL' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            }
+
+            <div class="grand-total-bar">
+              <span>Total Geral</span>
+              <strong>{{ bulkFuelGrandTotal | currency:'BRL' }}</strong>
+            </div>
+
+            <div class="export-bar">
+              <pk-button pkType="new" (clicked)="exportBulkFuel()" pkLabel="Exportar Excel" pkSize="sm"/>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Reajuste de Tarifas -->
+    @if (activeSub() === 'adjustment') {
+      <div class="calc-card">
+        <form [formGroup]="adjustmentForm" (ngSubmit)="adjustTicketPrices()" class="calc-inline-form">
+          <div class="form-field">
+            <label for="adjType">Tipo de transporte <span class="required">*</span></label>
+            <p-select
+              id="adjType"
+              [options]="adjustmentTypeOptions"
+              formControlName="transportType"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              placeholder="Selecione…"
+              styleClass="select-field">
+            </p-select>
+          </div>
+          <div class="form-field">
+            <pk-input label="Novo valor (R$)" placeholder="Ex: 5.00" [pkRequired]="true" type="number" formControlName="newTicketPrice"/>
+          </div>
+          <div class="calc-inline-form__actions">
+            <pk-button pkType="save" (clicked)="adjustTicketPrices()" pkLabel="Aplicar Reajuste" pkSize="sm" [pkDisabled]="adjustmentForm.invalid" [pkLoading]="adjustmentLoading"/>
+          </div>
+        </form>
+
+        @if (adjustmentResult) {
+          <div class="calc-result">
+            <div class="calc-result__row"><span>Tipo</span><strong>{{ adjustmentResult.transportType === 'MUNICIPAL_BUS' ? 'Municipal' : 'Intermunicipal' }}</strong></div>
+            <div class="calc-result__row"><span>Novo valor</span><strong>{{ adjustmentResult.newTicketPrice | currency:'BRL' }}</strong></div>
+            <div class="calc-result__row calc-result__row--total"><span>Funcionários atualizados</span><strong>{{ adjustmentResult.affectedCount }}</strong></div>
+          </div>
+        }
+      </div>
+    }
   }
 
+  <!-- ════════════════ VALE REFEIÇÃO ════════════════ -->
   @case ('vr') {
     <div class="calc-card">
       <form [formGroup]="vrForm" (ngSubmit)="calculateVr()" class="form-grid">
@@ -109,50 +249,7 @@
     </div>
   }
 
-  @case ('fuel') {
-    <div class="calc-card">
-      <form [formGroup]="fuelForm" (ngSubmit)="calculateFuel()" class="form-grid">
-        <div class="form-field form-field--full">
-          <label for="fuelEmployee">Funcionário <span class="required">*</span></label>
-          <p-select
-            id="fuelEmployee"
-            [options]="employeeOptions"
-            formControlName="employeeId"
-            optionLabel="label"
-            optionValue="value"
-            appendTo="body"
-            [filter]="true"
-            placeholder="Selecione…"
-            styleClass="select-field">
-          </p-select>
-        </div>
-        <div class="form-field">
-          <pk-input label="Distância (km)" placeholder="Ex: 120" [pkRequired]="true" type="number" formControlName="distanceKm"/>
-        </div>
-        <div class="form-field">
-          <pk-input label="Consumo do veículo (km/l)" placeholder="Ex: 12" [pkRequired]="true" type="number" formControlName="vehicleConsumptionKmPerLiter"/>
-        </div>
-        <div class="form-field">
-          <pk-input label="Preço do litro (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="literPrice"/>
-        </div>
-      </form>
-
-      <div class="calc-actions">
-        <pk-button pkType="save" (clicked)="calculateFuel()" pkLabel="Calcular" pkSize="sm" [pkDisabled]="fuelForm.invalid" [pkLoading]="fuelLoading"/>
-      </div>
-
-      @if (fuelResult) {
-        <div class="calc-result">
-          <div class="calc-result__row"><span>Funcionário</span><strong>{{ fuelResult.employeeName }}</strong></div>
-          <div class="calc-result__row"><span>Distância</span><strong>{{ fuelResult.distanceKm }} km</strong></div>
-          <div class="calc-result__row"><span>Litros necessários</span><strong>{{ fuelResult.litersNeeded }} l</strong></div>
-          <div class="calc-result__row"><span>Preço do litro</span><strong>{{ fuelResult.literPrice | currency:'BRL' }}</strong></div>
-          <div class="calc-result__row calc-result__row--total"><span>Total</span><strong>{{ fuelResult.totalAmount | currency:'BRL' }}</strong></div>
-        </div>
-      }
-    </div>
-  }
-
+  <!-- ════════════════ CLT × PJ ════════════════ -->
   @case ('clt-pj') {
     <div class="calc-card">
       <div class="form-grid">
