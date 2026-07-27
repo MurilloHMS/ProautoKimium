@@ -3,11 +3,17 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
+  BulkFuelRequest,
+  BulkFuelResponse,
+  BulkTransportVoucherRequest,
+  BulkTransportVoucherResponse,
   CltPjComparisonResult,
   FuelRequest,
   FuelResult,
   MealVoucherRequest,
   MealVoucherResult,
+  TicketPriceAdjustmentRequest,
+  TicketPriceAdjustmentResponse,
   TransportationVoucherRequest,
   TransportationVoucherResult,
 } from '../../../domain/models/hr/calculator.model';
@@ -33,5 +39,17 @@ export class PayrollCalculatorService {
 
   compareCltPj(employeeId: string): Observable<CltPjComparisonResult> {
     return this.http.get<CltPjComparisonResult>(`${environment.apiUrl}/hr/calculators/clt-pj/${employeeId}`);
+  }
+
+  calculateBulkTransportVoucher(request: BulkTransportVoucherRequest): Observable<BulkTransportVoucherResponse[]> {
+    return this.http.post<BulkTransportVoucherResponse[]>(`${environment.apiUrl}/hr/calculators/bulk/transportation-voucher`, request);
+  }
+
+  calculateBulkFuel(request: BulkFuelRequest): Observable<BulkFuelResponse[]> {
+    return this.http.post<BulkFuelResponse[]>(`${environment.apiUrl}/hr/calculators/bulk/fuel`, request);
+  }
+
+  adjustTicketPrices(request: TicketPriceAdjustmentRequest): Observable<TicketPriceAdjustmentResponse> {
+    return this.http.put<TicketPriceAdjustmentResponse>(`${environment.apiUrl}/hr/calculators/ticket-price-adjustment`, request);
   }
 }

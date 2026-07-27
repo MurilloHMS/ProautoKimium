@@ -1,6 +1,6 @@
 import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ContractType, Department, Employee, Hierarchy } from '../../../../domain/models/employee.model';
+import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
@@ -58,6 +58,12 @@ export class EmployesComponent{
     { label: 'PJ', value: ContractType.PJ },
   ];
 
+  transportTypeOptions: {label: string, value: TransportType}[] = [
+    { label: 'Ônibus Municipal', value: TransportType.MUNICIPAL_BUS },
+    { label: 'Ônibus Intermunicipal', value: TransportType.INTERMUNICIPAL_BUS },
+    { label: 'Veículo Próprio', value: TransportType.VEHICLE },
+  ];
+
   // Vínculo usuário <-> funcionário
   users: UserResponseDTO[] = [];
   linkVisible = false;
@@ -91,9 +97,15 @@ export class EmployesComponent{
       positionLevelId: [{ value: null, disabled: true }, Validators.required],
       contractType: [ContractType.CLT, Validators.required],
       hiringDate: [null, Validators.required],
+      transportType: [null],
+      dailyCommutesCount: [null],
+      ticketPrice: [null],
+      vehicleKmPerLiter: [null],
+      dailyDistanceKm: [null],
     });
 
     this.form.get('positionId')?.valueChanges.subscribe((positionId) => this.onPositionChange(positionId));
+    this.form.get('transportType')?.valueChanges.subscribe((type) => this.onTransportTypeChange(type));
   }
 
   ngOnInit(){
@@ -141,6 +153,24 @@ export class EmployesComponent{
         levelControl?.disable();
       },
     });
+  }
+
+  get isBusType(): boolean {
+    const t = this.form.get('transportType')?.value;
+    return t === TransportType.MUNICIPAL_BUS || t === TransportType.INTERMUNICIPAL_BUS;
+  }
+
+  get isVehicle(): boolean {
+    return this.form.get('transportType')?.value === TransportType.VEHICLE;
+  }
+
+  onTransportTypeChange(type: TransportType | null): void {
+    if (!type || type === TransportType.VEHICLE) {
+      this.form.patchValue({ dailyCommutesCount: null, ticketPrice: null }, { emitEvent: false });
+    }
+    if (!type || type !== TransportType.VEHICLE) {
+      this.form.patchValue({ vehicleKmPerLiter: null, dailyDistanceKm: null }, { emitEvent: false });
+    }
   }
 
   loadUsers(){
@@ -269,6 +299,11 @@ export class EmployesComponent{
       positionLevelId: null,
       contractType: null,
       hiringDate: null,
+      transportType: employee.transportType ?? null,
+      dailyCommutesCount: employee.dailyCommutesCount ?? null,
+      ticketPrice: employee.ticketPrice ?? null,
+      vehicleKmPerLiter: employee.vehicleKmPerLiter ?? null,
+      dailyDistanceKm: employee.dailyDistanceKm ?? null,
     });
 
     this.visible = true;

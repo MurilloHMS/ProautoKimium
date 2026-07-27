@@ -1,5 +1,5 @@
 export interface Employee{
-  id?: string, // presente na resposta da API; opcional pra não quebrar telas antigas que montam Employee só com os campos do form
+  id?: string,
   partnerCode: string,
   document: string,
   name: string,
@@ -11,11 +11,15 @@ export interface Employee{
   department: Department,
   companyId?: string | null,
   teamId?: string | null,
-  // Só usados na criação — cargo/nível/contrato geram o primeiro CareerHistory (HIRING) e não são editáveis por aqui depois
   positionId?: string | null,
   positionLevelId?: string | null,
   contractType?: ContractType | null,
-  hiringDate?: Date | string | null
+  hiringDate?: Date | string | null,
+  transportType?: TransportType | null,
+  dailyCommutesCount?: number | null,
+  ticketPrice?: number | null,
+  vehicleKmPerLiter?: number | null,
+  dailyDistanceKm?: number | null,
 }
 
 export enum ContractType {
@@ -31,6 +35,12 @@ export enum Hierarchy {
   COORDENADOR = 'COORDENADOR',
   ANALISTA = 'ANALISTA',
   ASSISTENTE = 'ASSISTENTE'
+}
+
+export enum TransportType {
+  MUNICIPAL_BUS = 'MUNICIPAL_BUS',
+  INTERMUNICIPAL_BUS = 'INTERMUNICIPAL_BUS',
+  VEHICLE = 'VEHICLE',
 }
 
 export enum Department {
