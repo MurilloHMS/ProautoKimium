@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './../../../infrastructure/services/auth.service';
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { UserRole, RegisterDTO, UserResponseDTO } from '../../../domain/models/user.model';
@@ -32,7 +32,7 @@ import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.co
   providers: [MessageService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AdminCenterComponent {
+export class AdminCenterComponent implements OnInit {
   loading = false;
   registerForm!: FormGroup;
   isSubmitting = false;
@@ -71,6 +71,10 @@ export class AdminCenterComponent {
     private fb: FormBuilder
   ) {
     this.buildRegisterForm();
+  }
+
+  ngOnInit(): void {
+    this.loadUsers();
   }
 
   private buildRegisterForm(): void {

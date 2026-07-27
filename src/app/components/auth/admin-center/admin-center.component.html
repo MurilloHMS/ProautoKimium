@@ -4,44 +4,55 @@
 <div class="ac-topbar">
   <div class="ac-topbar-left">
     <div class="ac-topbar-icon">
-      <i class="pi pi-users"></i>
+      <i class="pi pi-shield"></i>
     </div>
     <div>
       <h1 class="ac-topbar-title">Centro Administrativo</h1>
-      <span class="ac-topbar-sub">Gerencie usuários e permissões</span>
+      <span class="ac-topbar-sub">{{ users.length }} usuários cadastrados</span>
     </div>
   </div>
   <div class="ac-topbar-right">
-    <pk-button pkType="new" pkSize="sm" pkLabel="Novo usuário" (clicked)="openCreateDialog()"/>
     <pk-button pkType="token" pkSize="sm" [pkLoading]="loading" (clicked)="generateAccessTokens()"/>
-    <pk-button pkType="refresh" pkSize="sm" pkLabel="Carregar" [pkLoading]="loading" (clicked)="loadUsers()"/>
+    <pk-button pkType="new" pkSize="sm" pkLabel="Novo usuário" (clicked)="openCreateDialog()"/>
   </div>
 </div>
 
-<!-- CONTEÚDO -->
+<!-- CONTEUDO -->
 <div class="ac-content">
   <pk-table
     [data]="users"
-    [loading]="isLoadingUsers"
+    [loading]="loading"
     totalLabel="usuários"
     [filterFields]="['login']"
-    searchPlaceholder="Buscar usuário…"
+    searchPlaceholder="Buscar por login..."
     emptyIcon="pi pi-users"
     emptyTitle="Nenhum usuário encontrado"
-    emptySubtitle="Cadastre o primeiro usuário no botão “Novo usuário”."
+    emptySubtitle="Cadastre o primeiro usuário no botão Novo usuário."
     pageReportTitle="usuários">
 
     <ng-template #headerTpl>
       <tr>
         <th>Login</th>
+        <th>Funcionário</th>
         <th>Permissões</th>
-        <th style="width: 84px; text-align: center">Editar</th>
+        <th style="width: 84px; text-align: center">Ações</th>
       </tr>
     </ng-template>
 
     <ng-template #bodyTpl let-user>
       <tr [class.ac-row-active]="editingUser?.login === user.login">
-        <td class="ac-login-cell">{{ user.login }}</td>
+        <td class="ac-login-cell">
+          <i class="pi pi-user ac-login-icon"></i>
+          {{ user.login }}
+        </td>
+        <td>
+          <span *ngIf="user.codParceiro" class="ac-employee-link">
+            <i class="pi pi-link"></i> {{ user.codParceiro }}
+          </span>
+          <span *ngIf="!user.codParceiro" class="ac-no-employee">
+            Sem vínculo
+          </span>
+        </td>
         <td>
           <span class="ac-tag" *ngFor="let role of user.roles" [attr.data-role]="role">
             {{ getRoleLabel(role) }}
@@ -56,7 +67,7 @@
   </pk-table>
 </div>
 
-<!-- MODAL: criar / editar usuário -->
+<!-- MODAL: criar / editar usuario -->
 <pk-dialog
   [visible]="showDialog"
   (visibleChange)="onDialogVisibleChange($event)"

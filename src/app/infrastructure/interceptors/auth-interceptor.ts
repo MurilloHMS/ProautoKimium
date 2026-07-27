@@ -10,7 +10,6 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const publicEndponts = [
       '/auth/login',
-      '/auth/register'
     ];
 
     const isPublic = publicEndponts.some(url => req.url.includes(url));
