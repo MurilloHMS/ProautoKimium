@@ -255,11 +255,6 @@
      BOTTOM NAV (mobile) — navegação estilo app
 ═══════════════════════════════════════════════════════════ -->
 <nav class="mobile-bottom-nav" aria-label="Navegação principal">
-  <button type="button" class="mbn-item" [class.is-active]="drawerVisible" (click)="drawerVisible = true">
-    <i class="pi pi-bars"></i>
-    <span>Menu</span>
-  </button>
-
   <a class="mbn-item" routerLink="documentos" routerLinkActive="is-active">
     <i class="pi pi-folder"></i>
     <span>Documentos</span>
@@ -267,17 +262,12 @@
 
   <a class="mbn-item" routerLink="home" routerLinkActive="is-active">
     <i class="pi pi-home"></i>
-    <span>Home</span>
+    <span>Início</span>
   </a>
 
-  <a class="mbn-item" routerLink="notificacoes" routerLinkActive="is-active">
-    <span class="mbn-icon-wrap">
-      <i class="pi pi-bell"></i>
-      @if (notifications.unreadCount() > 0) {
-        <span class="mbn-badge">{{ notifications.unreadCount() > 9 ? '9+' : notifications.unreadCount() }}</span>
-      }
-    </span>
-    <span>Notificações</span>
+  <a class="mbn-item" routerLink="documentos/rh/announcements" routerLinkActive="is-active">
+    <i class="pi pi-megaphone"></i>
+    <span>Avisos</span>
   </a>
 
   <a class="mbn-item" routerLink="perfil" routerLinkActive="is-active">

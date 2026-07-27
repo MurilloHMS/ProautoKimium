@@ -1,3 +1,8 @@
+// Compensa o header fixo (52px + safe-area-inset-top do notch) pra o conteúdo não ficar atrás.
+.content {
+  padding-top: calc(52px + env(safe-area-inset-top));
+}
+
 // Respiro para o conteúdo não ficar atrás do bottom nav no mobile.
 @media (max-width: 768px) {
   .content {
