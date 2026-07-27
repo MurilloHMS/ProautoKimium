@@ -311,6 +311,81 @@
         </div>
       </div>
 
+      <!-- Transporte -->
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
+          <i class="pi pi-car"></i> Transporte
+        </h3>
+        <div class="form-grid">
+          <div class="form-field form-field--full">
+            <label for="transportType">Tipo de transporte</label>
+            <p-select
+              id="transportType"
+              [options]="transportTypeOptions"
+              formControlName="transportType"
+              optionLabel="label"
+              optionValue="value"
+              appendTo="body"
+              [showClear]="true"
+              placeholder="Selecione o tipo…"
+              styleClass="select-field">
+            </p-select>
+          </div>
+        </div>
+
+        <!-- Campos de ônibus -->
+        <div class="transport-fields" *ngIf="isBusType">
+          <p class="transport-fields__hint">
+            <i class="pi pi-info-circle"></i>
+            Informe quantas passagens o funcionário usa por dia e o valor unitário.
+          </p>
+          <div class="form-grid">
+            <div class="form-field">
+              <pk-input
+                label="Passagens por dia"
+                placeholder="Ex: 4"
+                type="number"
+                formControlName="dailyCommutesCount"
+              />
+            </div>
+            <div class="form-field">
+              <pk-input
+                label="Valor da passagem (R$)"
+                placeholder="Ex: 4.50"
+                type="number"
+                formControlName="ticketPrice"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos de veículo -->
+        <div class="transport-fields" *ngIf="isVehicle">
+          <p class="transport-fields__hint">
+            <i class="pi pi-info-circle"></i>
+            Informe a média de consumo do veículo e a quilometragem diária percorrida.
+          </p>
+          <div class="form-grid">
+            <div class="form-field">
+              <pk-input
+                label="Média km/l"
+                placeholder="Ex: 12.5"
+                type="number"
+                formControlName="vehicleKmPerLiter"
+              />
+            </div>
+            <div class="form-field">
+              <pk-input
+                label="Km diário"
+                placeholder="Ex: 40"
+                type="number"
+                formControlName="dailyDistanceKm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Cargo inicial — só na criação, vira o primeiro CareerHistory (HIRING) -->
       <div class="pk-form-section" *ngIf="!employeToEdit">
         <h3 class="pk-form-section__title">
