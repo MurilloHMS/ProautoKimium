@@ -1,0 +1,102 @@
+@use 'variables' as v;
+
+.pk-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--disabled { opacity: .55; pointer-events: none; }
+}
+
+.pk-label {
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: v.$neutral-900;
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+
+.pk-required { color: v.$danger; }
+
+.pk-field-footer { display: flex; align-items: center; min-height: 1rem; }
+
+.pk-error {
+  font-size: v.$font-size-xs;
+  color: v.$danger;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+
+  i { font-size: .7rem; }
+}
+
+// ── Select PrimeNG alinhado ao pk-input ──────────────────────────────────────
+::ng-deep .pk-combobox {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid v.$border !important;
+  border-radius: v.$radius-md !important;
+  background: v.$bg-base !important;
+  font-size: v.$font-size-sm !important;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base !important;
+
+  &:not(.p-disabled):hover { border-color: v.$primary-light !important; }
+
+  &.p-focus,
+  &.p-select-open {
+    border-color: v.$primary-light !important;
+    box-shadow: v.$shadow-focus-primary !important;
+  }
+
+  .p-select-label {
+    padding: .5rem .85rem !important;
+    font-size: v.$font-size-sm !important;
+    font-family: v.$font-body !important;
+    color: v.$neutral-900 !important;
+  }
+
+  .p-select-label.p-placeholder {
+    color: v.$neutral-400 !important;
+  }
+
+  .p-select-dropdown {
+    width: 2.25rem;
+    color: v.$neutral-500;
+  }
+
+  &--error {
+    border-color: v.$danger !important;
+    background: rgba(v.$danger, .03) !important;
+  }
+}
+
+// ── Dropdown panel ───────────────────────────────────────────────────────────
+::ng-deep .p-select-overlay {
+  border-radius: v.$radius-md !important;
+  border: 1px solid v.$border !important;
+  box-shadow: v.$shadow-md !important;
+
+  .p-select-option {
+    font-size: v.$font-size-sm !important;
+    padding: .5rem .85rem !important;
+    color: v.$neutral-900 !important;
+    transition: background v.$transition-fast !important;
+
+    &.p-select-option-selected {
+      background: rgba(v.$primary, .08) !important;
+      color: v.$primary !important;
+      font-weight: 600 !important;
+    }
+
+    &:not(.p-select-option-selected):hover {
+      background: v.$bg-hover !important;
+    }
+  }
+
+  .p-select-filter {
+    border-radius: v.$radius-sm !important;
+    font-size: v.$font-size-sm !important;
+    padding: .45rem .75rem !important;
+  }
+}
