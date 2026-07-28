@@ -40,3 +40,12 @@ export interface ProfileCreateDto {
 }
 
 export type ProfileUpdateDto = ProfileCreateDto;
+
+export interface MyProfileResponseDto {
+  profile: ProfileResponseDto | null;
+  employeeName: string;
+  employeeEmail: string;
+  employeeCargo: string | null;
+  employeeEmpresa: string | null;
+  canCreateProfile: boolean;
+}
