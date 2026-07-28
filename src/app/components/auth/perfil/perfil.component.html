@@ -1,7 +1,272 @@
-<section class="placeholder-page">
-  <div class="placeholder-card">
-    <span class="placeholder-icon"><i class="pi pi-user"></i></span>
-    <h1>Perfil</h1>
-    <p>Em breve você poderá ver e editar suas informações aqui.</p>
+<p-toast />
+
+@if (loading) {
+  <div class="loading-container">
+    <p-progressSpinner [style]="{ width: '48px', height: '48px' }" strokeWidth="4" />
   </div>
-</section>
+} @else if (data) {
+  <div class="perfil-wrapper">
+
+    <!-- SEÇÃO 1 — Dados do funcionário -->
+    <section class="profile-header">
+      <div class="avatar-area">
+        @if (data.profile?.imagem) {
+          <img [src]="data.profile!.imagem" [alt]="data.employeeName" class="avatar-img" />
+        } @else {
+          <div class="avatar-fallback">{{ initials(data.employeeName) }}</div>
+        }
+      </div>
+
+      <div class="info-area">
+        <h1 class="employee-name">{{ data.employeeName }}</h1>
+        @if (data.employeeEmpresa) {
+          <p class="employee-detail"><i class="pi pi-building"></i> {{ data.employeeEmpresa }}</p>
+        }
+        @if (data.employeeEmail) {
+          <p class="employee-detail"><i class="pi pi-envelope"></i> {{ data.employeeEmail }}</p>
+        }
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2 — Cartão Digital (só VENDEDOR) -->
+    @if (canCreate) {
+      <section class="vcard-section">
+
+        @if (!hasProfile && !editing) {
+          <!-- CTA para criar -->
+          <div class="cta-card" (click)="startEditing()">
+            <div class="cta-icon"><i class="pi pi-id-card"></i></div>
+            <h2>Crie seu Cartão Digital</h2>
+            <p>Monte seu cartão de visita virtual com QR Code, telefones e redes sociais.</p>
+            <button pButton label="Criar meu cartão" icon="pi pi-plus" class="p-button-sm cta-btn"></button>
+          </div>
+        }
+
+        @if (hasProfile && !editing) {
+          <!-- Resumo do perfil existente -->
+          <div class="profile-summary">
+            <div class="summary-header">
+              <h2><i class="pi pi-id-card"></i> Meu Cartão Digital</h2>
+              <button pButton icon="pi pi-pencil" label="Editar" class="p-button-outlined p-button-sm"
+                      (click)="startEditing()"></button>
+            </div>
+
+            <div class="summary-grid">
+              @if (data.profile?.cargo) {
+                <div class="summary-item">
+                  <span class="summary-label">Cargo</span>
+                  <span class="summary-value">{{ data.profile!.cargo }}</span>
+                </div>
+              }
+              @if (data.profile?.empresa) {
+                <div class="summary-item">
+                  <span class="summary-label">Empresa</span>
+                  <span class="summary-value">{{ data.profile!.empresa }}</span>
+                </div>
+              }
+              @if (data.profile?.email) {
+                <div class="summary-item">
+                  <span class="summary-label">E-mail</span>
+                  <span class="summary-value">{{ data.profile!.email }}</span>
+                </div>
+              }
+              @if (data.profile?.descricao) {
+                <div class="summary-item summary-full">
+                  <span class="summary-label">Descrição</span>
+                  <span class="summary-value">{{ data.profile!.descricao }}</span>
+                </div>
+              }
+            </div>
+
+            @if (data.profile?.telefones?.length) {
+              <div class="summary-list">
+                <span class="summary-label"><i class="pi pi-phone"></i> Telefones</span>
+                <div class="chip-row">
+                  @for (t of data.profile!.telefones; track t.numero) {
+                    <span class="chip">{{ t.tipo }}: {{ t.numero }}</span>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (data.profile?.redesSociais?.length) {
+              <div class="summary-list">
+                <span class="summary-label"><i class="pi pi-share-alt"></i> Redes Sociais</span>
+                <div class="chip-row">
+                  @for (r of data.profile!.redesSociais; track r.url) {
+                    <a [href]="r.url" target="_blank" class="chip chip-link">{{ r.tipo }}</a>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Ações -->
+            <div class="profile-actions">
+              <button pButton icon="pi pi-qrcode" label="QR Code" class="p-button-outlined p-button-sm"
+                      (click)="openQr()"></button>
+              <button pButton icon="pi pi-download" label="Baixar vCard" class="p-button-outlined p-button-sm"
+                      (click)="downloadVCard()"></button>
+              <a [href]="profileUrl" target="_blank" class="p-button p-button-outlined p-button-sm action-link">
+                <i class="pi pi-external-link"></i> Ver página pública
+              </a>
+            </div>
+          </div>
+        }
+
+        @if (editing) {
+          <!-- Form de edição/criação -->
+          <div class="edit-card">
+            <div class="edit-header">
+              <h2><i class="pi pi-id-card"></i> {{ hasProfile ? 'Editar Cartão' : 'Novo Cartão Digital' }}</h2>
+            </div>
+
+            <div class="edit-form">
+              <!-- Foto -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-camera"></i> Foto de Perfil</div>
+                <div class="photo-upload-area">
+                  @if (imagePreview) {
+                    <img [src]="imagePreview" alt="Preview" class="photo-preview" />
+                  } @else {
+                    <div class="photo-placeholder"><i class="pi pi-user"></i></div>
+                  }
+                  <div class="photo-actions">
+                    <label class="upload-label" for="photo-input">
+                      <i class="pi pi-upload"></i> {{ imagePreview ? 'Trocar foto' : 'Enviar foto' }}
+                    </label>
+                    <input id="photo-input" type="file" accept="image/*" class="hidden-input"
+                           (change)="onFileSelected($event)" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dados básicos -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-user"></i> Dados Básicos</div>
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label>Nome <span class="required">*</span></label>
+                    <input pInputText [(ngModel)]="form.nome" placeholder="Nome completo" />
+                  </div>
+                  <div class="form-field">
+                    <label>Cargo</label>
+                    <input pInputText [(ngModel)]="form.cargo" placeholder="Consultor de Vendas" />
+                  </div>
+                  <div class="form-field">
+                    <label>Empresa</label>
+                    <input pInputText [(ngModel)]="form.empresa" placeholder="Proauto Kimium" />
+                  </div>
+                  <div class="form-field">
+                    <label>E-mail</label>
+                    <input pInputText [(ngModel)]="form.email" placeholder="nome@proautokimium.com.br" />
+                  </div>
+                  <div class="form-field field-full">
+                    <label>Descrição</label>
+                    <textarea pInputTextarea [(ngModel)]="form.descricao" [rows]="3" [maxlength]="200"
+                              placeholder="Breve apresentação…" style="width:100%; font-size:.88rem;"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Telefones -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-phone"></i> Telefones
+                  <button type="button" class="add-inline-btn" (click)="addPhone()"><i class="pi pi-plus"></i></button>
+                </div>
+                @for (tel of form.telefones; track $index; let i = $index) {
+                  <div class="inline-row">
+                    <p-select [(ngModel)]="tel.tipo" [options]="phoneTypes" optionLabel="label" optionValue="value"
+                              placeholder="Tipo" styleClass="inline-select" />
+                    <input pInputText [(ngModel)]="tel.numero" placeholder="(11) 9 0000-0000" class="inline-input" />
+                    <button type="button" class="remove-btn" (click)="removePhone(i)"><i class="pi pi-trash"></i></button>
+                  </div>
+                }
+                @if (!form.telefones.length) {
+                  <p class="empty-hint">Nenhum telefone adicionado.</p>
+                }
+              </div>
+
+              <!-- Redes Sociais -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-share-alt"></i> Redes Sociais
+                  <button type="button" class="add-inline-btn" (click)="addSocial()"><i class="pi pi-plus"></i></button>
+                </div>
+                @for (rs of form.redesSociais; track $index; let i = $index) {
+                  <div class="inline-row">
+                    <p-select [(ngModel)]="rs.tipo" [options]="socialTypes" optionLabel="label" optionValue="value"
+                              placeholder="Rede" styleClass="inline-select" />
+                    <input pInputText [(ngModel)]="rs.url" placeholder="https://instagram.com/…" class="inline-input" />
+                    <button type="button" class="remove-btn" (click)="removeSocial(i)"><i class="pi pi-trash"></i></button>
+                  </div>
+                }
+                @if (!form.redesSociais.length) {
+                  <p class="empty-hint">Nenhuma rede adicionada.</p>
+                }
+              </div>
+
+              <!-- Regiões -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-map-marker"></i> Regiões de Atendimento
+                  <button type="button" class="add-inline-btn" (click)="addRegiao()"><i class="pi pi-plus"></i></button>
+                </div>
+                @for (regiao of form.regioesAtendimento; track $index; let i = $index) {
+                  <div class="inline-row">
+                    <input pInputText [(ngModel)]="form.regioesAtendimento[i]"
+                           placeholder="Ex: São Paulo Capital" class="inline-input" />
+                    <button type="button" class="remove-btn" (click)="removeRegiao(i)"><i class="pi pi-trash"></i></button>
+                  </div>
+                }
+                @if (!form.regioesAtendimento.length) {
+                  <p class="empty-hint">Nenhuma região adicionada.</p>
+                }
+              </div>
+
+              <!-- Segmentos -->
+              <div class="form-section">
+                <div class="divider-label"><i class="pi pi-tag"></i> Segmentos
+                  <button type="button" class="add-inline-btn" (click)="addSegmento()"><i class="pi pi-plus"></i></button>
+                </div>
+                @for (segmento of form.segmentosAtendimento; track $index; let i = $index) {
+                  <div class="inline-row">
+                    <input pInputText [(ngModel)]="form.segmentosAtendimento[i]"
+                           placeholder="Ex: Indústria Química" class="inline-input" />
+                    <button type="button" class="remove-btn" (click)="removeSegmento(i)"><i class="pi pi-trash"></i></button>
+                  </div>
+                }
+                @if (!form.segmentosAtendimento.length) {
+                  <p class="empty-hint">Nenhum segmento adicionado.</p>
+                }
+              </div>
+            </div>
+
+            <!-- Footer do form -->
+            <div class="edit-footer">
+              <button pButton type="button" label="Cancelar" class="p-button-outlined p-button-sm"
+                      (click)="cancelEditing()"></button>
+              <button pButton type="button" [label]="hasProfile ? 'Salvar' : 'Criar Cartão'" icon="pi pi-check"
+                      class="p-button-sm save-btn" (click)="save()" [loading]="saving"></button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+  </div>
+}
+
+<!-- QR Code Dialog -->
+<p-dialog [(visible)]="qrVisible" [modal]="true" [style]="{ width: '340px' }"
+          header="QR Code — Meu Cartão">
+  @if (data?.profile) {
+    <div class="qr-dialog-body">
+      <qrcode [qrdata]="profileUrl" [width]="220" [errorCorrectionLevel]="'M'" />
+      <p class="qr-url">{{ profileUrl }}</p>
+      <div class="qr-actions">
+        <button pButton icon="pi pi-download" label="Salvar QR Code" class="p-button-sm p-button-outlined"
+                (click)="downloadQr()"></button>
+        <a [href]="profileUrl" target="_blank" class="qr-open-link">
+          <i class="pi pi-external-link"></i> Abrir link
+        </a>
+      </div>
+    </div>
+  }
+</p-dialog>
