@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import { Textarea } from 'primeng/textarea';
+import { InputMask } from 'primeng/inputmask';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { MessageService } from 'primeng/api';
@@ -36,7 +37,7 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
     CommonModule, FormsModule,
     ButtonModule, DialogModule, InputTextModule,
     ToastModule, SelectModule, TooltipModule,
-    Textarea, ProgressSpinnerModule, QRCodeComponent,
+    Textarea, InputMask, ProgressSpinnerModule, QRCodeComponent,
   ],
   providers: [MessageService],
   templateUrl: './perfil.component.html',
@@ -54,6 +55,7 @@ export class PerfilComponent implements OnInit {
 
   form: ProfileCreateDto = EMPTY_FORM();
 
+  avatarBroken = false;
   imagePreview: string | null = null;
   selectedFile: File | null = null;
   uploadingImage = false;
@@ -137,6 +139,10 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
+    this.form.redesSociais = this.form.redesSociais.map(rs => ({
+      ...rs,
+      url: this.normalizeSocialUrl(rs.tipo, rs.url),
+    }));
     this.form.regioesAtendimento = this.form.regioesAtendimento
       .map(r => r?.trim()).filter(Boolean) as string[];
     this.form.segmentosAtendimento = this.form.segmentosAtendimento
@@ -213,6 +219,18 @@ export class PerfilComponent implements OnInit {
     return (name ?? '').split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
   }
 
+  formatPhone(value: string): string {
+    const digits = (value ?? '').replace(/\D/g, '');
+    const clean = digits.startsWith('55') && digits.length > 11 ? digits.substring(2) : digits;
+    if (clean.length === 11) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 7)}-${clean.substring(7)}`;
+    }
+    if (clean.length === 10) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6)}`;
+    }
+    return value;
+  }
+
   addPhone(): void { this.form.telefones.push({ tipo: 'WHATSAPP', numero: '' }); }
   removePhone(i: number): void { this.form.telefones.splice(i, 1); }
 
@@ -259,6 +277,31 @@ export class PerfilComponent implements OnInit {
       detail: this.hasProfile ? 'Perfil atualizado.' : 'Cartão digital criado!',
     });
     this.load();
+  }
+
+  private readonly socialBaseUrls: Record<string, string> = {
+    INSTAGRAM: 'https://instagram.com/',
+    TIKTOK:    'https://tiktok.com/@',
+    TWITTER:   'https://x.com/',
+  };
+
+  normalizeSocialUrl(tipo: string, url: string): string {
+    const trimmed = (url ?? '').trim();
+    if (!trimmed) return trimmed;
+    const base = this.socialBaseUrls[tipo];
+    if (!base) return trimmed;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    const handle = trimmed.startsWith('@') ? trimmed.substring(1) : trimmed;
+    return base + handle;
+  }
+
+  socialPlaceholder(tipo: string): string {
+    switch (tipo) {
+      case 'INSTAGRAM': return '@usuario ou https://instagram.com/usuario';
+      case 'TIKTOK':    return '@usuario ou https://tiktok.com/@usuario';
+      case 'TWITTER':   return '@usuario ou https://x.com/usuario';
+      default:          return 'https://…';
+    }
   }
 
   private downloadBlob(blob: Blob): void {

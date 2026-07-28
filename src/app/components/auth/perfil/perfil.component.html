@@ -10,8 +10,9 @@
     <!-- SEÇÃO 1 — Dados do funcionário -->
     <section class="profile-header">
       <div class="avatar-area">
-        @if (data.profile?.imagem) {
-          <img [src]="data.profile!.imagem" [alt]="data.employeeName" class="avatar-img" />
+        @if (data.profile?.imagem && !avatarBroken) {
+          <img [src]="data.profile!.imagem" [alt]="data.employeeName" class="avatar-img"
+               (error)="avatarBroken = true" />
         } @else {
           <div class="avatar-fallback">{{ initials(data.employeeName) }}</div>
         }
@@ -83,7 +84,7 @@
                 <span class="summary-label"><i class="pi pi-phone"></i> Telefones</span>
                 <div class="chip-row">
                   @for (t of data.profile!.telefones; track t.numero) {
-                    <span class="chip">{{ t.tipo }}: {{ t.numero }}</span>
+                    <span class="chip">{{ t.tipo }}: {{ formatPhone(t.numero) }}</span>
                   }
                 </div>
               </div>
@@ -177,7 +178,7 @@
                   <div class="inline-row">
                     <p-select [(ngModel)]="tel.tipo" [options]="phoneTypes" optionLabel="label" optionValue="value"
                               placeholder="Tipo" styleClass="inline-select" />
-                    <input pInputText [(ngModel)]="tel.numero" placeholder="(11) 9 0000-0000" class="inline-input" />
+                    <p-inputMask [(ngModel)]="tel.numero" mask="(99) 99999-9999" placeholder="(11) 99999-9999" styleClass="inline-input" />
                     <button type="button" class="remove-btn" (click)="removePhone(i)"><i class="pi pi-trash"></i></button>
                   </div>
                 }
@@ -195,7 +196,7 @@
                   <div class="inline-row">
                     <p-select [(ngModel)]="rs.tipo" [options]="socialTypes" optionLabel="label" optionValue="value"
                               placeholder="Rede" styleClass="inline-select" />
-                    <input pInputText [(ngModel)]="rs.url" placeholder="https://instagram.com/…" class="inline-input" />
+                    <input pInputText [(ngModel)]="rs.url" [placeholder]="socialPlaceholder(rs.tipo)" class="inline-input" />
                     <button type="button" class="remove-btn" (click)="removeSocial(i)"><i class="pi pi-trash"></i></button>
                   </div>
                 }

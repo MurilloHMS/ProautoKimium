@@ -57,6 +57,7 @@ export class VcardComponent implements OnInit {
   phoneContacts:   ContactItem[] = [];
   digitalContacts: ContactItem[] = [];
   socialContacts:  ContactItem[] = [];
+  imageBroken = false;
 
   get initials(): string {
     if (!this.profile?.nome) return 'PK';
@@ -77,7 +78,7 @@ export class VcardComponent implements OnInit {
 
     this.phoneContacts = (telefones ?? []).map(t => {
       const meta = TIPO_MAP[t.tipo?.toUpperCase()] ?? TIPO_MAP['TELEFONE'];
-      return { label: meta.label, value: t.numero, link: meta.linkFn(t.numero), cssClass: meta.cssClass, icon: meta.icon };
+      return { label: meta.label, value: this.formatPhone(t.numero), link: meta.linkFn(t.numero), cssClass: meta.cssClass, icon: meta.icon };
     });
 
     this.digitalContacts = [];
@@ -88,20 +89,27 @@ export class VcardComponent implements OnInit {
 
     this.socialContacts = (redesSociais ?? []).map(r => {
       const meta = SOCIAL_MAP[r.tipo?.toUpperCase()] ?? { cssClass: 'website', icon: 'pi pi-link', label: r.tipo };
-
-      let link = r.url;
-
-      if (r.tipo?.toUpperCase() === 'INSTAGRAM') {
-        link = this.formatInstagram(r.url);
-      }
+      const tipo = r.tipo?.toUpperCase();
+      const isHandleBased = tipo === 'INSTAGRAM' || tipo === 'TWITTER' || tipo === 'TIKTOK';
 
       return {
         label: meta.label,
-        value: this.formatInstagramDisplay(r.url),
-        link,
+        value: isHandleBased ? this.extractHandle(r.url) : r.url,
+        link: isHandleBased ? this.normalizeHandleUrl(tipo, r.url) : r.url,
         cssClass: meta.cssClass,
         icon: meta.icon
       };
+    });
+
+    this.socialContacts = this.socialContacts.filter(
+      c => !c.link.includes('instagram.com/ProautoKimium') && !c.link.includes('instagram.com/proautokimium')
+    );
+    this.socialContacts.unshift({
+      label: 'Instagram',
+      value: '@ProautoKimium',
+      link: 'https://instagram.com/ProautoKimium',
+      cssClass: 'instagram',
+      icon: 'pi pi-instagram',
     });
   }
 
@@ -121,22 +129,43 @@ export class VcardComponent implements OnInit {
     return window.location.href;
   }
 
-  private formatInstagram(value: string): string {
-    const clean = value.trim();
+  private readonly handleBaseUrls: Record<string, string> = {
+    INSTAGRAM: 'https://instagram.com/',
+    TWITTER:   'https://x.com/',
+    TIKTOK:    'https://tiktok.com/@',
+  };
 
-    if(clean.startsWith('http')) {return clean}
+  private readonly handlePatterns: Record<string, RegExp> = {
+    INSTAGRAM: /^https?:\/\/(www\.)?instagram\.com\//,
+    TWITTER:   /^https?:\/\/(www\.)?(twitter\.com|x\.com)\//,
+    TIKTOK:    /^https?:\/\/(www\.)?tiktok\.com\/@?/,
+  };
 
-    const username = clean.replace('@', '').trim();
-    return `https://instagram.com/${username}`;
+  private normalizeHandleUrl(tipo: string, value: string): string {
+    const trimmed = value.trim();
+    if (trimmed.startsWith('http')) return trimmed;
+    const handle = trimmed.startsWith('@') ? trimmed.substring(1) : trimmed;
+    return (this.handleBaseUrls[tipo] ?? '') + handle;
   }
 
-  private formatInstagramDisplay(value: string): string {
+  private extractHandle(value: string): string {
     let clean = value.trim();
-
-    clean = clean
-      .replace(/^https?:\/\/(www\.)?instagram\.com\//, '')
-      .replace(/^@/, '');
-
+    for (const pattern of Object.values(this.handlePatterns)) {
+      clean = clean.replace(pattern, '');
+    }
+    clean = clean.replace(/^@/, '').replace(/\/$/, '');
     return `@${clean}`;
+  }
+
+  private formatPhone(value: string): string {
+    const digits = (value ?? '').replace(/\D/g, '');
+    const clean = digits.startsWith('55') && digits.length > 11 ? digits.substring(2) : digits;
+    if (clean.length === 11) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 7)}-${clean.substring(7)}`;
+    }
+    if (clean.length === 10) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6)}`;
+    }
+    return value;
   }
 }
