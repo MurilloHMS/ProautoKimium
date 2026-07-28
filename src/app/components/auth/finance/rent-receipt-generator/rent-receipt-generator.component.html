@@ -1,178 +1,305 @@
-<div class="rrg-page">
-  <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
+<p-toast />
+<p-confirmDialog />
 
-  <div class="rrg-header">
-    <div class="rrg-header__inner">
-      <div class="rrg-header__icon" aria-hidden="true">
-        <i class="pi pi-file-excel"></i>
-      </div>
-      <div>
-        <h1 class="rrg-header__title">Gerador de Recibos</h1>
-        <p class="rrg-header__subtitle">Importe a planilha Excel e gere os recibos de aluguel</p>
-      </div>
-    </div>
+<div class="rr-page">
+  <div class="rr-title-row">
+    <h1 class="rr-title">Recibos de Locacao</h1>
   </div>
 
-  <div class="rrg-container">
+  <p-tabs [value]="0" (valueChange)="onTabChange($event)">
+    <p-tablist>
+      <p-tab [value]="0"><i class="pi pi-file-export"></i> Gerar Recibos</p-tab>
+      <p-tab [value]="1"><i class="pi pi-history"></i> Historico</p-tab>
+    </p-tablist>
 
-    <!-- Upload Card -->
-    <section class="rrg-card">
-      <div class="rrg-card__header">
-        <span class="rrg-card__header-icon" aria-hidden="true">
-          <i class="pi pi-upload"></i>
-        </span>
-        <div>
-          <h2 class="rrg-card__title">Upload do Arquivo Excel</h2>
-          <p class="rrg-card__subtitle">Selecione ou arraste a planilha no formato <strong>.xlsx</strong></p>
-        </div>
-      </div>
+    <p-tabpanels>
+      <!-- ═══ ABA GERAR ═══ -->
+      <p-tabpanel [value]="0">
+        <div class="rr-generate-tab">
 
-      <div *ngIf="!processing" class="rrg-upload-area">
-        <p-fileupload
-          #upload
-          name="arquivoExcel"
-          [multiple]="false"
-          [customUpload]="true"
-          (uploadHandler)="onUpload($event)"
-          fileLimit="1"
-          accept=".xlsx"
-          maxFileSize="1000000"
-          mode="advanced"
-          chooseLabel="Selecionar Planilha"
-          uploadLabel="Enviar"
-          cancelLabel="Cancelar"
-          styleClass="rrg-fileupload">
+          <!-- Toolbar compacta -->
+          <div class="rr-toolbar">
+            <div class="rr-toolbar__left">
+              <button pButton class="p-button-outlined p-button-sm rr-upload-btn"
+                      icon="pi pi-file-excel" label="Selecionar Planilha"
+                      (click)="fileInput.click()" [disabled]="uploading"></button>
+              <input #fileInput type="file" accept=".xlsx" hidden (change)="onFileSelected($event)" />
 
-          <ng-template #empty>
-            <div class="rrg-drop-zone">
-              <div class="rrg-drop-zone__icon" aria-hidden="true">
-                <i class="pi pi-cloud-upload"></i>
-              </div>
-              <p class="rrg-drop-zone__text">Arraste e solte a planilha aqui</p>
-              <p class="rrg-drop-zone__hint">ou clique em <strong>Selecionar Planilha</strong> · Máx. 1 arquivo .xlsx</p>
+              @if (fileName) {
+                <span class="rr-filename">
+                  <i class="pi pi-file"></i> {{ fileName }}
+                  <button pButton icon="pi pi-times" class="p-button-text p-button-sm p-button-danger rr-clear-file"
+                          (click)="resetFile()" pTooltip="Limpar"></button>
+                </span>
+              }
+
+              @if (uploading) {
+                <p-progressBar mode="indeterminate" styleClass="rr-upload-progress" />
+              }
             </div>
-          </ng-template>
-        </p-fileupload>
-      </div>
 
-      <div *ngIf="processing" class="rrg-processing">
-        <p-progressSpinner
-          [style]="{width: '48px', height: '48px'}"
-          strokeWidth="4">
-        </p-progressSpinner>
-        <p class="rrg-processing__text">Processando arquivo... Por favor, aguarde.</p>
-      </div>
-    </section>
-
-    <!-- Results Card -->
-    <section class="rrg-card" *ngIf="processId">
-      <div class="rrg-card__header rrg-card__header--between">
-        <div class="rrg-card__header-left">
-          <span class="rrg-card__header-icon" aria-hidden="true">
-            <i class="pi pi-list"></i>
-          </span>
-          <div>
-            <h2 class="rrg-card__title">Recibos Identificados</h2>
-            <p class="rrg-card__subtitle">Defina as datas de vencimento e gere os recibos</p>
+            <div class="rr-toolbar__right">
+              @if (processId) {
+                <pk-combobox [(ngModel)]="mode" [options]="modeOptions" optionLabel="label" optionValue="value"
+                             (changed)="onModeChange()" class="rr-mode-select" />
+              }
+              <pk-combobox [(ngModel)]="selectedMonth" [options]="meses" placeholder="Mes"
+                           class="rr-month-select" />
+              <pk-combobox [(ngModel)]="selectedYear" [options]="years" placeholder="Ano"
+                           class="rr-year-select" />
+            </div>
           </div>
+
+          <!-- Tabela -->
+          @if (processId && rows.length) {
+            <!-- Barra de acoes da tabela -->
+            <div class="rr-table-actions">
+              <label class="rr-select-all">
+                <p-checkbox [ngModel]="allSelected" [indeterminate]="someSelected"
+                            (ngModelChange)="toggleAll($event)" [binary]="true" />
+                <span>{{ selectedCount }}/{{ rows.length }} selecionados</span>
+              </label>
+
+              <div class="rr-search-wrapper">
+                <i class="pi pi-search rr-search-icon"></i>
+                <input pInputText [(ngModel)]="searchTerm" (ngModelChange)="onSearch()"
+                       placeholder="Buscar por nome, codigo ou grupo..."
+                       class="rr-search-input" />
+                @if (searchTerm) {
+                  <button pButton icon="pi pi-times" class="p-button-text p-button-sm rr-search-clear"
+                          (click)="clearSearch()"></button>
+                }
+              </div>
+
+              <div class="rr-table-actions__right">
+                <button pButton class="p-button-outlined p-button-sm"
+                        icon="pi pi-calendar" label="Definir Vencimento"
+                        [disabled]="selectedCount === 0" (click)="batchPanel.toggle($event)"></button>
+                <p-popover #batchPanel>
+                  <div class="rr-batch-panel">
+                    <p class="rr-batch-label">Aplicar data para {{ selectedCount }} recibos:</p>
+                    <p-datepicker [(ngModel)]="batchDate" dateFormat="dd/mm/yy" [showIcon]="true"
+                                  appendTo="body" styleClass="rr-batch-datepicker" />
+                    <button pButton label="Aplicar" icon="pi pi-check"
+                            class="p-button-sm rr-batch-apply"
+                            [disabled]="!batchDate" (click)="applyBatchDate(); batchPanel.hide()"></button>
+                  </div>
+                </p-popover>
+
+                <button pButton class="p-button-text p-button-sm p-button-danger"
+                        icon="pi pi-trash" label="Limpar Datas" (click)="clearAllDates()"></button>
+              </div>
+            </div>
+
+            <!-- Tabela editavel -->
+            <div class="rr-table-wrap">
+              <p-table [value]="filteredRows" [paginator]="filteredRows.length > 50" [rows]="50"
+                       [rowsPerPageOptions]="[20, 50, 100]"
+                       [showCurrentPageReport]="true"
+                       currentPageReportTemplate="{first} a {last} de {totalRecords}"
+                       styleClass="p-datatable-sm rr-table">
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="rr-th-check"></th>
+                    <th class="rr-th-code">Codigo</th>
+                    @if (mode === 'UNIDADE') {
+                      <th class="rr-th-matriz">Matriz</th>
+                    }
+                    <th class="rr-th-name">Nome</th>
+                    <th class="rr-th-date">Vencimento</th>
+                    <th class="rr-th-num text-right">Maquinas</th>
+                    <th class="rr-th-total text-right">Total (R$)</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row>
+                  <tr [class.rr-row-excluded]="!row.selected">
+                    <!-- Checkbox -->
+                    <td class="rr-td-check">
+                      <p-checkbox [(ngModel)]="row.selected" [binary]="true" />
+                    </td>
+
+                    <!-- Codigo -->
+                    <td class="rr-td-code">
+                      <span class="rr-code-badge">{{ row.code }}</span>
+                    </td>
+
+                    <!-- Matriz (modo unidade) -->
+                    @if (mode === 'UNIDADE') {
+                      <td class="rr-td-matriz">{{ row.parentMatrizName || row.codMatriz }}</td>
+                    }
+
+                    <!-- Nome (editavel) -->
+                    <td class="rr-td-name rr-editable" (click)="startEditName(row)">
+                      @if (row.editingName) {
+                        <input pInputText [(ngModel)]="row.name"
+                               (blur)="stopEditName(row)"
+                               (keydown.enter)="stopEditName(row)"
+                               (keydown.escape)="cancelEditName(row)"
+                               class="rr-inline-input"
+                               [attr.data-row-id]="row.id"
+                               #nameInput />
+                      } @else {
+                        <span class="rr-cell-text" [class.rr-cell-dirty]="isDirty(row)">
+                          {{ row.name }}
+                          <i class="pi pi-pencil rr-edit-hint"></i>
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Data (editavel) -->
+                    <td class="rr-td-date rr-editable" (click)="startEditDate(row)">
+                      @if (row.editingDate) {
+                        <p-datepicker [(ngModel)]="row.dataVencimento" dateFormat="dd/mm/yy"
+                                      [showIcon]="true" appendTo="body"
+                                      (onSelect)="onDateSelect(row)"
+                                      (onBlur)="row.editingDate = false"
+                                      styleClass="rr-inline-datepicker" />
+                      } @else {
+                        <span class="rr-cell-text rr-date-text"
+                              [class.rr-cell-empty]="!row.dataVencimento">
+                          {{ formatDateDisplay(row.dataVencimento) }}
+                          <i class="pi pi-calendar rr-edit-hint"></i>
+                        </span>
+                      }
+                    </td>
+
+                    <!-- Maquinas -->
+                    <td class="text-right">{{ row.totalMaquinas }}</td>
+
+                    <!-- Total -->
+                    <td class="text-right rr-td-total">{{ row.totalAmount | number:'1.2-2' }}</td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td [attr.colspan]="mode === 'UNIDADE' ? 7 : 6" class="rr-empty">
+                      <i class="pi pi-inbox"></i>
+                      <span>Nenhum registro encontrado</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- Validacao + Gerar -->
+            <div class="rr-footer">
+              <div class="rr-validation">
+                @for (item of validationSummary; track item.label) {
+                  <div class="rr-validation__item" [class.rr-ok]="item.ok" [class.rr-error]="!item.ok">
+                    <i [class]="item.ok ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                    <span>{{ item.label }}</span>
+                  </div>
+                }
+              </div>
+
+              <button pButton label="Gerar Recibos" icon="pi pi-send"
+                      class="rr-btn-generate"
+                      [disabled]="!isValid || generating"
+                      [loading]="generating"
+                      [pTooltip]="!isValid ? validationErrors.join('. ') : ''"
+                      tooltipPosition="top"
+                      (click)="generate()"></button>
+            </div>
+          }
+
+          <!-- Estado vazio -->
+          @if (!processId && !uploading) {
+            <div class="rr-empty-state">
+              <i class="pi pi-file-excel"></i>
+              <p>Selecione uma planilha Excel (.xlsx) para comecar</p>
+            </div>
+          }
         </div>
+      </p-tabpanel>
 
-        <div class="rrg-toolbar">
-          <p-floatlabel variant="on" class="rrg-toolbar__month">
-            <p-select
-              inputId="monthId"
-              [options]="meses"
-              [(ngModel)]="selectedMonth"
-              class="w-full"
-              variant="outlined"/>
-            <label for="monthId">Mês de Referência</label>
-          </p-floatlabel>
+      <!-- ═══ ABA HISTORICO ═══ -->
+      <p-tabpanel [value]="1">
+        <div class="rr-history-tab">
+          <div class="rr-history-filters">
+            <pk-combobox [(ngModel)]="historyMonth" [options]="meses" placeholder="Todos os meses"
+                        [showClear]="true" class="rr-month-select" />
+            <pk-combobox [(ngModel)]="historyYear" [options]="years" placeholder="Todos os anos"
+                         [showClear]="true" class="rr-year-select" />
+            <button pButton label="Buscar" icon="pi pi-search"
+                    class="p-button-outlined p-button-sm"
+                    (click)="loadHistory()" [loading]="historyLoading"></button>
+          </div>
 
-          <button
-            pButton
-            type="button"
-            label="Apagar Datas"
-            icon="pi pi-trash"
-            class="p-button-outlined rrg-btn-clear"
-            (click)="apagarDatas()"
-            [loading]="loading">
-          </button>
+          @if (historyLoading) {
+            <div class="rr-history-loading">
+              <p-progressSpinner [style]="{ width: '36px', height: '36px' }" strokeWidth="4" />
+            </div>
+          }
 
-          <button
-            pButton
-            type="button"
-            label="Gerar Recibos"
-            icon="pi pi-send"
-            class="rrg-btn-generate"
-            [disabled]="!selectedMonth || matrizes.length === 0"
-            [loading]="loading"
-            (click)="gerarRecibos()">
-          </button>
+          @if (!historyLoading && batches.length === 0) {
+            <div class="rr-empty-state rr-empty-state--sm">
+              <i class="pi pi-history"></i>
+              <p>Nenhum historico encontrado</p>
+            </div>
+          }
+
+          @if (!historyLoading && batches.length) {
+            <div class="rr-history-list">
+              @for (batch of batches; track batch.id) {
+                <div class="rr-batch-card" [class.rr-batch-expanded]="expandedBatchId === batch.id">
+                  <div class="rr-batch-header" (click)="toggleBatchDetail(batch)">
+                    <div class="rr-batch-info">
+                      <span class="rr-batch-ref">{{ batch.referenceMonth }}/{{ batch.referenceYear }}</span>
+                      <span class="rr-batch-meta">
+                        {{ batch.receiptCount }} recibos · R$ {{ batch.totalAmount | number:'1.2-2' }}
+                      </span>
+                      <span class="rr-batch-date">{{ batch.generatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="rr-batch-actions">
+                      <button pButton icon="pi pi-download" pTooltip="Download ZIP"
+                              class="p-button-outlined p-button-sm"
+                              (click)="downloadBatch(batch.id, batch.referenceMonth, batch.referenceYear); $event.stopPropagation()"></button>
+                      <i class="pi" [class.pi-chevron-down]="expandedBatchId !== batch.id"
+                         [class.pi-chevron-up]="expandedBatchId === batch.id"></i>
+                    </div>
+                  </div>
+
+                  @if (expandedBatchId === batch.id && expandedBatch) {
+                    <div class="rr-batch-detail">
+                      <table class="rr-detail-table">
+                        <thead>
+                          <tr>
+                            <th>Tipo</th>
+                            <th>Matriz</th>
+                            <th>Nome</th>
+                            <th>Vencimento</th>
+                            <th class="text-right">Total</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (r of expandedBatch.receipts; track r.id) {
+                            <tr>
+                              <td><span class="rr-type-badge">{{ r.receiptType }}</span></td>
+                              <td>{{ r.codMatriz }}</td>
+                              <td>{{ r.nomeParceiro || r.nomeMatriz }}</td>
+                              <td>{{ r.dueDate }}</td>
+                              <td class="text-right">{{ r.totalAmount | number:'1.2-2' }}</td>
+                              <td class="text-right">
+                                <button pButton icon="pi pi-download" pTooltip="Download PDF"
+                                        class="p-button-text p-button-sm"
+                                        (click)="downloadReceipt(r.id, r.originalFilename)"></button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
-      </div>
-
-      <div class="rrg-table-wrapper">
-        <p-table
-          [value]="matrizes"
-          [loading]="loading"
-          [paginator]="true"
-          [rows]="50"
-          [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-          responsiveLayout="scroll"
-          styleClass="p-datatable-sm rrg-table">
-
-          <ng-template pTemplate="header">
-            <tr>
-              <th pSortableColumn="codMatriz">
-                Cód. Matriz <p-sortIcon field="codMatriz"></p-sortIcon>
-              </th>
-              <th pSortableColumn="nomeMatriz">
-                Nome da Matriz <p-sortIcon field="nomeMatriz"></p-sortIcon>
-              </th>
-              <th pSortableColumn="dataVencimento">
-                Data de Vencimento <p-sortIcon field="dataVencimento"></p-sortIcon>
-              </th>
-              <th class="text-right">Total Unidades</th>
-              <th class="text-right">Total Máquinas</th>
-              <th class="text-right">Total Matriz</th>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="body" let-matriz>
-            <tr>
-              <td>
-                <span class="rrg-cod-badge">{{ matriz.codMatriz }}</span>
-              </td>
-              <td class="rrg-nome-cell">{{ matriz.nomeMatriz }}</td>
-              <td>
-                <p-datepicker
-                  [(ngModel)]="matriz.dataVencimento"
-                  [showIcon]="true"
-                  dateFormat="dd/mm/yy"
-                  appendTo="body"
-                  styleClass="rrg-datepicker">
-                </p-datepicker>
-              </td>
-              <td class="text-right">{{ matriz.totalUnidades }}</td>
-              <td class="text-right">{{ matriz.totalMaquinas }}</td>
-              <td class="text-right rrg-total-cell">{{ matriz.totalMatriz | number:'1.2-2' }}</td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="6" class="rrg-empty">
-                <i class="pi pi-inbox" aria-hidden="true"></i>
-                <span>Nenhum registro encontrado</span>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
-    </section>
-
-  </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </div>
