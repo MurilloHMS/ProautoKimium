@@ -164,7 +164,7 @@
         <div class="inline-row">
           <p-select [(ngModel)]="tel.tipo" [options]="phoneTypes" optionLabel="label" optionValue="value"
                     placeholder="Tipo" styleClass="inline-select" />
-          <input pInputText [(ngModel)]="tel.numero" placeholder="(11) 9 0000-0000" class="inline-input" />
+          <p-inputMask [(ngModel)]="tel.numero" mask="(99) 99999-9999" placeholder="(11) 99999-9999" styleClass="inline-input" />
           <button type="button" class="remove-btn" (click)="removePhone(i)"><i class="pi pi-trash"></i></button>
         </div>
       }
@@ -182,7 +182,7 @@
         <div class="inline-row">
           <p-select [(ngModel)]="rs.tipo" [options]="socialTypes" optionLabel="label" optionValue="value"
                     placeholder="Rede" styleClass="inline-select" />
-          <input pInputText [(ngModel)]="rs.url" placeholder="https://instagram.com/…" class="inline-input" />
+          <input pInputText [(ngModel)]="rs.url" [placeholder]="socialPlaceholder(rs.tipo)" class="inline-input" />
           <button type="button" class="remove-btn" (click)="removeSocial(i)"><i class="pi pi-trash"></i></button>
         </div>
       }

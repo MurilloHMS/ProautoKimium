@@ -18,6 +18,7 @@ import {ChipModule} from "primeng/chip";
 import {ProfileCreateDto, ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
 import {Textarea} from "primeng/textarea";
+import {InputMask} from "primeng/inputmask";
 
 const EMPTY_FORM = (): ProfileCreateDto => ({
   nome: '', slug: '', cargo: '', empresa: '',
@@ -35,7 +36,7 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
     TableModule, ButtonModule, DialogModule, InputTextModule,
     ToastModule, TagModule, TooltipModule, SkeletonModule,
     SelectModule, ChipModule, ToggleSwitchModule,
-    ConfirmDialogModule, QRCodeComponent, Textarea,
+    ConfirmDialogModule, QRCodeComponent, Textarea, InputMask,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './profile-manager.component.html',
@@ -131,6 +132,10 @@ export class ProfileManagerComponent implements OnInit {
     this.submitted = true;
     if (!this.form.nome || !this.form.slug) return;
 
+    this.form.redesSociais = this.form.redesSociais.map(rs => ({
+      ...rs,
+      url: this.normalizeSocialUrl(rs.tipo, rs.url),
+    }));
     this.form.regioesAtendimento = this.form.regioesAtendimento
       .map(r => r?.trim())
       .filter(Boolean) as string[];
@@ -223,5 +228,30 @@ export class ProfileManagerComponent implements OnInit {
 
   removeSegmento(i: number): void {
     this.form.segmentosAtendimento.splice(i, 1);
+  }
+
+  private readonly socialBaseUrls: Record<string, string> = {
+    INSTAGRAM: 'https://instagram.com/',
+    TIKTOK:    'https://tiktok.com/@',
+    TWITTER:   'https://x.com/',
+  };
+
+  normalizeSocialUrl(tipo: string, url: string): string {
+    const trimmed = (url ?? '').trim();
+    if (!trimmed) return trimmed;
+    const base = this.socialBaseUrls[tipo];
+    if (!base) return trimmed;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    const handle = trimmed.startsWith('@') ? trimmed.substring(1) : trimmed;
+    return base + handle;
+  }
+
+  socialPlaceholder(tipo: string): string {
+    switch (tipo) {
+      case 'INSTAGRAM': return '@usuario ou https://instagram.com/usuario';
+      case 'TIKTOK':    return '@usuario ou https://tiktok.com/@usuario';
+      case 'TWITTER':   return '@usuario ou https://x.com/usuario';
+      default:          return 'https://…';
+    }
   }
 }
