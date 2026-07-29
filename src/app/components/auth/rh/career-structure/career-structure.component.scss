@@ -26,6 +26,25 @@
   }
 }
 
+.position-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.position-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(35, 46, 97, 0.08);
+  color: v.$primary;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
 .table-row--selected {
   background: rgba(87, 193, 171, 0.08);
 }
@@ -40,6 +59,47 @@
 
 .page-title--sm {
   font-size: 1.25rem !important;
+}
+
+.level-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.level-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(87, 193, 171, 0.12);
+  color: v.$secondary-dark;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+
+  i { font-size: 0.7rem; }
+
+  &--fixed {
+    background: rgba(35, 46, 97, 0.08);
+    color: v.$primary;
+  }
+
+  &--pct {
+    background: rgba(87, 193, 171, 0.12);
+    color: v.$secondary-dark;
+  }
 }
 
 .adjustment-result {

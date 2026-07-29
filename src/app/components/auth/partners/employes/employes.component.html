@@ -39,7 +39,7 @@
       [loading]="loading"
       totalLabel="funcionários encontrados"
       searchPlaceholder="Buscar por nome, email, código…"
-      [filterFields]="['name', 'email', 'partnerCode', 'hierarchy']"
+      [filterFields]="['name', 'email', 'partnerCode', 'hierarchy', 'positionName', 'contractType']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum funcionário encontrado"
       emptySubtitle="Adicione um novo funcionário para começar."
@@ -54,6 +54,9 @@
           <th class="col-center">Ativo</th>
           <th pSortableColumn="managerCode">Cód Gerente <p-sortIcon field="managerCode"></p-sortIcon></th>
           <th pSortableColumn="hierarchy">Hierarquia <p-sortIcon field="hierarchy"></p-sortIcon></th>
+          <th pSortableColumn="positionName">Cargo <p-sortIcon field="positionName"></p-sortIcon></th>
+          <th pSortableColumn="contractType">Contrato <p-sortIcon field="contractType"></p-sortIcon></th>
+          <th pSortableColumn="salary">Salário <p-sortIcon field="salary"></p-sortIcon></th>
           <th pSortableColumn="birthday">Aniversário <p-sortIcon field="birthday"></p-sortIcon></th>
           <th class="col-center">Usuário</th>
           <th class="col-center">Ações</th>
@@ -96,6 +99,19 @@
           <td>
             <span *ngIf="e.hierarchy" class="hierarchy-badge">{{ e.hierarchy }}</span>
             <span *ngIf="!e.hierarchy" class="text-muted">—</span>
+          </td>
+          <td>
+            <span *ngIf="e.positionName">{{ e.positionName }}</span>
+            <small *ngIf="e.positionLevelName" class="text-muted"> · {{ e.positionLevelName }}</small>
+            <span *ngIf="!e.positionName" class="text-muted">—</span>
+          </td>
+          <td>
+            <span *ngIf="e.contractType" class="code-badge">{{ e.contractType }}</span>
+            <span *ngIf="!e.contractType" class="text-muted">—</span>
+          </td>
+          <td>
+            <span *ngIf="e.salary">{{ e.salary | currency:'BRL' }}</span>
+            <span *ngIf="!e.salary" class="text-muted">—</span>
           </td>
           <td>
           <span *ngIf="e.birthday" class="birthday-cell">
@@ -333,6 +349,18 @@
           </div>
         </div>
 
+        <!-- Refeições diárias (usado na calculadora VR) -->
+        <div class="form-grid" style="margin-top: 0.75rem;">
+          <div class="form-field">
+            <pk-input
+              label="Refeições por dia"
+              placeholder="Ex: 2"
+              type="number"
+              formControlName="dailyMealsCount"
+            />
+          </div>
+        </div>
+
         <!-- Campos de ônibus -->
         <div class="transport-fields" *ngIf="isBusType">
           <p class="transport-fields__hint">
@@ -382,6 +410,42 @@
                 formControlName="dailyDistanceKm"
               />
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cargo atual — somente leitura na edição -->
+      <div class="pk-form-section" *ngIf="employeToEdit">
+        <h3 class="pk-form-section__title">
+          <i class="pi pi-briefcase"></i> Cargo Atual
+        </h3>
+        <p class="pk-form-section__hint">
+          Dados do cargo atual do funcionário. Para alterar, use Cargos & Níveis.
+        </p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Cargo</label>
+            <div class="readonly-value">{{ employeToEdit.positionName || '—' }}</div>
+          </div>
+          <div class="form-field">
+            <label>Nível</label>
+            <div class="readonly-value">{{ employeToEdit.positionLevelName || '—' }}</div>
+          </div>
+          <div class="form-field">
+            <label>Contrato</label>
+            <div class="readonly-value">{{ employeToEdit.contractType || '—' }}</div>
+          </div>
+          <div class="form-field">
+            <label>Salário</label>
+            <div class="readonly-value">{{ employeToEdit.salary ? (employeToEdit.salary | currency:'BRL') : '—' }}</div>
+          </div>
+          <div class="form-field">
+            <label>Data de admissão</label>
+            <div class="readonly-value">{{ employeToEdit.hiringDate ? (employeToEdit.hiringDate | date:'dd/MM/yyyy') : '—' }}</div>
+          </div>
+          <div class="form-field">
+            <label>Saldo de férias</label>
+            <div class="readonly-value">{{ employeToEdit.vacationBalanceDays != null ? employeToEdit.vacationBalanceDays + ' dias' : '—' }}</div>
           </div>
         </div>
       </div>

@@ -38,7 +38,12 @@
 
     <ng-template #bodyTpl let-p>
       <tr class="table-row" [class.table-row--selected]="selectedPosition?.id === p.id">
-        <td>{{ p.name }}</td>
+        <td>
+          <div class="position-cell">
+            <span class="position-icon"><i class="pi pi-briefcase"></i></span>
+            <span>{{ p.name }}</span>
+          </div>
+        </td>
         <td class="col-center">
           <button pButton type="button" icon="pi pi-list" label="Ver Níveis" class="action-btn" (click)="selectPosition(p)"></button>
         </td>
@@ -87,8 +92,18 @@
         <ng-template #bodyTpl let-l>
           <tr class="table-row">
             <td><span class="code-badge">{{ l.levelOrder }}</span></td>
-            <td>{{ l.name }}</td>
-            <td>{{ l.adjustmentType === 'FIXED' ? 'Fixo' : 'Percentual' }}</td>
+            <td>
+              <div class="level-cell">
+                <span class="level-icon"><i class="pi pi-star"></i></span>
+                <span>{{ l.name }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="type-badge" [class.type-badge--fixed]="l.adjustmentType === 'FIXED'" [class.type-badge--pct]="l.adjustmentType !== 'FIXED'">
+                <i [class]="l.adjustmentType === 'FIXED' ? 'pi pi-lock' : 'pi pi-percentage'"></i>
+                {{ l.adjustmentType === 'FIXED' ? 'Fixo' : 'Percentual' }}
+              </span>
+            </td>
             <td>
               @if (l.adjustmentType === 'FIXED') {
                 {{ l.fixedAmount | currency:'BRL' }}

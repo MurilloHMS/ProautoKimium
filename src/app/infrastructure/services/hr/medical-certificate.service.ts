@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -23,6 +23,10 @@ export class MedicalCertificateService {
     return this.http.get<MedicalCertificate[]>(`${environment.apiUrl}/hr/medical-certificates/me`);
   }
 
+  getAll(): Observable<MedicalCertificate[]> {
+    return this.http.get<MedicalCertificate[]>(`${environment.apiUrl}/hr/medical-certificates`);
+  }
+
   submit(payload: SubmitMedicalCertificatePayload): Observable<MedicalCertificate> {
     const formData = new FormData();
     formData.append('startDate', payload.startDate);
@@ -36,9 +40,10 @@ export class MedicalCertificateService {
     return this.http.post<MedicalCertificate>(`${environment.apiUrl}/hr/medical-certificates`, formData);
   }
 
-  download(id: string): Observable<Blob> {
+  download(id: string): Observable<HttpResponse<Blob>> {
     return this.http.get(`${environment.apiUrl}/hr/medical-certificates/${id}/file`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      observe: 'response',
     });
   }
 }

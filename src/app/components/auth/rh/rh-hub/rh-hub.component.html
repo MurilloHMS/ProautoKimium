@@ -202,14 +202,17 @@
 
   <section class="shortcuts">
     <h2>Ferramentas</h2>
-    <div class="shortcuts__grid">
-      @for (tool of tools; track tool.key) {
-        <a [routerLink]="tool.route" class="shortcut">
-          <i [class]="tool.icon"></i>
-          <span>{{ tool.title }}</span>
-        </a>
-      }
-    </div>
+    @for (group of toolGroups; track group.label) {
+      <h3 class="shortcuts__group-label">{{ group.label }}</h3>
+      <div class="shortcuts__grid">
+        @for (tool of group.tools; track tool.key) {
+          <a [routerLink]="tool.route" class="shortcut">
+            <i [class]="tool.icon"></i>
+            <span>{{ tool.title }}</span>
+          </a>
+        }
+      </div>
+    }
   </section>
 
 </div>

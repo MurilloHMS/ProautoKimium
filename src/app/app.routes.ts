@@ -65,6 +65,7 @@ import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/h
 import { HrVacationRequestsComponent } from './components/auth/hr-vacation-requests/hr-vacation-requests.component';
 import { HrAnnouncementsComponent } from './components/auth/hr-announcements/hr-announcements.component';
 import { HrAnnouncementsManagerComponent } from './components/auth/rh/hr-announcements-manager/hr-announcements-manager.component';
+import { MedicalCertificatesManagerComponent } from './components/auth/rh/medical-certificates-manager/medical-certificates-manager.component';
 import { RhHubComponent } from './components/auth/rh/rh-hub/rh-hub.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
 
@@ -111,6 +112,7 @@ export const routes: Routes = [
       { path: 'rh/equipment-assignments', component: HrEquipmentAssignmentsComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/notifications', component: HrNotificationsComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/announcements', component: HrAnnouncementsManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/medical-certificates', component: MedicalCertificatesManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
       { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },

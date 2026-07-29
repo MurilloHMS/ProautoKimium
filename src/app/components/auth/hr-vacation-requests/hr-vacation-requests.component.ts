@@ -2,6 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { VacationRequestService } from '../../../infrastructure/services/hr/vacation-request.service';
 import { VacationRequest, VacationRequestStatus } from '../../../domain/models/hr/vacation-request.model';
@@ -9,7 +11,8 @@ import { VacationRequest, VacationRequestStatus } from '../../../domain/models/h
 @Component({
   selector: 'app-hr-vacation-requests',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, ToastModule, PkButtonComponent],
+  providers: [MessageService],
   templateUrl: './hr-vacation-requests.component.html',
   styleUrl: './hr-vacation-requests.component.scss',
 })
@@ -28,7 +31,7 @@ export class HrVacationRequestsComponent implements OnInit {
     REJECTED: 'Recusado',
   };
 
-  constructor(private service: VacationRequestService, private fb: FormBuilder) {
+  constructor(private service: VacationRequestService, private fb: FormBuilder, private messageService: MessageService) {
     this.form = this.fb.group({
       startDate: [null, Validators.required],
       endDate: [null, Validators.required],
@@ -87,9 +90,14 @@ export class HrVacationRequestsComponent implements OnInit {
         next: () => {
           this.enviando.set(false);
           this.form.reset();
+          this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Solicitação de férias enviada!' });
           this.carregar();
         },
-        error: () => this.enviando.set(false),
+        error: (err) => {
+          this.enviando.set(false);
+          const detail = this.getErrorMessage(err);
+          this.messageService.add({ severity: 'error', summary: 'Erro', detail });
+        },
       });
   }
 
@@ -106,5 +114,15 @@ export class HrVacationRequestsComponent implements OnInit {
 
   statusLabel(status: VacationRequestStatus): string {
     return this.statusLabels[status];
+  }
+
+  private getErrorMessage(err: any): string {
+    switch (err.status) {
+      case 404: return 'Funcionário não encontrado. Verifique seu cadastro com o RH.';
+      case 409: return err.error?.message ?? 'Saldo de férias insuficiente ou conflito de datas.';
+      case 403: return 'Sem permissão para esta ação.';
+      case 0:   return 'Sem conexão com o servidor.';
+      default:  return `Erro inesperado (${err.status}).`;
+    }
   }
 }

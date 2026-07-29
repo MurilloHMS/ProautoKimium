@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import {
   EmployeeVacationOverview,
   ReviewVacationRequestPayload,
+  VacationAlert,
   VacationRequest,
   VacationRequestStatus
 } from '../../../domain/models/hr/vacation-request.model';
@@ -43,5 +44,9 @@ export class VacationRequestService {
 
   reject(id: string, payload: ReviewVacationRequestPayload): Observable<VacationRequest> {
     return this.http.post<VacationRequest>(`${environment.apiUrl}/hr/vacation-requests/${id}/reject`, payload);
+  }
+
+  getAlerts(): Observable<VacationAlert[]> {
+    return this.http.get<VacationAlert[]>(`${environment.apiUrl}/hr/vacation-requests/alerts`);
   }
 }

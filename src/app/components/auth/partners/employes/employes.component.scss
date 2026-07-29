@@ -9,6 +9,18 @@
   line-height: 1.4;
 }
 
+.readonly-value {
+  padding: 8px 12px;
+  background: rgba(35, 46, 97, 0.04);
+  border-radius: v.$radius-sm;
+  font-size: 0.88rem;
+  color: v.$text-primary;
+  font-weight: 500;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
 // ─── Table Card ───────────────────────────────────────────────────────────────
 .table-card {
   background: v.$bg-panel;

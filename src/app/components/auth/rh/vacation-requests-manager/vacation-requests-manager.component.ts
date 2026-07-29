@@ -5,19 +5,21 @@ import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
+import { ButtonDirective } from 'primeng/button';
+import { Tooltip } from 'primeng/tooltip';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
-import { VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
+import { VacationAlert, VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
 
 type ReviewAction = 'approve' | 'reject';
 
 @Component({
   selector: 'app-vacation-requests-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip],
   templateUrl: './vacation-requests-manager.component.html',
   styleUrl: './vacation-requests-manager.component.scss',
   providers: [MessageService],
@@ -35,6 +37,10 @@ export class VacationRequestsManagerComponent implements OnInit {
     { label: 'Todas', value: null },
   ];
 
+  alerts: VacationAlert[] = [];
+  alertsLoading = false;
+  showAlerts = false;
+
   reviewDialogVisible = false;
   reviewAction: ReviewAction = 'approve';
   reviewTarget: VacationRequest | null = null;
@@ -50,6 +56,7 @@ export class VacationRequestsManagerComponent implements OnInit {
   ngOnInit(): void {
     this.loadEmployeeNames();
     this.load();
+    this.loadAlerts();
   }
 
   loadEmployeeNames(): void {
@@ -128,6 +135,37 @@ export class VacationRequestsManagerComponent implements OnInit {
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
       },
     });
+  }
+
+  loadAlerts(): void {
+    this.alertsLoading = true;
+    this.vacationRequestService.getAlerts().subscribe({
+      next: (list) => {
+        this.alerts = list.filter(a => a.alertLevel !== 'OK');
+        this.alertsLoading = false;
+        this.showAlerts = this.alerts.length > 0;
+      },
+      error: () => {
+        this.alertsLoading = false;
+      },
+    });
+  }
+
+  alertIcon(level: string): string {
+    switch (level) {
+      case 'EXPIRED': return 'pi pi-exclamation-circle';
+      case 'CRITICAL': return 'pi pi-exclamation-triangle';
+      default: return 'pi pi-info-circle';
+    }
+  }
+
+  alertLabel(level: string): string {
+    switch (level) {
+      case 'EXPIRED': return 'Vencido';
+      case 'CRITICAL': return 'Critico';
+      case 'WARNING': return 'Atencao';
+      default: return level;
+    }
   }
 
   private getErrorMessage(err: any): string {

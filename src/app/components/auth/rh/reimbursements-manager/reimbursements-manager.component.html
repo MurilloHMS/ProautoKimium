@@ -70,7 +70,7 @@
           } @else if (r.status === 'APPROVED') {
             <button pButton type="button" icon="pi pi-money-bill" label="Pagar" class="action-btn action-btn--pay" (click)="openPay(r)"></button>
           }
-          <button pButton type="button" icon="pi" [ngClass]="baixandoId === r.id ? 'pi-spin pi-spinner' : 'pi-download'"
+          <button pButton type="button" [icon]="baixandoId === r.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
                   class="action-btn" pTooltip="Ver comprovante" tooltipPosition="left"
                   [disabled]="baixandoId === r.id" (click)="baixarComprovante(r)"></button>
         </td>

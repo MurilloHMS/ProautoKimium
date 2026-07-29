@@ -89,20 +89,56 @@ export class TopMenuComponent implements OnInit, OnDestroy {
         icon: 'pi pi-fw pi-users',
         items: [
           { label: 'Painel RH', icon: 'pi pi-fw pi-th-large', routerLink: ['rh/hub'], roles: ['ADMIN', 'RH'] },
-          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
-          { label: 'Holerit',                icon: 'pi pi-fw pi-file',      routerLink: ['rh/holerit'],          roles: ['ADMIN', 'RH'] },
-          { label: 'Coletar dados Holerite',  icon: 'pi pi-fw pi-file-arrow-up',      routerLink: ['rh/holerit/extractor'],roles: ['ADMIN', 'RH'] },
-          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], roles: ['ADMIN', 'RH'] },
-          { label: 'Estrutura Organizacional', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], roles: ['ADMIN', 'RH'] },
-          { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], roles: ['ADMIN', 'RH'] },
-          { label: 'Aprovar Férias', icon: 'pi pi-fw pi-sun', routerLink: ['rh/vacation-requests'], roles: ['ADMIN', 'RH'] },
-          { label: 'Gerenciar Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], roles: ['ADMIN', 'RH'] },
-          { label: 'Calendário RH', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], roles: ['ADMIN', 'RH'] },
-          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], roles: ['ADMIN', 'RH'] },
-          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], roles: ['ADMIN', 'RH'] },
-          { label: 'Controle de Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], roles: ['ADMIN', 'RH'] },
-          { label: 'Enviar Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], roles: ['ADMIN', 'RH'] },
-          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/announcements'], roles: ['ADMIN', 'RH'] }
+          {
+            label: 'Aprovações',
+            icon: 'pi pi-fw pi-check-circle',
+            roles: ['ADMIN', 'RH'],
+            items: [
+              { label: 'Férias', icon: 'pi pi-fw pi-sun', routerLink: ['rh/vacation-requests'], roles: ['ADMIN', 'RH'] },
+              { label: 'Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], roles: ['ADMIN', 'RH'] },
+              { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], roles: ['ADMIN', 'RH'] },
+            ],
+          },
+          {
+            label: 'Pessoas',
+            icon: 'pi pi-fw pi-user',
+            roles: ['ADMIN', 'RH'],
+            items: [
+              { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], roles: ['ADMIN', 'RH'] },
+              { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], roles: ['ADMIN', 'RH'] },
+              { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], roles: ['ADMIN', 'RH'] },
+            ],
+          },
+          {
+            label: 'Organização',
+            icon: 'pi pi-fw pi-sitemap',
+            roles: ['ADMIN', 'RH'],
+            items: [
+              { label: 'Estrutura', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], roles: ['ADMIN', 'RH'] },
+              { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], roles: ['ADMIN', 'RH'] },
+              { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], roles: ['ADMIN', 'RH'] },
+            ],
+          },
+          {
+            label: 'Ferramentas',
+            icon: 'pi pi-fw pi-wrench',
+            roles: ['ADMIN', 'RH'],
+            items: [
+              { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], roles: ['ADMIN', 'RH'] },
+              { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['rh/holerit'], roles: ['ADMIN', 'RH'] },
+              { label: 'Coletar Holerite', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/holerit/extractor'], roles: ['ADMIN', 'RH'] },
+            ],
+          },
+          {
+            label: 'Comunicação',
+            icon: 'pi pi-fw pi-megaphone',
+            roles: ['ADMIN', 'RH'],
+            items: [
+              { label: 'Mural de Avisos', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/announcements'], roles: ['ADMIN', 'RH'] },
+              { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], roles: ['ADMIN', 'RH'] },
+              { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], roles: ['ADMIN', 'RH'] },
+            ],
+          },
         ],
       },
       {
