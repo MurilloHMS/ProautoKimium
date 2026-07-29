@@ -147,6 +147,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: ['', Validators.required],
       localUso: ['', Validators.required],
       descricao: ['', Validators.required],
+      descricaoGuia: [''],
       equipmentId: [null],
     });
   }
@@ -161,6 +162,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: ['', Validators.required],
       localUso: ['', Validators.required],
       descricao: ['', Validators.required],
+      descricaoGuia: [''],
       equipmentId: [null],
     });
   }
@@ -215,6 +217,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: '',
       localUso: '',
       descricao: '',
+      descricaoGuia: '',
       equipmentId: null,
     });
 
@@ -244,6 +247,7 @@ export class WebsiteComponent implements OnInit {
       concentracao: product.concentracao,
       localUso: product.localUso,
       descricao: product.descricao,
+      descricaoGuia: product.descricaoGuia ?? '',
       equipmentId: product.equipmentId ?? null,
     });
 

@@ -430,7 +430,7 @@
         <span class="divider-label"><i class="pi pi-align-left"></i> Descrição</span>
       </p-divider>
       <div class="form-field field-full">
-        <label for="descricao">Descrição <span class="required">*</span></label>
+        <label for="descricao">Descrição do Site <span class="required">*</span></label>
         <textarea
           id="descricao"
           pTextarea
@@ -443,6 +443,16 @@
         @if (isFieldInvalid('descricao')) {
           <small class="field-error">Descrição é obrigatória.</small>
         }
+      </div>
+      <div class="form-field field-full">
+        <label for="descricaoGuia">Descrição do Guia <small class="label-hint">(texto curto para o guia de utilização — opcional)</small></label>
+        <input
+          id="descricaoGuia"
+          pInputText
+          formControlName="descricaoGuia"
+          placeholder="Ex: Lavagem de Louças, Talheres e Utensílios"
+          maxlength="300"
+          style="width: 100%;" />
       </div>
     </div>
 
@@ -677,7 +687,7 @@
         <span class="divider-label"><i class="pi pi-align-left"></i> Descrição</span>
       </p-divider>
       <div class="form-field field-full">
-        <label for="c-descricao">Descrição <span class="required">*</span></label>
+        <label for="c-descricao">Descrição do Site <span class="required">*</span></label>
         <textarea
           id="c-descricao"
           pTextarea
@@ -690,6 +700,16 @@
         @if (isCreateFieldInvalid('descricao')) {
           <small class="field-error">Descrição é obrigatória.</small>
         }
+      </div>
+      <div class="form-field field-full">
+        <label for="c-descricaoGuia">Descrição do Guia <small class="label-hint">(texto curto para o guia de utilização — opcional)</small></label>
+        <input
+          id="c-descricaoGuia"
+          pInputText
+          formControlName="descricaoGuia"
+          placeholder="Ex: Lavagem de Louças, Talheres e Utensílios"
+          maxlength="300"
+          style="width: 100%;" />
       </div>
     </div>
 
