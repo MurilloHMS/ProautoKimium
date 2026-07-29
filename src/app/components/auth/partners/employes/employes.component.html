@@ -419,35 +419,44 @@
         <h3 class="pk-form-section__title">
           <i class="pi pi-briefcase"></i> Cargo Atual
         </h3>
-        <p class="pk-form-section__hint">
-          Dados do cargo atual do funcionário. Para alterar, use Cargos & Níveis.
-        </p>
-        <div class="form-grid">
-          <div class="form-field">
-            <label>Cargo</label>
-            <div class="readonly-value">{{ employeToEdit.positionName || '—' }}</div>
+        <ng-container *ngIf="employeToEdit.positionName; else semCargo">
+          <p class="pk-form-section__hint">
+            Dados do cargo atual do funcionário. Para alterar, use Cargos & Níveis.
+          </p>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Cargo</label>
+              <div class="readonly-value">{{ employeToEdit.positionName }}</div>
+            </div>
+            <div class="form-field">
+              <label>Nível</label>
+              <div class="readonly-value">{{ employeToEdit.positionLevelName || '—' }}</div>
+            </div>
+            <div class="form-field">
+              <label>Contrato</label>
+              <div class="readonly-value">{{ employeToEdit.contractType || '—' }}</div>
+            </div>
+            <div class="form-field">
+              <label>Salário</label>
+              <div class="readonly-value">{{ employeToEdit.salary ? (employeToEdit.salary | currency:'BRL') : '—' }}</div>
+            </div>
+            <div class="form-field">
+              <label>Data de admissão</label>
+              <div class="readonly-value">{{ employeToEdit.hiringDate ? (employeToEdit.hiringDate | date:'dd/MM/yyyy') : '—' }}</div>
+            </div>
+            <div class="form-field">
+              <label>Saldo de férias</label>
+              <div class="readonly-value">{{ employeToEdit.vacationBalanceDays != null ? employeToEdit.vacationBalanceDays + ' dias' : '—' }}</div>
+            </div>
           </div>
-          <div class="form-field">
-            <label>Nível</label>
-            <div class="readonly-value">{{ employeToEdit.positionLevelName || '—' }}</div>
+        </ng-container>
+        <ng-template #semCargo>
+          <div class="no-career-notice">
+            <i class="pi pi-info-circle"></i>
+            <span>Este funcionário não tem cargo atribuído. Atribua um cargo para definir salário, contrato e data de admissão.</span>
+            <pk-button pkType="new" (clicked)="openCareerDialog(employeToEdit)" pkLabel="Atribuir Cargo" pkSize="sm"/>
           </div>
-          <div class="form-field">
-            <label>Contrato</label>
-            <div class="readonly-value">{{ employeToEdit.contractType || '—' }}</div>
-          </div>
-          <div class="form-field">
-            <label>Salário</label>
-            <div class="readonly-value">{{ employeToEdit.salary ? (employeToEdit.salary | currency:'BRL') : '—' }}</div>
-          </div>
-          <div class="form-field">
-            <label>Data de admissão</label>
-            <div class="readonly-value">{{ employeToEdit.hiringDate ? (employeToEdit.hiringDate | date:'dd/MM/yyyy') : '—' }}</div>
-          </div>
-          <div class="form-field">
-            <label>Saldo de férias</label>
-            <div class="readonly-value">{{ employeToEdit.vacationBalanceDays != null ? employeToEdit.vacationBalanceDays + ' dias' : '—' }}</div>
-          </div>
-        </div>
+        </ng-template>
       </div>
 
       <!-- Cargo inicial — só na criação, vira o primeiro CareerHistory (HIRING) -->
@@ -581,5 +590,82 @@
                [pkDisabled]="!selectedUserLogin" [pkLoading]="linkSaving"/>
   </div>
 
+</pk-dialog>
+
+<!-- Dialog: Atribuir cargo -->
+<pk-dialog
+  header="Atribuir Cargo"
+  [visible]="careerDialogVisible"
+  (visibleChange)="careerDialogVisible = $event">
+
+  <div pkDialogContent>
+    <p class="review-target" *ngIf="careerTarget">
+      <i class="pi pi-user"></i>
+      <strong>{{ careerTarget.name }}</strong>
+      <span class="code-badge">{{ careerTarget.partnerCode }}</span>
+    </p>
+
+    <form [formGroup]="careerForm" class="dialog-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="careerPositionId">Cargo <span class="required">*</span></label>
+          <p-select
+            id="careerPositionId"
+            [options]="careerPositionOptions"
+            formControlName="positionId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            [filter]="true"
+            placeholder="Selecione…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <label for="careerLevelId">Nível <span class="required">*</span></label>
+          <p-select
+            id="careerLevelId"
+            [options]="careerLevelOptions"
+            formControlName="positionLevelId"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            placeholder="Selecione um cargo primeiro…"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <label for="careerContractType">Tipo de contrato <span class="required">*</span></label>
+          <p-select
+            id="careerContractType"
+            [options]="contractTypeOptions"
+            formControlName="contractType"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            styleClass="select-field">
+          </p-select>
+        </div>
+        <div class="form-field">
+          <label for="careerHiringDate">Data de admissão <span class="required">*</span></label>
+          <p-datepicker
+            id="careerHiringDate"
+            formControlName="hiringDate"
+            [showButtonBar]="true"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+            styleClass="datepicker-field"
+            placeholder="dd/mm/aaaa">
+          </p-datepicker>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="careerDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="save" (clicked)="saveCareer()" pkLabel="Salvar" pkSize="sm"
+               [pkDisabled]="careerForm.invalid" [pkLoading]="careerSaving"/>
+  </div>
 </pk-dialog>
 </div>
