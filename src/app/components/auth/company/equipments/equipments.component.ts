@@ -19,6 +19,7 @@ import {
   EquipmentUpdateDTO
 } from '../../../../domain/models/equipment.model';
 import { EquipmentService } from '../../../../infrastructure/services/company/equipment/equipment.service';
+import {ButtonDirective} from "primeng/button";
 
 @Component({
   selector: 'app-equipments',
@@ -35,6 +36,7 @@ import { EquipmentService } from '../../../../infrastructure/services/company/eq
     PkDialogComponent,
     PkInputComponent,
     PkButtonComponent,
+    ButtonDirective,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './equipments.component.html',
