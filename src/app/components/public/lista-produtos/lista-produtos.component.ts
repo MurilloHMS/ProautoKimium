@@ -106,9 +106,7 @@ export class ListaProdutosComponent implements OnInit {
       return produto.imagem;
     }
 
-    const origem = new URL(environment.apiUrl).origin;
-    const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
-    return `${origem}${caminho}`;
+    return produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
   }
 
   slugDepartamento(nome: string): string {

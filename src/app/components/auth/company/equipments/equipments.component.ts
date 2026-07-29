@@ -13,7 +13,6 @@ import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dia
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 
-import { environment } from '../../../../../environments/environment';
 import {
   EquipmentCreateDTO,
   EquipmentResponseDTO,
@@ -281,8 +280,6 @@ export class EquipmentsComponent implements OnInit {
       return path;
     }
 
-    const origem = new URL(environment.apiUrl).origin;
-    const caminho = path.startsWith('/') ? path : `/${path}`;
-    return `${origem}${caminho}`;
+    return path.startsWith('/') ? path : `/${path}`;
   }
 }

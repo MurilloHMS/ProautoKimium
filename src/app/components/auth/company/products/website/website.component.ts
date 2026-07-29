@@ -17,8 +17,6 @@ import { DividerModule } from 'primeng/divider';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { SelectModule } from 'primeng/select';
-import { environment } from '../../../../../../environments/environment';
-
 import { EquipmentService } from '../../../../../infrastructure/services/company/equipment/equipment.service';
 import { EquipmentResponseDTO } from '../../../../../domain/models/equipment.model';
 
@@ -542,9 +540,8 @@ export class WebsiteComponent implements OnInit {
       return produto.imagem;
     }
 
-    const origem = new URL(environment.apiUrl).origin;
     const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
-    return `${origem}${caminho}`;
+    return caminho;
   }
 
   get totalProdutos(): number {
