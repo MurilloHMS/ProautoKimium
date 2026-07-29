@@ -52,7 +52,7 @@ $border-dark:         #d1d5db;
 
 // ─── Tipografia ────────────────────────────────────────────────────────────────
 $font-body:           'Inter', sans-serif;
-$font-heading:        'Montserrat', sans-serif;
+$font-heading:        'Plus Jakarta Sans', sans-serif;
 $font-mono:           'Courier New', monospace;
 
 $font-size-xs:        0.72rem;
@@ -80,11 +80,12 @@ $space-12:  3rem;     // 48px
 // ─── Bordas Arredondadas ────────────────────────────────────────────────────────
 $radius-sm:   6px;
 $radius-md:   10px;
-$radius-lg:   14px;
+$radius-lg:   12px;
 $radius-xl:   18px;
 $radius-full: 9999px;
 
 // ─── Sombras ───────────────────────────────────────────────────────────────────
+$shadow-xs:   0 1px 2px rgba(0, 0, 0, 0.04);
 $shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 $shadow-md:   0 4px 16px rgba(35, 46, 97, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
 $shadow-lg:   0 12px 40px rgba(35, 46, 97, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06);

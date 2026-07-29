@@ -1,5 +1,15 @@
 @use 'variables' as v;
 
+@mixin page-layout {
+  display: block;
+  padding: 24px 32px 32px;
+  min-height: 100%;
+
+  @media (max-width: v.$bp-md) {
+    padding: 16px;
+  }
+}
+
 @mixin card-base {
   background: v.$bg-panel;
   border: 1px solid v.$border;

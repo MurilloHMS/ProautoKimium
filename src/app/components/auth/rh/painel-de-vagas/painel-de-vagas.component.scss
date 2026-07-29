@@ -1,10 +1,19 @@
 @use 'variables' as v;
+@use 'mixins' as m;
 @use 'sass:color';
 @use 'typography';
 @use 'buttons';
 @use 'tabs';
 @use 'tables';
 @use 'chips';
+
+:host { @include m.page-layout; }
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
 
 // ── Header ────────────────────────────────────────────────────────────────────
 .painel-header {
