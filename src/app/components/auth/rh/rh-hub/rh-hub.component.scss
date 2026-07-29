@@ -546,6 +546,21 @@
   }
 }
 
+.shortcuts__group-label {
+  font-family: v.$font-heading;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #b0b7cc;
+  margin: 18px 0 8px;
+  padding-left: 2px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
 .shortcuts__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

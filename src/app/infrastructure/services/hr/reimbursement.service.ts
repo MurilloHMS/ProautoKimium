@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -39,9 +39,10 @@ export class ReimbursementService {
     return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements`, formData);
   }
 
-  downloadReceipt(id: string): Observable<Blob> {
+  downloadReceipt(id: string): Observable<HttpResponse<Blob>> {
     return this.http.get(`${environment.apiUrl}/hr/reimbursements/${id}/receipt`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      observe: 'response',
     });
   }
 

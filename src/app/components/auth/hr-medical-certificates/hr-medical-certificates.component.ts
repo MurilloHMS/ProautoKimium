@@ -133,16 +133,22 @@ export class HrMedicalCertificatesComponent implements OnInit {
   baixar(cert: MedicalCertificate): void {
     this.baixandoId.set(cert.id);
     this.service.download(cert.id).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = cert.originalFilename;
-        a.click();
-        URL.revokeObjectURL(url);
+      next: (resp) => {
+        this.triggerDownload(resp.body!, cert.originalFilename);
         this.baixandoId.set(null);
       },
       error: () => this.baixandoId.set(null),
     });
+  }
+
+  private triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 200);
   }
 }

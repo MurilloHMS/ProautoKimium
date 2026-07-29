@@ -13,13 +13,18 @@ export interface Employee{
   teamId?: string | null,
   positionId?: string | null,
   positionLevelId?: string | null,
+  positionName?: string | null,
+  positionLevelName?: string | null,
   contractType?: ContractType | null,
   hiringDate?: Date | string | null,
+  salary?: number | null,
   transportType?: TransportType | null,
   dailyCommutesCount?: number | null,
+  dailyMealsCount?: number | null,
   ticketPrice?: number | null,
   vehicleKmPerLiter?: number | null,
   dailyDistanceKm?: number | null,
+  vacationBalanceDays?: number | null,
 }
 
 export enum ContractType {

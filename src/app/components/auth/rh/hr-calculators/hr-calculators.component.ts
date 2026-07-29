@@ -269,6 +269,7 @@ export class HrCalculatorsComponent implements OnInit {
       case 401: return 'Não autorizado. Faça login novamente';
       case 403: return 'Você não tem permissão para esta ação';
       case 404: return 'Funcionário não encontrado ou sem dados cadastrados';
+      case 409: return err.error?.message ?? 'Funcionário sem dados necessários para o cálculo (refeições, histórico de carreira, etc.)';
       case 500: return 'Erro interno do servidor';
       case 0:   return 'Sem conexão com o servidor';
       default:  return `Erro inesperado (${err.status})`;

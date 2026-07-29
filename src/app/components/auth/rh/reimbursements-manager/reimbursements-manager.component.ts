@@ -105,17 +105,23 @@ export class ReimbursementsManagerComponent implements OnInit {
   baixarComprovante(r: Reimbursement): void {
     this.baixandoId = r.id;
     this.reimbursementService.downloadReceipt(r.id).subscribe({
-      next: (blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = r.receiptOriginalFilename;
-        a.click();
-        URL.revokeObjectURL(url);
+      next: (resp) => {
+        this.triggerDownload(resp.body!, r.receiptOriginalFilename);
         this.baixandoId = null;
       },
       error: () => (this.baixandoId = null),
     });
+  }
+
+  private triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 200);
   }
 
   // ---- Aprovar / Recusar ----
@@ -197,8 +203,8 @@ export class ReimbursementsManagerComponent implements OnInit {
       case 400: return 'Requisição inválida';
       case 401: return 'Não autorizado. Faça login novamente';
       case 403: return 'Você não tem permissão para esta ação';
-      case 404: return 'Recurso não encontrado';
-      case 409: return 'Registro já existe';
+      case 404: return err.error?.message ?? 'Funcionário ou reembolso não encontrado. Verifique se seu usuário está vinculado a um funcionário.';
+      case 409: return err.error?.message ?? 'Conflito ao processar a solicitação';
       case 422: return 'Dados inválidos';
       case 500: return 'Erro interno do servidor';
       case 0:   return 'Sem conexão com o servidor';

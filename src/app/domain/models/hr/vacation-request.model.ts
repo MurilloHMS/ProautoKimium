@@ -22,3 +22,17 @@ export interface EmployeeVacationOverview {
 export interface ReviewVacationRequestPayload {
   notes: string;
 }
+
+export type VacationAlertLevel = 'OK' | 'WARNING' | 'CRITICAL' | 'EXPIRED';
+
+export interface VacationAlert {
+  employeeId: string;
+  employeeName: string;
+  hiringDate: string;
+  completedPeriods: number;
+  totalEarnedDays: number;
+  totalUsedDays: number;
+  balanceDays: number;
+  concessionDeadline: string;
+  alertLevel: VacationAlertLevel;
+}

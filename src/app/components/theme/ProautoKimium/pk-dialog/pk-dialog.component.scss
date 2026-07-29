@@ -3,12 +3,13 @@
 ::ng-deep .pk-dialog {
   border-radius: v.$radius-xl !important;
   box-shadow: v.$shadow-lg !important;
-  overflow: hidden;
+  overflow: visible;
 
   .p-dialog-header {
     background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
     color: #fff;
     padding: 1.25rem 1.5rem;
+    border-radius: v.$radius-xl v.$radius-xl 0 0;
 
     .p-dialog-title {
       font-family: v.$font-heading;

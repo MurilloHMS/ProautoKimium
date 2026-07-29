@@ -26,6 +26,41 @@
   </div>
 </div>
 
+<!-- Alertas CLT -->
+@if (showAlerts) {
+  <div class="alerts-panel">
+    <div class="alerts-panel__header" (click)="showAlerts = !showAlerts">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span><strong>{{ alerts.length }}</strong> alerta{{ alerts.length > 1 ? 's' : '' }} de ferias (CLT)</span>
+      <i class="pi" [ngClass]="showAlerts ? 'pi-chevron-up' : 'pi-chevron-down'" style="margin-left: auto;"></i>
+    </div>
+    <div class="alerts-panel__body">
+      @for (alert of alerts; track alert.employeeId) {
+        <div class="alert-card" [ngClass]="'alert-card--' + alert.alertLevel.toLowerCase()">
+          <div class="alert-card__icon">
+            <i [class]="alertIcon(alert.alertLevel)"></i>
+          </div>
+          <div class="alert-card__content">
+            <div class="alert-card__name">{{ alert.employeeName }}</div>
+            <div class="alert-card__meta">
+              Admissao: {{ formatDate(alert.hiringDate) }} · {{ alert.completedPeriods }} periodo{{ alert.completedPeriods > 1 ? 's' : '' }} completo{{ alert.completedPeriods > 1 ? 's' : '' }}
+            </div>
+            <div class="alert-card__meta">
+              Saldo: <strong>{{ alert.balanceDays }} dias</strong> ({{ alert.totalEarnedDays }} adquiridos - {{ alert.totalUsedDays }} gozados)
+            </div>
+            <div class="alert-card__deadline">
+              Prazo concessivo: <strong>{{ formatDate(alert.concessionDeadline) }}</strong>
+            </div>
+          </div>
+          <span class="alert-badge" [ngClass]="'alert-badge--' + alert.alertLevel.toLowerCase()">
+            {{ alertLabel(alert.alertLevel) }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+}
+
 <div class="table-card">
   <pk-table
     [data]="requests"

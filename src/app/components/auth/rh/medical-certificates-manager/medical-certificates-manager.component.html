@@ -1,0 +1,76 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="page-header">
+  <div class="header-left">
+    <div class="header-icon">
+      <i class="pi pi-file-check"></i>
+    </div>
+    <div>
+      <h1 class="page-title">Atestados Medicos</h1>
+      <p class="page-subtitle">Todos os atestados enviados pelos funcionarios</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  </div>
+</div>
+
+<div class="table-card">
+  <pk-table
+    [data]="certificates"
+    [loading]="loading"
+    totalLabel="atestados encontrados"
+    searchPlaceholder="Buscar por nome..."
+    [filterFields]="['employeeName', 'originalFilename']"
+    emptyIcon="pi pi-file-check"
+    emptyTitle="Nenhum atestado encontrado"
+    emptySubtitle="Ainda nao ha atestados enviados."
+    pageReportTitle="Atestados">
+
+    <ng-template #headerTpl>
+      <tr>
+        <th pSortableColumn="employeeName">Funcionario <p-sortIcon field="employeeName"></p-sortIcon></th>
+        <th pSortableColumn="startDate">Inicio <p-sortIcon field="startDate"></p-sortIcon></th>
+        <th pSortableColumn="endDate">Fim <p-sortIcon field="endDate"></p-sortIcon></th>
+        <th pSortableColumn="daysCount">Dias <p-sortIcon field="daysCount"></p-sortIcon></th>
+        <th>Tipo</th>
+        <th pSortableColumn="submittedAt">Enviado em <p-sortIcon field="submittedAt"></p-sortIcon></th>
+        <th class="col-center">Arquivo</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-c>
+      <tr class="table-row">
+        <td>
+          <div class="employee-info">
+            <div class="employee-avatar">{{ c.employeeName?.charAt(0) | uppercase }}</div>
+            <span class="employee-name">{{ c.employeeName }}</span>
+          </div>
+        </td>
+        <td>{{ formatDate(c.startDate) }}</td>
+        <td>{{ formatDate(c.endDate) }}</td>
+        <td>
+          <span class="days-badge">{{ c.daysCount }}</span>
+        </td>
+        <td>
+          <span class="type-badge">
+            <i [class]="c.submissionType === 'PHOTO' ? 'pi pi-camera' : 'pi pi-file'"></i>
+            {{ submissionLabel(c.submissionType) }}
+          </span>
+        </td>
+        <td>{{ formatDateTime(c.submittedAt) }}</td>
+        <td class="col-center">
+          <button pButton type="button"
+                  [icon]="downloadingId === c.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
+                  class="action-btn"
+                  pTooltip="Baixar atestado"
+                  tooltipPosition="left"
+                  [disabled]="downloadingId === c.id"
+                  (click)="download(c)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+  </pk-table>
+</div>
