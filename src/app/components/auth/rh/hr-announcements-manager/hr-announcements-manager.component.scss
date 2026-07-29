@@ -1,4 +1,7 @@
 @use 'variables' as v;
+@use 'mixins' as m;
+
+:host { @include m.page-layout; }
 
 .header-actions {
   display: flex;

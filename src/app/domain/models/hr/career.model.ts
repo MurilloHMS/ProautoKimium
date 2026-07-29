@@ -29,6 +29,31 @@ export interface CreatePositionLevelRequest {
   percentageIncrease: number | null;
 }
 
+export type CareerChangeReason = 'HIRING' | 'PROMOTION' | 'POSITION_CHANGE' | 'COLLECTIVE_BARGAINING_ADJUSTMENT' | 'PJ_TRANSITION' | 'TERMINATION';
+export type ContractType = 'CLT' | 'PJ';
+
+export interface CreateCareerHistoryRequest {
+  employeeId: string;
+  positionId: string;
+  positionLevelId: string;
+  contractType: ContractType;
+  reason: CareerChangeReason;
+  effectiveDate: string;
+  notes?: string;
+}
+
+export interface CareerHistoryResponse {
+  id: string;
+  employeeId: string;
+  positionId: string;
+  positionLevelId: string;
+  salary: number;
+  contractType: ContractType;
+  reason: CareerChangeReason;
+  effectiveDate: string;
+  notes?: string;
+}
+
 export type AdjustmentScope = 'ALL_POSITIONS' | 'SPECIFIC_POSITION';
 
 export interface ApplyCollectiveBargainingAdjustmentRequest {

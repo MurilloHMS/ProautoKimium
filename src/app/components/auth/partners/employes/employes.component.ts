@@ -8,6 +8,7 @@ import { CompanyService } from '../../../../infrastructure/services/hr/company.s
 import { TeamService } from '../../../../infrastructure/services/hr/team.service';
 import { PositionService } from '../../../../infrastructure/services/hr/position.service';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
+import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
 import { MessageService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
@@ -43,6 +44,7 @@ export class EmployesComponent{
   visible: boolean = false;
   employee: Employee | null = null;
   form: FormGroup;
+  careerForm: FormGroup;
   dialogTitle: string = 'Adicionar Funcionário';
   employeToEdit: Employee | null = null;
   hierarchyList: {label: string, value: Hierarchy} [] = []
@@ -64,6 +66,13 @@ export class EmployesComponent{
     { label: 'Veículo Próprio', value: TransportType.VEHICLE },
   ];
 
+  // Atribuir cargo (CareerHistory)
+  careerDialogVisible = false;
+  careerTarget: Employee | null = null;
+  careerSaving = false;
+  careerPositionOptions: {label: string, value: string}[] = [];
+  careerLevelOptions: {label: string, value: string}[] = [];
+
   // Vínculo usuário <-> funcionário
   users: UserResponseDTO[] = [];
   linkVisible = false;
@@ -78,6 +87,7 @@ export class EmployesComponent{
     private teamService: TeamService,
     private positionService: PositionService,
     private positionLevelService: PositionLevelService,
+    private careerHistoryService: CareerHistoryService,
     private fb: FormBuilder,
     private msgService: MessageService
   ){
@@ -107,6 +117,15 @@ export class EmployesComponent{
 
     this.form.get('positionId')?.valueChanges.subscribe((positionId) => this.onPositionChange(positionId));
     this.form.get('transportType')?.valueChanges.subscribe((type) => this.onTransportTypeChange(type));
+
+    this.careerForm = this.fb.group({
+      positionId: [null, Validators.required],
+      positionLevelId: [{ value: null, disabled: true }, Validators.required],
+      contractType: [ContractType.CLT, Validators.required],
+      hiringDate: [null, Validators.required],
+    });
+
+    this.careerForm.get('positionId')?.valueChanges.subscribe((positionId) => this.onCareerPositionChange(positionId));
   }
 
   ngOnInit(){
@@ -371,6 +390,65 @@ export class EmployesComponent{
         });
       }
     }
+  }
+
+  openCareerDialog(employee: Employee): void {
+    this.careerTarget = employee;
+    this.careerForm.reset({ contractType: ContractType.CLT });
+    this.careerForm.get('positionLevelId')?.disable();
+    this.careerLevelOptions = [];
+    this.careerPositionOptions = this.positionOptions;
+    this.careerDialogVisible = true;
+  }
+
+  onCareerPositionChange(positionId: string | null): void {
+    const levelCtrl = this.careerForm.get('positionLevelId');
+    levelCtrl?.reset(null);
+    this.careerLevelOptions = [];
+
+    if (!positionId) { levelCtrl?.disable(); return; }
+
+    this.positionLevelService.getByPosition(positionId).subscribe({
+      next: (levels) => {
+        this.careerLevelOptions = levels.map(l => ({
+          label: `${l.name} — ${l.resolvedSalary.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+          value: l.id,
+        }));
+        levelCtrl?.enable();
+      },
+      error: () => { this.careerLevelOptions = []; levelCtrl?.disable(); },
+    });
+  }
+
+  saveCareer(): void {
+    if (!this.careerTarget || this.careerForm.invalid) return;
+    this.careerSaving = true;
+
+    const val = this.careerForm.getRawValue();
+    const effectiveDate = val.hiringDate instanceof Date
+      ? val.hiringDate.toISOString().split('T')[0]
+      : val.hiringDate;
+
+    this.careerHistoryService.create({
+      employeeId: this.careerTarget.id!,
+      positionId: val.positionId,
+      positionLevelId: val.positionLevelId,
+      contractType: val.contractType,
+      reason: 'HIRING',
+      effectiveDate,
+    }).subscribe({
+      next: () => {
+        this.careerSaving = false;
+        this.careerDialogVisible = false;
+        this.visible = false;
+        this.loadEmployes();
+        this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cargo atribuído ao funcionário.' });
+      },
+      error: (err) => {
+        this.careerSaving = false;
+        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
+      },
+    });
   }
 
   private getErrorMessage(err: any): string {
