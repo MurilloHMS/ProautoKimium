@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrcamentoService } from '../../../../../infrastructure/services/company/products/website/orcamento/orcamento.service';
-import { environment } from '../../../../../../environments/environment';
 import { ProductWebSitePublicResponseDTO } from '../../../../../domain/models/products.model';
 
 @Component({
@@ -37,8 +36,6 @@ export class OrcamentoDrawerComponent {
     if (produto.imagem.startsWith('http')) {
       return produto.imagem;
     }
-    const origem = new URL(environment.apiUrl).origin;
-    const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
-    return `${origem}${caminho}`;
+    return produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
   }
 }

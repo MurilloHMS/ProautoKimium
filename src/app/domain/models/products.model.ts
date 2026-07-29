@@ -29,6 +29,7 @@ export interface ProductWebSiteCreateDTO{
   concentracao: string;
   localUso: string;
   descricao: string;
+  descricaoGuia?: string;
   equipmentId?: string | null;
 }
 
@@ -41,6 +42,7 @@ export interface ProductWebSiteUpdateDTO{
   concentracao: string;
   localUso: string;
   descricao: string;
+  descricaoGuia?: string;
   equipmentId?: string | null;
 }
 
@@ -55,6 +57,7 @@ export interface ProductWebSiteResponseDTO{
   concentracao: string;
   localUso: string;
   descricao: string;
+  descricaoGuia?: string;
   imagem: string;
   equipmentId?: string | null;
 }
