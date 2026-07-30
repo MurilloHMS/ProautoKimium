@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   EmployeeVacationOverview,
+  RegisterVacationByRhPayload,
   ReviewVacationRequestPayload,
   VacationAlert,
   VacationRequest,
@@ -48,5 +49,9 @@ export class VacationRequestService {
 
   getAlerts(): Observable<VacationAlert[]> {
     return this.http.get<VacationAlert[]>(`${environment.apiUrl}/hr/vacation-requests/alerts`);
+  }
+
+  registerByRh(payload: RegisterVacationByRhPayload): Observable<VacationRequest> {
+    return this.http.post<VacationRequest>(`${environment.apiUrl}/hr/vacation-requests/register`, payload);
   }
 }

@@ -201,3 +201,123 @@
     color: #f57f17;
   }
 }
+
+// Register dialog
+.dialog-form { padding: 0; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+
+  &--full { grid-column: 1 / -1; }
+
+  label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: v.$neutral-900;
+  }
+
+  .required { color: v.$danger; }
+
+  textarea {
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$border;
+    font-size: .85rem;
+    padding: .5rem .75rem;
+    resize: vertical;
+    font-family: inherit;
+    width: 100%;
+
+    &:focus {
+      border-color: v.$primary-light;
+      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      outline: none;
+    }
+  }
+}
+
+.days-preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: v.$radius-sm;
+  background: rgba(87, 193, 171, 0.10);
+  color: v.$secondary-dark;
+  font-size: .85rem;
+
+  i { font-size: .9rem; }
+}
+
+.balance-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500 !important;
+  font-size: .84rem !important;
+
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: v.$primary;
+    cursor: pointer;
+  }
+}
+
+::ng-deep .select-field {
+  width: 100%;
+
+  .p-select {
+    width: 100%;
+    height: 38px;
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$border;
+    font-size: .85rem;
+
+    &:focus-within {
+      border-color: v.$primary-light;
+      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+    }
+  }
+}
+
+::ng-deep .datepicker-field {
+  width: 100%;
+
+  .p-datepicker-input {
+    height: 38px;
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$border;
+    font-size: .85rem;
+    padding: 0 .75rem;
+    width: 100%;
+
+    &:focus {
+      border-color: v.$primary-light;
+      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      outline: none;
+    }
+  }
+}
+
+::ng-deep .input-number-field {
+  width: 100%;
+
+  .p-inputnumber-input {
+    height: 38px;
+    border-radius: v.$radius-sm;
+    border: 1px solid v.$border;
+    font-size: .85rem;
+    width: 100%;
+  }
+}

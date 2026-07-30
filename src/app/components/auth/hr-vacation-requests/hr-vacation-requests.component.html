@@ -49,7 +49,7 @@
       @if (daysRequested !== null) {
         <p class="hrv-days-preview" [class.hrv-days-preview--over]="excedeSaldo">
           <i class="pi" [ngClass]="excedeSaldo ? 'pi-exclamation-triangle' : 'pi-info-circle'"></i>
-          {{ daysRequested }} dia(s) solicitado(s)
+          {{ daysRequested }} dia(s) útil(eis) solicitado(s)
           @if (excedeSaldo) {
             — maior que o seu saldo disponível
           }

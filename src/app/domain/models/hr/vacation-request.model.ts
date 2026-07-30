@@ -23,6 +23,14 @@ export interface ReviewVacationRequestPayload {
   notes: string;
 }
 
+export interface RegisterVacationByRhPayload {
+  employeeId: string;
+  startDate: string;
+  endDate: string;
+  vacationBalanceDays: number | null;
+  notes: string | null;
+}
+
 export type VacationAlertLevel = 'OK' | 'WARNING' | 'CRITICAL' | 'EXPIRED';
 
 export interface VacationAlert {
