@@ -26,31 +26,55 @@ function toKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-function getBrazilianHolidays(year: number): Set<string> {
-  const holidays = new Set<string>();
+export interface HolidayInfo {
+  date: Date;
+  name: string;
+}
 
-  const fixed = [
-    [0, 1],   // Confraternização Universal
-    [3, 21],  // Tiradentes
-    [4, 1],   // Dia do Trabalho
-    [8, 7],   // Independência
-    [9, 12],  // Nossa Senhora Aparecida
-    [10, 2],  // Finados
-    [10, 15], // Proclamação da República
-    [11, 25], // Natal
-  ];
+const FIXED_HOLIDAYS: [number, number, string][] = [
+  [0, 1, 'Confraternização Universal'],
+  [3, 21, 'Tiradentes'],
+  [4, 1, 'Dia do Trabalho'],
+  [8, 7, 'Independência do Brasil'],
+  [9, 12, 'Nossa Senhora Aparecida'],
+  [10, 2, 'Finados'],
+  [10, 15, 'Proclamação da República'],
+  [11, 25, 'Natal'],
+];
 
-  for (const [month, day] of fixed) {
-    holidays.add(toKey(new Date(year, month, day)));
-  }
+function getBrazilianHolidaysList(year: number): HolidayInfo[] {
+  const holidays: HolidayInfo[] = FIXED_HOLIDAYS.map(([month, day, name]) => ({
+    date: new Date(year, month, day),
+    name,
+  }));
 
   const easter = easterDate(year);
-  holidays.add(toKey(addDays(easter, -47))); // Carnaval (segunda)
-  holidays.add(toKey(addDays(easter, -46))); // Carnaval (terça)
-  holidays.add(toKey(addDays(easter, -2)));  // Sexta-feira Santa
-  holidays.add(toKey(addDays(easter, 60)));  // Corpus Christi
+  holidays.push(
+    { date: addDays(easter, -47), name: 'Carnaval' },
+    { date: addDays(easter, -46), name: 'Carnaval' },
+    { date: addDays(easter, -2), name: 'Sexta-feira Santa' },
+    { date: addDays(easter, 60), name: 'Corpus Christi' },
+  );
 
   return holidays;
+}
+
+function getBrazilianHolidays(year: number): Set<string> {
+  return new Set(getBrazilianHolidaysList(year).map(h => toKey(h.date)));
+}
+
+export function getHolidaysInRange(start: Date, end: Date): HolidayInfo[] {
+  if (!start || !end || end < start) return [];
+
+  const result: HolidayInfo[] = [];
+  for (let y = start.getFullYear(); y <= end.getFullYear(); y++) {
+    for (const h of getBrazilianHolidaysList(y)) {
+      if (h.date >= start && h.date <= end) {
+        result.push(h);
+      }
+    }
+  }
+  return result.sort((a, b) => a.date.getTime() - b.date.getTime());
 }
 
 export function countBusinessDays(start: Date, end: Date): number {

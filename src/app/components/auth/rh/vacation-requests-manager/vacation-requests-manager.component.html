@@ -204,6 +204,17 @@
           </div>
         }
 
+        @if (registerHolidays.length > 0) {
+          <div class="form-field form-field--full">
+            <div class="holidays-info">
+              <span class="holidays-info__title"><i class="pi pi-flag"></i> Feriados no período:</span>
+              @for (h of registerHolidays; track $index) {
+                <span class="holidays-info__item">{{ h.date | date:'dd/MM' }} — {{ h.name }}</span>
+              }
+            </div>
+          </div>
+        }
+
         <div class="form-field form-field--full">
           <label class="balance-toggle">
             <input type="checkbox" [(ngModel)]="setBalance" [ngModelOptions]="{standalone: true}">

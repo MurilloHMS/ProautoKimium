@@ -16,7 +16,7 @@ import { VacationRequestService } from '../../../../infrastructure/services/hr/v
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { Employee } from '../../../../domain/models/employee.model';
 import { VacationAlert, VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
-import { countBusinessDays } from '../../../../domain/utils/brazilian-business-days';
+import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../../domain/utils/brazilian-business-days';
 
 type ReviewAction = 'approve' | 'reject';
 
@@ -202,6 +202,13 @@ export class VacationRequestsManagerComponent implements OnInit {
     if (!start || !end) return null;
     const days = countBusinessDays(start, end);
     return days > 0 ? days : null;
+  }
+
+  get registerHolidays(): HolidayInfo[] {
+    const start = this.registerForm.get('startDate')?.value;
+    const end = this.registerForm.get('endDate')?.value;
+    if (!start || !end) return [];
+    return getHolidaysInRange(start, end);
   }
 
   submitRegister(): void {

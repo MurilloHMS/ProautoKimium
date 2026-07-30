@@ -56,6 +56,15 @@
         </p>
       }
 
+      @if (holidaysInRange.length > 0) {
+        <div class="hrv-holidays">
+          <span class="hrv-holidays__title"><i class="pi pi-flag"></i> Feriados no período:</span>
+          @for (h of holidaysInRange; track $index) {
+            <span class="hrv-holidays__item">{{ h.date | date:'dd/MM' }} — {{ h.name }}</span>
+          }
+        </div>
+      }
+
       <div class="hrv-form-actions">
         <pk-button
           pkType="save"

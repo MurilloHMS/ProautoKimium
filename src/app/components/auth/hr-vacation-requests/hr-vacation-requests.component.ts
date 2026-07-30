@@ -7,7 +7,7 @@ import { MessageService } from 'primeng/api';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { VacationRequestService } from '../../../infrastructure/services/hr/vacation-request.service';
 import { VacationRequest, VacationRequestStatus } from '../../../domain/models/hr/vacation-request.model';
-import { countBusinessDays } from '../../../domain/utils/brazilian-business-days';
+import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../domain/utils/brazilian-business-days';
 
 @Component({
   selector: 'app-hr-vacation-requests',
@@ -63,6 +63,12 @@ export class HrVacationRequestsComponent implements OnInit {
     if (!startDate || !endDate) return null;
     const days = countBusinessDays(startDate, endDate);
     return days > 0 ? days : null;
+  }
+
+  get holidaysInRange(): HolidayInfo[] {
+    const { startDate, endDate } = this.form.value as { startDate: Date | null; endDate: Date | null };
+    if (!startDate || !endDate) return [];
+    return getHolidaysInRange(startDate, endDate);
   }
 
   get excedeSaldo(): boolean {
