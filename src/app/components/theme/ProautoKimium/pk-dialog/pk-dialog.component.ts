@@ -21,4 +21,10 @@ export class PkDialogComponent {
   onHide(): void {
     this.visibleChange.emit(false);
   }
+
+  onVisibleChange(value: boolean): void {
+    if (!value) {
+      this.visibleChange.emit(false);
+    }
+  }
 }

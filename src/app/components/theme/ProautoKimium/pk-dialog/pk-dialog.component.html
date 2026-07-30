@@ -7,7 +7,8 @@
   [resizable]="false"
   [style]="{ width: width(), maxWidth: '95vw' }"
   styleClass="pk-dialog"
-  (onHide)="onHide()">
+  (onHide)="onHide()"
+  (visibleChange)="onVisibleChange($event)">
 
   <ng-template pTemplate="content">
     <ng-content select="[pkDialogContent]" />

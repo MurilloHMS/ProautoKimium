@@ -22,6 +22,7 @@
         styleClass="select-field">
       </p-select>
     </div>
+    <pk-button pkType="save" (clicked)="openRegisterDialog()" pkLabel="Lançar Férias" pkSize="sm" pkIcon="pi pi-plus"/>
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   </div>
 </div>
@@ -142,6 +143,116 @@
       pkSize="sm"
       [pkDisabled]="!canConfirmReview"
       [pkLoading]="reviewSaving">
+    </pk-button>
+  </div>
+</pk-dialog>
+
+<!-- Dialog de lançar férias -->
+<pk-dialog
+  header="Lançar Férias"
+  [visible]="registerDialogVisible"
+  (visibleChange)="registerDialogVisible = $event">
+
+  <div pkDialogContent>
+    <form [formGroup]="registerForm" class="dialog-form">
+      <div class="form-grid">
+
+        <div class="form-field form-field--full">
+          <label>Funcionário <span class="required">*</span></label>
+          <p-select
+            [options]="employeeOptions"
+            formControlName="employeeId"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecione o funcionário..."
+            [filter]="true"
+            filterBy="label"
+            appendTo="body"
+            styleClass="select-field">
+          </p-select>
+        </div>
+
+        <div class="form-field">
+          <label>Data de início <span class="required">*</span></label>
+          <p-datepicker
+            formControlName="startDate"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+            styleClass="datepicker-field"
+            placeholder="DD/MM/AAAA">
+          </p-datepicker>
+        </div>
+
+        <div class="form-field">
+          <label>Data de término <span class="required">*</span></label>
+          <p-datepicker
+            formControlName="endDate"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+            styleClass="datepicker-field"
+            [minDate]="registerForm.get('startDate')?.value"
+            placeholder="DD/MM/AAAA">
+          </p-datepicker>
+        </div>
+
+        @if (registerDaysRequested) {
+          <div class="form-field form-field--full">
+            <div class="days-preview">
+              <i class="pi pi-calendar"></i>
+              <strong>{{ registerDaysRequested }}</strong> dia{{ registerDaysRequested > 1 ? 's' : '' }} útei{{ registerDaysRequested > 1 ? 's' : 'l' }}
+            </div>
+          </div>
+        }
+
+        @if (registerHolidays.length > 0) {
+          <div class="form-field form-field--full">
+            <div class="holidays-info">
+              <span class="holidays-info__title"><i class="pi pi-flag"></i> Feriados no período:</span>
+              @for (h of registerHolidays; track $index) {
+                <span class="holidays-info__item">{{ h.date | date:'dd/MM' }} — {{ h.name }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="form-field form-field--full">
+          <label class="balance-toggle">
+            <input type="checkbox" [(ngModel)]="setBalance" [ngModelOptions]="{standalone: true}">
+            Definir saldo de férias deste funcionário
+          </label>
+        </div>
+
+        @if (setBalance) {
+          <div class="form-field form-field--full">
+            <label>Saldo de férias (dias)</label>
+            <p-inputNumber
+              formControlName="vacationBalanceDays"
+              [min]="0"
+              [max]="999"
+              [showButtons]="true"
+              styleClass="input-number-field">
+            </p-inputNumber>
+          </div>
+        }
+
+        <div class="form-field form-field--full">
+          <label>Observação</label>
+          <textarea formControlName="notes" rows="2" maxlength="500" placeholder="Opcional..."></textarea>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="registerDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button
+      pkType="save"
+      (clicked)="submitRegister()"
+      pkLabel="Lançar"
+      pkSize="sm"
+      [pkDisabled]="registerForm.invalid || !registerDaysRequested"
+      [pkLoading]="registerSaving">
     </pk-button>
   </div>
 </pk-dialog>

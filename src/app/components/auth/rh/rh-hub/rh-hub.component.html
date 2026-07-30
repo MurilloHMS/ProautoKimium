@@ -155,7 +155,7 @@
               (click)="openDay(day)">
               <span class="cal__day-num">{{ day.getDate() }}</span>
               <span class="cal__day-events">
-                @for (ev of eventsFor(day).slice(0, 2); track ev.id) {
+                @for (ev of eventsFor(day).slice(0, 2); track $index) {
                   <span class="cal__chip" [ngClass]="statusColorClass(ev.status)">{{ ev.employeeName }}</span>
                 }
                 @if (eventsFor(day).length > 2) {

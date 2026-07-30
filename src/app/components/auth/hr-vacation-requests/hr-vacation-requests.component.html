@@ -49,11 +49,20 @@
       @if (daysRequested !== null) {
         <p class="hrv-days-preview" [class.hrv-days-preview--over]="excedeSaldo">
           <i class="pi" [ngClass]="excedeSaldo ? 'pi-exclamation-triangle' : 'pi-info-circle'"></i>
-          {{ daysRequested }} dia(s) solicitado(s)
+          {{ daysRequested }} dia(s) útil(eis) solicitado(s)
           @if (excedeSaldo) {
             — maior que o seu saldo disponível
           }
         </p>
+      }
+
+      @if (holidaysInRange.length > 0) {
+        <div class="hrv-holidays">
+          <span class="hrv-holidays__title"><i class="pi pi-flag"></i> Feriados no período:</span>
+          @for (h of holidaysInRange; track $index) {
+            <span class="hrv-holidays__item">{{ h.date | date:'dd/MM' }} — {{ h.name }}</span>
+          }
+        </div>
       }
 
       <div class="hrv-form-actions">
