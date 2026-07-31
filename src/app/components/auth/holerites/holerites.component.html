@@ -1,36 +1,109 @@
 <section class="holerites-page">
+
+  <!-- Header -->
   <header class="hl-header">
-    <h1>Holerites</h1>
-    <p>Seus demonstrativos de pagamento.</p>
+    <div class="hl-header__left">
+      <div class="header-icon"><i class="pi pi-receipt"></i></div>
+      <div>
+        <h1 class="page-title">Meus Holerites</h1>
+        <p class="page-subtitle">Seus demonstrativos de pagamento</p>
+      </div>
+    </div>
+    @if (holerites().length > 0) {
+      <span class="hl-count">{{ filtrados().length }} de {{ holerites().length }}</span>
+    }
   </header>
 
+  <!-- Filter -->
+  @if (holerites().length > 0 && !loading()) {
+    <div class="hl-filters">
+      <button class="hl-filter"
+              [class.hl-filter--active]="filtro() === 'TODOS'"
+              (click)="setFiltro('TODOS')">
+        Todos
+      </button>
+      <button class="hl-filter"
+              [class.hl-filter--active]="filtro() === 'SALARIO'"
+              (click)="setFiltro('SALARIO')">
+        <i class="pi pi-wallet"></i> Salário
+      </button>
+      <button class="hl-filter"
+              [class.hl-filter--active]="filtro() === 'ADIANTAMENTO'"
+              (click)="setFiltro('ADIANTAMENTO')">
+        <i class="pi pi-calendar"></i> Adiantamento
+      </button>
+    </div>
+  }
+
+  <!-- States -->
   @if (loading()) {
     <div class="hl-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
   } @else if (erro()) {
-    <div class="hl-state">Não foi possível carregar seus holerites. Tente novamente mais tarde.</div>
+    <div class="hl-state hl-state--error">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>Não foi possível carregar seus holerites.</span>
+    </div>
   } @else if (holerites().length === 0) {
     <div class="hl-empty">
       <span class="hl-empty-icon"><i class="pi pi-receipt"></i></span>
-      <p>Nenhum holerite disponível ainda</p>
+      <p>Nenhum holerite disponível</p>
       <small>Quando o RH disponibilizar, ele aparece aqui automaticamente.</small>
     </div>
+  } @else if (filtrados().length === 0) {
+    <div class="hl-empty hl-empty--small">
+      <p>Nenhum holerite desse tipo</p>
+    </div>
   } @else {
-    <div class="hl-grid">
-      @for (h of holerites(); track h.id) {
-        <div class="hl-card">
-          <span class="hl-card__icon"><i class="pi pi-file-pdf"></i></span>
-          <div class="hl-card__info">
-            <span class="hl-card__comp">{{ competenciaLabel(h.competencia) }}</span>
-            <span class="hl-card__badge"
-                  [class.hl-card__badge--adiant]="h.tipo === 'ADIANTAMENTO'">
-              {{ tipoLabel(h.tipo) }}
-            </span>
+
+    <!-- Grouped by year -->
+    <div class="hl-timeline" @listAnimation>
+      @for (grupo of grupos(); track grupo.ano) {
+        <div class="hl-year-group">
+          <div class="hl-year-divider">
+            <span class="hl-year-label">{{ grupo.ano }}</span>
+            <span class="hl-year-line"></span>
+            <span class="hl-year-count">{{ grupo.itens.length }}</span>
           </div>
-          <button class="hl-card__btn" (click)="baixar(h)" [disabled]="baixandoId() === h.id" aria-label="Baixar holerite">
-            <i class="pi" [ngClass]="baixandoId() === h.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
-          </button>
+
+          <div class="hl-list">
+            @for (h of grupo.itens; track h.id) {
+              <button type="button"
+                      class="hl-card"
+                      [class.hl-card--downloading]="baixandoId() === h.id"
+                      [disabled]="baixandoId() === h.id"
+                      (click)="baixar(h)">
+
+                <span class="hl-card__icon"
+                      [class.hl-card__icon--adiant]="h.tipo === 'ADIANTAMENTO'">
+                  <i class="pi pi-file-pdf"></i>
+                </span>
+
+                <span class="hl-card__info">
+                  <span class="hl-card__comp">{{ mesLabel(h.competencia) }}</span>
+                  <span class="hl-card__meta">
+                    <span class="hl-card__badge"
+                          [class.hl-card__badge--adiant]="h.tipo === 'ADIANTAMENTO'">
+                      {{ tipoLabel(h.tipo) }}
+                    </span>
+                    <span class="hl-card__date">{{ h.createdAt | date:'dd/MM/yyyy' }}</span>
+                  </span>
+                </span>
+
+                <span class="hl-card__action">
+                  @if (baixandoId() === h.id) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <span class="hl-card__action-label">Baixando...</span>
+                  } @else {
+                    <i class="pi pi-download"></i>
+                    <span class="hl-card__action-label">Baixar</span>
+                  }
+                </span>
+              </button>
+            }
+          </div>
         </div>
       }
     </div>
   }
+
 </section>

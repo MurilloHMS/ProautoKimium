@@ -1,18 +1,35 @@
 <section class="docs-page">
   <header class="docs-header">
-    <h1>Documentos</h1>
-    <p>Acesse os arquivos e materiais da empresa por categoria.</p>
+    <div class="header-icon"><i class="pi pi-folder-open"></i></div>
+    <div>
+      <h1 class="page-title">Documentos</h1>
+      <p class="page-subtitle">Acesse os arquivos e materiais da empresa</p>
+    </div>
   </header>
 
   <div class="docs-grid">
     @for (cat of categorias; track cat.titulo) {
-      <button type="button" class="doc-card" (click)="abrir(cat)">
-        <span class="doc-card__icon"><i [class]="cat.icon"></i></span>
+      <button type="button"
+              class="doc-card"
+              [class.doc-card--disabled]="cat.emDesenvolvimento"
+              (click)="abrir(cat)">
+
+        @if (cat.emDesenvolvimento) {
+          <span class="doc-card__badge">Em breve</span>
+        }
+
+        <span class="doc-card__icon" [style.--accent]="cat.accent">
+          <i [class]="cat.icon"></i>
+        </span>
+
         <span class="doc-card__body">
           <span class="doc-card__title">{{ cat.titulo }}</span>
           <span class="doc-card__desc">{{ cat.descricao }}</span>
         </span>
-        <i class="pi pi-chevron-right doc-card__arrow"></i>
+
+        @if (!cat.emDesenvolvimento) {
+          <i class="pi pi-chevron-right doc-card__arrow"></i>
+        }
       </button>
     }
   </div>
