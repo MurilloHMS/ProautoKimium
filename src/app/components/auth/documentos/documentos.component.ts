@@ -6,6 +6,7 @@ interface CategoriaDoc {
   titulo: string;
   descricao: string;
   icon: string;
+  accent: string;
   rota?: string;
   emDesenvolvimento?: boolean;
 }
@@ -19,11 +20,12 @@ interface CategoriaDoc {
 })
 export class DocumentosComponent {
   categorias: CategoriaDoc[] = [
-    { titulo: 'Apresentações', descricao: 'Materiais institucionais e de vendas',   icon: 'pi pi-desktop',    emDesenvolvimento: true },
-    { titulo: 'Logos',         descricao: 'Identidade visual e arquivos da marca',   icon: 'pi pi-palette',    rota: '/documentos/logos' },
-    { titulo: 'Holerites',     descricao: 'Seus demonstrativos de pagamento',        icon: 'pi pi-receipt',    rota: '/documentos/holerites' },
-    { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card',    emDesenvolvimento: true },
-    { titulo: 'Propostas',     descricao: 'Modelos e propostas comerciais',          icon: 'pi pi-file-edit',  emDesenvolvimento: true },
+    { titulo: 'Apresentações', descricao: 'Materiais institucionais e de vendas',   icon: 'pi pi-desktop',    accent: '#7c5cbf', emDesenvolvimento: true },
+    { titulo: 'Logos',         descricao: 'Identidade visual e arquivos da marca',   icon: 'pi pi-palette',    accent: '#e07b4c', rota: '/documentos/logos' },
+    { titulo: 'Holerites',     descricao: 'Seus demonstrativos de pagamento',        icon: 'pi pi-receipt',    accent: '#d92d20', rota: '/documentos/holerites' },
+    { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card',    accent: '#232e61', emDesenvolvimento: true },
+    { titulo: 'Propostas',     descricao: 'Modelos e propostas comerciais',          icon: 'pi pi-file-edit',  accent: '#3e9e8e', emDesenvolvimento: true },
+    { titulo: 'Checklist',     descricao: 'Formulários e checklists',              icon: 'pi pi-list',       accent: '#f5a623', emDesenvolvimento: true }
   ];
 
   constructor(private router: Router) {}
