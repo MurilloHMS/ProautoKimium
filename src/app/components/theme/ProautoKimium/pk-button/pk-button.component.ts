@@ -63,6 +63,7 @@ export class PkButtonComponent {
   pkLoading  = input<boolean>(false);
   pkTooltip  = input<string>('');
   pkIconOnly = input<boolean>(false);
+  pkIcon     = input<string | null>(null);
 
   clicked = output<MouseEvent>();
 
@@ -74,7 +75,7 @@ export class PkButtonComponent {
   });
 
   resolvedIcon = computed(() =>
-    this.pkLoading() ? 'pi pi-spin pi-spinner' : this.config().icon
+    this.pkLoading() ? 'pi pi-spin pi-spinner' : (this.pkIcon() ?? this.config().icon)
   );
 
   hostClasses = computed(() => ({

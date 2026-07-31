@@ -197,6 +197,53 @@ export class AdminCenterComponent implements OnInit {
     });
   }
 
+  // ── Bloqueio / desbloqueio ────────────────────────────────────────────────
+
+  toggleBlock(user: UserResponseDTO): void {
+    const action$ = user.active
+      ? this.authService.blockUser(user.login)
+      : this.authService.unblockUser(user.login);
+
+    action$.subscribe({
+      next: () => {
+        user.active = !user.active;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: user.active
+            ? `Acesso de "${user.login}" foi liberado.`
+            : `Acesso de "${user.login}" foi bloqueado.`,
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao alterar o acesso do usuário.',
+        });
+      },
+    });
+  }
+
+  resetPassword(user: UserResponseDTO): void {
+    this.authService.resetPasswordByAdmin(user.login).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: `E-mail de redefinição enviado para "${user.login}".`,
+        });
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao enviar e-mail de redefinição.',
+        });
+      },
+    });
+  }
+
   // ── Outros ───────────────────────────────────────────────────────────────
 
   generateAccessTokens(): void {

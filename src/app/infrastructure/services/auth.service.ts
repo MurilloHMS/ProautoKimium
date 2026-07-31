@@ -137,6 +137,30 @@ export class AuthService {
     );
   }
 
+  blockUser(login: string): Observable<string> {
+    return this.http.put(
+      `${environment.apiUrl}/auth/users/${login}/block`,
+      null,
+      { responseType: 'text' }
+    );
+  }
+
+  unblockUser(login: string): Observable<string> {
+    return this.http.put(
+      `${environment.apiUrl}/auth/users/${login}/unblock`,
+      null,
+      { responseType: 'text' }
+    );
+  }
+
+  resetPasswordByAdmin(login: string): Observable<string> {
+    return this.http.post(
+      `${environment.apiUrl}/auth/users/${login}/reset-password`,
+      null,
+      { responseType: 'text' }
+    );
+  }
+
   /** Vincula um usuário a um funcionário (parceiro) pelo código do parceiro. */
   linkEmployee(login: string, codParceiro: string): Observable<string> {
     return this.http.put(

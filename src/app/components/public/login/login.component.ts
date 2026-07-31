@@ -37,9 +37,11 @@ export class LoginComponent {
         this.loading = false;
         this.router.navigate(['/home'])
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMessage = 'Usuário ou senha inválidos'
+        this.errorMessage = err.status === 403
+          ? (err.error?.message ?? 'Acesso bloqueado. Entre em contato com o RH.')
+          : 'Usuário ou senha inválidos';
       }
     });
   }
