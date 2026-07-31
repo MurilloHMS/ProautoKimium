@@ -8,7 +8,8 @@ export interface RegisterDTO {
 export interface UserResponseDTO {
   login: string;
   roles: string[];
-  codParceiro?: string | null;   // funcionário vinculado, se houver
+  codParceiro?: string | null;
+  active: boolean;
 }
 
 export interface UserRole {

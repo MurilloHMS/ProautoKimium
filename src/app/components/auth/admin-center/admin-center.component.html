@@ -35,12 +35,14 @@
         <th>Login</th>
         <th>Funcionário</th>
         <th>Permissões</th>
-        <th style="width: 84px; text-align: center">Ações</th>
+        <th style="width: 80px; text-align: center">Status</th>
+        <th style="width: 140px; text-align: center">Ações</th>
       </tr>
     </ng-template>
 
     <ng-template #bodyTpl let-user>
-      <tr [class.ac-row-active]="editingUser?.login === user.login">
+      <tr [class.ac-row-active]="editingUser?.login === user.login"
+          [class.ac-row-blocked]="!user.active">
         <td class="ac-login-cell">
           <i class="pi pi-user ac-login-icon"></i>
           {{ user.login }}
@@ -59,8 +61,22 @@
           </span>
         </td>
         <td style="text-align: center">
-          <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true"
-                     pkTooltip="Editar permissões" (clicked)="selectUserToEdit(user)"/>
+          <span class="ac-status" [class.ac-status-active]="user.active" [class.ac-status-blocked]="!user.active">
+            <i class="pi" [ngClass]="user.active ? 'pi-check-circle' : 'pi-ban'"></i>
+            {{ user.active ? 'Ativo' : 'Bloqueado' }}
+          </span>
+        </td>
+        <td style="text-align: center">
+          <div class="ac-actions">
+            <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true"
+                       pkTooltip="Editar permissões" (clicked)="selectUserToEdit(user)"/>
+            <pk-button [pkType]="user.active ? 'delete' : 'save'" pkSize="sm" [pkIconOnly]="true"
+                       [pkIcon]="user.active ? 'pi pi-lock' : 'pi pi-lock-open'"
+                       [pkTooltip]="user.active ? 'Bloquear acesso' : 'Liberar acesso'"
+                       (clicked)="toggleBlock(user)"/>
+            <pk-button pkType="token" pkSize="sm" [pkIconOnly]="true"
+                       pkTooltip="Redefinir senha" (clicked)="resetPassword(user)"/>
+          </div>
         </td>
       </tr>
     </ng-template>

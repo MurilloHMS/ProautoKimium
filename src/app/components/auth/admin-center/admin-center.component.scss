@@ -161,6 +161,40 @@
   &[data-role="ALMOXARIFADO"]    { background: #f1f5f9; color: #334155; }
 }
 
+// ─── Status ──────────────────────────────────────────────────────────────────
+.ac-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+
+  &.ac-status-active {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.ac-status-blocked {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  i { font-size: 12px; }
+}
+
+// ─── Linha bloqueada ─────────────────────────────────────────────────────────
+.ac-row-blocked > td { opacity: 0.6; }
+
+// ─── Ações ───────────────────────────────────────────────────────────────────
+.ac-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
 // ─── Responsivo ───────────────────────────────────────────────────────────────
 @media (max-width: 640px) {
   .ac-topbar {
