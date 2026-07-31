@@ -1,16 +1,23 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { animate, style, transition, trigger, query, stagger } from '@angular/animations';
 
 type HoleriteTipo = 'ADIANTAMENTO' | 'SALARIO';
+type Filtro = 'TODOS' | HoleriteTipo;
 
 interface Holerite {
   id: string;
-  competencia: string;      // "2026-06-01"
-  tipo: HoleriteTipo;       // ADIANTAMENTO (dia 20) ou SALARIO (dia 05)
+  competencia: string;
+  tipo: HoleriteTipo;
   originalFilename: string;
   createdAt: string;
+}
+
+interface GrupoAno {
+  ano: string;
+  itens: Holerite[];
 }
 
 @Component({
@@ -19,17 +26,49 @@ interface Holerite {
   imports: [CommonModule],
   templateUrl: './holerites.component.html',
   styleUrl: './holerites.component.scss',
+  animations: [
+    trigger('listAnimation', [
+      transition(':enter', [
+        query('.hl-card', [
+          style({ opacity: 0, transform: 'translateY(12px)' }),
+          stagger(50, [
+            animate('280ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+          ])
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class HoleritesComponent implements OnInit {
   holerites = signal<Holerite[]>([]);
   loading = signal(true);
   erro = signal(false);
   baixandoId = signal<string | null>(null);
+  filtro = signal<Filtro>('TODOS');
 
   private readonly meses = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
   ];
+
+  filtrados = computed(() => {
+    const f = this.filtro();
+    const all = this.holerites();
+    return f === 'TODOS' ? all : all.filter(h => h.tipo === f);
+  });
+
+  grupos = computed<GrupoAno[]>(() => {
+    const map = new Map<string, Holerite[]>();
+    for (const h of this.filtrados()) {
+      const ano = h.competencia.slice(0, 4);
+      const list = map.get(ano) ?? [];
+      list.push(h);
+      map.set(ano, list);
+    }
+    return Array.from(map.entries())
+      .sort(([a], [b]) => b.localeCompare(a))
+      .map(([ano, itens]) => ({ ano, itens }));
+  });
 
   constructor(private http: HttpClient) {}
 
@@ -52,8 +91,17 @@ export class HoleritesComponent implements OnInit {
     return `${this.meses[idx] ?? ''} de ${ano}`;
   }
 
+  mesLabel(comp: string): string {
+    const mes = parseInt(comp.split('-')[1], 10) - 1;
+    return this.meses[mes] ?? '';
+  }
+
   tipoLabel(tipo: HoleriteTipo): string {
     return tipo === 'ADIANTAMENTO' ? 'Adiantamento' : 'Salário';
+  }
+
+  setFiltro(f: Filtro): void {
+    this.filtro.set(f);
   }
 
   baixar(h: Holerite): void {

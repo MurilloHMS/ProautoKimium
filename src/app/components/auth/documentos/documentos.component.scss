@@ -86,7 +86,7 @@
     transition: transform 0.22s ease, color 0.22s ease;
   }
 
-  &:hover {
+  &:hover:not(.doc-card--disabled) {
     transform: translateY(-4px);
     border-color: rgba(87, 193, 171, 0.5);
     box-shadow: 0 16px 40px rgba(35, 46, 97, 0.10);
@@ -102,7 +102,40 @@
     }
   }
 
-  &:active { transform: translateY(-1px); }
+  &:active:not(.doc-card--disabled) { transform: translateY(-1px); }
+
+  &--disabled {
+    cursor: default;
+    opacity: 0.55;
+    position: relative;
+    border-style: dashed;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: v.$secondary;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  &__dev-hint {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: v.$secondary;
+    font-weight: 600;
+    margin-top: 2px;
+
+    i { font-size: 0.72rem; }
+  }
 }
 
 @media (max-width: 600px) {
