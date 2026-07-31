@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
@@ -16,8 +16,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { InputOtpModule } from 'primeng/inputotp';
-import {AuthService} from "../../../infrastructure/services/auth.service";
-
+import { AuthService } from '../../../infrastructure/services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -44,14 +43,17 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   resendCooldown = 0;
 
   requestForm!: FormGroup;
-  resetForm!: FormGroup;
+  tokenForm!: FormGroup;
+  passwordForm!: FormGroup;
 
   private lastLogin = '';
+  private validatedToken = '';
   private cooldownInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private messageService: MessageService,
     private authService: AuthService,
   ) {}
@@ -61,9 +63,12 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       username: ['', Validators.required],
     });
 
-    this.resetForm = this.fb.group(
+    this.tokenForm = this.fb.group({
+      token: ['', [Validators.required, Validators.minLength(6)]],
+    });
+
+    this.passwordForm = this.fb.group(
       {
-        token: ['', Validators.required],
         newPassword: [
           '',
           [
@@ -77,13 +82,25 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       },
       { validators: this.passwordMatchValidator }
     );
+
+    this.applyDeepLink();
+  }
+
+  private applyDeepLink(): void {
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (!token) return;
+
+    this.validatedToken = token;
+    this.step = 3;
+
+    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
   }
 
   ngOnDestroy(): void {
     if (this.cooldownInterval) clearInterval(this.cooldownInterval);
   }
 
-  // ── Step 1: solicitar token ──────────────────────────────────────────────
+  // ── Step 1: solicitar código ─────────────────────────────────────────────
   onRequestToken(): void {
     if (this.requestForm.invalid) return;
     this.loading = true;
@@ -115,26 +132,44 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Step 2: redefinir senha ──────────────────────────────────────────────
+  // ── Step 2: validar código (avança para senha) ───────────────────────────
+  onValidateToken(): void {
+    if (this.tokenForm.invalid) return;
+    this.validatedToken = this.tokenForm.value.token;
+    this.step = 3;
+  }
+
+  // ── Step 3: redefinir senha ──────────────────────────────────────────────
   onResetPassword(): void {
-    if (this.resetForm.invalid) return;
+    if (this.passwordForm.invalid) return;
     this.loading = true;
 
-    const { token, newPassword } = this.resetForm.value;
+    const newPassword: string = this.passwordForm.value.newPassword;
 
-    this.authService.resetPassword(token, newPassword).subscribe({
+    this.authService.resetPassword(this.validatedToken, newPassword).subscribe({
       next: () => {
         this.loading = false;
-        this.step = 3;
+        this.step = 4;
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
+
+        if (err.status === 400) {
+          this.step = 2;
+          this.tokenForm.reset();
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Código expirado',
+            detail: 'O código expirou. Solicite um novo e tente novamente.',
+            life: 5000,
+          });
+          return;
+        }
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erro',
-          detail: err.status === 400
-            ? (err.error ?? 'Token inválido ou expirado.')
-            : 'Erro ao redefinir senha. Tente novamente.',
+          detail: 'Erro ao redefinir senha. Tente novamente.',
           life: 5000,
         });
       },
@@ -167,8 +202,13 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
+    if (this.step === 3) {
+      this.step = 2;
+      this.passwordForm.reset();
+      return;
+    }
     this.step = 1;
-    this.resetForm.reset();
+    this.tokenForm.reset();
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -185,5 +225,16 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       this.resendCooldown--;
       if (this.resendCooldown <= 0) clearInterval(this.cooldownInterval);
     }, 1000);
+  }
+
+  get passwordChecks() {
+    const value: string = this.passwordForm?.get('newPassword')?.value ?? '';
+    return {
+      lower: /[a-z]/.test(value),
+      upper: /[A-Z]/.test(value),
+      number: /\d/.test(value),
+      special: /[@$!%*?&#]/.test(value),
+      minLength: value.length >= 8,
+    };
   }
 }
