@@ -30,7 +30,7 @@
         <form class="login-form" (ngSubmit)="login()" [formGroup]="form" novalidate>
 
           <div class="form-group">
-            <label class="form-label" for="username">Usuário</label>
+            <label class="form-label" for="username">CPF, e-mail ou usuário</label>
             <div class="input-wrap">
               <span class="input-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -43,10 +43,13 @@
                 id="username"
                 formControlName="username"
                 class="form-input"
-                placeholder="seu.usuario"
+                placeholder="CPF, e-mail ou usuário"
                 autocomplete="username"
                 inputmode="text"
                 autocapitalize="none"
+                [mask]="identifierMask"
+                [dropSpecialCharacters]="false"
+                (input)="onIdentifierInput($event)"
               />
             </div>
           </div>
