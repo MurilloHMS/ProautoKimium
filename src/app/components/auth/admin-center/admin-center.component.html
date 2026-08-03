@@ -70,7 +70,8 @@
           <div class="ac-actions">
             <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true"
                        pkTooltip="Editar permissões" (clicked)="selectUserToEdit(user)"/>
-            <pk-button [pkType]="user.active ? 'delete' : 'save'" pkSize="sm" [pkIconOnly]="true"
+            <pk-button *ngIf="!user.roles.includes('DEVELOPER')"
+                       [pkType]="user.active ? 'delete' : 'save'" pkSize="sm" [pkIconOnly]="true"
                        [pkIcon]="user.active ? 'pi pi-lock' : 'pi pi-lock-open'"
                        [pkTooltip]="user.active ? 'Bloquear acesso' : 'Liberar acesso'"
                        (clicked)="toggleBlock(user)"/>
