@@ -61,7 +61,9 @@
       @for (doc of filtrados(); track doc.id) {
         <div class="gl-card">
           <!-- Preview -->
-          <div class="gl-card__preview">
+          <div class="gl-card__preview"
+               [class.gl-card__preview--clickable]="isImage(doc) && thumbnails()[doc.id]"
+               (click)="openViewer(doc)">
             @if (thumbnails()[doc.id]) {
               <img [src]="thumbnails()[doc.id]" [alt]="doc.title"/>
             } @else if (isImage(doc)) {
@@ -110,6 +112,31 @@
   }
 
 </section>
+
+<!-- Image Viewer -->
+@if (viewerDoc(); as doc) {
+  <div class="viewer-overlay" (click)="closeViewer()">
+    <button class="viewer-close" (click)="closeViewer()">
+      <i class="pi pi-times"></i>
+    </button>
+    <div class="viewer-info">
+      <span class="viewer-title">{{ doc.title }}</span>
+      <span class="viewer-category" [style.--accent]="getCategoryTab(doc.category).accent">
+        {{ getCategoryTab(doc.category).label }}
+      </span>
+    </div>
+    <img class="viewer-img" [src]="thumbnails()[doc.id]" [alt]="doc.title" (click)="$event.stopPropagation()"/>
+    <div class="viewer-actions" (click)="$event.stopPropagation()">
+      <button class="viewer-btn" (click)="download(doc)" [disabled]="downloadingId() === doc.id">
+        @if (downloadingId() === doc.id) {
+          <i class="pi pi-spin pi-spinner"></i> Baixando...
+        } @else {
+          <i class="pi pi-download"></i> Baixar
+        }
+      </button>
+    </div>
+  </div>
+}
 
 <!-- Upload Dialog -->
 <pk-dialog
