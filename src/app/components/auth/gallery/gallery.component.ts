@@ -32,6 +32,7 @@ export class GalleryComponent implements OnInit {
   uploadDialogVisible = signal(false);
   uploading = signal(false);
   thumbnails = signal<Record<string, string>>({});
+  viewerDoc = signal<GalleryDocument | null>(null);
 
   uploadTitle = '';
   uploadDescription = '';
@@ -101,6 +102,16 @@ export class GalleryComponent implements OnInit {
 
   isImage(doc: GalleryDocument): boolean {
     return doc.contentType?.startsWith('image/') ?? false;
+  }
+
+  openViewer(doc: GalleryDocument): void {
+    if (this.isImage(doc) && this.thumbnails()[doc.id]) {
+      this.viewerDoc.set(doc);
+    }
+  }
+
+  closeViewer(): void {
+    this.viewerDoc.set(null);
   }
 
   download(doc: GalleryDocument): void {
