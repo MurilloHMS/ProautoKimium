@@ -17,6 +17,11 @@ export class NfeService {
     } else {
       return this.http.post(`${environment.apiUrl}/nfe/icms/upload`, formData, { responseType: 'blob' });
     }
+  }
 
+  renameNfseFiles(files: File[]) {
+    const formData = new FormData();
+    files.forEach(file => formData.append('files', file));
+    return this.http.post(`${environment.apiUrl}/nfe/nfse/upload`, formData, { responseType: 'blob' });
   }
 }
