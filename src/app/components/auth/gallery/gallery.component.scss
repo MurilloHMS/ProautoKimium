@@ -1,0 +1,452 @@
+@use 'sass:color';
+@use 'variables' as v;
+@use 'mixins' as m;
+
+:host {
+  @include m.page-layout;
+}
+
+// ── Header ──
+.gl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$space-6;
+  gap: v.$space-4;
+  flex-wrap: wrap;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: v.$space-4;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: v.$space-3;
+  }
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: v.$radius-md;
+  background: color-mix(in srgb, v.$primary 8%, transparent);
+  color: v.$primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.page-title {
+  font-family: v.$font-heading;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: v.$text-muted;
+  margin: 2px 0 0;
+}
+
+.gl-count {
+  font-size: 0.8rem;
+  color: v.$text-muted;
+  white-space: nowrap;
+}
+
+// ── Filters ──
+.gl-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: v.$space-6;
+  flex-wrap: wrap;
+}
+
+.gl-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: v.$radius-full;
+  border: 1px solid v.$border;
+  background: v.$bg-panel;
+  color: v.$text-muted;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+
+  &:hover {
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+
+  &--active {
+    background: v.$primary;
+    border-color: v.$primary;
+    color: #fff;
+
+    &:hover {
+      background: color.adjust(v.$primary, $lightness: -5%);
+      color: #fff;
+    }
+  }
+}
+
+// ── States ──
+.gl-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  padding: v.$space-10;
+  color: v.$text-muted;
+  font-size: 0.9rem;
+
+  &--error {
+    color: #dc3545;
+  }
+}
+
+.gl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: v.$space-12 v.$space-4;
+  text-align: center;
+
+  &-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: color-mix(in srgb, v.$primary 6%, transparent);
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: v.$space-4;
+  }
+
+  p {
+    font-family: v.$font-heading;
+    font-weight: 600;
+    color: v.$text-primary;
+    margin: 0 0 v.$space-1;
+  }
+
+  small {
+    color: v.$text-muted;
+    font-size: 0.82rem;
+  }
+
+  &--small {
+    padding: v.$space-8 v.$space-4;
+
+    p {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// ── Grid ──
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+
+  @media (max-width: v.$bp-lg) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: v.$bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Card ──
+.gl-card {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all v.$transition-base ease;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &__preview {
+    position: relative;
+    height: 180px;
+    background: v.$bg-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 12px;
+    }
+  }
+
+  &__file-icon {
+    font-size: 2.5rem;
+    color: v.$text-muted;
+    opacity: 0.4;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 10px;
+    border-radius: v.$radius-full;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: color-mix(in srgb, var(--accent) 14%, #fff);
+    color: var(--accent);
+  }
+
+  &__body {
+    flex: 1;
+    padding: 14px 16px 8px;
+  }
+
+  &__title {
+    font-family: v.$font-heading;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: v.$text-primary;
+    margin: 0 0 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__desc {
+    font-size: 0.78rem;
+    color: v.$text-muted;
+    margin: 0 0 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    font-size: 0.72rem;
+    color: color-mix(in srgb, v.$text-muted 70%, transparent);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    border-top: 1px solid v.$border;
+  }
+
+  &__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    border: none;
+    background: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background v.$transition-fast ease;
+
+    &--download {
+      color: v.$primary;
+
+      &:hover {
+        background: color-mix(in srgb, v.$primary 5%, transparent);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    &--delete {
+      flex: 0 0 42px;
+      color: v.$text-muted;
+      border-left: 1px solid v.$border;
+
+      &:hover {
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.04);
+      }
+    }
+  }
+}
+
+// ── Upload Dialog ──
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+}
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 2px dashed v.$border;
+  border-radius: v.$radius-md;
+  background: v.$bg-base;
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+  padding: v.$space-4;
+  gap: v.$space-2;
+
+  &:hover {
+    border-color: v.$primary;
+    background: color-mix(in srgb, v.$primary 3%, v.$bg-base);
+  }
+
+  &__preview {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: v.$radius-sm;
+    object-fit: contain;
+  }
+
+  &__file {
+    display: flex;
+    align-items: center;
+    gap: v.$space-2;
+    color: v.$text-primary;
+    font-size: 0.85rem;
+
+    i {
+      font-size: 1.5rem;
+      color: v.$primary;
+    }
+  }
+
+  &__icon {
+    font-size: 2rem;
+    color: v.$text-muted;
+    opacity: 0.5;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: v.$text-primary;
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: v.$text-muted;
+  }
+}
+
+.upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: v.$text-primary;
+  }
+
+  &__input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-sm;
+    font-size: 0.85rem;
+    color: v.$text-primary;
+    background: v.$bg-panel;
+    transition: border-color v.$transition-fast ease;
+    font-family: v.$font-body;
+
+    &:focus {
+      outline: none;
+      border-color: v.$primary;
+    }
+
+    &::placeholder {
+      color: v.$text-muted;
+      opacity: 0.6;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 70px;
+  }
+}
+
+.upload-categories {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.upload-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-full;
+  background: v.$bg-panel;
+  color: v.$text-muted;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+
+  &:hover {
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+
+  &--active {
+    background: v.$primary;
+    border-color: v.$primary;
+    color: #fff;
+
+    &:hover {
+      background: color.adjust(v.$primary, $lightness: -5%);
+      color: #fff;
+    }
+  }
+}
+
+.pk-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$space-2;
+}

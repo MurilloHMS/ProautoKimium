@@ -1,0 +1,183 @@
+<section class="gallery-page">
+
+  <!-- Header -->
+  <header class="gl-header">
+    <div class="gl-header__left">
+      <div class="header-icon"><i class="pi pi-images"></i></div>
+      <div>
+        <h1 class="page-title">Galeria de Documentos</h1>
+        <p class="page-subtitle">Fotos, logos e catálogos da empresa</p>
+      </div>
+    </div>
+    <div class="gl-header__actions">
+      @if (documents().length > 0) {
+        <span class="gl-count">{{ filtrados().length }} de {{ documents().length }}</span>
+      }
+      @if (isAdmin) {
+        <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadDialog()"/>
+      }
+    </div>
+  </header>
+
+  <!-- Filters -->
+  @if (documents().length > 0 && !loading()) {
+    <div class="gl-filters">
+      @for (cat of categories; track cat.key) {
+        <button class="gl-filter"
+                [class.gl-filter--active]="filtro() === cat.key"
+                (click)="setFiltro(cat.key)">
+          <i [class]="cat.icon"></i> {{ cat.label }}
+        </button>
+      }
+    </div>
+  }
+
+  <!-- States -->
+  @if (loading()) {
+    <div class="gl-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+  } @else if (erro()) {
+    <div class="gl-state gl-state--error">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>Não foi possível carregar a galeria.</span>
+    </div>
+  } @else if (documents().length === 0) {
+    <div class="gl-empty">
+      <span class="gl-empty-icon"><i class="pi pi-images"></i></span>
+      <p>Nenhum documento na galeria</p>
+      @if (isAdmin) {
+        <small>Clique em "Enviar Arquivo" para adicionar o primeiro documento.</small>
+      } @else {
+        <small>Quando a equipe adicionar documentos, eles aparecem aqui.</small>
+      }
+    </div>
+  } @else if (filtrados().length === 0) {
+    <div class="gl-empty gl-empty--small">
+      <p>Nenhum documento nessa categoria</p>
+    </div>
+  } @else {
+
+    <!-- Grid -->
+    <div class="gl-grid">
+      @for (doc of filtrados(); track doc.id) {
+        <div class="gl-card">
+          <!-- Preview -->
+          <div class="gl-card__preview">
+            @if (thumbnails()[doc.id]) {
+              <img [src]="thumbnails()[doc.id]" [alt]="doc.title"/>
+            } @else if (isImage(doc)) {
+              <div class="gl-card__file-icon">
+                <i class="pi pi-spin pi-spinner"></i>
+              </div>
+            } @else {
+              <div class="gl-card__file-icon">
+                <i class="pi pi-file"></i>
+              </div>
+            }
+            <span class="gl-card__badge" [style.--accent]="getCategoryTab(doc.category).accent">
+              {{ getCategoryTab(doc.category).label }}
+            </span>
+          </div>
+
+          <!-- Info -->
+          <div class="gl-card__body">
+            <h3 class="gl-card__title">{{ doc.title }}</h3>
+            @if (doc.description) {
+              <p class="gl-card__desc">{{ doc.description }}</p>
+            }
+            <span class="gl-card__meta">{{ doc.originalFilename }}</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="gl-card__actions">
+            <button class="gl-card__btn gl-card__btn--download"
+                    [disabled]="downloadingId() === doc.id"
+                    (click)="download(doc)">
+              @if (downloadingId() === doc.id) {
+                <i class="pi pi-spin pi-spinner"></i> Baixando...
+              } @else {
+                <i class="pi pi-download"></i> Baixar
+              }
+            </button>
+            @if (isAdmin) {
+              <button class="gl-card__btn gl-card__btn--delete" (click)="deleteDoc(doc)">
+                <i class="pi pi-trash"></i>
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</section>
+
+<!-- Upload Dialog -->
+<pk-dialog
+  header="Enviar Arquivo"
+  [visible]="uploadDialogVisible()"
+  (visibleChange)="uploadDialogVisible() ? closeUploadDialog() : null"
+  width="560px">
+
+  <div pkDialogContent>
+    <div class="upload-form">
+      <!-- File drop zone -->
+      <div class="upload-dropzone" (click)="fileInput.click()">
+        @if (filePreview) {
+          <img [src]="filePreview" alt="Preview" class="upload-dropzone__preview"/>
+        } @else if (selectedFile) {
+          <div class="upload-dropzone__file">
+            <i class="pi pi-file"></i>
+            <span>{{ selectedFile.name }}</span>
+          </div>
+        } @else {
+          <i class="pi pi-cloud-upload upload-dropzone__icon"></i>
+          <span class="upload-dropzone__label">Clique para selecionar um arquivo</span>
+          <span class="upload-dropzone__hint">Imagens, PDFs ou documentos</span>
+        }
+        <input #fileInput type="file" hidden (change)="onFileSelected($event)"/>
+      </div>
+
+      <!-- Title -->
+      <div class="upload-field">
+        <label class="upload-field__label" for="uploadTitle">Título *</label>
+        <input id="uploadTitle"
+               class="upload-field__input"
+               type="text"
+               placeholder="Ex: Logo principal da empresa"
+               [(ngModel)]="uploadTitle"
+               maxlength="200"/>
+      </div>
+
+      <!-- Description -->
+      <div class="upload-field">
+        <label class="upload-field__label" for="uploadDesc">Descrição</label>
+        <textarea id="uploadDesc"
+                  class="upload-field__input upload-field__textarea"
+                  placeholder="Descrição opcional do arquivo"
+                  [(ngModel)]="uploadDescription"
+                  maxlength="500"
+                  rows="3"></textarea>
+      </div>
+
+      <!-- Category -->
+      <div class="upload-field">
+        <label class="upload-field__label">Categoria *</label>
+        <div class="upload-categories">
+          @for (cat of categories.slice(1); track cat.key) {
+            <button class="upload-cat"
+                    [class.upload-cat--active]="uploadCategory === cat.key"
+                    (click)="uploadCategory = $any(cat.key)">
+              <i [class]="cat.icon"></i> {{ cat.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" (clicked)="closeUploadDialog()" pkLabel="Cancelar" pkSize="sm"/>
+    <pk-button pkType="upload" (clicked)="submitUpload()" pkLabel="Enviar" pkSize="sm"
+               [pkDisabled]="!selectedFile || !uploadTitle.trim()" [pkLoading]="uploading()"/>
+  </div>
+</pk-dialog>
