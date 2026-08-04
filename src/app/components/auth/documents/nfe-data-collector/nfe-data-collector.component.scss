@@ -1,0 +1,295 @@
+@use 'sass:color';
+@use 'variables' as v;
+@use 'mixins' as m;
+
+:host {
+  @include m.page-layout;
+}
+
+// ── Header ──
+.nfe-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: v.$space-6;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: v.$space-4;
+  }
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: v.$radius-md;
+  background: color-mix(in srgb, v.$primary 8%, transparent);
+  color: v.$primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.page-title {
+  font-family: v.$font-heading;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: v.$text-muted;
+  margin: 2px 0 0;
+}
+
+// ── Mode selector ──
+.nfe-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: v.$space-6;
+
+  @media (max-width: v.$bp-md) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.nfe-mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  background: v.$bg-panel;
+  cursor: pointer;
+  text-align: left;
+  transition: all v.$transition-base ease;
+  position: relative;
+
+  &:hover {
+    box-shadow: v.$shadow-md;
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 40%, v.$border);
+  }
+
+  &--active {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 4%, v.$bg-panel);
+    box-shadow: 0 0 0 1px var(--accent);
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: v.$radius-sm;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-family: v.$font-heading;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: v.$text-primary;
+  }
+
+  &__desc {
+    font-size: 0.76rem;
+    color: v.$text-muted;
+    line-height: 1.35;
+  }
+
+  &__check {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: bold;
+  }
+}
+
+// ── Upload section ──
+.nfe-upload-section {
+  background: v.$bg-panel;
+  border: 1px solid v.$border;
+  border-radius: v.$radius-md;
+  padding: 20px;
+}
+
+.nfe-upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: v.$space-4;
+}
+
+.nfe-upload-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: v.$font-heading;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: v.$text-primary;
+}
+
+.nfe-upload-actions {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+}
+
+.nfe-file-count {
+  font-size: 0.8rem;
+  color: v.$text-muted;
+  white-space: nowrap;
+}
+
+// ── Dropzone ──
+.nfe-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  border: 2px dashed v.$border;
+  border-radius: v.$radius-md;
+  background: v.$bg-base;
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+  padding: v.$space-4;
+  gap: v.$space-1;
+
+  &:hover {
+    border-color: v.$primary;
+    background: color-mix(in srgb, v.$primary 3%, v.$bg-base);
+  }
+
+  &__icon {
+    font-size: 2rem;
+    color: v.$text-muted;
+    opacity: 0.4;
+    margin-bottom: v.$space-1;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: v.$text-primary;
+  }
+
+  &__hint {
+    font-size: 0.75rem;
+    color: v.$text-muted;
+  }
+}
+
+// ── File list ──
+.nfe-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: v.$space-4;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.nfe-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: v.$bg-base;
+  border-radius: v.$radius-sm;
+  transition: background v.$transition-fast ease;
+
+  &:hover {
+    background: v.$bg-hover;
+  }
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: v.$radius-sm;
+    background: color-mix(in srgb, v.$primary 8%, transparent);
+    color: v.$primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: v.$text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__size {
+    font-size: 0.72rem;
+    color: v.$text-muted;
+  }
+
+  &__remove {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: v.$text-muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    transition: all v.$transition-fast ease;
+
+    &:hover {
+      background: rgba(220, 53, 69, 0.08);
+      color: #dc3545;
+    }
+  }
+}
+
+// ── Submit ──
+.nfe-submit {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: v.$space-4;
+  padding-top: v.$space-4;
+  border-top: 1px solid v.$border;
+}
