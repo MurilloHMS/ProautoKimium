@@ -68,6 +68,7 @@ import { HrAnnouncementsManagerComponent } from './components/auth/rh/hr-announc
 import { MedicalCertificatesManagerComponent } from './components/auth/rh/medical-certificates-manager/medical-certificates-manager.component';
 import { RhHubComponent } from './components/auth/rh/rh-hub/rh-hub.component';
 import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
+import { GalleryComponent } from './components/auth/gallery/gallery.component';
 
 
 export const routes: Routes = [
@@ -134,6 +135,7 @@ export const routes: Routes = [
       { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
       { path: 'documentos', component: DocumentosComponent },
+      { path: 'documentos/galeria', component: GalleryComponent },
       { path: 'documentos/logos', component: BrandingComponent },
       { path: 'documentos/holerites', component: HoleritesComponent },
       { path: 'documentos/rh', component: HrHubComponent },

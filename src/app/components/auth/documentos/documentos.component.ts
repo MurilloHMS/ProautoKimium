@@ -20,7 +20,7 @@ interface CategoriaDoc {
 })
 export class DocumentosComponent {
   categorias: CategoriaDoc[] = [
-    { titulo: 'Apresentações', descricao: 'Materiais institucionais e de vendas',   icon: 'pi pi-desktop',    accent: '#7c5cbf', emDesenvolvimento: true },
+    { titulo: 'Galeria',       descricao: 'Fotos, logos e catálogos da empresa',    icon: 'pi pi-images',     accent: '#7c5cbf', rota: '/documentos/galeria' },
     { titulo: 'Logos',         descricao: 'Identidade visual e arquivos da marca',   icon: 'pi pi-palette',    accent: '#e07b4c', rota: '/documentos/logos' },
     { titulo: 'Holerites',     descricao: 'Seus demonstrativos de pagamento',        icon: 'pi pi-receipt',    accent: '#d92d20', rota: '/documentos/holerites' },
     { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card',    accent: '#232e61', emDesenvolvimento: true },
