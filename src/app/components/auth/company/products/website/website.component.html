@@ -1,37 +1,13 @@
 <p-toast position="top-right" />
 <p-confirmDialog [style]="{ width: '440px' }" />
 
+@if (mode() === 'grid') {
 <div class="page-wrapper">
 
-  <!-- HEADER -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-box"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Produtos do Site</h1>
-        <p class="page-subtitle">Gerencie a visibilidade dos produtos exibidos no site</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button
-        pButton
-        icon="pi pi-refresh"
-        label="Atualizar"
-        class="p-button-outlined refresh-btn"
-        [loading]="loading()"
-        (click)="loadAllProducts()"
-      ></button>
-      <button
-        pButton
-        icon="pi pi-plus"
-        label="Novo Produto"
-        class="p-button-primary new-btn"
-        (click)="openCreateDialog()"
-      ></button>
-    </div>
-  </div>
+  <app-toolbar>
+    <pk-button pkType="new" pkSize="sm" pkLabel="Novo Produto" (clicked)="openCreateDialog()"/>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="loadAllProducts()"/>
+  </app-toolbar>
 
   <!-- STATS CARDS -->
   <div class="stats-row">
@@ -282,18 +258,15 @@
   </div>
 </div>
 
-<!-- EDIT DIALOG -->
-<p-dialog
-  [visible]="dialogVisible()"
-  (visibleChange)="dialogVisible.set($event)"
-  [header]="'Editar: ' + (editingProduct()?.name ?? '')"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '600px' }"
-  styleClass="dialog"
-  (onHide)="closeDialog()"
->
+}
+
+<!-- MODO FORMULÁRIO: EDIÇÃO -->
+@if (mode() === 'edit') {
+<app-form-screen
+  [title]="'Editar: ' + (editingProduct()?.name ?? '')"
+  subtitle="Produto exibido no site institucional"
+  (back)="closeDialog()">
+
   <form [formGroup]="editForm" class="edit-form">
 
     <div class="form-section">
@@ -507,36 +480,21 @@
     </div>
   </form>
 
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      label="Cancelar"
-      icon="pi pi-times"
-      class="p-button-outlined p-button-secondary"
-      (click)="closeDialog()"></button>
-    <button
-      pButton
-      label="Salvar Alterações"
-      icon="pi pi-check"
-      class="p-button-primary save-btn"
-      [loading]="saving()"
-      [disabled]="editForm.invalid || saving()"
-      (click)="saveEdit()"></button>
-  </ng-template>
-</p-dialog>
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeDialog()"/>
+    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar Alterações"
+               [pkLoading]="saving()" [pkDisabled]="editForm.invalid || saving()" (clicked)="saveEdit()"/>
+  </div>
+</app-form-screen>
+}
 
-<!-- CREATE DIALOG -->
-<p-dialog
-  [visible]="createDialogVisible()"
-  (visibleChange)="createDialogVisible.set($event)"
-  header="Novo Produto"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '600px' }"
-  styleClass="dialog"
-  (onHide)="closeCreateDialog()"
->
+<!-- MODO FORMULÁRIO: CADASTRO -->
+@if (mode() === 'create') {
+<app-form-screen
+  title="Novo Produto"
+  subtitle="Produto exibido no site institucional"
+  (back)="closeCreateDialog()">
+
   <form [formGroup]="createForm" class="edit-form">
 
     <div class="form-section">
@@ -752,20 +710,10 @@
     </div>
   </form>
 
-  <ng-template pTemplate="footer">
-    <button
-      pButton
-      label="Cancelar"
-      icon="pi pi-times"
-      class="p-button-outlined p-button-secondary"
-      (click)="closeCreateDialog()"></button>
-    <button
-      pButton
-      label="Cadastrar Produto"
-      icon="pi pi-check"
-      class="p-button-primary save-btn"
-      [loading]="saving()"
-      [disabled]="createForm.invalid || saving()"
-      (click)="saveCreate()"></button>
-  </ng-template>
-</p-dialog>
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeCreateDialog()"/>
+    <pk-button pkType="save" pkSize="sm" pkLabel="Cadastrar Produto"
+               [pkLoading]="saving()" [pkDisabled]="createForm.invalid || saving()" (clicked)="saveCreate()"/>
+  </div>
+</app-form-screen>
+}

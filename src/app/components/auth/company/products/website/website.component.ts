@@ -1,3 +1,7 @@
+import { ToolbarComponent } from '../../../shared/toolbar/toolbar.component';
+import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
+import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -51,20 +55,30 @@ export type TabKey = 'active' | 'hidden';
     ColorPickerModule,
     SelectModule,
     DividerModule,
+    ToolbarComponent,
+    FormScreenComponent,
+    PkButtonComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './website.component.html',
   styleUrls: ['./website.component.scss'],
 })
-export class WebsiteComponent implements OnInit {
+export class WebsiteComponent implements OnInit, TabDirtyCheck {
+
+  /** Cadastro ou edição em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return (this.mode() === 'create' && this.createForm.dirty)
+      || (this.mode() === 'edit' && this.editForm.dirty);
+  }
+
   allProducts = signal<ProductWebSiteResponseDTO[]>([]);
   activeProducts = signal<ProductWebSiteResponseDTO[]>([]);
   hiddenProducts = signal<ProductWebSiteResponseDTO[]>([]);
 
   loading = signal(false);
   saving = signal(false);
-  dialogVisible = signal(false);
-  createDialogVisible = signal(false);
+  /** grade, edição ou cadastro — os dois formulários saíram do diálogo. */
+  readonly mode = signal<'grid' | 'edit' | 'create'>('grid');
   editingProduct = signal<ProductWebSiteResponseDTO | null>(null);
 
   activeTab = signal<TabKey>('active');
@@ -221,11 +235,11 @@ export class WebsiteComponent implements OnInit {
 
     this.selectedCreateImage = null;
     this.createImagePreview = null;
-    this.createDialogVisible.set(true);
+    this.mode.set('create');
   }
 
   closeCreateDialog(): void {
-    this.createDialogVisible.set(false);
+    this.mode.set('grid');
     this.createForm.reset({ cores: [] });
     this.selectedCreateImage = null;
     this.createImagePreview = null;
@@ -249,11 +263,11 @@ export class WebsiteComponent implements OnInit {
       equipmentId: product.equipmentId ?? null,
     });
 
-    this.dialogVisible.set(true);
+    this.mode.set('edit');
   }
 
   closeDialog(): void {
-    this.dialogVisible.set(false);
+    this.mode.set('grid');
     this.editingProduct.set(null);
     this.editForm.reset({ cores: [] });
     this.selectedEditImage = null;
