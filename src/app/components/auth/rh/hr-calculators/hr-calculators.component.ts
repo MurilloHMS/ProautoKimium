@@ -16,6 +16,7 @@ import {
   TicketPriceAdjustmentResponse,
 } from '../../../../domain/models/hr/calculator.model';
 import * as XLSX from 'xlsx';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 type MainTab = 'transport' | 'vr' | 'clt-pj';
 type TransportSub = 'municipal' | 'intermunicipal' | 'fuel' | 'adjustment';
@@ -23,7 +24,7 @@ type TransportSub = 'municipal' | 'intermunicipal' | 'fuel' | 'adjustment';
 @Component({
   selector: 'app-hr-calculators',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, SelectModule, Toast, PkButtonComponent, PkInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SelectModule, Toast, PkButtonComponent, PkInputComponent, PageHeaderComponent],
   templateUrl: './hr-calculators.component.html',
   styleUrl: './hr-calculators.component.scss',
   providers: [MessageService],

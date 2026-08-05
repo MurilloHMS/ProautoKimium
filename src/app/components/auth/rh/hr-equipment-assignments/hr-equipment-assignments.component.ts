@@ -12,11 +12,12 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { EquipmentAssignmentService } from '../../../../infrastructure/services/hr/equipment-assignment.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { EquipmentAssignment } from '../../../../domain/models/hr/equipment-assignment.model';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-equipment-assignments',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, PageHeaderComponent],
   templateUrl: './hr-equipment-assignments.component.html',
   styleUrl: './hr-equipment-assignments.component.scss',
   providers: [MessageService],

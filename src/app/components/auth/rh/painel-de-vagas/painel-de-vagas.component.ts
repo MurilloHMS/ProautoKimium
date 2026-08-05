@@ -20,6 +20,7 @@ import { VagaService } from '../../../../infrastructure/services/processoSeletiv
 import { CreateVagaDTO, ResponseVagaDTO, UpdateVagaDTO } from '../../../../domain/models/vaga.model';
 import {CandidaturasComponent} from "../candidaturas/candidaturas.component";
 import {Router} from "@angular/router";
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 type TabStatus = 'publicadas' | 'rascunho' | 'arquivadas' | 'encerradas';
 
@@ -44,7 +45,7 @@ const CAMPO_LIMITS = {
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     SkeletonModule, TooltipModule, BadgeModule, InputText, Select,
-    DialogModule, TextareaModule, ToastModule,
+    DialogModule, TextareaModule, ToastModule, PageHeaderComponent,
   ],
   providers: [MessageService],
   templateUrl: './painel-de-vagas.component.html',

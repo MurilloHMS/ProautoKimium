@@ -1,19 +1,13 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-megaphone"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Mural de Avisos</h1>
-      <p class="page-subtitle">Publique avisos para todos os funcionários</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-megaphone"
+  title="Mural de Avisos"
+  subtitle="Publique avisos para todos os funcionários">
+  <div actions class="header-actions">
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <div class="calc-card">
   <form [formGroup]="form" (ngSubmit)="publish()" class="form-grid">

@@ -1,16 +1,10 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-wallet"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Gerenciador de Reembolsos</h1>
-      <p class="page-subtitle">Analise, aprove e registre o pagamento dos reembolsos</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-wallet"
+  title="Gerenciador de Reembolsos"
+  subtitle="Analise, aprove e registre o pagamento dos reembolsos">
+  <div actions class="header-actions">
     <div class="filter-field">
       <p-select
         [options]="statusOptions"
@@ -24,7 +18,7 @@
     </div>
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <div class="table-card">
   <pk-table
