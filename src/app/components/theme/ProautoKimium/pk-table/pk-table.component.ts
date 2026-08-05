@@ -36,7 +36,19 @@ export class PkTableComponent<T> {
   emptySubtitle = input<string>('');
   pageReportTitle = input<string>('Registros encontrados');
 
+  /**
+   * Barra de contagem e busca acima da grade. Telas com toolbar própria
+   * desligam: a busca passa a morar na toolbar e a contagem já aparece na
+   * paginação ("Mostrando 1 a 14 de 87").
+   */
+  showCaption = input<boolean>(true);
+
   @ViewChild('dt', { static: true }) dt!: Table;
+
+  /** Filtro global da grade — usado pela busca da toolbar da tela. */
+  filterGlobal(value: string): void {
+    this.dt.filterGlobal(value, 'contains');
+  }
 
   @ContentChild('headerTpl') headerTpl!: TemplateRef<any>;
   @ContentChild('bodyTpl') bodyTpl!: TemplateRef<any>;

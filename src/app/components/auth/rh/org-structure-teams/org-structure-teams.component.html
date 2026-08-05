@@ -2,17 +2,24 @@
 
 @if (mode() === 'grid') {
 
-  <div class="section-actions">
-    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
+  <app-toolbar>
     <pk-button pkType="new" (clicked)="openForm()" pkLabel="Novo Setor" pkSize="sm"/>
-  </div>
+    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
 
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar por nome…"
+             aria-label="Buscar setores"
+             (input)="grid.filterGlobal($any($event.target).value)" />
+    </div>
+  </app-toolbar>
   <div class="table-card">
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="teams()"
       [loading]="loading()"
-      totalLabel="setores encontrados"
-      searchPlaceholder="Buscar por nome…"
       [filterFields]="['name']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum setor cadastrado"

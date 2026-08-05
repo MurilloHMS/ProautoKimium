@@ -1,35 +1,37 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-desktop"
-  title="Controle de Equipamentos"
-  subtitle="Controle de entrega e devolução de equipamentos por funcionário">
-  <div actions class="header-actions">
-    <div class="filter-field">
-      <p-select
-        [options]="employeeOptions"
-        [(ngModel)]="employeeFilter"
-        (onChange)="load()"
-        optionLabel="label"
-        optionValue="value"
-        appendTo="body"
-        [filter]="true"
-        [showClear]="true"
-        placeholder="Todos os funcionários"
-        styleClass="select-field">
-      </p-select>
-    </div>
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+<app-toolbar>
+  <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <div filters>
+    <p-select
+      [options]="employeeOptions"
+      [(ngModel)]="employeeFilter"
+      (onChange)="load()"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      [filter]="true"
+      [showClear]="true"
+      placeholder="Todos os funcionários"
+      styleClass="select-field">
+    </p-select>
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar…"
+           aria-label="Buscar equipamentos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
+    #grid
     [data]="assignments"
     [loading]="loading"
-    totalLabel="equipamentos encontrados"
-    searchPlaceholder="Buscar…"
+    [showCaption]="false"
     emptyIcon="pi pi-desktop"
     [emptyTitle]="employeeFilter ? 'Nenhum equipamento no histórico deste funcionário' : 'Nenhum equipamento em posse'"
     emptySubtitle="Registre um novo equipamento para começar."

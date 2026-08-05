@@ -21,7 +21,7 @@ import {
   PositionLevel,
   SalaryAdjustmentType
 } from '../../../../domain/models/hr/career.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-career-structure',
@@ -29,7 +29,7 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
   imports: [
     CommonModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, Toast,
     PkButtonComponent, PkDialogComponent, PkTableComponent, PkInputComponent,
-    PageHeaderComponent,
+    ToolbarComponent,
   ],
   templateUrl: './career-structure.component.html',
   styleUrl: './career-structure.component.scss',

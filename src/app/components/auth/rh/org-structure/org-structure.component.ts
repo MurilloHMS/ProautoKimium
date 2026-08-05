@@ -4,7 +4,6 @@ import { OrgStructureCompaniesComponent } from '../org-structure-companies/org-s
 import { OrgStructureDepartmentsComponent } from '../org-structure-departments/org-structure-departments.component';
 import { OrgStructureTeamsComponent } from '../org-structure-teams/org-structure-teams.component';
 import { OrgStructureHierarchiesComponent } from '../org-structure-hierarchies/org-structure-hierarchies.component';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 type OrgStructureSection = 'companies' | 'departments' | 'teams' | 'hierarchies';
 
@@ -17,7 +16,6 @@ type OrgStructureSection = 'companies' | 'departments' | 'teams' | 'hierarchies'
     OrgStructureDepartmentsComponent,
     OrgStructureTeamsComponent,
     OrgStructureHierarchiesComponent,
-    PageHeaderComponent,
   ],
   templateUrl: './org-structure.component.html',
   styleUrl: './org-structure.component.scss',

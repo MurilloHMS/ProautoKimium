@@ -1,126 +1,214 @@
 @use 'variables' as v;
 
-// ─── Container ────────────────────────────────────────────────────────────────
-.pk-table-card {
-  background: v.$bg-panel;
-  border-radius: v.$radius-md;
-  box-shadow: v.$shadow-sm;
-  overflow: hidden;
+// ═══════════════════════════════════════════════════════════════════════════
+// Tabela do sistema — densidade de ERP.
+//
+// Linha de 38px, cabeçalho de 34px, texto de 13px: cabe muito mais informação
+// por tela, que é o que uma lista de funcionários ou de reembolsos pede.
+// Elevação vem de borda e superfície; sombra não participa.
+// ═══════════════════════════════════════════════════════════════════════════
 
-  @media (max-width: v.$bp-md) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+// ─── Container ────────────────────────────────────────────────────────────────
+// Sem raio e sem borda externa: a grade é a tela, não um cartão flutuando
+// sobre ela. Só um fio em cima separando do cabeçalho da tela.
+.pk-table-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+}
+
+// A p-table precisa ocupar a altura que sobrou para o scrollHeight="flex"
+// funcionar: é ele que fixa o cabeçalho e rola só o corpo.
+::ng-deep .pk-table {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+
+  .p-datatable-table-container {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }
 
-// ─── Caption ──────────────────────────────────────────────────────────────────
+// ─── Barra de cima: contagem + busca ─────────────────────────────────────────
 .pk-table-caption {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid v.$border;
+  gap: var(--gap-control);
   flex-wrap: wrap;
-  gap: .75rem;
+  padding: 10px var(--cell-px);
+  border-bottom: 1px solid var(--app-border);
 
   &__count {
-    font-size: .85rem;
-    color: v.$text-muted;
-    strong { color: v.$primary; font-weight: 700; }
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+
+    strong {
+      color: var(--app-text);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
   }
 
   &__search {
-    position: relative;
     display: flex;
     align-items: center;
 
-    i {
-      position: absolute;
-      left: .75rem;
-      color: v.$text-light;
-      font-size: .85rem;
-      pointer-events: none;
-    }
-
     input.p-inputtext {
-      padding-left: 2.25rem;
-      height: 36px;
-      width: 260px;
-      border-radius: v.$radius-sm;
-      border: 1px solid v.$border;
-      font-size: .83rem;
-      background: v.$bg-base;
-      transition: border-color .15s, box-shadow .15s;
+      height: var(--field-h);
+      width: 240px;
+      max-width: 100%;
+      padding-left: 2.1rem;
+      border: 1px solid var(--app-border);
+      border-radius: var(--radius-control);
+      background: var(--app-surface-2);
+      color: var(--app-text);
+      font-size: var(--text-ui);
+      transition: border-color v.$transition-base, box-shadow v.$transition-base, background v.$transition-base;
 
       &:focus {
-        border-color: v.$primary-light;
-        box-shadow: 0 0 0 3px rgba(35, 46, 97, .1);
-        background: v.$bg-panel;
         outline: none;
+        border-color: var(--app-action);
+        background: var(--app-surface);
+        box-shadow: var(--app-focus-ring);
       }
     }
   }
 }
 
-// ─── PrimeNG overrides ────────────────────────────────────────────────────────
+// ─── PrimeNG ─────────────────────────────────────────────────────────────────
 ::ng-deep .pk-table {
 
+  // Cabeçalho sem caixa cinza: só o texto e uma régua mais firme embaixo.
+  // Fica grudado no topo enquanto o corpo rola (scrollHeight="flex").
   .p-datatable-thead > tr > th {
-    background: v.$bg-base;
-    color: v.$text-muted;
-    font-size: .76rem;
+    height: var(--row-head-h);
+    padding: 0 var(--cell-px);
+    background: var(--app-surface);
+    border-bottom: 1px solid var(--app-border-strong);
+    border-right: 1px solid var(--app-border-soft);
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
     font-weight: 700;
+    letter-spacing: var(--tracking-head);
     text-transform: uppercase;
-    letter-spacing: .05em;
-    padding: .75rem 1rem;
-    border-bottom: 2px solid v.$border;
     white-space: nowrap;
+
+    &:last-child { border-right: none; }
   }
 
   .p-datatable-tbody > tr {
-    transition: background .12s;
+    transition: background v.$transition-fast;
 
     > td {
-      padding: .75rem 1rem;
-      border-bottom: 1px solid v.$border;
-      font-size: .85rem;
-      color: v.$neutral-900;
+      height: var(--row-h);
+      padding: 0 var(--cell-px);
+      border-bottom: 1px solid var(--app-border-soft);
+      // Fio vertical entre colunas: ajuda a seguir a linha em tabela larga.
+      border-right: 1px solid var(--app-border-soft);
+      color: var(--app-text);
+      font-size: var(--text-ui);
       vertical-align: middle;
+
+      &:last-child { border-right: none; }
     }
 
-    &:hover > td { background: v.$bg-hover; }
-    &:last-child > td { border-bottom: none; }
+    &:hover > td { background: var(--app-surface-2); }
   }
 
+  // Números alinhados: coluna de valor fica legível de cima a baixo.
+  .p-datatable-tbody > tr > td.numeric,
+  .p-datatable-thead > tr > th.numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .p-datatable-loading-overlay {
+    background: color-mix(in srgb, var(--app-surface) 70%, transparent);
+  }
+
+  // ─── Paginação ─────────────────────────────────────────────────────────────
   .p-paginator {
-    border-top: 1px solid v.$border;
-    padding: .75rem 1rem;
-    background: v.$bg-panel;
+    padding: 6px var(--cell-px);
+    border-top: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-muted);
+    font-size: var(--text-ui-sm);
 
     .p-paginator-element {
-      border-radius: v.$radius-sm;
-      font-size: .82rem;
-      min-width: 32px;
-      height: 32px;
+      min-width: 28px;
+      height: 28px;
+      margin: 0 1px;
+      border-radius: var(--radius-control);
+      color: var(--app-text-muted);
+      font-size: var(--text-ui-sm);
+      transition: background v.$transition-fast, color v.$transition-fast;
+
+      &:not(.p-disabled):hover {
+        background: var(--app-surface-2);
+        color: var(--app-text);
+      }
 
       &.p-highlight {
-        background: v.$primary;
-        color: #fff;
-        border-color: v.$primary;
+        background: var(--app-action);
+        border-color: var(--app-action);
+        color: var(--app-on-action);
       }
+    }
+  }
+
+  // Ordenação: a seta ativa usa a cor de ação, como todo o resto do que é clicável.
+  .p-sortable-column {
+    &:hover { color: var(--app-text); }
+
+    &.p-highlight,
+    &.p-highlight .p-sortable-column-icon {
+      color: var(--app-action);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-action);
+      outline-offset: -2px;
     }
   }
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ─── Estado vazio ────────────────────────────────────────────────────────────
 .pk-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3.5rem 1rem;
+  padding: 48px 16px;
   text-align: center;
 
-  &__icon { font-size: 2.5rem; color: v.$text-light; margin-bottom: 1rem; }
-  &__title { font-weight: 600; color: v.$text-muted; margin: 0 0 .35rem; font-size: .95rem; }
-  &__subtitle { font-size: .82rem; color: v.$text-light; margin: 0; }
+  &__icon {
+    font-size: 1.75rem;
+    color: var(--app-text-subtle);
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    margin: 0 0 4px;
+    font-size: var(--text-ui);
+    font-weight: 600;
+    color: var(--app-text-muted);
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-subtle);
+  }
 }

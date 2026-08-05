@@ -1,3 +1,10 @@
+@use 'mixins' as m2;
+
+// Tela de grade: toolbar fixa, grade ocupando o resto e rolando por dentro.
+:host { @include m2.grid-screen; }
+
+.ac-content { @include m2.grid-screen-body; }
+
 :host {
   display: block;
   background: #f5f6fa;

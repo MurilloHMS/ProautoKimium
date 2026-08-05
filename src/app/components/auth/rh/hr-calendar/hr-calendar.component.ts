@@ -11,12 +11,12 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { CalendarService } from '../../../../infrastructure/services/hr/calendar.service';
 import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { CalendarEvent, CalendarEventStatus } from '../../../../domain/models/hr/calendar.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-hr-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent, ToolbarComponent],
   templateUrl: './hr-calendar.component.html',
   styleUrl: './hr-calendar.component.scss',
   providers: [MessageService],

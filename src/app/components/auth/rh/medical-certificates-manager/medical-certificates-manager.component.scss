@@ -1,7 +1,13 @@
 @use 'variables' as v;
 @use 'mixins' as m;
 
-:host { @include m.page-layout; }
+// Tela de grade: cabeçalho fixo, tabela ocupando o resto e rolando por dentro.
+:host { @include m.grid-screen; }
+
+// A toolbar já traz o próprio espaçamento; nada de cabeçalho com título aqui —
+// a aba é que diz em qual tela o usuário está.
+
+.table-card { @include m.grid-screen-body; }
 
 .col-center { text-align: center !important; }
 

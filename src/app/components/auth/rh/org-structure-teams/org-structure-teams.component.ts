@@ -9,13 +9,14 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { DepartmentStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
   selector: 'app-org-structure-teams',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SelectModule, TableModule, Toast, PkButtonComponent, PkTableComponent, PkInputComponent, FormScreenComponent],
+  imports: [CommonModule, ReactiveFormsModule, SelectModule, TableModule, Toast, PkButtonComponent, PkTableComponent, PkInputComponent, FormScreenComponent, ToolbarComponent],
   templateUrl: './org-structure-teams.component.html',
   styleUrl: './org-structure-teams.component.scss',
   providers: [MessageService],

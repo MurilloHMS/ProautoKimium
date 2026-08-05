@@ -1,30 +1,28 @@
 <p-toast></p-toast>
 
-<!-- TOPBAR -->
-<div class="ac-topbar">
-  <div class="ac-topbar-left">
-    <div class="ac-topbar-icon">
-      <i class="pi pi-shield"></i>
-    </div>
-    <div>
-      <h1 class="ac-topbar-title">Centro Administrativo</h1>
-      <span class="ac-topbar-sub">{{ users.length }} usuários cadastrados</span>
-    </div>
+<app-toolbar>
+  <pk-button pkType="new" pkSize="sm" pkLabel="Novo usuário" (clicked)="openCreateDialog()"/>
+  <pk-button pkType="token" pkSize="sm" [pkLoading]="loading" (clicked)="generateAccessTokens()"/>
+
+  <div filters>
+    <span class="toolbar__label">{{ users.length }} usuários</span>
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar por login..."
+           aria-label="Buscar usuários"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-  <div class="ac-topbar-right">
-    <pk-button pkType="token" pkSize="sm" [pkLoading]="loading" (clicked)="generateAccessTokens()"/>
-    <pk-button pkType="new" pkSize="sm" pkLabel="Novo usuário" (clicked)="openCreateDialog()"/>
-  </div>
-</div>
+</app-toolbar>
 
 <!-- CONTEUDO -->
 <div class="ac-content">
   <pk-table
+    #grid
+    [showCaption]="false"
     [data]="users"
     [loading]="loading"
-    totalLabel="usuários"
     [filterFields]="['login']"
-    searchPlaceholder="Buscar por login..."
     emptyIcon="pi pi-users"
     emptyTitle="Nenhum usuário encontrado"
     emptySubtitle="Cadastre o primeiro usuário no botão Novo usuário."

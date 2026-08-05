@@ -1,7 +1,10 @@
 @use 'variables' as v;
 @use 'mixins' as m;
 
-:host { @include m.page-layout; }
+// Tela de grade: toolbar fixa em cima, grade ocupando o resto e rolando dentro.
+:host { @include m.grid-screen; }
+
+.table-card { @include m.grid-screen-body; }
 
 .col-center { text-align: center !important; }
 

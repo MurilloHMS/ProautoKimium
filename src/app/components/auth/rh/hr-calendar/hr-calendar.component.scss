@@ -1,7 +1,9 @@
 @use 'variables' as v;
 @use 'mixins' as m;
 
-:host { @include m.page-layout; }
+:host { @include m.grid-screen; }
+
+.table-card { @include m.grid-screen-body; }
 
 .filters-bar {
   display: flex;

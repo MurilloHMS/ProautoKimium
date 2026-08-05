@@ -2,29 +2,47 @@
 
 .action-buttons {
   display: flex;
-  gap: .3rem;
+  gap: 4px;
   justify-content: center;
 }
 
+/* ===========================================================================
+   Botões legados — telas que ainda não usam pk-button.
+   Mesma hierarquia do pk-button: primária navy sólida, apoio com contorno
+   neutro. Some o teal como cor de ação.
+   =========================================================================== */
 
-// Todo: remover após migrar botoes para pk-button
-.new-btn {
-  background: v.$primary !important;
-  border-color: v.$primary !important;
-  color: #fff !important;
-  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
-}
-
+.new-btn,
 .save-btn {
-  background: v.$primary !important;
-  border-color: v.$primary !important;
-  color: #fff !important;
-  &:hover { background: v.$primary-dark !important; border-color: v.$primary-dark !important; }
-  &:disabled { opacity: .5; cursor: not-allowed; }
+  height: var(--btn-h-md);
+  border: 1px solid var(--app-action);
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: var(--app-on-action);
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--app-action-hover);
+    border-color: var(--app-action-hover);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }
 
 .refresh-btn {
-  border-color: v.$secondary !important;
-  color: v.$primary !important;
-  &:hover { background-color: v.$secondary-light !important; }  // corrigido: era &hover sem :
+  height: var(--btn-h-md);
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--app-surface-2);
+    border-color: var(--app-action);
+    color: var(--app-action);
+  }
 }

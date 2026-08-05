@@ -1,4 +1,11 @@
+@use 'mixins' as m2;
 @use 'variables' as v;
+
+// Tela de grade: toolbar fixa, grade ocupando o resto e rolando por dentro.
+:host { @include m2.grid-screen; }
+
+.painel-wrapper { @include m2.grid-screen-body; }
+
 
 $text-main:         #1a202c;
 $text-muted:        #64748b;

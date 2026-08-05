@@ -8,7 +8,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
@@ -32,7 +33,7 @@ import {ButtonDirective} from "primeng/button";
     ToastModule,
     TooltipModule,
     ConfirmDialogModule,
-    PkTableComponent,
+    PkTableComponent, ToolbarComponent,
     PkDialogComponent,
     PkInputComponent,
     PkButtonComponent,

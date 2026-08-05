@@ -1,52 +1,41 @@
 <div class="painel-wrapper">
   <p-toast position="top-right"></p-toast>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-users"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Clientes</h1>
-        <p class="page-subtitle">Gerencie sua base de parceiros e clientes</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <pk-button
-        pkType="refresh"
-        pkLabel="Atualizar"
-        (click)="loadCustomers()"
-      />
-      <pk-button
-              pkLabel="Novo Cliente"
-              (click)="showDialog()">
-      </pk-button>
+  <app-toolbar>
+    <pk-button pkLabel="Novo Cliente" (click)="showDialog()"></pk-button>
+    <pk-button pkType="refresh" pkLabel="Atualizar" (click)="loadCustomers()" />
 
-      <pk-fileUpload
-        mode="button"
-        chooseLabel="ImportarExcel"
-        chooseType="upload"
-        accept=".xlsx"
-        [maxFileSize]="1000000"
-        fileIcon="pi pi-file-excel"
-        (filesSelected)="onFileSelect($event)"
-        (cleared)="selectedFile = null">
+    <span class="toolbar__divider"></span>
 
-        @if(selectedFile){
-          <pk-button
-            pkType="upload"
-            pkLabel="Enviar"
-            (click)="importByExcel()"
-          />
-        }
-      </pk-fileUpload>
+    <pk-fileUpload
+      mode="button"
+      chooseLabel="Importar Excel"
+      chooseType="upload"
+      accept=".xlsx"
+      [maxFileSize]="1000000"
+      fileIcon="pi pi-file-excel"
+      (filesSelected)="onFileSelect($event)"
+      (cleared)="selectedFile = null">
+
+      @if(selectedFile){
+        <pk-button pkType="upload" pkLabel="Enviar" (click)="importByExcel()" />
+      }
+    </pk-fileUpload>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar cliente…"
+             aria-label="Buscar clientes"
+             (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
-  </div>
+  </app-toolbar>
 
   <!-- Table Card -->
   <div class="table-card">
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="customers"
       [rows]="10"
       [rowsOptions]="[5, 10, 20]"

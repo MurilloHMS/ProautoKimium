@@ -2,31 +2,27 @@
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog [style]="{ width: '440px' }"></p-confirmDialog>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-wrench"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Equipamentos</h1>
-        <p class="page-subtitle">Gerencie os equipamentos exibidos no site</p>
-      </div>
+  <app-toolbar>
+    <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar por nome…"
+             aria-label="Buscar equipamentos"
+             (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
-    <div class="header-actions">
-      <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
-      <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
-    </div>
-  </div>
+  </app-toolbar>
 
   <!-- Table Card -->
   <div class="table-card">
 
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="equipments()"
       [loading]="loading()"
-      totalLabel="equipamentos encontrados"
-      searchPlaceholder="Buscar por nome…"
       [filterFields]="['nome']"
       emptyIcon="pi pi-wrench"
       emptyTitle="Nenhum equipamento encontrado"

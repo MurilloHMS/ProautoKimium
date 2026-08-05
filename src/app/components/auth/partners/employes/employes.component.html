@@ -1,22 +1,18 @@
 <div class="painel-wrapper">
   <p-toast position="top-right"></p-toast>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-briefcase"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Funcionários</h1>
-        <p class="page-subtitle">Gerencie os colaboradores e suas hierarquias</p>
-      </div>
+  <app-toolbar>
+    <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Funcionário" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="loadEmployes()" pkLabel="Atualizar" pkSize="sm"/>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar funcionário…"
+             aria-label="Buscar funcionários"
+             (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
-    <div class="header-actions">
-      <pk-button pkType="refresh" (clicked)="loadEmployes()" pkLabel="Atualizar" pkSize="sm"/>
-      <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Funcionário" pkSize="sm"/>
-    </div>
-  </div>
+  </app-toolbar>
 
   <!-- Indicador de vínculo usuário/funcionário -->
   <div class="link-status" *ngIf="employes.length > 0"
@@ -35,10 +31,10 @@
   <div class="table-card">
 
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="employes"
       [loading]="loading"
-      totalLabel="funcionários encontrados"
-      searchPlaceholder="Buscar por nome, email, código…"
       [filterFields]="['name', 'email', 'partnerCode', 'hierarchy', 'positionName', 'contractType']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum funcionário encontrado"

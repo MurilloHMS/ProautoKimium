@@ -1,31 +1,34 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-wallet"
-  title="Gerenciador de Reembolsos"
-  subtitle="Analise, aprove e registre o pagamento dos reembolsos">
-  <div actions class="header-actions">
-    <div class="filter-field">
-      <p-select
-        [options]="statusOptions"
-        [(ngModel)]="statusFilter"
-        (onChange)="load()"
-        optionLabel="label"
-        optionValue="value"
-        appendTo="body"
-        styleClass="select-field">
-      </p-select>
-    </div>
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+<app-toolbar>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <div filters>
+    <span class="toolbar__label">Status:</span>
+    <p-select
+      [options]="statusOptions"
+      [(ngModel)]="statusFilter"
+      (onChange)="load()"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      styleClass="select-field">
+    </p-select>
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar…"
+           aria-label="Buscar reembolsos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
+    #grid
     [data]="reimbursements"
     [loading]="loading"
-    totalLabel="reembolsos encontrados"
-    searchPlaceholder="Buscar…"
+    [showCaption]="false"
     emptyIcon="pi pi-wallet"
     emptyTitle="Nenhum reembolso encontrado"
     emptySubtitle="Troque o filtro de status pra ver outros reembolsos."

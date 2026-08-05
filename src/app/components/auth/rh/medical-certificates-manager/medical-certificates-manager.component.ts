@@ -9,12 +9,12 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { MedicalCertificateService } from '../../../../infrastructure/services/hr/medical-certificate.service';
 import { MedicalCertificate } from '../../../../domain/models/hr/medical-certificate.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-medical-certificates-manager',
   standalone: true,
-  imports: [CommonModule, TableModule, Toast, PkButtonComponent, PkTableComponent, ButtonDirective, Tooltip, PageHeaderComponent],
+  imports: [CommonModule, TableModule, Toast, PkButtonComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
   templateUrl: './medical-certificates-manager.component.html',
   styleUrl: './medical-certificates-manager.component.scss',
   providers: [MessageService],

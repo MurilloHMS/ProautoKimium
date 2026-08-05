@@ -8,13 +8,14 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { HierarchyStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
   selector: 'app-org-structure-hierarchies',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TableModule, Toast, PkButtonComponent, PkTableComponent, PkInputComponent, FormScreenComponent],
+  imports: [CommonModule, ReactiveFormsModule, TableModule, Toast, PkButtonComponent, PkTableComponent, PkInputComponent, FormScreenComponent, ToolbarComponent],
   templateUrl: './org-structure-hierarchies.component.html',
   styleUrl: './org-structure-hierarchies.component.scss',
   providers: [MessageService],

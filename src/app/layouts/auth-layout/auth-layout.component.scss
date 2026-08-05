@@ -8,19 +8,46 @@
   background: var(--app-bg);
 }
 
+// A área de trabalho tem altura fixa e NÃO rola: quem rola é a tela de dentro.
+// É o que faz a grade ocupar a tela com cabeçalho fixo e paginação sempre
+// visível, em vez de a página inteira rolar levando tudo junto.
 .app-content {
-  flex: 1;
+  height: 100dvh;
+  box-sizing: border-box;
   min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   background: var(--app-bg);
 
   // Compensa a topbar fixa (inclui o notch do iPhone).
   padding-top: calc(var(--topbar-h) + env(safe-area-inset-top));
 }
 
+// O <router-outlet> é um elemento irmão da tela; sem isto ele viraria um item
+// flex e roubaria metade da altura.
+.app-content > router-outlet {
+  display: none;
+}
+
+// Por padrão a tela rola por inteiro. Telas de grade desligam isso via o mixin
+// `grid-screen` e deixam a rolagem para a própria tabela.
+.app-content > *:not(router-outlet) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 // No desktop entra a barra de abas entre a topbar e o conteúdo.
 @media (min-width: v.$bp-md) {
   .app-content {
     padding-top: calc(var(--topbar-h) + var(--tab-bar-h) + env(safe-area-inset-top));
+  }
+}
+
+@media (max-width: v.$bp-md) {
+  .app-content {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   }
 }
 

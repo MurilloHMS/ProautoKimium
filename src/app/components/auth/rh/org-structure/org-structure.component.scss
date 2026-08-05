@@ -1,47 +1,76 @@
 @use 'variables' as v;
 @use 'mixins' as m;
 
-:host { @include m.page-layout; }
+// Tela de grade: o seletor de seções faz as vezes de toolbar e a seção
+// escolhida ocupa o resto da altura.
+:host { @include m.grid-screen; }
 
+// Abas de seção no estilo do sistema: sublinhado na cor de ação, sem pílula
+// colorida e sem sombra.
 .org-switcher {
+  flex: 0 0 auto;
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 20px 0 24px;
+  gap: 2px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
 
   &__item {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 18px;
-    border-radius: 12px;
-    border: 1px solid #e6e9f0;
-    background: #ffffff;
-    color: #6b7492;
+    flex: 0 0 auto;
+    height: 40px;
+    padding: 0 14px;
+    border: 0;
+    background: transparent;
+    color: var(--app-text-muted);
+    font-family: v.$font-body;
     font-weight: 600;
-    font-size: 0.88rem;
+    font-size: var(--text-ui);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: color v.$transition-base, background v.$transition-base;
 
-    i { font-size: 0.95rem; }
+    i { font-size: var(--text-ui-sm); }
 
     &:hover {
-      border-color: rgba(87, 193, 171, 0.5);
-      color: v.$primary;
+      background: var(--app-surface-2);
+      color: var(--app-text);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--app-action);
+      outline-offset: -2px;
     }
 
     &--active {
-      background: linear-gradient(135deg, v.$primary, v.$secondary);
-      border-color: transparent;
-      color: #ffffff;
-      box-shadow: 0 8px 20px rgba(35, 46, 97, 0.20);
+      color: var(--app-action);
 
-      &:hover { color: #ffffff; }
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--app-action);
+      }
     }
   }
 }
 
-@media (max-width: 600px) {
-  .org-switcher { gap: 6px; }
-  .org-switcher__item { padding: 8px 14px; font-size: 0.82rem; }
+// A seção ativa é quem ocupa a altura restante.
+app-org-structure-companies,
+app-org-structure-departments,
+app-org-structure-teams,
+app-org-structure-hierarchies {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 }

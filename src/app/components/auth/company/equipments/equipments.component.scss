@@ -1,4 +1,14 @@
+@use 'mixins' as m2;
 @use 'variables.scss' as v;
+
+
+// Tela de grade: toolbar fixa, grade ocupando o resto e rolando por dentro.
+:host { @include m2.grid-screen; }
+
+.painel-wrapper { @include m2.grid-screen; gap: 0; min-height: 0; padding: 0; }
+
+.table-card { @include m2.grid-screen-body; }
+
 
 // ─── Table Card ───────────────────────────────────────────────────────────────
 .table-card {

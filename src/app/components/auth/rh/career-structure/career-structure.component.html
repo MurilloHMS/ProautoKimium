@@ -1,22 +1,28 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-briefcase"
-  title="Cargos &amp; Níveis"
-  subtitle="Estrutura de cargos, níveis salariais e dissídio">
-  <div actions class="header-actions">
-    <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
+<app-toolbar>
+  <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
+  <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <span class="toolbar__divider"></span>
+
+  <pk-button pkType="edit" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm" pkIcon="pi pi-percentage"/>
+
+  <div filters>
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar cargo…"
+           aria-label="Buscar cargos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
+    #grid
+    [showCaption]="false"
     [data]="positions()"
     [loading]="loadingPositions()"
-    totalLabel="cargos encontrados"
-    searchPlaceholder="Buscar por nome…"
     [filterFields]="['name']"
     emptyIcon="pi pi-briefcase"
     emptyTitle="Nenhum cargo cadastrado"

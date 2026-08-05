@@ -12,7 +12,7 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { Reimbursement, ReimbursementStatus } from '../../../../domain/models/hr/reimbursement.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
 
@@ -21,7 +21,7 @@ type ReviewAction = 'approve' | 'reject';
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],

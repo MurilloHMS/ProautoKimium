@@ -2,17 +2,24 @@
 
 @if (mode() === 'grid') {
 
-  <div class="section-actions">
-    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
+  <app-toolbar>
     <pk-button pkType="new" (clicked)="openForm()" pkLabel="Nova Empresa" pkSize="sm"/>
-  </div>
+    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
 
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar por nome, CNPJ…"
+             aria-label="Buscar empresas"
+             (input)="grid.filterGlobal($any($event.target).value)" />
+    </div>
+  </app-toolbar>
   <div class="table-card">
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="companies()"
       [loading]="loading()"
-      totalLabel="empresas encontradas"
-      searchPlaceholder="Buscar por nome, CNPJ…"
       [filterFields]="['name', 'legalName', 'cnpj']"
       emptyIcon="pi pi-building"
       emptyTitle="Nenhuma empresa cadastrada"
