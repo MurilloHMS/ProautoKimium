@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -11,6 +11,8 @@ import { ButtonDirective } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
@@ -24,12 +26,22 @@ type ReviewAction = 'approve' | 'reject';
 @Component({
   selector: 'app-vacation-requests-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, InputNumberModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, InputNumberModule, Toast, PkButtonComponent, PkDialogComponent, FormScreenComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
   templateUrl: './vacation-requests-manager.component.html',
   styleUrl: './vacation-requests-manager.component.scss',
   providers: [MessageService],
 })
-export class VacationRequestsManagerComponent implements OnInit {
+export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
+
+  /** Lançamento em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.registerForm.dirty;
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
   requests: VacationRequest[] = [];
   loading = false;
   employeeNames = new Map<string, string>();
@@ -52,7 +64,8 @@ export class VacationRequestsManagerComponent implements OnInit {
   reviewNotes = '';
   reviewSaving = false;
 
-  registerDialogVisible = false;
+  /** grade ou lançamento de férias. A análise (aprovar/recusar) segue em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   registerForm: FormGroup;
   registerSaving = false;
   employeeOptions: { label: string; value: string }[] = [];
@@ -194,7 +207,7 @@ export class VacationRequestsManagerComponent implements OnInit {
   openRegisterDialog(): void {
     this.registerForm.reset();
     this.setBalance = false;
-    this.registerDialogVisible = true;
+    this.mode.set('form');
   }
 
   get registerDaysRequested(): number | null {
@@ -234,7 +247,7 @@ export class VacationRequestsManagerComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.registerSaving = false;
-        this.registerDialogVisible = false;
+        this.mode.set('grid');
         this.load();
         this.loadAlerts();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Férias lançadas com sucesso!' });

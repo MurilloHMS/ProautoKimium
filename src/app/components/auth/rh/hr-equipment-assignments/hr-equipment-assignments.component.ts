@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -8,6 +8,8 @@ import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { EquipmentAssignmentService } from '../../../../infrastructure/services/hr/equipment-assignment.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
@@ -17,12 +19,22 @@ import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 @Component({
   selector: 'app-hr-equipment-assignments',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ToolbarComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, FormScreenComponent, PkTableComponent, ToolbarComponent],
   templateUrl: './hr-equipment-assignments.component.html',
   styleUrl: './hr-equipment-assignments.component.scss',
   providers: [MessageService],
 })
-export class HrEquipmentAssignmentsComponent implements OnInit {
+export class HrEquipmentAssignmentsComponent implements OnInit, TabDirtyCheck {
+
+  /** Entrega em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && !!this.deliverEmployeeId;
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
   assignments: EquipmentAssignment[] = [];
   loading = false;
   employeeNames = new Map<string, string>();
@@ -30,7 +42,8 @@ export class HrEquipmentAssignmentsComponent implements OnInit {
 
   employeeFilter: string | null = null;
 
-  deliverDialogVisible = false;
+  /** grade ou formulário de entrega. A devolução continua em diálogo: é confirmação. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   deliverEmployeeId: string | null = null;
   deliverEquipmentType = '';
   deliverDescription = '';
@@ -106,7 +119,7 @@ export class HrEquipmentAssignmentsComponent implements OnInit {
     this.deliverDescription = '';
     this.deliverDeliveredAt = new Date();
     this.deliverNotes = '';
-    this.deliverDialogVisible = true;
+    this.mode.set('form');
   }
 
   get canConfirmDeliver(): boolean {
@@ -126,7 +139,7 @@ export class HrEquipmentAssignmentsComponent implements OnInit {
     }).subscribe({
       next: () => {
         this.deliverSaving = false;
-        this.deliverDialogVisible = false;
+        this.mode.set('grid');
         this.load();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Equipamento registrado com sucesso!' });
       },

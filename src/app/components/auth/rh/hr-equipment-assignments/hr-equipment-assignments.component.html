@@ -1,5 +1,7 @@
 <p-toast position="top-right"></p-toast>
 
+@if (mode() === 'grid') {
+
 <app-toolbar>
   <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
   <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
@@ -75,9 +77,11 @@
   </pk-table>
 </div>
 
-<!-- Dialog: Novo Equipamento -->
-<pk-dialog header="Novo Equipamento" [visible]="deliverDialogVisible" (visibleChange)="deliverDialogVisible = $event">
-  <div pkDialogContent>
+}
+
+@if (mode() === 'form') {
+<app-form-screen title="Novo Equipamento" subtitle="Entrega de equipamento a um funcionário" (back)="closeForm()">
+  <div>
     <div class="form-grid">
       <div class="form-field form-field--full">
         <label for="deliverEmployee">Funcionário <span class="required">*</span></label>
@@ -118,11 +122,12 @@
       </div>
     </div>
   </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="deliverDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="save" (clicked)="confirmDeliver()" pkLabel="Registrar" pkSize="sm" [pkDisabled]="!canConfirmDeliver" [pkLoading]="deliverSaving"/>
   </div>
-</pk-dialog>
+</app-form-screen>
+}
 
 <!-- Dialog: Registrar devolução -->
 <pk-dialog header="Registrar devolução" [visible]="returnDialogVisible" (visibleChange)="returnDialogVisible = $event">
