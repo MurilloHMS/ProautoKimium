@@ -1,4 +1,5 @@
 @use "variables" as v;
+@use 'tokens';
 @use 'typography';
 @use 'forms';
 @use 'buttons';
@@ -8,6 +9,7 @@
 @use 'chips';
 @use 'tabs';
 @use 'dialogs';
+@use 'dark-compat';
 
 // @import "/node_modules/bootstrap/dist/css/bootstrap.min.css" layer(bootstrap);
 
@@ -38,6 +40,11 @@ app-root{
 .content{
     flex: 1;
     background: #f1f2f4
+}
+
+/* Trava o scroll do fundo enquanto o drawer da área autenticada está aberto. */
+body.drawer-open {
+    overflow: hidden;
 }
 
 app-footer{

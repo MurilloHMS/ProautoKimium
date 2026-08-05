@@ -1,0 +1,72 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Camada de compatibilidade do tema escuro
+//
+// O shell (topbar, drawer, bottom nav, page-header) já usa os tokens de
+// `_tokens.scss`. As páginas ainda têm cor cravada no SCSS de cada componente
+// (`color: $primary`, `background: #fff`), então dentro do tema escuro elas
+// ficavam com texto navy sobre fundo escuro e cards brancos.
+//
+// Aqui está uma pincelada larga, de propósito: cobre os nomes de classe que se
+// repetem pelo projeto (padrão BEM `__title`, `__label`, `__value`) e as caixas
+// brancas mais comuns. Telas com superfície própria (hero em gradiente, chips
+// coloridos) continuam como estão — e telas específicas ainda vão precisar de
+// retoque. Isso vale até a migração página a página para `var(--app-*)`.
+//
+// Escopo: só dentro de `app-auth-layout` e só com `.dark-mode` ligado, para não
+// afetar o site público.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.dark-mode app-auth-layout {
+
+  // ─── Superfícies brancas ────────────────────────────────────────────────
+  .page-wrapper,
+  .painel-wrapper {
+    background: transparent;
+  }
+
+  .card,
+  .table-card,
+  .filter-section,
+  .quick-card,
+  .notif-panel,
+  .doc-card,
+  .kpi,
+  .cal {
+    background: var(--app-surface);
+    border-color: var(--app-border);
+  }
+
+  // ─── Títulos e textos escuros ───────────────────────────────────────────
+  h1, h2, h3, h4, h5,
+  .page-title,
+  [class*='__title'],
+  [class*='__label'],
+  [class*='__value'],
+  [class*='__name'] {
+    color: var(--app-text);
+  }
+
+  .page-subtitle,
+  [class*='__desc'],
+  [class*='__hint'],
+  [class*='__sub'],
+  [class*='__meta'] {
+    color: var(--app-text-muted);
+  }
+
+  // ─── Divisores e ícones de cabeçalho ────────────────────────────────────
+  .divider-label {
+    color: var(--app-text-muted);
+  }
+
+  .header-icon {
+    background: var(--app-primary-soft);
+    color: var(--app-primary);
+  }
+
+  // ─── Estados de linha (tabelas e listas) ────────────────────────────────
+  tr:hover,
+  .notif-row:hover {
+    background: var(--app-surface-2);
+  }
+}
