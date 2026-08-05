@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
@@ -53,7 +54,7 @@ const MONTH_LABELS = [
 @Component({
   selector: 'app-rh-hub',
   standalone: true,
-  imports: [CommonModule, RouterModule, PkDialogComponent],
+  imports: [CommonModule, RouterModule, PkDialogComponent, PageHeaderComponent],
   templateUrl: './rh-hub.component.html',
   styleUrl: './rh-hub.component.scss',
 })

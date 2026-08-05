@@ -1,11 +1,8 @@
 <section class="docs-page">
-  <header class="docs-header">
-    <div class="header-icon"><i class="pi pi-folder-open"></i></div>
-    <div>
-      <h1 class="page-title">Documentos</h1>
-      <p class="page-subtitle">Acesse os arquivos e materiais da empresa</p>
-    </div>
-  </header>
+  <app-page-header
+    icon="pi pi-folder-open"
+    title="Documentos"
+    subtitle="Acesse os arquivos e materiais da empresa" />
 
   <div class="docs-grid">
     @for (cat of categorias; track cat.titulo) {

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 interface CategoriaDoc {
   titulo: string;
@@ -14,7 +15,7 @@ interface CategoriaDoc {
 @Component({
   selector: 'app-documentos',
   standalone: true,
-  imports: [CommonModule],
+  imports: [PageHeaderComponent],
   templateUrl: './documentos.component.html',
   styleUrl: './documentos.component.scss',
 })

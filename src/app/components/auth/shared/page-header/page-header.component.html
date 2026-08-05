@@ -1,0 +1,16 @@
+<header class="page-header" [class.page-header--lg]="size() === 'lg'">
+  @if (icon()) {
+    <span class="page-header__icon" aria-hidden="true"><i [class]="icon()"></i></span>
+  }
+
+  <div class="page-header__text">
+    <h1 class="page-header__title">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="page-header__subtitle">{{ subtitle() }}</p>
+    }
+  </div>
+
+  <div class="page-header__actions">
+    <ng-content select="[actions]" />
+  </div>
+</header>

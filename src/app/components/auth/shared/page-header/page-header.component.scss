@@ -1,0 +1,84 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  margin-bottom: 28px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: v.$font-body;
+}
+
+// Mesmas medidas do padrão consolidado no overhaul RH (38px, radius 10px),
+// agora com tokens para acompanhar o tema escuro.
+.page-header__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: v.$radius-md;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  font-size: 1.1rem;
+}
+
+.page-header__text {
+  min-width: 0;
+}
+
+.page-header__title {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--app-primary);
+}
+
+.page-header__subtitle {
+  margin: 0.15rem 0 0;
+  font-size: v.$font-size-sm;
+  color: var(--app-text-muted);
+}
+
+// Variante de dashboard: título maior e alinhamento pela base, como no Painel RH.
+.page-header--lg {
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  .page-header__title {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 800;
+  }
+
+  .page-header__subtitle {
+    font-size: 0.94rem;
+  }
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin-left: auto;
+
+  &:empty {
+    display: none;
+  }
+}
+
+@media (max-width: v.$bp-sm) {
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .page-header__actions {
+    width: 100%;
+    margin-left: 0;
+  }
+}
