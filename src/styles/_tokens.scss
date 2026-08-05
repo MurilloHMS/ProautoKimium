@@ -3,12 +3,26 @@
 //
 // Por que existem: as variáveis de `variables.scss` são SCSS — compilam para
 // valores fixos e não trocam em runtime, então não servem para tema escuro.
-// Estes tokens são a base do shell autenticado (topbar, drawer, bottom nav,
-// page-header e fundo do conteúdo) e trocam junto com a classe `dark-mode`
-// aplicada no <html> pelo ThemeService.
+// Estes tokens são o vocabulário do design system: cor por PAPEL, forma,
+// densidade e tipografia de interface.
 //
-// Escopo atual: shell. As páginas ainda usam as variáveis SCSS diretamente e
-// migram para cá aos poucos.
+// ─── Regras de uso ────────────────────────────────────────────────────────
+//
+// COR — uma cor de ação só. `--app-action` (navy) é tudo que se clica: botão
+// primário, link, foco, item ativo. `--app-success` (teal) NÃO é ação: é
+// status positivo (aprovado, pago, ativo). Âmbar avisa, vermelho nega.
+// Se algo não é ação nem status, é neutro.
+//
+// FORMA — três raios, só: `--radius-control` em campo, botão e chip,
+// `--radius-surface` em cartão, tabela e diálogo, `--radius-pill` reservado
+// à ação primária. Nada de raio avulso no componente.
+//
+// ELEVAÇÃO — superfície e borda separam as coisas; sombra quase não existe.
+// `--app-shadow-overlay` é exceção, e só para o que flutua de verdade sobre o
+// conteúdo (diálogo, drawer, dropdown).
+//
+// DENSIDADE — este é um ERP: a tela é lida o dia inteiro. Linha de 38px,
+// cabeçalho de 34px, campo de 34px, texto de interface em 13px.
 // ═══════════════════════════════════════════════════════════════════════════
 
 @use 'variables' as v;
@@ -27,24 +41,66 @@
   --app-text-muted:  #{v.$text-muted};
   --app-text-subtle: #{v.$text-light};
 
-  // ─── Traços e marca ────────────────────────────────────────────────────
+  // ─── Traços ────────────────────────────────────────────────────────────
   --app-border:      #{v.$border};
   --app-border-soft: #{v.$neutral-300};
-  --app-primary:     #{v.$primary};
-  --app-primary-soft: rgba(35, 46, 97, 0.10);
-  --app-on-primary:  #{v.$white};
-  --app-accent:      #{v.$secondary};
-  --app-danger:      #{v.$danger};
+  --app-border-strong: #{v.$border-dark};
 
-  // ─── Camadas e elevação ────────────────────────────────────────────────
-  --app-overlay:     rgba(15, 23, 42, 0.45);
-  --app-shadow-sm:   #{v.$shadow-sm};
-  --app-shadow-lg:   #{v.$shadow-lg};
+  // ─── Papéis de cor ─────────────────────────────────────────────────────
+  --app-action:       #{v.$primary};
+  --app-action-hover: #{v.$primary-dark};
+  --app-action-soft:  rgba(35, 46, 97, 0.10);
+  --app-on-action:    #{v.$white};
+  --app-focus-ring:   0 0 0 3px var(--app-action-soft);
+
+  --app-success:      #{v.$secondary-dark};
+  --app-success-soft: rgba(87, 193, 171, 0.16);
+  --app-warning:      #b7791f;
+  --app-warning-soft: rgba(246, 173, 85, 0.20);
+  --app-danger:       #{v.$danger};
+  --app-danger-soft:  rgba(229, 62, 62, 0.12);
+
+  // Nomes antigos mantidos como apelido: o shell, o page-header e as telas de
+  // entrada já os consomem. `--app-primary` e `--app-action` são a mesma cor.
+  --app-primary:      var(--app-action);
+  --app-primary-soft: var(--app-action-soft);
+  --app-on-primary:   var(--app-on-action);
+  --app-accent:       var(--app-success);
+
+  // ─── Forma ─────────────────────────────────────────────────────────────
+  --radius-control: 8px;
+  --radius-surface: 12px;
+  --radius-pill:    9999px;
+
+  // ─── Elevação ──────────────────────────────────────────────────────────
+  --app-overlay:        rgba(15, 23, 42, 0.45);
+  --app-shadow-sm:      0 1px 2px rgba(15, 23, 42, 0.04);
+  --app-shadow-overlay: 0 12px 32px rgba(15, 23, 42, 0.16), 0 2px 8px rgba(15, 23, 42, 0.08);
+  --app-shadow-lg:      var(--app-shadow-overlay);
+
+  // ─── Densidade ─────────────────────────────────────────────────────────
+  --row-h:      38px;
+  --row-head-h: 34px;
+  --field-h:    34px;
+  --btn-h-sm:   28px;
+  --btn-h-md:   34px;
+  --btn-h-lg:   40px;
+  --cell-px:    12px;
+  --gap-control: 8px;
+
+  // ─── Tipografia de interface ───────────────────────────────────────────
+  // Títulos continuam em Plus Jakarta Sans via `typography.scss`; isto aqui é
+  // o texto funcional: tabela, campo, botão, rótulo.
+  --text-ui:      13px;
+  --text-ui-sm:   12px;
+  --text-micro:   11px;
+  --tracking-head: 0.04em;
 
   // ─── Métricas do shell ─────────────────────────────────────────────────
-  --topbar-h:        56px;
-  --bottom-nav-h:    #{v.$bottom-nav-h};
-  --drawer-w:        290px;
+  --topbar-h:     56px;
+  --tab-bar-h:    38px;
+  --bottom-nav-h: #{v.$bottom-nav-h};
+  --drawer-w:     290px;
 }
 
 :root.dark-mode {
@@ -59,15 +115,24 @@
   --app-text-muted:  #97a3b8;
   --app-text-subtle: #6b788f;
 
-  --app-border:      #253048;
-  --app-border-soft: #1e2841;
-  --app-primary:     #7c88c9;
-  --app-primary-soft: rgba(124, 136, 201, 0.16);
-  --app-on-primary:  #0b1220;
-  --app-accent:      #{v.$secondary};
-  --app-danger:      #f87171;
+  --app-border:        #253048;
+  --app-border-soft:   #1e2841;
+  --app-border-strong: #35415d;
 
-  --app-overlay:     rgba(2, 6, 16, 0.66);
-  --app-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.4);
-  --app-shadow-lg:   0 12px 40px rgba(0, 0, 0, 0.55);
+  // Navy puro some no fundo escuro: a cor de ação clareia, mantendo o papel.
+  --app-action:       #7c88c9;
+  --app-action-hover: #94a0dc;
+  --app-action-soft:  rgba(124, 136, 201, 0.16);
+  --app-on-action:    #0b1220;
+
+  --app-success:      #{v.$secondary};
+  --app-success-soft: rgba(87, 193, 171, 0.18);
+  --app-warning:      #e0a44a;
+  --app-warning-soft: rgba(224, 164, 74, 0.18);
+  --app-danger:       #f87171;
+  --app-danger-soft:  rgba(248, 113, 113, 0.16);
+
+  --app-overlay:        rgba(2, 6, 16, 0.66);
+  --app-shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.30);
+  --app-shadow-overlay: 0 16px 40px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
