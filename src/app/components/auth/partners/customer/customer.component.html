@@ -1,6 +1,8 @@
 <div class="painel-wrapper">
   <p-toast position="top-right"></p-toast>
 
+  @if (mode() === 'grid') {
+
   <app-toolbar>
     <pk-button pkType="new" pkSize="sm" pkLabel="Novo Cliente" (clicked)="showDialog()"/>
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" (clicked)="loadCustomers()"/>
@@ -111,15 +113,10 @@
       </ng-template>
     </pk-table>
   </div>
-</div>
-
-<!-- Dialog -->
-<pk-dialog
-  [header]="dialogTitle"
-  [(visible)]="visible"
-  (visibleChange)="visible = $event">
-
-  <div pkDialogContent>
+  }
+  @if (mode() === 'form') {
+  <app-form-screen [title]="dialogTitle" subtitle="Cadastro de parceiro ou cliente" (back)="closeForm()">
+    <div>
     <form [formGroup]="form" (ngSubmit)="saveCustomer()" class="dialog-form">
 
       <div class="pk-form-section">
@@ -215,8 +212,10 @@
     </form>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" (clicked)="visible = false"/>
-    <pk-button pkType="save" pkSize="sm" [pkDisabled]="form.invalid" (clicked)="saveCustomer()"/>
-  </div>
-</pk-dialog>
+    <div formActions>
+      <pk-button pkType="cancel" pkSize="sm" (clicked)="closeForm()"/>
+      <pk-button pkType="save" pkSize="sm" [pkDisabled]="form.invalid" (clicked)="saveCustomer()"/>
+    </div>
+  </app-form-screen>
+  }
+</div>

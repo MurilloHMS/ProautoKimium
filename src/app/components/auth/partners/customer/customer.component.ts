@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -14,7 +14,8 @@ import { ToastModule } from 'primeng/toast';
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
 import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component";
@@ -22,15 +23,26 @@ import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload
 @Component({
     selector: 'app-customer',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, ToolbarComponent, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
     templateUrl: './customer.component.html',
     styleUrl: './customer.component.scss',
     providers: [MessageService]
 })
-export class CustomerComponent {
+export class CustomerComponent implements TabDirtyCheck {
+
+  /** grade ou formulário: fechar a aba no meio do cadastro pede confirmação. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
   customers: Customer[] = [];
   loading: boolean = false;
-  visible: boolean = false;
+  /** grade ou formulário — o cadastro de cliente não usa mais diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   customer: Customer | null = null;
   form: FormGroup;
   dialogTitle: string = 'Adicionar Cliente';
@@ -79,7 +91,7 @@ export class CustomerComponent {
       recebeEmail: customer.recebeEmail,
       codMatriz: customer.codMatriz ?? null
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   deleteCustomer(customer: Customer) {
@@ -92,7 +104,7 @@ export class CustomerComponent {
       ativo: true,
       recebeEmail: true
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   saveCustomer(){
@@ -102,7 +114,7 @@ export class CustomerComponent {
       if(this.customerToEdit){
         this.customerService.updateCustomer(customer).subscribe({
           next: () => {
-            this.visible = false;
+            this.mode.set('grid');
             this.loadCustomers();
           },
           error: (err) => alert('Erro ao atualizar cliente: ' + err.message)
@@ -110,7 +122,7 @@ export class CustomerComponent {
       } else{
         this.customerService.addCustomer(customer).subscribe({
           next: () =>{
-            this.visible = false;
+            this.mode.set('grid');
             this.loadCustomers();
           },
           error: (err) => alert('Erro ao adicionar cliente: ' + err.message)
