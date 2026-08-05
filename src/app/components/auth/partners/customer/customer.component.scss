@@ -2,37 +2,40 @@
 @use 'variables' as v;
 
 // Tela de grade: toolbar fixa, grade ocupando o resto e rolando por dentro.
+// O .painel-wrapper é o contêiner da tela (por isso grid-screen); quem ocupa a
+// altura restante é o cartão da tabela.
 :host { @include m2.grid-screen; }
 
-.painel-wrapper { @include m2.grid-screen-body; }
+.painel-wrapper { @include m2.grid-screen; }
+
+.table-card { @include m2.grid-screen-body; }
 
 
 $text-main:         #1a202c;
 $text-muted:        #64748b;
 $text-light:        #94a3b8;
 
+// Importar Excel é ação de apoio: mesmo desenho dos botões secundários da
+// toolbar. Antes era teal, que deixou de ser cor de clique no sistema.
 ::ng-deep .btn-excel-upload {
   .p-fileupload-choose {
-    background: transparent !important;
-    border: 1px solid v.$secondary !important;
-    border-radius: v.$radius-sm !important;
-    color: v.$secondary-dark !important;
-    font-weight: 600 !important;
-    font-size: .82rem !important;
-    padding: .5rem 1rem !important;
-    box-shadow: none !important;
-    transition: background .15s;
+    height: var(--btn-h-md);
+    padding: 0 14px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-weight: 600;
+    font-size: var(--text-ui);
+    box-shadow: none;
+    transition: background .15s, border-color .15s, color .15s;
 
-    &:hover { background: rgba(87,193,171,.08) !important; }
+    &:hover {
+      background: var(--app-surface-2);
+      border-color: var(--app-action);
+      color: var(--app-action);
+    }
   }
-}
-
-// ─── Table Card ───────────────────────────────────────────────────────────────
-.table-card {
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-md;
-  overflow: hidden;
 }
 
 // ─── Table Cell Styles ────────────────────────────────────────────────────────

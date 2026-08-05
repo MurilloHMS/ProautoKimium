@@ -61,13 +61,7 @@
   i { color: v.$primary; }
 }
 
-// ─── Table Card ───────────────────────────────────────────────────────────────
-.table-card {
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-md;
-  overflow: hidden;
-}
+// A grade não é mais um cartão: a aparência dela vem do mixin lá em cima.
 
 // ─── Table Cell Styles ────────────────────────────────────────────────────────
 .col-center { text-align: center !important; }
