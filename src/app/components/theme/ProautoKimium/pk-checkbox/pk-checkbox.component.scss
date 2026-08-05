@@ -1,35 +1,43 @@
 @use 'variables' as v;
 
+// Item selecionável em lista: borda neutra, e a cor de ação só quando marcado.
 .checkbox-item {
   display: flex;
   align-items: flex-start;
-  gap: .75rem;
-  padding: .75rem 1rem;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
   cursor: pointer;
-  transition: background .12s, border-color .12s;
+  transition: background v.$transition-fast, border-color v.$transition-fast;
 
   &:hover {
-    background: v.$bg-hover;
-    border-color: rgba(35, 46, 97, .2);
+    background: var(--app-surface-2);
+    border-color: var(--app-border-strong);
+  }
+
+  &:has(.p-checkbox-checked) {
+    border-color: var(--app-action);
+    background: var(--app-action-soft);
   }
 
   label {
-    cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: .15rem;
+    gap: 2px;
+    cursor: pointer;
   }
 
   .checkbox-label {
-    font-size: .85rem;
+    font-family: v.$font-body;
+    font-size: var(--text-ui);
     font-weight: 600;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   .checkbox-desc {
-    font-size: .76rem;
-    color: v.$text-muted;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
   }
 }

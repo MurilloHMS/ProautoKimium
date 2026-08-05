@@ -3,74 +3,78 @@
 .pk-field {
   display: flex;
   flex-direction: column;
-  gap: .375rem;
+  gap: 5px;
 
-  &--disabled { opacity: .55; pointer-events: none; }
+  &--disabled { opacity: 0.55; pointer-events: none; }
 }
 
 .pk-label {
-  font-size: v.$font-size-sm;
-  font-weight: 600;
-  color: v.$neutral-900;
   display: flex;
   align-items: center;
-  gap: .2rem;
+  gap: 3px;
+  font-family: v.$font-body;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text-muted);
 }
 
-.pk-required { color: v.$danger; }
+.pk-required { color: var(--app-danger); }
 
-.pk-field-footer { display: flex; align-items: center; min-height: 1rem; }
+.pk-field-footer { display: flex; align-items: center; min-height: 14px; }
 
 .pk-error {
-  font-size: v.$font-size-xs;
-  color: v.$danger;
   display: flex;
   align-items: center;
-  gap: .3rem;
+  gap: 4px;
+  font-size: var(--text-micro);
+  color: var(--app-danger);
 
-  i { font-size: .7rem; }
+  i { font-size: var(--text-micro); }
 }
 
-// ── MultiSelect PrimeNG alinhado ao pk-input ──────────────────────────────────
+// ── MultiSelect do PrimeNG ──────────────────────────────────────────────────
+// Cresce em altura conforme as fichas: só o mínimo acompanha os outros campos.
 ::ng-deep .pk-multiselect {
   width: 100%;
-  min-height: 38px;
-  border: 1px solid v.$border !important;
-  border-radius: v.$radius-md !important;
-  background: v.$bg-base !important;
-  font-size: v.$font-size-sm !important;
-  transition: border-color v.$transition-base, box-shadow v.$transition-base !important;
+  min-height: var(--field-h);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  font-size: var(--text-ui);
+  transition: border-color v.$transition-base, box-shadow v.$transition-base,
+              background v.$transition-base;
 
-  &:not(.p-disabled):hover { border-color: v.$primary-light !important; }
+  &:not(.p-disabled):hover { border-color: var(--app-border-strong); }
 
   &.p-focus,
   &.p-inputwrapper-focus {
-    border-color: v.$primary-light !important;
-    box-shadow: v.$shadow-focus-primary !important;
+    border-color: var(--app-action);
+    background: var(--app-surface);
+    box-shadow: var(--app-focus-ring);
   }
 
   .p-multiselect-label {
-    padding: .5rem .75rem !important;
     display: flex;
     flex-wrap: wrap;
-    gap: .3rem;
     align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    color: var(--app-text);
   }
 
-  .p-multiselect-label.p-placeholder { color: v.$neutral-400 !important; }
+  .p-multiselect-label.p-placeholder { color: var(--app-text-subtle); }
 
   .p-multiselect-chip,
   .p-chip {
-    background: rgba(v.$primary, .1) !important;
-    color: v.$primary !important;
-    border-radius: v.$radius-sm !important;
-    font-size: v.$font-size-xs !important;
-    font-weight: 600 !important;
-    padding: .1rem .45rem !important;
+    padding: 1px 7px;
+    border-radius: var(--radius-control);
+    background: var(--app-action-soft);
+    color: var(--app-action);
+    font-size: var(--text-micro);
+    font-weight: 600;
   }
 
   &--error {
-    border-color: v.$danger !important;
-    background: rgba(v.$danger, .03) !important;
+    border-color: var(--app-danger);
   }
 }
