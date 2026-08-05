@@ -12,7 +12,7 @@ import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.co
 import { PkPasswordComponent } from '../../theme/ProautoKimium/pk-password/pk-password.component';
 import { PkMultiselectComponent } from '../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
-import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
 
 @Component({
@@ -26,12 +26,12 @@ import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
     PkPasswordComponent,
     PkMultiselectComponent,
     PkDialogComponent,
-    PkTableComponent
+    PkTableComponent,
+    ToolbarComponent
   ],
   templateUrl: './admin-center.component.html',
   styleUrl: './admin-center.component.scss',
   providers: [MessageService],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AdminCenterComponent implements OnInit {
   loading = false;

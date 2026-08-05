@@ -14,7 +14,6 @@ import { ToastModule } from 'primeng/toast';
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import {Tooltip} from "primeng/tooltip";
 import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
@@ -23,7 +22,7 @@ import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload
 @Component({
     selector: 'app-customer',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, ToolbarComponent, Tooltip, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, ToolbarComponent, PkDialogComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
     templateUrl: './customer.component.html',
     styleUrl: './customer.component.scss',
     providers: [MessageService]

@@ -2,8 +2,8 @@
   <p-toast position="top-right"></p-toast>
 
   <app-toolbar>
-    <pk-button pkLabel="Novo Cliente" (click)="showDialog()"></pk-button>
-    <pk-button pkType="refresh" pkLabel="Atualizar" (click)="loadCustomers()" />
+    <pk-button pkType="new" pkSize="sm" pkLabel="Novo Cliente" (clicked)="showDialog()"/>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" (clicked)="loadCustomers()"/>
 
     <span class="toolbar__divider"></span>
 
@@ -18,7 +18,7 @@
       (cleared)="selectedFile = null">
 
       @if(selectedFile){
-        <pk-button pkType="upload" pkLabel="Enviar" (click)="importByExcel()" />
+        <pk-button pkType="upload" pkSize="sm" pkLabel="Enviar" (clicked)="importByExcel()"/>
       }
     </pk-fileUpload>
 
@@ -101,10 +101,10 @@
           <td class="col-center">
             <pk-button
               pkType="edit"
-              pTooltip="Editar cliente"
-              tooltipPosition="left"
-              (click)="editCustomer(customer)"/>
-
+              pkSize="sm"
+              [pkIconOnly]="true"
+              pkTooltip="Editar cliente"
+              (clicked)="editCustomer(customer)"/>
           </td>
         </tr>
       </ng-template>
@@ -215,7 +215,7 @@
   </div>
 
   <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (click)="visible = false" pkSize="sm"/>
-    <pk-button pkType="save" (click)="saveCustomer()" pkSize="sm" [pkDisabled]="form.invalid"/>
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="visible = false"/>
+    <pk-button pkType="save" pkSize="sm" [pkDisabled]="form.invalid" (clicked)="saveCustomer()"/>
   </div>
 </pk-dialog>

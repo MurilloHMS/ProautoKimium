@@ -41,8 +41,7 @@ import {ButtonDirective} from "primeng/button";
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './equipments.component.html',
-  styleUrl: './equipments.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  styleUrl: './equipments.component.scss'
 })
 export class EquipmentsComponent implements OnInit {
   equipments = signal<EquipmentResponseDTO[]>([]);

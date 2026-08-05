@@ -1,4 +1,4 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, computed, inject} from '@angular/core';
+import {Component, OnInit, computed, inject} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
@@ -36,8 +36,7 @@ import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-c
     DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, PkInputComponent, PkCheckboxComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
-    providers: [MessageService],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    providers: [MessageService]
 })
 export class EmployesComponent implements TabDirtyCheck {
 

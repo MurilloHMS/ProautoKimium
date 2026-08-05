@@ -52,8 +52,7 @@
   &--new,
   &--save,
   &--send,
-  &--upload,
-  &--token {
+  &--upload {
     background: var(--app-action);
     border-color: var(--app-action);
     color: var(--app-on-action);
@@ -65,13 +64,16 @@
   }
 
   // ── Secundária: apoio ────────────────────────────────────────────────────
+  // `token` mora aqui: gerar token é utilitário administrativo, não a ação
+  // principal de nenhuma tela — duas primárias lado a lado competem entre si.
   &--edit,
   &--filter,
   &--home,
   &--refresh,
   &--cancel,
   &--download,
-  &--excel {
+  &--excel,
+  &--token {
     background: var(--app-surface);
     border-color: var(--app-border-strong);
     color: var(--app-text);
