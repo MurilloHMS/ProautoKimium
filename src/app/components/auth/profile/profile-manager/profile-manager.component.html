@@ -105,6 +105,7 @@
 <app-form-screen
   [title]="editingId ? 'Editar Perfil' : 'Novo Perfil'"
   subtitle="Cartão de visita digital publicado em /profile"
+  width="wide"
   (back)="closeDialog()">
 
   <div class="edit-form">
@@ -112,7 +113,7 @@
     <!-- Dados Básicos -->
     <div class="form-section">
       <div class="divider-label"><i class="pi pi-user"></i> Dados Básicos</div>
-      <div class="form-grid">
+      <div class="form-grid form-grid--auto">
         <div class="form-field">
           <label>Nome <span class="required">*</span></label>
           <input pInputText [(ngModel)]="form.nome" placeholder="Nome completo" />

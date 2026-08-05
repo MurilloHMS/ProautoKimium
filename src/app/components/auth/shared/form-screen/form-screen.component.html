@@ -13,7 +13,7 @@
     </div>
   </header>
 
-  <div class="form-screen__body">
+  <div class="form-screen__body" [class.form-screen__body--wide]="width() === 'wide'">
     <ng-content />
   </div>
 

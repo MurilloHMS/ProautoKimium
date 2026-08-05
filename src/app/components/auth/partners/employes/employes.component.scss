@@ -330,7 +330,9 @@
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  // O maior formulário do sistema: encaixa quantas colunas couberem em vez de
+  // empilhar vinte e poucos campos em duas.
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1rem;
 
   @media (max-width: 480px) { grid-template-columns: 1fr; }

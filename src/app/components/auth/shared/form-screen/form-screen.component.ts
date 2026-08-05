@@ -28,5 +28,12 @@ export class FormScreenComponent {
   title = input.required<string>();
   subtitle = input<string>('');
 
+  /**
+   * `wide` solta a largura do corpo para formulários grandes (funcionário,
+   * perfil): com mais espaço o `.form-grid` de auto-fit passa de duas para
+   * três colunas por linha e o formulário encurta bastante.
+   */
+  width = input<'default' | 'wide'>('default');
+
   back = output<void>();
 }

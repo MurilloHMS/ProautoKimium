@@ -1,13 +1,18 @@
 @use 'variables' as v;
 
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 // Elevação por borda e superfície, sem sombra — a regra dos tokens.
 .form-screen {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-surface);
   background: var(--app-surface);
@@ -76,10 +81,23 @@
 // ─── Corpo ──────────────────────────────────────────────────────────────────
 // Largura máxima: num monitor largo, campo esticado de ponta a ponta fica
 // difícil de ler e faz um seletor de data parecer gigante.
+//
+// É aqui que a rolagem acontece: o formulário longo (produtos do site tem ~20
+// campos) rola por dentro, com cabeçalho e rodapé parados. Sem isto o conteúdo
+// era cortado pelo overflow do cartão e não dava para chegar nos últimos campos.
 .form-screen__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   width: 100%;
   max-width: 860px;
   padding: 20px 16px;
+}
+
+// Formulário grande: mais largura para o auto-fit render três colunas por
+// linha, encurtando a rolagem em vez de empilhar vinte campos em duas colunas.
+.form-screen__body--wide {
+  max-width: 1180px;
 }
 
 // ─── Rodapé ─────────────────────────────────────────────────────────────────

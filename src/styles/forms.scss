@@ -23,6 +23,17 @@
   }
 }
 
+// Formulário grande (funcionário, perfil): em vez de duas colunas fixas,
+// encaixa quantas couberem. Combinado com `width="wide"` no form-screen, dá
+// três por linha no monitor e volta a duas ou uma quando o espaço aperta.
+.form-grid--auto {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-field {
   display: flex;
   flex-direction: column;
