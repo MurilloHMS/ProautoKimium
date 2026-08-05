@@ -15,28 +15,8 @@ $text-main:         #1a202c;
 $text-muted:        #64748b;
 $text-light:        #94a3b8;
 
-// Importar Excel é ação de apoio: mesmo desenho dos botões secundários da
-// toolbar. Antes era teal, que deixou de ser cor de clique no sistema.
-::ng-deep .btn-excel-upload {
-  .p-fileupload-choose {
-    height: var(--btn-h-md);
-    padding: 0 14px;
-    border: 1px solid var(--app-border-strong);
-    border-radius: var(--radius-control);
-    background: var(--app-surface);
-    color: var(--app-text);
-    font-weight: 600;
-    font-size: var(--text-ui);
-    box-shadow: none;
-    transition: background .15s, border-color .15s, color .15s;
-
-    &:hover {
-      background: var(--app-surface-2);
-      border-color: var(--app-action);
-      color: var(--app-action);
-    }
-  }
-}
+// O botão de importar Excel é um pk-button dentro do pk-fileUpload: tamanho e
+// cor vêm de `chooseSize` e `chooseType`, não de CSS local.
 
 // ─── Table Cell Styles ────────────────────────────────────────────────────────
 .col-center { text-align: center !important; }

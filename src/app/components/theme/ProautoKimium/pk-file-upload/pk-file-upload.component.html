@@ -54,6 +54,7 @@
   <pk-button
     *ngIf="!isDropzone()"
     [pkType]="chooseType()"
+    [pkSize]="chooseSize()"
     [pkLabel]="chooseLabel()"
     (click)="triggerUpload()" />
 
