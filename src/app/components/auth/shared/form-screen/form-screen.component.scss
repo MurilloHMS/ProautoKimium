@@ -74,7 +74,11 @@
 }
 
 // ─── Corpo ──────────────────────────────────────────────────────────────────
+// Largura máxima: num monitor largo, campo esticado de ponta a ponta fica
+// difícil de ler e faz um seletor de data parecer gigante.
 .form-screen__body {
+  width: 100%;
+  max-width: 860px;
   padding: 20px 16px;
 }
 

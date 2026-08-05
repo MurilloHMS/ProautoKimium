@@ -11,7 +11,7 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="startDate">Data inicial <span class="required">*</span></label>
-          <p-datepicker
+          <p-datepicker appendTo="body"
             id="startDate"
             formControlName="startDate"
             [showButtonBar]="true"
@@ -22,7 +22,7 @@
         </div>
         <div class="form-field">
           <label for="endDate">Data final <span class="required">*</span></label>
-          <p-datepicker
+          <p-datepicker appendTo="body"
             id="endDate"
             formControlName="endDate"
             [showButtonBar]="true"

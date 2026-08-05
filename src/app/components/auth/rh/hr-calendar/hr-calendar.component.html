@@ -5,10 +5,10 @@
 
   <div filters>
     <span class="toolbar__label">De</span>
-    <p-datepicker id="startDate" [(ngModel)]="startDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+    <p-datepicker id="startDate" [(ngModel)]="startDate" dateFormat="dd/mm/yy" appendTo="body" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
 
     <span class="toolbar__label">Até</span>
-    <p-datepicker id="endDate" [(ngModel)]="endDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+    <p-datepicker id="endDate" [(ngModel)]="endDate" dateFormat="dd/mm/yy" appendTo="body" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
 
     <span class="toolbar__divider"></span>
 

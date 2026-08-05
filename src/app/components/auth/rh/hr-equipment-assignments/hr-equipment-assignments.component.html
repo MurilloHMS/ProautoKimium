@@ -97,17 +97,13 @@
           styleClass="select-field">
         </p-select>
       </div>
-      <div class="form-field form-field--full">
+      <div class="form-field">
         <label for="equipmentType">Tipo de equipamento <span class="required">*</span></label>
         <input id="equipmentType" type="text" [(ngModel)]="deliverEquipmentType" maxlength="100" placeholder="Ex: Notebook Dell Latitude"/>
       </div>
-      <div class="form-field form-field--full">
-        <label for="equipmentDescription">Descrição</label>
-        <input id="equipmentDescription" type="text" [(ngModel)]="deliverDescription" maxlength="300" placeholder="Ex: Nº de série ABC123, com carregador"/>
-      </div>
-      <div class="form-field form-field--full">
+      <div class="form-field">
         <label for="deliveredAt">Data de entrega <span class="required">*</span></label>
-        <p-datepicker
+        <p-datepicker appendTo="body"
           id="deliveredAt"
           [(ngModel)]="deliverDeliveredAt"
           [showButtonBar]="true"
@@ -115,6 +111,10 @@
           styleClass="datepicker-field"
           placeholder="dd/mm/aaaa">
         </p-datepicker>
+      </div>
+      <div class="form-field form-field--full">
+        <label for="equipmentDescription">Descrição</label>
+        <input id="equipmentDescription" type="text" [(ngModel)]="deliverDescription" maxlength="300" placeholder="Ex: Nº de série ABC123, com carregador"/>
       </div>
       <div class="form-field form-field--full">
         <label for="deliverNotes">Observações</label>
@@ -142,7 +142,7 @@
 
     <div class="form-field form-field--full">
       <label for="returnDate">Data da devolução <span class="required">*</span></label>
-      <p-datepicker
+      <p-datepicker appendTo="body"
         id="returnDate"
         [(ngModel)]="returnDate"
         [showButtonBar]="true"
