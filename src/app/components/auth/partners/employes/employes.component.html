@@ -1,5 +1,7 @@
+<p-toast position="top-right"></p-toast>
+
+@if (mode() === 'grid') {
 <div class="painel-wrapper">
-  <p-toast position="top-right"></p-toast>
 
   <app-toolbar>
     <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Funcionário" pkSize="sm"/>
@@ -154,16 +156,21 @@
       </ng-template>
 
     </pk-table>
+  </div>
 </div>
-<!-- Dialog -->
+}
 
-<pk-dialog
-  [header]="dialogTitle"
-  [visible]="visible"
-  (visibleChange)="visible = $event">
+<!-- MODO FORMULÁRIO: cadastro e edição de funcionário -->
+@if (mode() === 'form') {
 
-  <div pkDialogContent>
-    <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
+<app-form-screen
+  [title]="dialogTitle"
+  subtitle="Dados cadastrais, vínculo organizacional e cargo inicial"
+  width="wide"
+  (back)="closeForm()">
+
+  <div>
+    <form [formGroup]="form" (ngSubmit)="save()">
 
       <!-- Identificação -->
       <div class="pk-form-section">
@@ -535,12 +542,13 @@
     </form>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
   </div>
 
-</pk-dialog>
+</app-form-screen>
+}
 
 <!-- Dialog de vínculo usuário <-> funcionário -->
 <pk-dialog
@@ -664,4 +672,3 @@
                [pkDisabled]="careerForm.invalid" [pkLoading]="careerSaving"/>
   </div>
 </pk-dialog>
-</div>

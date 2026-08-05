@@ -1,4 +1,4 @@
-import {Component, OnInit, computed, inject} from '@angular/core';
+import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
@@ -23,7 +23,8 @@ import {Toast} from "primeng/toast";
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {Tooltip} from "primeng/tooltip";
 import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
-import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
+import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
@@ -33,7 +34,7 @@ import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-c
 @Component({
     selector: 'app-employes',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, PkInputComponent, PkCheckboxComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
     providers: [MessageService]
@@ -45,13 +46,18 @@ export class EmployesComponent implements TabDirtyCheck {
    * de funcionário é o maior do sistema, perder ele em silêncio seria caro.
    */
   isTabDirty(): boolean {
-    return (this.visible && this.form.dirty)
+    return (this.mode() === 'form' && this.form.dirty)
       || (this.careerDialogVisible && this.careerForm.dirty);
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
   }
 
   employes: Employee[] = [];
   loading: boolean = false;
-  visible: boolean = false;
+  /** grade ou formulário — o cadastro de funcionário não usa mais diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   employee: Employee | null = null;
   form: FormGroup;
   careerForm: FormGroup;
@@ -339,7 +345,7 @@ export class EmployesComponent implements TabDirtyCheck {
       dailyDistanceKm: employee.dailyDistanceKm ?? null,
     });
 
-    this.visible = true;
+    this.mode.set('form');
   }
 
   showDialog() {
@@ -354,7 +360,7 @@ export class EmployesComponent implements TabDirtyCheck {
       ativo: true,
       contractType: ContractType.CLT,
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   save(){
@@ -371,7 +377,7 @@ export class EmployesComponent implements TabDirtyCheck {
       if(this.employeToEdit){
         this.employeService.updateEmploye(employee).subscribe({
           next: () => {
-            this.visible = false;
+            this.mode.set('grid');
             this.loadEmployes();
             this.msgService.add({
               severity: 'success',
@@ -380,14 +386,14 @@ export class EmployesComponent implements TabDirtyCheck {
             });
           },
           error: (err) => {
-            this.visible = false;
+            this.mode.set('grid');
             this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
         });
       } else {
         this.employeService.addEmploye(employee).subscribe({
           next: () => {
-            this.visible = false;
+            this.mode.set('grid');
             this.loadEmployes();
             this.msgService.add({
               severity: 'success',
@@ -396,7 +402,7 @@ export class EmployesComponent implements TabDirtyCheck {
             });
           },
           error: (err) => {
-            this.visible = false;
+            this.mode.set('grid');
             this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
         });
@@ -452,7 +458,7 @@ export class EmployesComponent implements TabDirtyCheck {
       next: () => {
         this.careerSaving = false;
         this.careerDialogVisible = false;
-        this.visible = false;
+        this.mode.set('grid');
         this.loadEmployes();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cargo atribuído ao funcionário.' });
       },
