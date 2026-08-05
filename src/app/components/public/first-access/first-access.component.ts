@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -9,34 +9,32 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { InputOtpModule } from 'primeng/inputotp';
-import {AuthService} from "../../../infrastructure/services/auth.service";
-import {PkButtonComponent} from "../../theme/ProautoKimium/pk-button/pk-button.component";
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { AuthService } from '../../../infrastructure/services/auth.service';
+import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout.component';
+import { AuthStepIndicatorComponent } from '../shared/auth-step-indicator/auth-step-indicator.component';
+import { PasswordRulesComponent } from '../shared/password-rules/password-rules.component';
 
 @Component({
   selector: 'app-first-access',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterLink,
     ToastModule,
-    ButtonModule,
-    InputTextModule,
     PasswordModule,
     InputOtpModule,
-    PkButtonComponent,
+    NgxMaskDirective,
+    LoginLayoutComponent,
+    AuthStepIndicatorComponent,
+    PasswordRulesComponent,
   ],
   templateUrl: './first-access.component.html',
-  styleUrl: './first-access.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [MessageService]
+  providers: [MessageService, provideNgxMask()]
 })
 export class FirstAccessComponent implements OnInit, OnDestroy{
 
@@ -64,7 +62,9 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.requestForm = this.fb.group({
-      document: ['', Validators.required],
+      // A máscara entrega só os dígitos (dropSpecialCharacters padrão do ngx-mask),
+      // que é o formato que a API compara em findByCpfDigits.
+      document: ['', [Validators.required, Validators.minLength(11)]],
       email: ['', [Validators.required, Validators.email]],
     });
 
@@ -274,14 +274,22 @@ export class FirstAccessComponent implements OnInit, OnDestroy{
     }, 1000);
   }
 
-  get passwordChecks() {
-    const value: string = this.passwordForm?.get('newPassword')?.value ?? '';
-    return {
-      lower: /[a-z]/.test(value),
-      upper: /[A-Z]/.test(value),
-      number: /\d/.test(value),
-      special: /[@$!%*?&#]/.test(value),
-      minLength: value.length >= 8,
-    };
+  // ── Textos do cabeçalho (o login-layout recebe título e subtítulo por passo) ──
+  get stepTitle(): string {
+    switch (this.step) {
+      case 1:  return 'Primeiro acesso?';
+      case 2:  return 'Código de verificação';
+      case 3:  return 'Crie sua senha';
+      default: return 'Tudo certo!';
+    }
+  }
+
+  get stepSubtitle(): string {
+    switch (this.step) {
+      case 1:  return 'Informe seu CPF e e-mail para enviarmos um código de verificação.';
+      case 2:  return 'Digite o código de 6 caracteres recebido no seu e-mail.';
+      case 3:  return 'Código confirmado! Agora crie a sua senha.';
+      default: return '';
+    }
   }
 }
