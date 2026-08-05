@@ -11,6 +11,7 @@ import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dia
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PositionLevelStore } from '../../../../infrastructure/state/position.store';
 import { CollectiveBargainingAdjustmentService } from '../../../../infrastructure/services/hr/collective-bargaining-adjustment.service';
 import {
@@ -34,7 +35,7 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
   styleUrl: './career-structure.component.scss',
   providers: [MessageService],
 })
-export class CareerStructureComponent implements OnInit {
+export class CareerStructureComponent implements OnInit, TabDirtyCheck {
 
   // Precisam vir antes dos campos que os consomem: campo de classe é
   // inicializado na ordem em que é declarado.
@@ -101,6 +102,16 @@ export class CareerStructureComponent implements OnInit {
       scope: ['ALL_POSITIONS', Validators.required],
       positionId: [null],
     });
+  }
+
+  /**
+   * A aba avisa antes de fechar se houver formulário preenchido. Aqui o
+   * formulário ainda vive em diálogo, então "aberto e sujo" é o critério.
+   */
+  isTabDirty(): boolean {
+    return (this.positionDialogVisible && this.positionForm.dirty)
+      || (this.levelDialogVisible && this.levelForm.dirty)
+      || (this.adjustmentDialogVisible && this.adjustmentForm.dirty);
   }
 
   ngOnInit(): void {

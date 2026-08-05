@@ -4,6 +4,7 @@ import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
 import { TabHandleStore } from '../routing/tab-handle.store';
+import { isTabDirtyCheck } from '../routing/tab-dirty-check';
 import { MenuService } from './menu.service';
 
 export interface WorkTab {
@@ -33,6 +34,9 @@ export class TabsService {
   private readonly _tabs = signal<WorkTab[]>([]);
   private readonly _activeUrl = signal<string>('');
 
+  /** Instância da tela em foco, entregue pelo (activate) do router-outlet. */
+  private activeComponent: unknown = null;
+
   readonly tabs = this._tabs.asReadonly();
   readonly activeUrl = this._activeUrl.asReadonly();
   readonly enabled = this.handles.enabled.asReadonly();
@@ -47,6 +51,31 @@ export class TabsService {
 
     // A primeira navegação pode ter acontecido antes deste serviço existir.
     if (this.currentUrl()) this.track(this.currentUrl());
+  }
+
+  // ── Alterações não salvas ────────────────────────────────────────────────
+
+  /**
+   * A tela em foco não está guardada no TabHandleStore (ela vive na página),
+   * então o layout entrega a instância dela por aqui, pelo (activate) do
+   * router-outlet.
+   */
+  setActiveComponent(instance: unknown): void {
+    this.activeComponent = instance;
+  }
+
+  /** A aba tem formulário com alteração não salva? */
+  isDirty(url: string): boolean {
+    const instance = url === this._activeUrl()
+      ? this.activeComponent
+      : this.handles.componentOf(url);
+
+    return isTabDirtyCheck(instance) ? instance.isTabDirty() : false;
+  }
+
+  /** Quantas abas estão sujas, ignorando uma opcional. */
+  dirtyCount(exceptUrl?: string): number {
+    return this._tabs().filter(tab => tab.url !== exceptUrl && this.isDirty(tab.url)).length;
   }
 
   // ── Ações ─────────────────────────────────────────────────────────────────
@@ -137,11 +166,15 @@ export class TabsService {
     return last.charAt(0).toUpperCase() + last.slice(1).replace(/-/g, ' ');
   }
 
-  /** Estourou o limite: fecha a aba mais antiga que não seja a ativa. */
+  /**
+   * Estourou o limite: fecha a aba mais antiga que não seja a ativa nem tenha
+   * alteração pendente. Se todas as candidatas estiverem sujas, não fecha nada
+   * — perder cadastro em silêncio por causa de um limite seria pior.
+   */
   private enforceLimit(): void {
     if (this._tabs().length <= MAX_TABS) return;
 
-    const oldest = this._tabs().find(tab => tab.url !== this._activeUrl());
+    const oldest = this._tabs().find(tab => tab.url !== this._activeUrl() && !this.isDirty(tab.url));
     if (oldest) this.close(oldest.url);
   }
 

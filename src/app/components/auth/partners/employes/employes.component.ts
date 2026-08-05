@@ -6,6 +6,7 @@ import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
 import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
 import { MessageService } from 'primeng/api';
@@ -37,7 +38,17 @@ import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-c
     providers: [MessageService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class EmployesComponent{
+export class EmployesComponent implements TabDirtyCheck {
+
+  /**
+   * A aba avisa antes de fechar se houver cadastro em andamento — o formulário
+   * de funcionário é o maior do sistema, perder ele em silêncio seria caro.
+   */
+  isTabDirty(): boolean {
+    return (this.visible && this.form.dirty)
+      || (this.careerDialogVisible && this.careerForm.dirty);
+  }
+
   employes: Employee[] = [];
   loading: boolean = false;
   visible: boolean = false;

@@ -8,6 +8,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { HierarchyStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
@@ -18,7 +19,7 @@ import { HierarchyStore } from '../../../../infrastructure/state/org-structure.s
   styleUrl: './org-structure-hierarchies.component.scss',
   providers: [MessageService],
 })
-export class OrgStructureHierarchiesComponent implements OnInit {
+export class OrgStructureHierarchiesComponent implements OnInit, TabDirtyCheck {
 
   private readonly store = inject(HierarchyStore);
   private readonly fb = inject(FormBuilder);
@@ -34,6 +35,11 @@ export class OrgStructureHierarchiesComponent implements OnInit {
     name: ['', Validators.required],
     levelOrder: [null, [Validators.required, Validators.min(1)]],
   });
+
+  /** A aba avisa antes de fechar se o formulário estiver preenchido. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
+  }
 
   ngOnInit(): void {
     this.store.load();

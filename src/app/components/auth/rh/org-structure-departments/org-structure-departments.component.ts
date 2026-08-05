@@ -8,6 +8,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { DepartmentStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
@@ -18,7 +19,7 @@ import { DepartmentStore } from '../../../../infrastructure/state/org-structure.
   styleUrl: './org-structure-departments.component.scss',
   providers: [MessageService],
 })
-export class OrgStructureDepartmentsComponent implements OnInit {
+export class OrgStructureDepartmentsComponent implements OnInit, TabDirtyCheck {
 
   private readonly store = inject(DepartmentStore);
   private readonly fb = inject(FormBuilder);
@@ -33,6 +34,11 @@ export class OrgStructureDepartmentsComponent implements OnInit {
   readonly form: FormGroup = this.fb.group({
     name: ['', Validators.required],
   });
+
+  /** A aba avisa antes de fechar se o formulário estiver preenchido. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
+  }
 
   ngOnInit(): void {
     this.store.load();

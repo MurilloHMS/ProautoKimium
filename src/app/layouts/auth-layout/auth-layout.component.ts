@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 import { NotificationService } from '../../infrastructure/services/notification.service';
+import { TabsService } from '../../infrastructure/services/tabs.service';
 import { BottomNavComponent } from './bottom-nav/bottom-nav.component';
 import { NavDrawerComponent } from './nav-drawer/nav-drawer.component';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
@@ -18,6 +19,8 @@ import { TopbarComponent } from './topbar/topbar.component';
 export class AuthLayoutComponent implements OnInit, OnDestroy {
 
   private readonly notifications = inject(NotificationService);
+
+  readonly tabs = inject(TabsService);
 
   /** O estado do drawer mora aqui: a topbar pede para abrir, o drawer pede para fechar. */
   readonly drawerOpen = signal(false);
