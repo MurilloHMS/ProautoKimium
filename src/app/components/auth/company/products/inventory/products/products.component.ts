@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -9,20 +9,37 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InventoryProduct, InventoryProductResponse } from '../../../../../../domain/models/products.model';
 import { InventoryProductService } from '../../../../../../infrastructure/services/company/inventory/inventory-product.service';
+import { FormScreenComponent } from '../../../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../../../shared/toolbar/toolbar.component';
+import { PkButtonComponent } from '../../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkCheckboxComponent } from '../../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
+import { TabDirtyCheck } from '../../../../../../infrastructure/routing/tab-dirty-check';
 
 @Component({
     selector: 'app-products',
     imports: [
         TableModule, CommonModule, ButtonModule, ToolbarModule,
-        DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
+        DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule,
+        FormScreenComponent, ToolbarComponent, PkButtonComponent, PkCheckboxComponent
     ],
     templateUrl: './products.component.html',
     styleUrl: './products.component.scss'
 })
-export class ProductsComponent {
+export class ProductsComponent implements TabDirtyCheck {
+
+  /** Cadastro em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
   products: InventoryProductResponse[] = [];
   loading: boolean = false;
-  visible: boolean = false;
+  /** grade ou formulário — o produto não é mais cadastrado em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   product: InventoryProduct | null = null;
   form: FormGroup;
   dialogTitle: string = 'Adicionar Produto';
@@ -60,7 +77,7 @@ export class ProductsComponent {
       active: product.active,
       minimumStock: product.minimumStock
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   showDialog(){
@@ -70,7 +87,7 @@ export class ProductsComponent {
       active: true,
       minimumStock: 0
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   saveProduct(){
@@ -80,7 +97,7 @@ export class ProductsComponent {
       if(this.productToEdit){
         this.productService.updateProduct(productData).subscribe({
           next: () => {
-            this.visible = false;
+            this.mode.set('grid');
             this.loadProducts();
           },
           error: (err) => {
@@ -90,7 +107,7 @@ export class ProductsComponent {
       }else{
         this.productService.addInventoryProduct(productData).subscribe({
           next: () => {
-            this.visible = false;
+            this.mode.set('grid');
             this.loadProducts();
           },
           error: (err) => {
