@@ -10,7 +10,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 
@@ -34,7 +34,7 @@ import {ButtonDirective} from "primeng/button";
     TooltipModule,
     ConfirmDialogModule,
     PkTableComponent, ToolbarComponent,
-    PkDialogComponent,
+    FormScreenComponent,
     PkInputComponent,
     PkButtonComponent,
     ButtonDirective,
@@ -49,8 +49,8 @@ export class EquipmentsComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
 
-  createDialogVisible = signal(false);
-  editDialogVisible = signal(false);
+  /** grade, formulário de cadastro ou de edição — sem diálogo. */
+  readonly mode = signal<'grid' | 'create' | 'edit'>('grid');
 
   editingEquipment = signal<EquipmentResponseDTO | null>(null);
 
@@ -111,11 +111,11 @@ export class EquipmentsComponent implements OnInit {
     this.createForm.reset({ nome: '' });
     this.selectedCreateImage = null;
     this.createImagePreview = null;
-    this.createDialogVisible.set(true);
+    this.mode.set('create');
   }
 
   closeCreateDialog(): void {
-    this.createDialogVisible.set(false);
+    this.mode.set('grid');
     this.createForm.reset({ nome: '' });
     this.selectedCreateImage = null;
     this.createImagePreview = null;
@@ -170,11 +170,11 @@ export class EquipmentsComponent implements OnInit {
       nome: equipment.nome,
     });
 
-    this.editDialogVisible.set(true);
+    this.mode.set('edit');
   }
 
   closeEditDialog(): void {
-    this.editDialogVisible.set(false);
+    this.mode.set('grid');
     this.editingEquipment.set(null);
     this.editForm.reset({ nome: '' });
     this.selectedEditImage = null;

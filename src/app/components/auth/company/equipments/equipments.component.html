@@ -2,6 +2,8 @@
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog [style]="{ width: '440px' }"></p-confirmDialog>
 
+  @if (mode() === 'grid') {
+
   <app-toolbar>
     <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
     <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
@@ -76,13 +78,11 @@
     </pk-table>
   </div>
 
-  <!-- CREATE DIALOG -->
-  <pk-dialog
-    header="Novo Equipamento"
-    [visible]="createDialogVisible()"
-    (visibleChange)="createDialogVisible() ? closeCreateDialog() : null">
+  }
 
-    <div pkDialogContent>
+  @if (mode() === 'create') {
+  <app-form-screen title="Novo Equipamento" subtitle="Equipamento exibido no site" (back)="closeCreateDialog()">
+    <div>
       <form [formGroup]="createForm" class="dialog-form">
 
         <div class="pk-form-section">
@@ -140,22 +140,22 @@
       </form>
     </div>
 
-    <div pkDialogFooter class="pk-dialog-footer">
+    <div formActions>
       <pk-button pkType="cancel" (clicked)="closeCreateDialog()" pkLabel="Cancelar" pkSize="sm"/>
       <pk-button pkType="save" (clicked)="saveCreate()" pkLabel="Cadastrar" pkSize="sm"
                  [pkDisabled]="createForm.invalid || saving()" [pkLoading]="saving()"/>
     </div>
+  </app-form-screen>
+  }
 
-  </pk-dialog>
+  @if (mode() === 'edit') {
+  <app-form-screen
+    [title]="'Editar: ' + (editingEquipment()?.nome ?? '')"
+    subtitle="Equipamento exibido no site"
+    (back)="closeEditDialog()">
 
-  <!-- EDIT DIALOG -->
-  <pk-dialog
-    [header]="'Editar: ' + (editingEquipment()?.nome ?? '')"
-    [visible]="editDialogVisible()"
-    (visibleChange)="editDialogVisible() ? closeEditDialog() : null">
-
-    <div pkDialogContent>
-      <form [formGroup]="editForm" class="dialog-form">
+    <div>
+      <form [formGroup]="editForm">
 
         <div class="pk-form-section">
           <h3 class="pk-form-section__title">
@@ -224,12 +224,12 @@
       </form>
     </div>
 
-    <div pkDialogFooter class="pk-dialog-footer">
+    <div formActions>
       <pk-button pkType="cancel" (clicked)="closeEditDialog()" pkLabel="Cancelar" pkSize="sm"/>
       <pk-button pkType="save" (clicked)="saveEdit()" pkLabel="Salvar Alterações" pkSize="sm"
                  [pkDisabled]="editForm.invalid || saving()" [pkLoading]="saving()"/>
     </div>
-
-  </pk-dialog>
+  </app-form-screen>
+  }
 
 </div>

@@ -1,7 +1,9 @@
 <p-toast position="top-right"></p-toast>
 
+@if (mode() === 'grid') {
+
 <app-toolbar>
-  <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
+  <pk-button pkType="new" (clicked)="openPositionForm()" pkLabel="Novo Cargo" pkSize="sm"/>
   <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
 
   <span class="toolbar__divider"></span>
@@ -63,7 +65,7 @@
         </div>
       </div>
       <div class="header-actions">
-        <pk-button pkType="new" (clicked)="showLevelDialog()" pkLabel="Novo Nível" pkSize="sm"/>
+        <pk-button pkType="new" (clicked)="openLevelForm()" pkLabel="Novo Nível" pkSize="sm"/>
       </div>
     </div>
 
@@ -120,27 +122,30 @@
   </div>
 }
 
-<!-- Dialog: Novo Cargo -->
-<pk-dialog header="Novo Cargo" [visible]="positionDialogVisible" (visibleChange)="positionDialogVisible = $event">
-  <div pkDialogContent>
-    <form [formGroup]="positionForm" (ngSubmit)="savePosition()" class="dialog-form">
+} @else if (mode() === 'position') {
+
+  <app-form-screen title="Novo Cargo" subtitle="Cadastro de cargo da estrutura de carreira" (back)="closeForm()">
+    <form [formGroup]="positionForm" (ngSubmit)="savePosition()">
       <div class="form-grid">
         <div class="form-field form-field--full">
           <pk-input label="Nome" placeholder="Ex: Desenvolvedor Java" [pkRequired]="true" [pkMaxLength]="100" type="text" formControlName="name"/>
         </div>
       </div>
     </form>
-  </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="positionDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="savePosition()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="positionForm.invalid"/>
-  </div>
-</pk-dialog>
 
-<!-- Dialog: Novo Nível -->
-<pk-dialog header="Novo Nível" [visible]="levelDialogVisible" (visibleChange)="levelDialogVisible = $event">
-  <div pkDialogContent>
-    <form [formGroup]="levelForm" (ngSubmit)="saveLevel()" class="dialog-form">
+    <div formActions>
+      <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="savePosition()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="positionForm.invalid"/>
+    </div>
+  </app-form-screen>
+
+} @else {
+
+  <app-form-screen
+    title="Novo Nível"
+    [subtitle]="'Cargo: ' + (selectedPosition()?.name ?? '')"
+    (back)="closeForm()">
+    <form [formGroup]="levelForm" (ngSubmit)="saveLevel()">
       <div class="form-grid">
         <div class="form-field">
           <pk-input label="Nome" placeholder="Ex: Júnior" [pkRequired]="true" [pkMaxLength]="50" type="text" formControlName="name"/>
@@ -172,12 +177,14 @@
         }
       </div>
     </form>
-  </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="levelDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="saveLevel()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="levelForm.invalid"/>
-  </div>
-</pk-dialog>
+
+    <div formActions>
+      <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="saveLevel()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="levelForm.invalid"/>
+    </div>
+  </app-form-screen>
+
+}
 
 <!-- Dialog: Aplicar Dissídio -->
 <pk-dialog header="Aplicar Dissídio" [visible]="adjustmentDialogVisible" (visibleChange)="adjustmentDialogVisible = $event">

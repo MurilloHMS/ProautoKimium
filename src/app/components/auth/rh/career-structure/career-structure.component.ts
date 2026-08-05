@@ -22,6 +22,7 @@ import {
   SalaryAdjustmentType
 } from '../../../../domain/models/hr/career.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 
 @Component({
   selector: 'app-career-structure',
@@ -29,7 +30,7 @@ import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
   imports: [
     CommonModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, Toast,
     PkButtonComponent, PkDialogComponent, PkTableComponent, PkInputComponent,
-    ToolbarComponent,
+    ToolbarComponent, FormScreenComponent,
   ],
   templateUrl: './career-structure.component.html',
   styleUrl: './career-structure.component.scss',
@@ -45,7 +46,9 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
   // Posições
   readonly positions = this.positionStore.items;
   readonly loadingPositions = this.positionStore.loading;
-  positionDialogVisible = false;
+  /** grid, ou o formulario de cargo, ou o de nivel. O dissidio segue em dialogo. */
+  readonly mode = signal<'grid' | 'position' | 'level'>('grid');
+
   positionForm: FormGroup;
 
   // Níveis da posição selecionada
@@ -60,7 +63,6 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
     const position = this.selectedPosition();
     return position ? this.levelStore.isLoading(position.id) : false;
   });
-  levelDialogVisible = false;
   levelForm: FormGroup;
 
   // Dissídio
@@ -105,12 +107,13 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
   }
 
   /**
-   * A aba avisa antes de fechar se houver formulário preenchido. Aqui o
-   * formulário ainda vive em diálogo, então "aberto e sujo" é o critério.
+   * A aba avisa antes de fechar se houver formulário preenchido — seja um dos
+   * modos de cadastro, seja o dissídio, que continua em diálogo por ser uma
+   * ação em lote e não um cadastro.
    */
   isTabDirty(): boolean {
-    return (this.positionDialogVisible && this.positionForm.dirty)
-      || (this.levelDialogVisible && this.levelForm.dirty)
+    return (this.mode() === 'position' && this.positionForm.dirty)
+      || (this.mode() === 'level' && this.levelForm.dirty)
       || (this.adjustmentDialogVisible && this.adjustmentForm.dirty);
   }
 
@@ -124,9 +127,13 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
     this.positionStore.refresh();
   }
 
-  showPositionDialog(): void {
+  openPositionForm(): void {
     this.positionForm.reset();
-    this.positionDialogVisible = true;
+    this.mode.set('position');
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
   }
 
   savePosition(): void {
@@ -136,7 +143,7 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
     // funcionário aberto em outra aba já enxerga o cargo novo.
     this.positionStore.create(this.positionForm.value).subscribe({
       next: () => {
-        this.positionDialogVisible = false;
+        this.closeForm();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cargo cadastrado com sucesso!' });
       },
       error: (err) => {
@@ -161,9 +168,9 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
     return this.levelForm.get('adjustmentType')?.value === 'FIXED';
   }
 
-  showLevelDialog(): void {
+  openLevelForm(): void {
     this.levelForm.reset({ adjustmentType: 'FIXED' });
-    this.levelDialogVisible = true;
+    this.mode.set('level');
   }
 
   saveLevel(): void {
@@ -181,7 +188,7 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
       percentageIncrease: adjustmentType === 'PERCENTAGE' ? percentageIncrease : null,
     }).subscribe({
       next: () => {
-        this.levelDialogVisible = false;
+        this.closeForm();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Nível cadastrado com sucesso!' });
       },
       error: (err) => {
