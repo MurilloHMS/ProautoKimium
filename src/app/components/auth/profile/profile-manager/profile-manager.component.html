@@ -1,24 +1,12 @@
-<div class="painel-wrapper">
-  <p-toast />
+<p-toast />
 
-  <!-- HEADER -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-id-card"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Perfis de Contato</h1>
-        <p class="page-subtitle">Gerencie os cartões digitais da equipe</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button pButton type="button" icon="pi pi-refresh" class="refresh-btn p-button-outlined p-button-sm"
-              (click)="load()" [loading]="loading" pTooltip="Atualizar"></button>
-      <button pButton type="button" icon="pi pi-plus" label="Novo Perfil" class="new-btn p-button-sm"
-              (click)="openNew()"></button>
-    </div>
-  </div>
+@if (mode() === 'grid') {
+<div class="painel-wrapper">
+
+  <app-toolbar>
+    <pk-button pkType="new" pkSize="sm" pkLabel="Novo Perfil" (clicked)="openNew()"/>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading" (clicked)="load()"/>
+  </app-toolbar>
 
   <!-- TABLE -->
   <div class="table-section">
@@ -108,12 +96,16 @@
   </div>
 </div>
 
+}
+
 <!-- ====================================================
-     DIALOG CRIAR / EDITAR
+     MODO FORMULÁRIO: CRIAR / EDITAR
 ==================================================== -->
-<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{width:'680px'}"
-          styleClass="dialog" [closable]="true" [closeOnEscape]="true"
-          [header]="editingId ? 'Editar Perfil' : 'Novo Perfil'">
+@if (mode() === 'form') {
+<app-form-screen
+  [title]="editingId ? 'Editar Perfil' : 'Novo Perfil'"
+  subtitle="Cartão de visita digital publicado em /profile"
+  (back)="closeDialog()">
 
   <div class="edit-form">
 
@@ -258,13 +250,13 @@
 
   </div>
 
-  <ng-template pTemplate="footer">
-    <button pButton type="button" label="Cancelar" class="p-button-outlined p-button-sm"
-            (click)="closeDialog()"></button>
-    <button pButton type="button" [label]="editingId ? 'Salvar' : 'Criar'" class="save-btn p-button-sm"
-            (click)="save()" [loading]="saving"></button>
-  </ng-template>
-</p-dialog>
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeDialog()"/>
+    <pk-button pkType="save" pkSize="sm" [pkLabel]="editingId ? 'Salvar' : 'Criar'"
+               [pkLoading]="saving" (clicked)="save()"/>
+  </div>
+</app-form-screen>
+}
 
 <p-confirmDialog />
 

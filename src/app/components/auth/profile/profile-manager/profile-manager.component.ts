@@ -1,4 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -37,12 +41,19 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
     ToastModule, TagModule, TooltipModule, SkeletonModule,
     SelectModule, ChipModule, ToggleSwitchModule,
     ConfirmDialogModule, QRCodeComponent, Textarea, InputMask,
+    ToolbarComponent, FormScreenComponent, PkButtonComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './profile-manager.component.html',
   styleUrl: './profile-manager.component.scss',
 })
-export class ProfileManagerComponent implements OnInit {
+export class ProfileManagerComponent implements OnInit, TabDirtyCheck {
+
+  /** Perfil em preenchimento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && (!!this.form.nome?.trim() || !!this.form.slug?.trim());
+  }
+
   private service = inject(VcardService);
   private toast   = inject(MessageService);
   private confirm = inject(ConfirmationService);
@@ -55,7 +66,8 @@ export class ProfileManagerComponent implements OnInit {
   searchTerm = '';
 
   // dialog editar/criar
-  dialogVisible = false;
+  /** grade ou formulário — o perfil não é mais cadastrado em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   editingId: string | null = null;
   form: ProfileCreateDto = EMPTY_FORM();
 
@@ -108,7 +120,7 @@ export class ProfileManagerComponent implements OnInit {
     this.editingId = null;
     this.form = EMPTY_FORM();
     this.submitted = false;
-    this.dialogVisible = true;
+    this.mode.set('form');
   }
 
   openEdit(p: ProfileResponseDto): void {
@@ -123,10 +135,10 @@ export class ProfileManagerComponent implements OnInit {
       ativo: p.ativo,
     };
     this.submitted = false;
-    this.dialogVisible = true;
+    this.mode.set('form');
   }
 
-  closeDialog(): void { this.dialogVisible = false; }
+  closeDialog(): void { this.mode.set('grid'); }
 
   save(): void {
     this.submitted = true;
@@ -152,7 +164,7 @@ export class ProfileManagerComponent implements OnInit {
     req.subscribe({
       next: () => {
         this.saving = false;
-        this.dialogVisible = false;
+        this.mode.set('grid');
         this.toast.add({
           severity: 'success',
           summary: 'Sucesso',
