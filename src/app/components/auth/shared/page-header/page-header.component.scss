@@ -27,7 +27,10 @@
   font-size: 1.1rem;
 }
 
+// Precisa encolher em vez de quebrar: sem `flex`, no mobile o bloco inteiro
+// descia para a linha seguinte e deixava o ícone sozinho com um vão ao lado.
 .page-header__text {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -77,7 +80,8 @@
     flex-wrap: wrap;
   }
 
-  .page-header__actions {
+  // Só as ações quebram para a linha de baixo; ícone e texto continuam juntos.
+  .page-header__actions:not(:empty) {
     width: 100%;
     margin-left: 0;
   }
