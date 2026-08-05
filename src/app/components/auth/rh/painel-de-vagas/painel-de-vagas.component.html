@@ -2,15 +2,14 @@
 
 <div class="page-content">
 
-  <div class="page-header">
-    <div>
-      <h2 class="page-title">
-        <i class="pi pi-briefcase header-icon"></i> Painel de Vagas
-      </h2>
-      <p class="page-subtitle">Gerencie as vagas do processo seletivo</p>
+  <app-page-header
+    icon="pi pi-briefcase"
+    title="Painel de Vagas"
+    subtitle="Gerencie as vagas do processo seletivo">
+    <div actions>
+      <button pButton class="new-btn" icon="pi pi-plus" label="Nova Vaga" (click)="abrirModalNova()"></button>
     </div>
-    <button pButton class="new-btn" icon="pi pi-plus" label="Nova Vaga" (click)="abrirModalNova()"></button>
-  </div>
+  </app-page-header>
 
   <nav class="tabs-nav">
     <button
