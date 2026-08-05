@@ -39,8 +39,6 @@ export const routes: Routes = [
       { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full' },
       { path: 'support/faq', component: FaqComponent, pathMatch: 'full' },
       { path: 'branding', component: BrandingComponent, pathMatch: 'full' },
-      { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
-      { path: 'login/first-access', component: FirstAccessComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
       { path: 'profile/:slug', component: VcardComponent, pathMatch: 'full' },
@@ -125,13 +123,20 @@ export const routes: Routes = [
 
   // ═══════════════════════════════════════════════════════════════════════
   // Telas de entrada (sem cabeçalho do site)
+  //
+  // forgot-password e first-access viviam sob o PublicLayout e apareciam com o
+  // header e o footer do site institucional no meio do fluxo de autenticação.
+  // Agora as quatro compartilham o mesmo layout e o mesmo guard.
   // ═══════════════════════════════════════════════════════════════════════
   {
     path: '',
     component: NoHeaderLayoutComponent,
+    canActivate: [PublicGuard],
     children: [
       { path: 'login', component: LoginComponent, pathMatch: 'full' },
       { path: 'client-login', component: ClientLoginComponent, pathMatch: 'full' },
+      { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
+      { path: 'login/first-access', component: FirstAccessComponent, pathMatch: 'full' },
     ],
   },
 
