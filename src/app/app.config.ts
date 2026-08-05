@@ -1,5 +1,5 @@
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeuix/themes';
@@ -32,7 +32,12 @@ const MaterialEmerald = definePreset(Material, {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    // Estas opções viviam no AppRoutingModule (que estava morto no fim do
+    // app.routes.ts) — ou seja, nunca chegaram a valer. Agora valem.
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' })
+    ),
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
@@ -40,7 +45,9 @@ export const appConfig: ApplicationConfig = {
           preset: Material,
           options: {
               prefix: 'p',
-              darkModeSelector: 'dark-mode',
+              // Precisa do ponto: sem ele o PrimeNG gera CSS para um elemento
+              // <dark-mode>, que não existe, e o tema escuro nunca era aplicado.
+              darkModeSelector: '.dark-mode',
               cssLayer: false
           }
       }

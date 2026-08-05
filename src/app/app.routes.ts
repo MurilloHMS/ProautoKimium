@@ -1,77 +1,33 @@
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
+import { Routes } from '@angular/router';
+
+import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
+
+import { AuthGuard } from './infrastructure/guard/auth.guard';
+import { PublicGuard } from './infrastructure/guard/public/public.guard';
+
+// Páginas públicas seguem carregando junto com o app (é a vitrine do site).
 import { NotFoundComponent } from './components/shared/not-found/not-found.component';
 import { HomeComponent } from './components/public/home/home.component';
 import { ListaProdutosComponent } from './components/public/lista-produtos/lista-produtos.component';
 import { LoginComponent } from './components/public/login/login.component';
+import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { InstitucionalComponent } from './components/public/institucional/institucional.component';
 import { SalesCertificatesComponent } from './components/public/sales-certificates/sales-certificates.component';
 import { FaqComponent } from './components/public/faq/faq.component';
-import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
-import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { AuthGuard } from './infrastructure/guard/auth.guard';
-import { AdminCenterComponent } from './components/auth/admin-center/admin-center.component';
-import { AuthHomeComponent } from './components/auth/auth-home/auth-home.component';
-import { HoleritSpliterComponent } from './components/auth/documents/holerit-spliter/holerit-spliter.component';
-import { ContactsComponent } from './components/auth/support/contacts/contacts.component';
-import { NoHeaderLayoutComponent } from './layouts/no-header-layout/no-header-layout.component';
-import { ProductsComponent } from './components/auth/company/products/inventory/products/products.component';
-import { StockControlComponent } from './components/auth/company/products/inventory/stock-control/stock-control.component';
-import { PublicGuard } from './infrastructure/guard/public/public.guard';
-import { NfeDataCollectorComponent } from './components/auth/documents/nfe-data-collector/nfe-data-collector.component';
-import { NewsletterComponent } from './components/auth/communication/newsletter/newsletter.component';
-import { ClientLoginComponent } from './components/public/client-login/client-login.component';
 import { BrandingComponent } from './components/public/branding/branding.component';
-import { EmailComponent } from './components/auth/communication/email/email.component';
-import { EmailSignatureComponent } from './components/auth/documents/email-signature/email-signature.component';
 import { ForgotPasswordComponent } from './components/public/forgot-password/forgot-password.component';
-import { HoleritExtractorComponent } from './components/auth/documents/holerit-extractor/holerit-extractor.component';
-import { CustomerComponent } from './components/auth/partners/customer/customer.component';
-import { EmployesComponent } from './components/auth/partners/employes/employes.component';
-import { FuelSupplyComponent } from './components/auth/company/vehicle/fuel-supply/fuel-supply.component';
-import { ExcelCredentialsComponent } from './components/auth/documents/excel-credentials/excel-credentials.component';
-import { PainelDeVagasComponent } from './components/auth/rh/painel-de-vagas/painel-de-vagas.component';
-import { CandidaturasComponent } from './components/auth/rh/candidaturas/candidaturas.component'; // 👈 novo
-import { OrgStructureComponent } from './components/auth/rh/org-structure/org-structure.component';
-import { CareerStructureComponent } from './components/auth/rh/career-structure/career-structure.component';
-import { VacationRequestsManagerComponent } from './components/auth/rh/vacation-requests-manager/vacation-requests-manager.component';
-import { ReimbursementsManagerComponent } from './components/auth/rh/reimbursements-manager/reimbursements-manager.component';
-import { HrCalendarComponent } from './components/auth/rh/hr-calendar/hr-calendar.component';
-import { TeamOverviewComponent } from './components/auth/rh/team-overview/team-overview.component';
-import { HrCalculatorsComponent } from './components/auth/rh/hr-calculators/hr-calculators.component';
-import { HrEquipmentAssignmentsComponent } from './components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component';
-import { HrNotificationsComponent } from './components/auth/rh/hr-notifications/hr-notifications.component';
+import { FirstAccessComponent } from './components/public/first-access/first-access.component';
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
-import {SecretsComponent} from "./components/auth/communication/secrets/secrets.component";
-import {ViewSecretsComponent} from "./components/public/view-secrets/view-secrets.component";
-import {WebsiteComponent} from "./components/auth/company/products/website/website.component";
-import {EquipmentsComponent} from "./components/auth/company/equipments/equipments.component";
-import {
-  RentReceiptGeneratorComponent
-} from "./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component";
-import {GuideComponent} from "./components/auth/guide/guide.component";
-import {FaqManagerComponent} from "./components/auth/faq-manager/faq-manager.component";
-import {ContatoEventosComponent} from "./components/public/contato-eventos/contato-eventos.component";
-import {ProfileManagerComponent} from "./components/auth/profile/profile-manager/profile-manager.component";
-import {VcardComponent} from "./components/public/profile/vcard/vcard.component";
-import { DocumentosComponent } from './components/auth/documentos/documentos.component';
-import { NotificacoesComponent } from './components/auth/notificacoes/notificacoes.component';
-import { PerfilComponent } from './components/auth/perfil/perfil.component';
-import { HoleritesComponent } from './components/auth/holerites/holerites.component';
-import { HrHubComponent } from './components/auth/hr-hub/hr-hub.component';
-import { HrDocumentsComponent } from './components/auth/hr-documents/hr-documents.component';
-import { HrMedicalCertificatesComponent } from './components/auth/hr-medical-certificates/hr-medical-certificates.component';
-import { HrReimbursementsComponent } from './components/auth/hr-reimbursements/hr-reimbursements.component';
-import { HrVacationRequestsComponent } from './components/auth/hr-vacation-requests/hr-vacation-requests.component';
-import { HrAnnouncementsComponent } from './components/auth/hr-announcements/hr-announcements.component';
-import { HrAnnouncementsManagerComponent } from './components/auth/rh/hr-announcements-manager/hr-announcements-manager.component';
-import { MedicalCertificatesManagerComponent } from './components/auth/rh/medical-certificates-manager/medical-certificates-manager.component';
-import { RhHubComponent } from './components/auth/rh/rh-hub/rh-hub.component';
-import {FirstAccessComponent} from "./components/public/first-access/first-access.component";
-import { GalleryComponent } from './components/auth/gallery/gallery.component';
-
+import { ViewSecretsComponent } from './components/public/view-secrets/view-secrets.component';
+import { VcardComponent } from './components/public/profile/vcard/vcard.component';
+import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
 
 export const routes: Routes = [
+  // ═══════════════════════════════════════════════════════════════════════
+  // Público
+  // ═══════════════════════════════════════════════════════════════════════
   {
     path: '',
     component: PublicLayoutComponent,
@@ -79,7 +35,6 @@ export const routes: Routes = [
     children: [
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'produtos', component: ListaProdutosComponent, pathMatch: 'full' },
-      { path: '404', component: NotFoundComponent },
       { path: 'privacy-policy', component: InstitucionalComponent, pathMatch: 'full' },
       { path: 'sales/documents/certificates', component: SalesCertificatesComponent, pathMatch: 'full' },
       { path: 'support/faq', component: FaqComponent, pathMatch: 'full' },
@@ -90,80 +45,105 @@ export const routes: Routes = [
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
       { path: 'profile/:slug', component: VcardComponent, pathMatch: 'full' },
       { path: 'contato/eventos', component: ContatoEventosComponent, pathMatch: 'full' },
-    ]
+    ],
   },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Autenticado — tudo lazy (cada área baixa só quando é aberta)
+  // ═══════════════════════════════════════════════════════════════════════
   {
     path: '',
     component: AuthLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'home', pathMatch: 'full' },
-      { path: 'home', component: AuthHomeComponent, data: { roles: ['ADMIN'] } },
-      { path: 'rh/hub', component: RhHubComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/holerit', component: HoleritSpliterComponent },
-      { path: 'rh/holerit/extractor', component: HoleritExtractorComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/employees', component: EmployesComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/organizational-structure', component: OrgStructureComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/career-structure', component: CareerStructureComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/vacation-requests', component: VacationRequestsManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/reimbursements', component: ReimbursementsManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/calendar', component: HrCalendarComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/team-overview', component: TeamOverviewComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/calculators', component: HrCalculatorsComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/equipment-assignments', component: HrEquipmentAssignmentsComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/notifications', component: HrNotificationsComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/announcements', component: HrAnnouncementsManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/medical-certificates', component: MedicalCertificatesManagerComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/painel-de-vagas', component: PainelDeVagasComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/candidaturas', component: CandidaturasComponent, data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'company/nfe-collector', component: NfeDataCollectorComponent, data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
-      { path: 'company/excel', component: ExcelCredentialsComponent },
-      { path: 'company/products', component: ProductsComponent, data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'company/inventory', component: StockControlComponent, data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'company/customers', component: CustomerComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
-      { path: 'company/fuel-supply', component: FuelSupplyComponent, data: { roles: ['ADMIN', 'COMPRADOR'] } },
-      { path: 'communication/newsletter', component: NewsletterComponent, data: { roles: ['ADMIN', 'MARKETING'] } },
-      { path: 'communication/email', component: EmailComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] } },
-      { path: 'communication/secrets', component: SecretsComponent, data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR']}},
-      { path: 'communication/email-signature', component: EmailSignatureComponent, data: { roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN'] } },
-      { path: 'communication/contact', component: ContactsComponent, data: { roles: ['ADMIN', 'SUPPORT'] } },
-      { path: 'settings/products/website', component: WebsiteComponent, data: { roles: ['ADMIN', 'DESIGN', 'DESIGN'] } },
-      { path: 'settings/admin', component: AdminCenterComponent, data: { roles: ['ADMIN'] } },
-      { path: 'finance/rent-receipt-generator', component: RentReceiptGeneratorComponent, data: { roles: ['ADMIN', 'FINANCEIRO'] } },
-      { path: 'company/guide', component: GuideComponent, data: { roles: ['ADMIN', 'CONTRATOS'] } },
-      { path: 'company/equipments', component: EquipmentsComponent, data: { roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
-      { path: 'faq/manager', component: FaqManagerComponent, data: { roles: ['ADMIN'] } },
-      { path: 'profile-manager', component: ProfileManagerComponent, data: { roles: ['ADMIN'] } },
-      { path: 'documentos', component: DocumentosComponent },
-      { path: 'documentos/galeria', component: GalleryComponent },
-      { path: 'documentos/logos', component: BrandingComponent },
-      { path: 'documentos/holerites', component: HoleritesComponent },
-      { path: 'documentos/rh', component: HrHubComponent },
-      { path: 'documentos/rh/documents', component: HrDocumentsComponent },
-      { path: 'documentos/rh/medical-certificates', component: HrMedicalCertificatesComponent },
-      { path: 'documentos/rh/reimbursements', component: HrReimbursementsComponent },
-      { path: 'documentos/rh/vacation-requests', component: HrVacationRequestsComponent },
-      { path: 'documentos/rh/announcements', component: HrAnnouncementsComponent },
-      { path: 'notificacoes', component: NotificacoesComponent },
-      { path: 'perfil', component: PerfilComponent },
-    ]
+      { path: '', pathMatch: 'full', redirectTo: 'home' },
+
+      { path: 'home', loadComponent: () => import('./components/auth/auth-home/auth-home.component').then(m => m.AuthHomeComponent) },
+      { path: 'unauthorized', loadComponent: () => import('./components/auth/access-denied/access-denied.component').then(m => m.AccessDeniedComponent) },
+
+      // ── RH (gestão) ──────────────────────────────────────────────────────
+      { path: 'rh/hub', loadComponent: () => import('./components/auth/rh/rh-hub/rh-hub.component').then(m => m.RhHubComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerit-spliter/holerit-spliter.component').then(m => m.HoleritSpliterComponent) },
+      { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/team-overview', loadComponent: () => import('./components/auth/rh/team-overview/team-overview.component').then(m => m.TeamOverviewComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/calculators', loadComponent: () => import('./components/auth/rh/hr-calculators/hr-calculators.component').then(m => m.HrCalculatorsComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/equipment-assignments', loadComponent: () => import('./components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component').then(m => m.HrEquipmentAssignmentsComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/notifications', loadComponent: () => import('./components/auth/rh/hr-notifications/hr-notifications.component').then(m => m.HrNotificationsComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/announcements', loadComponent: () => import('./components/auth/rh/hr-announcements-manager/hr-announcements-manager.component').then(m => m.HrAnnouncementsManagerComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/medical-certificates', loadComponent: () => import('./components/auth/rh/medical-certificates-manager/medical-certificates-manager.component').then(m => m.MedicalCertificatesManagerComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/candidaturas', loadComponent: () => import('./components/auth/rh/candidaturas/candidaturas.component').then(m => m.CandidaturasComponent), data: { roles: ['ADMIN', 'RH'] } },
+
+      // ── Empresa ──────────────────────────────────────────────────────────
+      { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
+      { path: 'company/excel', loadComponent: () => import('./components/auth/documents/excel-credentials/excel-credentials.component').then(m => m.ExcelCredentialsComponent) },
+      { path: 'company/products', loadComponent: () => import('./components/auth/company/products/inventory/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'company/inventory', loadComponent: () => import('./components/auth/company/products/inventory/stock-control/stock-control.component').then(m => m.StockControlComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'company/customers', loadComponent: () => import('./components/auth/partners/customer/customer.component').then(m => m.CustomerComponent), data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
+      { path: 'company/fuel-supply', loadComponent: () => import('./components/auth/company/vehicle/fuel-supply/fuel-supply.component').then(m => m.FuelSupplyComponent), data: { roles: ['ADMIN', 'COMPRADOR'] } },
+      { path: 'company/guide', loadComponent: () => import('./components/auth/guide/guide.component').then(m => m.GuideComponent), data: { roles: ['ADMIN', 'CONTRATOS'] } },
+      { path: 'company/equipments', loadComponent: () => import('./components/auth/company/equipments/equipments.component').then(m => m.EquipmentsComponent), data: { roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
+
+      // ── Comunicação ──────────────────────────────────────────────────────
+      { path: 'communication/newsletter', loadComponent: () => import('./components/auth/communication/newsletter/newsletter.component').then(m => m.NewsletterComponent), data: { roles: ['ADMIN', 'MARKETING'] } },
+      { path: 'communication/email', loadComponent: () => import('./components/auth/communication/email/email.component').then(m => m.EmailComponent), data: { roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] } },
+      { path: 'communication/secrets', loadComponent: () => import('./components/auth/communication/secrets/secrets.component').then(m => m.SecretsComponent), data: { roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR'] } },
+      { path: 'communication/email-signature', loadComponent: () => import('./components/auth/documents/email-signature/email-signature.component').then(m => m.EmailSignatureComponent), data: { roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN'] } },
+      { path: 'communication/contact', loadComponent: () => import('./components/auth/support/contacts/contacts.component').then(m => m.ContactsComponent), data: { roles: ['ADMIN', 'SUPPORT'] } },
+
+      // ── Configurações ────────────────────────────────────────────────────
+      { path: 'settings/products/website', loadComponent: () => import('./components/auth/company/products/website/website.component').then(m => m.WebsiteComponent), data: { roles: ['ADMIN', 'DESIGN'] } },
+      { path: 'settings/admin', loadComponent: () => import('./components/auth/admin-center/admin-center.component').then(m => m.AdminCenterComponent), data: { roles: ['ADMIN'] } },
+      { path: 'faq/manager', loadComponent: () => import('./components/auth/faq-manager/faq-manager.component').then(m => m.FaqManagerComponent), data: { roles: ['ADMIN'] } },
+      { path: 'profile-manager', loadComponent: () => import('./components/auth/profile/profile-manager/profile-manager.component').then(m => m.ProfileManagerComponent), data: { roles: ['ADMIN'] } },
+
+      // ── Financeiro ───────────────────────────────────────────────────────
+      { path: 'finance/rent-receipt-generator', loadComponent: () => import('./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component').then(m => m.RentReceiptGeneratorComponent), data: { roles: ['ADMIN', 'FINANCEIRO'] } },
+
+      // ── Documentos (área pessoal) ────────────────────────────────────────
+      { path: 'documentos', loadComponent: () => import('./components/auth/documentos/documentos.component').then(m => m.DocumentosComponent) },
+      { path: 'documentos/galeria', loadComponent: () => import('./components/auth/gallery/gallery.component').then(m => m.GalleryComponent) },
+      { path: 'documentos/logos', loadComponent: () => import('./components/public/branding/branding.component').then(m => m.BrandingComponent) },
+      { path: 'documentos/holerites', loadComponent: () => import('./components/auth/holerites/holerites.component').then(m => m.HoleritesComponent) },
+      { path: 'documentos/rh', loadComponent: () => import('./components/auth/hr-hub/hr-hub.component').then(m => m.HrHubComponent) },
+      { path: 'documentos/rh/documents', loadComponent: () => import('./components/auth/hr-documents/hr-documents.component').then(m => m.HrDocumentsComponent) },
+      { path: 'documentos/rh/medical-certificates', loadComponent: () => import('./components/auth/hr-medical-certificates/hr-medical-certificates.component').then(m => m.HrMedicalCertificatesComponent) },
+      { path: 'documentos/rh/reimbursements', loadComponent: () => import('./components/auth/hr-reimbursements/hr-reimbursements.component').then(m => m.HrReimbursementsComponent) },
+      { path: 'documentos/rh/vacation-requests', loadComponent: () => import('./components/auth/hr-vacation-requests/hr-vacation-requests.component').then(m => m.HrVacationRequestsComponent) },
+      { path: 'documentos/rh/announcements', loadComponent: () => import('./components/auth/hr-announcements/hr-announcements.component').then(m => m.HrAnnouncementsComponent) },
+
+      { path: 'notificacoes', loadComponent: () => import('./components/auth/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent) },
+      { path: 'perfil', loadComponent: () => import('./components/auth/perfil/perfil.component').then(m => m.PerfilComponent) },
+    ],
   },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Telas de entrada (sem cabeçalho do site)
+  // ═══════════════════════════════════════════════════════════════════════
   {
     path: '',
     component: NoHeaderLayoutComponent,
     children: [
       { path: 'login', component: LoginComponent, pathMatch: 'full' },
-      { path: 'client-login', component: ClientLoginComponent, pathMatch: 'full' }
-    ]
+      { path: 'client-login', component: ClientLoginComponent, pathMatch: 'full' },
+    ],
   },
-  { path: '**', redirectTo: '404' }
-];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes, {
-    scrollPositionRestoration: 'enabled',
-    anchorScrolling: 'enabled'
-  })],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}
+  // O 404 mantém o layout público, mas SEM o PublicGuard: com o guard, um usuário
+  // logado que caísse aqui era devolvido para /home e entrava em loop.
+  {
+    path: '',
+    component: PublicLayoutComponent,
+    children: [
+      { path: '404', component: NotFoundComponent },
+    ],
+  },
+
+  { path: '**', redirectTo: '404' },
+];
