@@ -1,18 +1,16 @@
 <section class="holerites-page">
 
   <!-- Header -->
-  <header class="hl-header">
-    <div class="hl-header__left">
-      <div class="header-icon"><i class="pi pi-receipt"></i></div>
-      <div>
-        <h1 class="page-title">Meus Holerites</h1>
-        <p class="page-subtitle">Seus demonstrativos de pagamento</p>
-      </div>
+  <app-page-header
+    icon="pi pi-receipt"
+    title="Meus Holerites"
+    subtitle="Seus demonstrativos de pagamento">
+    <div actions>
+      @if (holerites().length > 0) {
+        <span class="hl-count">{{ filtrados().length }} de {{ holerites().length }}</span>
+      }
     </div>
-    @if (holerites().length > 0) {
-      <span class="hl-count">{{ filtrados().length }} de {{ holerites().length }}</span>
-    }
-  </header>
+  </app-page-header>
 
   <!-- Filter -->
   @if (holerites().length > 0 && !loading()) {

@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../../infrastructure/services/notification.service';
 import { PushNotificationService } from '../../../infrastructure/services/push-notification.service';
 import { AppNotification } from '../../../domain/models/notification.model';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-notificacoes',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.scss',
 })

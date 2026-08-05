@@ -2,11 +2,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmployeeDocumentService } from '../../../infrastructure/services/hr/employee-document.service';
 import { EmployeeDocument } from '../../../domain/models/hr/employee-document.model';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-documents',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './hr-documents.component.html',
   styleUrl: './hr-documents.component.scss',
 })

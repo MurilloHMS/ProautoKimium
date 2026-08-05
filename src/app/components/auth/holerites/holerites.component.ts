@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { animate, style, transition, trigger, query, stagger } from '@angular/animations';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 type HoleriteTipo = 'ADIANTAMENTO' | 'SALARIO';
 type Filtro = 'TODOS' | HoleriteTipo;
@@ -23,7 +24,7 @@ interface GrupoAno {
 @Component({
   selector: 'app-holerites',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './holerites.component.html',
   styleUrl: './holerites.component.scss',
   animations: [

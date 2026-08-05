@@ -6,23 +6,7 @@
   padding: 32px 24px 48px;
 }
 
-.hrd-header {
-  margin-bottom: 28px;
-
-  h1 {
-    font-family: v.$font-heading;
-    font-size: 1.9rem;
-    font-weight: 800;
-    color: v.$primary;
-    margin: 0 0 6px;
-  }
-
-  p {
-    color: #6b7492;
-    font-size: 0.98rem;
-    margin: 0;
-  }
-}
+// O cabeçalho da página é o <app-page-header>.
 
 .hrd-state {
   padding: 40px 0;
@@ -133,5 +117,4 @@
 
 @media (max-width: 600px) {
   .hrd-page { padding: 24px 16px 40px; }
-  .hrd-header h1 { font-size: 1.6rem; }
 }

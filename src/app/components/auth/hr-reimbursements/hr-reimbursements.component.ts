@@ -6,11 +6,12 @@ import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button
 import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
 import { ReimbursementService } from '../../../infrastructure/services/hr/reimbursement.service';
 import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-reimbursements',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent, PkInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent, PkInputComponent, PageHeaderComponent],
   templateUrl: './hr-reimbursements.component.html',
   styleUrl: './hr-reimbursements.component.scss',
 })

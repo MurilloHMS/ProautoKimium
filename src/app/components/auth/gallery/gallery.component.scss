@@ -6,53 +6,11 @@
   @include m.page-layout;
 }
 
-// ── Header ──
-.gl-header {
+// ── Header ── (o cabeçalho é o app-page-header; sobra só o slot de ações)
+.gl-header__actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: v.$space-6;
-  gap: v.$space-4;
-  flex-wrap: wrap;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: v.$space-4;
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: v.$space-3;
-  }
-}
-
-.header-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: v.$radius-md;
-  background: color-mix(in srgb, v.$primary 8%, transparent);
-  color: v.$primary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-}
-
-.page-title {
-  font-family: v.$font-heading;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: v.$primary;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.page-subtitle {
-  font-size: 0.85rem;
-  color: v.$text-muted;
-  margin: 2px 0 0;
+  gap: v.$space-3;
 }
 
 .gl-count {

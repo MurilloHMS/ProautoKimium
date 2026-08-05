@@ -8,11 +8,12 @@ import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button
 import { VacationRequestService } from '../../../infrastructure/services/hr/vacation-request.service';
 import { VacationRequest, VacationRequestStatus } from '../../../domain/models/hr/vacation-request.model';
 import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../domain/utils/brazilian-business-days';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-vacation-requests',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, ToastModule, PkButtonComponent],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, ToastModule, PkButtonComponent, PageHeaderComponent],
   providers: [MessageService],
   templateUrl: './hr-vacation-requests.component.html',
   styleUrl: './hr-vacation-requests.component.scss',

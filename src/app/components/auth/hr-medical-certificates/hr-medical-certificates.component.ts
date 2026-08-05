@@ -7,6 +7,7 @@ import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button
 import { PkCheckboxComponent } from '../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
 import { MedicalCertificateService } from '../../../infrastructure/services/hr/medical-certificate.service';
 import { MedicalCertificate, SubmissionType } from '../../../domain/models/hr/medical-certificate.model';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-medical-certificates',
@@ -19,6 +20,7 @@ import { MedicalCertificate, SubmissionType } from '../../../domain/models/hr/me
     DatePickerModule,
     PkButtonComponent,
     PkCheckboxComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './hr-medical-certificates.component.html',
   styleUrl: './hr-medical-certificates.component.scss',
