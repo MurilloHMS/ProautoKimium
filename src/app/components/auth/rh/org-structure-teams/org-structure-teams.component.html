@@ -3,14 +3,14 @@
 @if (mode() === 'grid') {
 
   <div class="section-actions">
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="openForm()" pkLabel="Novo Setor" pkSize="sm"/>
   </div>
 
   <div class="table-card">
     <pk-table
-      [data]="teams"
-      [loading]="loading"
+      [data]="teams()"
+      [loading]="loading()"
       totalLabel="setores encontrados"
       searchPlaceholder="Buscar por nome…"
       [filterFields]="['name']"
@@ -48,7 +48,7 @@
           <label for="departmentId">Departamento <span class="required">*</span></label>
           <p-select
             id="departmentId"
-            [options]="departmentOptions"
+            [options]="departmentOptions()"
             formControlName="departmentId"
             optionLabel="label"
             optionValue="value"

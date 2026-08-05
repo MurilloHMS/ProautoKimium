@@ -13,8 +13,8 @@
 
 <div class="table-card">
   <pk-table
-    [data]="positions"
-    [loading]="loadingPositions"
+    [data]="positions()"
+    [loading]="loadingPositions()"
     totalLabel="cargos encontrados"
     searchPlaceholder="Buscar por nome…"
     [filterFields]="['name']"
@@ -31,7 +31,7 @@
     </ng-template>
 
     <ng-template #bodyTpl let-p>
-      <tr class="table-row" [class.table-row--selected]="selectedPosition?.id === p.id">
+      <tr class="table-row" [class.table-row--selected]="selectedPosition()?.id === p.id">
         <td>
           <div class="position-cell">
             <span class="position-icon"><i class="pi pi-briefcase"></i></span>
@@ -47,12 +47,12 @@
   </pk-table>
 </div>
 
-@if (selectedPosition) {
+@if (selectedPosition(); as selected) {
   <div class="levels-section">
     <div class="page-header page-header--sub">
       <div class="header-left">
         <div>
-          <h2 class="page-title page-title--sm">Níveis — {{ selectedPosition.name }}</h2>
+          <h2 class="page-title page-title--sm">Níveis — {{ selected.name }}</h2>
           <p class="page-subtitle">Cada nível é fixo ou percentual sobre o nível imediatamente anterior</p>
         </div>
       </div>
@@ -63,8 +63,8 @@
 
     <div class="table-card">
       <pk-table
-        [data]="levels"
-        [loading]="loadingLevels"
+        [data]="levels()"
+        [loading]="loadingLevels()"
         totalLabel="níveis encontrados"
         searchPlaceholder="Buscar por nome…"
         [filterFields]="['name']"
@@ -210,7 +210,7 @@
             <label for="positionId">Cargo <span class="required">*</span></label>
             <p-select
               id="positionId"
-              [options]="positions"
+              [options]="positions()"
               formControlName="positionId"
               optionLabel="name"
               optionValue="id"

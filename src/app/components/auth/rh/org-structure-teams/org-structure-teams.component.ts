@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -9,9 +9,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
-import { TeamService } from '../../../../infrastructure/services/hr/team.service';
-import { DepartmentService } from '../../../../infrastructure/services/hr/department.service';
-import { Department, Team } from '../../../../domain/models/hr/org-structure.model';
+import { DepartmentStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
   selector: 'app-org-structure-teams',
@@ -22,52 +20,38 @@ import { Department, Team } from '../../../../domain/models/hr/org-structure.mod
   providers: [MessageService],
 })
 export class OrgStructureTeamsComponent implements OnInit {
-  teams: Team[] = [];
-  departmentOptions: { label: string; value: string }[] = [];
-  loading = false;
+
+  private readonly store = inject(TeamStore);
+  private readonly departmentStore = inject(DepartmentStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly msgService = inject(MessageService);
+
+  readonly teams = this.store.items;
+  readonly loading = this.store.loading;
+
+  /**
+   * Sai do store de departamentos: cadastrar um departamento na aba ao lado
+   * já reflete aqui, sem recarregar a tela.
+   */
+  readonly departmentOptions = computed(() =>
+    this.departmentStore.items().map(department => ({ label: department.name, value: department.id }))
+  );
 
   /** A tela alterna entre a grade e o formulário; não há mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
-  form: FormGroup;
 
-  constructor(
-    private teamService: TeamService,
-    private departmentService: DepartmentService,
-    private fb: FormBuilder,
-    private msgService: MessageService
-  ) {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      departmentId: [null, Validators.required],
-    });
-  }
+  readonly form: FormGroup = this.fb.group({
+    name: ['', Validators.required],
+    departmentId: [null, Validators.required],
+  });
 
   ngOnInit(): void {
-    this.load();
-    this.loadDepartmentOptions();
+    this.store.load();
+    this.departmentStore.load();
   }
 
-  load(): void {
-    this.loading = true;
-    this.teamService.getAll().subscribe({
-      next: (list) => {
-        this.teams = list;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
-      },
-    });
-  }
-
-  loadDepartmentOptions(): void {
-    this.departmentService.getAll().subscribe({
-      next: (list: Department[]) => {
-        this.departmentOptions = list.map((d) => ({ label: d.name, value: d.id }));
-      },
-      error: () => (this.departmentOptions = []),
-    });
+  reload(): void {
+    this.store.refresh();
   }
 
   openForm(): void {
@@ -82,10 +66,9 @@ export class OrgStructureTeamsComponent implements OnInit {
   save(): void {
     if (!this.form.valid) return;
 
-    this.teamService.create(this.form.value).subscribe({
+    this.store.create(this.form.value).subscribe({
       next: () => {
         this.closeForm();
-        this.load();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Setor cadastrado com sucesso!' });
       },
       error: (err) => {

@@ -3,14 +3,14 @@
 @if (mode() === 'grid') {
 
   <div class="section-actions">
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="openForm()" pkLabel="Nova Empresa" pkSize="sm"/>
   </div>
 
   <div class="table-card">
     <pk-table
-      [data]="companies"
-      [loading]="loading"
+      [data]="companies()"
+      [loading]="loading()"
       totalLabel="empresas encontradas"
       searchPlaceholder="Buscar por nome, CNPJ…"
       [filterFields]="['name', 'legalName', 'cnpj']"

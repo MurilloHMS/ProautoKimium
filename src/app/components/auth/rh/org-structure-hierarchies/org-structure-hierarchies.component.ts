@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -8,8 +8,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
-import { HierarchyService } from '../../../../infrastructure/services/hr/hierarchy.service';
-import { Hierarchy } from '../../../../domain/models/hr/org-structure.model';
+import { HierarchyStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
   selector: 'app-org-structure-hierarchies',
@@ -20,41 +19,28 @@ import { Hierarchy } from '../../../../domain/models/hr/org-structure.model';
   providers: [MessageService],
 })
 export class OrgStructureHierarchiesComponent implements OnInit {
-  hierarchies: Hierarchy[] = [];
-  loading = false;
+
+  private readonly store = inject(HierarchyStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly msgService = inject(MessageService);
+
+  readonly hierarchies = this.store.items;
+  readonly loading = this.store.loading;
 
   /** A tela alterna entre a grade e o formulário; não há mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
-  form: FormGroup;
 
-  constructor(
-    private hierarchyService: HierarchyService,
-    private fb: FormBuilder,
-    private msgService: MessageService
-  ) {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      levelOrder: [null, [Validators.required, Validators.min(1)]],
-    });
-  }
+  readonly form: FormGroup = this.fb.group({
+    name: ['', Validators.required],
+    levelOrder: [null, [Validators.required, Validators.min(1)]],
+  });
 
   ngOnInit(): void {
-    this.load();
+    this.store.load();
   }
 
-  // Ordenada por nível — é o que dá sentido visual pra hierarquia (quem manda em quem).
-  load(): void {
-    this.loading = true;
-    this.hierarchyService.getAll().subscribe({
-      next: (list) => {
-        this.hierarchies = [...list].sort((a, b) => a.levelOrder - b.levelOrder);
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
-      },
-    });
+  reload(): void {
+    this.store.refresh();
   }
 
   openForm(): void {
@@ -69,10 +55,9 @@ export class OrgStructureHierarchiesComponent implements OnInit {
   save(): void {
     if (!this.form.valid) return;
 
-    this.hierarchyService.create(this.form.value).subscribe({
+    this.store.create(this.form.value).subscribe({
       next: () => {
         this.closeForm();
-        this.load();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Hierarquia cadastrada com sucesso!' });
       },
       error: (err) => {

@@ -3,14 +3,14 @@
 @if (mode() === 'grid') {
 
   <div class="section-actions">
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="reload()" pkLabel="Atualizar" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="openForm()" pkLabel="Nova Hierarquia" pkSize="sm"/>
   </div>
 
   <div class="table-card">
     <pk-table
-      [data]="hierarchies"
-      [loading]="loading"
+      [data]="hierarchies()"
+      [loading]="loading()"
       totalLabel="hierarquias encontradas"
       searchPlaceholder="Buscar por nome…"
       [filterFields]="['name']"

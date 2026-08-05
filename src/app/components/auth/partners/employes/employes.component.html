@@ -300,7 +300,7 @@
             <label for="companyId">Empresa <span class="required">*</span></label>
             <p-select
               id="companyId"
-              [options]="companyOptions"
+              [options]="companyOptions()"
               formControlName="companyId"
               optionLabel="label"
               optionValue="value"
@@ -314,7 +314,7 @@
             <label for="teamId">Setor <span class="required">*</span></label>
             <p-select
               id="teamId"
-              [options]="teamOptions"
+              [options]="teamOptions()"
               formControlName="teamId"
               optionLabel="label"
               optionValue="value"
@@ -472,7 +472,7 @@
             <label for="positionId">Cargo <span class="required">*</span></label>
             <p-select
               id="positionId"
-              [options]="positionOptions"
+              [options]="positionOptions()"
               formControlName="positionId"
               optionLabel="label"
               optionValue="value"

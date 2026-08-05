@@ -8,12 +8,12 @@
 <div class="filters-bar">
   <div class="form-field">
     <label for="teamFilter">Setor</label>
-    <p-select id="teamFilter" [options]="teamOptions" [(ngModel)]="teamFilter" (onChange)="load()"
+    <p-select id="teamFilter" [options]="teamOptions()" [(ngModel)]="teamFilter" (onChange)="load()"
               optionLabel="label" optionValue="value" appendTo="body" placeholder="Todos" [showClear]="true" styleClass="select-field"></p-select>
   </div>
   <div class="form-field">
     <label for="companyFilter">Empresa</label>
-    <p-select id="companyFilter" [options]="companyOptions" [(ngModel)]="companyFilter" (onChange)="load()"
+    <p-select id="companyFilter" [options]="companyOptions()" [(ngModel)]="companyFilter" (onChange)="load()"
               optionLabel="label" optionValue="value" appendTo="body" placeholder="Todas" [showClear]="true" styleClass="select-field"></p-select>
   </div>
   <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>

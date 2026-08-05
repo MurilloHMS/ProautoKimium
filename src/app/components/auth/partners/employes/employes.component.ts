@@ -1,12 +1,11 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, computed, inject} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
-import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
-import { TeamService } from '../../../../infrastructure/services/hr/team.service';
-import { PositionService } from '../../../../infrastructure/services/hr/position.service';
+import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
+import { PositionStore } from '../../../../infrastructure/state/position.store';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
 import { MessageService } from 'primeng/api';
@@ -51,9 +50,22 @@ export class EmployesComponent{
   departmentList: {label: string, value: Department} [] = []
 
   // Vínculo organizacional / cargo inicial (Estrutura Organizacional + Cargos & Níveis)
-  companyOptions: {label: string, value: string}[] = [];
-  teamOptions: {label: string, value: string}[] = [];
-  positionOptions: {label: string, value: string}[] = [];
+  private readonly companyStore = inject(CompanyStore);
+  private readonly teamStore = inject(TeamStore);
+  private readonly positionStore = inject(PositionStore);
+
+  /**
+   * Empresas, setores e cargos vêm dos stores compartilhados: cadastrar um
+   * cargo na aba de Cargos & Níveis aparece aqui na hora, mesmo com este
+   * formulário já aberto e preenchido.
+   */
+  readonly companyOptions = computed(() =>
+    this.companyStore.items().map(company => ({ label: company.name, value: company.id })));
+  readonly teamOptions = computed(() =>
+    this.teamStore.items().map(team => ({ label: team.name, value: team.id })));
+  readonly positionOptions = computed(() =>
+    this.positionStore.items().map(position => ({ label: position.name, value: position.id })));
+
   positionLevelOptions: {label: string, value: string}[] = [];
   contractTypeOptions: {label: string, value: ContractType}[] = [
     { label: 'CLT', value: ContractType.CLT },
@@ -83,9 +95,6 @@ export class EmployesComponent{
   constructor(
     private employeService: EmployeeService,
     private authService: AuthService,
-    private companyService: CompanyService,
-    private teamService: TeamService,
-    private positionService: PositionService,
     private positionLevelService: PositionLevelService,
     private careerHistoryService: CareerHistoryService,
     private fb: FormBuilder,
@@ -136,18 +145,10 @@ export class EmployesComponent{
   }
 
   loadOrgOptions(): void {
-    this.companyService.getAll().subscribe({
-      next: (list) => (this.companyOptions = list.map((c) => ({ label: c.name, value: c.id }))),
-      error: () => (this.companyOptions = []),
-    });
-    this.teamService.getAll().subscribe({
-      next: (list) => (this.teamOptions = list.map((t) => ({ label: t.name, value: t.id }))),
-      error: () => (this.teamOptions = []),
-    });
-    this.positionService.getAll().subscribe({
-      next: (list) => (this.positionOptions = list.map((p) => ({ label: p.name, value: p.id }))),
-      error: () => (this.positionOptions = []),
-    });
+    // Os stores buscam uma vez e servem todas as telas; chamar aqui é barato.
+    this.companyStore.load();
+    this.teamStore.load();
+    this.positionStore.load();
   }
 
   onPositionChange(positionId: string | null): void {
@@ -397,7 +398,7 @@ export class EmployesComponent{
     this.careerForm.reset({ contractType: ContractType.CLT });
     this.careerForm.get('positionLevelId')?.disable();
     this.careerLevelOptions = [];
-    this.careerPositionOptions = this.positionOptions;
+    this.careerPositionOptions = this.positionOptions();
     this.careerDialogVisible = true;
   }
 
