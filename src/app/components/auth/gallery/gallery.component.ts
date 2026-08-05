@@ -6,6 +6,7 @@ import { AuthService } from '../../../infrastructure/services/auth.service';
 import { GalleryDocument, GalleryCategory, CreateGalleryDocumentDTO } from '../../../domain/models/gallery.model';
 import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 type Filtro = 'TODOS' | GalleryCategory;
 
@@ -19,7 +20,7 @@ interface CategoryTab {
 @Component({
   selector: 'app-gallery',
   standalone: true,
-  imports: [CommonModule, FormsModule, PkDialogComponent, PkButtonComponent],
+  imports: [CommonModule, FormsModule, PkDialogComponent, PkButtonComponent, PageHeaderComponent],
   templateUrl: './gallery.component.html',
   styleUrl: './gallery.component.scss',
 })

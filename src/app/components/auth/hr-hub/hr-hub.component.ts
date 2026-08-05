@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 interface HrCategoria {
   titulo: string;
@@ -12,7 +13,7 @@ interface HrCategoria {
 @Component({
   selector: 'app-hr-hub',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './hr-hub.component.html',
   styleUrl: './hr-hub.component.scss',
 })

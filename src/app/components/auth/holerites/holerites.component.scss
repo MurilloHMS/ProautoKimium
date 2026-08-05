@@ -10,22 +10,7 @@
   margin: 0 auto;
 }
 
-// ── Header ──────────────────────────────────────────────────────────────────
-
-.hl-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 24px;
-
-  &__left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-}
+// ── Header ── (o cabeçalho é o app-page-header)
 
 .hl-count {
   font-size: 0.78rem;

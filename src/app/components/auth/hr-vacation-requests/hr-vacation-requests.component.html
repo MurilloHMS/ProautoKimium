@@ -1,9 +1,9 @@
 <p-toast />
 <section class="hrv-page">
-  <header class="hrv-header">
-    <h1>Férias</h1>
-    <p>Solicite férias e acompanhe seu saldo.</p>
-  </header>
+  <app-page-header
+    icon="pi pi-sun"
+    title="Férias"
+    subtitle="Solicite férias e acompanhe seu saldo." />
 
   @if (!loading() && !erro()) {
     <div class="hrv-balance">

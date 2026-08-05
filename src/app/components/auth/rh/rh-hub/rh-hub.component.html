@@ -4,12 +4,16 @@
     size="lg"
     title="Painel RH"
     subtitle="Tudo o que está acontecendo na equipe, num só lugar.">
-    @if (!loading && pendingTotal > 0) {
-      <div actions class="dash__alert">
-        <i class="pi pi-exclamation-circle"></i>
-        <span><strong>{{ pendingTotal }}</strong> {{ pendingTotal === 1 ? 'pendência aguardando você' : 'pendências aguardando você' }}</span>
-      </div>
-    }
+    <!-- O `actions` precisa ficar no elemento projetado: conteúdo dentro de @if
+         vira ng-template e não casa com o seletor de projeção. -->
+    <div actions>
+      @if (!loading && pendingTotal > 0) {
+        <div class="dash__alert">
+          <i class="pi pi-exclamation-circle"></i>
+          <span><strong>{{ pendingTotal }}</strong> {{ pendingTotal === 1 ? 'pendência aguardando você' : 'pendências aguardando você' }}</span>
+        </div>
+      }
+    </div>
   </app-page-header>
 
   <section class="kpi-row">

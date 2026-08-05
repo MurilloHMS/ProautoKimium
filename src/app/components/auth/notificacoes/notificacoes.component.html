@@ -1,15 +1,16 @@
 <section class="nt-page">
-  <header class="nt-header">
-    <div>
-      <h1>Notificações</h1>
-      <p>Avisos do sistema e novidades para você.</p>
+  <app-page-header
+    icon="pi pi-bell"
+    title="Notificações"
+    subtitle="Avisos do sistema e novidades para você.">
+    <div actions>
+      @if (notifications.notifications().length > 0) {
+        <button class="nt-mark-all" (click)="marcarTodas()" [disabled]="notifications.unreadCount() === 0">
+          <i class="pi pi-check"></i> Marcar todas como lidas
+        </button>
+      }
     </div>
-    @if (notifications.notifications().length > 0) {
-      <button class="nt-mark-all" (click)="marcarTodas()" [disabled]="notifications.unreadCount() === 0">
-        <i class="pi pi-check"></i> Marcar todas como lidas
-      </button>
-    }
-  </header>
+  </app-page-header>
 
   <!-- Ativar push nativo (só aparece se o navegador/PWA suportar) -->
   @if (pushSuportado && !pushAtivado) {

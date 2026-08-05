@@ -1,15 +1,11 @@
 <section class="gallery-page">
 
   <!-- Header -->
-  <header class="gl-header">
-    <div class="gl-header__left">
-      <div class="header-icon"><i class="pi pi-images"></i></div>
-      <div>
-        <h1 class="page-title">Galeria de Documentos</h1>
-        <p class="page-subtitle">Fotos, logos e catálogos da empresa</p>
-      </div>
-    </div>
-    <div class="gl-header__actions">
+  <app-page-header
+    icon="pi pi-images"
+    title="Galeria de Documentos"
+    subtitle="Fotos, logos e catálogos da empresa">
+    <div actions class="gl-header__actions">
       @if (documents().length > 0) {
         <span class="gl-count">{{ filtrados().length }} de {{ documents().length }}</span>
       }
@@ -17,7 +13,7 @@
         <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadDialog()"/>
       }
     </div>
-  </header>
+  </app-page-header>
 
   <!-- Filters -->
   @if (documents().length > 0 && !loading()) {

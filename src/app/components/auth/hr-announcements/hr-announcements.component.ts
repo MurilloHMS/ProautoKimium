@@ -2,11 +2,12 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AnnouncementService } from '../../../infrastructure/services/hr/announcement.service';
 import { Announcement } from '../../../domain/models/hr/announcement.model';
+import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-announcements',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './hr-announcements.component.html',
   styleUrl: './hr-announcements.component.scss',
 })
