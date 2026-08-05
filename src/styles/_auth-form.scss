@@ -1,0 +1,252 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Formulário das telas de entrada (login, área do cliente, esqueci a senha,
+// primeiro acesso).
+//
+// É um parcial global, e não um estilo do login-layout, porque o conteúdo
+// projetado com <ng-content> mantém o encapsulamento do componente que o
+// declara — o SCSS do layout não alcançaria os campos das páginas.
+//
+// As quatro telas repetiam label, input, banner de erro e botão com três
+// linguagens visuais diferentes; aqui existe uma só.
+// ═══════════════════════════════════════════════════════════════════════════
+
+@use 'variables' as v;
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-5;
+  font-family: v.$font-body;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-2;
+}
+
+.auth-label {
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-icon {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  color: var(--app-text-subtle);
+  pointer-events: none;
+  transition: color v.$transition-base;
+}
+
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1.5px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  font-family: v.$font-body;
+  // 16px evita o zoom automático do iOS ao focar o campo.
+  font-size: 16px;
+  outline: none;
+  transition: border-color v.$transition-base, box-shadow v.$transition-base, background v.$transition-base;
+
+  &::placeholder {
+    color: var(--app-text-subtle);
+  }
+
+  &:focus {
+    border-color: var(--app-primary);
+    background: var(--app-surface);
+    box-shadow: 0 0 0 3px var(--app-primary-soft);
+  }
+
+  // Campo com ícone à esquerda
+  .auth-input-wrap & {
+    padding-left: 44px;
+  }
+}
+
+.auth-input-wrap:focus-within .auth-icon {
+  color: var(--app-primary);
+}
+
+.auth-error {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  font-size: v.$font-size-xs;
+  color: var(--app-danger);
+}
+
+.auth-error-banner {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  padding: 11px 14px;
+  border: 1px solid rgba(v.$danger, 0.35);
+  border-radius: v.$radius-sm;
+  background: rgba(v.$danger, 0.08);
+  color: var(--app-danger);
+  font-size: v.$font-size-sm;
+  font-weight: 500;
+
+  i, svg { flex-shrink: 0; }
+}
+
+.auth-links {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$space-4;
+}
+
+.auth-link {
+  font-size: v.$font-size-xs;
+  font-weight: 500;
+  color: var(--app-primary);
+  text-decoration: none;
+
+  &:hover { opacity: 0.75; }
+}
+
+.auth-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  width: 100%;
+  // Alvo de toque confortável (~52px) — as telas de entrada são muito usadas no celular.
+  padding: 15px 20px;
+  border: 0;
+  border-radius: v.$radius-md;
+  background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
+  color: #fff;
+  font-family: v.$font-body;
+  font-size: v.$font-size-md;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform v.$transition-fast, box-shadow v.$transition-base, opacity v.$transition-base;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 8px 24px rgba(v.$primary, 0.32);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.985);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 3px;
+  }
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  padding: v.$space-2;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover { color: var(--app-primary); }
+}
+
+.auth-hint {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+}
+
+.auth-resend {
+  border: 0;
+  background: transparent;
+  color: var(--app-primary);
+  font-family: v.$font-body;
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    color: var(--app-text-subtle);
+    cursor: not-allowed;
+  }
+}
+
+.auth-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: v.$space-3;
+  font-family: v.$font-body;
+}
+
+.auth-success__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: v.$radius-full;
+  background: rgba(v.$success, 0.14);
+  color: v.$success;
+  font-size: 1.6rem;
+}
+
+.auth-success__title {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-lg;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.auth-success__text {
+  margin: 0;
+  font-size: v.$font-size-sm;
+  color: var(--app-text-muted);
+}
+
+// ─── Ajustes nos componentes PrimeNG usados pelos assistentes ───────────────
+.auth-otp {
+  display: flex;
+  justify-content: center;
+
+  input {
+    width: 44px !important;
+    height: 52px !important;
+    font-size: v.$font-size-lg !important;
+  }
+}
+
+.auth-password {
+  width: 100%;
+
+  input {
+    width: 100%;
+  }
+}

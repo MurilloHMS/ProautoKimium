@@ -1,28 +1,29 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ɵInternalFormsSharedModule} from '@angular/forms';
-import { AuthService } from '../../../infrastructure/services/auth.service';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
+import { AuthService } from '../../../infrastructure/services/auth.service';
+import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout.component';
+
 @Component({
-    selector: 'app-login',
-    imports: [ɵInternalFormsSharedModule, ReactiveFormsModule, RouterLink, NgxMaskDirective],
-    templateUrl: './login.component.html',
-    styleUrl: './login.component.scss',
-    encapsulation: ViewEncapsulation.None,
-    providers: [provideNgxMask()]
+  selector: 'app-login',
+  standalone: true,
+  imports: [ReactiveFormsModule, RouterLink, NgxMaskDirective, LoginLayoutComponent],
+  templateUrl: './login.component.html',
+  providers: [provideNgxMask()],
 })
 export class LoginComponent {
   form: FormGroup;
-  errorMessage: string = '';
-  loading: boolean = false;
-  identifierMask: string = '';
+  errorMessage = '';
+  loading = false;
+  identifierMask = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ){
+  ) {
     this.form = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$')]]
