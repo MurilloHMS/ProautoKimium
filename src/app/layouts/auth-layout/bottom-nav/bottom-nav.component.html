@@ -1,0 +1,11 @@
+<nav class="bottom-nav" aria-label="Navegação rápida">
+  @for (item of items; track item.label) {
+    <a class="bottom-nav__item"
+       [routerLink]="item.routerLink"
+       routerLinkActive="is-active"
+       [routerLinkActiveOptions]="{ exact: true }">
+      <i [class]="item.icon"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  }
+</nav>

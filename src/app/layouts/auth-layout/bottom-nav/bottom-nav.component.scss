@@ -1,0 +1,78 @@
+@use 'variables' as v;
+
+:host {
+  display: none;
+}
+
+@media (max-width: v.$bp-md) {
+  :host {
+    display: block;
+  }
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: v.$z-sticky;
+
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+
+  height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.06);
+  font-family: v.$font-body;
+}
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+
+  color: var(--app-text-muted);
+  text-decoration: none;
+  font-size: 0.66rem;
+  font-weight: 600;
+  transition: color v.$transition-base;
+
+  i {
+    font-size: v.$font-size-md;
+  }
+
+  span {
+    max-width: 100%;
+    padding: 0 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.is-active {
+    color: var(--app-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: -3px;
+  }
+
+  &:active i {
+    transform: scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav__item,
+  .bottom-nav__item:active i {
+    transition: none;
+    transform: none;
+  }
+}

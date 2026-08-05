@@ -1,17 +1,25 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TopMenuComponent } from "../../components/auth/shared/top-menu/top-menu.component";
-import { NotificationService } from '../../infrastructure/services/notification.service';
 
+import { NotificationService } from '../../infrastructure/services/notification.service';
+import { BottomNavComponent } from './bottom-nav/bottom-nav.component';
+import { NavDrawerComponent } from './nav-drawer/nav-drawer.component';
+import { TopbarComponent } from './topbar/topbar.component';
+
+/** Shell da área autenticada: topbar + drawer + conteúdo + bottom nav (mobile). */
 @Component({
-    selector: 'app-auth-layout',
-    imports: [RouterOutlet, TopMenuComponent],
-    templateUrl: './auth-layout.component.html',
-    styleUrl: './auth-layout.component.scss'
+  selector: 'app-auth-layout',
+  standalone: true,
+  imports: [RouterOutlet, TopbarComponent, NavDrawerComponent, BottomNavComponent],
+  templateUrl: './auth-layout.component.html',
+  styleUrl: './auth-layout.component.scss',
 })
 export class AuthLayoutComponent implements OnInit, OnDestroy {
 
-  constructor(private notifications: NotificationService) {}
+  private readonly notifications = inject(NotificationService);
+
+  /** O estado do drawer mora aqui: a topbar pede para abrir, o drawer pede para fechar. */
+  readonly drawerOpen = signal(false);
 
   ngOnInit(): void {
     this.notifications.start();

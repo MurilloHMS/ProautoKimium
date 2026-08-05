@@ -1,0 +1,239 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+}
+
+// ─── Overlay ────────────────────────────────────────────────────────────────
+.drawer__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: v.$z-overlay;
+  background: var(--app-overlay);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity v.$transition-slow, visibility v.$transition-slow;
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// ─── Painel ─────────────────────────────────────────────────────────────────
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: v.$z-drawer;
+
+  display: flex;
+  flex-direction: column;
+  width: min(var(--drawer-w), 88vw);
+
+  background: var(--app-surface);
+  border-right: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow-lg);
+  font-family: v.$font-body;
+  color: var(--app-text);
+
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform v.$transition-slow, visibility v.$transition-slow;
+
+  &.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-2;
+  padding: calc(env(safe-area-inset-top) + #{v.$space-4}) v.$space-4 v.$space-4;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.drawer__app {
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.drawer__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: v.$radius-sm;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-primary); outline-offset: 2px; }
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: v.$space-4 v.$space-3;
+  overscroll-behavior: contain;
+}
+
+.drawer__section {
+  margin: 0 0 v.$space-2 v.$space-3;
+  font-size: v.$font-size-xs;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.drawer__list,
+.drawer__sublist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// ─── Itens ──────────────────────────────────────────────────────────────────
+.drawer__item {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  width: 100%;
+  padding: v.$space-3;
+  border: 0;
+  border-radius: v.$radius-sm;
+  background: transparent;
+  color: var(--app-text);
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background v.$transition-base, color v.$transition-base;
+
+  &:hover { background: var(--app-surface-2); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: -2px;
+  }
+
+  &.is-active {
+    background: var(--app-primary-soft);
+    color: var(--app-primary);
+    font-weight: 600;
+  }
+
+  // Indentação por nível (data-depth vem do template recursivo)
+  &[data-depth='1'] { padding-left: v.$space-8; font-size: v.$font-size-sm; }
+  &[data-depth='2'] { padding-left: v.$space-12; font-size: v.$font-size-xs; }
+}
+
+.drawer__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  flex-shrink: 0;
+  color: var(--app-text-muted);
+  font-size: v.$font-size-sm;
+
+  .drawer__item.is-active & { color: var(--app-primary); }
+}
+
+.drawer__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer__chevron,
+.drawer__external {
+  font-size: v.$font-size-xs;
+  color: var(--app-text-subtle);
+  transition: transform v.$transition-base;
+}
+
+.drawer__item--group.is-expanded .drawer__chevron {
+  transform: rotate(180deg);
+}
+
+// Um único filho no grid — é o que faz o colapso funcionar para o grupo inteiro.
+.drawer__sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows v.$transition-slow;
+
+  > .drawer__sublist { overflow: hidden; }
+
+  &.is-open {
+    grid-template-rows: 1fr;
+  }
+}
+
+// ─── Rodapé ─────────────────────────────────────────────────────────────────
+.drawer__footer {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-4;
+  padding-bottom: calc(env(safe-area-inset-bottom) + #{v.$space-4});
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+}
+
+.drawer__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: v.$radius-full;
+  background: var(--app-primary);
+  color: var(--app-on-primary);
+}
+
+.drawer__user {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.drawer__user-name {
+  font-size: v.$font-size-sm;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer__user-roles {
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer__overlay,
+  .drawer__sub,
+  .drawer__chevron {
+    transition: none;
+  }
+}
