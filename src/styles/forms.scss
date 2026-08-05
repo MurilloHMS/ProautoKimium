@@ -61,9 +61,15 @@
    campos do design system que estão ao lado.
    --------------------------------------------------------------------------- */
 
+/* A largura total é coisa de formulário: dentro da toolbar o controle tem que
+   ocupar só o necessário, senão empurra a busca para a linha de baixo. */
+.form-field > .select-field,
+.form-field > .datepicker-field {
+    width: 100%;
+}
+
 .select-field,
 .datepicker-field {
-    width: 100%;
     min-height: var(--field-h);
     border-radius: var(--radius-control);
     font-size: var(--text-ui);
