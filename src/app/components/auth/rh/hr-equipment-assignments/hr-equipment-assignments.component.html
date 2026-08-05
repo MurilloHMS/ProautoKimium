@@ -1,16 +1,10 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-desktop"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Controle de Equipamentos</h1>
-      <p class="page-subtitle">Controle de entrega e devolução de equipamentos por funcionário</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-desktop"
+  title="Controle de Equipamentos"
+  subtitle="Controle de entrega e devolução de equipamentos por funcionário">
+  <div actions class="header-actions">
     <div class="filter-field">
       <p-select
         [options]="employeeOptions"
@@ -28,7 +22,7 @@
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <div class="table-card">
   <pk-table

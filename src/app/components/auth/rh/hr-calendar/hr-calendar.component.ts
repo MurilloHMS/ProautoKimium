@@ -12,11 +12,12 @@ import { CalendarService } from '../../../../infrastructure/services/hr/calendar
 import { TeamService } from '../../../../infrastructure/services/hr/team.service';
 import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
 import { CalendarEvent, CalendarEventStatus } from '../../../../domain/models/hr/calendar.model';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent, PageHeaderComponent],
   templateUrl: './hr-calendar.component.html',
   styleUrl: './hr-calendar.component.scss',
   providers: [MessageService],

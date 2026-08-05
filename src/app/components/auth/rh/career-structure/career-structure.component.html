@@ -1,21 +1,15 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-briefcase"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Cargos & Níveis</h1>
-      <p class="page-subtitle">Estrutura de cargos, níveis salariais e dissídio</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-briefcase"
+  title="Cargos &amp; Níveis"
+  subtitle="Estrutura de cargos, níveis salariais e dissídio">
+  <div actions class="header-actions">
     <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm"/>
     <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <div class="table-card">
   <pk-table

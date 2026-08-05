@@ -9,13 +9,14 @@ import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multisel
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { EmployeeNotificationService } from '../../../../infrastructure/services/hr/employee-notification.service';
 import { SendNotificationResult } from '../../../../domain/models/hr/employee-notification.model';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 type SendMode = 'specific' | 'all';
 
 @Component({
   selector: 'app-hr-notifications',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Toast, PkButtonComponent, PkInputComponent, PkMultiselectComponent],
+  imports: [CommonModule, ReactiveFormsModule, Toast, PkButtonComponent, PkInputComponent, PkMultiselectComponent, PageHeaderComponent],
   templateUrl: './hr-notifications.component.html',
   styleUrl: './hr-notifications.component.scss',
   providers: [MessageService],

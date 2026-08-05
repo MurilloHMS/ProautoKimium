@@ -1,16 +1,10 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-sun"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Aprovação de Férias</h1>
-      <p class="page-subtitle">Analise as solicitações de férias dos funcionários</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-sun"
+  title="Aprovação de Férias"
+  subtitle="Analise as solicitações de férias dos funcionários">
+  <div actions class="header-actions">
     <div class="filter-field">
       <p-select
         [options]="statusOptions"
@@ -25,7 +19,7 @@
     <pk-button pkType="save" (clicked)="openRegisterDialog()" pkLabel="Lançar Férias" pkSize="sm" pkIcon="pi pi-plus"/>
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <!-- Alertas CLT -->
 @if (showAlerts) {

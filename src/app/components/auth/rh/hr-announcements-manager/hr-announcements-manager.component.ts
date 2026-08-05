@@ -7,11 +7,12 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { AnnouncementService } from '../../../../infrastructure/services/hr/announcement.service';
 import { Announcement } from '../../../../domain/models/hr/announcement.model';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-hr-announcements-manager',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Toast, PkButtonComponent, PkInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, Toast, PkButtonComponent, PkInputComponent, PageHeaderComponent],
   templateUrl: './hr-announcements-manager.component.html',
   styleUrl: './hr-announcements-manager.component.scss',
   providers: [MessageService],

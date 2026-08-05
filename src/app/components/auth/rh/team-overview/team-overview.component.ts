@@ -9,11 +9,12 @@ import { TeamOverviewService } from '../../../../infrastructure/services/hr/team
 import { TeamService } from '../../../../infrastructure/services/hr/team.service';
 import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
 import { AvailabilityStatus, TeamOverviewEntry } from '../../../../domain/models/hr/team-overview.model';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 @Component({
   selector: 'app-team-overview',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectModule, Toast, PkButtonComponent],
+  imports: [CommonModule, FormsModule, SelectModule, Toast, PkButtonComponent, PageHeaderComponent],
   templateUrl: './team-overview.component.html',
   styleUrl: './team-overview.component.scss',
   providers: [MessageService],

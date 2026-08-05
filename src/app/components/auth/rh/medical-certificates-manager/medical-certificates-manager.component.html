@@ -1,19 +1,13 @@
 <p-toast position="top-right"></p-toast>
 
-<div class="page-header">
-  <div class="header-left">
-    <div class="header-icon">
-      <i class="pi pi-file-check"></i>
-    </div>
-    <div>
-      <h1 class="page-title">Atestados Medicos</h1>
-      <p class="page-subtitle">Todos os atestados enviados pelos funcionarios</p>
-    </div>
-  </div>
-  <div class="header-actions">
+<app-page-header
+  icon="pi pi-file-check"
+  title="Atestados Médicos"
+  subtitle="Todos os atestados enviados pelos funcionários">
+  <div actions class="header-actions">
     <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   </div>
-</div>
+</app-page-header>
 
 <div class="table-card">
   <pk-table

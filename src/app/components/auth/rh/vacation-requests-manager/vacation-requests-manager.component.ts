@@ -17,13 +17,14 @@ import { EmployeeService } from '../../../../infrastructure/services/partners/em
 import { Employee } from '../../../../domain/models/employee.model';
 import { VacationAlert, VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
 import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../../domain/utils/brazilian-business-days';
+import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
 type ReviewAction = 'approve' | 'reject';
 
 @Component({
   selector: 'app-vacation-requests-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, InputNumberModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, InputNumberModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, PageHeaderComponent],
   templateUrl: './vacation-requests-manager.component.html',
   styleUrl: './vacation-requests-manager.component.scss',
   providers: [MessageService],
