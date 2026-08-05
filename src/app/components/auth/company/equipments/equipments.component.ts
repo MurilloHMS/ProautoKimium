@@ -10,7 +10,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 
@@ -43,7 +44,14 @@ import {ButtonDirective} from "primeng/button";
   templateUrl: './equipments.component.html',
   styleUrl: './equipments.component.scss'
 })
-export class EquipmentsComponent implements OnInit {
+export class EquipmentsComponent implements OnInit, TabDirtyCheck {
+
+  /** A aba avisa antes de fechar se houver cadastro ou edição em andamento. */
+  isTabDirty(): boolean {
+    return (this.mode() === 'create' && this.createForm.dirty)
+      || (this.mode() === 'edit' && this.editForm.dirty);
+  }
+
   equipments = signal<EquipmentResponseDTO[]>([]);
 
   loading = signal(false);

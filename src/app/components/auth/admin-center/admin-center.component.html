@@ -1,5 +1,7 @@
 <p-toast></p-toast>
 
+@if (mode() === 'grid') {
+
 <app-toolbar>
   <pk-button pkType="new" pkSize="sm" pkLabel="Novo usuário" (clicked)="openCreateDialog()"/>
   <pk-button pkType="token" pkSize="sm" [pkLoading]="loading" (clicked)="generateAccessTokens()"/>
@@ -82,15 +84,16 @@
   </pk-table>
 </div>
 
-<!-- MODAL: criar / editar usuario -->
-<pk-dialog
-  [visible]="showDialog"
-  (visibleChange)="onDialogVisibleChange($event)"
-  [header]="editingUser ? 'Editar usuário' : 'Novo usuário'"
-  width="460px">
+}
 
-  <div pkDialogContent>
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="pk-form-section">
+@if (mode() === 'form') {
+<app-form-screen
+  [title]="editingUser ? 'Editar usuário' : 'Novo usuário'"
+  [subtitle]="editingUser ? 'Apenas as permissões podem ser alteradas' : 'Cadastro de acesso ao sistema'"
+  (back)="closeDialog()">
+
+  <div>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
       <div class="edit-banner" *ngIf="editingUser">
         <i class="pi pi-info-circle"></i>
@@ -121,10 +124,11 @@
     </form>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
+  <div formActions>
     <pk-button pkType="cancel" pkSize="sm" (clicked)="closeDialog()"/>
     <pk-button pkType="save" pkSize="sm"
                [pkLabel]="editingUser ? 'Atualizar' : 'Salvar'"
                [pkLoading]="isSubmitting" (clicked)="onSubmit()"/>
   </div>
-</pk-dialog>
+</app-form-screen>
+}

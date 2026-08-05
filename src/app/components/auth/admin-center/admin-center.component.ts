@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './../../../infrastructure/services/auth.service';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
+import { TabDirtyCheck } from '../../../infrastructure/routing/tab-dirty-check';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { UserRole, RegisterDTO, UserResponseDTO } from '../../../domain/models/user.model';
@@ -11,7 +12,7 @@ import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button
 import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkPasswordComponent } from '../../theme/ProautoKimium/pk-password/pk-password.component';
 import { PkMultiselectComponent } from '../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
-import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { FormScreenComponent } from '../shared/form-screen/form-screen.component';
 import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
 
@@ -25,7 +26,7 @@ import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
     PkInputComponent,
     PkPasswordComponent,
     PkMultiselectComponent,
-    PkDialogComponent,
+    FormScreenComponent,
     PkTableComponent,
     ToolbarComponent
   ],
@@ -33,7 +34,13 @@ import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
   styleUrl: './admin-center.component.scss',
   providers: [MessageService],
 })
-export class AdminCenterComponent implements OnInit {
+export class AdminCenterComponent implements OnInit, TabDirtyCheck {
+
+  /** A aba avisa antes de fechar se o cadastro estiver preenchido. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.registerForm.dirty;
+  }
+
   loading = false;
   registerForm!: FormGroup;
   isSubmitting = false;
@@ -41,7 +48,8 @@ export class AdminCenterComponent implements OnInit {
   users: UserResponseDTO[] = [];
 
   // Controla o modal de criar/editar
-  showDialog = false;
+  /** grade ou formulário — o cadastro de usuário não usa mais diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
 
   // Controla se estamos editando um usuário existente
   editingUser: UserResponseDTO | null = null;
@@ -95,7 +103,7 @@ export class AdminCenterComponent implements OnInit {
     this.editingUser = null;
     this.registerForm.get('login')?.enable();
     this.buildRegisterForm();
-    this.showDialog = true;
+    this.mode.set('form');
   }
 
   /** Abre o modal já preenchido para editar as permissões de um usuário. */
@@ -116,12 +124,12 @@ export class AdminCenterComponent implements OnInit {
       roles: [...user.roles]
     });
 
-    this.showDialog = true;
+    this.mode.set('form');
   }
 
   /** Fecha o modal e restaura o formulário ao estado inicial. */
   closeDialog(): void {
-    this.showDialog = false;
+    this.mode.set('grid');
     this.editingUser = null;
     this.registerForm.get('login')?.enable();
     this.buildRegisterForm();
