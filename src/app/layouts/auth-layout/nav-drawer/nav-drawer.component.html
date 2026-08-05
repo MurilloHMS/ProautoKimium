@@ -1,0 +1,88 @@
+<div class="drawer__overlay" [class.is-visible]="open()" (click)="close()"></div>
+
+<nav #panel
+     class="drawer"
+     [class.is-open]="open()"
+     [attr.aria-hidden]="!open()"
+     aria-label="Navegação principal">
+
+  <div class="drawer__header">
+    <span class="drawer__app">Proauto Kimium</span>
+    <button type="button" class="drawer__close" aria-label="Fechar menu" (click)="close()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <div class="drawer__body">
+    <p class="drawer__section">Navegação</p>
+
+    <ul class="drawer__list">
+      @for (node of nodes; track node.id) {
+        <li>
+          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, siblings: nodes, depth: 0 }" />
+        </li>
+      }
+    </ul>
+  </div>
+
+  <div class="drawer__footer">
+    <span class="drawer__avatar"><i class="pi pi-user"></i></span>
+    <span class="drawer__user">
+      <span class="drawer__user-name">{{ auth.getUsername() }}</span>
+      <span class="drawer__user-roles">{{ auth.getUserRoles().join(', ') || 'Sem papéis' }}</span>
+    </span>
+  </div>
+</nav>
+
+<!-- Template recursivo: um nó de qualquer nível -->
+<ng-template #nodeTpl let-node let-siblings="siblings" let-depth="depth">
+
+  @if (node.children.length) {
+    <button type="button"
+            class="drawer__item drawer__item--group"
+            [class.is-expanded]="isExpanded(node.id)"
+            [attr.data-depth]="depth"
+            [attr.aria-expanded]="isExpanded(node.id)"
+            (click)="toggle(node, siblings)">
+      <span class="drawer__icon"><i [class]="node.icon"></i></span>
+      <span class="drawer__label">{{ node.label }}</span>
+      <i class="pi pi-angle-down drawer__chevron"></i>
+    </button>
+
+    <!-- O wrapper existe porque a animação de altura (grid-template-rows: 0fr → 1fr)
+         só colapsa a PRIMEIRA linha do grid: com os itens soltos aqui, o grupo
+         fechado escondia apenas o primeiro filho e deixava os outros à mostra. -->
+    <div class="drawer__sub" [class.is-open]="isExpanded(node.id)">
+      <ul class="drawer__sublist">
+        @for (child of node.children; track child.id) {
+          <li>
+            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: child, siblings: node.children, depth: depth + 1 }" />
+          </li>
+        }
+      </ul>
+    </div>
+
+  } @else if (node.routerLink) {
+    <a class="drawer__item"
+       [attr.data-depth]="depth"
+       [routerLink]="node.routerLink"
+       routerLinkActive="is-active"
+       [routerLinkActiveOptions]="{ exact: true }"
+       (click)="close()">
+      <span class="drawer__icon"><i [class]="node.icon"></i></span>
+      <span class="drawer__label">{{ node.label }}</span>
+    </a>
+
+  } @else {
+    <a class="drawer__item"
+       [attr.data-depth]="depth"
+       [href]="node.url"
+       [target]="node.target ?? '_self'"
+       rel="noopener"
+       (click)="close()">
+      <span class="drawer__icon"><i [class]="node.icon"></i></span>
+      <span class="drawer__label">{{ node.label }}</span>
+      <i class="pi pi-external-link drawer__external"></i>
+    </a>
+  }
+</ng-template>

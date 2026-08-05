@@ -1,0 +1,73 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Tokens de runtime (CSS custom properties)
+//
+// Por que existem: as variáveis de `variables.scss` são SCSS — compilam para
+// valores fixos e não trocam em runtime, então não servem para tema escuro.
+// Estes tokens são a base do shell autenticado (topbar, drawer, bottom nav,
+// page-header e fundo do conteúdo) e trocam junto com a classe `dark-mode`
+// aplicada no <html> pelo ThemeService.
+//
+// Escopo atual: shell. As páginas ainda usam as variáveis SCSS diretamente e
+// migram para cá aos poucos.
+// ═══════════════════════════════════════════════════════════════════════════
+
+@use 'variables' as v;
+
+:root {
+  color-scheme: light;
+
+  // ─── Superfícies ───────────────────────────────────────────────────────
+  --app-bg:          #{v.$bg-surface};
+  --app-surface:     #{v.$bg-panel};
+  --app-surface-2:   #{v.$bg-hover};
+  --app-surface-3:   #{v.$neutral-100};
+
+  // ─── Texto ─────────────────────────────────────────────────────────────
+  --app-text:        #{v.$neutral-900};
+  --app-text-muted:  #{v.$text-muted};
+  --app-text-subtle: #{v.$text-light};
+
+  // ─── Traços e marca ────────────────────────────────────────────────────
+  --app-border:      #{v.$border};
+  --app-border-soft: #{v.$neutral-300};
+  --app-primary:     #{v.$primary};
+  --app-primary-soft: rgba(35, 46, 97, 0.10);
+  --app-on-primary:  #{v.$white};
+  --app-accent:      #{v.$secondary};
+  --app-danger:      #{v.$danger};
+
+  // ─── Camadas e elevação ────────────────────────────────────────────────
+  --app-overlay:     rgba(15, 23, 42, 0.45);
+  --app-shadow-sm:   #{v.$shadow-sm};
+  --app-shadow-lg:   #{v.$shadow-lg};
+
+  // ─── Métricas do shell ─────────────────────────────────────────────────
+  --topbar-h:        56px;
+  --bottom-nav-h:    #{v.$bottom-nav-h};
+  --drawer-w:        290px;
+}
+
+:root.dark-mode {
+  color-scheme: dark;
+
+  --app-bg:          #0b1220;
+  --app-surface:     #131c30;
+  --app-surface-2:   #1b2540;
+  --app-surface-3:   #223049;
+
+  --app-text:        #e8ecf4;
+  --app-text-muted:  #97a3b8;
+  --app-text-subtle: #6b788f;
+
+  --app-border:      #253048;
+  --app-border-soft: #1e2841;
+  --app-primary:     #7c88c9;
+  --app-primary-soft: rgba(124, 136, 201, 0.16);
+  --app-on-primary:  #0b1220;
+  --app-accent:      #{v.$secondary};
+  --app-danger:      #f87171;
+
+  --app-overlay:     rgba(2, 6, 16, 0.66);
+  --app-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.4);
+  --app-shadow-lg:   0 12px 40px rgba(0, 0, 0, 0.55);
+}

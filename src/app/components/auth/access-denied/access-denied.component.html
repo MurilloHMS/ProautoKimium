@@ -1,0 +1,17 @@
+<section class="denied">
+  <span class="denied__icon"><i class="pi pi-lock"></i></span>
+
+  <h1 class="denied__title">Acesso restrito</h1>
+  <p class="denied__text">
+    Você está logado, mas seu perfil não tem permissão para abrir esta página.
+    Se precisar deste acesso, fale com o RH ou com o administrador do sistema.
+  </p>
+
+  <p class="denied__roles">
+    Seus papéis: <strong>{{ roles.length ? roles.join(', ') : 'nenhum papel atribuído' }}</strong>
+  </p>
+
+  <a class="denied__button" routerLink="/home">
+    <i class="pi pi-arrow-left"></i> Voltar para o início
+  </a>
+</section>

@@ -1,11 +1,25 @@
-// Compensa o header fixo (52px + safe-area-inset-top do notch) pra o conteúdo não ficar atrás.
-.content {
-  padding-top: calc(52px + env(safe-area-inset-top));
+@use 'variables' as v;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100%;
+  background: var(--app-bg);
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  background: var(--app-bg);
+
+  // Compensa a topbar fixa (inclui o notch do iPhone).
+  padding-top: calc(var(--topbar-h) + env(safe-area-inset-top));
 }
 
 // Respiro para o conteúdo não ficar atrás do bottom nav no mobile.
-@media (max-width: 768px) {
-  .content {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+@media (max-width: v.$bp-md) {
+  .app-content {
+    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
   }
 }

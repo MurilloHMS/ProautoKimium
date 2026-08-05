@@ -1,0 +1,23 @@
+<ol class="steps">
+  @for (label of steps(); track label; let i = $index, isLast = $last) {
+    <li
+      class="step"
+      [class.step--active]="currentStep() >= i + 1"
+      [class.step--done]="currentStep() > i + 1"
+      [attr.aria-current]="currentStep() === i + 1 ? 'step' : null"
+    >
+      <span class="step__dot">
+        @if (currentStep() > i + 1) {
+          <i class="pi pi-check"></i>
+        } @else {
+          {{ i + 1 }}
+        }
+      </span>
+      <span class="step__label">{{ label }}</span>
+    </li>
+
+    @if (!isLast) {
+      <li class="step-line" [class.step-line--done]="currentStep() > i + 1" aria-hidden="true"></li>
+    }
+  }
+</ol>

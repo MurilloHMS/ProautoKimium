@@ -1,0 +1,138 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+}
+
+.auth-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: v.$bg-surface;
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(35, 46, 97, 0.08), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba(87, 193, 171, 0.10), transparent 55%);
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: v.$bg-panel;
+  animation: auth-card-in 0.4s ease-out both;
+}
+
+.auth-card__stripe {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: linear-gradient(90deg, v.$primary, v.$secondary);
+}
+
+.auth-card__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: v.$space-8 v.$space-6;
+}
+
+.auth-back {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  align-self: flex-start;
+  margin-bottom: v.$space-6;
+  color: v.$text-muted;
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  text-decoration: none;
+  transition: color v.$transition-base;
+
+  i {
+    font-size: v.$font-size-xs;
+  }
+
+  &:hover {
+    color: v.$primary;
+  }
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: v.$space-8;
+}
+
+.auth-logo {
+  height: 44px;
+  width: auto;
+  margin-bottom: v.$space-5;
+}
+
+.auth-title {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-xl;
+  font-weight: 700;
+  color: v.$primary;
+  letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+  margin: v.$space-2 0 0;
+  font-family: v.$font-body;
+  font-size: v.$font-size-base;
+  line-height: v.$line-height-relaxed;
+  color: v.$text-muted;
+}
+
+.auth-content {
+  display: block;
+}
+
+.auth-footer {
+  margin: v.$space-8 0 0;
+  text-align: center;
+  font-family: v.$font-body;
+  font-size: v.$font-size-xs;
+  color: v.$text-light;
+}
+
+// ─── Desktop: card flutuante ────────────────────────────────────────────────
+@media (min-width: v.$bp-sm) {
+  .auth-wrapper {
+    padding: v.$space-8 v.$space-4;
+  }
+
+  .auth-card {
+    min-height: auto;
+    border: 1px solid v.$border;
+    border-radius: v.$radius-md;
+    box-shadow: v.$shadow-lg;
+  }
+
+  .auth-card__body {
+    min-height: auto;
+    padding: v.$space-10 v.$space-8;
+  }
+}
+
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card {
+    animation: none;
+  }
+}

@@ -5,18 +5,6 @@
   @include m.page-layout;
 }
 
-.docs-page {
-}
-
-// ── Header ──────────────────────────────────────────────────────────────────
-
-.docs-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
 // ── Grid ────────────────────────────────────────────────────────────────────
 
 .docs-grid {

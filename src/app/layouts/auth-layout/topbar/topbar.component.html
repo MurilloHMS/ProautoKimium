@@ -1,0 +1,119 @@
+<header class="topbar">
+
+  <!-- Esquerda: menu + marca + breadcrumb -->
+  <div class="topbar__left">
+    <button id="app-menu-button"
+            type="button"
+            class="icon-btn"
+            aria-label="Abrir menu de navegação"
+            aria-haspopup="true"
+            (click)="menuToggle.emit()">
+      <i class="pi pi-bars"></i>
+    </button>
+
+    <span class="topbar__brand">Proauto Kimium</span>
+
+    @if (breadcrumb()) {
+      <span class="topbar__divider" aria-hidden="true"></span>
+      <span class="topbar__breadcrumb" [title]="breadcrumb()">{{ breadcrumb() }}</span>
+    }
+  </div>
+
+  <!-- Direita: busca + ações -->
+  <div class="topbar__right">
+
+    <div class="search">
+      <i class="pi pi-search search__icon" aria-hidden="true"></i>
+      <input type="text"
+             class="search__input"
+             placeholder="Buscar página..."
+             role="combobox"
+             aria-label="Buscar página"
+             [attr.aria-expanded]="showResults()"
+             aria-controls="topbar-search-results"
+             autocomplete="off"
+             [ngModel]="searchQuery()"
+             (ngModelChange)="onSearchInput($event)"
+             (focus)="onSearchFocus()"
+             (keydown)="onSearchKeydown($event)" />
+
+      @if (searchQuery()) {
+        <button type="button" class="search__clear" aria-label="Limpar busca" tabindex="-1" (click)="clearSearch()">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+
+      @if (showResults()) {
+        <div class="search__dropdown" id="topbar-search-results" role="listbox">
+          @for (result of searchResults(); track result.breadcrumb; let i = $index) {
+            <button type="button"
+                    class="search__result"
+                    role="option"
+                    [attr.aria-selected]="i === activeIndex()"
+                    [class.is-active]="i === activeIndex()"
+                    (click)="goToResult(result)">
+              <span class="search__result-icon"><i [class]="result.icon"></i></span>
+              <span class="search__result-text">
+                <span class="search__result-label">{{ result.label }}</span>
+                <span class="search__result-crumb">{{ result.breadcrumb }}</span>
+              </span>
+            </button>
+          } @empty {
+            <p class="search__empty">
+              <i class="pi pi-search"></i>
+              Nenhuma página encontrada para "<strong>{{ searchQuery() }}</strong>"
+            </p>
+          }
+        </div>
+      }
+    </div>
+
+    <a routerLink="/notificacoes" class="icon-btn icon-btn--bell" aria-label="Notificações">
+      <i class="pi pi-bell"></i>
+      @if (notifications.unreadCount() > 0) {
+        <span class="icon-btn__badge">{{ notifications.unreadCount() > 99 ? '99+' : notifications.unreadCount() }}</span>
+      }
+    </a>
+
+    <button type="button"
+            class="icon-btn"
+            [attr.aria-label]="theme.isDark() ? 'Usar tema claro' : 'Usar tema escuro'"
+            [attr.aria-pressed]="theme.isDark()"
+            (click)="theme.toggle()">
+      <i class="pi" [class.pi-sun]="theme.isDark()" [class.pi-moon]="!theme.isDark()"></i>
+    </button>
+
+    <!-- Menu do usuário -->
+    <div class="user">
+      <button type="button"
+              class="user__trigger"
+              aria-haspopup="menu"
+              [attr.aria-expanded]="userMenuOpen()"
+              (click)="userMenuOpen.set(!userMenuOpen())">
+        <span class="user__avatar"><i class="pi pi-user"></i></span>
+        <span class="user__name">{{ auth.getUsername() }}</span>
+        <i class="pi pi-angle-down user__chevron" [class.is-open]="userMenuOpen()"></i>
+      </button>
+
+      @if (userMenuOpen()) {
+        <div class="user__menu" role="menu">
+          <div class="user__menu-head">
+            <span class="user__menu-name">{{ auth.getUsername() }}</span>
+            <span class="user__menu-roles">{{ userRolesLabel }}</span>
+          </div>
+
+          <a class="user__menu-item" role="menuitem" routerLink="/perfil" (click)="userMenuOpen.set(false)">
+            <i class="pi pi-user"></i> Meu perfil
+          </a>
+          <a class="user__menu-item" role="menuitem" routerLink="/notificacoes" (click)="userMenuOpen.set(false)">
+            <i class="pi pi-bell"></i> Notificações
+          </a>
+
+          <button type="button" class="user__menu-item user__menu-item--danger" role="menuitem" (click)="logout()">
+            <i class="pi pi-sign-out"></i> Sair
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

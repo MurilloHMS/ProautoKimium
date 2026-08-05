@@ -1,17 +1,16 @@
 <div class="dash">
 
-  <header class="dash__header">
-    <div>
-      <h1>Painel RH</h1>
-      <p>Tudo o que está acontecendo na equipe, num só lugar.</p>
-    </div>
+  <app-page-header
+    size="lg"
+    title="Painel RH"
+    subtitle="Tudo o que está acontecendo na equipe, num só lugar.">
     @if (!loading && pendingTotal > 0) {
-      <div class="dash__alert">
+      <div actions class="dash__alert">
         <i class="pi pi-exclamation-circle"></i>
         <span><strong>{{ pendingTotal }}</strong> {{ pendingTotal === 1 ? 'pendência aguardando você' : 'pendências aguardando você' }}</span>
       </div>
     }
-  </header>
+  </app-page-header>
 
   <section class="kpi-row">
     <a routerLink="/rh/vacation-requests" class="kpi kpi--hero" [class.kpi--quiet]="loading || pendingTotal === 0">

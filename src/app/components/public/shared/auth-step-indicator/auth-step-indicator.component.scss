@@ -1,0 +1,99 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+}
+
+.steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: v.$space-2;
+  margin: 0 0 v.$space-8;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-2;
+  flex: 0 0 auto;
+  width: 72px;
+}
+
+.step__dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: v.$radius-full;
+  border: 1.5px solid v.$border-dark;
+  background: v.$bg-panel;
+  color: v.$text-light;
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  transition: v.$transition-base;
+}
+
+.step__label {
+  font-family: v.$font-body;
+  font-size: v.$font-size-xs;
+  color: v.$text-light;
+  text-align: center;
+  line-height: 1.3;
+  transition: color v.$transition-base;
+}
+
+.step--active {
+  .step__dot {
+    border-color: v.$primary;
+    color: v.$primary;
+    box-shadow: v.$shadow-focus-primary;
+  }
+
+  .step__label {
+    color: v.$primary;
+    font-weight: 600;
+  }
+}
+
+.step--done {
+  .step__dot {
+    border-color: v.$secondary;
+    background: v.$secondary;
+    color: v.$white;
+    box-shadow: none;
+  }
+
+  .step__label {
+    color: v.$text-muted;
+    font-weight: 500;
+  }
+}
+
+.step-line {
+  height: 2px;
+  width: 28px;
+  margin-top: 14px;
+  border-radius: v.$radius-full;
+  background: v.$border-dark;
+  transition: background v.$transition-base;
+
+  &--done {
+    background: v.$secondary;
+  }
+}
+
+@media (max-width: v.$bp-xs) {
+  .step {
+    width: 60px;
+  }
+
+  .step-line {
+    width: 16px;
+  }
+}

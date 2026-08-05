@@ -14,29 +14,8 @@
 
 // ── Header ──────────────────────────────────────────────────
 
-.dash__header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
-
-  h1 {
-    font-family: v.$font-heading;
-    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-    font-weight: 800;
-    color: v.$primary;
-    margin: 0 0 4px;
-    letter-spacing: -0.01em;
-  }
-
-  p {
-    margin: 0;
-    color: #7d84a0;
-    font-size: 0.94rem;
-  }
-}
+// O cabeçalho agora é o <app-page-header size="lg">; só o aviso de pendências
+// continua aqui, projetado no slot [actions].
 
 .dash__alert {
   display: flex;
