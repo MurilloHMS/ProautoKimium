@@ -1,5 +1,48 @@
 @use 'variables' as v;
 
+/* ===========================================================================
+   Máscara do pk-dialog
+   A máscara do PrimeNG cobre a tela inteira e bloqueia o clique em tudo que
+   está atrás — inclusive a topbar e a barra de abas, o que impedia trocar de
+   aba com um formulário aberto. Aqui ela passa a cobrir só a área de trabalho:
+   a navegação continua alcançável, como em ERP.
+   O !important existe porque o PrimeNG injeta o tema em runtime, depois desta
+   folha, com a mesma especificidade.
+   =========================================================================== */
+.pk-dialog-mask {
+    top: calc(var(--topbar-h) + env(safe-area-inset-top)) !important;
+
+    /* O PrimeNG dimensiona a máscara com height: 100%, não com bottom: 0. Só
+       empurrar o topo mantinha a caixa com altura de tela cheia terminando
+       abaixo do viewport — e o diálogo, centralizado nela, saía cortado. */
+    bottom: 0 !important;
+    height: auto !important;
+
+    .p-dialog {
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100% - 2rem) !important;
+    }
+
+    /* Cabeçalho e rodapé fixos; quem rola é o miolo. */
+    .p-dialog-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .p-dialog-header,
+    .p-dialog-footer {
+        flex: 0 0 auto;
+    }
+}
+
+@media (min-width: 768px) {
+    .pk-dialog-mask {
+        top: calc(var(--topbar-h) + var(--tab-bar-h) + env(safe-area-inset-top)) !important;
+    }
+}
+
 ::ng-deep .dialog {
   .p-dialog-header {
     background: v.$primary;

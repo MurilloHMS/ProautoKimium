@@ -4,13 +4,14 @@ import { RouterOutlet } from '@angular/router';
 import { NotificationService } from '../../infrastructure/services/notification.service';
 import { BottomNavComponent } from './bottom-nav/bottom-nav.component';
 import { NavDrawerComponent } from './nav-drawer/nav-drawer.component';
+import { TabBarComponent } from './tab-bar/tab-bar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 
 /** Shell da área autenticada: topbar + drawer + conteúdo + bottom nav (mobile). */
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterOutlet, TopbarComponent, NavDrawerComponent, BottomNavComponent],
+  imports: [RouterOutlet, TopbarComponent, NavDrawerComponent, TabBarComponent, BottomNavComponent],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',
 })

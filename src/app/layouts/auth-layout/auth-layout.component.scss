@@ -17,6 +17,13 @@
   padding-top: calc(var(--topbar-h) + env(safe-area-inset-top));
 }
 
+// No desktop entra a barra de abas entre a topbar e o conteúdo.
+@media (min-width: v.$bp-md) {
+  .app-content {
+    padding-top: calc(var(--topbar-h) + var(--tab-bar-h) + env(safe-area-inset-top));
+  }
+}
+
 // Respiro para o conteúdo não ficar atrás do bottom nav no mobile.
 @media (max-width: v.$bp-md) {
   .app-content {

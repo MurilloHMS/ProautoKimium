@@ -1,5 +1,5 @@
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { RouteReuseStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeuix/themes';
@@ -9,6 +9,7 @@ import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AuthInterceptor } from './infrastructure/interceptors/auth-interceptor';
+import { TabReuseStrategy } from './infrastructure/routing/tab-reuse.strategy';
 import { provideServiceWorker } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 
@@ -53,6 +54,8 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     provideHttpClient(withInterceptorsFromDi()),
+    // Mantém viva a tela de cada aba aberta (ver TabsService).
+    { provide: RouteReuseStrategy, useClass: TabReuseStrategy },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

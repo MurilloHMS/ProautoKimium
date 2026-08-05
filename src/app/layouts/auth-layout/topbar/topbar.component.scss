@@ -9,7 +9,10 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: v.$z-sticky;
+  // Um degrau acima da barra de abas: a topbar cria contexto de empilhamento,
+  // então o dropdown da busca não conseguia passar por cima da barra, que vem
+  // depois no DOM com o mesmo z-index.
+  z-index: v.$z-sticky + 1;
 
   display: flex;
   align-items: center;
