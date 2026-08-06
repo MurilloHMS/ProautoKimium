@@ -19,15 +19,15 @@
   width: 56px;
   height: 56px;
   object-fit: cover;
-  border-radius: v.$radius-sm;
-  border: 1px solid v.$border;
-  background: v.$bg-base;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--app-border);
+  background: var(--app-bg);
 }
 
 .equipment-name {
   font-weight: 500;
   font-size: .88rem;
-  color: v.$text-primary;
+  color: var(--app-text);
 }
 
 // ─── Action Buttons ───────────────────────────────────────────────────────────
@@ -42,28 +42,28 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
 }
 
 .action-btn--danger.p-button {
   &:hover {
-    background: v.$danger;
-    border-color: v.$danger;
-    box-shadow: 0 2px 8px rgba(220,38,38,.25);
+    background: var(--app-danger);
+    border-color: var(--app-danger);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-danger) 25%, transparent);
   }
 }
 
@@ -88,9 +88,9 @@
   label {
     font-size: .8rem;
     font-weight: 600;
-    color: v.$neutral-900;
+    color: var(--app-text);
 
-    .required { color: v.$danger; }
+    .required { color: var(--app-danger); }
   }
 }
 
@@ -99,15 +99,15 @@
   width: 100%;
   font-size: .85rem;
   padding: .55rem .65rem;
-  border: 1px dashed v.$border;
-  border-radius: v.$radius-sm;
-  background: v.$bg-base;
+  border: 1px dashed var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-bg);
   cursor: pointer;
   transition: border-color .15s, background .15s;
 
   &:hover {
-    border-color: v.$primary-light;
-    background: v.$bg-hover;
+    border-color: var(--app-action);
+    background: var(--app-surface-2);
   }
 }
 
@@ -122,8 +122,8 @@
   max-width: 180px;
   max-height: 180px;
   object-fit: contain;
-  border-radius: v.$radius-sm;
-  border: 1px solid v.$border;
-  background: v.$bg-base;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--app-border);
+  background: var(--app-bg);
   padding: .35rem;
 }

@@ -23,24 +23,24 @@
   height: 32px;
   padding: 0;
   margin-left: 6px;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &--approve:hover {
-    background: v.$secondary;
-    border-color: v.$secondary;
+    background: var(--app-success);
+    border-color: var(--app-success);
     color: #fff;
   }
 
   &--reject:hover {
-    background: #d92d20;
-    border-color: #d92d20;
+    background: var(--app-danger);
+    border-color: var(--app-danger);
     color: #fff;
   }
 
@@ -52,8 +52,8 @@
     font-weight: 600;
 
     &:hover {
-      background: v.$primary;
-      border-color: v.$primary;
+      background: var(--app-action);
+      border-color: var(--app-action);
       color: #fff;
     }
   }
@@ -71,34 +71,34 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+    color: var(--app-danger);
   }
 
   &--paid {
-    background: rgba(35, 46, 97, 0.10);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 10%, transparent);
+    color: var(--app-action);
   }
 }
 
 .rm-notes {
   margin-top: 4px;
   font-size: 0.78rem;
-  color: #b3261e;
+  color: var(--app-danger);
   max-width: 220px;
 
   &--paid {
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 }
 
@@ -107,11 +107,11 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
-  i { color: v.$primary; }
+  i { color: var(--app-action); }
 }

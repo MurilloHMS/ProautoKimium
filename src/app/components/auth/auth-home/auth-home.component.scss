@@ -1,5 +1,23 @@
 @use 'variables.scss' as v;
 
+// Acentos dos atalhos: onde existe papel no vocabulário, o token responde
+// sozinho ao tema. Roxo e verde não têm papel — são identidade de módulo —
+// então ganham valor próprio e uma versão clara para o fundo escuro, senão
+// somem contra ele.
+:host {
+  --accent-navy:   var(--app-action);
+  --accent-teal:   var(--app-success);
+  --accent-amber:  var(--app-warning);
+  --accent-red:    var(--app-danger);
+  --accent-green:  #{var(--app-success)};
+  --accent-purple: #7c3aed;
+}
+
+:host-context(.dark-mode) {
+  --accent-green:  #4ade80;
+  --accent-purple: #a78bfa;
+}
+
 .home {
   max-width: 1200px;
   margin: 0 auto;
@@ -16,10 +34,10 @@
   position: relative;
   overflow: hidden;
   padding: v.$space-8;
-  border-radius: v.$radius-xl;
+  border-radius: var(--radius-surface);
   color: #fff;
-  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 55%, v.$secondary 145%);
-  box-shadow: v.$shadow-md;
+  background: linear-gradient(135deg, var(--app-action) 0%, var(--app-action) 55%, var(--app-success) 145%);
+  box-shadow: var(--app-shadow-sm);
   animation: home-down 0.5s ease-out;
 }
 
@@ -28,7 +46,7 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 88% -20%, rgba(v.$secondary, 0.55), transparent 42%),
+    radial-gradient(circle at 88% -20%, color-mix(in srgb, var(--app-success) 55%, transparent), transparent 42%),
     radial-gradient(circle at 10% 130%, rgba(#fff, 0.14), transparent 45%);
 }
 
@@ -77,7 +95,7 @@
   align-items: center;
   gap: v.$space-2;
   padding: 0.4rem 0.85rem;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(#fff, 0.18);
   background: rgba(#fff, 0.16);
   color: #fff;
@@ -121,14 +139,16 @@
   font-family: v.$font-heading;
   font-size: v.$font-size-md;
   font-weight: 700;
-  color: v.$primary;
+  // Título de seção não é ação: era navy, e no tema escuro virava texto azul
+  // sobre fundo escuro — o motivo de o dark-compat existir.
+  color: var(--app-text);
 
-  i { font-size: 0.9rem; color: v.$secondary-dark; }
+  i { font-size: 0.9rem; color: var(--app-text-muted); }
 }
 
 .section__hint {
   font-size: v.$font-size-sm;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 }
 
 .section__link {
@@ -137,11 +157,12 @@
   gap: 4px;
   font-size: v.$font-size-sm;
   font-weight: 600;
-  color: v.$secondary-dark;
+  // "Ver todos" é link, e link é ação.
+  color: var(--app-action);
   text-decoration: none;
   transition: gap v.$transition-base, color v.$transition-base;
 
-  &:hover { gap: 8px; color: v.$primary; }
+  &:hover { gap: 8px; color: var(--app-action-hover); }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -159,10 +180,10 @@
   align-items: center;
   gap: v.$space-4;
   padding: v.$space-4;
-  border-radius: v.$radius-lg;
-  border: 1px solid v.$border;
-  background: v.$bg-panel;
-  box-shadow: v.$shadow-sm;
+  border-radius: var(--radius-surface);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
   text-decoration: none;
   overflow: hidden;
   transition: transform v.$transition-base, box-shadow v.$transition-base, border-color v.$transition-base;
@@ -173,15 +194,15 @@
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 3px;
-    background: var(--accent, #{v.$primary});
+    background: var(--accent, var(--app-action));
     opacity: 0;
     transition: opacity v.$transition-base;
   }
 
   &:hover {
     transform: translateY(-3px);
-    box-shadow: v.$shadow-md;
-    border-color: var(--accent, #{v.$primary});
+    box-shadow: var(--app-shadow-sm);
+    border-color: var(--accent, var(--app-action));
 
     &::before { opacity: 1; }
     .quick-card__arrow { opacity: 1; transform: translateX(0); }
@@ -193,13 +214,13 @@
   flex-shrink: 0;
   width: 46px;
   height: 46px;
-  border-radius: v.$radius-md;
+  border-radius: var(--radius-control);
   display: grid;
   place-items: center;
-  background: var(--accent-soft, #{v.$bg-surface});
+  background: var(--accent-soft, var(--app-surface-2));
   transition: transform v.$transition-base;
 
-  i { font-size: 1.2rem; color: var(--accent, #{v.$primary}); }
+  i { font-size: 1.2rem; color: var(--accent, var(--app-action)); }
 }
 
 .quick-card__body {
@@ -214,7 +235,7 @@
   font-family: v.$font-heading;
   font-size: v.$font-size-base;
   font-weight: 600;
-  color: v.$neutral-900;
+  color: var(--app-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -222,7 +243,7 @@
 
 .quick-card__desc {
   font-size: v.$font-size-xs;
-  color: v.$text-light;
+  color: var(--app-text-subtle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -232,28 +253,34 @@
   flex-shrink: 0;
   margin-left: auto;
   font-size: 0.8rem;
-  color: var(--accent, #{v.$primary});
+  color: var(--accent, var(--app-action));
   opacity: 0;
   transform: translateX(-4px);
   transition: opacity v.$transition-base, transform v.$transition-base;
 }
 
 // ── Acentos por módulo ─────────────────────────────────────────
-.quick-card--navy   { --accent: #{v.$primary};        --accent-soft: #{rgba(v.$primary, 0.10)}; }
-.quick-card--teal   { --accent: #{v.$secondary-dark};  --accent-soft: #{rgba(v.$secondary, 0.16)}; }
-.quick-card--amber  { --accent: #b7791f;               --accent-soft: #{rgba(v.$warning, 0.20)}; }
-.quick-card--green  { --accent: #{v.$success};         --accent-soft: #{rgba(v.$success, 0.14)}; }
-.quick-card--purple { --accent: #7c3aed;               --accent-soft: rgba(124, 58, 237, 0.12); }
-.quick-card--red    { --accent: #{v.$danger};          --accent-soft: #{rgba(v.$danger, 0.12)}; }
+// O tom suave sai do próprio acento via `color-mix`: uma fonte de verdade por
+// módulo, e o fundo acompanha sozinho quando o token muda no tema escuro.
+.quick-card--navy   { --accent: var(--accent-navy); }
+.quick-card--teal   { --accent: var(--accent-teal); }
+.quick-card--amber  { --accent: var(--accent-amber); }
+.quick-card--green  { --accent: var(--accent-green); }
+.quick-card--purple { --accent: var(--accent-purple); }
+.quick-card--red    { --accent: var(--accent-red); }
+
+.quick-card[class*='quick-card--'] {
+  --accent-soft: #{'color-mix(in srgb, var(--accent) 14%, transparent)'};
+}
 
 // ═══════════════════════════════════════════════════════════════
 // NOTIFICAÇÕES RECENTES
 // ═══════════════════════════════════════════════════════════════
 .notif-panel {
-  border-radius: v.$radius-lg;
-  border: 1px solid v.$border;
-  background: v.$bg-panel;
-  box-shadow: v.$shadow-sm;
+  border-radius: var(--radius-surface);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
   overflow: hidden;
 }
 
@@ -263,15 +290,16 @@
   gap: v.$space-3;
   padding: v.$space-4;
   text-decoration: none;
-  border-bottom: 1px solid v.$border;
+  border-bottom: 1px solid var(--app-border);
   transition: background v.$transition-fast;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: v.$bg-hover; }
+  &:hover { background: var(--app-surface-2); }
 
+  // Nao lida: destaque por status, nao por acao.
   &--unread {
-    background: rgba(v.$secondary, 0.06);
-    &:hover { background: rgba(v.$secondary, 0.10); }
+    background: var(--app-success-soft);
+    &:hover { background: color-mix(in srgb, var(--app-success) 24%, transparent); }
   }
 }
 
@@ -279,16 +307,16 @@
   flex-shrink: 0;
   width: 38px;
   height: 38px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   display: grid;
   place-items: center;
-  background: rgba(v.$primary, 0.08);
+  background: var(--app-action-soft);
 
-  i { font-size: 0.9rem; color: v.$primary; }
+  i { font-size: 0.9rem; color: var(--app-action); }
 
   &.is-holerite {
-    background: rgba(v.$secondary, 0.16);
-    i { color: v.$secondary-dark; }
+    background: var(--app-success-soft);
+    i { color: var(--app-success); }
   }
 }
 
@@ -303,7 +331,7 @@
 .notif-row__title {
   font-size: v.$font-size-sm;
   font-weight: 600;
-  color: v.$neutral-900;
+  color: var(--app-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -311,7 +339,7 @@
 
 .notif-row__msg {
   font-size: v.$font-size-xs;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -320,7 +348,7 @@
 .notif-row__time {
   flex-shrink: 0;
   font-size: v.$font-size-xs;
-  color: v.$text-light;
+  color: var(--app-text-subtle);
 }
 
 .notif-empty {
@@ -335,24 +363,24 @@
     width: 52px;
     height: 52px;
     margin-bottom: v.$space-1;
-    border-radius: v.$radius-full;
+    border-radius: var(--radius-pill);
     display: grid;
     place-items: center;
-    background: rgba(v.$success, 0.12);
+    background: var(--app-success-soft);
 
-    i { font-size: 1.4rem; color: v.$success; }
+    i { font-size: 1.4rem; color: var(--app-success); }
   }
 
   &__title {
     margin: 0;
     font-family: v.$font-heading;
     font-weight: 700;
-    color: v.$neutral-900;
+    color: var(--app-text);
   }
 
   &__sub {
     font-size: v.$font-size-sm;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 }
 

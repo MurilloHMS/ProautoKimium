@@ -10,7 +10,7 @@
 }
 
 .calc-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid #e6e9f0;
   border-radius: 16px;
   padding: 24px;
@@ -28,13 +28,13 @@
   font-family: v.$font-heading;
   font-size: 1.15rem;
   font-weight: 800;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 32px 0 16px;
 }
 
 .am-state {
   padding: 32px 0;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
@@ -54,12 +54,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 1.8rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
 }
 
 .am-list {
@@ -69,7 +69,7 @@
 }
 
 .am-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid #e6e9f0;
   border-radius: 16px;
   padding: 18px 20px;
@@ -86,7 +86,7 @@
     font-family: v.$font-heading;
     font-size: 1.05rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &__date {
@@ -98,7 +98,7 @@
 
   &__content {
     margin: 0 0 12px;
-    color: v.$text-primary;
+    color: var(--app-text);
     font-size: 0.92rem;
     line-height: 1.6;
     white-space: pre-wrap;
@@ -109,9 +109,9 @@
     align-items: center;
     gap: 6px;
     font-size: 0.8rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     font-weight: 600;
 
-    i { color: v.$secondary-dark; }
+    i { color: var(--app-success); }
   }
 }

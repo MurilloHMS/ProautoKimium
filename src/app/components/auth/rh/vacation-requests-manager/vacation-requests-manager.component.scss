@@ -16,7 +16,7 @@
 }
 
 .col-center { text-align: center !important; }
-.text-muted { color: v.$text-light; font-size: .85rem; }
+.text-muted { color: var(--app-text-subtle); font-size: .85rem; }
 
 .header-actions {
   display: flex;
@@ -33,24 +33,24 @@
   height: 32px;
   padding: 0;
   margin-left: 6px;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &--approve:hover {
-    background: v.$secondary;
-    border-color: v.$secondary;
+    background: var(--app-success);
+    border-color: var(--app-success);
     color: #fff;
   }
 
   &--reject:hover {
-    background: #d92d20;
-    border-color: #d92d20;
+    background: var(--app-danger);
+    border-color: var(--app-danger);
     color: #fff;
   }
 }
@@ -65,25 +65,25 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+    color: var(--app-danger);
   }
 }
 
 .vr-notes {
   margin-top: 4px;
   font-size: 0.78rem;
-  color: #b3261e;
+  color: var(--app-danger);
   max-width: 220px;
 }
 
@@ -92,20 +92,20 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
-  i { color: v.$primary; }
+  i { color: var(--app-action); }
 }
 
 // Alerts panel
 .alerts-panel {
   margin-bottom: 20px;
-  border-radius: v.$radius-md;
-  border: 1px solid v.$border;
+  border-radius: var(--radius-surface);
+  border: 1px solid var(--app-border);
   overflow: hidden;
 
   &__header {
@@ -113,14 +113,14 @@
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
-    background: rgba(217, 45, 32, 0.06);
-    border-bottom: 1px solid rgba(217, 45, 32, 0.12);
+    background: color-mix(in srgb, var(--app-danger) 6%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--app-danger) 12%, transparent);
     cursor: pointer;
     font-size: 0.88rem;
-    color: #b3261e;
+    color: var(--app-danger);
     transition: background .15s;
 
-    &:hover { background: rgba(217, 45, 32, 0.10); }
+    &:hover { background: color-mix(in srgb, var(--app-danger) 10%, transparent); }
   }
 
   &__body {
@@ -136,22 +136,22 @@
   align-items: flex-start;
   gap: 12px;
   padding: 12px 14px;
-  border-radius: v.$radius-sm;
-  border: 1px solid v.$border;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--app-border);
 
   &--expired {
-    background: rgba(217, 45, 32, 0.05);
-    border-color: rgba(217, 45, 32, 0.20);
+    background: color-mix(in srgb, var(--app-danger) 5%, transparent);
+    border-color: color-mix(in srgb, var(--app-danger) 20%, transparent);
   }
 
   &--critical {
-    background: rgba(255, 152, 0, 0.06);
-    border-color: rgba(255, 152, 0, 0.20);
+    background: color-mix(in srgb, var(--app-warning) 6%, transparent);
+    border-color: color-mix(in srgb, var(--app-warning) 20%, transparent);
   }
 
   &--warning {
-    background: rgba(255, 193, 7, 0.06);
-    border-color: rgba(255, 193, 7, 0.20);
+    background: color-mix(in srgb, var(--app-warning) 6%, transparent);
+    border-color: color-mix(in srgb, var(--app-warning) 20%, transparent);
   }
 
   &__icon {
@@ -160,9 +160,9 @@
     flex-shrink: 0;
   }
 
-  &--expired &__icon { color: #d92d20; }
-  &--critical &__icon { color: #ff9800; }
-  &--warning &__icon { color: #ffc107; }
+  &--expired &__icon { color: var(--app-danger); }
+  &--critical &__icon { color: var(--app-warning); }
+  &--warning &__icon { color: var(--app-warning); }
 
   &__content {
     flex: 1;
@@ -172,19 +172,19 @@
   &__name {
     font-weight: 600;
     font-size: 0.88rem;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   &__meta {
     font-size: 0.78rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     margin-top: 2px;
   }
 
   &__deadline {
     font-size: 0.80rem;
     margin-top: 4px;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 }
 
@@ -199,17 +199,17 @@
   flex-shrink: 0;
 
   &--expired {
-    background: rgba(217, 45, 32, 0.12);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 12%, transparent);
+    color: var(--app-danger);
   }
 
   &--critical {
-    background: rgba(255, 152, 0, 0.12);
+    background: color-mix(in srgb, var(--app-warning) 12%, transparent);
     color: #e65100;
   }
 
   &--warning {
-    background: rgba(255, 193, 7, 0.12);
+    background: color-mix(in srgb, var(--app-warning) 12%, transparent);
     color: #f57f17;
   }
 }
@@ -235,14 +235,14 @@
   label {
     font-size: .8rem;
     font-weight: 600;
-    color: v.$neutral-900;
+    color: var(--app-text);
   }
 
-  .required { color: v.$danger; }
+  .required { color: var(--app-danger); }
 
   textarea {
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
     padding: .5rem .75rem;
     resize: vertical;
@@ -250,8 +250,8 @@
     width: 100%;
 
     &:focus {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
       outline: none;
     }
   }
@@ -262,9 +262,9 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-radius: v.$radius-sm;
-  background: rgba(87, 193, 171, 0.10);
-  color: v.$secondary-dark;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--app-success) 10%, transparent);
+  color: var(--app-success);
   font-size: .85rem;
 
   i { font-size: .9rem; }
@@ -275,9 +275,9 @@
   flex-direction: column;
   gap: 4px;
   padding: 10px 14px;
-  border-radius: v.$radius-sm;
-  background: rgba(245, 166, 35, 0.08);
-  border: 1px solid rgba(245, 166, 35, 0.18);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--app-warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 18%, transparent);
 
   &__title {
     font-size: 0.82rem;
@@ -307,7 +307,7 @@
   input[type="checkbox"] {
     width: 16px;
     height: 16px;
-    accent-color: v.$primary;
+    accent-color: var(--app-action);
     cursor: pointer;
   }
 }
@@ -318,13 +318,13 @@
   .p-select {
     width: 100%;
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
 
     &:focus-within {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
     }
   }
 }
@@ -334,15 +334,15 @@
 
   .p-datepicker-input {
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
     padding: 0 .75rem;
     width: 100%;
 
     &:focus {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
       outline: none;
     }
   }
@@ -353,8 +353,8 @@
 
   .p-inputnumber-input {
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
     width: 100%;
   }

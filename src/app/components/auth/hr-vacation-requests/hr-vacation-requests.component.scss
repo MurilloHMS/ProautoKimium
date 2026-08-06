@@ -14,10 +14,10 @@
   gap: 16px;
   padding: 20px 22px;
   border-radius: 18px;
-  background: linear-gradient(135deg, v.$primary, v.$secondary);
+  background: linear-gradient(135deg, var(--app-action), var(--app-success));
   color: #fff;
   margin-bottom: 24px;
-  box-shadow: 0 12px 30px rgba(35, 46, 97, 0.20);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--app-action) 20%, transparent);
 
   &__icon {
     width: 52px;
@@ -50,8 +50,8 @@
 }
 
 .hrv-form-card {
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 40px;
@@ -60,7 +60,7 @@
     font-family: v.$font-heading;
     font-size: 1.15rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 18px;
     display: flex;
     align-items: center;
@@ -74,10 +74,10 @@
   gap: 8px;
   margin: 14px 0 0;
   font-size: 0.88rem;
-  color: v.$secondary-dark;
+  color: var(--app-success);
 
   &--over {
-    color: #d92d20;
+    color: var(--app-danger);
   }
 }
 
@@ -88,13 +88,13 @@
   margin: 12px 0 0;
   padding: 10px 14px;
   border-radius: 10px;
-  background: rgba(245, 166, 35, 0.08);
-  border: 1px solid rgba(245, 166, 35, 0.18);
+  background: color-mix(in srgb, var(--app-warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 18%, transparent);
 
   &__title {
     font-size: 0.82rem;
     font-weight: 700;
-    color: #8a5a09;
+    color: var(--app-warning);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -103,7 +103,7 @@
 
   &__item {
     font-size: 0.8rem;
-    color: #6b5a30;
+    color: var(--app-text-muted);
     padding-left: 22px;
   }
 }
@@ -118,19 +118,19 @@
   font-family: v.$font-heading;
   font-size: 1.2rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0 0 16px;
 }
 
 .hrv-state {
   padding: 40px 0;
-  color: #6b7492;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
 .hrv-empty {
   text-align: center;
-  color: #9aa6bd;
+  color: var(--app-text-subtle);
   padding: 56px 16px;
   display: flex;
   flex-direction: column;
@@ -144,12 +144,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
 }
 
 .hrv-grid {
@@ -160,14 +160,14 @@
 
 .hrv-card {
   padding: 16px 18px;
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.5);
-    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 7%, transparent);
   }
 
   &__top {
@@ -181,14 +181,14 @@
     font-family: v.$font-heading;
     font-size: 1.0rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &__days {
     display: block;
     margin-top: 4px;
     font-size: 0.82rem;
-    color: #8a93a8;
+    color: var(--app-text-subtle);
   }
 
   &__notes {
@@ -196,8 +196,8 @@
     font-size: 0.85rem;
     padding: 8px 12px;
     border-radius: 10px;
-    background: rgba(217, 45, 32, 0.08);
-    color: #b3261e;
+    background: color-mix(in srgb, var(--app-danger) 8%, transparent);
+    color: var(--app-danger);
     display: flex;
     align-items: flex-start;
     gap: 6px;
@@ -214,18 +214,18 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+    color: var(--app-danger);
   }
 }
 

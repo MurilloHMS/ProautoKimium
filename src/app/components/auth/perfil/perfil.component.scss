@@ -20,9 +20,9 @@
   align-items: center;
   gap: v.$space-6;
   padding: v.$space-8 v.$space-6;
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-sm;
+  background: var(--app-surface);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
   margin-bottom: v.$space-6;
 }
 
@@ -33,7 +33,7 @@
 .avatar-img, .avatar-fallback {
   width: 80px;
   height: 80px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   object-fit: cover;
 }
 
@@ -41,8 +41,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, v.$primary, v.$secondary);
-  color: v.$white;
+  background: linear-gradient(135deg, var(--app-action), var(--app-success));
+  color: var(--app-surface);
   font-family: v.$font-heading;
   font-size: 1.5rem;
   font-weight: 700;
@@ -57,7 +57,7 @@
   font-family: v.$font-heading;
   font-size: 1.4rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0 0 v.$space-2;
 }
 
@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   gap: v.$space-2;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: v.$font-size-sm;
   margin: v.$space-1 0;
 
@@ -87,25 +87,25 @@
 .cta-card {
   text-align: center;
   padding: v.$space-10 v.$space-6;
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-sm;
-  border: 2px dashed v.$border;
+  background: var(--app-surface);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
+  border: 2px dashed var(--app-border);
   cursor: pointer;
   transition: border-color v.$transition-base, box-shadow v.$transition-base;
 
   &:hover {
-    border-color: v.$secondary;
-    box-shadow: v.$shadow-md;
+    border-color: var(--app-success);
+    box-shadow: var(--app-shadow-sm);
   }
 }
 
 .cta-icon {
   width: 64px;
   height: 64px;
-  border-radius: v.$radius-lg;
-  background: linear-gradient(135deg, rgba(v.$primary, 0.08), rgba(v.$secondary, 0.16));
-  color: v.$primary;
+  border-radius: var(--radius-surface);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+  color: var(--app-action);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -118,26 +118,26 @@
   font-family: v.$font-heading;
   font-size: 1.2rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0 0 v.$space-2;
 }
 
 .cta-card p {
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: v.$font-size-sm;
   margin: 0 0 v.$space-6;
 }
 
 .cta-btn {
-  background: v.$secondary !important;
-  border-color: v.$secondary !important;
+  background: var(--app-success) !important;
+  border-color: var(--app-success) !important;
 }
 
 // Profile summary
 .profile-summary {
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-sm;
+  background: var(--app-surface);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
   padding: v.$space-6;
 }
 
@@ -151,7 +151,7 @@
     font-family: v.$font-heading;
     font-size: 1.1rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0;
     display: flex;
     align-items: center;
@@ -182,7 +182,7 @@
   font-size: v.$font-size-xs;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: v.$text-light;
+  color: var(--app-text-subtle);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -193,7 +193,7 @@
 
 .summary-value {
   font-size: v.$font-size-sm;
-  color: v.$text-primary;
+  color: var(--app-text);
 }
 
 .summary-list {
@@ -208,12 +208,12 @@
 }
 
 .chip {
-  background: v.$bg-surface;
-  color: v.$text-primary;
+  background: var(--app-bg);
+  color: var(--app-text);
   font-size: v.$font-size-xs;
   padding: v.$space-1 v.$space-3;
-  border-radius: v.$radius-full;
-  border: 1px solid v.$border;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--app-border);
 }
 
 .chip-link {
@@ -222,9 +222,9 @@
   transition: background v.$transition-fast;
 
   &:hover {
-    background: v.$bg-selected;
-    border-color: v.$primary;
-    color: v.$primary;
+    background: var(--app-action-soft);
+    border-color: var(--app-action);
+    color: var(--app-action);
   }
 }
 
@@ -233,7 +233,7 @@
   flex-wrap: wrap;
   gap: v.$space-3;
   padding-top: v.$space-5;
-  border-top: 1px solid v.$border;
+  border-top: 1px solid var(--app-border);
 }
 
 .action-link {
@@ -247,21 +247,21 @@
 // ── Form de edição ──────────────────────────────────────────────────────────
 
 .edit-card {
-  background: v.$bg-panel;
-  border-radius: v.$radius-lg;
-  box-shadow: v.$shadow-sm;
+  background: var(--app-surface);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
   overflow: hidden;
 }
 
 .edit-header {
   padding: v.$space-5 v.$space-6;
-  border-bottom: 1px solid v.$border;
+  border-bottom: 1px solid var(--app-border);
 
   h2 {
     font-family: v.$font-heading;
     font-size: 1.1rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0;
     display: flex;
     align-items: center;
@@ -286,10 +286,10 @@
   font-family: v.$font-heading;
   font-size: v.$font-size-sm;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   padding-bottom: v.$space-3;
   margin-bottom: v.$space-3;
-  border-bottom: 1px solid v.$border;
+  border-bottom: 1px solid var(--app-border);
 
   i { font-size: 0.9rem; }
 }
@@ -297,11 +297,11 @@
 .add-inline-btn {
   margin-left: auto;
   background: none;
-  border: 1px solid v.$secondary;
-  color: v.$secondary;
+  border: 1px solid var(--app-success);
+  color: var(--app-success);
   width: 24px;
   height: 24px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -309,8 +309,8 @@
   transition: all v.$transition-fast;
 
   &:hover {
-    background: v.$secondary;
-    color: v.$white;
+    background: var(--app-success);
+    color: var(--app-surface);
   }
 
   i { font-size: 0.7rem; }
@@ -330,12 +330,12 @@
   label {
     font-size: v.$font-size-xs;
     font-weight: 600;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
 
-  .required { color: v.$danger; }
+  .required { color: var(--app-danger); }
 
   input, textarea {
     width: 100%;
@@ -367,18 +367,18 @@
 .remove-btn {
   background: none;
   border: none;
-  color: v.$danger;
+  color: var(--app-danger);
   cursor: pointer;
   padding: v.$space-1;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   transition: background v.$transition-fast;
 
-  &:hover { background: rgba(v.$danger, 0.08); }
+  &:hover { background: color-mix(in srgb, var(--app-danger) 8%, transparent); }
   i { font-size: 0.85rem; }
 }
 
 .empty-hint {
-  color: v.$text-light;
+  color: var(--app-text-subtle);
   font-size: v.$font-size-xs;
   font-style: italic;
   margin: v.$space-1 0;
@@ -394,7 +394,7 @@
 .photo-preview, .photo-placeholder {
   width: 80px;
   height: 80px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -403,9 +403,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: v.$bg-surface;
-  border: 2px dashed v.$border;
-  color: v.$text-light;
+  background: var(--app-bg);
+  border: 2px dashed var(--app-border);
+  color: var(--app-text-subtle);
 
   i { font-size: 2rem; }
 }
@@ -415,16 +415,16 @@
   align-items: center;
   gap: v.$space-2;
   padding: v.$space-2 v.$space-4;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-sm;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
   font-size: v.$font-size-sm;
-  color: v.$text-primary;
+  color: var(--app-text);
   cursor: pointer;
   transition: all v.$transition-fast;
 
   &:hover {
-    border-color: v.$primary;
-    color: v.$primary;
+    border-color: var(--app-action);
+    color: var(--app-action);
   }
 }
 
@@ -438,13 +438,13 @@
   justify-content: flex-end;
   gap: v.$space-3;
   padding: v.$space-4 v.$space-6;
-  border-top: 1px solid v.$border;
-  background: v.$bg-surface;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-bg);
 }
 
 .save-btn {
-  background: v.$secondary !important;
-  border-color: v.$secondary !important;
+  background: var(--app-success) !important;
+  border-color: var(--app-success) !important;
 }
 
 // ── QR Dialog ────────────────────────────────────────────────────────────────
@@ -459,7 +459,7 @@
 
 .qr-url {
   font-size: v.$font-size-xs;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   word-break: break-all;
   text-align: center;
 }
@@ -475,7 +475,7 @@
   display: inline-flex;
   align-items: center;
   gap: v.$space-1;
-  color: v.$primary;
+  color: var(--app-action);
   font-size: v.$font-size-sm;
   text-decoration: none;
 

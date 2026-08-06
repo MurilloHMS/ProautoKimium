@@ -24,19 +24,17 @@
     background: transparent;
   }
 
-  .card,
-  .table-card,
-  .filter-section,
-  .quick-card,
-  .notif-panel,
-  .doc-card,
-  .kpi,
-  .cal {
-    background: var(--app-surface);
-    border-color: var(--app-border);
-  }
+  // O bloco de superfícies acabou. As classes que ele pintava ou já usam token
+  // no próprio componente (`.quick-card`, `.notif-panel`, `.doc-card`, `.kpi`,
+  // `.cal`, `.header-icon`), ou nunca tiveram regra em lugar nenhum (`.card`,
+  // `.filter-section`) — nessas o fundo só existia no tema escuro, o que era
+  // acidente, não desenho. `.table-card` saiu porque contradizia o
+  // `grid-screen-body`: a grade é a superfície da tela, não um cartão sobre ela.
 
   // ─── Títulos e textos escuros ───────────────────────────────────────────
+  // Este é o que resta, e continua load-bearing: protege título e rótulo que
+  // não declaram cor e herdariam preto sobre fundo escuro. Só sai com uma
+  // passada visual tela a tela.
   h1, h2, h3, h4, h5,
   .page-title,
   [class*='__title'],
@@ -54,15 +52,15 @@
     color: var(--app-text-muted);
   }
 
-  // ─── Divisores e ícones de cabeçalho ────────────────────────────────────
+  // ─── Divisores ──────────────────────────────────────────────────────────
   .divider-label {
     color: var(--app-text-muted);
   }
 
-  .header-icon {
-    background: var(--app-primary-soft);
-    color: var(--app-primary);
-  }
+  // `.header-icon` saiu: os cinco arquivos que o definem já usam token. Três
+  // telas (guia, contatos, divisor de holerite) usam a classe sem definir
+  // nada — lá o disco navy só existia no tema escuro, o que era o acidente,
+  // não o desenho. Agora ficam iguais nos dois temas.
 
   // ─── Estados de linha (tabelas e listas) ────────────────────────────────
   tr:hover,

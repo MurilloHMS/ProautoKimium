@@ -22,9 +22,9 @@
 .header-icon {
   width: 44px;
   height: 44px;
-  border-radius: v.$radius-md;
-  background: color-mix(in srgb, v.$primary 8%, transparent);
-  color: v.$primary;
+  border-radius: var(--radius-surface);
+  background: var(--app-action-soft);
+  color: var(--app-action);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,14 +35,14 @@
   font-family: v.$font-heading;
   font-size: 1.5rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0;
   line-height: 1.2;
 }
 
 .page-subtitle {
   font-size: 0.85rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   margin: 2px 0 0;
 }
 
@@ -63,23 +63,23 @@
   align-items: flex-start;
   gap: 14px;
   padding: 18px 20px;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
-  background: v.$bg-panel;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
   cursor: pointer;
   text-align: left;
   transition: all v.$transition-base ease;
   position: relative;
 
   &:hover {
-    box-shadow: v.$shadow-md;
+    box-shadow: var(--app-shadow-sm);
     transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--accent) 40%, v.$border);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--app-border));
   }
 
   &--active {
     border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 4%, v.$bg-panel);
+    background: color-mix(in srgb, var(--accent) 4%, var(--app-surface));
     box-shadow: 0 0 0 1px var(--accent);
 
     &:hover {
@@ -90,7 +90,7 @@
   &__icon {
     width: 40px;
     height: 40px;
-    border-radius: v.$radius-sm;
+    border-radius: var(--radius-control);
     background: color-mix(in srgb, var(--accent) 10%, transparent);
     color: var(--accent);
     display: flex;
@@ -111,12 +111,12 @@
     font-family: v.$font-heading;
     font-weight: 600;
     font-size: 0.9rem;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   &__desc {
     font-size: 0.76rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     line-height: 1.35;
   }
 
@@ -132,9 +132,9 @@
 
 // ── Upload section ──
 .nfe-upload-section {
-  background: v.$bg-panel;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   padding: 20px;
 }
 
@@ -152,7 +152,7 @@
   font-family: v.$font-heading;
   font-weight: 600;
   font-size: 0.9rem;
-  color: v.$text-primary;
+  color: var(--app-text);
 }
 
 .nfe-upload-actions {
@@ -163,7 +163,7 @@
 
 .nfe-file-count {
   font-size: 0.8rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   white-space: nowrap;
 }
 
@@ -174,22 +174,22 @@
   align-items: center;
   justify-content: center;
   min-height: 140px;
-  border: 2px dashed v.$border;
-  border-radius: v.$radius-md;
-  background: v.$bg-base;
+  border: 2px dashed var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-bg);
   cursor: pointer;
   transition: all v.$transition-fast ease;
   padding: v.$space-4;
   gap: v.$space-1;
 
   &:hover {
-    border-color: v.$primary;
-    background: color-mix(in srgb, v.$primary 3%, v.$bg-base);
+    border-color: var(--app-action);
+    background: color-mix(in srgb, var(--app-action) 4%, var(--app-bg));
   }
 
   &__icon {
     font-size: 2rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     opacity: 0.4;
     margin-bottom: v.$space-1;
   }
@@ -197,12 +197,12 @@
   &__label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   &__hint {
     font-size: 0.75rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 }
 
@@ -221,20 +221,20 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: v.$bg-base;
-  border-radius: v.$radius-sm;
+  background: var(--app-bg);
+  border-radius: var(--radius-control);
   transition: background v.$transition-fast ease;
 
   &:hover {
-    background: v.$bg-hover;
+    background: var(--app-surface-2);
   }
 
   &__icon {
     width: 32px;
     height: 32px;
-    border-radius: v.$radius-sm;
-    background: color-mix(in srgb, v.$primary 8%, transparent);
-    color: v.$primary;
+    border-radius: var(--radius-control);
+    background: var(--app-action-soft);
+    color: var(--app-action);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -252,7 +252,7 @@
   &__name {
     font-size: 0.82rem;
     font-weight: 500;
-    color: v.$text-primary;
+    color: var(--app-text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -260,7 +260,7 @@
 
   &__size {
     font-size: 0.72rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 
   &__remove {
@@ -269,7 +269,7 @@
     border-radius: 50%;
     border: none;
     background: none;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -279,8 +279,8 @@
     transition: all v.$transition-fast ease;
 
     &:hover {
-      background: rgba(220, 53, 69, 0.08);
-      color: #dc3545;
+      background: color-mix(in srgb, var(--app-danger) 8%, transparent);
+      color: var(--app-danger);
     }
   }
 }
@@ -291,5 +291,5 @@
   justify-content: flex-end;
   margin-top: v.$space-4;
   padding-top: v.$space-4;
-  border-top: 1px solid v.$border;
+  border-top: 1px solid var(--app-border);
 }

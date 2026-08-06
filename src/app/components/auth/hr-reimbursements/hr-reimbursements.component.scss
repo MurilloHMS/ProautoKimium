@@ -9,8 +9,8 @@
 // O cabeçalho da página é o <app-page-header>.
 
 .hrr-form-card {
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 40px;
@@ -19,7 +19,7 @@
     font-family: v.$font-heading;
     font-size: 1.15rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 18px;
     display: flex;
     align-items: center;
@@ -32,7 +32,7 @@
 
   textarea {
     resize: vertical;
-    border: 1px solid #d7dceb;
+    border: 1px solid var(--app-border);
     border-radius: 10px;
     padding: 10px 12px;
     font-family: inherit;
@@ -52,16 +52,16 @@
     gap: 8px;
     padding: 10px 18px;
     border-radius: 12px;
-    border: 1px dashed rgba(35, 46, 97, 0.35);
-    color: v.$primary;
+    border: 1px dashed color-mix(in srgb, var(--app-action) 35%, transparent);
+    color: var(--app-action);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease;
 
     &:hover {
-      border-color: v.$secondary;
-      background: rgba(87, 193, 171, 0.08);
+      border-color: var(--app-success);
+      background: color-mix(in srgb, var(--app-success) 8%, transparent);
     }
   }
 
@@ -78,7 +78,7 @@
     align-items: center;
     gap: 6px;
     font-size: 0.85rem;
-    color: #6b7492;
+    color: var(--app-text-muted);
   }
 }
 
@@ -92,19 +92,19 @@
   font-family: v.$font-heading;
   font-size: 1.2rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0 0 16px;
 }
 
 .hrr-state {
   padding: 40px 0;
-  color: #6b7492;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
 .hrr-empty {
   text-align: center;
-  color: #9aa6bd;
+  color: var(--app-text-subtle);
   padding: 56px 16px;
   display: flex;
   flex-direction: column;
@@ -118,12 +118,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
 }
 
 .hrr-grid {
@@ -134,14 +134,14 @@
 
 .hrr-card {
   padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.5);
-    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 7%, transparent);
   }
 
   &__top {
@@ -161,25 +161,25 @@
     font-family: v.$font-heading;
     font-size: 1.05rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &__amount {
     font-size: 0.95rem;
     font-weight: 700;
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 
   &__reason {
     margin: 10px 0 4px;
     font-size: 0.88rem;
-    color: #5a6273;
+    color: var(--app-text-muted);
     line-height: 1.5;
   }
 
   &__date {
     font-size: 0.8rem;
-    color: #9aa6bd;
+    color: var(--app-text-subtle);
   }
 
   &__notes {
@@ -192,13 +192,13 @@
     gap: 6px;
 
     &--rejected {
-      background: rgba(217, 45, 32, 0.08);
-      color: #b3261e;
+      background: color-mix(in srgb, var(--app-danger) 8%, transparent);
+      color: var(--app-danger);
     }
 
     &--paid {
-      background: rgba(87, 193, 171, 0.12);
-      color: v.$secondary-dark;
+      background: color-mix(in srgb, var(--app-success) 12%, transparent);
+      color: var(--app-success);
     }
   }
 
@@ -209,13 +209,13 @@
     gap: 8px;
     border: none;
     background: transparent;
-    color: v.$primary;
+    color: var(--app-action);
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
     padding: 0;
 
-    &:hover:not(:disabled) { color: v.$secondary-dark; }
+    &:hover:not(:disabled) { color: var(--app-success); }
     &:disabled { opacity: 0.6; cursor: default; }
   }
 }
@@ -230,23 +230,23 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+    color: var(--app-danger);
   }
 
   &--paid {
-    background: rgba(35, 46, 97, 0.10);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 10%, transparent);
+    color: var(--app-action);
   }
 }
 

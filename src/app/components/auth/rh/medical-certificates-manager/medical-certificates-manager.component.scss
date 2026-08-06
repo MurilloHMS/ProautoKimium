@@ -27,8 +27,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(35, 46, 97, 0.08);
-  color: v.$primary;
+  background: color-mix(in srgb, var(--app-action) 8%, transparent);
+  color: var(--app-action);
   font-weight: 700;
   font-size: 0.82rem;
   display: flex;
@@ -49,8 +49,8 @@
   min-width: 28px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: rgba(35, 46, 97, 0.08);
-  color: v.$primary;
+  background: color-mix(in srgb, var(--app-action) 8%, transparent);
+  color: var(--app-action);
   font-weight: 700;
   font-size: 0.78rem;
 }
@@ -61,8 +61,8 @@
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(107, 116, 146, 0.10);
-  color: v.$text-muted;
+  background: color-mix(in srgb, var(--app-text-muted) 10%, transparent);
+  color: var(--app-text-muted);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -71,18 +71,18 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
   }
 

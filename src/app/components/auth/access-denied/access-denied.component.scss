@@ -22,7 +22,7 @@
   width: 64px;
   height: 64px;
   margin-bottom: v.$space-5;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   background: var(--app-primary-soft);
   color: var(--app-primary);
   font-size: 1.6rem;
@@ -56,7 +56,7 @@
   gap: v.$space-2;
   padding: v.$space-3 v.$space-6;
   border: 0;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   background: var(--app-primary);
   color: var(--app-on-primary);
   font-family: v.$font-body;

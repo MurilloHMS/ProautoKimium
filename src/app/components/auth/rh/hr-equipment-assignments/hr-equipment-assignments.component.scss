@@ -25,18 +25,18 @@
   gap: .35rem;
   font-size: .78rem;
   font-weight: 600;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &--return:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
   }
 }
@@ -51,20 +51,20 @@
   white-space: nowrap;
 
   &--with {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--returned {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 }
 
 .ea-notes {
   margin-top: 4px;
   font-size: 0.78rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   max-width: 240px;
 }
 
@@ -73,11 +73,11 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
-  i { color: v.$primary; }
+  i { color: var(--app-action); }
 }

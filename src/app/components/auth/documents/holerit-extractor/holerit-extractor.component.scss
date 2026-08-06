@@ -7,9 +7,9 @@
   .results-card {
     border-radius: 12px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05) !important;
-    border: 1px solid v.$bg-surface-dark !important;
+    border: 1px solid var(--app-border) !important;
     overflow: hidden;
-    background: v.$bg-panel !important;
+    background: var(--app-surface) !important;
 
     .p-card-body { padding: 0 !important; }
     .p-card-content { padding: 1.5rem !important; }
@@ -21,18 +21,18 @@
   align-items: center;
   gap: .5rem;
   padding: .875rem 1.5rem;
-  border-bottom: 1px solid v.$bg-surface-dark;
+  border-bottom: 1px solid var(--app-border);
   font-family: v.$font-heading;
   font-weight: 600;
   font-size: .78rem;
-  color: v.$primary-lighter;
-  background: v.$bg-surface;
+  color: var(--app-text-muted);
+  background: var(--app-bg);
   text-transform: uppercase;
   letter-spacing: .08em;
 
   .pi {
     font-size: 1rem;
-    color: v.$primary;
+    color: var(--app-action);
   }
 }
 
@@ -40,8 +40,8 @@
 ::ng-deep .custom-upload {
   .p-fileupload-buttonbar {
     padding: .75rem 1rem;
-    background: v.$bg-surface !important;
-    border-bottom: 1px solid v.$bg-surface-dark !important;
+    background: var(--app-surface-2) !important;
+    border-bottom: 1px solid var(--app-border) !important;
   }
   .p-fileupload-content {
     border: none !important;
@@ -56,20 +56,20 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 2rem;
-  border: 2px dashed v.$bg-surface-dark;
+  border: 2px dashed var(--app-border);
   border-radius: 10px;
-  background: v.$bg-surface;
+  background: var(--app-bg);
   cursor: pointer;
   transition: border-color .2s ease, background .2s ease;
 
   &:hover {
-    border-color: v.$secondary;
-    background: rgba(v.$secondary, .06);
+    border-color: var(--app-action);
+    background: var(--app-action-soft);
   }
 
   .drop-icon {
     font-size: 2.75rem;
-    color: v.$primary-light;
+    color: var(--app-action);
     margin-bottom: .875rem;
   }
 
@@ -77,16 +77,16 @@
     font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 600;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 .35rem;
   }
 
   .drop-hint {
     font-size: .83rem;
-    color: v.$text-secondary;
+    color: var(--app-text-muted);
     margin: 0;
 
-    strong { color: v.$primary-light; }
+    strong { color: var(--app-action); }
   }
 }
 
@@ -95,34 +95,34 @@
   display: flex;
   gap: 1rem;
   padding: 1.125rem 1.5rem;
-  border-top: 1px solid v.$bg-surface-dark;
-  background: v.$bg-surface;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-bg);
   flex-wrap: wrap;
 }
 
 ::ng-deep {
   .extract-btn.p-button {
-    background: v.$primary !important;
-    border-color: v.$primary !important;
+    background: var(--app-action) !important;
+    border-color: var(--app-action) !important;
     font-family: v.$font-body !important;
     font-weight: 600 !important;
 
     &:hover:not(:disabled) {
-      background: v.$primary-dark !important;
-      border-color: v.$primary-dark !important;
+      background: var(--app-action-hover) !important;
+      border-color: var(--app-action-hover) !important;
     }
 
     &:disabled { opacity: .55; }
   }
 
   .export-btn.p-button {
-    color: v.$success !important;
-    border-color: v.$success !important;
+    color: var(--app-success) !important;
+    border-color: var(--app-success) !important;
     font-family: v.$font-body !important;
     font-weight: 600 !important;
 
     &:hover {
-      background: rgba(v.$success, .07) !important;
+      background: var(--app-success-soft) !important;
     }
   }
 }
@@ -167,27 +167,27 @@
   }
 
   &.inss {
-    background: rgba(v.$primary, .06);
-    border-color: rgba(v.$primary, .12);
-    color: v.$primary;
+    background: var(--app-action-soft);
+    border-color: color-mix(in srgb, var(--app-action) 20%, transparent);
+    color: var(--app-action);
   }
 
   &.irrf {
-    background: rgba(v.$secondary-dark, .08);
-    border-color: rgba(v.$secondary-dark, .15);
-    color: v.$secondary-dark;
+    background: var(--app-success-soft);
+    border-color: color-mix(in srgb, var(--app-success) 22%, transparent);
+    color: var(--app-success);
   }
 
   &.fgts {
-    background: rgba(v.$success, .08);
-    border-color: rgba(v.$success, .15);
-    color: color.adjust(v.$success, $lightness: -8%);
+    background: var(--app-success-soft);
+    border-color: color-mix(in srgb, var(--app-success) 22%, transparent);
+    color: var(--app-success);
   }
 
   &.emprestimo {
-    background: rgba(v.$warning, .1);
-    border-color: rgba(v.$warning, .2);
-    color: color.adjust(v.$warning, $lightness: -20%);
+    background: var(--app-warning-soft);
+    border-color: color-mix(in srgb, var(--app-warning) 28%, transparent);
+    color: var(--app-warning);
   }
 }
 
@@ -209,14 +209,14 @@
 ::ng-deep .result-table {
 
   .p-datatable-thead > tr > th {
-    background: v.$bg-surface !important;
+    background: var(--app-surface-2) !important;
     font-family: v.$font-heading !important;
     font-size: .73rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
-    color: v.$primary-lighter !important;
-    border-bottom: 2px solid v.$bg-surface-dark !important;
+    color: var(--app-text-muted) !important;
+    border-bottom: 2px solid var(--app-border) !important;
     white-space: nowrap;
     padding: .75rem 1rem !important;
   }
@@ -225,12 +225,12 @@
     padding: .7rem 1rem !important;
     font-size: .875rem;
     font-family: v.$font-body;
-    color: v.$text-primary-color;
-    border-bottom: 1px solid v.$bg-surface-darker !important;
+    color: var(--app-text);
+    border-bottom: 1px solid var(--app-border) !important;
   }
 
   .p-datatable-tbody > tr:hover > td {
-    background: rgba(v.$secondary, .06) !important;
+    background: var(--app-surface-2) !important;
   }
 }
 
@@ -239,14 +239,14 @@
   align-items: center;
   gap: .625rem;
   font-weight: 600;
-  color: v.$primary;
+  color: var(--app-action);
 }
 
 .name-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, v.$primary, v.$secondary-dark);
+  background: linear-gradient(135deg, var(--app-action), var(--app-success));
   color: #fff;
   display: flex;
   align-items: center;
@@ -260,14 +260,14 @@
 .cpf-cell {
   font-family: 'Courier New', monospace;
   font-size: .82rem;
-  color: v.$text-secondary;
+  color: var(--app-text-muted);
 }
 
 .currency-cell {
   font-family: 'Courier New', monospace;
   font-size: .85rem;
   text-align: right;
-  color: v.$text-primary-color;
+  color: var(--app-text);
 }
 
 .text-right { text-align: right !important; }
@@ -277,8 +277,8 @@
     font-size: .7rem;
     font-weight: 600;
     border-radius: 6px;
-    background: rgba(v.$primary, .1) !important;
-    color: v.$primary !important;
+    background: var(--app-action-soft) !important;
+    color: var(--app-action) !important;
   }
 
   .record-badge {
@@ -288,7 +288,7 @@
 
 .empty-msg {
   text-align: center;
-  color: v.$text-secondary;
+  color: var(--app-text-muted);
   padding: 2.5rem !important;
   font-size: .9rem;
 }

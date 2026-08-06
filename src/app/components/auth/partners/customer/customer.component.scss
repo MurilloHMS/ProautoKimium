@@ -11,9 +11,9 @@
 .table-card { @include m2.grid-screen-body; }
 
 
-$text-main:         #1a202c;
-$text-muted:        #64748b;
-$text-light:        #94a3b8;
+$text-main:         var(--app-text);
+$text-muted:        var(--app-text-muted);
+$text-light:        var(--app-text-subtle);
 
 // O botão de importar Excel é um pk-button dentro do pk-fileUpload: tamanho e
 // cor vêm de `chooseSize` e `chooseType`, não de CSS local.
@@ -31,7 +31,7 @@ $text-light:        #94a3b8;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
+  background: linear-gradient(135deg, var(--app-action) 0%, var(--app-action) 100%);
   color: #fff;
   font-size: .75rem;
   font-weight: 700;
@@ -49,10 +49,10 @@ $text-light:        #94a3b8;
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: .83rem;
 
-  i { color: v.$text-light; font-size: .8rem; }
+  i { color: var(--app-text-subtle); font-size: .8rem; }
 }
 
 // .status-chip agora e global (styles/chips.scss), sobre os tokens de status.
@@ -61,24 +61,24 @@ $text-light:        #94a3b8;
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
 }
 
-.text-muted { color: v.$text-light; font-size: .85rem; }
+.text-muted { color: var(--app-text-subtle); font-size: .85rem; }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 .empty-state {
@@ -91,20 +91,20 @@ $text-light:        #94a3b8;
 
   &__icon {
     font-size: 2.5rem;
-    color: v.$text-light;
+    color: var(--app-text-subtle);
     margin-bottom: 1rem;
   }
 
   &__title {
     font-weight: 600;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     margin: 0 0 .35rem;
     font-size: .95rem;
   }
 
   &__subtitle {
     font-size: .82rem;
-    color: v.$text-light;
+    color: var(--app-text-subtle);
     margin: 0;
   }
 }
@@ -137,14 +137,14 @@ $text-light:        #94a3b8;
   align-items: flex-start;
   gap: .75rem;
   padding: .75rem 1rem;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   cursor: pointer;
   transition: background .12s, border-color .12s;
 
   &:hover {
-    background: v.$bg-hover;
-    border-color: rgba(35, 46, 97, .2);
+    background: var(--app-surface-2);
+    border-color: color-mix(in srgb, var(--app-action) 20%, transparent);
   }
 
   label {
@@ -162,6 +162,6 @@ $text-light:        #94a3b8;
 
   .toggle-desc {
     font-size: .76rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 }

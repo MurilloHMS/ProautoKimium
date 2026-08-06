@@ -15,16 +15,16 @@
 .pk-form-section__hint {
   margin: -0.5rem 0 1rem;
   font-size: 0.78rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   line-height: 1.4;
 }
 
 .readonly-value {
   padding: 8px 12px;
-  background: rgba(35, 46, 97, 0.04);
-  border-radius: v.$radius-sm;
+  background: color-mix(in srgb, var(--app-action) 4%, transparent);
+  border-radius: var(--radius-control);
   font-size: 0.88rem;
-  color: v.$text-primary;
+  color: var(--app-text);
   font-weight: 500;
   min-height: 38px;
   display: flex;
@@ -36,9 +36,9 @@
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  border-radius: v.$radius-sm;
-  background: rgba(246, 173, 85, 0.10);
-  border: 1px solid rgba(246, 173, 85, 0.25);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--app-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 25%, transparent);
   color: #8a5a09;
   font-size: 0.85rem;
   flex-wrap: wrap;
@@ -52,13 +52,13 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
-  i { color: v.$primary; }
+  i { color: var(--app-action); }
 }
 
 // A grade não é mais um cartão: a aparência dela vem do mixin lá em cima.
@@ -69,7 +69,7 @@
 .doc-cell {
   font-family: 'Courier New', monospace;
   font-size: .82rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   letter-spacing: .03em;
 }
 
@@ -83,7 +83,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, v.$primary 0%, v.$primary-light 100%);
+  background: linear-gradient(135deg, var(--app-action) 0%, var(--app-action) 100%);
   color: #fff;
   font-size: .75rem;
   font-weight: 700;
@@ -107,17 +107,17 @@
 
 .employee-dept {
   font-size: .73rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 }
 
 .email-cell {
   display: inline-flex;
   align-items: center;
   gap: .4rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: .83rem;
 
-  i { color: v.$text-light; font-size: .8rem; }
+  i { color: var(--app-text-subtle); font-size: .8rem; }
 }
 
 // .status-chip agora e global (styles/chips.scss), sobre os tokens de status.
@@ -125,9 +125,9 @@
 .hierarchy-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(49,130,206,.08);
+  background: color-mix(in srgb, var(--app-action) 8%, transparent);
   color: #2b6cb0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   padding: .2rem .6rem;
   font-size: .75rem;
   font-weight: 600;
@@ -139,33 +139,33 @@
   align-items: center;
   gap: .35rem;
   font-size: .82rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
-  i { color: v.$secondary-dark; font-size: .78rem; }
+  i { color: var(--app-success); font-size: .78rem; }
 }
 
 .action-btn.p-button {
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
-    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
 }
 
-.text-muted { color: v.$text-light; font-size: .85rem; }
+.text-muted { color: var(--app-text-subtle); font-size: .85rem; }
 
 // ─── Indicador de vínculo ─────────────────────────────────────────────────────
 .link-status {
@@ -174,7 +174,7 @@
   gap: .55rem;
   margin-bottom: 1rem;
   padding: .65rem 1rem;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   font-size: .88rem;
   font-weight: 500;
 
@@ -187,9 +187,9 @@
   }
 
   &--ok {
-    background: color-mix(in srgb, v.$secondary 16%, transparent);
-    color: color-mix(in srgb, v.$secondary 45%, #1c4a40);
-    i { color: v.$secondary-dark; }
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: color-mix(in srgb, var(--app-success) 45%, #1c4a40);
+    i { color: var(--app-success); }
   }
 }
 
@@ -201,8 +201,8 @@
   gap: .35rem;
   font-size: .78rem;
   font-weight: 600;
-  color: v.$primary;
-  border-color: color-mix(in srgb, v.$primary 35%, transparent);
+  color: var(--app-action);
+  border-color: color-mix(in srgb, var(--app-action) 35%, transparent);
 
   &:hover { color: #fff; }
 }
@@ -213,8 +213,8 @@
   gap: .4rem;
   padding: .25rem .35rem .25rem .6rem;
   border-radius: 999px;
-  background: color-mix(in srgb, v.$secondary 14%, transparent);
-  color: color-mix(in srgb, v.$secondary 45%, #1c4a40);
+  background: color-mix(in srgb, var(--app-success) 14%, transparent);
+  color: color-mix(in srgb, var(--app-success) 45%, #1c4a40);
   font-size: .8rem;
   font-weight: 600;
 
@@ -252,11 +252,11 @@
     gap: .5rem;
     margin: 0;
     padding: .7rem .9rem;
-    border-radius: v.$radius-sm;
-    background: v.$bg-hover;
+    border-radius: var(--radius-control);
+    background: var(--app-surface-2);
     font-size: .92rem;
 
-    i { color: v.$primary; }
+    i { color: var(--app-action); }
     .code-badge { margin-left: auto; }
   }
 
@@ -265,14 +265,14 @@
     align-items: center;
     gap: .35rem;
     margin-top: .4rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     font-size: .76rem;
 
     i { font-size: .72rem; }
   }
 
   .form-field { display: flex; flex-direction: column; gap: .4rem; }
-  label { font-size: .82rem; font-weight: 600; color: v.$text-primary; }
+  label { font-size: .82rem; font-weight: 600; color: var(--app-text); }
 }
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
@@ -286,20 +286,20 @@
 
   &__icon {
     font-size: 2.5rem;
-    color: v.$text-light;
+    color: var(--app-text-subtle);
     margin-bottom: 1rem;
   }
 
   &__title {
     font-weight: 600;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     margin: 0 0 .35rem;
     font-size: .95rem;
   }
 
   &__subtitle {
     font-size: .82rem;
-    color: v.$text-light;
+    color: var(--app-text-subtle);
     margin: 0;
   }
 }
@@ -328,29 +328,29 @@
   label {
     font-size: .8rem;
     font-weight: 600;
-    color: v.$neutral-900;
+    color: var(--app-text);
   }
 
-  .required { color: v.$danger; }
+  .required { color: var(--app-danger); }
 
   input.p-inputtext {
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
     padding: 0 .75rem;
     transition: border-color .15s, box-shadow .15s;
     width: 100%;
 
     &:focus {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
       outline: none;
     }
 
     &[readonly] {
-      background: v.$bg-base;
-      color: v.$text-muted;
+      background: var(--app-bg);
+      color: var(--app-text-muted);
       cursor: not-allowed;
     }
   }
@@ -358,7 +358,7 @@
 
 .field-error {
   font-size: .75rem;
-  color: v.$danger;
+  color: var(--app-danger);
   display: flex;
   align-items: center;
   gap: .25rem;
@@ -371,13 +371,13 @@
   .p-select {
     width: 100%;
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
 
     &:focus-within {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
     }
   }
 }
@@ -388,15 +388,15 @@
 
   .p-datepicker-input {
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
     padding: 0 .75rem;
     width: 100%;
 
     &:focus {
-      border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      border-color: var(--app-action);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
       outline: none;
     }
   }
@@ -414,14 +414,14 @@
   align-items: flex-start;
   gap: .75rem;
   padding: .75rem 1rem;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   cursor: pointer;
   transition: background .12s, border-color .12s;
 
   &:hover {
-    background: v.$bg-hover;
-    border-color: rgba(35,46,97,.2);
+    background: var(--app-surface-2);
+    border-color: color-mix(in srgb, var(--app-action) 20%, transparent);
   }
 
   label {
@@ -434,11 +434,11 @@
   .toggle-label {
     font-size: .85rem;
     font-weight: 600;
-    color: v.$neutral-900;
+    color: var(--app-text);
   }
 
   .toggle-desc {
     font-size: .76rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 }

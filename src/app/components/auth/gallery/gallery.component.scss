@@ -15,7 +15,7 @@
 
 .gl-count {
   font-size: 0.8rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   white-space: nowrap;
 }
 
@@ -32,27 +32,27 @@
   align-items: center;
   gap: 6px;
   padding: 7px 16px;
-  border-radius: v.$radius-full;
-  border: 1px solid v.$border;
-  background: v.$bg-panel;
-  color: v.$text-muted;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
   transition: all v.$transition-fast ease;
 
   &:hover {
-    border-color: v.$primary;
-    color: v.$primary;
+    border-color: var(--app-action);
+    color: var(--app-action);
   }
 
   &--active {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
 
     &:hover {
-      background: color.adjust(v.$primary, $lightness: -5%);
+      background: color-mix(in srgb, var(--app-action) 95%, #000);
       color: #fff;
     }
   }
@@ -65,11 +65,11 @@
   justify-content: center;
   gap: v.$space-2;
   padding: v.$space-10;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: 0.9rem;
 
   &--error {
-    color: #dc3545;
+    color: var(--app-danger);
   }
 }
 
@@ -84,8 +84,8 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: color-mix(in srgb, v.$primary 6%, transparent);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 6%, transparent);
+    color: var(--app-action);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -96,12 +96,12 @@
   p {
     font-family: v.$font-heading;
     font-weight: 600;
-    color: v.$text-primary;
+    color: var(--app-text);
     margin: 0 0 v.$space-1;
   }
 
   small {
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     font-size: 0.82rem;
   }
 
@@ -131,23 +131,23 @@
 
 // ── Card ──
 .gl-card {
-  background: v.$bg-panel;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: all v.$transition-base ease;
 
   &:hover {
-    box-shadow: v.$shadow-md;
+    box-shadow: var(--app-shadow-sm);
     transform: translateY(-2px);
   }
 
   &__preview {
     position: relative;
     height: 180px;
-    background: v.$bg-base;
+    background: var(--app-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -172,7 +172,7 @@
 
   &__file-icon {
     font-size: 2.5rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     opacity: 0.4;
   }
 
@@ -181,11 +181,11 @@
     top: 10px;
     left: 10px;
     padding: 3px 10px;
-    border-radius: v.$radius-full;
+    border-radius: var(--radius-pill);
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.02em;
-    background: color-mix(in srgb, var(--accent) 14%, #fff);
+    background: color-mix(in srgb, var(--accent) 14%, var(--app-surface));
     color: var(--accent);
   }
 
@@ -198,7 +198,7 @@
     font-family: v.$font-heading;
     font-size: 0.92rem;
     font-weight: 600;
-    color: v.$text-primary;
+    color: var(--app-text);
     margin: 0 0 4px;
     line-height: 1.3;
     display: -webkit-box;
@@ -209,7 +209,7 @@
 
   &__desc {
     font-size: 0.78rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     margin: 0 0 6px;
     line-height: 1.4;
     display: -webkit-box;
@@ -220,7 +220,7 @@
 
   &__meta {
     font-size: 0.72rem;
-    color: color-mix(in srgb, v.$text-muted 70%, transparent);
+    color: color-mix(in srgb, var(--app-text-muted) 70%, transparent);
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -229,7 +229,7 @@
 
   &__actions {
     display: flex;
-    border-top: 1px solid v.$border;
+    border-top: 1px solid var(--app-border);
   }
 
   &__btn {
@@ -247,10 +247,10 @@
     transition: background v.$transition-fast ease;
 
     &--download {
-      color: v.$primary;
+      color: var(--app-action);
 
       &:hover {
-        background: color-mix(in srgb, v.$primary 5%, transparent);
+        background: color-mix(in srgb, var(--app-action) 5%, transparent);
       }
 
       &:disabled {
@@ -261,12 +261,12 @@
 
     &--delete {
       flex: 0 0 42px;
-      color: v.$text-muted;
-      border-left: 1px solid v.$border;
+      color: var(--app-text-muted);
+      border-left: 1px solid var(--app-border);
 
       &:hover {
-        color: #dc3545;
-        background: rgba(220, 53, 69, 0.04);
+        color: var(--app-danger);
+        background: color-mix(in srgb, var(--app-danger) 4%, transparent);
       }
     }
   }
@@ -285,23 +285,23 @@
   align-items: center;
   justify-content: center;
   min-height: 160px;
-  border: 2px dashed v.$border;
-  border-radius: v.$radius-md;
-  background: v.$bg-base;
+  border: 2px dashed var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-bg);
   cursor: pointer;
   transition: all v.$transition-fast ease;
   padding: v.$space-4;
   gap: v.$space-2;
 
   &:hover {
-    border-color: v.$primary;
-    background: color-mix(in srgb, v.$primary 3%, v.$bg-base);
+    border-color: var(--app-action);
+    background: color-mix(in srgb, var(--app-action) 3%, var(--app-bg));
   }
 
   &__preview {
     max-width: 100%;
     max-height: 200px;
-    border-radius: v.$radius-sm;
+    border-radius: var(--radius-control);
     object-fit: contain;
   }
 
@@ -309,30 +309,30 @@
     display: flex;
     align-items: center;
     gap: v.$space-2;
-    color: v.$text-primary;
+    color: var(--app-text);
     font-size: 0.85rem;
 
     i {
       font-size: 1.5rem;
-      color: v.$primary;
+      color: var(--app-action);
     }
   }
 
   &__icon {
     font-size: 2rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
     opacity: 0.5;
   }
 
   &__label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   &__hint {
     font-size: 0.75rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
   }
 }
 
@@ -344,27 +344,27 @@
   &__label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: v.$text-primary;
+    color: var(--app-text);
   }
 
   &__input {
     width: 100%;
     padding: 9px 12px;
-    border: 1px solid v.$border;
-    border-radius: v.$radius-sm;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
     font-size: 0.85rem;
-    color: v.$text-primary;
-    background: v.$bg-panel;
+    color: var(--app-text);
+    background: var(--app-surface);
     transition: border-color v.$transition-fast ease;
     font-family: v.$font-body;
 
     &:focus {
       outline: none;
-      border-color: v.$primary;
+      border-color: var(--app-action);
     }
 
     &::placeholder {
-      color: v.$text-muted;
+      color: var(--app-text-muted);
       opacity: 0.6;
     }
   }
@@ -386,27 +386,27 @@
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-full;
-  background: v.$bg-panel;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all v.$transition-fast ease;
 
   &:hover {
-    border-color: v.$primary;
-    color: v.$primary;
+    border-color: var(--app-action);
+    color: var(--app-action);
   }
 
   &--active {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
 
     &:hover {
-      background: color.adjust(v.$primary, $lightness: -5%);
+      background: color-mix(in srgb, var(--app-action) 95%, #000);
       color: #fff;
     }
   }
@@ -473,7 +473,7 @@
 
 .viewer-category {
   padding: 3px 10px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   font-size: 0.7rem;
   font-weight: 600;
   background: color-mix(in srgb, var(--accent) 20%, transparent);
@@ -485,10 +485,10 @@
   max-height: calc(100vh - 140px);
   max-height: calc(100dvh - 140px);
   object-fit: contain;
-  border-radius: v.$radius-md;
+  border-radius: var(--radius-surface);
   user-select: none;
   -webkit-user-select: none;
-  background: #fff;
+  background: var(--app-surface);
   padding: 24px;
   box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
 }
@@ -509,17 +509,17 @@
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   border: none;
-  background: #fff;
-  color: v.$primary;
+  background: var(--app-surface);
+  color: var(--app-action);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: #f0f0f0;
+    background: var(--app-surface-3);
   }
 
   &:disabled {

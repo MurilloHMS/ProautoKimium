@@ -22,7 +22,7 @@
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: v.$primary;
+  color: var(--app-action);
   font-size: 0.85rem;
 }
 
@@ -36,18 +36,18 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
-    color: #6b7492;
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
+    color: var(--app-text-muted);
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
-    color: v.$secondary-dark;
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
+    color: var(--app-success);
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
-    color: #d92d20;
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
+    color: var(--app-danger);
   }
 }
 
