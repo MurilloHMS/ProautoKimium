@@ -50,7 +50,7 @@
       </div>
 
       <!-- Loading skeleton -->
-      <div *ngIf="loadingProducts" class="skeleton-wrap">
+      <div *ngIf="loadingProducts()" class="skeleton-wrap">
         <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6]">
           <p-skeleton width="1.1rem" height="1.1rem" borderRadius="4px" />
           <p-skeleton width="5rem" height="0.85rem" borderRadius="4px" />
@@ -59,7 +59,7 @@
       </div>
 
       <!-- Product table -->
-      <div class="product-table-wrap" *ngIf="!loadingProducts">
+      <div class="product-table-wrap" *ngIf="!loadingProducts()">
 
         <!-- Select all row -->
         <div class="select-all-row">
@@ -69,13 +69,13 @@
             (ngModelChange)="toggleAll($event)"
             inputId="selectAll" />
           <label for="selectAll" class="select-all-label">
-            Selecionar todos ({{ filteredProducts.length }})
+            Selecionar todos ({{ filteredProducts().length }})
           </label>
         </div>
 
         <div class="product-list">
           <div
-            *ngFor="let product of filteredProducts; trackBy: trackById"
+            *ngFor="let product of filteredProducts(); trackBy: trackById"
             class="product-row"
             [class.product-row--selected]="isSelected(product.id)"
             (click)="toggleProduct(product)">
@@ -98,7 +98,7 @@
             <div class="product-status-dot" [class.active]="product.active"></div>
           </div>
 
-          <div *ngIf="filteredProducts.length === 0" class="empty-list">
+          <div *ngIf="filteredProducts().length === 0" class="empty-list">
             <i class="pi pi-inbox"></i>
             <span>Nenhum produto encontrado</span>
           </div>

@@ -39,10 +39,10 @@
     <pk-table
       #grid
       [showCaption]="false"
-      [data]="customers"
+      [data]="customers()"
       [rows]="10"
       [rowsOptions]="[5, 10, 20]"
-      [loading]="loading"
+      [loading]="loading()"
       [filterFields]="['nome', 'email', 'codParceiro']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum Cliente encontrado"

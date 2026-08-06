@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InventoryProduct, InventoryProductResponse } from '../../../../../../domain/models/products.model';
-import { InventoryProductService } from '../../../../../../infrastructure/services/company/inventory/inventory-product.service';
+import { InventoryProductStore } from '../../../../../../infrastructure/state/inventory-product.store';
 import { FormScreenComponent } from '../../../../shared/form-screen/form-screen.component';
 import { ToolbarComponent } from '../../../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../../../theme/ProautoKimium/pk-button/pk-button.component';
@@ -25,7 +25,7 @@ import { TabDirtyCheck } from '../../../../../../infrastructure/routing/tab-dirt
     templateUrl: './products.component.html',
     styleUrl: './products.component.scss'
 })
-export class ProductsComponent implements TabDirtyCheck {
+export class ProductsComponent implements OnInit, TabDirtyCheck {
 
   /** Cadastro em andamento avisa antes de fechar a aba. */
   isTabDirty(): boolean {
@@ -36,8 +36,10 @@ export class ProductsComponent implements TabDirtyCheck {
     this.mode.set('grid');
   }
 
-  products: InventoryProductResponse[] = [];
-  loading: boolean = false;
+  /** A lista vem do store: a tela nao guarda copia. */
+  private readonly productStore = inject(InventoryProductStore);
+  readonly products = this.productStore.items;
+  readonly loading = this.productStore.loading;
   /** grade ou formulário — o produto não é mais cadastrado em diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
   product: InventoryProduct | null = null;
@@ -45,7 +47,7 @@ export class ProductsComponent implements TabDirtyCheck {
   dialogTitle: string = 'Adicionar Produto';
   productToEdit: InventoryProductResponse | null = null;
 
-  constructor(private productService: InventoryProductService, private fb: FormBuilder){
+  constructor(private fb: FormBuilder){
     this.form = this.fb.group({
       systemCode: ['', Validators.required],
       name: ['', Validators.required],
@@ -54,18 +56,12 @@ export class ProductsComponent implements TabDirtyCheck {
     });
   }
 
+  ngOnInit(): void {
+    this.productStore.load();
+  }
+
   loadProducts(){
-    this.loading = true;
-    this.productService.getInventoryProducts().subscribe({
-      next: (products) => {
-        this.products = products;
-        this.loading = false;
-      },
-      error: (err) => {
-        alert('Error loading products' + err.message);
-        this.loading = false;
-      }
-    });
+    this.productStore.refresh();
   }
 
   editProduct(product: InventoryProductResponse) {
@@ -95,20 +91,18 @@ export class ProductsComponent implements TabDirtyCheck {
       const productData: InventoryProduct = this.form.value;
 
       if(this.productToEdit){
-        this.productService.updateProduct(productData).subscribe({
+        this.productStore.update(productData).subscribe({
           next: () => {
             this.mode.set('grid');
-            this.loadProducts();
           },
           error: (err) => {
             alert('Error updating product: ' + err.message);
           }
         });
       }else{
-        this.productService.addInventoryProduct(productData).subscribe({
+        this.productStore.create(productData).subscribe({
           next: () => {
             this.mode.set('grid');
-            this.loadProducts();
           },
           error: (err) => {
             alert('Error adding product: ' + err.message);

@@ -8,11 +8,11 @@
 <div class="card">
   <p-table
     #dt1
-    [value]="products"
+    [value]="products()"
     [paginator]="true"
     [rows]="10"
     [rowsPerPageOptions]="[5,10,20]"
-    [loading]="loading"
+    [loading]="loading()"
     [responsiveLayout]="'scroll'"
     [globalFilterFields]="['Cód Sistema', 'Nome', 'Estoque Mínimo']"
     [rowHover]="true">

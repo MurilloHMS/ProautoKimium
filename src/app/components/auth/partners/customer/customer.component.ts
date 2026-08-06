@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -7,12 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Customer } from '../../../../domain/models/customer.model';
-import { CustomerService } from '../../../../infrastructure/services/partners/customer/customer.service';
+import { CustomerStore } from '../../../../infrastructure/state/customer.store';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
-import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
+import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
@@ -28,7 +28,7 @@ import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload
     styleUrl: './customer.component.scss',
     providers: [MessageService]
 })
-export class CustomerComponent implements TabDirtyCheck {
+export class CustomerComponent implements OnInit, TabDirtyCheck {
 
   /** grade ou formulário: fechar a aba no meio do cadastro pede confirmação. */
   isTabDirty(): boolean {
@@ -39,8 +39,13 @@ export class CustomerComponent implements TabDirtyCheck {
     this.mode.set('grid');
   }
 
-  customers: Customer[] = [];
-  loading: boolean = false;
+  /**
+   * A lista vem do store: a tela nao guarda copia, e quem precisar de um
+   * combo de cliente le daqui.
+   */
+  private readonly customerStore = inject(CustomerStore);
+  readonly customers = this.customerStore.items;
+  readonly loading = this.customerStore.loading;
   /** grade ou formulário — o cadastro de cliente não usa mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
   customer: Customer | null = null;
@@ -50,7 +55,7 @@ export class CustomerComponent implements TabDirtyCheck {
   isUploading: boolean = false;
   selectedFile: File | null = null;
 
-  constructor(private customerService: CustomerService,
+  constructor(
     private messageService: MessageService,
     private fb: FormBuilder){
     this.form = this.fb.group({
@@ -64,18 +69,12 @@ export class CustomerComponent implements TabDirtyCheck {
     });
   }
 
+  ngOnInit(): void {
+    this.customerStore.load();
+  }
+
   loadCustomers(){
-    this.loading = true;
-    this.customerService.getCustomers().subscribe({
-      next: (customers) => {
-        this.customers = customers;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading customers', err);
-        this.loading = false;
-      }
-    });
+    this.customerStore.refresh();
   }
 
   editCustomer(customer: Customer) {
@@ -112,18 +111,16 @@ export class CustomerComponent implements TabDirtyCheck {
       const customer: Customer = this.form.value;
 
       if(this.customerToEdit){
-        this.customerService.updateCustomer(customer).subscribe({
+        this.customerStore.update(customer).subscribe({
           next: () => {
             this.mode.set('grid');
-            this.loadCustomers();
           },
           error: (err) => alert('Erro ao atualizar cliente: ' + err.message)
         });
       } else{
-        this.customerService.addCustomer(customer).subscribe({
+        this.customerStore.create(customer).subscribe({
           next: () =>{
             this.mode.set('grid');
-            this.loadCustomers();
           },
           error: (err) => alert('Erro ao adicionar cliente: ' + err.message)
         });
@@ -134,21 +131,20 @@ export class CustomerComponent implements TabDirtyCheck {
   importByExcel() {
     if (!this.selectedFile) return;
 
-    this.loading = true;
     this.isUploading = true;
 
-    this.customerService.importCustomersByExcel(this.selectedFile).subscribe({
-      next: (msg: string) => {
-        this.loading = false;
+    // A planilha entra e a lista se recarrega sozinha: antes o cliente
+    // importado só aparecia depois de clicar em Atualizar.
+    this.customerStore.importByExcel(this.selectedFile).subscribe({
+      next: (msg) => {
         this.isUploading = false;
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
-          detail: msg
+          detail: String(msg)
         });
       },
       error: (err) => {
-        this.loading = false;
         this.isUploading = false;
         this.messageService.add({
           severity: 'error',
