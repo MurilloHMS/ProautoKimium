@@ -1,18 +1,34 @@
-@use 'variables' as v;
+// ═══════════════════════════════════════════════════════════════════════════
+// Selos de código
+//
+// Código de parceiro, código de sistema, ordem de nível: é DADO, não ação.
+// Antes vinham em navy preenchido, a mesma cor do botão primário — numa grade
+// cheia isso puxa o olho para o que não se clica e disputa com o botão de
+// verdade. Agora são neutros: superfície discreta e texto de conteúdo.
+// ═══════════════════════════════════════════════════════════════════════════
 
 .code-badge {
   display: inline-block;
-  background: v.$primary-lighter;
-  color: #fff;
-  font-size: .78rem;
-  font-weight: 700;
-  padding: .2rem .55rem;
-  border-radius: 6px;
+  background: var(--app-surface-3);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  padding: 2px 8px;
+  border-radius: var(--radius-control);
 
+  // Segundo plano: código de gerente, matriz — referência a outro registro.
   &--secondary {
-    background: rgba(87,193,171,.1);
-    color: v.$secondary-dark;
+    background: transparent;
+    color: var(--app-text-muted);
   }
 
-  &.code-badge-hidden { background: #f1f5f9; color: v.$primary; }
+  // Produto fora do ar: o selo perde contraste junto com a linha.
+  &.code-badge-hidden {
+    background: transparent;
+    color: var(--app-text-subtle);
+    border-style: dashed;
+  }
 }

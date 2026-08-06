@@ -55,27 +55,7 @@ $text-light:        #94a3b8;
   i { color: v.$text-light; font-size: .8rem; }
 }
 
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: .3rem;
-  border-radius: 100px;
-  padding: .25rem .65rem;
-  font-size: .75rem;
-  font-weight: 600;
-
-  i { font-size: .7rem; }
-
-  &--active {
-    background: rgba(16,185,129,.1);
-    color: #059669;
-  }
-
-  &--inactive {
-    background: rgba(239,68,68,.08);
-    color: #dc2626;
-  }
-}
+// .status-chip agora e global (styles/chips.scss), sobre os tokens de status.
 
 .action-btn.p-button {
   width: 32px;

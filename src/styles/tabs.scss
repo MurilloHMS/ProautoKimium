@@ -1,9 +1,14 @@
-@use 'variables' as v;
+// ═══════════════════════════════════════════════════════════════════════════
+// Abas internas de tela (Calculadoras, Produtos do site)
+//
+// Não confundir com a barra de abas do shell: aqui é navegação dentro de uma
+// tela só. Item ativo em navy está certo — navegação é ação.
+// ═══════════════════════════════════════════════════════════════════════════
 
 .tabs-nav {
   display: flex;
-  gap: .5rem;
-  border-bottom: 2px solid v.$border;
+  gap: 2px;
+  border-bottom: 1px solid var(--app-border);
   padding-bottom: 0;
   flex-wrap: wrap;
 }
@@ -11,40 +16,58 @@
 .tab-btn {
   display: flex;
   align-items: center;
-  gap: .45rem;
-  padding: .6rem 1.1rem;
+  gap: 6px;
+  height: var(--btn-h-md);
+  padding: 0 14px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  border-radius: v.$radius-sm v.$radius-sm 0 0;
-  font-size: .88rem;
+  margin-bottom: -1px;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  font-size: var(--text-ui);
   font-weight: 500;
-  color: v.$neutral-400;
+  color: var(--app-text-muted);
   cursor: pointer;
-  transition: color .18s, border-color .18s, background .18s;
+  transition: color .15s, border-color .15s, background .15s;
 
-  i { font-size: .85rem; }
+  i { font-size: var(--text-ui-sm); }
 
   &:hover {
-    color: v.$primary;
-    background: v.$neutral-100;
+    color: var(--app-action);
+    background: var(--app-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: -2px;
   }
 
   &--active {
-    color: v.$primary;
-    border-bottom-color: v.$primary;
+    color: var(--app-action);
+    border-bottom-color: var(--app-action);
     font-weight: 700;
   }
 
+  // Contagem ao lado do rótulo: número é dado, não ação — fica neutro, e só
+  // acompanha a cor quando a aba está ativa.
   .tab-badge {
-    background: v.$primary;
-    color: #fff;
-    font-size: .7rem;
+    background: var(--app-surface-3);
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
     font-weight: 700;
-    border-radius: 99px;
-    padding: .1rem .45rem;
-    min-width: 1.4rem;
+    font-variant-numeric: tabular-nums;
+    border-radius: var(--radius-pill);
+    padding: 1px 7px;
+    min-width: 20px;
     text-align: center;
   }
+
+  &--active .tab-badge {
+    background: var(--app-action-soft);
+    color: var(--app-action);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-btn { transition: none; }
 }
