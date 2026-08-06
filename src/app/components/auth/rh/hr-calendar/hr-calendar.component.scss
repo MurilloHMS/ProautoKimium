@@ -22,7 +22,7 @@
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: v.$primary;
+  color: var(--app-action);
   font-size: 0.85rem;
 }
 
@@ -37,17 +37,17 @@
 
   &--pending {
     background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
-    color: #6b7492;
+    color: var(--app-text-muted);
   }
 
   &--approved {
     background: color-mix(in srgb, var(--app-success) 16%, transparent);
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 
   &--rejected {
     background: color-mix(in srgb, var(--app-danger) 10%, transparent);
-    color: #d92d20;
+    color: var(--app-danger);
   }
 }
 

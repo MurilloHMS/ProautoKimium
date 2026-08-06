@@ -24,7 +24,7 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    background: v.$primary;
+    background: var(--app-action);
     flex-shrink: 0;
 
     i {
@@ -37,14 +37,14 @@
     font-family: v.$font-heading;
     font-size: 1.4rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 0.15rem;
   }
 
   &__sub {
     font-family: v.$font-body;
     font-size: 0.875rem;
-    color: v.$text-secondary-color;
+    color: var(--app-text-muted)-color;
     margin: 0;
   }
 }
@@ -63,8 +63,8 @@
 
 // ─── Panel ────────────────────────────────────────────────────────────────────
 .panel {
-  background: v.$bg-panel;
-  border: 1px solid v.$bg-surface-dark;
+  background: var(--app-surface);
+  border: 1px solid var(--app-bg)-dark;
   border-radius: 16px;
   padding: 1.75rem;
   transition: opacity 0.2s;
@@ -85,14 +85,14 @@
     font-family: v.$font-heading;
     font-size: 1.1rem;
     font-weight: 800;
-    color: v.$bg-surface-dark;
+    color: var(--app-bg)-dark;
     line-height: 1;
     margin-top: 2px;
     flex-shrink: 0;
     transition: color 0.2s;
 
     &--active {
-      color: v.$primary;
+      color: var(--app-action);
     }
   }
 
@@ -100,14 +100,14 @@
     font-family: v.$font-heading;
     font-size: 1rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 0.2rem;
   }
 
   &__desc {
     font-family: v.$font-body;
     font-size: 0.82rem;
-    color: v.$text-secondary-color;
+    color: var(--app-text-muted)-color;
     margin: 0;
     line-height: 1.4;
   }
@@ -124,18 +124,18 @@
   font-family: v.$font-body;
   font-size: 0.72rem;
   font-weight: 600;
-  background: rgba(v.$warning, 0.12);
-  color: color.adjust(v.$warning, $lightness: -20%);
-  border: 1px solid rgba(v.$warning, 0.3);
+  background: color-mix(in srgb, var(--app-warning) 12%, transparent);
+  color: color-mix(in srgb, var(--app-warning) 80%, #000);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 30%, transparent);
   white-space: nowrap;
   flex-shrink: 0;
 
   i { font-size: 0.7rem; }
 
   &--ready {
-    background: rgba(v.$success, 0.1);
-    color: color.adjust(v.$success, $lightness: -10%);
-    border-color: rgba(v.$success, 0.25);
+    background: color-mix(in srgb, var(--app-success) 10%, transparent);
+    color: color-mix(in srgb, var(--app-success) 90%, #000);
+    border-color: color-mix(in srgb, var(--app-success) 25%, transparent);
   }
 }
 
@@ -156,7 +156,7 @@
   &__line {
     flex: 1;
     width: 1px;
-    background: v.$bg-surface-dark;
+    background: var(--app-bg)-dark;
 
     @media (max-width: 768px) {
       width: auto;
@@ -171,17 +171,17 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: v.$bg-surface;
-    border: 1px solid v.$bg-surface-dark;
-    color: v.$text-secondary-color;
+    background: var(--app-bg);
+    border: 1px solid var(--app-bg)-dark;
+    color: var(--app-text-muted)-color;
     flex-shrink: 0;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
 
     i { font-size: 0.75rem; }
 
     &--active {
-      background: v.$secondary;
-      border-color: v.$secondary-dark;
+      background: var(--app-success);
+      border-color: var(--app-success);
       color: #fff;
     }
   }
@@ -215,7 +215,7 @@
     font-family: v.$font-body;
     font-size: 0.8rem;
     font-weight: 600;
-    color: v.$neutral-700;
+    color: var(--app-text);
     letter-spacing: 0.01em;
   }
 }
@@ -224,26 +224,26 @@
 .hidden-input { display: none; }
 
 .dropzone {
-  border: 2px dashed v.$bg-surface-dark;
+  border: 2px dashed var(--app-bg)-dark;
   border-radius: 12px;
-  background: v.$bg-base;
+  background: var(--app-bg);
   cursor: pointer;
   transition: border-color 0.18s, background 0.18s;
   overflow: hidden;
 
   &:hover {
-    border-color: v.$secondary;
-    background: rgba(v.$secondary, 0.04);
+    border-color: var(--app-success);
+    background: color-mix(in srgb, var(--app-success) 4%, transparent);
   }
 
   &--filled {
     border-style: solid;
-    border-color: v.$secondary;
-    background: rgba(v.$secondary, 0.05);
+    border-color: var(--app-success);
+    background: color-mix(in srgb, var(--app-success) 5%, transparent);
 
     &:hover {
-      border-color: v.$secondary-dark;
-      background: rgba(v.$secondary, 0.08);
+      border-color: var(--app-success);
+      background: color-mix(in srgb, var(--app-success) 8%, transparent);
     }
   }
 
@@ -262,12 +262,12 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: v.$bg-surface-darker;
+    background: var(--app-bg)-darker;
     margin-bottom: 0.25rem;
 
     i {
       font-size: 1.25rem;
-      color: v.$primary-lighter;
+      color: var(--app-text-muted);
     }
   }
 
@@ -275,17 +275,17 @@
     font-family: v.$font-body;
     font-size: 0.875rem;
     font-weight: 600;
-    color: v.$neutral-700;
+    color: var(--app-text);
     margin: 0;
   }
 
   &__hint {
     font-family: v.$font-body;
     font-size: 0.78rem;
-    color: v.$text-secondary-color;
+    color: var(--app-text-muted)-color;
     margin: 0;
 
-    strong { color: v.$neutral-700; }
+    strong { color: var(--app-text); }
   }
 
   &__filled {
@@ -302,12 +302,12 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: rgba(v.$secondary, 0.15);
+    background: color-mix(in srgb, var(--app-success) 15%, transparent);
     flex-shrink: 0;
 
     i {
       font-size: 1.1rem;
-      color: v.$secondary-dark;
+      color: var(--app-success);
     }
   }
 
@@ -323,7 +323,7 @@
     font-family: v.$font-body;
     font-size: 0.85rem;
     font-weight: 600;
-    color: v.$neutral-700;
+    color: var(--app-text);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -332,7 +332,7 @@
   &__file-size {
     font-family: v.$font-body;
     font-size: 0.75rem;
-    color: v.$text-secondary-color;
+    color: var(--app-text-muted)-color;
   }
 
   &__remove {
@@ -343,8 +343,8 @@
     height: 26px;
     border-radius: 50%;
     border: none;
-    background: v.$bg-surface-darker;
-    color: v.$text-secondary-color;
+    background: var(--app-bg)-darker;
+    color: var(--app-text-muted)-color;
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
@@ -352,8 +352,8 @@
     i { font-size: 0.65rem; }
 
     &:hover {
-      background: rgba(v.$danger, 0.12);
-      color: v.$danger;
+      background: color-mix(in srgb, var(--app-danger) 12%, transparent);
+      color: var(--app-danger);
     }
   }
 }
@@ -371,22 +371,22 @@
   gap: 0.85rem;
   padding: 0.85rem 1rem;
   border-radius: 10px;
-  border: 1.5px solid v.$bg-surface-dark;
-  background: v.$bg-base;
+  border: 1.5px solid var(--app-bg)-dark;
+  background: var(--app-bg);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 
   &:hover {
-    border-color: v.$secondary;
-    background: rgba(v.$secondary, 0.04);
+    border-color: var(--app-success);
+    background: color-mix(in srgb, var(--app-success) 4%, transparent);
   }
 
   &--active {
-    border-color: v.$primary;
-    background: rgba(v.$primary, 0.04);
+    border-color: var(--app-action);
+    background: color-mix(in srgb, var(--app-action) 4%, transparent);
 
-    .format-item__icon { color: v.$primary; }
-    .format-item__label { color: v.$primary; }
+    .format-item__icon { color: var(--app-action); }
+    .format-item__label { color: var(--app-action); }
     .format-item__check { opacity: 1; }
   }
 
@@ -397,7 +397,7 @@
 
   &__icon {
     font-size: 1.35rem;
-    color: v.$primary-lighter;
+    color: var(--app-text-muted);
     flex-shrink: 0;
     transition: color 0.15s;
   }
@@ -413,14 +413,14 @@
     font-family: v.$font-body;
     font-size: 0.875rem;
     font-weight: 700;
-    color: v.$neutral-700;
+    color: var(--app-text);
     transition: color 0.15s;
   }
 
   &__desc {
     font-family: v.$font-body;
     font-size: 0.75rem;
-    color: v.$text-secondary-color;
+    color: var(--app-text-muted)-color;
   }
 
   &__check {
@@ -430,7 +430,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: v.$primary;
+    background: var(--app-action);
     opacity: 0;
     transition: opacity 0.15s;
     flex-shrink: 0;
@@ -452,33 +452,33 @@
     padding: 0.55rem 1.4rem;
 
     &--primary {
-      background: v.$primary !important;
-      border-color: v.$primary !important;
+      background: var(--app-action) !important;
+      border-color: var(--app-action) !important;
 
       &:hover:not(:disabled) {
-        background: v.$primary-dark !important;
-        border-color: v.$primary-dark !important;
+        background: var(--app-action-hover) !important;
+        border-color: var(--app-action-hover) !important;
       }
     }
 
     &--secondary {
       background: transparent !important;
-      border-color: v.$primary !important;
-      color: v.$primary !important;
+      border-color: var(--app-action) !important;
+      color: var(--app-action) !important;
 
       &:hover:not(:disabled) {
-        background: rgba(v.$primary, 0.06) !important;
+        background: color-mix(in srgb, var(--app-action) 6%, transparent) !important;
       }
     }
   }
 
   .p-select {
     border-radius: 8px;
-    border-color: v.$bg-surface-dark;
+    border-color: var(--app-bg)-dark;
     font-family: v.$font-body;
     font-size: 0.875rem;
 
-    &:hover { border-color: v.$secondary; }
-    &.p-focus { border-color: v.$primary; box-shadow: 0 0 0 2px rgba(v.$primary, 0.15); }
+    &:hover { border-color: var(--app-success); }
+    &.p-focus { border-color: var(--app-action); box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-action) 15%, transparent); }
   }
 }

@@ -21,7 +21,7 @@
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  border-radius: v.$radius-md;
+  border-radius: var(--radius-surface);
   background: var(--app-primary-soft);
   color: var(--app-primary);
   font-size: 1.1rem;

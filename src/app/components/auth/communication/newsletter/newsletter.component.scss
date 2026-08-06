@@ -5,7 +5,7 @@
   margin: 0 auto;
 
   .header-section{
-    background: linear-gradient(135deg, v.$primary 0%, v.$secondary 100%);
+    background: linear-gradient(135deg, var(--app-action) 0%, var(--app-success) 100%);
     padding: 2rem;
     border-radius: 12px;
     color: white;
@@ -14,7 +14,7 @@
 
   .upload-section{
     .upload-box {
-      // background: v.$bg-surface;
+      // background: var(--app-bg);
       transition: all .3s ease;
       height: 100%;
 
@@ -24,7 +24,7 @@
       }
 
       h3 {
-        color: v.$primary;;
+        color: var(--app-action);;
       }
 
       ::ng-deep {
@@ -47,7 +47,7 @@
       overflow: hidden;
 
       .p-card-header {
-        background: v.$bg-surface;
+        background: var(--app-bg);
         border-bottom: 1px solid var(--surface-border);
       }
 

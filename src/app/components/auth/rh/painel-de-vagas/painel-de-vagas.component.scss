@@ -91,15 +91,15 @@
     gap: .5rem;
     font-size: 1.6rem;
     font-weight: 700;
-    color: v.$neutral-900;
+    color: var(--app-text);
     margin: 0;
 
-    i { color: v.$primary; }
+    i { color: var(--app-action); }
   }
 
   .header-subtitle {
     margin: .2rem 0 0;
-    color: v.$neutral-900;
+    color: var(--app-text);
     font-size: .9rem;
   }
 
@@ -111,31 +111,31 @@
   min-width: 200px;
 
   ::ng-deep .p-select {
-    border-radius: v.$radius-sm !important;
+    border-radius: var(--radius-control) !important;
     font-size: .9rem !important;
   }
 }
 
 .btn-limpar {
   background: transparent !important;
-  border: 1px solid v.$border !important;
-  color: v.$neutral-500 !important;
-  border-radius: v.$radius-sm !important;
+  border: 1px solid var(--app-border) !important;
+  color: var(--app-text-muted) !important;
+  border-radius: var(--radius-control) !important;
   font-size: .85rem !important;
   white-space: nowrap;
 
   &:hover {
-    border-color: v.$primary !important;
-    color: v.$primary !important;
+    border-color: var(--app-action) !important;
+    color: var(--app-action) !important;
   }
 }
 
 // ── Tabela ────────────────────────────────────────────────────────────────────
 .tabela-section {
-  background: v.$white;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-md;
-  box-shadow: v.$shadow-sm;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
   overflow: hidden;
 }
 
@@ -154,7 +154,7 @@
   align-items: center;
   gap: .75rem;
   padding: 3.5rem 1.5rem;
-  color: v.$neutral-400;
+  color: var(--app-text-subtle);
   text-align: center;
 
   i {
@@ -165,7 +165,7 @@
   p {
     margin: 0;
     font-size: .95rem;
-    color: v.$neutral-700;
+    color: var(--app-text);
   }
 }
 
@@ -176,13 +176,13 @@
   transition: background .15s;
 
   &.linha-expandida > td {
-    background: v.$neutral-400 !important;
+    background: var(--app-text-subtle) !important;
     border-bottom: none !important;
   }
 }
 
 .linha-detalhe > td {
-  background: v.$neutral-300 !important;
+  background: var(--app-border) !important;
   padding: 0 !important;
   border-top: none !important;
 }
@@ -191,12 +191,12 @@
 .cell-id {
   font-family: v.$font-body, monospace;
   font-size: .78rem !important;
-  color: v.$neutral-400 !important;
+  color: var(--app-text-subtle) !important;
 }
 
 .cell-titulo {
   font-weight: 600;
-  color: v.$neutral-900 !important;
+  color: var(--app-text) !important;
 }
 
 
@@ -208,11 +208,11 @@
 }
 
 .btn-acao {
-  color: v.$neutral-500 !important;
+  color: var(--app-text-muted) !important;
   width: 2rem !important;
   height: 2rem !important;
 
-  &:hover { color: v.$primary !important; background: v.$neutral-400 !important; }
+  &:hover { color: var(--app-action) !important; background: var(--app-text-subtle) !important; }
 }
 
 // Detalhe expandido
@@ -221,7 +221,7 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   padding: 1rem 1.25rem 1.25rem;
-  border-top: 1px dashed color.adjust(v.$border, $lightness: -5%);
+  border-top: 1px dashed color-mix(in srgb, var(--app-border) 95%, #000);
 }
 
 .detalhe-card {
@@ -235,7 +235,7 @@
     gap: .35rem;
     font-size: .75rem;
     font-weight: 700;
-    color: v.$neutral-400;
+    color: var(--app-text-subtle);
     text-transform: uppercase;
     letter-spacing: .05em;
 
@@ -245,7 +245,7 @@
   .detalhe-valor {
     margin: 0;
     font-size: .87rem;
-    color: v.$text-primary;
+    color: var(--app-text);
     line-height: 1.55;
     white-space: pre-line;
   }
@@ -263,14 +263,14 @@
 .link-dialog-icon {
   i {
     font-size: 3rem;
-    color: v.$secondary;
+    color: var(--app-success);
   }
 }
 
 .link-dialog-desc {
   margin: 0;
   font-size: 0.95rem;
-  color: v.$text-primary;
+  color: var(--app-text);
 }
 
 .link-field-wrap {
@@ -283,42 +283,42 @@
 .link-field-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 1.5px solid v.$neutral-300;
+  border: 1.5px solid var(--app-border);
   border-radius: 8px;
-  background: v.$neutral-100;
+  background: var(--app-surface-3);
   font-size: 0.9rem;
   transition: all 0.2s;
   &:focus {
     outline: none;
-    border-color: v.$secondary;
+    border-color: var(--app-success);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-success) 10%, transparent);
   }
 }
 
 .link-copy-btn {
   padding: 0.75rem 1rem;
-  border: 1.5px solid v.$neutral-300;
+  border: 1.5px solid var(--app-border);
   border-radius: 8px;
   background: white;
   cursor: pointer;
   transition: all 0.2s;
   &:hover {
-    border-color: v.$secondary;
+    border-color: var(--app-success);
     background: color-mix(in srgb, var(--app-success) 10%, transparent);
   }
   &.link-copy-btn--ok {
-    border-color: v.$secondary;
-    background: v.$neutral-300;
-    color: v.$secondary;
+    border-color: var(--app-success);
+    background: var(--app-border);
+    color: var(--app-success);
   }
 }
 
 .link-copied-msg {
-  background: v.$neutral-300;
-  color: v.$secondary;
+  background: var(--app-border);
+  color: var(--app-success);
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  border: 1px solid v.$secondary-lighter;
+  border: 1px solid var(--app-success)-lighter;
   font-size: 0.85rem;
   display: flex;
   align-items: center;

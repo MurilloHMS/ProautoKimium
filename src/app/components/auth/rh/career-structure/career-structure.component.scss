@@ -40,18 +40,18 @@
   gap: .35rem;
   font-size: .78rem;
   font-weight: 600;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
     box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
@@ -71,7 +71,7 @@
   height: 30px;
   border-radius: 8px;
   background: color-mix(in srgb, var(--app-action) 8%, transparent);
-  color: v.$primary;
+  color: var(--app-action);
   font-size: 0.85rem;
   flex-shrink: 0;
 }
@@ -106,7 +106,7 @@
   height: 26px;
   border-radius: 6px;
   background: color-mix(in srgb, var(--app-success) 12%, transparent);
-  color: v.$secondary-dark;
+  color: var(--app-success);
   font-size: 0.75rem;
   flex-shrink: 0;
 }
@@ -124,12 +124,12 @@
 
   &--fixed {
     background: color-mix(in srgb, var(--app-action) 8%, transparent);
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &--pct {
     background: color-mix(in srgb, var(--app-success) 12%, transparent);
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 }
 
@@ -138,7 +138,7 @@
   padding: 12px 16px;
   border-radius: 12px;
   background: color-mix(in srgb, var(--app-success) 12%, transparent);
-  color: v.$secondary-dark;
+  color: var(--app-success);
   font-size: 0.9rem;
   font-weight: 600;
   display: flex;

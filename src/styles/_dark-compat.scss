@@ -24,18 +24,17 @@
     background: transparent;
   }
 
-  // `.quick-card`, `.notif-panel`, `.doc-card`, `.kpi` e `.cal` saíram daqui:
-  // home, painel de RH e documentos já pintam a própria superfície com token.
-  // `.card` e `.header-icon` ficam — aparecem em onze telas, e várias ainda
-  // têm cor cravada (inventário, holerite, guia, candidaturas, contatos).
-  .card,
-  .table-card,
-  .filter-section {
-    background: var(--app-surface);
-    border-color: var(--app-border);
-  }
+  // O bloco de superfícies acabou. As classes que ele pintava ou já usam token
+  // no próprio componente (`.quick-card`, `.notif-panel`, `.doc-card`, `.kpi`,
+  // `.cal`, `.header-icon`), ou nunca tiveram regra em lugar nenhum (`.card`,
+  // `.filter-section`) — nessas o fundo só existia no tema escuro, o que era
+  // acidente, não desenho. `.table-card` saiu porque contradizia o
+  // `grid-screen-body`: a grade é a superfície da tela, não um cartão sobre ela.
 
   // ─── Títulos e textos escuros ───────────────────────────────────────────
+  // Este é o que resta, e continua load-bearing: protege título e rótulo que
+  // não declaram cor e herdariam preto sobre fundo escuro. Só sai com uma
+  // passada visual tela a tela.
   h1, h2, h3, h4, h5,
   .page-title,
   [class*='__title'],

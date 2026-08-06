@@ -25,14 +25,14 @@
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid v.$border;
+  border: 2px solid var(--app-border);
   flex-shrink: 0;
 
   &--fallback {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: v.$primary;
+    background: var(--app-action);
     color: #fff;
     font-size: .72rem;
     font-weight: 700;
@@ -43,10 +43,10 @@
 .profile-name {
   font-weight: 600;
   font-size: .875rem;
-  color: v.$neutral-900;
+  color: var(--app-text);
 }
 
-.text-sm { font-size: .875rem; color: v.$neutral-700; }
+.text-sm { font-size: .875rem; color: var(--app-text); }
 
 /* -------------------------------------------------------
    SLUG CELL
@@ -60,14 +60,14 @@
 .slug-text {
   font-size: .78rem;
   font-family: monospace;
-  color: v.$primary-light;
-  background: v.$bg-selected;
+  color: var(--app-action);
+  background: var(--app-action-soft);
   padding: .15rem .45rem;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
 }
 
 .slug-link {
-  color: v.$secondary-dark;
+  color: var(--app-success);
   font-size: .8rem;
   text-decoration: none;
   opacity: .7;
@@ -87,16 +87,16 @@
   display: inline-flex;
   align-items: center;
   padding: .15rem .5rem;
-  background: v.$secondary-lighter;
-  color: v.$primary;
+  background: var(--app-success)-lighter;
+  color: var(--app-action);
   border-radius: 99px;
   font-size: .72rem;
   font-weight: 500;
   white-space: nowrap;
 
   &--more {
-    background: v.$bg-surface;
-    color: v.$text-muted;
+    background: var(--app-bg);
+    color: var(--app-text-muted);
     font-style: italic;
   }
 }
@@ -117,9 +117,9 @@
 .add-inline-btn {
   margin-left: auto;
   background: none;
-  border: 1px solid v.$secondary;
-  color: v.$secondary-dark;
-  border-radius: v.$radius-sm;
+  border: 1px solid var(--app-success);
+  color: var(--app-success);
+  border-radius: var(--radius-control);
   width: 26px;
   height: 26px;
   display: flex;
@@ -128,14 +128,14 @@
   cursor: pointer;
   transition: background v.$transition-fast;
   i { font-size: .75rem; }
-  &:hover { background: v.$secondary-lighter; }
+  &:hover { background: var(--app-success)-lighter; }
 }
 
 .remove-btn {
   background: none;
-  border: 1px solid v.$border;
-  color: v.$danger;
-  border-radius: v.$radius-sm;
+  border: 1px solid var(--app-border);
+  color: var(--app-danger);
+  border-radius: var(--radius-control);
   width: 30px;
   height: 30px;
   display: flex;
@@ -150,7 +150,7 @@
 
 .empty-hint {
   font-size: .78rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-style: italic;
   margin: 0 0 .5rem;
 }
@@ -165,8 +165,8 @@
   margin-top: .25rem;
 }
 
-.status-label { font-size: .82rem; font-weight: 600; color: v.$primary; }
-.status-text  { font-size: .82rem; color: v.$text-muted; }
+.status-label { font-size: .82rem; font-weight: 600; color: var(--app-action); }
+.status-text  { font-size: .82rem; color: var(--app-text-muted); }
 
 /* -------------------------------------------------------
    QR DIALOG
@@ -181,13 +181,13 @@
 
 .qr-url {
   font-size: .72rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   word-break: break-all;
   text-align: center;
 }
 
 .qr-open-link {
-  color: v.$secondary-dark;
+  color: var(--app-success);
   font-size: .82rem;
   font-weight: 600;
   text-decoration: none;

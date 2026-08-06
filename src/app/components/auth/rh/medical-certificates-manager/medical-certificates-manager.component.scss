@@ -28,7 +28,7 @@
   height: 32px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--app-action) 8%, transparent);
-  color: v.$primary;
+  color: var(--app-action);
   font-weight: 700;
   font-size: 0.82rem;
   display: flex;
@@ -50,7 +50,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--app-action) 8%, transparent);
-  color: v.$primary;
+  color: var(--app-action);
   font-weight: 700;
   font-size: 0.78rem;
 }
@@ -62,7 +62,7 @@
   padding: 4px 10px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--app-text-muted) 10%, transparent);
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -71,18 +71,18 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border-radius: v.$radius-sm;
+  border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid v.$border;
-  color: v.$text-muted;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
   transition: all .15s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
   &:hover {
-    background: v.$primary;
-    border-color: v.$primary;
+    background: var(--app-action);
+    border-color: var(--app-action);
     color: #fff;
   }
 

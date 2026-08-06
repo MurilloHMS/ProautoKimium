@@ -4,7 +4,7 @@
 :host { @include m.page-layout; }
 
 .calc-card {
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid #e6e9f0;
   border-radius: 16px;
   padding: 24px;
@@ -24,8 +24,8 @@
     padding: 10px 18px;
     border-radius: 12px;
     border: 1px solid #e6e9f0;
-    background: #ffffff;
-    color: #6b7492;
+    background: var(--app-surface);
+    color: var(--app-text-muted);
     font-weight: 600;
     font-size: 0.88rem;
     cursor: pointer;
@@ -35,11 +35,11 @@
 
     &:hover {
       border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
-      color: v.$primary;
+      color: var(--app-action);
     }
 
     &--active {
-      background: linear-gradient(135deg, v.$primary, v.$secondary);
+      background: linear-gradient(135deg, var(--app-action), var(--app-success));
       border-color: transparent;
       color: #ffffff;
       box-shadow: 0 8px 20px color-mix(in srgb, var(--app-action) 20%, transparent);
@@ -57,7 +57,7 @@
   margin-bottom: 20px;
   border-radius: 12px;
   background: color-mix(in srgb, var(--app-danger) 8%, transparent);
-  color: #d92d20;
+  color: var(--app-danger);
   font-size: 0.85rem;
 
   i { margin-top: 2px; }
@@ -85,9 +85,9 @@
     justify-content: space-between;
     align-items: center;
     font-size: 0.88rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
 
-    strong { color: v.$text-primary; }
+    strong { color: var(--app-text); }
   }
 }
 

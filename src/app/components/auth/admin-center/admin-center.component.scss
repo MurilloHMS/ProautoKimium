@@ -6,14 +6,14 @@
 .ac-content { @include m2.grid-screen-body; }
 
 :host {
-  --c-border:       1px solid #e9ecef;
+  --c-border:       1px solid var(--app-border);
   --c-radius:       10px;
-  --c-text:         #111827;
-  --c-muted:        #6b7280;
-  --c-surface:      #ffffff;
-  --c-edit-bg:      #eff6ff;
-  --c-edit-border:  #3b82f6;
-  --c-edit-text:    #1d4ed8;
+  --c-text:         var(--app-text);
+  --c-muted:        var(--app-text-muted);
+  --c-surface:      var(--app-surface);
+  --c-edit-bg:      var(--app-action-soft);
+  --c-edit-border:  var(--app-action);
+  --c-edit-text:    var(--app-action);
 }
 
 // ─── Conteudo ───────────────────────────────────────────────────────────────
@@ -38,7 +38,7 @@
   align-items: center;
   gap: 5px;
   font-size: 13px;
-  color: #059669;
+  color: var(--app-success);
   font-weight: 500;
 
   i { font-size: 12px; }
@@ -87,26 +87,42 @@
   font-weight: 600;
   margin: 2px 4px 2px 0;
   letter-spacing: .02em;
-  background: #f1f0e8;
-  color: #5f5e5a;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
 
-  &[data-role="ADMIN"]           { background: #fee2e2; color: #991b1b; }
-  &[data-role="USER"]            { background: #dbeafe; color: #1e40af; }
-  &[data-role="RH"]              { background: #d1fae5; color: #065f46; }
-  &[data-role="DEVELOPER"]       { background: #ede9fe; color: #5b21b6; }
-  &[data-role="VENDEDOR"]        { background: #fce7f3; color: #9d174d; }
-  &[data-role="ADMINISTRATIVO"]  { background: #e0e7ff; color: #3730a3; }
-  &[data-role="FINANCEIRO"]      { background: #fef3c7; color: #92400e; }
-  &[data-role="DESIGN"]          { background: #fbcfe8; color: #831843; }
-  &[data-role="MARKETING"]       { background: #ffe4e6; color: #9f1239; }
-  &[data-role="CONTRATOS"]       { background: #ccfbf1; color: #115e59; }
-  &[data-role="CLIENTE"]         { background: #cffafe; color: #155e75; }
-  &[data-role="PARCEIRO"]        { background: #fef9c3; color: #713f12; }
-  &[data-role="TECNICO"]         { background: #e0f2fe; color: #075985; }
-  &[data-role="COMPRADOR"]       { background: #f3e8ff; color: #6b21a8; }
-  &[data-role="MANUTENCAO"]      { background: #ffedd5; color: #9a3412; }
-  &[data-role="PRODUCAO"]        { background: #dcfce7; color: #166534; }
-  &[data-role="ALMOXARIFADO"]    { background: #f1f5f9; color: #334155; }
+  // Papel é categoria, não estado: dezesseis identidades, não cabem nos quatro
+  // tokens de status. Cada uma declara UM tom e o resto é derivado — antes
+  // eram dois valores por papel (pastel de fundo + escuro de texto), e o par
+  // pastel/escuro é justamente o que fica ilegível no tema escuro.
+  &[data-role] {
+    background: color-mix(in srgb, var(--role) 14%, transparent);
+    color: var(--role);
+  }
+
+  &[data-role="ADMIN"]           { --role: var(--app-danger); }
+  &[data-role="USER"]            { --role: var(--app-action); }
+  &[data-role="FINANCEIRO"]      { --role: var(--app-warning); }
+  &[data-role="RH"]              { --role: #0f9b6c; }
+  &[data-role="DEVELOPER"]       { --role: #7c5cd6; }
+  &[data-role="VENDEDOR"]        { --role: #d64d8a; }
+  &[data-role="ADMINISTRATIVO"]  { --role: #5561c9; }
+  &[data-role="DESIGN"]          { --role: #c43e79; }
+  &[data-role="MARKETING"]       { --role: #d9556b; }
+  &[data-role="CONTRATOS"]       { --role: #12907f; }
+  &[data-role="CLIENTE"]         { --role: #1f8ba8; }
+  &[data-role="PARCEIRO"]        { --role: #a8811f; }
+  &[data-role="TECNICO"]         { --role: #2b7fb8; }
+  &[data-role="COMPRADOR"]       { --role: #9450c4; }
+  &[data-role="MANUTENCAO"]      { --role: #c26a2b; }
+  &[data-role="PRODUCAO"]        { --role: #2f9349; }
+  &[data-role="ALMOXARIFADO"]    { --role: #64748b; }
+}
+
+// No fundo escuro o mesmo tom precisa clarear para manter contraste, e o
+// preenchimento precisa pesar um pouco mais.
+:host-context(.dark-mode) .ac-tag[data-role] {
+  background: color-mix(in srgb, var(--role) 22%, transparent);
+  color: color-mix(in srgb, var(--role) 55%, #fff);
 }
 
 // ─── Status ──────────────────────────────────────────────────────────────────
@@ -125,8 +141,8 @@
   }
 
   &.ac-status-blocked {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--app-danger-soft);
+    color: var(--app-danger);
   }
 
   i { font-size: 12px; }

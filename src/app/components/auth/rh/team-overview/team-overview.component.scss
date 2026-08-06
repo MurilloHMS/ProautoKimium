@@ -33,7 +33,7 @@
 
   &--available {
     background: color-mix(in srgb, var(--app-success) 16%, transparent);
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 
   &--vacation {
@@ -43,13 +43,13 @@
 
   &--scheduled {
     background: color-mix(in srgb, var(--app-action) 10%, transparent);
-    color: v.$primary;
+    color: var(--app-action);
   }
 }
 
 .to-state {
   padding: 40px 0;
-  color: #6b7492;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
@@ -70,11 +70,11 @@
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
-    color: v.$primary;
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
 }
 
 .team-grid {
@@ -88,7 +88,7 @@
   align-items: center;
   gap: 14px;
   padding: 18px;
-  background: #ffffff;
+  background: var(--app-surface);
   border: 1px solid #e6e9f0;
   border-left: 4px solid #cbd3e1;
   border-radius: 14px;
@@ -98,16 +98,16 @@
     box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 8%, transparent);
   }
 
-  &--available { border-left-color: v.$secondary; }
+  &--available { border-left-color: var(--app-success); }
   &--on_vacation { border-left-color: #f6ad55; }
-  &--vacation_scheduled { border-left-color: v.$primary; }
+  &--vacation_scheduled { border-left-color: var(--app-action); }
 
   &__avatar {
     flex-shrink: 0;
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: linear-gradient(135deg, v.$primary, v.$secondary);
+    background: linear-gradient(135deg, var(--app-action), var(--app-success));
     color: #fff;
     display: flex;
     align-items: center;
@@ -127,7 +127,7 @@
   &__name {
     font-family: v.$font-heading;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     font-size: 0.95rem;
   }
 
@@ -155,7 +155,7 @@
 
   &--available {
     background: color-mix(in srgb, var(--app-success) 16%, transparent);
-    color: v.$secondary-dark;
+    color: var(--app-success);
   }
 
   &--on_vacation {
@@ -165,11 +165,11 @@
 
   &--vacation_scheduled {
     background: color-mix(in srgb, var(--app-action) 10%, transparent);
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &--contract {
     background: #f1f3f8;
-    color: #6b7492;
+    color: var(--app-text-muted);
   }
 }

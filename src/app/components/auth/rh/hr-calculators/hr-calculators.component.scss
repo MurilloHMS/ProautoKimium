@@ -16,9 +16,9 @@
     gap: 8px;
     padding: 10px 18px;
     border-radius: 12px;
-    border: 1px solid v.$border;
-    background: v.$bg-panel;
-    color: v.$text-muted;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-muted);
     font-weight: 600;
     font-size: 0.88rem;
     cursor: pointer;
@@ -28,11 +28,11 @@
 
     &:hover {
       border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
-      color: v.$primary;
+      color: var(--app-action);
     }
 
     &--active {
-      background: linear-gradient(135deg, v.$primary, v.$secondary);
+      background: linear-gradient(135deg, var(--app-action), var(--app-success));
       border-color: transparent;
       color: #ffffff;
       box-shadow: 0 8px 20px color-mix(in srgb, var(--app-action) 20%, transparent);
@@ -57,22 +57,22 @@
     white-space: nowrap;
     padding: 7px 16px;
     border-radius: 100px;
-    border: 1px solid v.$border;
-    background: v.$bg-panel;
-    color: v.$text-muted;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-muted);
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.18s ease;
 
     &:hover {
-      border-color: v.$secondary;
-      color: v.$secondary-dark;
+      border-color: var(--app-success);
+      color: var(--app-success);
     }
 
     &--active {
-      background: v.$primary;
-      border-color: v.$primary;
+      background: var(--app-action);
+      border-color: var(--app-action);
       color: #fff;
 
       &:hover { color: #fff; }
@@ -82,8 +82,8 @@
 
 // ─── Card ────────────────────────────────────────────────────────────────────
 .calc-card {
-  background: v.$bg-panel;
-  border: 1px solid v.$border;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 16px;
   padding: 24px;
 }
@@ -123,10 +123,10 @@
   label {
     font-size: .8rem;
     font-weight: 600;
-    color: v.$neutral-900;
+    color: var(--app-text);
   }
 
-  .required { color: v.$danger; }
+  .required { color: var(--app-danger); }
 }
 
 .calc-actions {
@@ -134,7 +134,7 @@
   justify-content: flex-end;
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px solid v.$border;
+  border-top: 1px solid var(--app-border);
 }
 
 // ─── Single-employee result ──────────────────────────────────────────────────
@@ -142,7 +142,7 @@
   margin-top: 20px;
   padding: 18px 20px;
   border-radius: 12px;
-  background: v.$bg-base;
+  background: var(--app-bg);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -152,17 +152,17 @@
     justify-content: space-between;
     align-items: center;
     font-size: 0.88rem;
-    color: v.$text-muted;
+    color: var(--app-text-muted);
 
-    strong { color: v.$text-primary; }
+    strong { color: var(--app-text); }
 
     &--total {
       padding-top: 10px;
       margin-top: 4px;
-      border-top: 1px dashed v.$neutral-300;
+      border-top: 1px dashed var(--app-border);
       font-size: 0.98rem;
 
-      strong { color: v.$primary; font-size: 1.05rem; }
+      strong { color: var(--app-action); font-size: 1.05rem; }
     }
   }
 }
@@ -173,7 +173,7 @@
   gap: 8px;
   margin-top: 14px;
   font-size: 0.8rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
 
   i { margin-top: 2px; }
 }
@@ -188,7 +188,7 @@
 }
 
 .company-group {
-  border: 1px solid v.$border;
+  border: 1px solid var(--app-border);
   border-radius: 12px;
   overflow: hidden;
 
@@ -197,13 +197,13 @@
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
-    background: v.$bg-base;
+    background: var(--app-bg);
     font-size: 0.88rem;
     font-weight: 600;
-    color: v.$neutral-700;
+    color: var(--app-text);
 
-    i { color: v.$primary; font-size: 0.9rem; }
-    strong { margin-left: auto; color: v.$primary; }
+    i { color: var(--app-action); font-size: 0.9rem; }
+    strong { margin-left: auto; color: var(--app-action); }
   }
 
   &__table-wrap {
@@ -220,22 +220,22 @@
       text-align: left;
       font-weight: 600;
       font-size: 0.76rem;
-      color: v.$text-muted;
+      color: var(--app-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      border-bottom: 1px solid v.$border;
-      background: v.$bg-panel;
+      border-bottom: 1px solid var(--app-border);
+      background: var(--app-surface);
     }
 
     td {
       padding: 10px 14px;
-      color: v.$neutral-700;
-      border-bottom: 1px solid color-mix(in srgb, v.$border 50%, transparent);
+      color: var(--app-text);
+      border-bottom: 1px solid color-mix(in srgb, var(--app-border) 50%, transparent);
     }
 
     tbody tr:last-child td { border-bottom: none; }
 
-    tbody tr:hover td { background: v.$bg-hover; }
+    tbody tr:hover td { background: var(--app-surface-2); }
   }
 }
 
@@ -244,13 +244,13 @@
 .mono {
   font-family: v.$font-mono;
   font-size: 0.8rem;
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   letter-spacing: 0.02em;
 }
 
 .total-cell {
   font-weight: 600;
-  color: v.$primary !important;
+  color: var(--app-action) !important;
 }
 
 // ─── Grand total bar ─────────────────────────────────────────────────────────
@@ -260,7 +260,7 @@
   align-items: center;
   padding: 14px 18px;
   border-radius: 10px;
-  background: linear-gradient(135deg, v.$primary, v.$primary-light);
+  background: linear-gradient(135deg, var(--app-action), var(--app-action));
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.92rem;
   font-weight: 600;
@@ -284,12 +284,12 @@
   .p-select {
     width: 100%;
     height: 38px;
-    border-radius: v.$radius-sm;
-    border: 1px solid v.$border;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--app-border);
     font-size: .85rem;
 
     &:focus-within {
-      border-color: v.$primary-light;
+      border-color: var(--app-action);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
     }
   }

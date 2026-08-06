@@ -17,7 +17,7 @@
 
     .header-icon {
         font-size: 1.8rem;
-        background: linear-gradient(135deg, v.$primary, v.$secondary);
+        background: linear-gradient(135deg, var(--app-action), var(--app-success));
         width: 54px;
         height: 54px;
         border-radius: 14px;
@@ -157,7 +157,7 @@ input {
   }
 
   &.btn-primary {
-    background: linear-gradient(135deg, v.$secondary, v.$primary);
+    background: linear-gradient(135deg, var(--app-success), var(--app-action));
     color: #fff;
 
     &:hover:not(:disabled) {
