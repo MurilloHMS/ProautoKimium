@@ -24,14 +24,13 @@
     background: transparent;
   }
 
+  // `.quick-card`, `.notif-panel`, `.doc-card`, `.kpi` e `.cal` saíram daqui:
+  // home, painel de RH e documentos já pintam a própria superfície com token.
+  // `.card` e `.header-icon` ficam — aparecem em onze telas, e várias ainda
+  // têm cor cravada (inventário, holerite, guia, candidaturas, contatos).
   .card,
   .table-card,
-  .filter-section,
-  .quick-card,
-  .notif-panel,
-  .doc-card,
-  .kpi,
-  .cal {
+  .filter-section {
     background: var(--app-surface);
     border-color: var(--app-border);
   }

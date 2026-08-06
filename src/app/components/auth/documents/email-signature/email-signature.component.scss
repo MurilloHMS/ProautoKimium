@@ -1,16 +1,12 @@
 @use 'variables' as v;
 
-$red-100: #fef2f2;
-$red-300: #fecaca;
-$red-500: #ef4444;
-$red-600: #dc2626;
 
 .page-wrapper {
     min-height: 100vh;
-    background: #f0f2f5;
+    background: var(--app-bg);
     padding: 2rem;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: #1a1a2e;
+    color: var(--app-text);
 }
 
 .page-header {
@@ -39,7 +35,7 @@ $red-600: #dc2626;
     }
 
     p {
-        color: v.$neutral-500;
+        color: var(--app-text-muted);
         font-size: 0.875rem;
         margin-top: 2px;
     }
@@ -57,7 +53,7 @@ $red-600: #dc2626;
 }
 
 .card {
-    background: #fff;
+    background: var(--app-surface);
     border-radius: 16px;
     padding: 1.75rem;
     box-shadow:
@@ -68,10 +64,10 @@ $red-600: #dc2626;
 .card-title {
   font-size: 0.95rem;
   font-weight: 600;
-  color: v.$neutral-700;
+  color: var(--app-text);
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid v.$neutral-300;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .form-group {
@@ -92,7 +88,7 @@ label {
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
-  color: v.$neutral-700;
+  color: var(--app-text);
   margin-bottom: 0.4rem;
   letter-spacing: 0.01em;
 }
@@ -100,25 +96,25 @@ label {
 input {
   width: 100%;
   padding: 0.58rem 0.85rem;
-  border: 1.5px solid v.$neutral-300;
+  border: 1.5px solid var(--app-border);
   border-radius: 8px;
   font-size: 0.875rem;
-  color: v.$neutral-900;
-  background: #fff;
+  color: var(--app-text);
+  background: var(--app-surface);
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 
   &::placeholder {
-    color: v.$neutral-400;
+    color: var(--app-text-subtle);
   }
 
   &:focus {
-    border-color: v.$primary;
+    border-color: var(--app-action);
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
   }
 
   &.invalid {
-    border-color: $red-500;
+    border-color: var(--app-danger);
 
     &:focus {
       box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
@@ -128,7 +124,7 @@ input {
 
 .error {
   font-size: 0.74rem;
-  color: $red-600;
+  color: var(--app-danger);
   margin-top: 0.25rem;
   display: block;
 }
@@ -173,11 +169,11 @@ input {
 
   &.btn-outline {
     background: transparent;
-    color: v.$primary;
-    border: 1.5px solid v.$primary;
+    color: var(--app-action);
+    border: 1.5px solid var(--app-action);
 
     &:hover:not(:disabled) {
-      background: #f5f3ff;
+      background: var(--app-action-soft);
     }
   }
 
@@ -214,8 +210,8 @@ input {
 .preview-area {
   flex: 1;
   min-height: 260px;
-  background: v.$neutral-100;
-  border: 2px dashed v.$neutral-300;
+  background: var(--app-surface-3);
+  border: 2px dashed var(--app-border);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -225,7 +221,7 @@ input {
 
 .preview-placeholder {
   text-align: center;
-  color: v.$neutral-400;
+  color: var(--app-text-subtle);
   padding: 2rem;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -241,7 +237,7 @@ input {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  color: v.$primary;
+  color: var(--app-action);
   font-size: 0.9rem;
 }
 
@@ -249,8 +245,8 @@ input {
 .loader {
   width: 36px;
   height: 36px;
-  border: 3px solid v.$neutral-300;
-  border-top-color: v.$primary;
+  border: 3px solid var(--app-border);
+  border-top-color: var(--app-action);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
