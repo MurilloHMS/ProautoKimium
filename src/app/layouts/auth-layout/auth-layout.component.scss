@@ -30,13 +30,10 @@
   display: none;
 }
 
-// Por padrão a tela rola por inteiro. Telas de grade desligam isso via o mixin
-// `grid-screen` e deixam a rolagem para a própria tabela.
-.app-content > *:not(router-outlet) {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-}
+// Por padrão a tela rola por inteiro; telas de grade desligam isso via o mixin
+// `grid-screen`. A regra NÃO pode morar aqui: a tela vem do `router-outlet` e
+// não carrega o `_ngcontent` deste componente, então o seletor encapsulado
+// nunca casaria com ela. Está em `styles/_shell.scss`.
 
 // No desktop entra a barra de abas entre a topbar e o conteúdo.
 @media (min-width: v.$bp-md) {
