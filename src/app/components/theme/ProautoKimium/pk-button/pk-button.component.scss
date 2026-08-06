@@ -1,91 +1,132 @@
 @use 'variables' as v;
 
-.pk-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: v.$font-heading !important;
-  font-weight: 600 !important;
-  border-radius: v.$radius-sm !important;
-  border: 1px solid transparent !important;
-  cursor: pointer !important;
+// ═══════════════════════════════════════════════════════════════════════════
+// Botão do sistema — cor por HIERARQUIA, não por tipo de ação.
+//
+// Antes cada pkType tinha sua cor: navy em novo/salvar, teal em enviar/baixar,
+// contorno teal em atualizar. Com isso a tela ficava com três cores disputando
+// atenção e nenhuma sinalizando "isto é o principal".
+//
+// Agora:
+//   primária    navy sólido      a ação que a tela existe para fazer
+//   secundária  contorno neutro  ações de apoio (atualizar, filtrar, cancelar)
+//   destrutiva  vermelho         excluir
+//
+// O pkType continua definindo ícone e rótulo padrão — só a cor deixou de
+// depender dele.
+//
+// Sem !important: o seletor de host já dá especificidade suficiente sobre o
+// tema do PrimeNG, que é injetado em runtime sem camada de cascata.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:host .pk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-family: v.$font-body;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
   transition: background v.$transition-base, border-color v.$transition-base,
-  box-shadow v.$transition-base !important;
-  white-space: nowrap !important;
+              color v.$transition-base, opacity v.$transition-base;
 
   &:focus-visible {
-    outline: none !important;
-    box-shadow: v.$shadow-focus-primary !important;
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   // ── Tamanhos ──────────────────────────────────────────────────────────────
-  &--sm { font-size: v.$font-size-xs !important; padding: .3rem .7rem !important;  height: 1.9rem !important;  }
-  &--md { font-size: v.$font-size-sm !important; padding: .45rem 1rem !important;  height: 2.25rem !important; }
-  &--lg { font-size: v.$font-size-base !important; padding: .6rem 1.4rem !important; height: 2.75rem !important; }
+  &--sm { height: var(--btn-h-sm); padding: 0 10px; font-size: var(--text-ui-sm); }
+  &--md { height: var(--btn-h-md); padding: 0 14px; font-size: var(--text-ui); }
+  &--lg { height: var(--btn-h-lg); padding: 0 20px; font-size: v.$font-size-md; }
 
-  // ── Tipos — mesmos tokens do buttons.scss global ──────────────────────────
+  // ── Primária: a ação principal da tela ───────────────────────────────────
+  &--new,
+  &--save,
+  &--send,
+  &--upload {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
 
-  &--new, &--save {
-    background: v.$primary !important;
-    border-color: v.$primary !important;
-    color: v.$white !important;
     &:hover:not(:disabled) {
-      background: v.$primary-dark !important;
-      border-color: v.$primary-dark !important;
+      background: var(--app-action-hover);
+      border-color: var(--app-action-hover);
     }
   }
 
-  &--edit, &--filter , &--home, &--token {
-    background: transparent !important;
-    border-color: v.$primary !important;
-    color: v.$primary !important;
+  // ── Secundária: apoio ────────────────────────────────────────────────────
+  // `token` mora aqui: gerar token é utilitário administrativo, não a ação
+  // principal de nenhuma tela — duas primárias lado a lado competem entre si.
+  &--edit,
+  &--filter,
+  &--home,
+  &--refresh,
+  &--cancel,
+  &--download,
+  &--excel,
+  &--token {
+    background: var(--app-surface);
+    border-color: var(--app-border-strong);
+    color: var(--app-text);
+
     &:hover:not(:disabled) {
-      background: v.$primary !important;
-      color: v.$white !important;
+      background: var(--app-surface-2);
+      border-color: var(--app-action);
+      color: var(--app-action);
     }
   }
 
+  // ── Destrutiva ───────────────────────────────────────────────────────────
   &--delete {
-    background: transparent !important;
-    border-color: v.$danger !important;
-    color: v.$danger !important;
+    background: var(--app-surface);
+    border-color: var(--app-danger);
+    color: var(--app-danger);
+
     &:hover:not(:disabled) {
-      background: v.$danger !important;
-      color: v.$white !important;
+      background: var(--app-danger);
+      color: #fff;
     }
   }
 
-  &--refresh, &--cancel {
-    background: transparent !important;
-    border-color: v.$secondary !important;
-    color: v.$primary !important;
-    &:hover:not(:disabled) {
-      background: v.$secondary-light !important;
-      border-color: v.$secondary !important;
-    }
+  // ── Estados ──────────────────────────────────────────────────────────────
+  &--loading {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
   }
 
-  &--upload, &--download, &--excel, &--send{
-    background: v.$secondary !important;
-    border-color: v.$secondary !important;
-    color: v.$white !important;
-    &:hover:not(:disabled) {
-      background: v.$secondary-dark !important;
-      border-color: v.$secondary-dark !important;
-    }
-    &:focus-visible {
-      box-shadow: v.$shadow-focus-secondary !important;
-    }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
   }
-
-  // ── Estados ───────────────────────────────────────────────────────────────
-  &--loading { opacity: .75 !important; cursor: wait !important; pointer-events: none !important; }
-
-  &:disabled { opacity: .5 !important; cursor: not-allowed !important; pointer-events: none !important; }
 
   &--icon-only {
-    &.pk-btn--sm { width: 1.9rem !important;  padding: 0 !important; }
-    &.pk-btn--md { width: 2.25rem !important; padding: 0 !important; }
-    &.pk-btn--lg { width: 2.75rem !important; padding: 0 !important; }
+    padding: 0;
+
+    &.pk-btn--sm { width: var(--btn-h-sm); }
+    &.pk-btn--md { width: var(--btn-h-md); }
+    &.pk-btn--lg { width: var(--btn-h-lg); }
+  }
+
+  .p-button-icon {
+    font-size: var(--text-ui-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host .pk-btn {
+    transition: none;
+
+    &:active:not(:disabled) { transform: none; }
   }
 }

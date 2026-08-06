@@ -7,12 +7,74 @@
 @use 'tables';
 @use 'chips';
 
-:host { @include m.page-layout; }
+// Tela de grade: toolbar, abas de status e grade ocupando o resto da altura.
+:host { @include m.grid-screen; }
 
 .page-content {
+  @include m.grid-screen;
+}
+
+.tabela-section {
+  @include m.grid-screen-body;
+}
+
+// Abas de status no mesmo desenho do seletor da Estrutura Organizacional:
+// sublinhado na cor de ação, sem pílula colorida.
+.tabs-nav {
+  flex: 0 0 auto;
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  gap: 2px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.tab-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  height: 38px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-family: v.$font-body;
+  font-weight: 600;
+  font-size: var(--text-ui);
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); color: var(--app-text); }
+
+  &--active {
+    color: var(--app-action);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--app-action);
+    }
+  }
+}
+
+.tab-badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  text-align: center;
 }
 
 // ── Header ────────────────────────────────────────────────────────────────────

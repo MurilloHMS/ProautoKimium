@@ -1,7 +1,7 @@
 import {Component, computed, input, output, viewChild} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {FileSelectEvent, FileUpload, FileUploadModule} from "primeng/fileupload";
-import {PkButtonComponent, PkButtonType} from "../pk-button/pk-button.component";
+import {PkButtonComponent, PkButtonSize, PkButtonType} from "../pk-button/pk-button.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 export type PkUploadMode = 'button' | 'dropzone' | 'both';
@@ -29,6 +29,8 @@ export class PkFileUploadComponent {
   // ── Labels / textos ─────────────────────────────────────
   chooseLabel = input<string>('Selecionar Arquivo');
   chooseType = input<PkButtonType>('upload');
+  /** Tamanho do botão — `sm` para caber numa toolbar junto dos demais. */
+  chooseSize = input<PkButtonSize>('md');
   dropTitle = input<string>('Arraste e solte o arquivo aqui');
   dropHint = input<string>('');
   fileIcon = input<string>('pi pi-file');

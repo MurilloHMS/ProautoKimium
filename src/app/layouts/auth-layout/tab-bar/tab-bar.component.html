@@ -1,0 +1,91 @@
+@if (tabs.enabled() && tabs.tabs().length > 0) {
+  <div class="tab-bar">
+    <div class="tab-bar__list" role="tablist">
+      @for (tab of tabs.tabs(); track tab.url) {
+        <div class="tab" [class.is-active]="tab.url === tabs.activeUrl()">
+          <button type="button"
+                  class="tab__main"
+                  role="tab"
+                  [attr.aria-selected]="tab.url === tabs.activeUrl()"
+                  [title]="tab.label"
+                  (click)="tabs.activate(tab)"
+                  (auxclick)="onAuxClick($event, tab)">
+            <i class="tab__icon" [class]="tab.icon"></i>
+            <span class="tab__label">{{ tab.label }}</span>
+
+            @if (tabs.isDirty(tab.url)) {
+              <span class="tab__dirty" title="Alterações não salvas"></span>
+            }
+          </button>
+
+          <button type="button"
+                  class="tab__close"
+                  [attr.aria-label]="'Fechar ' + tab.label"
+                  (click)="requestClose(tab)">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (tabs.hasMany()) {
+      <div class="tab-bar__menu">
+        <button type="button"
+                class="tab-bar__menu-btn"
+                aria-label="Ações das abas"
+                [attr.aria-expanded]="menuOpen()"
+                (click)="menuOpen.set(!menuOpen())">
+          <i class="pi pi-ellipsis-h"></i>
+        </button>
+
+        @if (menuOpen()) {
+          <div class="tab-bar__dropdown" role="menu">
+            <button type="button" role="menuitem" (click)="requestCloseOthers()">
+              <i class="pi pi-times-circle"></i> Fechar as outras
+            </button>
+            <button type="button" role="menuitem" (click)="requestCloseAll()">
+              <i class="pi pi-trash"></i> Fechar todas
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Confirmação de alteração não salva -->
+@if (pending(); as close) {
+  <div class="confirm-backdrop" (click)="cancelClose()"></div>
+
+  <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="confirm__icon"><i class="pi pi-exclamation-triangle"></i></div>
+
+    <h2 class="confirm__title" id="confirm-title">Alterações não salvas</h2>
+
+    <p class="confirm__text">
+      @switch (close.kind) {
+        @case ('one') {
+          Esta tela tem um formulário preenchido que ainda não foi salvo.
+          Fechar a aba descarta o que você digitou.
+        }
+        @case ('others') {
+          {{ close.dirtyCount === 1
+              ? 'Uma das outras abas tem um formulário preenchido que ainda não foi salvo.'
+              : close.dirtyCount + ' das outras abas têm formulários preenchidos que ainda não foram salvos.' }}
+          Fechar descarta o que foi digitado.
+        }
+        @case ('all') {
+          {{ close.dirtyCount === 1
+              ? 'Uma aba tem um formulário preenchido que ainda não foi salvo.'
+              : close.dirtyCount + ' abas têm formulários preenchidos que ainda não foram salvos.' }}
+          Fechar todas descarta o que foi digitado.
+        }
+      }
+    </p>
+
+    <div class="confirm__actions">
+      <button type="button" class="confirm__btn" (click)="cancelClose()">Continuar editando</button>
+      <button type="button" class="confirm__btn confirm__btn--danger" (click)="confirmClose()">Fechar mesmo assim</button>
+    </div>
+  </div>
+}

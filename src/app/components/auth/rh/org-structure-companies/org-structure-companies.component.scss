@@ -1,3 +1,18 @@
+@use 'mixins' as m;
+
+// Tela de grade dentro da Estrutura Organizacional.
+:host { @include m.grid-screen; }
+
+.table-card { @include m.grid-screen-body; }
+
+// No modo formulário quem rola é o formulário.
+app-form-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 12px;
+}
+
 .section-actions {
   display: flex;
   justify-content: flex-end;

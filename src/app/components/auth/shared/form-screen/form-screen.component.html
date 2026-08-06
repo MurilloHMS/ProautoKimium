@@ -1,0 +1,24 @@
+<section class="form-screen">
+
+  <header class="form-screen__head">
+    <button type="button" class="form-screen__back" aria-label="Voltar" (click)="back.emit()">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+
+    <div class="form-screen__titles">
+      <h1 class="form-screen__title">{{ title() }}</h1>
+      @if (subtitle()) {
+        <p class="form-screen__subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+  </header>
+
+  <div class="form-screen__body" [class.form-screen__body--wide]="width() === 'wide'">
+    <ng-content />
+  </div>
+
+  <footer class="form-screen__footer">
+    <ng-content select="[formActions]" />
+  </footer>
+
+</section>

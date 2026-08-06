@@ -1,3 +1,5 @@
+@if (mode() === 'grid') {
+
 <p-toast position="top-right" />
 
 <div class="painel-wrapper">
@@ -163,17 +165,13 @@
   </div>
 </div>
 
-<!-- Create / Edit Dialog -->
-<p-dialog
-  [(visible)]="dialogVisible"
-  [header]="editingItem ? 'Editar Pergunta' : 'Nova Pergunta'"
-  [modal]="true"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="dialog faq-dialog"
-  [style]="{ width: '560px' }"
-  (onHide)="resetForm()"
->
+
+}
+@if (mode() === 'form') {
+<app-form-screen
+  [title]="editingItem ? 'Editar Pergunta' : 'Nova Pergunta'"
+  subtitle="Pergunta exibida na página pública de FAQ"
+  (back)="closeForm()">
   <div class="edit-form">
     <div class="form-section">
 
@@ -224,20 +222,11 @@
     </div>
   </div>
 
-  <ng-template pTemplate="footer">
-    <p-button
-      label="Cancelar"
-      icon="pi pi-times"
-      severity="secondary"
-      [text]="true"
-      (onClick)="dialogVisible = false"
-    />
-    <p-button
-      [label]="editingItem ? 'Salvar Alterações' : 'Criar Pergunta'"
-      [icon]="saving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
-      class="save-btn"
-      [loading]="saving"
-      (onClick)="save()"
-    />
-  </ng-template>
-</p-dialog>
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeForm()"/>
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="editingItem ? 'Salvar Alterações' : 'Criar Pergunta'"
+               [pkLoading]="saving" (clicked)="save()"/>
+  </div>
+</app-form-screen>
+}

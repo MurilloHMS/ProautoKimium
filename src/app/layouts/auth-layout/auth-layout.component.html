@@ -2,8 +2,14 @@
 
 <app-nav-drawer [open]="drawerOpen()" (closed)="drawerOpen.set(false)" />
 
+<app-tab-bar />
+
 <main class="app-content">
-  <router-outlet />
+  <!-- A tela em foco não está guardada no TabHandleStore: é por aqui que o
+       serviço de abas alcança a instância dela para checar formulário sujo. -->
+  <router-outlet
+    (activate)="tabs.setActiveComponent($event)"
+    (deactivate)="tabs.setActiveComponent(null)" />
 </main>
 
 <app-bottom-nav />

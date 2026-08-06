@@ -1,33 +1,31 @@
-<div class="painel-wrapper">
-  <p-toast position="top-right"></p-toast>
+<p-toast position="top-right"></p-toast>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-briefcase"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Funcionários</h1>
-        <p class="page-subtitle">Gerencie os colaboradores e suas hierarquias</p>
-      </div>
+@if (mode() === 'grid') {
+<div class="painel-wrapper">
+
+  <app-toolbar>
+    <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Funcionário" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="loadEmployes()" pkLabel="Atualizar" pkSize="sm"/>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar funcionário…"
+             aria-label="Buscar funcionários"
+             (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
-    <div class="header-actions">
-      <pk-button pkType="refresh" (clicked)="loadEmployes()" pkLabel="Atualizar" pkSize="sm"/>
-      <pk-button pkType="new" (clicked)="showDialog()" pkLabel="Novo Funcionário" pkSize="sm"/>
-    </div>
-  </div>
+  </app-toolbar>
 
   <!-- Indicador de vínculo usuário/funcionário -->
-  <div class="link-status" *ngIf="employes.length > 0"
+  <div class="link-status" *ngIf="employes().length > 0"
        [ngClass]="unlinkedCount > 0 ? 'link-status--warn' : 'link-status--ok'">
     <i class="pi" [ngClass]="unlinkedCount > 0 ? 'pi-exclamation-triangle' : 'pi-check-circle'"></i>
     <span *ngIf="unlinkedCount > 0">
-      <strong>{{ unlinkedCount }}</strong> de {{ employes.length }} funcionário{{ employes.length > 1 ? 's' : '' }}
+      <strong>{{ unlinkedCount }}</strong> de {{ employes().length }} funcionário{{ employes().length > 1 ? 's' : '' }}
       sem usuário vinculado
     </span>
     <span *ngIf="unlinkedCount === 0">
-      Todos os {{ employes.length }} funcionários estão vinculados a um usuário
+      Todos os {{ employes().length }} funcionários estão vinculados a um usuário
     </span>
   </div>
 
@@ -35,10 +33,10 @@
   <div class="table-card">
 
     <pk-table
-      [data]="employes"
-      [loading]="loading"
-      totalLabel="funcionários encontrados"
-      searchPlaceholder="Buscar por nome, email, código…"
+      #grid
+      [showCaption]="false"
+      [data]="employes()"
+      [loading]="loading()"
       [filterFields]="['name', 'email', 'partnerCode', 'hierarchy', 'positionName', 'contractType']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum funcionário encontrado"
@@ -158,16 +156,21 @@
       </ng-template>
 
     </pk-table>
+  </div>
 </div>
-<!-- Dialog -->
+}
 
-<pk-dialog
-  [header]="dialogTitle"
-  [visible]="visible"
-  (visibleChange)="visible = $event">
+<!-- MODO FORMULÁRIO: cadastro e edição de funcionário -->
+@if (mode() === 'form') {
 
-  <div pkDialogContent>
-    <form [formGroup]="form" (ngSubmit)="save()" class="dialog-form">
+<app-form-screen
+  [title]="dialogTitle"
+  subtitle="Dados cadastrais, vínculo organizacional e cargo inicial"
+  width="wide"
+  (back)="closeForm()">
+
+  <div>
+    <form [formGroup]="form" (ngSubmit)="save()">
 
       <!-- Identificação -->
       <div class="pk-form-section">
@@ -227,7 +230,7 @@
           </div>
           <div class="form-field">
             <label for="birthday">Aniversário</label>
-            <p-datepicker
+            <p-datepicker appendTo="body"
               formControlName="birthday"
               [showButtonBar]="true"
               [dateFormat]="'dd/mm/yy'"
@@ -300,7 +303,7 @@
             <label for="companyId">Empresa <span class="required">*</span></label>
             <p-select
               id="companyId"
-              [options]="companyOptions"
+              [options]="companyOptions()"
               formControlName="companyId"
               optionLabel="label"
               optionValue="value"
@@ -314,7 +317,7 @@
             <label for="teamId">Setor <span class="required">*</span></label>
             <p-select
               id="teamId"
-              [options]="teamOptions"
+              [options]="teamOptions()"
               formControlName="teamId"
               optionLabel="label"
               optionValue="value"
@@ -472,7 +475,7 @@
             <label for="positionId">Cargo <span class="required">*</span></label>
             <p-select
               id="positionId"
-              [options]="positionOptions"
+              [options]="positionOptions()"
               formControlName="positionId"
               optionLabel="label"
               optionValue="value"
@@ -509,7 +512,7 @@
           </div>
           <div class="form-field">
             <label for="hiringDate">Data de admissão <span class="required">*</span></label>
-            <p-datepicker
+            <p-datepicker appendTo="body"
               id="hiringDate"
               formControlName="hiringDate"
               [showButtonBar]="true"
@@ -539,12 +542,13 @@
     </form>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="visible = false" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
   </div>
 
-</pk-dialog>
+</app-form-screen>
+}
 
 <!-- Dialog de vínculo usuário <-> funcionário -->
 <pk-dialog
@@ -668,4 +672,3 @@
                [pkDisabled]="careerForm.invalid" [pkLoading]="careerSaving"/>
   </div>
 </pk-dialog>
-</div>

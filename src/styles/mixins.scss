@@ -10,6 +10,38 @@
   }
 }
 
+// Tela de grade: cabeçalho fixo em cima, tabela ocupando o resto da altura e
+// rolando por dentro. Sem padding lateral — a grade encosta nas margens da
+// área de trabalho, como em ERP.
+@mixin grid-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+}
+
+// Cabeçalho de uma tela de grade (título e ações), que não rola com a tabela.
+@mixin grid-screen-head {
+  flex: 0 0 auto;
+  padding: 16px 20px 12px;
+  margin-bottom: 0;
+}
+
+// Área da tabela dentro de uma tela de grade. Anula a aparência de cartão:
+// aqui a grade é a superfície da tela.
+@mixin grid-screen-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+
 @mixin card-base {
   background: v.$bg-panel;
   border: 1px solid v.$border;

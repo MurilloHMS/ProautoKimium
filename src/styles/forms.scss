@@ -1,17 +1,33 @@
 @use 'variables' as v;
 
+/* ===========================================================================
+   Formulários fora do pk-input — telas que ainda usam label + controle soltos.
+   Mesmos tokens dos componentes, para não destoarem lado a lado.
+   =========================================================================== */
+
 .edit-form {
-  padding: .5rem 1.5rem 1rem;
+  padding: 8px 16px 16px;
 }
 
 .form-section {
-  margin-bottom: .5rem;
+  margin-bottom: 8px;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 14px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Formulário grande (funcionário, perfil): em vez de duas colunas fixas,
+// encaixa quantas couberem. Combinado com `width="wide"` no form-screen, dá
+// três por linha no monitor e volta a duas ou uma quando o espaço aperta.
+.form-grid--auto {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -21,20 +37,234 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: .35rem;
+  gap: 5px;
 
-  &.field-full {
+  &.field-full,
+  &.form-field--full {
     grid-column: 1 / -1;
   }
 
   label {
-    font-size: .82rem;
+    font-family: v.$font-body;
+    font-size: var(--text-ui-sm);
     font-weight: 600;
-    color: v.$primary;
+    color: var(--app-text-muted);
 
-    .required    { color: v.$danger; margin-left: 2px; }
-    .label-hint  { font-weight: 400; color: v.$primary; font-size: .75rem; }
+    .required   { color: var(--app-danger); margin-left: 2px; }
+    .label-hint { font-weight: 400; color: var(--app-text-subtle); font-size: var(--text-micro); }
   }
 
-  input, textarea { width: 100%; font-size: .88rem; }
+  /* Campos crus (sem pk-input) precisam do mesmo desenho, senão ficam com o
+     padrão do navegador ao lado dos componentes do design system. */
+  input:not([type='file']):not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 11px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface-2);
+    color: var(--app-text);
+    font-family: inherit;
+    font-size: var(--text-ui);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+
+    &::placeholder { color: var(--app-text-subtle); }
+
+    &:focus {
+      outline: none;
+      border-color: var(--app-action);
+      background: var(--app-surface);
+      box-shadow: var(--app-focus-ring);
+    }
+
+    &:disabled { opacity: .55; cursor: not-allowed; }
+  }
+
+  input:not([type='file']):not([type='checkbox']):not([type='radio']),
+  select {
+    height: var(--field-h);
+  }
+
+  textarea {
+    min-height: 72px;
+    padding: 8px 11px;
+    line-height: 1.5;
+    resize: vertical;
+  }
+
+  .field-error {
+    font-size: var(--text-micro);
+    color: var(--app-danger);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Select e datepicker do PrimeNG usados soltos nas telas (styleClass).
+   Sem isto eles ficam na altura e no raio padrão do PrimeNG, desalinhados dos
+   campos do design system que estão ao lado.
+   --------------------------------------------------------------------------- */
+
+/* A largura total é coisa de formulário: dentro da toolbar o controle tem que
+   ocupar só o necessário, senão empurra a busca para a linha de baixo. */
+.form-field > .select-field,
+.form-field > .datepicker-field {
+    width: 100%;
+}
+
+.select-field,
+.datepicker-field {
+    min-height: var(--field-h);
+    border-radius: var(--radius-control);
+    font-size: var(--text-ui);
+}
+
+.select-field {
+    display: inline-flex;
+    align-items: center;
+    height: var(--field-h);
+    border: 1px solid var(--app-border);
+    background: var(--app-surface-2);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+
+    .p-select-label {
+        display: flex;
+        align-items: center;
+        padding: 0 11px;
+        font-size: var(--text-ui);
+        color: var(--app-text);
+    }
+
+    .p-select-label.p-placeholder { color: var(--app-text-subtle); }
+
+    &:not(.p-disabled):hover { border-color: var(--app-border-strong); }
+
+    &.p-focus,
+    &.p-select-open {
+        border-color: var(--app-action);
+        background: var(--app-surface);
+        box-shadow: var(--app-focus-ring);
+    }
+}
+
+/* Painel do calendário.
+   Ele precisa sair do fluxo (appendTo="body"): dentro de uma toolbar flex ele
+   vira item flex e estica, e dentro de uma tela de grade (overflow hidden) ele
+   é recortado. O z-index garante que fique acima da topbar e da barra de abas. */
+.p-datepicker-panel {
+    /* O tema do PrimeNG dimensiona o painel sozinho e ele saía ocupando quase a
+       tela toda. Aqui a largura é fixa e o mês vira uma grade de 7 colunas com
+       células pequenas — a data é um dado, não a tela inteira. */
+    z-index: 1300;
+    width: 262px !important;
+    max-width: calc(100vw - 24px);
+    padding: 8px !important;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-surface);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-overlay);
+    font-size: var(--text-ui-sm);
+
+    .p-datepicker-header {
+        padding: 0 0 6px;
+        margin-bottom: 6px;
+        border-bottom: 1px solid var(--app-border);
+        background: transparent;
+    }
+
+    .p-datepicker-select-month,
+    .p-datepicker-select-year {
+        padding: 2px 6px;
+        font-size: var(--text-ui);
+        font-weight: 600;
+        color: var(--app-text);
+    }
+
+    .p-datepicker-calendar-container { padding: 0; }
+
+    /* Mantém a tabela do PrimeNG: transformá-la em grade empilhou os dias um
+       embaixo do outro, porque a estrutura interna não é a que eu supus.
+       Aqui só as medidas são apertadas. */
+    .p-datepicker-calendar {
+        width: 100%;
+        margin: 0;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 1px;
+
+        th,
+        td {
+            padding: 0;
+            text-align: center;
+        }
+
+        th {
+            height: 24px;
+            font-size: var(--text-micro);
+            font-weight: 700;
+            color: var(--app-text-subtle);
+            text-transform: uppercase;
+        }
+
+        td > span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: var(--radius-control);
+            font-size: var(--text-ui-sm);
+            color: var(--app-text);
+
+            &:hover { background: var(--app-surface-2); }
+        }
+
+        .p-datepicker-today > span {
+            background: var(--app-surface-3);
+            font-weight: 700;
+        }
+
+        td > span.p-datepicker-day-selected {
+            background: var(--app-action);
+            color: var(--app-on-action);
+        }
+    }
+
+    .p-datepicker-buttonbar {
+        padding: 6px 0 0;
+        margin-top: 6px;
+        border-top: 1px solid var(--app-border);
+        gap: 6px;
+
+        button {
+            height: var(--btn-h-sm);
+            padding: 0 10px;
+            font-size: var(--text-ui-sm);
+        }
+    }
+}
+
+/* A largura do campo de data na toolbar: sem isto ele ocupa o espaço todo. */
+.toolbar .datepicker-field,
+.toolbar .datepicker-field input {
+    width: 130px;
+}
+
+.datepicker-field input,
+.p-datepicker-input {
+    height: var(--field-h);
+    padding: 0 11px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface-2);
+    color: var(--app-text);
+    font-size: var(--text-ui);
+
+    &:focus {
+        outline: none;
+        border-color: var(--app-action);
+        background: var(--app-surface);
+        box-shadow: var(--app-focus-ring);
+    }
 }

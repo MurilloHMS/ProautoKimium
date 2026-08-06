@@ -1,43 +1,39 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-calendar"
-  title="Calendário RH"
-  subtitle="Tudo que está agendado no período, com filtros" />
+<app-toolbar>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Buscar" pkSize="sm"/>
 
-<div class="filters-bar">
-  <div class="form-field">
-    <label for="startDate">De</label>
-    <p-datepicker id="startDate" [(ngModel)]="startDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
-  </div>
-  <div class="form-field">
-    <label for="endDate">Até</label>
-    <p-datepicker id="endDate" [(ngModel)]="endDate" dateFormat="dd/mm/yy" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
-  </div>
-  <div class="form-field">
-    <label for="teamFilter">Setor</label>
-    <p-select id="teamFilter" [options]="teamOptions" [(ngModel)]="teamFilter" (onChange)="load()"
-              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todos" [showClear]="true" styleClass="select-field"></p-select>
-  </div>
-  <div class="form-field">
-    <label for="companyFilter">Empresa</label>
-    <p-select id="companyFilter" [options]="companyOptions" [(ngModel)]="companyFilter" (onChange)="load()"
-              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todas" [showClear]="true" styleClass="select-field"></p-select>
-  </div>
-  <div class="form-field">
-    <label for="statusFilter">Status</label>
+  <div filters>
+    <span class="toolbar__label">De</span>
+    <p-datepicker id="startDate" [(ngModel)]="startDate" dateFormat="dd/mm/yy" appendTo="body" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+
+    <span class="toolbar__label">Até</span>
+    <p-datepicker id="endDate" [(ngModel)]="endDate" dateFormat="dd/mm/yy" appendTo="body" styleClass="datepicker-field" (onSelect)="load()"></p-datepicker>
+
+    <span class="toolbar__divider"></span>
+
+    <p-select id="teamFilter" [options]="teamOptions()" [(ngModel)]="teamFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todos os setores" [showClear]="true" styleClass="select-field"></p-select>
+
+    <p-select id="companyFilter" [options]="companyOptions()" [(ngModel)]="companyFilter" (onChange)="load()"
+              optionLabel="label" optionValue="value" appendTo="body" placeholder="Todas as empresas" [showClear]="true" styleClass="select-field"></p-select>
+
     <p-select id="statusFilter" [options]="statusOptions" [(ngModel)]="statusFilter" (onChange)="load()"
               optionLabel="label" optionValue="value" appendTo="body" styleClass="select-field"></p-select>
-  </div>
-  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Buscar" pkSize="sm"/>
-</div>
 
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar por funcionário…"
+           aria-label="Buscar eventos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
+  </div>
+</app-toolbar>
 <div class="table-card">
   <pk-table
+    #grid
+    [showCaption]="false"
     [data]="events"
     [loading]="loading"
-    totalLabel="eventos encontrados"
-    searchPlaceholder="Buscar por funcionário…"
     [filterFields]="['employeeName']"
     emptyIcon="pi pi-calendar"
     emptyTitle="Nenhum evento no período"

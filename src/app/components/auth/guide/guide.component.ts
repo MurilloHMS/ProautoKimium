@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -7,7 +7,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import {ProductWebSiteResponseDTO} from "../../../domain/models/products.model";
-import {WebsiteService} from "../../../infrastructure/services/company/products/website/website.service";
+import {WebsiteProductStore} from "../../../infrastructure/state/website-product.store";
 import {environment} from "../../../../environments/environment";
 import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.component";
 
@@ -27,8 +27,30 @@ import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.comp
 })
 export class GuideComponent implements OnInit {
   // ─── State ──────────────────────────────────────────────────────────────────
-  products: ProductWebSiteResponseDTO[] = [];
-  filteredProducts: ProductWebSiteResponseDTO[] = [];
+  /**
+   * A lista é a mesma de Produtos do site: ocultar um produto lá tira ele
+   * daqui na hora, mesmo com as duas telas abertas em abas.
+   */
+  private readonly productStore = inject(WebsiteProductStore);
+  readonly products = this.productStore.items;
+  readonly loadingProducts = this.productStore.loading;
+
+  /** A busca é sobre um campo com ngModel, então precisa de um gatilho próprio. */
+  private readonly searchTrigger = signal(0);
+
+  readonly filteredProducts = computed(() => {
+    this.searchTrigger();
+
+    const term = this.searchTerm.toLowerCase().trim();
+    const list = this.products();
+    if (!term) return list;
+
+    return list.filter(p =>
+      p.name.toLowerCase().includes(term) ||
+      p.systemCode.toLowerCase().includes(term)
+    );
+  });
+
   selectedProducts: ProductWebSiteResponseDTO[] = [];
   selectedIds = new Set<string>();
 
@@ -38,59 +60,34 @@ export class GuideComponent implements OnInit {
   logoPreview: string | null = null;
   isDragging = false;
 
-  loadingProducts = false;
   generating = false;
 
   titleInvalid = false;
 
   // ─── Computed ───────────────────────────────────────────────────────────────
   get allSelected(): boolean {
-    return this.filteredProducts.length > 0 &&
-      this.filteredProducts.every(p => this.selectedIds.has(p.id));
+    return this.filteredProducts().length > 0 &&
+      this.filteredProducts().every(p => this.selectedIds.has(p.id));
   }
 
   get canGenerate(): boolean {
     return this.guideTitle.trim().length > 0 && this.selectedProducts.length > 0;
   }
 
-  constructor(private http: HttpClient,
-              private service: WebsiteService) {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.productStore.load();
   }
 
   // ─── Products ───────────────────────────────────────────────────────────────
-  loadProducts(): void {
-    this.loadingProducts = true;
-    this.service.getAllProducts()
-      .subscribe({
-        next: (data) => {
-          this.products = data;
-          this.filteredProducts = [...data];
-          this.loadingProducts = false;
-        },
-        error: () => {
-          this.loadingProducts = false;
-        }
-      });
-  }
-
   onSearch(): void {
-    const term = this.searchTerm.toLowerCase().trim();
-    if (!term) {
-      this.filteredProducts = [...this.products];
-      return;
-    }
-    this.filteredProducts = this.products.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      p.systemCode.toLowerCase().includes(term)
-    );
+    this.searchTrigger.update(v => v + 1);
   }
 
   clearSearch(): void {
     this.searchTerm = '';
-    this.filteredProducts = [...this.products];
+    this.onSearch();
   }
 
   trackById(_: number, product: ProductWebSiteResponseDTO): string {
@@ -113,17 +110,17 @@ export class GuideComponent implements OnInit {
 
   toggleAll(checked: boolean): void {
     if (checked) {
-      this.filteredProducts.forEach(p => {
+      this.filteredProducts().forEach(p => {
         if (!this.selectedIds.has(p.id)) {
           this.selectedIds.add(p.id);
           this.selectedProducts = [...this.selectedProducts, p];
         }
       });
     } else {
-      this.filteredProducts.forEach(p => {
+      this.filteredProducts().forEach(p => {
         this.selectedIds.delete(p.id);
       });
-      this.selectedProducts = this.selectedProducts.filter(p => !this.filteredProducts.some(fp => fp.id === p.id));
+      this.selectedProducts = this.selectedProducts.filter(p => !this.filteredProducts().some(fp => fp.id === p.id));
     }
   }
 

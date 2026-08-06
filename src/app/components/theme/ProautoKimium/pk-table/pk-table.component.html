@@ -9,25 +9,29 @@
     [responsiveLayout]="'scroll'"
     [globalFilterFields]="filterFields()"
     [rowHover]="true"
+    [scrollable]="true"
+    scrollHeight="flex"
     styleClass="pk-table"
     size="small"
     [showCurrentPageReport]="true"
     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} {{ pageReportTitle()}}">
 
-    <ng-template pTemplate="caption">
-      <div class="pk-table-caption">
+    @if (showCaption()) {
+      <ng-template pTemplate="caption">
+        <div class="pk-table-caption">
         <span class="pk-table-caption__count">
           <strong>{{ data().length }}</strong> {{ totalLabel() }}
         </span>
         <span class="pk-table-caption__search">
-          <pk-input
-            type="text"
-            icon="pi pi-search"
-            [placeholder]="searchPlaceholder()"
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
-        </span>
-      </div>
-    </ng-template>
+            <pk-input
+              type="text"
+              icon="pi pi-search"
+              [placeholder]="searchPlaceholder()"
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+          </span>
+        </div>
+      </ng-template>
+    }
 
     <ng-template pTemplate="header">
       <ng-container *ngTemplateOutlet="headerTpl"></ng-container>

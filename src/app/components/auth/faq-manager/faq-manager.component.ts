@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { FormScreenComponent } from '../shared/form-screen/form-screen.component';
+import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
+import { TabDirtyCheck } from '../../../infrastructure/routing/tab-dirty-check';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -27,12 +30,25 @@ import { FaqService } from '../../../infrastructure/services/faq/faq.service';
     TooltipModule,
     ToastModule,
     Textarea,
+    FormScreenComponent,
+    PkButtonComponent,
   ],
   providers: [MessageService],
   templateUrl: './faq-manager.component.html',
   styleUrl: './faq-manager.component.scss',
 })
-export class FaqManagerComponent implements OnInit {
+export class FaqManagerComponent implements OnInit, TabDirtyCheck {
+
+  /** Pergunta em edição avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && (!!this.form.title.trim() || !!this.form.body.trim());
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+    this.resetForm();
+  }
+
   items: FaqResponseDTO[] = [];
   filteredItems: FaqResponseDTO[] = [];
   loading = false;
@@ -44,7 +60,8 @@ export class FaqManagerComponent implements OnInit {
   searchTerm = '';
   selectedStatus: StatusPostagem | 'ALL' = 'ALL';
 
-  dialogVisible = false;
+  /** grade ou formulário — a pergunta não é mais cadastrada em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   editingItem: FaqResponseDTO | null = null;
 
   form = { title: '', body: '' };
@@ -133,14 +150,14 @@ export class FaqManagerComponent implements OnInit {
     this.editingItem = null;
     this.submitted = false;
     this.form = { title: '', body: '' };
-    this.dialogVisible = true;
+    this.mode.set('form');
   }
 
   openEditDialog(item: FaqResponseDTO): void {
     this.editingItem = item;
     this.submitted = false;
     this.form = { title: item.title, body: item.body };
-    this.dialogVisible = true;
+    this.mode.set('form');
   }
 
   resetForm(): void {
@@ -164,7 +181,7 @@ export class FaqManagerComponent implements OnInit {
     request$.subscribe({
       next: () => {
         this.msg.add({ severity: 'success', summary: 'Salvo!', detail: successDetail, life: 3000 });
-        this.dialogVisible = false;
+        this.mode.set('grid');
         this.loadAll();
         this.saving = false;
       },

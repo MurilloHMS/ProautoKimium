@@ -1,35 +1,39 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-desktop"
-  title="Controle de Equipamentos"
-  subtitle="Controle de entrega e devolução de equipamentos por funcionário">
-  <div actions class="header-actions">
-    <div class="filter-field">
-      <p-select
-        [options]="employeeOptions"
-        [(ngModel)]="employeeFilter"
-        (onChange)="load()"
-        optionLabel="label"
-        optionValue="value"
-        appendTo="body"
-        [filter]="true"
-        [showClear]="true"
-        placeholder="Todos os funcionários"
-        styleClass="select-field">
-      </p-select>
-    </div>
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+@if (mode() === 'grid') {
+
+<app-toolbar>
+  <pk-button pkType="new" (clicked)="showDeliverDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <div filters>
+    <p-select
+      [options]="employeeOptions()"
+      [(ngModel)]="employeeFilter"
+      (onChange)="load()"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      [filter]="true"
+      [showClear]="true"
+      placeholder="Todos os funcionários"
+      styleClass="select-field">
+    </p-select>
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar…"
+           aria-label="Buscar equipamentos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
+    #grid
     [data]="assignments"
     [loading]="loading"
-    totalLabel="equipamentos encontrados"
-    searchPlaceholder="Buscar…"
+    [showCaption]="false"
     emptyIcon="pi pi-desktop"
     [emptyTitle]="employeeFilter ? 'Nenhum equipamento no histórico deste funcionário' : 'Nenhum equipamento em posse'"
     emptySubtitle="Registre um novo equipamento para começar."
@@ -73,15 +77,17 @@
   </pk-table>
 </div>
 
-<!-- Dialog: Novo Equipamento -->
-<pk-dialog header="Novo Equipamento" [visible]="deliverDialogVisible" (visibleChange)="deliverDialogVisible = $event">
-  <div pkDialogContent>
+}
+
+@if (mode() === 'form') {
+<app-form-screen title="Novo Equipamento" subtitle="Entrega de equipamento a um funcionário" (back)="closeForm()">
+  <div>
     <div class="form-grid">
       <div class="form-field form-field--full">
         <label for="deliverEmployee">Funcionário <span class="required">*</span></label>
         <p-select
           id="deliverEmployee"
-          [options]="employeeOptions"
+          [options]="deliverEmployeeOptions()"
           [(ngModel)]="deliverEmployeeId"
           optionLabel="label"
           optionValue="value"
@@ -91,17 +97,13 @@
           styleClass="select-field">
         </p-select>
       </div>
-      <div class="form-field form-field--full">
+      <div class="form-field">
         <label for="equipmentType">Tipo de equipamento <span class="required">*</span></label>
         <input id="equipmentType" type="text" [(ngModel)]="deliverEquipmentType" maxlength="100" placeholder="Ex: Notebook Dell Latitude"/>
       </div>
-      <div class="form-field form-field--full">
-        <label for="equipmentDescription">Descrição</label>
-        <input id="equipmentDescription" type="text" [(ngModel)]="deliverDescription" maxlength="300" placeholder="Ex: Nº de série ABC123, com carregador"/>
-      </div>
-      <div class="form-field form-field--full">
+      <div class="form-field">
         <label for="deliveredAt">Data de entrega <span class="required">*</span></label>
-        <p-datepicker
+        <p-datepicker appendTo="body"
           id="deliveredAt"
           [(ngModel)]="deliverDeliveredAt"
           [showButtonBar]="true"
@@ -111,16 +113,21 @@
         </p-datepicker>
       </div>
       <div class="form-field form-field--full">
+        <label for="equipmentDescription">Descrição</label>
+        <input id="equipmentDescription" type="text" [(ngModel)]="deliverDescription" maxlength="300" placeholder="Ex: Nº de série ABC123, com carregador"/>
+      </div>
+      <div class="form-field form-field--full">
         <label for="deliverNotes">Observações</label>
         <textarea id="deliverNotes" [(ngModel)]="deliverNotes" rows="3" maxlength="500" placeholder="Opcional"></textarea>
       </div>
     </div>
   </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="deliverDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="save" (clicked)="confirmDeliver()" pkLabel="Registrar" pkSize="sm" [pkDisabled]="!canConfirmDeliver" [pkLoading]="deliverSaving"/>
   </div>
-</pk-dialog>
+</app-form-screen>
+}
 
 <!-- Dialog: Registrar devolução -->
 <pk-dialog header="Registrar devolução" [visible]="returnDialogVisible" (visibleChange)="returnDialogVisible = $event">
@@ -135,7 +142,7 @@
 
     <div class="form-field form-field--full">
       <label for="returnDate">Data da devolução <span class="required">*</span></label>
-      <p-datepicker
+      <p-datepicker appendTo="body"
         id="returnDate"
         [(ngModel)]="returnDate"
         [showButtonBar]="true"

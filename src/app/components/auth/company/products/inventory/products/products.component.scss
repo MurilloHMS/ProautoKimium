@@ -1,0 +1,10 @@
+// Em modo formulário a tela vira uma coluna de altura fixa: quem rola é o
+// corpo do formulário, com cabeçalho e botões parados. Sem isto o host fica
+// com altura automática e os últimos campos ficam fora do alcance.
+:host:has(app-form-screen) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}

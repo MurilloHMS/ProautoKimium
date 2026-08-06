@@ -1,4 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { ToolbarComponent } from '../../../shared/toolbar/toolbar.component';
+import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
+import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -26,7 +30,7 @@ import {
   ProductWebSiteUpdateDTO
 } from '../../../../../domain/models/products.model';
 
-import { WebsiteService } from '../../../../../infrastructure/services/company/products/website/website.service';
+import { WebsiteProductStore } from '../../../../../infrastructure/state/website-product.store';
 
 export type TabKey = 'active' | 'hidden';
 
@@ -51,20 +55,35 @@ export type TabKey = 'active' | 'hidden';
     ColorPickerModule,
     SelectModule,
     DividerModule,
+    ToolbarComponent,
+    FormScreenComponent,
+    PkButtonComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './website.component.html',
   styleUrls: ['./website.component.scss'],
 })
-export class WebsiteComponent implements OnInit {
-  allProducts = signal<ProductWebSiteResponseDTO[]>([]);
-  activeProducts = signal<ProductWebSiteResponseDTO[]>([]);
-  hiddenProducts = signal<ProductWebSiteResponseDTO[]>([]);
+export class WebsiteComponent implements OnInit, TabDirtyCheck {
 
-  loading = signal(false);
+  /** Cadastro ou edição em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return (this.mode() === 'create' && this.createForm.dirty)
+      || (this.mode() === 'edit' && this.editForm.dirty);
+  }
+
+  /**
+   * A lista vem do store: esta tela cadastra e oculta, e o Guia monta catálogo
+   * a partir dela — as duas abas veem a mesma coisa sem recarregar a página.
+   */
+  private readonly productStore = inject(WebsiteProductStore);
+  readonly allProducts = this.productStore.items;
+  readonly activeProducts = this.productStore.active;
+  readonly hiddenProducts = this.productStore.hidden;
+
+  readonly loading = this.productStore.loading;
   saving = signal(false);
-  dialogVisible = signal(false);
-  createDialogVisible = signal(false);
+  /** grade, edição ou cadastro — os dois formulários saíram do diálogo. */
+  readonly mode = signal<'grid' | 'edit' | 'create'>('grid');
   editingProduct = signal<ProductWebSiteResponseDTO | null>(null);
 
   activeTab = signal<TabKey>('active');
@@ -114,7 +133,6 @@ export class WebsiteComponent implements OnInit {
   });
 
   constructor(
-    private service: WebsiteService,
     private equipmentService: EquipmentService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
@@ -124,7 +142,7 @@ export class WebsiteComponent implements OnInit {
   ngOnInit(): void {
     this.initEditForm();
     this.initCreateForm();
-    this.loadAllProducts();
+    this.productStore.load();
     this.loadEquipamentos();
   }
 
@@ -166,24 +184,7 @@ export class WebsiteComponent implements OnInit {
   }
 
   loadAllProducts(): void {
-    this.loading.set(true);
-
-    this.service.getAllProducts().subscribe({
-      next: (products) => {
-        this.allProducts.set(products);
-        this.activeProducts.set(products.filter(p => p.active));
-        this.hiddenProducts.set(products.filter(p => !p.active));
-        this.loading.set(false);
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Falha ao carregar produtos.'
-        });
-        this.loading.set(false);
-      },
-    });
+    this.productStore.refresh();
   }
 
   setTab(key: TabKey): void {
@@ -221,11 +222,11 @@ export class WebsiteComponent implements OnInit {
 
     this.selectedCreateImage = null;
     this.createImagePreview = null;
-    this.createDialogVisible.set(true);
+    this.mode.set('create');
   }
 
   closeCreateDialog(): void {
-    this.createDialogVisible.set(false);
+    this.mode.set('grid');
     this.createForm.reset({ cores: [] });
     this.selectedCreateImage = null;
     this.createImagePreview = null;
@@ -249,11 +250,11 @@ export class WebsiteComponent implements OnInit {
       equipmentId: product.equipmentId ?? null,
     });
 
-    this.dialogVisible.set(true);
+    this.mode.set('edit');
   }
 
   closeDialog(): void {
-    this.dialogVisible.set(false);
+    this.mode.set('grid');
     this.editingProduct.set(null);
     this.editForm.reset({ cores: [] });
     this.selectedEditImage = null;
@@ -269,7 +270,7 @@ export class WebsiteComponent implements OnInit {
     const dto: ProductWebSiteCreateDTO = this.createForm.getRawValue();
     this.saving.set(true);
 
-    this.service.create(dto, this.selectedCreateImage).subscribe({
+    this.productStore.create(dto, this.selectedCreateImage).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -277,7 +278,6 @@ export class WebsiteComponent implements OnInit {
           detail: 'Produto cadastrado com sucesso!'
         });
         this.closeCreateDialog();
-        this.loadAllProducts();
       },
       error: () => {
         this.messageService.add({
@@ -302,7 +302,7 @@ export class WebsiteComponent implements OnInit {
     const dto: ProductWebSiteUpdateDTO = this.editForm.getRawValue();
     this.saving.set(true);
 
-    this.service.update(dto, product.id, this.selectedEditImage).subscribe({
+    this.productStore.update(dto, product.id, this.selectedEditImage).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -310,7 +310,6 @@ export class WebsiteComponent implements OnInit {
           detail: 'Produto atualizado com sucesso!'
         });
         this.closeDialog();
-        this.loadAllProducts();
       },
       error: () => {
         this.messageService.add({
@@ -336,14 +335,13 @@ export class WebsiteComponent implements OnInit {
   }
 
   hideProduct(product: ProductWebSiteResponseDTO): void {
-    this.service.setHide(product.id).subscribe({
+    this.productStore.hide(product.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'warn',
           summary: 'Produto ocultado',
           detail: `${product.name} foi ocultado do site.`
         });
-        this.loadAllProducts();
       },
       error: () => {
         this.messageService.add({
@@ -368,14 +366,13 @@ export class WebsiteComponent implements OnInit {
   }
 
   unhideProduct(product: ProductWebSiteResponseDTO): void {
-    this.service.setUnhide(product.id).subscribe({
+    this.productStore.unhide(product.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: 'Produto reexibido',
           detail: `${product.name} está visível no site novamente.`
         });
-        this.loadAllProducts();
       },
       error: () => {
         this.messageService.add({

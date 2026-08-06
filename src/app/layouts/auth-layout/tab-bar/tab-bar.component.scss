@@ -1,0 +1,305 @@
+@use 'variables' as v;
+
+:host {
+  display: none;
+}
+
+// A barra de abas é do desktop; no mobile a navegação continua uma tela por vez.
+@media (min-width: v.$bp-md) {
+  :host {
+    display: block;
+  }
+}
+
+.tab-bar {
+  position: fixed;
+  top: calc(var(--topbar-h) + env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  z-index: v.$z-sticky;
+
+  display: flex;
+  align-items: stretch;
+  height: var(--tab-bar-h);
+
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+  font-family: v.$font-body;
+}
+
+.tab-bar__list {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  // Rola com a roda do mouse quando há abas demais, mas sem barra à vista:
+  // numa faixa de 38px a barra de rolagem come a altura e polui o cromo.
+  // O overflow-y precisa ser explícito — definir só o eixo x faz o navegador
+  // calcular o y como auto e criar rolagem vertical de 1px.
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+// ─── Aba ────────────────────────────────────────────────────────────────────
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  max-width: 220px;
+  padding-right: 4px;
+  border-right: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  transition: background v.$transition-base, color v.$transition-base;
+
+  &:hover {
+    background: var(--app-surface-2);
+    color: var(--app-text);
+  }
+
+  // Ativa: sublinhado na cor de ação — sem caixa colorida, sem sombra.
+  &.is-active {
+    background: var(--app-surface);
+    color: var(--app-action);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 2px;
+      background: var(--app-action);
+    }
+
+    .tab__icon { color: var(--app-action); }
+    .tab__label { font-weight: 600; }
+  }
+}
+
+.tab__main {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  min-width: 0;
+  height: 100%;
+  padding: 0 var(--gap-control) 0 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--text-ui);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: -2px;
+  }
+}
+
+.tab__icon {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+  flex-shrink: 0;
+}
+
+.tab__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-subtle);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity v.$transition-fast, background v.$transition-fast;
+
+  i { font-size: 10px; }
+
+  &:hover {
+    background: var(--app-danger-soft);
+    color: var(--app-danger);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid var(--app-action);
+    outline-offset: -2px;
+  }
+
+  .tab:hover &,
+  .tab.is-active & {
+    opacity: 1;
+  }
+}
+
+// Ponto de alteração não salva, no mesmo lugar onde o navegador marca aba suja.
+.tab__dirty {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--app-warning);
+}
+
+// ─── Menu de ações ──────────────────────────────────────────────────────────
+.tab-bar__menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--app-border);
+}
+
+.tab-bar__menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: -2px; }
+}
+
+.tab-bar__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 190px;
+  padding: 4px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+  z-index: v.$z-dropdown;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-control);
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--app-text);
+    font-family: inherit;
+    font-size: var(--text-ui);
+    text-align: left;
+    cursor: pointer;
+
+    &:hover { background: var(--app-surface-2); }
+
+    i { color: var(--app-text-subtle); font-size: var(--text-ui-sm); }
+  }
+}
+
+// ─── Confirmação de alteração não salva ─────────────────────────────────────
+// Componente próprio em vez de p-dialog: a máscara do PrimeNG cobriria a barra
+// de abas, e aqui o alvo da confirmação é justamente a aba.
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: v.$z-modal;
+  background: var(--app-overlay);
+}
+
+.confirm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: v.$z-modal + 1;
+
+  width: min(420px, calc(100vw - 32px));
+  padding: 24px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+  text-align: center;
+  font-family: v.$font-body;
+}
+
+.confirm__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 14px;
+  border-radius: var(--radius-pill);
+  background: var(--app-warning-soft);
+  color: var(--app-warning);
+  font-size: 1.3rem;
+}
+
+.confirm__title {
+  margin: 0 0 8px;
+  font-family: v.$font-heading;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.confirm__text {
+  margin: 0 0 20px;
+  font-size: var(--text-ui);
+  line-height: 1.55;
+  color: var(--app-text-muted);
+}
+
+.confirm__actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--gap-control);
+  flex-wrap: wrap;
+}
+
+.confirm__btn {
+  height: var(--btn-h-md);
+  padding: 0 16px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-family: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+
+  &--danger {
+    border-color: transparent;
+    background: var(--app-danger);
+    color: #fff;
+
+    &:hover { opacity: 0.92; background: var(--app-danger); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab__close {
+    transition: none;
+  }
+}

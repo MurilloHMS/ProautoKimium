@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -10,8 +10,9 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
-import { PositionService } from '../../../../infrastructure/services/hr/position.service';
-import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
+import { PositionStore } from '../../../../infrastructure/state/position.store';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
+import { PositionLevelStore } from '../../../../infrastructure/state/position.store';
 import { CollectiveBargainingAdjustmentService } from '../../../../infrastructure/services/hr/collective-bargaining-adjustment.service';
 import {
   AdjustmentScope,
@@ -20,7 +21,8 @@ import {
   PositionLevel,
   SalaryAdjustmentType
 } from '../../../../domain/models/hr/career.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 
 @Component({
   selector: 'app-career-structure',
@@ -28,24 +30,39 @@ import { PageHeaderComponent } from '../../shared/page-header/page-header.compon
   imports: [
     CommonModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, Toast,
     PkButtonComponent, PkDialogComponent, PkTableComponent, PkInputComponent,
-    PageHeaderComponent,
+    ToolbarComponent, FormScreenComponent,
   ],
   templateUrl: './career-structure.component.html',
   styleUrl: './career-structure.component.scss',
   providers: [MessageService],
 })
-export class CareerStructureComponent implements OnInit {
+export class CareerStructureComponent implements OnInit, TabDirtyCheck {
+
+  // Precisam vir antes dos campos que os consomem: campo de classe é
+  // inicializado na ordem em que é declarado.
+  private readonly positionStore = inject(PositionStore);
+  private readonly levelStore = inject(PositionLevelStore);
+
   // Posições
-  positions: Position[] = [];
-  loadingPositions = false;
-  positionDialogVisible = false;
+  readonly positions = this.positionStore.items;
+  readonly loadingPositions = this.positionStore.loading;
+  /** grid, ou o formulario de cargo, ou o de nivel. O dissidio segue em dialogo. */
+  readonly mode = signal<'grid' | 'position' | 'level'>('grid');
+
   positionForm: FormGroup;
 
   // Níveis da posição selecionada
-  selectedPosition: Position | null = null;
-  levels: PositionLevel[] = [];
-  loadingLevels = false;
-  levelDialogVisible = false;
+  readonly selectedPosition = signal<Position | null>(null);
+
+  /** Níveis do cargo selecionado, direto do store: criar um nível reflete aqui na hora. */
+  readonly levels = computed(() => {
+    const position = this.selectedPosition();
+    return position ? this.levelStore.levelsOf(position.id) : [];
+  });
+  readonly loadingLevels = computed(() => {
+    const position = this.selectedPosition();
+    return position ? this.levelStore.isLoading(position.id) : false;
+  });
   levelForm: FormGroup;
 
   // Dissídio
@@ -65,8 +82,6 @@ export class CareerStructureComponent implements OnInit {
   ];
 
   constructor(
-    private positionService: PositionService,
-    private positionLevelService: PositionLevelService,
     private adjustmentService: CollectiveBargainingAdjustmentService,
     private fb: FormBuilder,
     private msgService: MessageService
@@ -91,42 +106,47 @@ export class CareerStructureComponent implements OnInit {
     });
   }
 
+  /**
+   * A aba avisa antes de fechar se houver formulário preenchido — seja um dos
+   * modos de cadastro, seja o dissídio, que continua em diálogo por ser uma
+   * ação em lote e não um cadastro.
+   */
+  isTabDirty(): boolean {
+    return (this.mode() === 'position' && this.positionForm.dirty)
+      || (this.mode() === 'level' && this.levelForm.dirty)
+      || (this.adjustmentDialogVisible && this.adjustmentForm.dirty);
+  }
+
   ngOnInit(): void {
-    this.loadPositions();
+    this.positionStore.load();
   }
 
   // ---- Posições ----
 
   loadPositions(): void {
-    this.loadingPositions = true;
-    this.positionService.getAll().subscribe({
-      next: (list) => {
-        this.positions = list;
-        this.loadingPositions = false;
-      },
-      error: (err) => {
-        this.loadingPositions = false;
-        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
-      },
-    });
+    this.positionStore.refresh();
   }
 
-  showPositionDialog(): void {
+  openPositionForm(): void {
     this.positionForm.reset();
-    this.positionDialogVisible = true;
+    this.mode.set('position');
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
   }
 
   savePosition(): void {
     if (!this.positionForm.valid) return;
 
-    this.positionService.create(this.positionForm.value).subscribe({
+    // O store insere o cargo na lista compartilhada: o formulário de
+    // funcionário aberto em outra aba já enxerga o cargo novo.
+    this.positionStore.create(this.positionForm.value).subscribe({
       next: () => {
-        this.positionDialogVisible = false;
-        this.loadPositions();
+        this.closeForm();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cargo cadastrado com sucesso!' });
       },
       error: (err) => {
-        this.positionDialogVisible = false;
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
       },
     });
@@ -135,55 +155,43 @@ export class CareerStructureComponent implements OnInit {
   // ---- Níveis ----
 
   selectPosition(position: Position): void {
-    this.selectedPosition = position;
-    this.loadLevels();
+    this.selectedPosition.set(position);
+    this.levelStore.load(position.id);
   }
 
   loadLevels(): void {
-    if (!this.selectedPosition) return;
-
-    this.loadingLevels = true;
-    this.positionLevelService.getByPosition(this.selectedPosition.id).subscribe({
-      next: (list) => {
-        this.levels = list;
-        this.loadingLevels = false;
-      },
-      error: (err) => {
-        this.loadingLevels = false;
-        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
-      },
-    });
+    const position = this.selectedPosition();
+    if (position) this.levelStore.load(position.id, true);
   }
 
   get isFixedLevel(): boolean {
     return this.levelForm.get('adjustmentType')?.value === 'FIXED';
   }
 
-  showLevelDialog(): void {
+  openLevelForm(): void {
     this.levelForm.reset({ adjustmentType: 'FIXED' });
-    this.levelDialogVisible = true;
+    this.mode.set('level');
   }
 
   saveLevel(): void {
-    if (!this.levelForm.valid || !this.selectedPosition) return;
+    const position = this.selectedPosition();
+    if (!this.levelForm.valid || !position) return;
 
     const { name, levelOrder, adjustmentType, fixedAmount, percentageIncrease } = this.levelForm.value;
 
-    this.positionLevelService.create({
+    this.levelStore.create({
       name,
       levelOrder,
-      positionId: this.selectedPosition.id,
+      positionId: position.id,
       adjustmentType,
       fixedAmount: adjustmentType === 'FIXED' ? fixedAmount : null,
       percentageIncrease: adjustmentType === 'PERCENTAGE' ? percentageIncrease : null,
     }).subscribe({
       next: () => {
-        this.levelDialogVisible = false;
-        this.loadLevels();
+        this.closeForm();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Nível cadastrado com sucesso!' });
       },
       error: (err) => {
-        this.levelDialogVisible = false;
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
       },
     });
@@ -222,7 +230,11 @@ export class CareerStructureComponent implements OnInit {
         this.applyingAdjustment = false;
         this.adjustmentResult = result;
         this.msgService.add({ severity: 'success', summary: 'Dissídio aplicado', detail: `${result.positionLevelsUpdated} nível(is) atualizado(s), ${result.employeesAffected} funcionário(s) afetado(s).` });
-        if (this.selectedPosition) this.loadLevels();
+
+        // O dissídio recalcula salário de todos os níveis: o cache inteiro
+        // fica velho, não só o do cargo selecionado.
+        this.levelStore.invalidateAll();
+        this.loadLevels();
       },
       error: (err) => {
         this.applyingAdjustment = false;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -6,84 +6,80 @@ import { Toast } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
-import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
-import { TeamService } from '../../../../infrastructure/services/hr/team.service';
-import { DepartmentService } from '../../../../infrastructure/services/hr/department.service';
-import { Department, Team } from '../../../../domain/models/hr/org-structure.model';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
+import { DepartmentStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 
 @Component({
   selector: 'app-org-structure-teams',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SelectModule, TableModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, PkInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, SelectModule, TableModule, Toast, PkButtonComponent, PkTableComponent, PkInputComponent, FormScreenComponent, ToolbarComponent],
   templateUrl: './org-structure-teams.component.html',
   styleUrl: './org-structure-teams.component.scss',
   providers: [MessageService],
 })
-export class OrgStructureTeamsComponent implements OnInit {
-  teams: Team[] = [];
-  departmentOptions: { label: string; value: string }[] = [];
-  loading = false;
-  visible = false;
-  form: FormGroup;
+export class OrgStructureTeamsComponent implements OnInit, TabDirtyCheck {
 
-  constructor(
-    private teamService: TeamService,
-    private departmentService: DepartmentService,
-    private fb: FormBuilder,
-    private msgService: MessageService
-  ) {
-    this.form = this.fb.group({
-      name: ['', Validators.required],
-      departmentId: [null, Validators.required],
-    });
+  private readonly store = inject(TeamStore);
+  private readonly departmentStore = inject(DepartmentStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly msgService = inject(MessageService);
+
+  readonly teams = this.store.items;
+  readonly loading = this.store.loading;
+
+  /**
+   * Sai do store de departamentos: cadastrar um departamento na aba ao lado
+   * já reflete aqui, sem recarregar a tela.
+   */
+  readonly departmentOptions = computed(() =>
+    this.departmentStore.items().map(department => ({ label: department.name, value: department.id }))
+  );
+
+  /** A tela alterna entre a grade e o formulário; não há mais diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
+
+  readonly form: FormGroup = this.fb.group({
+    name: ['', Validators.required],
+    departmentId: [null, Validators.required],
+  });
+
+  /** A aba avisa antes de fechar se o formulário estiver preenchido. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
   }
 
   ngOnInit(): void {
-    this.load();
-    this.loadDepartmentOptions();
+    this.store.load();
+    this.departmentStore.load();
   }
 
-  load(): void {
-    this.loading = true;
-    this.teamService.getAll().subscribe({
-      next: (list) => {
-        this.teams = list;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
-      },
-    });
+  reload(): void {
+    this.store.refresh();
   }
 
-  loadDepartmentOptions(): void {
-    this.departmentService.getAll().subscribe({
-      next: (list: Department[]) => {
-        this.departmentOptions = list.map((d) => ({ label: d.name, value: d.id }));
-      },
-      error: () => (this.departmentOptions = []),
-    });
-  }
-
-  showDialog(): void {
+  openForm(): void {
     this.form.reset();
-    this.visible = true;
+    this.mode.set('form');
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
   }
 
   save(): void {
     if (!this.form.valid) return;
 
-    this.teamService.create(this.form.value).subscribe({
+    this.store.create(this.form.value).subscribe({
       next: () => {
-        this.visible = false;
-        this.load();
+        this.closeForm();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Setor cadastrado com sucesso!' });
       },
       error: (err) => {
-        this.visible = false;
+        // Erro mantém o formulário aberto: o usuário não perde o que digitou.
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
       },
     });

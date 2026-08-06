@@ -1,12 +1,12 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, OnInit} from '@angular/core';
+import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
-import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
-import { TeamService } from '../../../../infrastructure/services/hr/team.service';
-import { PositionService } from '../../../../infrastructure/services/hr/position.service';
+import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
+import { PositionStore } from '../../../../infrastructure/state/position.store';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
 import { MessageService } from 'primeng/api';
@@ -24,6 +24,8 @@ import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-butto
 import {Tooltip} from "primeng/tooltip";
 import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
 import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
 
@@ -32,16 +34,35 @@ import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-c
 @Component({
     selector: 'app-employes',
   imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, PkInputComponent, PkCheckboxComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
-    providers: [MessageService],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    providers: [MessageService]
 })
-export class EmployesComponent{
-  employes: Employee[] = [];
-  loading: boolean = false;
-  visible: boolean = false;
+export class EmployesComponent implements TabDirtyCheck {
+
+  /**
+   * A aba avisa antes de fechar se houver cadastro em andamento — o formulário
+   * de funcionário é o maior do sistema, perder ele em silêncio seria caro.
+   */
+  isTabDirty(): boolean {
+    return (this.mode() === 'form' && this.form.dirty)
+      || (this.careerDialogVisible && this.careerForm.dirty);
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
+  /**
+   * A lista vem do store: esta tela cadastra, e as telas de RH que dependem
+   * de funcionário se atualizam sozinhas — sem cada uma buscar a sua cópia.
+   */
+  private readonly employeeStore = inject(EmployeeStore);
+  readonly employes = this.employeeStore.items;
+  readonly loading = this.employeeStore.loading;
+  /** grade ou formulário — o cadastro de funcionário não usa mais diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   employee: Employee | null = null;
   form: FormGroup;
   careerForm: FormGroup;
@@ -51,9 +72,22 @@ export class EmployesComponent{
   departmentList: {label: string, value: Department} [] = []
 
   // Vínculo organizacional / cargo inicial (Estrutura Organizacional + Cargos & Níveis)
-  companyOptions: {label: string, value: string}[] = [];
-  teamOptions: {label: string, value: string}[] = [];
-  positionOptions: {label: string, value: string}[] = [];
+  private readonly companyStore = inject(CompanyStore);
+  private readonly teamStore = inject(TeamStore);
+  private readonly positionStore = inject(PositionStore);
+
+  /**
+   * Empresas, setores e cargos vêm dos stores compartilhados: cadastrar um
+   * cargo na aba de Cargos & Níveis aparece aqui na hora, mesmo com este
+   * formulário já aberto e preenchido.
+   */
+  readonly companyOptions = computed(() =>
+    this.companyStore.items().map(company => ({ label: company.name, value: company.id })));
+  readonly teamOptions = computed(() =>
+    this.teamStore.items().map(team => ({ label: team.name, value: team.id })));
+  readonly positionOptions = computed(() =>
+    this.positionStore.items().map(position => ({ label: position.name, value: position.id })));
+
   positionLevelOptions: {label: string, value: string}[] = [];
   contractTypeOptions: {label: string, value: ContractType}[] = [
     { label: 'CLT', value: ContractType.CLT },
@@ -81,11 +115,7 @@ export class EmployesComponent{
   linkSaving = false;
 
   constructor(
-    private employeService: EmployeeService,
     private authService: AuthService,
-    private companyService: CompanyService,
-    private teamService: TeamService,
-    private positionService: PositionService,
     private positionLevelService: PositionLevelService,
     private careerHistoryService: CareerHistoryService,
     private fb: FormBuilder,
@@ -136,18 +166,11 @@ export class EmployesComponent{
   }
 
   loadOrgOptions(): void {
-    this.companyService.getAll().subscribe({
-      next: (list) => (this.companyOptions = list.map((c) => ({ label: c.name, value: c.id }))),
-      error: () => (this.companyOptions = []),
-    });
-    this.teamService.getAll().subscribe({
-      next: (list) => (this.teamOptions = list.map((t) => ({ label: t.name, value: t.id }))),
-      error: () => (this.teamOptions = []),
-    });
-    this.positionService.getAll().subscribe({
-      next: (list) => (this.positionOptions = list.map((p) => ({ label: p.name, value: p.id }))),
-      error: () => (this.positionOptions = []),
-    });
+    // Os stores buscam uma vez e servem todas as telas; chamar aqui é barato.
+    this.employeeStore.load();
+    this.companyStore.load();
+    this.teamStore.load();
+    this.positionStore.load();
   }
 
   onPositionChange(positionId: string | null): void {
@@ -207,7 +230,7 @@ export class EmployesComponent{
 
   /** Quantos funcionários (já carregados) ainda não têm usuário vinculado. */
   get unlinkedCount(): number {
-    return this.employes.filter(e => !this.linkedUserOf(e)).length;
+    return this.employes().filter(e => !this.linkedUserOf(e)).length;
   }
 
   /** Usuários ainda sem funcionário vinculado (mais o já vinculado a este funcionário, ao reabrir). */
@@ -276,21 +299,7 @@ export class EmployesComponent{
   }
 
   loadEmployes(){
-    this.loading = true;
-    this.employeService.getEmployes().subscribe({
-      next: (list) => {
-        this.employes = list;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.msgService.add({
-          severity: 'warning',
-          summary: 'Erro',
-          detail: this.getErrorMessage(err)
-        });
-      }
-    });
+    this.employeeStore.refresh();
   }
 
   editEmploye(employee: Employee){
@@ -327,7 +336,7 @@ export class EmployesComponent{
       dailyDistanceKm: employee.dailyDistanceKm ?? null,
     });
 
-    this.visible = true;
+    this.mode.set('form');
   }
 
   showDialog() {
@@ -342,7 +351,7 @@ export class EmployesComponent{
       ativo: true,
       contractType: ContractType.CLT,
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   save(){
@@ -357,10 +366,9 @@ export class EmployesComponent{
       }
 
       if(this.employeToEdit){
-        this.employeService.updateEmploye(employee).subscribe({
+        this.employeeStore.update(employee).subscribe({
           next: () => {
-            this.visible = false;
-            this.loadEmployes();
+            this.mode.set('grid');
             this.msgService.add({
               severity: 'success',
               summary: 'Sucesso',
@@ -368,15 +376,14 @@ export class EmployesComponent{
             });
           },
           error: (err) => {
-            this.visible = false;
+            this.mode.set('grid');
             this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
         });
       } else {
-        this.employeService.addEmploye(employee).subscribe({
+        this.employeeStore.create(employee).subscribe({
           next: () => {
-            this.visible = false;
-            this.loadEmployes();
+            this.mode.set('grid');
             this.msgService.add({
               severity: 'success',
               summary: 'Sucesso',
@@ -384,7 +391,7 @@ export class EmployesComponent{
             });
           },
           error: (err) => {
-            this.visible = false;
+            this.mode.set('grid');
             this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
           }
         });
@@ -397,7 +404,7 @@ export class EmployesComponent{
     this.careerForm.reset({ contractType: ContractType.CLT });
     this.careerForm.get('positionLevelId')?.disable();
     this.careerLevelOptions = [];
-    this.careerPositionOptions = this.positionOptions;
+    this.careerPositionOptions = this.positionOptions();
     this.careerDialogVisible = true;
   }
 
@@ -440,7 +447,7 @@ export class EmployesComponent{
       next: () => {
         this.careerSaving = false;
         this.careerDialogVisible = false;
-        this.visible = false;
+        this.mode.set('grid');
         this.loadEmployes();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Cargo atribuído ao funcionário.' });
       },

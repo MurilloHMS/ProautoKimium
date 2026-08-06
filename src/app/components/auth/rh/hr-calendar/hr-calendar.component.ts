@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -9,15 +9,14 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { CalendarService } from '../../../../infrastructure/services/hr/calendar.service';
-import { TeamService } from '../../../../infrastructure/services/hr/team.service';
-import { CompanyService } from '../../../../infrastructure/services/hr/company.service';
+import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { CalendarEvent, CalendarEventStatus } from '../../../../domain/models/hr/calendar.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-hr-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkTableComponent, ToolbarComponent],
   templateUrl: './hr-calendar.component.html',
   styleUrl: './hr-calendar.component.scss',
   providers: [MessageService],
@@ -32,8 +31,15 @@ export class HrCalendarComponent implements OnInit {
   companyFilter: string | null = null;
   statusFilter: CalendarEventStatus | null = 'APPROVED';
 
-  teamOptions: { label: string; value: string }[] = [];
-  companyOptions: { label: string; value: string }[] = [];
+  private readonly teamStore = inject(TeamStore);
+  private readonly companyStore = inject(CompanyStore);
+
+  // Filtros saem dos stores compartilhados: um setor novo cadastrado em outra
+  // aba aparece aqui sem recarregar a tela.
+  readonly teamOptions = computed(() =>
+    this.teamStore.items().map(team => ({ label: team.name, value: team.id })));
+  readonly companyOptions = computed(() =>
+    this.companyStore.items().map(company => ({ label: company.name, value: company.id })));
   statusOptions: { label: string; value: CalendarEventStatus | null }[] = [
     { label: 'Aprovados', value: 'APPROVED' },
     { label: 'Pendentes', value: 'PENDING' },
@@ -42,8 +48,6 @@ export class HrCalendarComponent implements OnInit {
 
   constructor(
     private calendarService: CalendarService,
-    private teamService: TeamService,
-    private companyService: CompanyService,
     private msgService: MessageService
   ) {
     const now = new Date();
@@ -57,14 +61,8 @@ export class HrCalendarComponent implements OnInit {
   }
 
   loadFilters(): void {
-    this.teamService.getAll().subscribe({
-      next: (list) => (this.teamOptions = list.map((t) => ({ label: t.name, value: t.id }))),
-      error: () => (this.teamOptions = []),
-    });
-    this.companyService.getAll().subscribe({
-      next: (list) => (this.companyOptions = list.map((c) => ({ label: c.name, value: c.id }))),
-      error: () => (this.companyOptions = []),
-    });
+    this.teamStore.load();
+    this.companyStore.load();
   }
 
   load(): void {

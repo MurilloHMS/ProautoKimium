@@ -1,20 +1,23 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-file-check"
-  title="Atestados Médicos"
-  subtitle="Todos os atestados enviados pelos funcionários">
-  <div actions class="header-actions">
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+<app-toolbar>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <div filters>
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar por nome..."
+           aria-label="Buscar atestados"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
+    #grid
     [data]="certificates"
     [loading]="loading"
-    totalLabel="atestados encontrados"
-    searchPlaceholder="Buscar por nome..."
+    [showCaption]="false"
     [filterFields]="['employeeName', 'originalFilename']"
     emptyIcon="pi pi-file-check"
     emptyTitle="Nenhum atestado encontrado"

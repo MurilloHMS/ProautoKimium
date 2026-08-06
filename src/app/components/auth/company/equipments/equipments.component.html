@@ -2,31 +2,29 @@
   <p-toast position="top-right"></p-toast>
   <p-confirmDialog [style]="{ width: '440px' }"></p-confirmDialog>
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="pi pi-wrench"></i>
-      </div>
-      <div>
-        <h1 class="page-title">Equipamentos</h1>
-        <p class="page-subtitle">Gerencie os equipamentos exibidos no site</p>
-      </div>
+  @if (mode() === 'grid') {
+
+  <app-toolbar>
+    <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
+    <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar por nome…"
+             aria-label="Buscar equipamentos"
+             (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
-    <div class="header-actions">
-      <pk-button pkType="refresh" (clicked)="loadEquipments()" pkLabel="Atualizar" pkSize="sm"/>
-      <pk-button pkType="new" (clicked)="openCreateDialog()" pkLabel="Novo Equipamento" pkSize="sm"/>
-    </div>
-  </div>
+  </app-toolbar>
 
   <!-- Table Card -->
   <div class="table-card">
 
     <pk-table
+      #grid
+      [showCaption]="false"
       [data]="equipments()"
       [loading]="loading()"
-      totalLabel="equipamentos encontrados"
-      searchPlaceholder="Buscar por nome…"
       [filterFields]="['nome']"
       emptyIcon="pi pi-wrench"
       emptyTitle="Nenhum equipamento encontrado"
@@ -80,13 +78,11 @@
     </pk-table>
   </div>
 
-  <!-- CREATE DIALOG -->
-  <pk-dialog
-    header="Novo Equipamento"
-    [visible]="createDialogVisible()"
-    (visibleChange)="createDialogVisible() ? closeCreateDialog() : null">
+  }
 
-    <div pkDialogContent>
+  @if (mode() === 'create') {
+  <app-form-screen title="Novo Equipamento" subtitle="Equipamento exibido no site" (back)="closeCreateDialog()">
+    <div>
       <form [formGroup]="createForm" class="dialog-form">
 
         <div class="pk-form-section">
@@ -144,22 +140,22 @@
       </form>
     </div>
 
-    <div pkDialogFooter class="pk-dialog-footer">
+    <div formActions>
       <pk-button pkType="cancel" (clicked)="closeCreateDialog()" pkLabel="Cancelar" pkSize="sm"/>
       <pk-button pkType="save" (clicked)="saveCreate()" pkLabel="Cadastrar" pkSize="sm"
                  [pkDisabled]="createForm.invalid || saving()" [pkLoading]="saving()"/>
     </div>
+  </app-form-screen>
+  }
 
-  </pk-dialog>
+  @if (mode() === 'edit') {
+  <app-form-screen
+    [title]="'Editar: ' + (editingEquipment()?.nome ?? '')"
+    subtitle="Equipamento exibido no site"
+    (back)="closeEditDialog()">
 
-  <!-- EDIT DIALOG -->
-  <pk-dialog
-    [header]="'Editar: ' + (editingEquipment()?.nome ?? '')"
-    [visible]="editDialogVisible()"
-    (visibleChange)="editDialogVisible() ? closeEditDialog() : null">
-
-    <div pkDialogContent>
-      <form [formGroup]="editForm" class="dialog-form">
+    <div>
+      <form [formGroup]="editForm">
 
         <div class="pk-form-section">
           <h3 class="pk-form-section__title">
@@ -228,12 +224,12 @@
       </form>
     </div>
 
-    <div pkDialogFooter class="pk-dialog-footer">
+    <div formActions>
       <pk-button pkType="cancel" (clicked)="closeEditDialog()" pkLabel="Cancelar" pkSize="sm"/>
       <pk-button pkType="save" (clicked)="saveEdit()" pkLabel="Salvar Alterações" pkSize="sm"
                  [pkDisabled]="editForm.invalid || saving()" [pkLoading]="saving()"/>
     </div>
-
-  </pk-dialog>
+  </app-form-screen>
+  }
 
 </div>

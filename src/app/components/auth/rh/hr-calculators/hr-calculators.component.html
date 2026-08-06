@@ -208,7 +208,7 @@
           <label for="vrEmployee">Funcionário <span class="required">*</span></label>
           <p-select
             id="vrEmployee"
-            [options]="employeeOptions"
+            [options]="employeeOptions()"
             formControlName="employeeId"
             optionLabel="label"
             optionValue="value"
@@ -250,7 +250,7 @@
           <label for="cltPjEmployee">Funcionário <span class="required">*</span></label>
           <p-select
             id="cltPjEmployee"
-            [options]="employeeOptions"
+            [options]="employeeOptions()"
             [(ngModel)]="cltPjEmployeeId"
             optionLabel="label"
             optionValue="value"

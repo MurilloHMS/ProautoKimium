@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -6,7 +6,7 @@ import { Toast } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { PayrollCalculatorService } from '../../../../infrastructure/services/hr/payroll-calculator.service';
 import {
   BulkFuelResponse,
@@ -46,7 +46,9 @@ export class HrCalculatorsComponent implements OnInit {
     { key: 'adjustment', label: 'Reajuste' },
   ];
 
-  employeeOptions: { label: string; value: string }[] = [];
+  private readonly employeeStore = inject(EmployeeStore);
+  /** Só ativos: não se calcula vale de quem foi desligado. */
+  readonly employeeOptions = this.employeeStore.activeOptions;
 
   // Bulk VT
   bulkVtForm: FormGroup;
@@ -78,7 +80,6 @@ export class HrCalculatorsComponent implements OnInit {
   cltPjLoading = false;
 
   constructor(
-    private employeeService: EmployeeService,
     private calculatorService: PayrollCalculatorService,
     private fb: FormBuilder,
     private msgService: MessageService
@@ -105,14 +106,7 @@ export class HrCalculatorsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.employeeService.getEmployes().subscribe({
-      next: (list) => {
-        this.employeeOptions = list
-          .filter((e) => e.id)
-          .map((e) => ({ label: e.name, value: e.id as string }));
-      },
-      error: () => (this.employeeOptions = []),
-    });
+    this.employeeStore.load();
   }
 
   selectTab(tab: MainTab): void {
@@ -202,6 +196,9 @@ export class HrCalculatorsComponent implements OnInit {
       next: (result) => {
         this.adjustmentLoading = false;
         this.adjustmentResult = result;
+        // O reajuste altera o valor da passagem dos funcionários no servidor:
+        // sem recarregar, as outras abas seguiriam mostrando o valor antigo.
+        this.employeeStore.refresh();
         this.msgService.add({
           severity: 'success',
           summary: 'Reajuste aplicado',

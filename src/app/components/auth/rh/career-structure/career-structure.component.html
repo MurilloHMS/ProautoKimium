@@ -1,22 +1,30 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-briefcase"
-  title="Cargos &amp; Níveis"
-  subtitle="Estrutura de cargos, níveis salariais e dissídio">
-  <div actions class="header-actions">
-    <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm"/>
-    <pk-button pkType="new" (clicked)="showPositionDialog()" pkLabel="Novo Cargo" pkSize="sm"/>
+@if (mode() === 'grid') {
+
+<app-toolbar>
+  <pk-button pkType="new" (clicked)="openPositionForm()" pkLabel="Novo Cargo" pkSize="sm"/>
+  <pk-button pkType="refresh" (clicked)="loadPositions()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <span class="toolbar__divider"></span>
+
+  <pk-button pkType="edit" (clicked)="showAdjustmentDialog()" pkLabel="Aplicar Dissídio" pkSize="sm" pkIcon="pi pi-percentage"/>
+
+  <div filters>
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar cargo…"
+           aria-label="Buscar cargos"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <div class="table-card">
   <pk-table
-    [data]="positions"
-    [loading]="loadingPositions"
-    totalLabel="cargos encontrados"
-    searchPlaceholder="Buscar por nome…"
+    #grid
+    [showCaption]="false"
+    [data]="positions()"
+    [loading]="loadingPositions()"
     [filterFields]="['name']"
     emptyIcon="pi pi-briefcase"
     emptyTitle="Nenhum cargo cadastrado"
@@ -31,7 +39,7 @@
     </ng-template>
 
     <ng-template #bodyTpl let-p>
-      <tr class="table-row" [class.table-row--selected]="selectedPosition?.id === p.id">
+      <tr class="table-row" [class.table-row--selected]="selectedPosition()?.id === p.id">
         <td>
           <div class="position-cell">
             <span class="position-icon"><i class="pi pi-briefcase"></i></span>
@@ -47,24 +55,24 @@
   </pk-table>
 </div>
 
-@if (selectedPosition) {
+@if (selectedPosition(); as selected) {
   <div class="levels-section">
     <div class="page-header page-header--sub">
       <div class="header-left">
         <div>
-          <h2 class="page-title page-title--sm">Níveis — {{ selectedPosition.name }}</h2>
+          <h2 class="page-title page-title--sm">Níveis — {{ selected.name }}</h2>
           <p class="page-subtitle">Cada nível é fixo ou percentual sobre o nível imediatamente anterior</p>
         </div>
       </div>
       <div class="header-actions">
-        <pk-button pkType="new" (clicked)="showLevelDialog()" pkLabel="Novo Nível" pkSize="sm"/>
+        <pk-button pkType="new" (clicked)="openLevelForm()" pkLabel="Novo Nível" pkSize="sm"/>
       </div>
     </div>
 
     <div class="table-card">
       <pk-table
-        [data]="levels"
-        [loading]="loadingLevels"
+        [data]="levels()"
+        [loading]="loadingLevels()"
         totalLabel="níveis encontrados"
         searchPlaceholder="Buscar por nome…"
         [filterFields]="['name']"
@@ -114,27 +122,30 @@
   </div>
 }
 
-<!-- Dialog: Novo Cargo -->
-<pk-dialog header="Novo Cargo" [visible]="positionDialogVisible" (visibleChange)="positionDialogVisible = $event">
-  <div pkDialogContent>
-    <form [formGroup]="positionForm" (ngSubmit)="savePosition()" class="dialog-form">
+} @else if (mode() === 'position') {
+
+  <app-form-screen title="Novo Cargo" subtitle="Cadastro de cargo da estrutura de carreira" (back)="closeForm()">
+    <form [formGroup]="positionForm" (ngSubmit)="savePosition()">
       <div class="form-grid">
         <div class="form-field form-field--full">
           <pk-input label="Nome" placeholder="Ex: Desenvolvedor Java" [pkRequired]="true" [pkMaxLength]="100" type="text" formControlName="name"/>
         </div>
       </div>
     </form>
-  </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="positionDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="savePosition()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="positionForm.invalid"/>
-  </div>
-</pk-dialog>
 
-<!-- Dialog: Novo Nível -->
-<pk-dialog header="Novo Nível" [visible]="levelDialogVisible" (visibleChange)="levelDialogVisible = $event">
-  <div pkDialogContent>
-    <form [formGroup]="levelForm" (ngSubmit)="saveLevel()" class="dialog-form">
+    <div formActions>
+      <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="savePosition()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="positionForm.invalid"/>
+    </div>
+  </app-form-screen>
+
+} @else {
+
+  <app-form-screen
+    title="Novo Nível"
+    [subtitle]="'Cargo: ' + (selectedPosition()?.name ?? '')"
+    (back)="closeForm()">
+    <form [formGroup]="levelForm" (ngSubmit)="saveLevel()">
       <div class="form-grid">
         <div class="form-field">
           <pk-input label="Nome" placeholder="Ex: Júnior" [pkRequired]="true" [pkMaxLength]="50" type="text" formControlName="name"/>
@@ -166,12 +177,14 @@
         }
       </div>
     </form>
-  </div>
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="levelDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="saveLevel()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="levelForm.invalid"/>
-  </div>
-</pk-dialog>
+
+    <div formActions>
+      <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="saveLevel()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="levelForm.invalid"/>
+    </div>
+  </app-form-screen>
+
+}
 
 <!-- Dialog: Aplicar Dissídio -->
 <pk-dialog header="Aplicar Dissídio" [visible]="adjustmentDialogVisible" (visibleChange)="adjustmentDialogVisible = $event">
@@ -183,7 +196,7 @@
         </div>
         <div class="form-field">
           <label for="effectiveDate">Data efetiva <span class="required">*</span></label>
-          <p-datepicker
+          <p-datepicker appendTo="body"
             id="effectiveDate"
             formControlName="effectiveDate"
             [showButtonBar]="true"
@@ -210,7 +223,7 @@
             <label for="positionId">Cargo <span class="required">*</span></label>
             <p-select
               id="positionId"
-              [options]="positions"
+              [options]="positions()"
               formControlName="positionId"
               optionLabel="name"
               optionValue="id"

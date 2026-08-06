@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -8,27 +8,46 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InventoryProduct, InventoryProductResponse } from '../../../../../../domain/models/products.model';
-import { InventoryProductService } from '../../../../../../infrastructure/services/company/inventory/inventory-product.service';
+import { InventoryProductStore } from '../../../../../../infrastructure/state/inventory-product.store';
+import { FormScreenComponent } from '../../../../shared/form-screen/form-screen.component';
+import { ToolbarComponent } from '../../../../shared/toolbar/toolbar.component';
+import { PkButtonComponent } from '../../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkCheckboxComponent } from '../../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
+import { TabDirtyCheck } from '../../../../../../infrastructure/routing/tab-dirty-check';
 
 @Component({
     selector: 'app-products',
     imports: [
         TableModule, CommonModule, ButtonModule, ToolbarModule,
-        DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule
+        DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule,
+        FormScreenComponent, ToolbarComponent, PkButtonComponent, PkCheckboxComponent
     ],
     templateUrl: './products.component.html',
     styleUrl: './products.component.scss'
 })
-export class ProductsComponent {
-  products: InventoryProductResponse[] = [];
-  loading: boolean = false;
-  visible: boolean = false;
+export class ProductsComponent implements OnInit, TabDirtyCheck {
+
+  /** Cadastro em andamento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && this.form.dirty;
+  }
+
+  closeForm(): void {
+    this.mode.set('grid');
+  }
+
+  /** A lista vem do store: a tela nao guarda copia. */
+  private readonly productStore = inject(InventoryProductStore);
+  readonly products = this.productStore.items;
+  readonly loading = this.productStore.loading;
+  /** grade ou formulário — o produto não é mais cadastrado em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   product: InventoryProduct | null = null;
   form: FormGroup;
   dialogTitle: string = 'Adicionar Produto';
   productToEdit: InventoryProductResponse | null = null;
 
-  constructor(private productService: InventoryProductService, private fb: FormBuilder){
+  constructor(private fb: FormBuilder){
     this.form = this.fb.group({
       systemCode: ['', Validators.required],
       name: ['', Validators.required],
@@ -37,18 +56,12 @@ export class ProductsComponent {
     });
   }
 
+  ngOnInit(): void {
+    this.productStore.load();
+  }
+
   loadProducts(){
-    this.loading = true;
-    this.productService.getInventoryProducts().subscribe({
-      next: (products) => {
-        this.products = products;
-        this.loading = false;
-      },
-      error: (err) => {
-        alert('Error loading products' + err.message);
-        this.loading = false;
-      }
-    });
+    this.productStore.refresh();
   }
 
   editProduct(product: InventoryProductResponse) {
@@ -60,7 +73,7 @@ export class ProductsComponent {
       active: product.active,
       minimumStock: product.minimumStock
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   showDialog(){
@@ -70,7 +83,7 @@ export class ProductsComponent {
       active: true,
       minimumStock: 0
     });
-    this.visible = true;
+    this.mode.set('form');
   }
 
   saveProduct(){
@@ -78,20 +91,18 @@ export class ProductsComponent {
       const productData: InventoryProduct = this.form.value;
 
       if(this.productToEdit){
-        this.productService.updateProduct(productData).subscribe({
+        this.productStore.update(productData).subscribe({
           next: () => {
-            this.visible = false;
-            this.loadProducts();
+            this.mode.set('grid');
           },
           error: (err) => {
             alert('Error updating product: ' + err.message);
           }
         });
       }else{
-        this.productService.addInventoryProduct(productData).subscribe({
+        this.productStore.create(productData).subscribe({
           next: () => {
-            this.visible = false;
-            this.loadProducts();
+            this.mode.set('grid');
           },
           error: (err) => {
             alert('Error adding product: ' + err.message);

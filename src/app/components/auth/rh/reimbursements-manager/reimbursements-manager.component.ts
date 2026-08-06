@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -10,9 +10,9 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { Reimbursement, ReimbursementStatus } from '../../../../domain/models/hr/reimbursement.model';
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
 
@@ -21,7 +21,7 @@ type ReviewAction = 'approve' | 'reject';
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
@@ -30,7 +30,7 @@ export class ReimbursementsManagerComponent implements OnInit {
   reimbursements: Reimbursement[] = [];
   loading = false;
   baixandoId: string | null = null;
-  employeeNames = new Map<string, string>();
+  private readonly employeeStore = inject(EmployeeStore);
 
   statusFilter: ReimbursementStatus | null = 'PENDING';
   statusOptions: { label: string; value: ReimbursementStatus | null }[] = [
@@ -54,26 +54,17 @@ export class ReimbursementsManagerComponent implements OnInit {
 
   constructor(
     private reimbursementService: ReimbursementService,
-    private employeeService: EmployeeService,
     private msgService: MessageService
   ) {}
 
   ngOnInit(): void {
-    this.loadEmployeeNames();
+    this.employeeStore.load();
     this.load();
   }
 
-  loadEmployeeNames(): void {
-    this.employeeService.getEmployes().subscribe({
-      next: (list) => {
-        this.employeeNames = new Map(list.filter((e) => e.id).map((e) => [e.id as string, e.name]));
-      },
-      error: () => (this.employeeNames = new Map()),
-    });
-  }
-
+  /** O nome vem do store: a grade guarda o id, quem traduz é a lista compartilhada. */
   employeeName(employeeId: string): string {
-    return this.employeeNames.get(employeeId) ?? employeeId;
+    return this.employeeStore.nameOf(employeeId);
   }
 
   load(): void {

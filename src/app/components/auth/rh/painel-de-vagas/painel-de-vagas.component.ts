@@ -1,14 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil, finalize, switchMap, of } from 'rxjs';
 
 import { Select } from 'primeng/select';
-import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
-import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { DialogModule } from 'primeng/dialog';
@@ -20,7 +18,12 @@ import { VagaService } from '../../../../infrastructure/services/processoSeletiv
 import { CreateVagaDTO, ResponseVagaDTO, UpdateVagaDTO } from '../../../../domain/models/vaga.model';
 import {CandidaturasComponent} from "../candidaturas/candidaturas.component";
 import {Router} from "@angular/router";
-import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 
 type TabStatus = 'publicadas' | 'rascunho' | 'arquivadas' | 'encerradas';
 
@@ -44,14 +47,22 @@ const CAMPO_LIMITS = {
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
-    SkeletonModule, TooltipModule, BadgeModule, InputText, Select,
-    DialogModule, TextareaModule, ToastModule, PageHeaderComponent,
+    TooltipModule, BadgeModule, Select,
+    DialogModule, TextareaModule, ToastModule, ToolbarComponent, FormScreenComponent, PkButtonComponent, PkTableComponent, PkInputComponent,
   ],
   providers: [MessageService],
   templateUrl: './painel-de-vagas.component.html',
   styleUrl: './painel-de-vagas.component.scss',
 })
-export class PainelDeVagasComponent implements OnInit, OnDestroy {
+export class PainelDeVagasComponent implements OnInit, OnDestroy, TabDirtyCheck {
+
+  /** Vaga em preenchimento avisa antes de fechar a aba. */
+  isTabDirty(): boolean {
+    if (this.mode() !== 'form') return false;
+    const f = this.formVaga;
+    return !!(f.titulo?.trim() || f.area?.trim() || f.descricao?.trim() || f.requisitos?.trim() || f.beneficios?.trim());
+  }
+
   private destroy$ = new Subject<void>();
 
   readonly limites = CAMPO_LIMITS;
@@ -75,7 +86,8 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
   opcoesArea: { label: string; value: string }[] = [];
   expandedRows: { [key: string]: boolean } = {};
 
-  modalAberto = false;
+  /** grade ou formulário — a vaga não é mais cadastrada em diálogo. */
+  readonly mode = signal<'grid' | 'form'>('grid');
   salvando = false;
   vagaEmEdicao: ResponseVagaDTO | null = null;
 
@@ -160,7 +172,7 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
   abrirModalNova(): void {
     this.vagaEmEdicao = null;
     this.formVaga = this.formVazio();
-    this.modalAberto = true;
+    this.mode.set('form');
   }
 
   abrirModalEditar(vaga: ResponseVagaDTO): void {
@@ -174,10 +186,10 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy {
       dataAbertura:     vaga.dataAbertura,
       dataEncerramento: vaga.dataEncerramento,
     };
-    this.modalAberto = true;
+    this.mode.set('form');
   }
 
-  fecharModal(): void { this.modalAberto = false; }
+  fecharModal(): void { this.mode.set('grid'); }
 
   salvarVaga(publicar = false): void {
     this.salvando = true;

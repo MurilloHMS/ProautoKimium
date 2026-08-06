@@ -1,25 +1,30 @@
 <p-toast position="top-right"></p-toast>
 
-<app-page-header
-  icon="pi pi-sun"
-  title="Aprovação de Férias"
-  subtitle="Analise as solicitações de férias dos funcionários">
-  <div actions class="header-actions">
-    <div class="filter-field">
-      <p-select
-        [options]="statusOptions"
-        [(ngModel)]="statusFilter"
-        (onChange)="load()"
-        optionLabel="label"
-        optionValue="value"
-        appendTo="body"
-        styleClass="select-field">
-      </p-select>
-    </div>
-    <pk-button pkType="save" (clicked)="openRegisterDialog()" pkLabel="Lançar Férias" pkSize="sm" pkIcon="pi pi-plus"/>
-    <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+@if (mode() === 'grid') {
+
+<app-toolbar>
+  <pk-button pkType="save" (clicked)="openRegisterDialog()" pkLabel="Lançar Férias" pkSize="sm" pkIcon="pi pi-plus"/>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+
+  <div filters>
+    <span class="toolbar__label">Status:</span>
+    <p-select
+      [options]="statusOptions"
+      [(ngModel)]="statusFilter"
+      (onChange)="load()"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+      styleClass="select-field">
+    </p-select>
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Buscar…"
+           aria-label="Buscar solicitações"
+           (input)="grid.filterGlobal($any($event.target).value)" />
   </div>
-</app-page-header>
+</app-toolbar>
 
 <!-- Alertas CLT -->
 @if (showAlerts) {
@@ -58,10 +63,10 @@
 
 <div class="table-card">
   <pk-table
+    #grid
     [data]="requests"
     [loading]="loading"
-    totalLabel="solicitações encontradas"
-    searchPlaceholder="Buscar…"
+    [showCaption]="false"
     emptyIcon="pi pi-sun"
     emptyTitle="Nenhuma solicitação encontrada"
     emptySubtitle="Troque o filtro de status pra ver outras solicitações."
@@ -104,6 +109,8 @@
   </pk-table>
 </div>
 
+}
+
 <pk-dialog
   [header]="reviewAction === 'approve' ? 'Aprovar solicitação' : 'Recusar solicitação'"
   [visible]="reviewDialogVisible"
@@ -141,20 +148,20 @@
   </div>
 </pk-dialog>
 
-<!-- Dialog de lançar férias -->
-<pk-dialog
-  header="Lançar Férias"
-  [visible]="registerDialogVisible"
-  (visibleChange)="registerDialogVisible = $event">
+@if (mode() === 'form') {
+<app-form-screen
+  title="Lançar Férias"
+  subtitle="Registro de férias já acordadas com o funcionário"
+  (back)="closeForm()">
 
-  <div pkDialogContent>
-    <form [formGroup]="registerForm" class="dialog-form">
+  <div>
+    <form [formGroup]="registerForm">
       <div class="form-grid">
 
         <div class="form-field form-field--full">
           <label>Funcionário <span class="required">*</span></label>
           <p-select
-            [options]="employeeOptions"
+            [options]="employeeOptions()"
             formControlName="employeeId"
             optionLabel="label"
             optionValue="value"
@@ -238,8 +245,8 @@
     </form>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="registerDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button
       pkType="save"
       (clicked)="submitRegister()"
@@ -249,4 +256,5 @@
       [pkLoading]="registerSaving">
     </pk-button>
   </div>
-</pk-dialog>
+</app-form-screen>
+}
