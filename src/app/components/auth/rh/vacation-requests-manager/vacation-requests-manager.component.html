@@ -161,7 +161,7 @@
         <div class="form-field form-field--full">
           <label>Funcionário <span class="required">*</span></label>
           <p-select
-            [options]="employeeOptions"
+            [options]="employeeOptions()"
             formControlName="employeeId"
             optionLabel="label"
             optionValue="value"

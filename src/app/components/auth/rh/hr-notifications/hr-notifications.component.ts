@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -6,7 +6,7 @@ import { Toast } from 'primeng/toast';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { EmployeeNotificationService } from '../../../../infrastructure/services/hr/employee-notification.service';
 import { SendNotificationResult } from '../../../../domain/models/hr/employee-notification.model';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
@@ -22,7 +22,8 @@ type SendMode = 'specific' | 'all';
   providers: [MessageService],
 })
 export class HrNotificationsComponent implements OnInit {
-  employeeOptions: { label: string; value: string }[] = [];
+  private readonly employeeStore = inject(EmployeeStore);
+  readonly employeeOptions = this.employeeStore.options;
 
   sendMode: SendMode = 'specific';
   form: FormGroup;
@@ -31,7 +32,6 @@ export class HrNotificationsComponent implements OnInit {
   lastResult: SendNotificationResult | null = null;
 
   constructor(
-    private employeeService: EmployeeService,
     private notificationService: EmployeeNotificationService,
     private fb: FormBuilder,
     private msgService: MessageService
@@ -45,12 +45,7 @@ export class HrNotificationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.employeeService.getEmployes().subscribe({
-      next: (list) => {
-        this.employeeOptions = list.filter((e) => e.id).map((e) => ({ label: e.name, value: e.id as string }));
-      },
-      error: () => (this.employeeOptions = []),
-    });
+    this.employeeStore.load();
   }
 
   setMode(mode: SendMode): void {

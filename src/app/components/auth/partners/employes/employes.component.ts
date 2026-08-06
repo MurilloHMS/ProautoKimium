@@ -1,11 +1,11 @@
 import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
 import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
@@ -23,7 +23,7 @@ import {Toast} from "primeng/toast";
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {Tooltip} from "primeng/tooltip";
 import {PkDialogComponent} from "../../../theme/ProautoKimium/pk-dialog/pk-dialog.component";
-import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
+import {PkTableComponent} from "../../../theme/ProautoKimium/pk-table/pk-table.component";
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
@@ -54,8 +54,13 @@ export class EmployesComponent implements TabDirtyCheck {
     this.mode.set('grid');
   }
 
-  employes: Employee[] = [];
-  loading: boolean = false;
+  /**
+   * A lista vem do store: esta tela cadastra, e as telas de RH que dependem
+   * de funcionário se atualizam sozinhas — sem cada uma buscar a sua cópia.
+   */
+  private readonly employeeStore = inject(EmployeeStore);
+  readonly employes = this.employeeStore.items;
+  readonly loading = this.employeeStore.loading;
   /** grade ou formulário — o cadastro de funcionário não usa mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
   employee: Employee | null = null;
@@ -110,7 +115,6 @@ export class EmployesComponent implements TabDirtyCheck {
   linkSaving = false;
 
   constructor(
-    private employeService: EmployeeService,
     private authService: AuthService,
     private positionLevelService: PositionLevelService,
     private careerHistoryService: CareerHistoryService,
@@ -163,6 +167,7 @@ export class EmployesComponent implements TabDirtyCheck {
 
   loadOrgOptions(): void {
     // Os stores buscam uma vez e servem todas as telas; chamar aqui é barato.
+    this.employeeStore.load();
     this.companyStore.load();
     this.teamStore.load();
     this.positionStore.load();
@@ -225,7 +230,7 @@ export class EmployesComponent implements TabDirtyCheck {
 
   /** Quantos funcionários (já carregados) ainda não têm usuário vinculado. */
   get unlinkedCount(): number {
-    return this.employes.filter(e => !this.linkedUserOf(e)).length;
+    return this.employes().filter(e => !this.linkedUserOf(e)).length;
   }
 
   /** Usuários ainda sem funcionário vinculado (mais o já vinculado a este funcionário, ao reabrir). */
@@ -294,21 +299,7 @@ export class EmployesComponent implements TabDirtyCheck {
   }
 
   loadEmployes(){
-    this.loading = true;
-    this.employeService.getEmployes().subscribe({
-      next: (list) => {
-        this.employes = list;
-        this.loading = false;
-      },
-      error: (err) => {
-        this.loading = false;
-        this.msgService.add({
-          severity: 'warning',
-          summary: 'Erro',
-          detail: this.getErrorMessage(err)
-        });
-      }
-    });
+    this.employeeStore.refresh();
   }
 
   editEmploye(employee: Employee){
@@ -375,10 +366,9 @@ export class EmployesComponent implements TabDirtyCheck {
       }
 
       if(this.employeToEdit){
-        this.employeService.updateEmploye(employee).subscribe({
+        this.employeeStore.update(employee).subscribe({
           next: () => {
             this.mode.set('grid');
-            this.loadEmployes();
             this.msgService.add({
               severity: 'success',
               summary: 'Sucesso',
@@ -391,10 +381,9 @@ export class EmployesComponent implements TabDirtyCheck {
           }
         });
       } else {
-        this.employeService.addEmploye(employee).subscribe({
+        this.employeeStore.create(employee).subscribe({
           next: () => {
             this.mode.set('grid');
-            this.loadEmployes();
             this.msgService.add({
               severity: 'success',
               summary: 'Sucesso',

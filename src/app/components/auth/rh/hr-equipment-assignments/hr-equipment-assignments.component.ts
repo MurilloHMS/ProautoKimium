@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -12,7 +12,7 @@ import { FormScreenComponent } from '../../shared/form-screen/form-screen.compon
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { EquipmentAssignmentService } from '../../../../infrastructure/services/hr/equipment-assignment.service';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { EquipmentAssignment } from '../../../../domain/models/hr/equipment-assignment.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 
@@ -37,8 +37,8 @@ export class HrEquipmentAssignmentsComponent implements OnInit, TabDirtyCheck {
 
   assignments: EquipmentAssignment[] = [];
   loading = false;
-  employeeNames = new Map<string, string>();
-  employeeOptions: { label: string; value: string }[] = [];
+  private readonly employeeStore = inject(EmployeeStore);
+  readonly employeeOptions = this.employeeStore.options;
 
   employeeFilter: string | null = null;
 
@@ -58,31 +58,17 @@ export class HrEquipmentAssignmentsComponent implements OnInit, TabDirtyCheck {
 
   constructor(
     private equipmentService: EquipmentAssignmentService,
-    private employeeService: EmployeeService,
     private msgService: MessageService
   ) {}
 
   ngOnInit(): void {
-    this.loadEmployees();
+    this.employeeStore.load();
     this.load();
   }
 
-  loadEmployees(): void {
-    this.employeeService.getEmployes().subscribe({
-      next: (list) => {
-        const withId = list.filter((e) => e.id);
-        this.employeeNames = new Map(withId.map((e) => [e.id as string, e.name]));
-        this.employeeOptions = withId.map((e) => ({ label: e.name, value: e.id as string }));
-      },
-      error: () => {
-        this.employeeNames = new Map();
-        this.employeeOptions = [];
-      },
-    });
-  }
-
+  /** O nome vem do store: a entrega guarda o id, quem traduz é a lista compartilhada. */
   employeeName(employeeId: string): string {
-    return this.employeeNames.get(employeeId) ?? employeeId;
+    return this.employeeStore.nameOf(employeeId);
   }
 
   load(): void {

@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -15,8 +15,7 @@ import { FormScreenComponent } from '../../shared/form-screen/form-screen.compon
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
-import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
-import { Employee } from '../../../../domain/models/employee.model';
+import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { VacationAlert, VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
 import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../../domain/utils/brazilian-business-days';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
@@ -44,7 +43,7 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
 
   requests: VacationRequest[] = [];
   loading = false;
-  employeeNames = new Map<string, string>();
+  private readonly employeeStore = inject(EmployeeStore);
 
   statusFilter: VacationRequestStatus | null = 'PENDING';
   statusOptions: { label: string; value: VacationRequestStatus | null }[] = [
@@ -68,12 +67,12 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
   readonly mode = signal<'grid' | 'form'>('grid');
   registerForm: FormGroup;
   registerSaving = false;
-  employeeOptions: { label: string; value: string }[] = [];
+  /** Só ativos: lançar férias para quem foi desligado não faz sentido. */
+  readonly employeeOptions = this.employeeStore.activeOptions;
   setBalance = false;
 
   constructor(
     private vacationRequestService: VacationRequestService,
-    private employeeService: EmployeeService,
     private msgService: MessageService,
     private fb: FormBuilder
   ) {
@@ -87,25 +86,14 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
   }
 
   ngOnInit(): void {
-    this.loadEmployeeNames();
+    this.employeeStore.load();
     this.load();
     this.loadAlerts();
   }
 
-  loadEmployeeNames(): void {
-    this.employeeService.getEmployes().subscribe({
-      next: (list: Employee[]) => {
-        this.employeeNames = new Map(list.filter((e) => e.id).map((e) => [e.id as string, e.name]));
-        this.employeeOptions = list
-          .filter((e) => e.id && e.ativo)
-          .map((e) => ({ label: e.name, value: e.id as string }));
-      },
-      error: () => (this.employeeNames = new Map()),
-    });
-  }
-
+  /** O nome vem do store: a solicitação guarda o id, quem traduz é a lista compartilhada. */
   employeeName(employeeId: string): string {
-    return this.employeeNames.get(employeeId) ?? employeeId;
+    return this.employeeStore.nameOf(employeeId);
   }
 
   load(): void {
@@ -250,6 +238,9 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
         this.mode.set('grid');
         this.load();
         this.loadAlerts();
+        // Lançar férias consome saldo do funcionário: a lista compartilhada
+        // precisa refletir isso nas outras abas.
+        if (this.setBalance) this.employeeStore.refresh();
         this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Férias lançadas com sucesso!' });
       },
       error: (err) => {

@@ -17,15 +17,15 @@
   </app-toolbar>
 
   <!-- Indicador de vínculo usuário/funcionário -->
-  <div class="link-status" *ngIf="employes.length > 0"
+  <div class="link-status" *ngIf="employes().length > 0"
        [ngClass]="unlinkedCount > 0 ? 'link-status--warn' : 'link-status--ok'">
     <i class="pi" [ngClass]="unlinkedCount > 0 ? 'pi-exclamation-triangle' : 'pi-check-circle'"></i>
     <span *ngIf="unlinkedCount > 0">
-      <strong>{{ unlinkedCount }}</strong> de {{ employes.length }} funcionário{{ employes.length > 1 ? 's' : '' }}
+      <strong>{{ unlinkedCount }}</strong> de {{ employes().length }} funcionário{{ employes().length > 1 ? 's' : '' }}
       sem usuário vinculado
     </span>
     <span *ngIf="unlinkedCount === 0">
-      Todos os {{ employes.length }} funcionários estão vinculados a um usuário
+      Todos os {{ employes().length }} funcionários estão vinculados a um usuário
     </span>
   </div>
 
@@ -35,8 +35,8 @@
     <pk-table
       #grid
       [showCaption]="false"
-      [data]="employes"
-      [loading]="loading"
+      [data]="employes()"
+      [loading]="loading()"
       [filterFields]="['name', 'email', 'partnerCode', 'hierarchy', 'positionName', 'contractType']"
       emptyIcon="pi pi-users"
       emptyTitle="Nenhum funcionário encontrado"
