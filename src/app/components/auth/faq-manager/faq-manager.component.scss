@@ -21,26 +21,26 @@
   font-size: .72rem;
   font-weight: 700;
   padding: .25rem .65rem;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: .04em;
 
   &.badge-published {
-    background: rgba(v.$success, .12);
-    color: v.$success;
-    border: 1px solid rgba(v.$success, .25);
+    background: var(--app-success-soft);
+    color: var(--app-success);
+    border: 1px solid color-mix(in srgb, var(--app-success) 32%, transparent);
   }
 
   &.badge-draft {
-    background: rgba(v.$warning, .12);
-    color: color.adjust(v.$warning, $lightness: -20%);
-    border: 1px solid rgba(v.$warning, .3);
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+    border: 1px solid color-mix(in srgb, var(--app-warning) 34%, transparent);
   }
 
   &.badge-archived {
-    background: v.$neutral-100;
-    color: v.$neutral-500;
-    border: 1px solid v.$border;
+    background: var(--app-surface-3);
+    color: var(--app-text-muted);
+    border: 1px solid var(--app-border);
   }
 }
 
@@ -57,24 +57,24 @@
   align-items: center;
   gap: .4rem;
   padding: .4rem .85rem;
-  border: 1px solid v.$border;
-  border-radius: v.$radius-full;
-  background: v.$bg-panel;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
   font-size: .8rem;
   font-weight: 500;
-  color: v.$neutral-700;
+  color: var(--app-text);
   cursor: pointer;
   transition: all v.$transition-base;
 
   &:hover {
-    border-color: v.$primary;
-    color: v.$primary;
-    background: v.$bg-selected;
+    border-color: var(--app-action);
+    color: var(--app-action);
+    background: var(--app-action-soft);
   }
 
   &.active {
-    border-color: v.$primary;
-    background: v.$primary;
+    border-color: var(--app-action);
+    background: var(--app-action);
     color: #fff;
 
     .status-dot { border-color: rgba(255,255,255,.5); }
@@ -88,19 +88,19 @@
   border-radius: 50%;
   border: 1.5px solid transparent;
 
-  &.dot-all      { background: v.$neutral-400; border-color: v.$neutral-400; }
-  &.dot-published { background: v.$success; border-color: v.$success; }
-  &.dot-draft     { background: v.$warning; border-color: v.$warning; }
-  &.dot-archived  { background: v.$neutral-400; border-color: v.$neutral-300; }
+  &.dot-all      { background: var(--app-text-subtle); border-color: var(--app-text-subtle); }
+  &.dot-published { background: var(--app-success); border-color: var(--app-success); }
+  &.dot-draft     { background: var(--app-warning); border-color: var(--app-warning); }
+  &.dot-archived  { background: var(--app-text-subtle); border-color: var(--app-border); }
 }
 
 .status-count {
-  background: v.$neutral-100;
-  color: v.$neutral-500;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
   font-size: .7rem;
   font-weight: 700;
   padding: .05rem .35rem;
-  border-radius: v.$radius-full;
+  border-radius: var(--radius-pill);
   min-width: 1.2rem;
   text-align: center;
   transition: all v.$transition-base;
@@ -110,12 +110,12 @@
 
 .faq-title-cell {
   font-weight: 600;
-  color: v.$neutral-900;
+  color: var(--app-text);
   font-size: .875rem;
 }
 
 .faq-body-cell {
-  color: v.$text-muted;
+  color: var(--app-text-muted);
   font-size: .83rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -127,18 +127,18 @@
 // ── Action buttons ────────────────────────────────────────────────────────────
 
 .btn-publish {
-  color: v.$success !important;
-  &:hover { background: rgba(v.$success, .08) !important; }
+  color: var(--app-success) !important;
+  &:hover { background: var(--app-success-soft) !important; }
 }
 
 .btn-archive {
-  color: v.$neutral-500 !important;
-  &:hover { background: v.$neutral-100 !important; }
+  color: var(--app-text-muted) !important;
+  &:hover { background: var(--app-surface-3) !important; }
 }
 
 .btn-draft {
-  color: v.$warning !important;
-  &:hover { background: rgba(v.$warning, .08) !important; }
+  color: var(--app-warning) !important;
+  &:hover { background: var(--app-warning-soft) !important; }
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@
   flex-direction: column;
   align-items: center;
   padding: 3.5rem 1rem;
-  color: v.$neutral-400;
+  color: var(--app-text-subtle);
 }
 
 .empty-icon {
@@ -160,13 +160,13 @@
 .empty-title {
   font-size: 1rem;
   font-weight: 600;
-  color: v.$neutral-500;
+  color: var(--app-text-muted);
   margin: 0 0 .35rem;
 }
 
 .empty-subtitle {
   font-size: .85rem;
-  color: v.$neutral-400;
+  color: var(--app-text-subtle);
   margin: 0;
 }
 
@@ -174,7 +174,7 @@
 
 .char-count {
   font-size: .72rem;
-  color: v.$text-light;
+  color: var(--app-text-subtle);
   align-self: flex-end;
   margin-top: .2rem;
 }
@@ -183,14 +183,14 @@
 
 ::ng-deep .faq-dialog {
   .p-dialog-header {
-    background: v.$primary;
-    border-bottom: 1px solid v.$primary-light;
+    background: var(--app-action);
+    border-bottom: 1px solid var(--app-action-hover);
     padding: 1.1rem 1.5rem;
 
     .p-dialog-title {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: var(--app-on-action);
     }
 
     .p-dialog-header-icon {
@@ -202,11 +202,11 @@
   .p-dialog-content { padding: 0; }
 
   .p-dialog-footer {
-    border-top: 1px solid v.$border;
+    border-top: 1px solid var(--app-border);
     padding: .85rem 1.5rem;
     display: flex;
     justify-content: flex-end;
     gap: .6rem;
-    background: v.$bg-hover;
+    background: var(--app-surface-2);
   }
 }
