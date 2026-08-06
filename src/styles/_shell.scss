@@ -1,0 +1,21 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Comportamento padrão da tela dentro da área de trabalho
+//
+// Por que isto mora aqui e não no SCSS do auth-layout: a tela é criada pelo
+// `router-outlet`, fora do template do layout, então não recebe o atributo
+// `_ngcontent` dele. Escrita lá dentro, a regra compilava para
+// `.app-content[_ngcontent-x] > *[_ngcontent-x]` e não casava com tela nenhuma
+// — o resultado era tela comum sem altura definida, cortada pelo
+// `overflow: hidden` do `.app-content`, sem como rolar até o fim do conteúdo.
+//
+// Por que `:where()`: zera a especificidade (0,0,0). Isto é um padrão, não uma
+// imposição — qualquer tela que declare o próprio `:host` (as de grade, via o
+// mixin `grid-screen`, que trocam a rolagem da página pela rolagem da tabela)
+// vence sem precisar de `!important` nem depender da ordem de carga do CSS.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:where(.app-content) > :where(:not(router-outlet)) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
