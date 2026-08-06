@@ -74,7 +74,7 @@ $text-light:        #94a3b8;
     background: v.$primary;
     border-color: v.$primary;
     color: #fff;
-    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
 }
 
@@ -144,7 +144,7 @@ $text-light:        #94a3b8;
 
   &:hover {
     background: v.$bg-hover;
-    border-color: rgba(35, 46, 97, .2);
+    border-color: color-mix(in srgb, var(--app-action) 20%, transparent);
   }
 
   label {

@@ -55,7 +55,7 @@
     background: v.$primary;
     border-color: v.$primary;
     color: #fff;
-    box-shadow: 0 2px 8px rgba(35,46,97,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-action) 25%, transparent);
   }
 }
 
@@ -63,7 +63,7 @@
   &:hover {
     background: v.$danger;
     border-color: v.$danger;
-    box-shadow: 0 2px 8px rgba(220,38,38,.25);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--app-danger) 25%, transparent);
   }
 }
 

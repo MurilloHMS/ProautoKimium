@@ -36,17 +36,17 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
     color: #6b7492;
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
     color: v.$secondary-dark;
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
     color: #d92d20;
   }
 }

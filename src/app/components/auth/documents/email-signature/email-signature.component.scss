@@ -110,14 +110,14 @@ input {
 
   &:focus {
     border-color: var(--app-action);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 15%, transparent);
   }
 
   &.invalid {
     border-color: var(--app-danger);
 
     &:focus {
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-danger) 15%, transparent);
     }
   }
 }
@@ -163,7 +163,7 @@ input {
     &:hover:not(:disabled) {
       opacity: 0.88;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--app-action) 35%, transparent);
     }
   }
 

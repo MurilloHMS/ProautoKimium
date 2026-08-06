@@ -27,7 +27,7 @@
     i { font-size: 0.95rem; }
 
     &:hover {
-      border-color: rgba(87, 193, 171, 0.5);
+      border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
       color: v.$primary;
     }
 
@@ -35,7 +35,7 @@
       background: linear-gradient(135deg, v.$primary, v.$secondary);
       border-color: transparent;
       color: #ffffff;
-      box-shadow: 0 8px 20px rgba(35, 46, 97, 0.20);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--app-action) 20%, transparent);
 
       &:hover { color: #ffffff; }
     }
@@ -290,7 +290,7 @@
 
     &:focus-within {
       border-color: v.$primary-light;
-      box-shadow: 0 0 0 3px rgba(35,46,97,.1);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 10%, transparent);
     }
   }
 }

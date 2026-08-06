@@ -14,16 +14,16 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border: 1px solid v.$border;
+  border: 1px solid var(--app-border);
   border-radius: 10px;
-  background: #fff;
-  color: v.$primary;
+  background: var(--app-surface);
+  color: var(--app-action);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 
-  &:hover:not(:disabled) { background: rgba(87, 193, 171, 0.10); border-color: rgba(87, 193, 171, 0.5); }
+  &:hover:not(:disabled) { background: color-mix(in srgb, var(--app-success) 10%, transparent); border-color: color-mix(in srgb, var(--app-success) 50%, transparent); }
   &:disabled { opacity: 0.45; cursor: default; }
 }
 
@@ -37,17 +37,17 @@
   margin-bottom: 18px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(35, 46, 97, 0.06), rgba(87, 193, 171, 0.12));
-  border: 1px solid rgba(87, 193, 171, 0.30);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 6%, transparent), color-mix(in srgb, var(--app-success) 12%, transparent));
+  border: 1px solid color-mix(in srgb, var(--app-success) 30%, transparent);
 
   &__text {
     display: flex;
     align-items: center;
     gap: 12px;
 
-    > i { font-size: 1.4rem; color: v.$primary; }
-    strong { display: block; color: v.$primary; font-size: 0.95rem; }
-    span { font-size: 0.82rem; color: #6b7492; }
+    > i { font-size: 1.4rem; color: var(--app-action); }
+    strong { display: block; color: var(--app-action); font-size: 0.95rem; }
+    span { font-size: 0.82rem; color: var(--app-text-muted); }
   }
 }
 
@@ -59,11 +59,11 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  background: linear-gradient(135deg, v.$primary, v.$secondary);
+  background: linear-gradient(135deg, var(--app-action), var(--app-success));
   color: #fff;
   font-size: 0.86rem;
   font-weight: 700;
-  box-shadow: 0 6px 16px rgba(35, 46, 97, 0.22);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--app-action) 22%, transparent);
   transition: transform 0.15s, opacity 0.2s;
 
   &:hover:not(:disabled) { transform: translateY(-1px); }
@@ -77,8 +77,8 @@
   margin-bottom: 18px;
   padding: 12px 16px;
   border-radius: 12px;
-  background: rgba(87, 193, 171, 0.12);
-  color: v.$secondary-dark;
+  background: color-mix(in srgb, var(--app-success) 12%, transparent);
+  color: var(--app-success);
   font-size: 0.88rem;
   font-weight: 600;
 }
@@ -86,7 +86,7 @@
 /* Empty */
 .nt-empty {
   text-align: center;
-  color: #9aa6bd;
+  color: var(--app-text-subtle);
   padding: 56px 16px;
   display: flex;
   flex-direction: column;
@@ -97,11 +97,11 @@
     width: 80px; height: 80px;
     border-radius: 24px;
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
   small { font-size: 0.85rem; max-width: 260px; line-height: 1.5; }
 }
 
@@ -120,17 +120,17 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  background: #fff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 14px;
   cursor: pointer;
   transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
 
-  &:hover { border-color: rgba(87, 193, 171, 0.5); box-shadow: 0 8px 22px rgba(35, 46, 97, 0.07); }
+  &:hover { border-color: color-mix(in srgb, var(--app-success) 50%, transparent); box-shadow: 0 8px 22px color-mix(in srgb, var(--app-action) 7%, transparent); }
 
   &.is-unread {
-    background: linear-gradient(90deg, rgba(87, 193, 171, 0.06), #fff 40%);
-    border-color: rgba(87, 193, 171, 0.35);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--app-success) 6%, transparent), var(--app-surface) 40%);
+    border-color: color-mix(in srgb, var(--app-success) 35%, transparent);
   }
 
   &__icon {
@@ -138,16 +138,16 @@
     width: 44px; height: 44px;
     border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(35, 46, 97, 0.08);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 8%, transparent);
+    color: var(--app-action);
     i { font-size: 1.2rem; }
 
-    &[data-type="HOLERITE"] { background: rgba(87, 193, 171, 0.16); color: v.$secondary-dark; }
+    &[data-type="HOLERITE"] { background: color-mix(in srgb, var(--app-success) 16%, transparent); color: var(--app-success); }
   }
 
   &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-  &__title { font-weight: 700; color: v.$primary; font-size: 0.95rem; }
-  &__msg { font-size: 0.85rem; color: #6b7492; line-height: 1.35; }
+  &__title { font-weight: 700; color: var(--app-action); font-size: 0.95rem; }
+  &__msg { font-size: 0.85rem; color: var(--app-text-muted); line-height: 1.35; }
 
   &__meta {
     flex-shrink: 0;
@@ -156,14 +156,14 @@
     align-items: flex-end;
     gap: 6px;
   }
-  &__time { font-size: 0.72rem; color: #9aa6bd; white-space: nowrap; }
+  &__time { font-size: 0.72rem; color: var(--app-text-subtle); white-space: nowrap; }
 }
 
 .nt-dot {
   width: 9px; height: 9px;
   border-radius: 50%;
-  background: v.$secondary;
-  box-shadow: 0 0 0 3px rgba(87, 193, 171, 0.18);
+  background: var(--app-success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-success) 18%, transparent);
 }
 
 @media (max-width: 600px) {

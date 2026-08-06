@@ -139,7 +139,7 @@
   font-size: 0.86rem;
   transition: transform 0.15s, box-shadow 0.2s;
 
-  &:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(35, 46, 97, 0.22); }
+  &:hover { transform: translateY(-1px); box-shadow: 0 6px 16px color-mix(in srgb, var(--app-action) 22%, transparent); }
 }
 
 .cores-lista {

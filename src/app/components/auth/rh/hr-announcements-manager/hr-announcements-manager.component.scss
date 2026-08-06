@@ -54,7 +54,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
     color: v.$primary;
     i { font-size: 1.8rem; }
   }

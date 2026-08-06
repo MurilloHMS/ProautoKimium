@@ -126,7 +126,7 @@
 
 .kpi--hero {
   background: linear-gradient(135deg, var(--app-warning-soft), var(--app-surface));
-  border-color: rgba(245, 166, 35, 0.4);
+  border-color: color-mix(in srgb, var(--app-warning) 40%, transparent);
 
   .kpi__value { color: var(--app-warning); }
 
@@ -359,7 +359,7 @@
 
   &--has-events {
     cursor: pointer;
-    &:hover { background: rgba(35, 46, 97, 0.05); }
+    &:hover { background: color-mix(in srgb, var(--app-action) 5%, transparent); }
   }
 }
 
@@ -566,7 +566,7 @@
   i { color: var(--app-action); font-size: 1rem; flex-shrink: 0; }
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.5);
+    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
     box-shadow: var(--app-shadow-sm);
     transform: translateY(-1px);
   }

@@ -291,7 +291,7 @@
   &:focus {
     outline: none;
     border-color: v.$secondary;
-    box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-success) 10%, transparent);
   }
 }
 
@@ -304,7 +304,7 @@
   transition: all 0.2s;
   &:hover {
     border-color: v.$secondary;
-    background: rgba(0, 212, 170, 0.1);
+    background: color-mix(in srgb, var(--app-success) 10%, transparent);
   }
   &.link-copy-btn--ok {
     border-color: v.$secondary;

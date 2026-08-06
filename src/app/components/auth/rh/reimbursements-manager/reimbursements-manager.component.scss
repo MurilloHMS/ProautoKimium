@@ -71,22 +71,22 @@
   white-space: nowrap;
 
   &--pending {
-    background: rgba(107, 116, 146, 0.14);
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
     color: #6b7492;
   }
 
   &--approved {
-    background: rgba(87, 193, 171, 0.16);
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
     color: v.$secondary-dark;
   }
 
   &--rejected {
-    background: rgba(217, 45, 32, 0.10);
+    background: color-mix(in srgb, var(--app-danger) 10%, transparent);
     color: #d92d20;
   }
 
   &--paid {
-    background: rgba(35, 46, 97, 0.10);
+    background: color-mix(in srgb, var(--app-action) 10%, transparent);
     color: v.$primary;
   }
 }
@@ -107,7 +107,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;

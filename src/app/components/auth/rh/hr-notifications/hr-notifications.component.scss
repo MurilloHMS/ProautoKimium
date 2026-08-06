@@ -34,7 +34,7 @@
     i { font-size: 0.95rem; }
 
     &:hover {
-      border-color: rgba(87, 193, 171, 0.5);
+      border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
       color: v.$primary;
     }
 
@@ -42,7 +42,7 @@
       background: linear-gradient(135deg, v.$primary, v.$secondary);
       border-color: transparent;
       color: #ffffff;
-      box-shadow: 0 8px 20px rgba(35, 46, 97, 0.20);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--app-action) 20%, transparent);
 
       &:hover { color: #ffffff; }
     }
@@ -56,7 +56,7 @@
   padding: 10px 14px;
   margin-bottom: 20px;
   border-radius: 12px;
-  background: rgba(217, 45, 32, 0.08);
+  background: color-mix(in srgb, var(--app-danger) 8%, transparent);
   color: #d92d20;
   font-size: 0.85rem;
 

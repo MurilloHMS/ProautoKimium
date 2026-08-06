@@ -279,7 +279,7 @@
     transition: all v.$transition-fast ease;
 
     &:hover {
-      background: rgba(220, 53, 69, 0.08);
+      background: color-mix(in srgb, var(--app-danger) 8%, transparent);
       color: var(--app-danger);
     }
   }

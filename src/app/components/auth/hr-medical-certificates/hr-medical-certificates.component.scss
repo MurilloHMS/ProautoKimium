@@ -9,8 +9,8 @@
 // O cabeçalho da página é o <app-page-header>.
 
 .hrmc-form-card {
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 18px;
   padding: 24px;
   margin-bottom: 40px;
@@ -19,7 +19,7 @@
     font-family: v.$font-heading;
     font-size: 1.15rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
     margin: 0 0 18px;
     display: flex;
     align-items: center;
@@ -40,16 +40,16 @@
     gap: 8px;
     padding: 10px 18px;
     border-radius: 12px;
-    border: 1px dashed rgba(35, 46, 97, 0.35);
-    color: v.$primary;
+    border: 1px dashed color-mix(in srgb, var(--app-action) 35%, transparent);
+    color: var(--app-action);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease;
 
     &:hover {
-      border-color: v.$secondary;
-      background: rgba(87, 193, 171, 0.08);
+      border-color: var(--app-success);
+      background: color-mix(in srgb, var(--app-success) 8%, transparent);
     }
   }
 
@@ -66,15 +66,15 @@
     align-items: center;
     gap: 6px;
     font-size: 0.85rem;
-    color: #6b7492;
+    color: var(--app-text-muted);
   }
 }
 
 .hrmc-legibility {
   margin-top: 16px;
   padding: 14px 16px;
-  background: rgba(246, 173, 85, 0.10);
-  border: 1px solid rgba(246, 173, 85, 0.35);
+  background: color-mix(in srgb, var(--app-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-warning) 35%, transparent);
   border-radius: 12px;
 }
 
@@ -88,19 +88,19 @@
   font-family: v.$font-heading;
   font-size: 1.2rem;
   font-weight: 700;
-  color: v.$primary;
+  color: var(--app-action);
   margin: 0 0 16px;
 }
 
 .hrmc-state {
   padding: 40px 0;
-  color: #6b7492;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
 .hrmc-empty {
   text-align: center;
-  color: #9aa6bd;
+  color: var(--app-text-subtle);
   padding: 56px 16px;
   display: flex;
   flex-direction: column;
@@ -114,12 +114,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
 }
 
 .hrmc-grid {
@@ -133,14 +133,14 @@
   align-items: center;
   gap: 16px;
   padding: 16px 18px;
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.5);
-    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 7%, transparent);
   }
 
   &__icon {
@@ -151,8 +151,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(35, 46, 97, 0.08);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 8%, transparent);
+    color: var(--app-action);
     i { font-size: 1.4rem; }
   }
 
@@ -168,12 +168,12 @@
     font-family: v.$font-heading;
     font-size: 1.0rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &__meta {
     font-size: 0.82rem;
-    color: #8a93a8;
+    color: var(--app-text-subtle);
   }
 
   &__btn {
@@ -183,17 +183,17 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    background: linear-gradient(135deg, v.$primary, v.$secondary);
+    background: linear-gradient(135deg, var(--app-action), var(--app-success));
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-    box-shadow: 0 6px 16px rgba(35, 46, 97, 0.22);
+    box-shadow: 0 6px 16px color-mix(in srgb, var(--app-action) 22%, transparent);
 
     i { font-size: 1.05rem; }
 
-    &:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(35, 46, 97, 0.30); }
+    &:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px color-mix(in srgb, var(--app-action) 30%, transparent); }
     &:disabled { opacity: 0.6; cursor: default; }
   }
 }

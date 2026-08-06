@@ -10,13 +10,13 @@
 
 .hrd-state {
   padding: 40px 0;
-  color: #6b7492;
+  color: var(--app-text-muted);
   text-align: center;
 }
 
 .hrd-empty {
   text-align: center;
-  color: #9aa6bd;
+  color: var(--app-text-subtle);
   padding: 56px 16px;
   display: flex;
   flex-direction: column;
@@ -30,12 +30,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(35, 46, 97, 0.08), rgba(87, 193, 171, 0.16));
-    color: v.$primary;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--app-action) 8%, transparent), color-mix(in srgb, var(--app-success) 16%, transparent));
+    color: var(--app-action);
     i { font-size: 2.2rem; }
   }
 
-  p { margin: 0; font-weight: 700; color: #6b7492; }
+  p { margin: 0; font-weight: 700; color: var(--app-text-muted); }
   small { font-size: 0.85rem; max-width: 260px; line-height: 1.5; }
 }
 
@@ -50,14 +50,14 @@
   align-items: flex-start;
   gap: 16px;
   padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid #e6e9f0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    border-color: rgba(87, 193, 171, 0.5);
-    box-shadow: 0 8px 24px rgba(35, 46, 97, 0.07);
+    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 7%, transparent);
   }
 
   &__icon {
@@ -68,8 +68,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(35, 46, 97, 0.08);
-    color: v.$primary;
+    background: color-mix(in srgb, var(--app-action) 8%, transparent);
+    color: var(--app-action);
     i { font-size: 1.4rem; }
   }
 
@@ -85,20 +85,20 @@
     font-family: v.$font-heading;
     font-size: 1.05rem;
     font-weight: 700;
-    color: v.$primary;
+    color: var(--app-action);
   }
 
   &__content {
     margin: 0;
     font-size: 0.9rem;
-    color: v.$text-primary;
+    color: var(--app-text);
     line-height: 1.6;
     white-space: pre-wrap;
   }
 
   &__meta {
     font-size: 0.8rem;
-    color: #8a93a8;
+    color: var(--app-text-subtle);
   }
 }
 

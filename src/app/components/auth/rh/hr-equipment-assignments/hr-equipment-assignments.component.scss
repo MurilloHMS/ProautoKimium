@@ -51,12 +51,12 @@
   white-space: nowrap;
 
   &--with {
-    background: rgba(87, 193, 171, 0.16);
+    background: color-mix(in srgb, var(--app-success) 16%, transparent);
     color: v.$secondary-dark;
   }
 
   &--returned {
-    background: rgba(107, 116, 146, 0.14);
+    background: color-mix(in srgb, var(--app-text-muted) 14%, transparent);
     color: #6b7492;
   }
 }
@@ -73,7 +73,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(35, 46, 97, 0.05);
+  background: color-mix(in srgb, var(--app-action) 5%, transparent);
   border-radius: 12px;
   margin-bottom: 16px;
   font-size: 0.88rem;
