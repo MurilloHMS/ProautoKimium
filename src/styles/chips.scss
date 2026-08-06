@@ -1,46 +1,100 @@
-@use 'variables' as v;
+// ═══════════════════════════════════════════════════════════════════════════
+// Chips
+//
+// Duas famílias, e a diferença importa:
+//
+// `.status-chip` diz em que estado o registro está (ativo, pago, recusado) —
+// cor por PAPEL, do vocabulário de status. Estava duplicado no SCSS de
+// Clientes e de Funcionários, com verde e vermelho cravados em hex, o que
+// deixava o tema escuro sem ajuste.
+//
+// `.chip-*` é rótulo de conteúdo (cor de produto, telefone do perfil): neutro,
+// porque não é estado nem ação.
+// ═══════════════════════════════════════════════════════════════════════════
 
+// ─── Estado ────────────────────────────────────────────────────────────────
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+
+  i { font-size: var(--text-micro); }
+
+  &--active,
+  &--success {
+    background: var(--app-success-soft);
+    color: var(--app-success);
+  }
+
+  &--warning,
+  &--pending {
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+  }
+
+  &--inactive,
+  &--danger {
+    background: var(--app-danger-soft);
+    color: var(--app-danger);
+  }
+
+  &--neutral {
+    background: var(--app-surface-3);
+    color: var(--app-text-muted);
+  }
+}
+
+// ─── Rótulo de conteúdo ────────────────────────────────────────────────────
 .chip-container {
   display: flex;
   flex-wrap: wrap;
-  gap: .3rem;
+  gap: 5px;
 }
 
 .chip-color {
   display: inline-block;
-  background: #f1f5f9;
-  color: v.$secondary;
-  font-size: .72rem;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+  border: 1px solid var(--app-border);
+  font-size: var(--text-micro);
   font-weight: 500;
-  padding: .15rem .5rem;
-  border-radius: 999px;
-  border: 1px solid v.$secondary;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
 
   &.chip-color-muted {
-    background: #f9fafb;
-    color: v.$primary;
+    background: transparent;
   }
 
   &.chip-color-more {
-    background: #e5e7eb;
-    color: v.$primary;
+    background: transparent;
+    color: var(--app-text-subtle);
     font-style: italic;
   }
-}
-
-::ng-deep .p-inputchips {
-  width: 100%;
-  .p-inputchips-multiple-container { width: 100%; min-height: 40px; font-size: .88rem; }
 }
 
 .chip-area {
   display: inline-flex;
   align-items: center;
-  padding: .2rem .65rem;
-  background: v.$secondary-lighter;
-  color: v.$primary;
-  border-radius: 99px;
-  font-size: .78rem;
+  padding: 2px 10px;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-ui-sm);
   font-weight: 500;
   white-space: nowrap;
+}
+
+::ng-deep .p-inputchips {
+  width: 100%;
+
+  .p-inputchips-multiple-container {
+    width: 100%;
+    min-height: var(--field-h);
+    font-size: var(--text-ui);
+  }
 }
