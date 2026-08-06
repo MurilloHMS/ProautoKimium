@@ -23,7 +23,8 @@ type SendMode = 'specific' | 'all';
 })
 export class HrNotificationsComponent implements OnInit {
   private readonly employeeStore = inject(EmployeeStore);
-  readonly employeeOptions = this.employeeStore.options;
+  /** Só ativos: notificação para quem foi desligado não chega a lugar nenhum. */
+  readonly employeeOptions = this.employeeStore.activeOptions;
 
   sendMode: SendMode = 'specific';
   form: FormGroup;

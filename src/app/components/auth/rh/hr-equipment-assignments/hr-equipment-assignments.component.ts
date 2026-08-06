@@ -38,7 +38,10 @@ export class HrEquipmentAssignmentsComponent implements OnInit, TabDirtyCheck {
   assignments: EquipmentAssignment[] = [];
   loading = false;
   private readonly employeeStore = inject(EmployeeStore);
+  /** Filtro da grade: inclui desligado, que continua tendo entrega no histórico. */
   readonly employeeOptions = this.employeeStore.options;
+  /** Entrega nova: só para quem está na casa. */
+  readonly deliverEmployeeOptions = this.employeeStore.activeOptions;
 
   employeeFilter: string | null = null;
 

@@ -47,7 +47,8 @@ export class HrCalculatorsComponent implements OnInit {
   ];
 
   private readonly employeeStore = inject(EmployeeStore);
-  readonly employeeOptions = this.employeeStore.options;
+  /** Só ativos: não se calcula vale de quem foi desligado. */
+  readonly employeeOptions = this.employeeStore.activeOptions;
 
   // Bulk VT
   bulkVtForm: FormGroup;
