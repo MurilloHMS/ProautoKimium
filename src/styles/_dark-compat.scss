@@ -53,15 +53,15 @@
     color: var(--app-text-muted);
   }
 
-  // ─── Divisores e ícones de cabeçalho ────────────────────────────────────
+  // ─── Divisores ──────────────────────────────────────────────────────────
   .divider-label {
     color: var(--app-text-muted);
   }
 
-  .header-icon {
-    background: var(--app-primary-soft);
-    color: var(--app-primary);
-  }
+  // `.header-icon` saiu: os cinco arquivos que o definem já usam token. Três
+  // telas (guia, contatos, divisor de holerite) usam a classe sem definir
+  // nada — lá o disco navy só existia no tema escuro, o que era o acidente,
+  // não o desenho. Agora ficam iguais nos dois temas.
 
   // ─── Estados de linha (tabelas e listas) ────────────────────────────────
   tr:hover,

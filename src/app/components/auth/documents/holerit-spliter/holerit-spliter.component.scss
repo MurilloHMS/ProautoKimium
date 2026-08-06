@@ -193,7 +193,7 @@
 
 .vincular-hint {
   font-size: 0.9rem;
-  color: var(--p-text-muted-color, #6b7492);
+  color: var(--app-text-muted);
   line-height: 1.6;
   margin: 4px 0 18px;
 }
@@ -213,30 +213,30 @@
   label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #3e9e8e;
+    color: var(--app-success);
   }
 }
 
 .competencia-input {
   height: 42px;
   padding: 0 12px;
-  border: 1px solid var(--p-surface-border, #dbe3ec);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
   font-size: 0.95rem;
-  color: #232e61;
-  background: var(--p-surface-card, #fff);
+  color: var(--app-text);
+  background: var(--app-surface);
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus {
-    border-color: #57c1ab;
+    border-color: var(--app-action);
     box-shadow: 0 0 0 4px rgba(87, 193, 171, 0.16);
   }
 }
 
 .tipo-toggle {
   display: inline-flex;
-  border: 1px solid var(--p-surface-border, #dbe3ec);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
   overflow: hidden;
   height: 42px;
@@ -249,8 +249,8 @@
     line-height: 1.1;
     padding: 0 16px;
     border: none;
-    background: var(--p-surface-card, #fff);
-    color: #232e61;
+    background: var(--app-surface);
+    color: var(--app-text);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -258,7 +258,7 @@
 
     small { font-size: 0.66rem; font-weight: 500; opacity: 0.6; }
 
-    & + .tipo-opt { border-left: 1px solid var(--p-surface-border, #dbe3ec); }
+    & + .tipo-opt { border-left: 1px solid var(--app-border); }
 
     &.active {
       background: linear-gradient(135deg, #232e61, #57c1ab);
@@ -304,10 +304,10 @@
   padding: 12px 16px;
   border-radius: 12px;
   background: rgba(87, 193, 171, 0.10);
-  color: #2c7a6b;
+  color: var(--app-success);
   font-size: 0.92rem;
 
-  i { font-size: 1.1rem; color: #3e9e8e; }
+  i { font-size: 1.1rem; color: var(--app-success); }
 }
 
 .vr-warn {
@@ -317,10 +317,10 @@
   padding: 12px 16px;
   border-radius: 12px;
   background: rgba(246, 173, 85, 0.12);
-  color: #8a5a14;
+  color: var(--app-warning);
   font-size: 0.88rem;
 
-  i { font-size: 1.1rem; color: #d9822b; flex-shrink: 0; margin-top: 2px; }
+  i { font-size: 1.1rem; color: var(--app-warning); flex-shrink: 0; margin-top: 2px; }
 
   ul { margin: 6px 0 0; padding-left: 18px; }
   li { margin: 2px 0; }
