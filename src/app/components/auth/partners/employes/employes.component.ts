@@ -7,6 +7,7 @@ import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-st
 import { PositionStore } from '../../../../infrastructure/state/position.store';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
+import { formatDateOnly, parseDateOnly } from '../../../../domain/utils/date-only';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
 import { CareerHistoryService } from '../../../../infrastructure/services/hr/career-history.service';
 import { MessageService } from 'primeng/api';
@@ -320,7 +321,9 @@ export class EmployesComponent implements TabDirtyCheck {
       ativo: employee.ativo,
       managerCode: employee.managerCode,
       hierarchy: employee.hierarchy,
-      birthday: employee.birthday,
+      // A API manda "1990-05-20"; o datepicker precisa de Date, senão o campo
+      // abre vazio mesmo com o dado salvo.
+      birthday: parseDateOnly(employee.birthday),
       department: employee.department,
       companyId: employee.companyId ?? null,
       teamId: employee.teamId ?? null,
@@ -358,11 +361,13 @@ export class EmployesComponent implements TabDirtyCheck {
     if(this.form.valid){
       const employee = this.form.value;
 
-      if(employee.birthday instanceof Date){
-        employee.birthday = employee.birthday.toISOString().split('T')[0];
+      // `toISOString()` passaria por UTC antes de cortar a string e poderia
+      // mandar o dia anterior; `formatDateOnly` usa o fuso local.
+      if(employee.birthday){
+        employee.birthday = formatDateOnly(employee.birthday);
       }
-      if(employee.hiringDate instanceof Date){
-        employee.hiringDate = employee.hiringDate.toISOString().split('T')[0];
+      if(employee.hiringDate){
+        employee.hiringDate = formatDateOnly(employee.hiringDate);
       }
 
       if(this.employeToEdit){
@@ -432,9 +437,8 @@ export class EmployesComponent implements TabDirtyCheck {
     this.careerSaving = true;
 
     const val = this.careerForm.getRawValue();
-    const effectiveDate = val.hiringDate instanceof Date
-      ? val.hiringDate.toISOString().split('T')[0]
-      : val.hiringDate;
+    // `hiringDate` é obrigatório no careerForm, que já foi validado acima.
+    const effectiveDate = formatDateOnly(val.hiringDate)!;
 
     this.careerHistoryService.create({
       employeeId: this.careerTarget.id!,
