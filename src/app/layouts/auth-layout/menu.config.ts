@@ -126,6 +126,13 @@ export const APP_MENU: AppMenuItem[] = [
     ],
   },
   {
+    label: 'Ferramentas',
+    icon: 'pi pi-fw pi-wrench',
+    items: [
+      { label: 'PDF', icon: 'pi pi-fw pi-file-pdf', routerLink: ['tools/pdf'] },
+    ],
+  },
+  {
     label: 'Configurações',
     icon: 'pi pi-fw pi-cog',
     items: [

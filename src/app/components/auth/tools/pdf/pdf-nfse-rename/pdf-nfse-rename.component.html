@@ -1,0 +1,44 @@
+<p-toast position="top-right" />
+
+<div class="pdf-tool">
+
+  <app-page-header
+    [icon]="tool.icon"
+    [title]="tool.label"
+    [subtitle]="tool.description" />
+
+  <div class="pdf-tool__panel">
+
+    <pk-fileUpload
+      mode="dropzone"
+      [multiple]="true"
+      [maxFileSize]="50000000"
+      [loading]="processing()"
+      loadingTitle="Renomeando…"
+      loadingSubtitle="Lendo o conteúdo de cada nota"
+      chooseLabel="Selecionar notas"
+      dropTitle="Arraste as NFS-e aqui"
+      dropHint="Pode soltar várias de uma vez"
+      fileIcon="pi pi-file-pdf"
+      (filesSelected)="onFilesSelected($event)"
+      (cleared)="onCleared()" />
+
+    @if (files().length > 0) {
+      <div class="pdf-tool__form">
+        <pk-button
+          pkType="download"
+          pkLabel="Renomear e baixar ZIP"
+          [pkDisabled]="processing()"
+          [pkLoading]="processing()"
+          (clicked)="rename()" />
+      </div>
+    }
+
+    <p class="pdf-tool__note">
+      <i class="pi pi-info-circle"></i>
+      O nome de cada arquivo é montado a partir do conteúdo da própria nota, e o
+      resultado volta num ZIP só. Os originais não são alterados.
+    </p>
+
+  </div>
+</div>

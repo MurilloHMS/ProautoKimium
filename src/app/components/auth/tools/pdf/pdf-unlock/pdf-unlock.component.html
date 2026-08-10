@@ -1,0 +1,54 @@
+<p-toast position="top-right" />
+
+<div class="pdf-tool">
+
+  <app-page-header
+    [icon]="tool.icon"
+    [title]="tool.label"
+    [subtitle]="tool.description" />
+
+  <div class="pdf-tool__panel">
+
+    <pk-fileUpload
+      mode="dropzone"
+      accept="application/pdf"
+      [maxFileSize]="25000000"
+      [loading]="processing()"
+      loadingTitle="Desbloqueando…"
+      loadingSubtitle="Isso leva alguns segundos"
+      chooseLabel="Selecionar PDF"
+      dropTitle="Arraste o PDF protegido aqui"
+      fileIcon="pi pi-file-pdf"
+      (filesSelected)="onFilesSelected($event)"
+      (cleared)="onCleared()" />
+
+    @if (file()) {
+      <div class="pdf-tool__form">
+        <!-- `new-password`, não `off`: o Chrome ignora `off` em campo de senha
+             (sites abusaram disso) e preencheria a senha DA CONTA do usuário
+             aqui. Se ele enviasse sem reparar, a senha pessoal iria para a API
+             numa requisição que não tem nada a ver com login. -->
+        <pk-password
+          label="Senha atual do arquivo"
+          placeholder="A senha usada para abrir o PDF"
+          autocomplete="new-password"
+          [pkRequired]="true"
+          [(ngModel)]="password" />
+
+        <pk-button
+          pkType="save"
+          pkLabel="Desbloquear e baixar"
+          [pkDisabled]="!canSubmit"
+          [pkLoading]="processing()"
+          (clicked)="unlock()" />
+      </div>
+    }
+
+    <p class="pdf-tool__note">
+      <i class="pi pi-info-circle"></i>
+      O arquivo é processado e devolvido na hora — nada fica guardado no servidor.
+      Você precisa saber a senha: a ferramenta remove a proteção, não a descobre.
+    </p>
+
+  </div>
+</div>

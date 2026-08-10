@@ -78,6 +78,13 @@ export const routes: Routes = [
       { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', loadComponent: () => import('./components/auth/rh/candidaturas/candidaturas.component').then(m => m.CandidaturasComponent), data: { roles: ['ADMIN', 'RH'] } },
 
+      // ── Ferramentas ──────────────────────────────────────────────────────
+      // Cada ferramenta é uma rota própria para abrir na sua aba, como as
+      // demais telas da área de trabalho.
+      { path: 'tools/pdf', loadComponent: () => import('./components/auth/tools/pdf/pdf-hub/pdf-hub.component').then(m => m.PdfHubComponent) },
+      { path: 'tools/pdf/unlock', loadComponent: () => import('./components/auth/tools/pdf/pdf-unlock/pdf-unlock.component').then(m => m.PdfUnlockComponent) },
+      { path: 'tools/pdf/nfse-rename', loadComponent: () => import('./components/auth/tools/pdf/pdf-nfse-rename/pdf-nfse-rename.component').then(m => m.PdfNfseRenameComponent) },
+
       // ── Empresa ──────────────────────────────────────────────────────────
       { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
       { path: 'company/excel', loadComponent: () => import('./components/auth/documents/excel-credentials/excel-credentials.component').then(m => m.ExcelCredentialsComponent) },

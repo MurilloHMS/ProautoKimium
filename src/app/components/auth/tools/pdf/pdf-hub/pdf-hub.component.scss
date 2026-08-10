@@ -1,0 +1,148 @@
+@use 'variables' as v;
+
+// Acento por ferramenta: categoria, não estado — mesmo padrão dos atalhos da
+// home. Onde existe papel no vocabulário, o token responde sozinho ao tema;
+// verde e roxo não têm papel, então ganham versão clara no fundo escuro.
+:host {
+  --accent-navy:   var(--app-action);
+  --accent-teal:   var(--app-success);
+  --accent-amber:  var(--app-warning);
+  --accent-red:    var(--app-danger);
+  --accent-green:  #{v.$success};
+  --accent-purple: #7c3aed;
+}
+
+:host-context(.dark-mode) {
+  --accent-green:  #4ade80;
+  --accent-purple: #a78bfa;
+}
+
+.pdf-hub {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: v.$space-8;
+
+  @media (max-width: v.$bp-md) { padding: v.$space-5; }
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: v.$space-4;
+  margin-top: v.$space-6;
+}
+
+.tool-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-4;
+  padding: v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+  text-decoration: none;
+  overflow: hidden;
+  transition: border-color v.$transition-base, transform v.$transition-base;
+
+  --accent-soft: #{'color-mix(in srgb, var(--accent) 14%, transparent)'};
+
+  // Fita de acento à esquerda, revelada no hover.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity v.$transition-base;
+  }
+
+  &:hover:not(.tool-card--soon) {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+
+    &::before { opacity: 1; }
+    .tool-card__arrow { opacity: 1; transform: translateX(0); }
+  }
+}
+
+.tool-card--navy   { --accent: var(--accent-navy); }
+.tool-card--teal   { --accent: var(--accent-teal); }
+.tool-card--amber  { --accent: var(--accent-amber); }
+.tool-card--purple { --accent: var(--accent-purple); }
+.tool-card--green  { --accent: var(--accent-green); }
+.tool-card--red    { --accent: var(--accent-red); }
+
+.tool-card__icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-control);
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+
+  i { font-size: 1.1rem; color: var(--accent); }
+}
+
+.tool-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tool-card__label {
+  font-family: v.$font-heading;
+  font-size: v.$font-size-base;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.tool-card__desc {
+  font-size: var(--text-ui-sm);
+  line-height: 1.4;
+  color: var(--app-text-muted);
+}
+
+.tool-card__arrow {
+  margin-left: auto;
+  align-self: center;
+  font-size: 0.8rem;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity v.$transition-base, transform v.$transition-base;
+}
+
+// ─── Ainda sem back-end ─────────────────────────────────────────────────────
+// Aparece apagado em vez de sumir: esconder faria procurar em outro lugar.
+.tool-card--soon {
+  cursor: default;
+  box-shadow: none;
+  background: var(--app-surface-2);
+
+  .tool-card__icon { background: var(--app-surface-3); i { color: var(--app-text-subtle); } }
+  .tool-card__label { color: var(--app-text-muted); }
+  .tool-card__desc  { color: var(--app-text-subtle); }
+}
+
+.tool-card__soon {
+  margin-left: auto;
+  align-self: center;
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--app-surface-3);
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tool-card, .tool-card__arrow { transition: none; }
+  .tool-card:hover { transform: none; }
+}
