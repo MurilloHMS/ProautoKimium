@@ -54,7 +54,6 @@
           <th pSortableColumn="hierarchy">Hierarquia <p-sortIcon field="hierarchy"></p-sortIcon></th>
           <th pSortableColumn="positionName">Cargo <p-sortIcon field="positionName"></p-sortIcon></th>
           <th pSortableColumn="contractType">Contrato <p-sortIcon field="contractType"></p-sortIcon></th>
-          <th pSortableColumn="salary">Salário <p-sortIcon field="salary"></p-sortIcon></th>
           <th pSortableColumn="birthday">Aniversário <p-sortIcon field="birthday"></p-sortIcon></th>
           <th class="col-center">Usuário</th>
           <th class="col-center">Ações</th>
@@ -106,10 +105,6 @@
           <td>
             <span *ngIf="e.contractType" class="code-badge">{{ e.contractType }}</span>
             <span *ngIf="!e.contractType" class="text-muted">—</span>
-          </td>
-          <td>
-            <span *ngIf="e.salary">{{ e.salary | currency:'BRL' }}</span>
-            <span *ngIf="!e.salary" class="text-muted">—</span>
           </td>
           <td>
           <span *ngIf="e.birthday" class="birthday-cell">
