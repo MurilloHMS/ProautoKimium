@@ -1,0 +1,35 @@
+<div class="pdf-hub">
+
+  <app-page-header
+    icon="pi pi-file-pdf"
+    title="Ferramentas de PDF"
+    subtitle="Cada ferramenta abre na própria aba. Os arquivos não ficam guardados no servidor."
+    size="lg" />
+
+  <div class="tool-grid">
+    @for (tool of tools; track tool.key) {
+
+      @if (tool.available) {
+        <a class="tool-card" [class]="'tool-card--' + tool.accent" [routerLink]="tool.routerLink">
+          <span class="tool-card__icon"><i [class]="tool.icon"></i></span>
+          <span class="tool-card__body">
+            <span class="tool-card__label">{{ tool.label }}</span>
+            <span class="tool-card__desc">{{ tool.description }}</span>
+          </span>
+          <i class="pi pi-arrow-right tool-card__arrow"></i>
+        </a>
+      } @else {
+        <div class="tool-card tool-card--soon" [class]="'tool-card tool-card--soon tool-card--' + tool.accent">
+          <span class="tool-card__icon"><i [class]="tool.icon"></i></span>
+          <span class="tool-card__body">
+            <span class="tool-card__label">{{ tool.label }}</span>
+            <span class="tool-card__desc">{{ tool.description }}</span>
+          </span>
+          <span class="tool-card__soon">Em breve</span>
+        </div>
+      }
+
+    }
+  </div>
+
+</div>

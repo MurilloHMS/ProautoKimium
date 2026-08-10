@@ -27,6 +27,17 @@ export class PkPasswordComponent implements ControlValueAccessor, Validator {
   pkRequired  = input<boolean>(false);
   errorMsg    = input<string>('');
 
+  /**
+   * Sem isto o navegador trata todo campo de senha como login e preenche a
+   * credencial salva do usuário. Em tela de login é o certo; em senha de
+   * documento é vazamento: a senha pessoal vai preenchida para uma requisição
+   * que não é de login.
+   *
+   * Nesses casos use **`new-password`**, não `off` — o Chrome ignora `off` em
+   * campo de senha, porque sites abusaram do atributo.
+   */
+  autocomplete = input<string>('current-password');
+
   // ── Estado interno ────────────────────────────────────────
   innerValue = '';
   isDisabled = false;

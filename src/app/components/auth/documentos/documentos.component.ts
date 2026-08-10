@@ -24,6 +24,7 @@ export class DocumentosComponent {
     { titulo: 'Galeria',       descricao: 'Fotos, logos e catálogos da empresa',    icon: 'pi pi-images',     accent: '#7c5cbf', rota: '/documentos/galeria' },
     { titulo: 'Logos',         descricao: 'Identidade visual e arquivos da marca',   icon: 'pi pi-palette',    accent: '#e07b4c', rota: '/documentos/logos' },
     { titulo: 'Holerites',     descricao: 'Seus demonstrativos de pagamento',        icon: 'pi pi-receipt',    accent: '#d92d20', rota: '/documentos/holerites' },
+    { titulo: 'Ferramentas',   descricao: 'Desbloquear PDF, renomear NFS-e e outras ferramentas de arquivo', icon: 'pi pi-wrench', accent: 'var(--app-action)', rota: '/tools/pdf' },
     { titulo: 'Pessoal',       descricao: 'Documentos de RH e pessoais',             icon: 'pi pi-id-card',    accent: '#232e61', emDesenvolvimento: true },
     { titulo: 'Propostas',     descricao: 'Modelos e propostas comerciais',          icon: 'pi pi-file-edit',  accent: '#3e9e8e', emDesenvolvimento: true },
     { titulo: 'Checklist',     descricao: 'Formulários e checklists',              icon: 'pi pi-list',       accent: '#f5a623', emDesenvolvimento: true }
