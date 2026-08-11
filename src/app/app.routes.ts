@@ -81,12 +81,12 @@ export const routes: Routes = [
       // ── Estoque (ProStock) ───────────────────────────────────────────────
       // Mesmas funções do desktop JavaFX, que continua no ar consumindo a
       // mesma API — nenhum contrato pode mudar aqui.
-      { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
+      { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
       { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'stock/machines', loadComponent: () => import('./components/auth/stock/machines/machines.component').then(m => m.MachinesComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'stock/alerts', loadComponent: () => import('./components/auth/stock/alerts/machine-alerts.component').then(m => m.MachineAlertsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/machines', loadComponent: () => import('./components/auth/stock/machines/machines.component').then(m => m.MachinesComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
+      { path: 'stock/alerts', loadComponent: () => import('./components/auth/stock/alerts/machine-alerts.component').then(m => m.MachineAlertsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
 
       // ── Ferramentas ──────────────────────────────────────────────────────
       // Cada ferramenta é uma rota própria para abrir na sua aba, como as

@@ -129,12 +129,12 @@ export const APP_MENU: AppMenuItem[] = [
     label: 'Estoque',
     icon: 'pi pi-fw pi-box',
     items: [
-      { label: 'Hub das Máquinas', icon: 'pi pi-fw pi-th-large', routerLink: ['stock/hub'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Programação', icon: 'pi pi-fw pi-table', routerLink: ['stock/programacao'], roles: ['ADMIN', 'ALMOXARIFADO'] },
+      { label: 'Hub das Máquinas', icon: 'pi pi-fw pi-th-large', routerLink: ['stock/hub'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
+      { label: 'Programação', icon: 'pi pi-fw pi-table', routerLink: ['stock/programacao'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
       { label: 'Produtos', icon: 'pi pi-fw pi-box', routerLink: ['stock/products'], roles: ['ADMIN', 'ALMOXARIFADO'] },
       { label: 'Movimentações', icon: 'pi pi-fw pi-arrow-right-arrow-left', routerLink: ['stock/movements'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Máquinas', icon: 'pi pi-fw pi-cog', routerLink: ['stock/machines'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], roles: ['ADMIN', 'ALMOXARIFADO'] },
+      { label: 'Máquinas', icon: 'pi pi-fw pi-cog', routerLink: ['stock/machines'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
+      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
     ],
   },
   {
