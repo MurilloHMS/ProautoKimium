@@ -36,6 +36,18 @@
     </p>
   }
 
+  <!-- Números incompletos precisam dizer que estão incompletos. -->
+  @if (brokenCodes().length > 0 && !loading()) {
+    <p class="hub__warn">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span>
+        {{ brokenCodes().length }} produto(s) fora das contas — a API não devolveu o
+        histórico deles: <em>{{ brokenCodes().join(', ') }}</em>.
+        Código de produto repetido no cadastro costuma ser a causa.
+      </span>
+    </p>
+  }
+
   <!-- ─── KPIs ────────────────────────────────────────────────────────────── -->
   <div class="kpi-row">
     <a class="kpi" routerLink="/stock/products">

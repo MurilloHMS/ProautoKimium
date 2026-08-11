@@ -381,3 +381,21 @@
     white-space: nowrap;
   }
 }
+
+// Aviso de dado incompleto — precisa ser visível sem ser um erro de tela.
+.hub__warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--app-warning) 40%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { color: var(--app-warning); margin-top: 2px; }
+  em { font-style: normal; font-weight: 700; }
+}
