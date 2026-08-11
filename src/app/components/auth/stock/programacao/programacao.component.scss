@@ -157,3 +157,29 @@
 @media (prefers-reduced-motion: reduce) {
   .sheet-row--saved > td { animation: none; }
 }
+
+// ─── Coluna de auditoria ────────────────────────────────────────────────────
+// Só leitura: a assinatura vem do servidor, não da célula.
+.col-audit { white-space: nowrap; }
+
+.audit {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  cursor: help;
+}
+
+.audit__who {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.audit__when {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+}
+
+.audit__none { color: var(--app-text-subtle); }

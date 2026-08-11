@@ -18,11 +18,15 @@ import {
   MachineStatus,
   machineStatusOptions,
 } from '../../../../domain/models/prostock/machine.model';
-import { CreateMachineRegister, MachineRegister } from '../../../../domain/models/prostock/register.model';
+import {
+  CreateMachineRegister,
+  MachineRegister,
+  UpdateMachineRegister,
+} from '../../../../domain/models/prostock/register.model';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
 import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
-import { parseDateOnly } from '../../../../domain/utils/date-only';
+import { formatStampBr, parseDateOnly } from '../../../../domain/utils/date-only';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { ProgramacaoImportComponent } from './programacao-import.component';
@@ -85,8 +89,11 @@ export class ProgramacaoComponent implements OnInit {
   readonly hasFilters = computed(() =>
     this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
 
-  /** Importação da planilha — some quando os dados estiverem todos aqui. */
-  readonly importVisible = signal(false);
+  /**
+   * Grade ou importação. A importação ocupa a tela inteira, como os cadastros:
+   * a conferência mostra ~200 linhas e num diálogo isso fica espremido.
+   */
+  readonly mode = signal<'grid' | 'import'>('grid');
 
   clearFilters(): void {
     this.statusFilter.set([]);
@@ -182,6 +189,19 @@ export class ProgramacaoComponent implements OnInit {
     return `status-chip status-chip--${MACHINE_STATUS_SEVERITY[status] ?? 'neutral'}`;
   }
 
+  stamp(value: string | null | undefined): string {
+    return formatStampBr(value, true);
+  }
+
+  /**
+   * A célula mostra a última alteração porque é o que se pergunta na prática
+   * ("quem mudou isso?"); a criação fica no tooltip para não gastar coluna.
+   */
+  auditTooltip(row: Row): string {
+    if (!row.createdAt) return 'Sem registro de criação.';
+    return `Criado por ${row.createdBy || 'desconhecido'} em ${formatStampBr(row.createdAt)}`;
+  }
+
   isDraft(row: Row): boolean {
     return row.id.startsWith('draft-');
   }
@@ -260,12 +280,9 @@ export class ProgramacaoComponent implements OnInit {
    * usuário estivesse digitando em outra célula.
    */
   onCellEdited(row: Row): void {
-    if (this.isDraft(row) || this.isSaving(row.id)) return;
+    if (!row || this.isDraft(row) || this.isSaving(row.id)) return;
 
-    this.mark('saving', row.id, true);
-    this.mark('saved', row.id, false);
-
-    const payload = {
+    const payload: UpdateMachineRegister = {
       nomeCliente: row.nomeCliente ?? '',
       tag: Number(row.tag) || 0,
       regiao: row.regiao ?? '',
@@ -276,6 +293,14 @@ export class ProgramacaoComponent implements OnInit {
       consultor: row.consultor ?? '',
       tecnico: row.tecnico ?? '',
     };
+
+    // O combo já salva na seleção e o `onEditComplete` chega logo depois; sem
+    // isto, todo Tab por uma célula intocada viraria um PUT.
+    const stored = this.store.items().find(item => item.id === row.id);
+    if (stored && !hasChanges(stored, payload)) return;
+
+    this.mark('saving', row.id, true);
+    this.mark('saved', row.id, false);
 
     this.registerService.update(row.id, payload).subscribe({
       next: () => {
@@ -293,6 +318,20 @@ export class ProgramacaoComponent implements OnInit {
         this.store.refresh();
       },
     });
+  }
+
+  /**
+   * Esc cancela a edição. O PrimeNG só desfaz a célula quando o `data` do
+   * `pEditableColumn` é o próprio valor; aqui passamos a linha inteira, então
+   * o desfazer é nosso — senão a tela mostraria um valor que não foi gravado.
+   */
+  onCellCancelled(row: Row): void {
+    if (!row || this.isDraft(row)) return;
+
+    const stored = this.store.items().find(item => item.id === row.id);
+    if (!stored) return;
+
+    Object.assign(row, stored, { previsao: parseDateOnly(stored.previsaoEntrega) });
   }
 
   deleteRow(row: Row): void {
@@ -327,4 +366,27 @@ export class ProgramacaoComponent implements OnInit {
 function startOfToday(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/**
+ * Compara a célula editada com o que está no store.
+ *
+ * A data é comparada só pela parte do dia: a API devolve `LocalDateTime` e o
+ * campo é uma data — a hora sempre bate em zero, mas o formato da string pode
+ * variar e faria toda linha parecer suja.
+ */
+function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
+  return (stored.nomeCliente ?? '') !== payload.nomeCliente
+    || (Number(stored.tag) || 0) !== payload.tag
+    || (stored.regiao ?? '') !== payload.regiao
+    || (stored.solicitante ?? '') !== payload.solicitante
+    || stored.status !== payload.status
+    || (stored.Observacao ?? '') !== payload.Observacao
+    || (stored.consultor ?? '') !== payload.consultor
+    || (stored.tecnico ?? '') !== payload.tecnico
+    || dayPart(stored.previsaoEntrega) !== dayPart(payload.previsaoEntrega);
+}
+
+function dayPart(value: string | null | undefined): string {
+  return value ? value.slice(0, 10) : '';
 }
