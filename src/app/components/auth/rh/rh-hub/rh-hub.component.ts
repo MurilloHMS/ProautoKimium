@@ -15,6 +15,7 @@ import { CalendarService } from '../../../../infrastructure/services/hr/calendar
 import { HrDashboardService } from '../../../../infrastructure/services/hr/hr-dashboard.service';
 import { CalendarEvent } from '../../../../domain/models/hr/calendar.model';
 import { HrDashboardSummary } from '../../../../domain/models/hr/dashboard-summary.model';
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 type ToolKey =
   | 'vacation' | 'reimbursements' | 'employees' | 'orgStructure' | 'career'
@@ -375,7 +376,7 @@ export class RhHubComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   formatDateObj(d: Date): string {

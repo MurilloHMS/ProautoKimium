@@ -15,6 +15,7 @@ import { EquipmentAssignmentService } from '../../../../infrastructure/services/
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { EquipmentAssignment } from '../../../../domain/models/hr/equipment-assignment.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-hr-equipment-assignments',
@@ -97,7 +98,7 @@ export class HrEquipmentAssignmentsComponent implements OnInit, TabDirtyCheck {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   // ---- Entregar ----

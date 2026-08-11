@@ -9,6 +9,7 @@ import { VacationRequestService } from '../../../infrastructure/services/hr/vaca
 import { VacationRequest, VacationRequestStatus } from '../../../domain/models/hr/vacation-request.model';
 import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../domain/utils/brazilian-business-days';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { formatDateBr } from '../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-hr-vacation-requests',
@@ -117,7 +118,7 @@ export class HrVacationRequestsComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   statusLabel(status: VacationRequestStatus): string {

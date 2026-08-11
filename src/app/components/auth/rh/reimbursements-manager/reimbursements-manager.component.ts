@@ -15,6 +15,7 @@ import { Reimbursement, ReimbursementStatus } from '../../../../domain/models/hr
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 type ReviewAction = 'approve' | 'reject';
 
@@ -91,7 +92,7 @@ export class ReimbursementsManagerComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   baixarComprovante(r: Reimbursement): void {

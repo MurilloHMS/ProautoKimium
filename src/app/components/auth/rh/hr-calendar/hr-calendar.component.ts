@@ -12,6 +12,7 @@ import { CalendarService } from '../../../../infrastructure/services/hr/calendar
 import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { CalendarEvent, CalendarEventStatus } from '../../../../domain/models/hr/calendar.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-hr-calendar',
@@ -100,7 +101,7 @@ export class HrCalendarComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   private toIsoDate(date: Date): string {

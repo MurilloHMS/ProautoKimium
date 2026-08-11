@@ -19,6 +19,7 @@ import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { VacationAlert, VacationRequest, VacationRequestStatus } from '../../../../domain/models/hr/vacation-request.model';
 import { countBusinessDays, getHolidaysInRange, HolidayInfo } from '../../../../domain/utils/brazilian-business-days';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 type ReviewAction = 'approve' | 'reject';
 
@@ -119,7 +120,7 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   openReview(request: VacationRequest, action: ReviewAction): void {

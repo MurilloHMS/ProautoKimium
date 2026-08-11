@@ -25,6 +25,22 @@ export function parseDateOnly(value: Date | string | null | undefined): Date | n
 }
 
 /**
+ * Formata uma data-only para exibição (`dd/MM/yyyy`).
+ *
+ * Substitui o `new Date(iso).toLocaleDateString('pt-BR')` que estava copiado
+ * em nove telas: com `"2026-08-10"` aquilo é lido como meia-noite UTC e a tela
+ * mostra **09/08**. Três telas já tinham contornado com `iso + 'T00:00:00'`,
+ * cada uma por conta própria — sinal de que o lugar certo era um só.
+ *
+ * Só para campo `LocalDate`. Para `LocalDateTime` (que vem com hora e é lido
+ * como horário local) o `new Date(iso)` já está correto.
+ */
+export function formatDateBr(value: Date | string | null | undefined): string {
+  const date = parseDateOnly(value);
+  return date ? date.toLocaleDateString('pt-BR') : '—';
+}
+
+/**
  * Formata para `yyyy-MM-dd` usando o fuso local.
  *
  * `toISOString()` converte para UTC antes de cortar a string: dependendo do
