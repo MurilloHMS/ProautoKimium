@@ -104,6 +104,7 @@ export const routes: Routes = [
       { path: 'company/products', redirectTo: 'stock/products', pathMatch: 'full' },
       { path: 'company/inventory', redirectTo: 'stock/movements', pathMatch: 'full' },
       { path: 'company/customers', loadComponent: () => import('./components/auth/partners/customer/customer.component').then(m => m.CustomerComponent), data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
+      { path: 'company/fuel-hub', loadComponent: () => import('./components/auth/company/vehicle/fuel-hub/fuel-hub.component').then(m => m.FuelHubComponent), data: { roles: ['ADMIN', 'COMPRADOR'] } },
       { path: 'company/fuel-supply', loadComponent: () => import('./components/auth/company/vehicle/fuel-supply/fuel-supply.component').then(m => m.FuelSupplyComponent), data: { roles: ['ADMIN', 'COMPRADOR'] } },
       { path: 'company/guide', loadComponent: () => import('./components/auth/guide/guide.component').then(m => m.GuideComponent), data: { roles: ['ADMIN', 'CONTRATOS'] } },
       { path: 'company/equipments', loadComponent: () => import('./components/auth/company/equipments/equipments.component').then(m => m.EquipmentsComponent), data: { roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
