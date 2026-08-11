@@ -1,0 +1,166 @@
+<p-toast position="top-right" />
+
+<div class="painel-wrapper">
+
+  <app-toolbar>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar"
+               [pkLoading]="loadingProducts()" (clicked)="refresh()"/>
+
+    <div filters>
+      <!-- O relatório era uma tela inteira no desktop; aqui é uma ação com data. -->
+      <div class="report-action">
+        <label for="reportDate">Posição do estoque em</label>
+        <p-datepicker inputId="reportDate"
+                      [(ngModel)]="reportDate"
+                      appendTo="body"
+                      dateFormat="dd/mm/yy"
+                      styleClass="datepicker-field"
+                      [showButtonBar]="true" />
+        <pk-button pkType="excel" pkSize="sm" pkLabel="Baixar"
+                   [pkLoading]="generatingReport" (clicked)="generateReport()"/>
+      </div>
+    </div>
+  </app-toolbar>
+
+  <div class="movements">
+
+    <!-- ─── Produtos ─────────────────────────────────────────────────────── -->
+    <aside class="products">
+      <div class="products__search">
+        <i class="pi pi-search"></i>
+        <input type="text"
+               placeholder="Buscar produto…"
+               aria-label="Buscar produto"
+               [(ngModel)]="search"
+               (ngModelChange)="onSearch()" />
+      </div>
+
+      <div class="products__list">
+        @for (product of filteredProducts(); track product.id) {
+          <button type="button"
+                  class="product-item"
+                  [class.product-item--active]="selected()?.systemCode === product.systemCode"
+                  (click)="select(product)">
+            <span class="product-item__code">{{ product.systemCode }}</span>
+            <span class="product-item__name">{{ product.name }}</span>
+            @if (isLow(product)) {
+              <i class="pi pi-exclamation-triangle product-item__low" title="Estoque baixo"></i>
+            }
+          </button>
+        } @empty {
+          <p class="products__empty">Nenhum produto encontrado.</p>
+        }
+      </div>
+    </aside>
+
+    <!-- ─── Detalhe ──────────────────────────────────────────────────────── -->
+    <section class="detail">
+      @if (!selected()) {
+        <div class="detail__placeholder">
+          <i class="pi pi-arrow-left"></i>
+          <p>Escolha um produto para ver o estoque e lançar movimentações.</p>
+        </div>
+      } @else {
+
+        <header class="detail__head">
+          <div>
+            <h2 class="detail__title">{{ selected()!.name }}</h2>
+            <span class="detail__code">{{ selected()!.systemCode }}</span>
+          </div>
+          <div class="detail__stock" [class.detail__stock--low]="currentStock() < selected()!.minimumStock">
+            <span class="detail__stock-label">Estoque atual</span>
+            <strong class="detail__stock-value">{{ currentStock() }}</strong>
+            <span class="detail__stock-min">mínimo {{ selected()!.minimumStock }}</span>
+          </div>
+        </header>
+
+        @if (lastChange()) {
+          <p class="detail__last">Última alteração em {{ formatDateTime(lastChange()!) }}</p>
+        }
+
+        <!-- Lançamento -->
+        <div class="entry">
+          <div class="entry__kind">
+            <button type="button" class="kind" [class.kind--on]="kind() === 'in'" (click)="setKind('in')">
+              <i class="pi pi-plus"></i> Entrada
+            </button>
+            <button type="button" class="kind kind--out" [class.kind--on]="kind() === 'out'" (click)="setKind('out')">
+              <i class="pi pi-minus"></i> Saída
+            </button>
+          </div>
+
+          <div class="entry__field">
+            <label for="qty">Quantidade</label>
+            <input id="qty" type="number" min="1" [ngModel]="quantity()"
+                   (ngModelChange)="onQuantityChange($event)" />
+          </div>
+
+          <div class="entry__field">
+            <label for="movDate">Data</label>
+            <p-datepicker inputId="movDate" [(ngModel)]="movementDate" appendTo="body"
+                          dateFormat="dd/mm/yy" styleClass="datepicker-field" />
+          </div>
+
+          <!-- Prévia: o desktop tem isso e é o que evita erro de digitação. -->
+          <div class="preview">
+            <span class="preview__from">{{ currentStock() }}</span>
+            <i class="pi pi-arrow-right"></i>
+            <strong class="preview__to" [class.preview__to--bad]="wouldGoNegative()">{{ newStock() }}</strong>
+          </div>
+
+          <pk-button pkType="save" pkSize="sm" pkLabel="Lançar"
+                     [pkDisabled]="!canSubmit()" [pkLoading]="saving" (clicked)="submit()"/>
+        </div>
+
+        @if (wouldGoNegative()) {
+          <p class="entry__warn">
+            <i class="pi pi-exclamation-triangle"></i>
+            O estoque não pode ficar negativo.
+          </p>
+        }
+
+        <!-- Histórico -->
+        <div class="history">
+          <div class="history__head">
+            <h3>Histórico</h3>
+            <div class="history__period">
+              <p-datepicker [ngModel]="periodFrom()" (ngModelChange)="periodFrom.set($event)"
+                            appendTo="body" dateFormat="dd/mm/yy" placeholder="De"
+                            styleClass="datepicker-field" />
+              <p-datepicker [ngModel]="periodTo()" (ngModelChange)="periodTo.set($event)"
+                            appendTo="body" dateFormat="dd/mm/yy" placeholder="Até"
+                            styleClass="datepicker-field" />
+              @if (periodFrom() || periodTo()) {
+                <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar" (clicked)="clearPeriod()"/>
+              }
+            </div>
+          </div>
+
+          <pk-table
+            [showCaption]="false"
+            [data]="historyRows()"
+            [loading]="loadingDetail()"
+            emptyIcon="pi pi-clock"
+            emptyTitle="Sem movimentações"
+            emptySubtitle="Este produto ainda não tem lançamentos."
+            pageReportTitle="Movimentações">
+
+            <ng-template #headerTpl>
+              <tr>
+                <th>Data</th>
+                <th class="col-center">Estoque após o lançamento</th>
+              </tr>
+            </ng-template>
+
+            <ng-template #bodyTpl let-m>
+              <tr class="table-row">
+                <td>{{ formatDateTime(m.movementDate) }}</td>
+                <td class="col-center">{{ m.quantity }}</td>
+              </tr>
+            </ng-template>
+          </pk-table>
+        </div>
+      }
+    </section>
+  </div>
+</div>

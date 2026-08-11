@@ -1,0 +1,192 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  background: var(--app-bg);
+  min-height: 100%;
+}
+
+.hub {
+  width: 100%;
+  padding: 28px clamp(16px, 3vw, 40px) 56px;
+  box-sizing: border-box;
+}
+
+.hub__alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+// ─── KPIs ───────────────────────────────────────────────────────────────────
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+  text-decoration: none;
+  transition: border-color .15s ease;
+
+  &:is(a):hover { border-color: var(--app-action); }
+
+  &--hero {
+    background: linear-gradient(135deg, var(--app-warning-soft), var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-warning) 40%, transparent);
+  }
+
+  &__label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--app-text-subtle);
+  }
+
+  &__value {
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+
+    &--ok   { color: var(--app-success); }
+    &--warn { color: var(--app-warning); }
+    &--bad  { color: var(--app-danger); }
+  }
+}
+
+// ─── Cartões ────────────────────────────────────────────────────────────────
+.dist-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.card {
+  padding: 16px 18px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+
+  &__title {
+    margin: 0 0 4px;
+    font-family: v.$font-heading;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--app-text);
+  }
+
+  &__hint {
+    margin: 0 0 12px;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+  }
+
+  &__empty {
+    margin: 8px 0 0;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-subtle);
+  }
+}
+
+// Barras em CSS puro, como no Painel de RH — sem biblioteca de gráfico.
+.dist {
+  display: grid;
+  grid-template-columns: 130px 1fr 34px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+
+  &__label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--app-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--app-surface-2);
+    overflow: hidden;
+  }
+
+  &__bar {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+    background: var(--app-text-subtle);
+
+    &--success { background: var(--app-success); }
+    &--warning { background: var(--app-warning); }
+    &--danger  { background: var(--app-danger); }
+    &--action  { background: var(--app-action); }
+    &--neutral { background: var(--app-text-subtle); }
+  }
+
+  &__value {
+    text-align: right;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ─── Próximas saídas ────────────────────────────────────────────────────────
+.exit {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: var(--text-ui);
+
+  &:last-child { border-bottom: none; }
+
+  &--late {
+    .exit__when strong { color: var(--app-danger); }
+    .exit__when small  { color: var(--app-danger); font-weight: 600; }
+  }
+
+  &__when {
+    display: flex;
+    flex-direction: column;
+
+    strong { font-variant-numeric: tabular-nums; color: var(--app-text); }
+    small  { font-size: var(--text-micro); color: var(--app-text-subtle); }
+  }
+
+  &__client  { color: var(--app-text); font-weight: 600; }
+  &__machine { color: var(--app-text-muted); }
+  &__tech    { color: var(--app-text-subtle); font-size: var(--text-ui-sm); }
+
+  @media (max-width: v.$bp-md) {
+    grid-template-columns: 92px 1fr;
+    row-gap: 2px;
+
+    &__machine, &__tech { grid-column: 2; }
+  }
+}

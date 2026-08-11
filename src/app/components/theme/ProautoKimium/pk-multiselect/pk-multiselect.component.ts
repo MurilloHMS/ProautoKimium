@@ -30,6 +30,14 @@ export class PkMultiselectComponent implements ControlValueAccessor, Validator {
   filter      = input<boolean>(true);
   pkRequired  = input<boolean>(false);
   errorMsg    = input<string>('');
+  showClear   = input<boolean>(false);
+
+  /**
+   * `dense` tira a folga do campo de formulário: sem rótulo e sem rodapé de
+   * erro, para caber numa toolbar ou dentro de uma célula de tabela, onde a
+   * altura é a do controle e não a de um campo com legenda.
+   */
+  dense       = input<boolean>(false);
 
   // ── Estado interno ────────────────────────────────────────
   innerValue: any[] = [];
@@ -64,7 +72,10 @@ export class PkMultiselectComponent implements ControlValueAccessor, Validator {
   }
 
   get resolvedStyleClass(): string {
-    return this.showError ? 'pk-multiselect pk-multiselect--error' : 'pk-multiselect';
+    const classes = ['pk-multiselect'];
+    if (this.showError) classes.push('pk-multiselect--error');
+    if (this.dense()) classes.push('pk-multiselect--dense');
+    return classes.join(' ');
   }
 
   get resolvedError(): string {

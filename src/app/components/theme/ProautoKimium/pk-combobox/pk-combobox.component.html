@@ -1,4 +1,4 @@
-<div class="pk-field" [class.pk-field--error]="showError" [class.pk-field--disabled]="isDisabled">
+<div class="pk-field" [class.pk-field--error]="showError" [class.pk-field--disabled]="isDisabled" [class.pk-field--dense]="dense()">
 
   <label class="pk-label" *ngIf="label()">
     {{ label() }}
@@ -19,7 +19,7 @@
     appendTo="body">
   </p-select>
 
-  <div class="pk-field-footer" *ngIf="showError">
+  <div class="pk-field-footer" *ngIf="showError && !dense()">
     <span class="pk-error"><i class="pi pi-exclamation-circle"></i> {{ resolvedError }}</span>
   </div>
 </div>

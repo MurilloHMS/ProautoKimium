@@ -13,10 +13,20 @@ export interface InventoryProductResponse{
   minimumStock: number;
 }
 
+/**
+ * Movimentação de estoque.
+ *
+ * `quantity` é o estoque **absoluto resultante**, não a diferença: o desktop lê o
+ * último movimento como estoque atual e grava `atual ± quantidade`. Os dois
+ * clientes escrevem na mesma base, então a regra tem que ser idêntica aqui.
+ *
+ * O campo era `system_code` e a API espera `systemCode` — assim o código chegava
+ * nulo e a API respondia 404 "código do sistema está nulo ou vazio".
+ */
 export interface InventoryMovement{
-  movementDate: Date;
+  movementDate: string;
   quantity: number;
-  system_code: string;
+  systemCode: string;
 }
 
 export interface ProductWebSiteCreateDTO{

@@ -1,0 +1,209 @@
+<p-toast position="top-right" />
+
+<div class="painel-wrapper">
+
+  <app-toolbar>
+    <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
+    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="importVisible.set(true)"/>
+
+    <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
+    <pk-button
+      [pkType]="onlyLate() ? 'cancel' : 'filter'"
+      pkSize="sm"
+      [pkLabel]="onlyLate() ? 'Ver todos' : 'Atrasados (' + lateCount() + ')'"
+      (clicked)="onlyLate.set(!onlyLate())"/>
+
+    @if (hasFilters()) {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters()"/>
+    }
+
+    <div filters>
+      <pk-multiselect class="filter-control"
+                      [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+                      [options]="statusOptions" optionLabel="label" optionValue="value"
+                      placeholder="Status" display="chip"
+                      [showClear]="true" [dense]="true" />
+
+      <pk-combobox class="filter-control"
+                   [ngModel]="machineFilter()" (ngModelChange)="machineFilter.set($event)"
+                   [options]="machineOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Máquina" [filter]="true"
+                   [showClear]="true" [dense]="true" />
+
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar cliente, região, consultor…"
+             aria-label="Buscar na programação"
+             [(ngModel)]="search"
+             (ngModelChange)="onSearch()" />
+    </div>
+  </app-toolbar>
+
+  <div class="sheet">
+    <p-table [value]="rows()"
+             dataKey="id"
+             [scrollable]="true"
+             scrollHeight="flex"
+             [loading]="loading()"
+             styleClass="sheet-table"
+             [rowHover]="true">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 190px">Máquina</th>
+          <th style="width: 230px">Cliente</th>
+          <th style="width: 110px">Região</th>
+          <th style="width: 140px">Solicitante</th>
+          <th style="width: 150px">Status</th>
+          <th style="width: 220px">Observação</th>
+          <th style="width: 140px">Previsão saída</th>
+          <th style="width: 140px">Consultor</th>
+          <th style="width: 150px">Técnico</th>
+          <th style="width: 80px">Tag</th>
+          <th style="width: 70px" class="col-center">—</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-row>
+        <tr [class.sheet-row--draft]="isDraft(row)" [class.sheet-row--saved]="isSaved(row.id)" [class.sheet-row--late]="isLate(row)">
+
+          <!-- Máquina: o equivalente da validação de dados da planilha -->
+          <td [pEditableColumn]="row" pEditableColumnField="machineId">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <pk-combobox [(ngModel)]="row.machineId" [options]="machineOptions()"
+                             optionLabel="label" optionValue="value" [dense]="true"
+                             (changed)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ machineName(row.machineId) }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="nomeCliente">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.nomeCliente" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.nomeCliente || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="regiao">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.regiao" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.regiao || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="solicitante">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.solicitante" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.solicitante || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="status">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <pk-combobox [(ngModel)]="row.status" [options]="statusOptions"
+                             optionLabel="label" optionValue="value" [dense]="true"
+                             (changed)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <span [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="Observacao">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.Observacao" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.Observacao || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="previsao">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-datepicker [(ngModel)]="row.previsao" appendTo="body" dateFormat="dd/mm/yy"
+                              styleClass="cell-date" (onSelect)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : '—' }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="consultor">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.consultor" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.consultor || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="tecnico">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.tecnico" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.tecnico || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="tag">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="number" [(ngModel)]="row.tag" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.tag || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td class="col-center sheet-row__actions">
+            @if (isSaving(row.id)) {
+              <i class="pi pi-spin pi-spinner sheet-row__state" title="Salvando"></i>
+            } @else if (isSaved(row.id)) {
+              <i class="pi pi-check sheet-row__state sheet-row__state--ok" title="Salvo"></i>
+            } @else if (isDraft(row)) {
+              <button pButton type="button" icon="pi pi-check" class="row-btn row-btn--ok"
+                      [disabled]="!canSaveDraft(row)" pTooltip="Salvar linha" tooltipPosition="left"
+                      (click)="saveDraft(row)"></button>
+            }
+            <button pButton type="button" icon="pi pi-trash" class="row-btn row-btn--danger"
+                    [pTooltip]="isDraft(row) ? 'Descartar' : 'Excluir'" tooltipPosition="left"
+                    (click)="deleteRow(row)"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="11" class="sheet-empty">
+            <i class="pi pi-table"></i>
+            <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p class="sheet-note">
+    <i class="pi pi-info-circle"></i>
+    Clique numa célula para editar e saia com <kbd>Tab</kbd> — cada linha é salva
+    sozinha. Linha em vermelho é previsão vencida sem entrega.
+  </p>
+</div>
+
+<app-programacao-import
+  [visible]="importVisible()"
+  (visibleChange)="importVisible.set($event)"
+  (finished)="refresh()" />

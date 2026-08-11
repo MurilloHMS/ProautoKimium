@@ -1,0 +1,133 @@
+<pk-dialog
+  header="Importar planilha de programação"
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)">
+
+  <div pkDialogContent class="import">
+
+    <!-- ─── 1. Escolher o arquivo ──────────────────────────────────────── -->
+    @if (phase() === 'choose') {
+      <p class="import__intro">
+        Selecione o arquivo <strong>PROGRAMAÇÃO MÁQUINAS e IMPLANTAÇÕES</strong>.
+        Leio a aba <strong>ESTOQUE</strong> e mostro o que será importado antes
+        de gravar qualquer coisa.
+      </p>
+
+      <pk-fileUpload
+        mode="dropzone"
+        accept=".xlsx,.xls"
+        chooseLabel="Selecionar planilha"
+        dropTitle="Arraste a planilha aqui"
+        fileIcon="pi pi-file-excel"
+        (filesSelected)="onFileSelected($event)" />
+
+      @if (parseError()) {
+        <p class="import__error"><i class="pi pi-exclamation-triangle"></i> {{ parseError() }}</p>
+      }
+    }
+
+    <!-- ─── 2. Conferir ────────────────────────────────────────────────── -->
+    @if (phase() === 'review' && parsed(); as result) {
+      <div class="summary">
+        <div class="summary__item">
+          <strong>{{ parsed()!.rows.length }}</strong>
+          <span>linhas para importar</span>
+        </div>
+        <div class="summary__item">
+          <strong>{{ parsed()!.ignoredRows }}</strong>
+          <span>linhas vazias ignoradas</span>
+        </div>
+        <div class="summary__item" [class.summary__item--warn]="warningCount() > 0">
+          <strong>{{ warningCount() }}</strong>
+          <span>com aviso</span>
+        </div>
+      </div>
+
+      @if (missingMachines().length > 0) {
+        <div class="notice">
+          <i class="pi pi-info-circle"></i>
+          <span>
+            <strong>{{ missingMachines().length }}</strong> máquina(s) da planilha não
+            estão no cadastro e serão criadas:
+            <em>{{ missingMachines().join(', ') }}</em>
+          </span>
+        </div>
+      }
+
+      <p class="import__hint">
+        Aba lida: <strong>{{ parsed()!.sheetName }}</strong>. Região e consultor vêm
+        junto. Datas em texto livre ("07/11 - Sexta") ficam em branco — o ano não
+        dá para adivinhar.
+      </p>
+
+      <div class="preview">
+        <p-table [value]="parsed()!.rows" [scrollable]="true" scrollHeight="260px" styleClass="preview-table">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 54px">Linha</th>
+              <th>Máquina</th>
+              <th>Cliente</th>
+              <th>Status</th>
+              <th>Previsão</th>
+              <th>Aviso</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr [class.preview-row--warn]="row.warnings.length > 0">
+              <td class="preview__line">{{ row.sheetRow }}</td>
+              <td>{{ row.maquinaNome || '—' }}</td>
+              <td>{{ row.nomeCliente || '—' }}</td>
+              <td>{{ statusLabel(row.status) }}</td>
+              <td>{{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : '—' }}</td>
+              <td class="preview__warn">{{ row.warnings.join(' ') || '—' }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    }
+
+    <!-- ─── 3. Enviando ────────────────────────────────────────────────── -->
+    @if (phase() === 'running') {
+      <div class="running">
+        <p><i class="pi pi-spin pi-spinner"></i> Enviando {{ sent() }} de {{ total() }}…</p>
+        <div class="bar"><span class="bar__fill" [style.width.%]="progress()"></span></div>
+        <small>Uma linha por vez, para não derrubar a API nem embaralhar os erros.</small>
+      </div>
+    }
+
+    <!-- ─── 4. Resultado ───────────────────────────────────────────────── -->
+    @if (phase() === 'done') {
+      <div class="done">
+        <p class="done__title">
+          <i class="pi pi-check-circle"></i>
+          {{ total() - failed().length }} de {{ total() }} linha(s) importada(s).
+        </p>
+
+        @if (failed().length > 0) {
+          <p class="done__failed">{{ failed().length }} não entrou(aram):</p>
+          <ul class="failures">
+            @for (item of failed(); track item.row.sheetRow) {
+              <li>
+                <strong>Linha {{ item.row.sheetRow }}</strong>
+                — {{ item.row.nomeCliente || 'sem cliente' }}: {{ item.reason }}
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    @if (phase() === 'review') {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()"/>
+      <pk-button pkType="save" pkSize="sm"
+                 [pkLabel]="'Importar ' + total() + ' linha(s)'" (clicked)="start()"/>
+    } @else if (phase() === 'done') {
+      <pk-button pkType="save" pkSize="sm" pkLabel="Fechar" (clicked)="close()"/>
+    } @else if (phase() === 'choose') {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()"/>
+    }
+  </div>
+</pk-dialog>

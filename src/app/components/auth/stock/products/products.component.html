@@ -1,0 +1,144 @@
+<p-toast position="top-right" />
+
+@if (mode() === 'grid') {
+<div class="painel-wrapper">
+
+  <app-toolbar>
+    <pk-button pkType="new" pkSize="sm" pkLabel="Novo Produto" (clicked)="newProduct()"/>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
+
+    <pk-fileUpload
+      mode="button"
+      accept=".xlsx,.xls"
+      chooseLabel="Importar Planilha"
+      chooseType="excel"
+      chooseSize="sm"
+      [loading]="uploading"
+      (filesSelected)="onSheetSelected($event)" />
+
+    <!-- Estoque baixo é filtro da mesma grade, não outra tela. -->
+    <pk-button
+      [pkType]="onlyLowStock() ? 'cancel' : 'filter'"
+      pkSize="sm"
+      [pkLabel]="onlyLowStock() ? 'Ver todos' : 'Estoque baixo (' + lowStockCount() + ')'"
+      (clicked)="toggleLowStock()"/>
+
+    <div filters>
+      <input type="text"
+             class="toolbar-search"
+             placeholder="Buscar produto…"
+             aria-label="Buscar produtos"
+             (input)="grid.filterGlobal($any($event.target).value)" />
+    </div>
+  </app-toolbar>
+
+  <div class="table-card">
+    <pk-table
+      #grid
+      [showCaption]="false"
+      [data]="products()"
+      [loading]="loading()"
+      [filterFields]="['systemCode', 'name']"
+      emptyIcon="pi pi-box"
+      emptyTitle="Nenhum produto encontrado"
+      emptySubtitle="Cadastre um produto ou importe a planilha."
+      pageReportTitle="Produtos">
+
+      <ng-template #headerTpl>
+        <tr>
+          <th pSortableColumn="systemCode">Código <p-sortIcon field="systemCode"></p-sortIcon></th>
+          <th pSortableColumn="name">Produto <p-sortIcon field="name"></p-sortIcon></th>
+          <th class="col-center" pSortableColumn="minimumStock">Estoque mínimo <p-sortIcon field="minimumStock"></p-sortIcon></th>
+          <th class="col-center">Situação</th>
+          <th class="col-center">Ativo</th>
+          <th class="col-center">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #bodyTpl let-p>
+        <tr class="table-row">
+          <td><span class="code-badge">{{ p.systemCode }}</span></td>
+          <td>{{ p.name }}</td>
+          <td class="col-center">{{ p.minimumStock }}</td>
+          <td class="col-center">
+            @if (isLow(p)) {
+              <span class="status-chip status-chip--warning">
+                <i class="pi pi-exclamation-triangle"></i> Estoque baixo
+              </span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
+          <td class="col-center">
+            <span class="status-chip" [class.status-chip--active]="p.active" [class.status-chip--inactive]="!p.active">
+              <i class="pi" [ngClass]="p.active ? 'pi-check' : 'pi-times'"></i>
+              {{ p.active ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td class="col-center">
+            <button pButton type="button" icon="pi pi-pencil" class="action-btn"
+                    pTooltip="Editar produto" tooltipPosition="left" (click)="editProduct(p)"></button>
+            <button pButton type="button" icon="pi pi-trash" class="action-btn action-btn--danger"
+                    pTooltip="Excluir produto" tooltipPosition="left" (click)="askDelete(p)"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+    </pk-table>
+  </div>
+</div>
+}
+
+@if (mode() === 'form') {
+<app-form-screen
+  [title]="formTitle"
+  subtitle="Código, descrição e estoque mínimo"
+  (back)="closeForm()">
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="systemCode">Código do sistema <span class="required">*</span></label>
+        <input id="systemCode" type="text" formControlName="systemCode" placeholder="Ex: 001234" />
+      </div>
+
+      <div class="form-field">
+        <label for="minimumStock">Estoque mínimo <span class="required">*</span></label>
+        <input id="minimumStock" type="number" formControlName="minimumStock" min="0" />
+      </div>
+
+      <div class="form-field form-field--full">
+        <label for="name">Descrição <span class="required">*</span></label>
+        <input id="name" type="text" formControlName="name" placeholder="Nome do produto" />
+      </div>
+
+      <div class="form-field">
+        <pk-checkbox formControlName="active" label="Produto ativo" />
+      </div>
+    </div>
+  </form>
+
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeForm()"/>
+    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkDisabled]="form.invalid" (clicked)="save()"/>
+  </div>
+</app-form-screen>
+}
+
+<pk-dialog
+  header="Excluir produto"
+  [visible]="deleteVisible"
+  (visibleChange)="deleteVisible = $event">
+
+  <div pkDialogContent>
+    <p>
+      Excluir <strong>{{ deleteTarget?.name }}</strong> ({{ deleteTarget?.systemCode }})?
+      O histórico de movimentações do produto deixa de ser acessível por esta tela.
+    </p>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="deleteVisible = false"/>
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" [pkLoading]="deleting" (clicked)="confirmDelete()"/>
+  </div>
+</pk-dialog>

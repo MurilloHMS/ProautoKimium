@@ -1,0 +1,29 @@
+@use 'mixins' as m;
+
+:host { @include m.grid-screen; }
+
+.painel-wrapper { @include m.grid-screen; gap: 0; min-height: 0; padding: 0; }
+
+.table-card { @include m.grid-screen-body; }
+
+.action-btn.p-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  margin-left: 4px;
+
+  &:hover {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+  }
+
+  &--danger:hover {
+    background: var(--app-danger);
+    border-color: var(--app-danger);
+  }
+}

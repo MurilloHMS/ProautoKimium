@@ -34,7 +34,23 @@
 
 // ─── Controles dentro da toolbar ────────────────────────────────────────────
 // Tudo na mesma altura: botão, select e busca alinhados numa faixa só.
+//
+// TUDO daqui para baixo precisa estar sob `::ng-deep`: o conteúdo dos slots é
+// escrito no template DA TELA, então carrega o atributo de encapsulamento dela
+// e não o desta toolbar. Regra fora do `::ng-deep` compila para
+// `.toolbar__filters[_ngcontent-toolbar] > *[_ngcontent-toolbar]` e não casa
+// com nada — foi exatamente o que aconteceu com os filtros da Programação.
 :host ::ng-deep {
+
+  // O slot projeta um `<div filters>` só; sem isto ele continua block e os
+  // filtros ficam empilhados.
+  .toolbar__filters > * {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-control);
+    min-width: 0;
+    flex-wrap: wrap;
+  }
 
   .toolbar-search {
     height: var(--field-h);
@@ -60,6 +76,7 @@
   }
 
   .p-select,
+  .p-multiselect,
   .p-datepicker-input {
     height: var(--field-h);
     border-radius: var(--radius-control);
@@ -68,19 +85,27 @@
     font-size: var(--text-ui);
   }
 
-  .p-select {
+  .p-select,
+  .p-multiselect {
     display: inline-flex;
     align-items: center;
     min-width: 170px;
+    max-width: 240px;
 
-    .p-select-label {
+    .p-select-label,
+    .p-multiselect-label {
       padding: 0 10px;
       font-size: var(--text-ui);
       color: var(--app-text);
       display: flex;
       align-items: center;
+      gap: 4px;
+      overflow: hidden;
     }
   }
+
+  // Os wrappers do pk-combobox/pk-multiselect não podem esticar a barra.
+  .pk-field { min-width: 0; }
 }
 
 // Separador entre grupos de ferramentas.

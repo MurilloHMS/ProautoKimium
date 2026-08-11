@@ -24,18 +24,36 @@ export class InventoryProductStore extends ReferenceStore<InventoryProductRespon
     this.items().map(product => ({ label: product.name, value: product.systemCode })));
 
   /**
-   * A API devolve o produto enviado, sem o id nem os campos que ela completa —
-   * não dá para fazer `upsert` com isso, então recarrega.
+   * A API não devolve o produto salvo (responde 201 sem corpo), então não há o
+   * que dar `upsert` — recarregar é o que mantém a lista fiel ao servidor.
    */
-  create(product: InventoryProduct): Observable<InventoryProduct> {
+  create(product: InventoryProduct): Observable<unknown> {
     return this.refreshAfter(this.service.addInventoryProduct(product));
   }
 
-  update(product: InventoryProduct): Observable<InventoryProduct> {
+  update(product: InventoryProduct): Observable<unknown> {
     return this.refreshAfter(this.service.updateProduct(product));
   }
 
-  private refreshAfter(source: Observable<InventoryProduct>): Observable<InventoryProduct> {
+  /**
+   * Produtos abaixo do mínimo. Fica fora do `items()` de propósito: é uma
+   * consulta derivada, não outra lista — a tela usa para marcar e filtrar.
+   */
+  lowStock(): Observable<InventoryProductResponse[]> {
+    return this.service.getLowStockProducts();
+  }
+
+  /** Apaga no servidor. O `remove` da base só tira da lista local. */
+  deleteById(systemCode: string): Observable<unknown> {
+    return this.refreshAfter(this.service.deleteProduct(systemCode));
+  }
+
+  /** A planilha mexe em muitas linhas de uma vez; só recarregando dá para saber quais. */
+  uploadSheet(file: File): Observable<string> {
+    return this.service.uploadProductSheet(file).pipe(tap(() => this.refresh()));
+  }
+
+  private refreshAfter<T>(source: Observable<T>): Observable<T> {
     return source.pipe(tap(() => this.refresh()));
   }
 }
