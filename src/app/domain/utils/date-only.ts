@@ -41,6 +41,26 @@ export function formatDateBr(value: Date | string | null | undefined): string {
 }
 
 /**
+ * Formata um `LocalDateTime` da API (`"2026-08-11T14:32:10"`) para exibição.
+ *
+ * Lê a string por partes de propósito. `new Date(iso)` funcionaria — sem fuso
+ * na string, o padrão manda ler como hora local — mas essa regra é o oposto da
+ * data-only logo acima, e trocar as duas é o erro que já custou caro aqui.
+ * Fatiar texto não tem fuso nenhum para errar.
+ *
+ * @param short `11/08/26 14:32` em vez de `11/08/2026 14:32`, para caber em célula.
+ */
+export function formatStampBr(value: string | null | undefined, short = false): string {
+  if (!value) return '—';
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(value);
+  if (!match) return '—';
+
+  const [, year, month, day, hour, minute] = match;
+  return `${day}/${month}/${short ? year.slice(2) : year} ${hour}:${minute}`;
+}
+
+/**
  * Formata para `yyyy-MM-dd` usando o fuso local.
  *
  * `toISOString()` converte para UTC antes de cortar a string: dependendo do

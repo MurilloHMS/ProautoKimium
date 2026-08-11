@@ -9,8 +9,8 @@ import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
 import { MachineService } from '../../../../infrastructure/services/prostock/machine.service';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
-import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkFileUploadComponent } from '../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component';
 import { ParseResult, ParsedRow, normalize, parseProgramacaoSheet } from './programacao-import.parser';
 
@@ -24,14 +24,14 @@ type Phase = 'choose' | 'review' | 'running' | 'done';
  * endpoint novo — o que importa é tirar os dados do Excel, não fazer isso
  * rápido.
  *
- * Tem etapa de conferência de propósito: são ~200 linhas de uma planilha viva,
- * com data em texto livre e coluna trocada aqui e ali. Importar direto seria
- * despejar sujeira no banco sem ninguém olhar.
+ * Ocupa a tela inteira em modo formulário, como os cadastros: a conferência
+ * mostra ~200 linhas e num diálogo isso vira uma tabela espremida. É o mesmo
+ * padrão de grade ↔ formulário do resto do sistema.
  */
 @Component({
   selector: 'app-programacao-import',
   standalone: true,
-  imports: [CommonModule, TableModule, PkButtonComponent, PkDialogComponent, PkFileUploadComponent],
+  imports: [CommonModule, TableModule, FormScreenComponent, PkButtonComponent, PkFileUploadComponent],
   templateUrl: './programacao-import.component.html',
   styleUrl: './programacao-import.component.scss',
 })
@@ -42,8 +42,7 @@ export class ProgramacaoImportComponent {
   private readonly registerService = inject(RegisterService);
   private readonly machineService = inject(MachineService);
 
-  visible = input<boolean>(false);
-  visibleChange = output<boolean>();
+  closed = output<void>();
   finished = output<void>();
 
   readonly phase = signal<Phase>('choose');
@@ -77,10 +76,15 @@ export class ProgramacaoImportComponent {
     return MACHINE_STATUS_LABEL[status] ?? status;
   }
 
+  /** Enquanto envia, sair no meio deixaria metade das linhas importadas. */
+  get canClose(): boolean {
+    return this.phase() !== 'running';
+  }
+
   close(): void {
-    this.visibleChange.emit(false);
-    // Só zera depois de fechar, senão o diálogo pisca vazio na saída.
-    setTimeout(() => this.reset(), 200);
+    if (!this.canClose) return;
+    this.reset();
+    this.closed.emit();
   }
 
   private reset(): void {

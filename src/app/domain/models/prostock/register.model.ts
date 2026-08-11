@@ -22,6 +22,19 @@ export interface MachineRegister {
   previsaoEntrega: string | null;
   consultor: string;
   tecnico: string;
+
+  /**
+   * Auditoria — quem criou e quem mexeu por último.
+   *
+   * Opcionais porque quem preenche é a API: enquanto os campos não existirem
+   * lá, e para os registros importados antes deles, a tela mostra "—" em vez
+   * de quebrar. Nome de exibição, não id: é quem era a pessoa na hora da
+   * alteração, e a grade não pode fazer um GET por linha para descobrir isso.
+   */
+  createdBy?: string | null;
+  createdAt?: string | null;
+  updatedBy?: string | null;
+  updatedAt?: string | null;
 }
 
 export interface CreateMachineRegister {

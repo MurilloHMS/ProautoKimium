@@ -46,6 +46,67 @@
     </div>
   </div>
 
+  <!-- ─── Calendário de implantações ────────────────────────────────────── -->
+  <section class="cal">
+    <div class="cal__header">
+      <div class="cal__title">
+        <i class="pi pi-calendar"></i>
+        <span>{{ monthLabel() }}</span>
+        <span class="cal__count">{{ monthCount() }} implantação(ões)</span>
+      </div>
+      <div class="cal__nav">
+        <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
+        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="cal__weekdays">
+      @for (weekday of weekdayLabels; track weekday) {
+        <span>{{ weekday }}</span>
+      }
+    </div>
+
+    <div class="cal__grid">
+      @for (week of weeks(); track $index) {
+        @for (day of week; track day.getTime()) {
+          <button
+            type="button"
+            class="cal__day"
+            [class.cal__day--outside]="!isCurrentMonth(day)"
+            [class.cal__day--today]="isToday(day)"
+            [class.cal__day--has-events]="entriesFor(day).length > 0"
+            (click)="openDay(day)">
+            <span class="cal__day-num">{{ day.getDate() }}</span>
+            <span class="cal__day-events">
+              @for (entry of entriesFor(day).slice(0, 2); track entry.register.id) {
+                <span class="cal__chip"
+                      [class]="'cal__chip cal__chip--' + entry.severity"
+                      [class.cal__chip--late]="entry.late">{{ entry.label }}</span>
+              }
+              @if (entriesFor(day).length > 2) {
+                <span class="cal__more">+{{ entriesFor(day).length - 2 }}</span>
+              }
+            </span>
+          </button>
+        }
+      }
+    </div>
+
+    <!-- As cores são as mesmas severidades dos chips de status da Programação. -->
+    <div class="cal__legend">
+      <span><i class="cal__dot cal__dot--success"></i> Disponível</span>
+      <span><i class="cal__dot cal__dot--warning"></i> Reforma / liberar equipamentos</span>
+      <span><i class="cal__dot cal__dot--danger"></i> Aguardando aquisição</span>
+      <span><i class="cal__dot cal__dot--neutral"></i> Entregue / reservada</span>
+      <span><i class="cal__dot cal__dot--late"></i> Previsão vencida sem entrega</span>
+    </div>
+  </section>
+
   <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
   <div class="dist-row">
     <section class="card">
@@ -102,3 +163,27 @@
   </section>
 
 </div>
+
+<pk-dialog
+  [header]="'Implantações de ' + (selectedDay() | date: 'dd/MM/yyyy')"
+  [visible]="dayDialogVisible()"
+  width="560px"
+  (visibleChange)="dayDialogVisible.set($event)">
+  <div pkDialogContent>
+    <div class="day-list">
+      @for (entry of dayEntries(); track entry.register.id) {
+        <div class="day-item" [class.day-item--late]="entry.late">
+          <span class="day-item__dot" [class]="'day-item__dot cal__dot--' + entry.severity"></span>
+          <div class="day-item__body">
+            <strong>{{ entry.label }}</strong>
+            <span class="day-item__meta">
+              {{ entry.machine }} · {{ entry.statusLabel }}
+              @if (entry.register.tecnico) { · {{ entry.register.tecnico }} }
+              @if (entry.late) { · <em>atrasada</em> }
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</pk-dialog>

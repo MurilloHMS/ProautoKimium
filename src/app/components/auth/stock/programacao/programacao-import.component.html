@@ -1,16 +1,16 @@
-<pk-dialog
-  header="Importar planilha de programação"
-  [visible]="visible()"
-  (visibleChange)="visibleChange.emit($event)">
+<app-form-screen
+  title="Importar planilha de programação"
+  subtitle="Lê a aba ESTOQUE e mostra tudo antes de gravar"
+  width="wide"
+  (back)="close()">
 
-  <div pkDialogContent class="import">
+  <div class="import">
 
     <!-- ─── 1. Escolher o arquivo ──────────────────────────────────────── -->
     @if (phase() === 'choose') {
       <p class="import__intro">
         Selecione o arquivo <strong>PROGRAMAÇÃO MÁQUINAS e IMPLANTAÇÕES</strong>.
-        Leio a aba <strong>ESTOQUE</strong> e mostro o que será importado antes
-        de gravar qualquer coisa.
+        Nada é gravado antes de você conferir a lista.
       </p>
 
       <pk-fileUpload
@@ -27,10 +27,10 @@
     }
 
     <!-- ─── 2. Conferir ────────────────────────────────────────────────── -->
-    @if (phase() === 'review' && parsed(); as result) {
+    @if (phase() === 'review') {
       <div class="summary">
         <div class="summary__item">
-          <strong>{{ parsed()!.rows.length }}</strong>
+          <strong>{{ total() }}</strong>
           <span>linhas para importar</span>
         </div>
         <div class="summary__item">
@@ -41,34 +41,41 @@
           <strong>{{ warningCount() }}</strong>
           <span>com aviso</span>
         </div>
+        <div class="summary__item">
+          <strong>{{ missingMachines().length }}</strong>
+          <span>máquinas a criar</span>
+        </div>
       </div>
 
       @if (missingMachines().length > 0) {
         <div class="notice">
           <i class="pi pi-info-circle"></i>
           <span>
-            <strong>{{ missingMachines().length }}</strong> máquina(s) da planilha não
-            estão no cadastro e serão criadas:
+            Estas máquinas não estão no cadastro e serão criadas:
             <em>{{ missingMachines().join(', ') }}</em>
           </span>
         </div>
       }
 
       <p class="import__hint">
-        Aba lida: <strong>{{ parsed()!.sheetName }}</strong>. Região e consultor vêm
-        junto. Datas em texto livre ("07/11 - Sexta") ficam em branco — o ano não
-        dá para adivinhar.
+        Aba lida: <strong>{{ parsed()!.sheetName }}</strong> — arquivo
+        <strong>{{ fileName() }}</strong>. Datas em texto livre ("07/11 - Sexta")
+        ficam em branco, porque o ano não dá para adivinhar.
       </p>
 
       <div class="preview">
-        <p-table [value]="parsed()!.rows" [scrollable]="true" scrollHeight="260px" styleClass="preview-table">
+        <p-table [value]="parsed()!.rows" [scrollable]="true" scrollHeight="46vh"
+                 styleClass="preview-table" [rowHover]="true">
           <ng-template pTemplate="header">
             <tr>
-              <th style="width: 54px">Linha</th>
-              <th>Máquina</th>
-              <th>Cliente</th>
-              <th>Status</th>
-              <th>Previsão</th>
+              <th style="width:60px">Linha</th>
+              <th style="width:150px">Máquina</th>
+              <th style="width:200px">Cliente</th>
+              <th style="width:90px">Região</th>
+              <th style="width:130px">Status</th>
+              <th style="width:110px">Previsão</th>
+              <th style="width:130px">Consultor</th>
+              <th style="width:130px">Técnico</th>
               <th>Aviso</th>
             </tr>
           </ng-template>
@@ -78,8 +85,11 @@
               <td class="preview__line">{{ row.sheetRow }}</td>
               <td>{{ row.maquinaNome || '—' }}</td>
               <td>{{ row.nomeCliente || '—' }}</td>
+              <td>{{ row.regiao || '—' }}</td>
               <td>{{ statusLabel(row.status) }}</td>
               <td>{{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : '—' }}</td>
+              <td>{{ row.consultor || '—' }}</td>
+              <td>{{ row.tecnico || '—' }}</td>
               <td class="preview__warn">{{ row.warnings.join(' ') || '—' }}</td>
             </tr>
           </ng-template>
@@ -90,9 +100,12 @@
     <!-- ─── 3. Enviando ────────────────────────────────────────────────── -->
     @if (phase() === 'running') {
       <div class="running">
-        <p><i class="pi pi-spin pi-spinner"></i> Enviando {{ sent() }} de {{ total() }}…</p>
+        <p class="running__title"><i class="pi pi-spin pi-spinner"></i> Enviando {{ sent() }} de {{ total() }}…</p>
         <div class="bar"><span class="bar__fill" [style.width.%]="progress()"></span></div>
-        <small>Uma linha por vez, para não derrubar a API nem embaralhar os erros.</small>
+        <small>
+          Uma linha por vez, para não derrubar a API nem embaralhar os erros.
+          Não feche a tela até terminar.
+        </small>
       </div>
     }
 
@@ -114,20 +127,24 @@
               </li>
             }
           </ul>
+          <p class="import__hint">
+            Corrija estas na planilha ou direto na grade. Importar de novo
+            duplicaria as que já entraram.
+          </p>
         }
       </div>
     }
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
+  <div formActions>
     @if (phase() === 'review') {
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()"/>
       <pk-button pkType="save" pkSize="sm"
                  [pkLabel]="'Importar ' + total() + ' linha(s)'" (clicked)="start()"/>
     } @else if (phase() === 'done') {
-      <pk-button pkType="save" pkSize="sm" pkLabel="Fechar" (clicked)="close()"/>
+      <pk-button pkType="save" pkSize="sm" pkLabel="Voltar para a programação" (clicked)="close()"/>
     } @else if (phase() === 'choose') {
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()"/>
     }
   </div>
-</pk-dialog>
+</app-form-screen>

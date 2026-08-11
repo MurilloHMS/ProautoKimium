@@ -1,11 +1,12 @@
 <p-toast position="top-right" />
 
+@if (mode() === 'grid') {
 <div class="painel-wrapper">
 
   <app-toolbar>
     <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
-    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="importVisible.set(true)"/>
+    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
 
     <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
     <pk-button
@@ -47,7 +48,9 @@
              scrollHeight="flex"
              [loading]="loading()"
              styleClass="sheet-table"
-             [rowHover]="true">
+             [rowHover]="true"
+             (onEditComplete)="onCellEdited($event.data)"
+             (onEditCancel)="onCellCancelled($event.data)">
 
       <ng-template pTemplate="header">
         <tr>
@@ -61,6 +64,7 @@
           <th style="width: 140px">Consultor</th>
           <th style="width: 150px">Técnico</th>
           <th style="width: 80px">Tag</th>
+          <th style="width: 165px">Última alteração</th>
           <th style="width: 70px" class="col-center">—</th>
         </tr>
       </ng-template>
@@ -83,7 +87,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="nomeCliente">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.nomeCliente" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.nomeCliente" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.nomeCliente || '—' }}</ng-template>
             </p-cellEditor>
@@ -92,7 +96,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="regiao">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.regiao" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.regiao" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.regiao || '—' }}</ng-template>
             </p-cellEditor>
@@ -101,7 +105,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="solicitante">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.solicitante" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.solicitante" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.solicitante || '—' }}</ng-template>
             </p-cellEditor>
@@ -123,7 +127,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="Observacao">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.Observacao" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.Observacao" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.Observacao || '—' }}</ng-template>
             </p-cellEditor>
@@ -144,7 +148,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="consultor">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.consultor" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.consultor" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.consultor || '—' }}</ng-template>
             </p-cellEditor>
@@ -153,7 +157,7 @@
           <td [pEditableColumn]="row" pEditableColumnField="tecnico">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.tecnico" (blur)="onCellEdited(row)" />
+                <input pInputText type="text" [(ngModel)]="row.tecnico" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.tecnico || '—' }}</ng-template>
             </p-cellEditor>
@@ -162,10 +166,22 @@
           <td [pEditableColumn]="row" pEditableColumnField="tag">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="number" [(ngModel)]="row.tag" (blur)="onCellEdited(row)" />
+                <input pInputText type="number" [(ngModel)]="row.tag" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.tag || '—' }}</ng-template>
             </p-cellEditor>
+          </td>
+
+          <!-- Só leitura: quem assina a alteração é o servidor, não a célula. -->
+          <td class="col-audit">
+            @if (row.updatedAt) {
+              <span class="audit" [pTooltip]="auditTooltip(row)" tooltipPosition="left">
+                <span class="audit__who">{{ row.updatedBy || 'Desconhecido' }}</span>
+                <small class="audit__when">{{ stamp(row.updatedAt) }}</small>
+              </span>
+            } @else {
+              <span class="audit__none">—</span>
+            }
           </td>
 
           <td class="col-center sheet-row__actions">
@@ -187,7 +203,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="11" class="sheet-empty">
+          <td colspan="12" class="sheet-empty">
             <i class="pi pi-table"></i>
             <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
           </td>
@@ -198,12 +214,15 @@
 
   <p class="sheet-note">
     <i class="pi pi-info-circle"></i>
-    Clique numa célula para editar e saia com <kbd>Tab</kbd> — cada linha é salva
-    sozinha. Linha em vermelho é previsão vencida sem entrega.
+    Clique numa célula para editar e confirme com <kbd>Enter</kbd> ou <kbd>Tab</kbd>
+    — cada linha é salva sozinha. <kbd>Esc</kbd> descarta a edição. Linha em
+    vermelho é previsão vencida sem entrega.
   </p>
 </div>
+}
 
-<app-programacao-import
-  [visible]="importVisible()"
-  (visibleChange)="importVisible.set($event)"
-  (finished)="refresh()" />
+@if (mode() === 'import') {
+  <app-programacao-import
+    (closed)="mode.set('grid')"
+    (finished)="refresh()" />
+}

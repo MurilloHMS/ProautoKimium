@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import {
@@ -14,12 +14,29 @@ import { MachineRegisterStore } from '../../../../infrastructure/state/machine-r
 import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { parseDateOnly } from '../../../../domain/utils/date-only';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+
+const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const MONTH_LABELS = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
 
 interface Slice {
   label: string;
   count: number;
   percent: number;
   severity: string;
+}
+
+/** Uma implantação no dia do calendário. */
+interface DayEntry {
+  register: MachineRegister;
+  machine: string;
+  label: string;
+  statusLabel: string;
+  severity: string;
+  late: boolean;
 }
 
 interface UpcomingExit {
@@ -43,7 +60,7 @@ interface UpcomingExit {
 @Component({
   selector: 'app-machine-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageHeaderComponent],
+  imports: [CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent],
   templateUrl: './machine-hub.component.html',
   styleUrl: './machine-hub.component.scss',
 })
@@ -131,6 +148,117 @@ export class MachineHubComponent implements OnInit {
 
   readonly lateCount = computed(() => this.upcoming().filter(item => item.late).length);
 
+  // ─── Calendário de implantações ───────────────────────────────────────────
+  //
+  // Mesmo desenho do Painel de RH, mas sem ir ao servidor a cada mês: a
+  // programação inteira já está no store, então virar o mês é só refiltrar o
+  // que está em memória.
+
+  readonly weekdayLabels = WEEKDAY_LABELS;
+  readonly displayedMonth = signal(startOfMonth(new Date()));
+
+  readonly monthLabel = computed(() => {
+    const month = this.displayedMonth();
+    return `${MONTH_LABELS[month.getMonth()]} de ${month.getFullYear()}`;
+  });
+
+  /**
+   * Previsões indexadas por dia. O template chama `entriesFor` uma vez por
+   * célula — 42 buscas por render — e varrer a lista toda em cada uma seria
+   * quadrático à toa.
+   */
+  private readonly entriesByDay = computed(() => {
+    const today = startOfToday();
+    const byDay = new Map<string, DayEntry[]>();
+
+    for (const register of this.registerStore.items()) {
+      const date = parseDateOnly(register.previsaoEntrega);
+      if (!date) continue;
+
+      const machine = this.machineStore.nameOf(register.machineId);
+      const entry: DayEntry = {
+        register,
+        machine,
+        label: register.nomeCliente?.trim() || machine,
+        statusLabel: MACHINE_STATUS_LABEL[register.status] ?? register.status,
+        severity: MACHINE_STATUS_SEVERITY[register.status] ?? 'neutral',
+        late: date < today && register.status !== MachineStatus.ENTREGUE,
+      };
+
+      const key = dayKey(date);
+      const list = byDay.get(key);
+      if (list) list.push(entry);
+      else byDay.set(key, [entry]);
+    }
+
+    return byDay;
+  });
+
+  /** Seis semanas quando o mês precisa; cinco quando cabe. */
+  readonly weeks = computed<Date[][]>(() => {
+    const month = this.displayedMonth();
+    const year = month.getFullYear();
+    const index = month.getMonth();
+
+    const startWeekday = new Date(year, index, 1).getDay();
+    const daysInMonth = new Date(year, index + 1, 0).getDate();
+    const cells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
+
+    const weeks: Date[][] = [];
+    for (let cell = 0; cell < cells; cell += 7) {
+      weeks.push(Array.from({ length: 7 }, (_, offset) =>
+        new Date(year, index, 1 - startWeekday + cell + offset)));
+    }
+    return weeks;
+  });
+
+  /** Quantas implantações caem no mês aberto — o número do cabeçalho. */
+  readonly monthCount = computed(() => {
+    const month = this.displayedMonth();
+    return this.weeks()
+      .flat()
+      .filter(day => day.getMonth() === month.getMonth())
+      .reduce((total, day) => total + this.entriesFor(day).length, 0);
+  });
+
+  readonly dayDialogVisible = signal(false);
+  readonly selectedDay = signal<Date | null>(null);
+
+  readonly dayEntries = computed(() => {
+    const day = this.selectedDay();
+    return day ? this.entriesFor(day) : [];
+  });
+
+  entriesFor(day: Date): DayEntry[] {
+    return this.entriesByDay().get(dayKey(day)) ?? [];
+  }
+
+  isCurrentMonth(day: Date): boolean {
+    return day.getMonth() === this.displayedMonth().getMonth();
+  }
+
+  isToday(day: Date): boolean {
+    return dayKey(day) === dayKey(new Date());
+  }
+
+  prevMonth(): void {
+    this.displayedMonth.update(month => new Date(month.getFullYear(), month.getMonth() - 1, 1));
+  }
+
+  nextMonth(): void {
+    this.displayedMonth.update(month => new Date(month.getFullYear(), month.getMonth() + 1, 1));
+  }
+
+  goToday(): void {
+    this.displayedMonth.set(startOfMonth(new Date()));
+  }
+
+  openDay(day: Date): void {
+    if (this.entriesFor(day).length === 0) return;
+    this.selectedDay.set(day);
+    this.dayDialogVisible.set(true);
+  }
+
   ngOnInit(): void {
     this.machineStore.load();
     this.registerStore.load();
@@ -152,4 +280,15 @@ export class MachineHubComponent implements OnInit {
 function startOfToday(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/** Chave local `2026-08-11`. `toISOString` viraria o dia em fuso negativo. */
+function dayKey(date: Date): string {
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${date.getFullYear()}-${month}-${day}`;
 }
