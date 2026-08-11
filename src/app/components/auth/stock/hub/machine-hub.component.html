@@ -1,0 +1,99 @@
+<div class="hub">
+
+  <app-page-header
+    icon="pi pi-cog"
+    title="Hub das Máquinas"
+    subtitle="Situação do parque e o que sai nos próximos dias"
+    size="lg">
+    @if (lateCount() > 0) {
+      <div actions class="hub__alert">
+        <i class="pi pi-exclamation-triangle"></i>
+        <strong>{{ lateCount() }}</strong> entrega(s) em atraso
+      </div>
+    }
+  </app-page-header>
+
+  <!-- ─── KPIs ──────────────────────────────────────────────────────────── -->
+  <div class="kpi-row">
+    <a class="kpi" routerLink="/stock/machines">
+      <span class="kpi__label">Máquinas no catálogo</span>
+      <span class="kpi__value">{{ totalMachines() }}</span>
+    </a>
+
+    <a class="kpi" routerLink="/stock/programacao">
+      <span class="kpi__label">Registros na programação</span>
+      <span class="kpi__value">{{ totalRegisters() }}</span>
+    </a>
+
+    <div class="kpi">
+      <span class="kpi__label">Prontas</span>
+      <span class="kpi__value kpi__value--ok">{{ available() }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Entregues</span>
+      <span class="kpi__value">{{ delivered() }}</span>
+    </div>
+
+    <div class="kpi" [class.kpi--hero]="inRepair() > 0">
+      <span class="kpi__label">Em reforma ou manutenção</span>
+      <span class="kpi__value kpi__value--warn">{{ inRepair() }}</span>
+    </div>
+  </div>
+
+  <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
+  <div class="dist-row">
+    <section class="card">
+      <h2 class="card__title">Por status</h2>
+
+      @for (slice of statusSlices(); track slice.label) {
+        <div class="dist">
+          <span class="dist__label">{{ slice.label }}</span>
+          <span class="dist__track">
+            <span class="dist__bar" [class]="'dist__bar--' + slice.severity" [style.width.%]="slice.percent"></span>
+          </span>
+          <span class="dist__value">{{ slice.count }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhum registro na programação ainda.</p>
+      }
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Por tipo de máquina</h2>
+
+      @for (slice of typeSlices(); track slice.label) {
+        <div class="dist">
+          <span class="dist__label">{{ slice.label }}</span>
+          <span class="dist__track">
+            <span class="dist__bar dist__bar--action" [style.width.%]="slice.percent"></span>
+          </span>
+          <span class="dist__value">{{ slice.count }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhuma máquina cadastrada.</p>
+      }
+    </section>
+  </div>
+
+  <!-- ─── Próximas saídas ───────────────────────────────────────────────── -->
+  <section class="card">
+    <h2 class="card__title">Próximas saídas</h2>
+    <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
+
+    @for (item of upcoming(); track item.register.id) {
+      <div class="exit" [class.exit--late]="item.late">
+        <span class="exit__when">
+          <strong>{{ item.date | date: 'dd/MM' }}</strong>
+          <small>{{ dueLabel(item) }}</small>
+        </span>
+        <span class="exit__client">{{ item.register.nomeCliente || '—' }}</span>
+        <span class="exit__machine">{{ item.machine }}</span>
+        <span class="exit__tech">{{ item.register.tecnico || 'Sem técnico' }}</span>
+      </div>
+    } @empty {
+      <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
+    }
+  </section>
+
+</div>

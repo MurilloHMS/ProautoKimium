@@ -78,6 +78,15 @@ export const routes: Routes = [
       { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/candidaturas', loadComponent: () => import('./components/auth/rh/candidaturas/candidaturas.component').then(m => m.CandidaturasComponent), data: { roles: ['ADMIN', 'RH'] } },
 
+      // ── Estoque (ProStock) ───────────────────────────────────────────────
+      // Mesmas funções do desktop JavaFX, que continua no ar consumindo a
+      // mesma API — nenhum contrato pode mudar aqui.
+      { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/machines', loadComponent: () => import('./components/auth/stock/machines/machines.component').then(m => m.MachinesComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+
       // ── Ferramentas ──────────────────────────────────────────────────────
       // Cada ferramenta é uma rota própria para abrir na sua aba, como as
       // demais telas da área de trabalho.
@@ -88,8 +97,10 @@ export const routes: Routes = [
       // ── Empresa ──────────────────────────────────────────────────────────
       { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
       { path: 'company/excel', loadComponent: () => import('./components/auth/documents/excel-credentials/excel-credentials.component').then(m => m.ExcelCredentialsComponent) },
-      { path: 'company/products', loadComponent: () => import('./components/auth/company/products/inventory/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
-      { path: 'company/inventory', loadComponent: () => import('./components/auth/company/products/inventory/stock-control/stock-control.component').then(m => m.StockControlComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      // As telas de estoque moram em `stock/*`. Estas duas rotas ficaram para
+      // trás porque já estavam publicadas (e quebradas) — redirecionam.
+      { path: 'company/products', redirectTo: 'stock/products', pathMatch: 'full' },
+      { path: 'company/inventory', redirectTo: 'stock/movements', pathMatch: 'full' },
       { path: 'company/customers', loadComponent: () => import('./components/auth/partners/customer/customer.component').then(m => m.CustomerComponent), data: { roles: ['ADMIN', 'RH', 'MARKETING'] } },
       { path: 'company/fuel-supply', loadComponent: () => import('./components/auth/company/vehicle/fuel-supply/fuel-supply.component').then(m => m.FuelSupplyComponent), data: { roles: ['ADMIN', 'COMPRADOR'] } },
       { path: 'company/guide', loadComponent: () => import('./components/auth/guide/guide.component').then(m => m.GuideComponent), data: { roles: ['ADMIN', 'CONTRATOS'] } },
