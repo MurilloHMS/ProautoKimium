@@ -1,0 +1,169 @@
+@use 'variables' as v;
+
+.import {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: min(760px, 82vw);
+}
+
+.import__intro,
+.import__hint {
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.5;
+}
+
+.import__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+}
+
+// ─── Resumo ─────────────────────────────────────────────────────────────────
+.summary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.summary__item {
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+
+  strong {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: var(--text-micro);
+    color: var(--app-text-muted);
+  }
+
+  &--warn {
+    background: var(--app-warning-soft);
+    border-color: color-mix(in srgb, var(--app-warning) 35%, transparent);
+
+    strong { color: var(--app-warning); }
+  }
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-control);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  em { font-style: normal; opacity: .85; }
+}
+
+// ─── Prévia ─────────────────────────────────────────────────────────────────
+.preview {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+::ng-deep .preview-table {
+  .p-datatable-thead > tr > th {
+    height: var(--row-head-h);
+    padding: 0 10px;
+    background: var(--app-surface-2);
+    border-bottom: 1px solid var(--app-border);
+    font-size: var(--text-micro);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-head);
+    color: var(--app-text-muted);
+  }
+
+  .p-datatable-tbody > tr > td {
+    height: var(--row-h);
+    padding: 0 10px;
+    border-bottom: 1px solid var(--app-border);
+    font-size: var(--text-ui-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+}
+
+.preview-row--warn > td { background: var(--app-warning-soft); }
+
+.preview__line { color: var(--app-text-subtle); font-variant-numeric: tabular-nums; }
+.preview__warn { color: var(--app-warning); font-size: var(--text-micro); }
+
+// ─── Progresso ──────────────────────────────────────────────────────────────
+.running {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+
+  p { margin: 0; display: flex; align-items: center; gap: 8px; font-size: var(--text-ui); }
+  small { color: var(--app-text-subtle); font-size: var(--text-micro); }
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--app-surface-2);
+  overflow: hidden;
+
+  &__fill {
+    display: block;
+    height: 100%;
+    background: var(--app-action);
+    transition: width .2s ease;
+  }
+}
+
+// ─── Resultado ──────────────────────────────────────────────────────────────
+.done__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--app-success);
+}
+
+.done__failed {
+  margin: 0 0 6px;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-danger);
+}
+
+.failures {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  li { margin-bottom: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar__fill { transition: none; }
+}

@@ -5,6 +5,7 @@
   <app-toolbar>
     <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
+    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="importVisible.set(true)"/>
 
     <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
     <pk-button
@@ -201,3 +202,8 @@
     sozinha. Linha em vermelho é previsão vencida sem entrega.
   </p>
 </div>
+
+<app-programacao-import
+  [visible]="importVisible()"
+  (visibleChange)="importVisible.set($event)"
+  (finished)="refresh()" />

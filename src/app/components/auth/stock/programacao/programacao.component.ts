@@ -25,6 +25,7 @@ import { RegisterService } from '../../../../infrastructure/services/prostock/re
 import { parseDateOnly } from '../../../../domain/utils/date-only';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { ProgramacaoImportComponent } from './programacao-import.component';
 
 /**
  * Linha da grade: o registro da API mais a data já convertida para o datepicker.
@@ -54,7 +55,7 @@ interface Row extends MachineRegister {
   imports: [
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
     ButtonModule, Toast, Tooltip, ToolbarComponent, PkButtonComponent,
-    PkComboboxComponent, PkMultiselectComponent,
+    PkComboboxComponent, PkMultiselectComponent, ProgramacaoImportComponent,
   ],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
@@ -83,6 +84,9 @@ export class ProgramacaoComponent implements OnInit {
 
   readonly hasFilters = computed(() =>
     this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
+
+  /** Importação da planilha — some quando os dados estiverem todos aqui. */
+  readonly importVisible = signal(false);
 
   clearFilters(): void {
     this.statusFilter.set([]);
