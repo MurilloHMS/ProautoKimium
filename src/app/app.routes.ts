@@ -83,6 +83,7 @@ export const routes: Routes = [
       // mesma API — nenhum contrato pode mudar aqui.
       { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
       { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
+      { path: 'stock/inventory-hub', loadComponent: () => import('./components/auth/stock/inventory-hub/inventory-hub.component').then(m => m.InventoryHubComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/machines', loadComponent: () => import('./components/auth/stock/machines/machines.component').then(m => m.MachinesComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },

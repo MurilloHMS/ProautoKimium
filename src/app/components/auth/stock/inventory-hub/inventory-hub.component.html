@@ -1,0 +1,198 @@
+<div class="hub">
+
+  <app-page-header
+    icon="pi pi-chart-bar"
+    title="Hub do Estoque"
+    subtitle="Entradas, saídas e o que está parado"
+    size="lg">
+    <div actions class="hub__actions">
+      <div class="period">
+        @for (days of periodOptions; track days) {
+          <button type="button"
+                  class="period__btn"
+                  [class.period__btn--on]="periodDays() === days"
+                  (click)="setPeriod(days)">{{ days }} dias</button>
+        }
+      </div>
+      <button type="button" class="period__btn" [disabled]="loading()" (click)="load()">
+        <i class="pi" [class.pi-refresh]="!loading()" [class.pi-spin]="loading()" [class.pi-spinner]="loading()"></i>
+        Atualizar
+      </button>
+    </div>
+  </app-page-header>
+
+  <!-- Buscar o histórico é um GET por produto: sem barra, a tela parece travada. -->
+  @if (loading()) {
+    <div class="loading">
+      <div class="loading__bar"><span [style.width.%]="progress()"></span></div>
+      <small>Lendo o histórico de {{ loaded() }} de {{ total() }} produto(s)…</small>
+    </div>
+  }
+
+  @if (failed() && !loading()) {
+    <p class="hub__empty">
+      <i class="pi pi-exclamation-triangle"></i>
+      Não foi possível carregar os produtos do estoque.
+    </p>
+  }
+
+  <!-- ─── KPIs ────────────────────────────────────────────────────────────── -->
+  <div class="kpi-row">
+    <a class="kpi" routerLink="/stock/products">
+      <span class="kpi__label">Produtos ativos</span>
+      <span class="kpi__value">{{ activeCount() }}</span>
+    </a>
+
+    <div class="kpi">
+      <span class="kpi__label">Itens em estoque</span>
+      <span class="kpi__value">{{ totalItems() }}</span>
+    </div>
+
+    <div class="kpi" [class.kpi--hero]="belowMinimum().length > 0">
+      <span class="kpi__label">Abaixo do mínimo</span>
+      <span class="kpi__value kpi__value--warn">{{ belowMinimum().length }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Sem estoque</span>
+      <span class="kpi__value kpi__value--bad">{{ outOfStock().length }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Entradas no período</span>
+      <span class="kpi__value kpi__value--ok">+{{ totalIn() }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Saídas no período</span>
+      <span class="kpi__value kpi__value--bad">−{{ totalOut() }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Saldo do período</span>
+      <span class="kpi__value" [class.kpi__value--ok]="balance() > 0" [class.kpi__value--bad]="balance() < 0">
+        {{ balance() > 0 ? '+' : '' }}{{ balance() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ─── Fluxo diário ────────────────────────────────────────────────────── -->
+  <section class="card">
+    <h2 class="card__title">Entradas e saídas por dia</h2>
+    <p class="card__hint">
+      A base guarda o estoque resultante, não a diferença — entrada e saída aqui
+      são a variação de um movimento para o anterior.
+    </p>
+
+    <div class="flow">
+      @for (day of dailyFlow(); track day.key) {
+        <div class="flow__col"
+             [pTooltip]="day.label + ': +' + day.in + ' / −' + day.out"
+             tooltipPosition="top">
+          <span class="flow__bars">
+            <span class="flow__bar flow__bar--in" [style.height.%]="day.inPercent"></span>
+            <span class="flow__bar flow__bar--out" [style.height.%]="day.outPercent"></span>
+          </span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhuma movimentação no período.</p>
+      }
+    </div>
+
+    @if (dailyFlow().length > 0) {
+      <div class="flow__axis">
+        <span>{{ dailyFlow()[0].label }}</span>
+        <span>{{ dailyFlow()[dailyFlow().length - 1].label }}</span>
+      </div>
+      <div class="flow__legend">
+        <span><i class="dot dot--success"></i> entradas</span>
+        <span><i class="dot dot--danger"></i> saídas</span>
+      </div>
+    }
+  </section>
+
+  <div class="two-col">
+    <!-- ─── Mais movimentados ─────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Mais movimentados</h2>
+      <p class="card__hint">Entradas e saídas somadas no período.</p>
+
+      @for (row of topMoved(); track row.product.systemCode) {
+        <div class="rank">
+          <span class="rank__label" [pTooltip]="row.product.systemCode" tooltipPosition="left">
+            {{ row.product.name }}
+          </span>
+          <span class="rank__track">
+            <span class="rank__bar" [style.width.%]="row.percent"></span>
+          </span>
+          <span class="rank__value">{{ row.moved }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhuma movimentação no período.</p>
+      }
+    </section>
+
+    <!-- ─── Situação do estoque ───────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Situação do estoque</h2>
+      <p class="card__hint">Posição de hoje, independente do período escolhido.</p>
+
+      @for (slice of healthSlices(); track slice.label) {
+        <div class="rank">
+          <span class="rank__label">{{ slice.label }}</span>
+          <span class="rank__track">
+            <span class="rank__bar" [class]="'rank__bar rank__bar--' + slice.tone" [style.width.%]="slice.percent"></span>
+          </span>
+          <span class="rank__value">{{ slice.count }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhum produto cadastrado.</p>
+      }
+
+      @if (belowMinimum().length > 0) {
+        <a class="card__link" routerLink="/stock/movements">
+          <i class="pi pi-arrow-right"></i> Repor os {{ belowMinimum().length }} abaixo do mínimo
+        </a>
+      }
+    </section>
+  </div>
+
+  <div class="two-col">
+    <!-- ─── Estoque parado ────────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Estoque parado</h2>
+      <p class="card__hint">Tem saldo, mas não movimenta há 90 dias ou mais.</p>
+
+      @for (item of idle(); track item.product.systemCode) {
+        <div class="idle">
+          <span class="idle__name">{{ item.product.name }}</span>
+          <span class="idle__stock">{{ item.stock }} un.</span>
+          <span class="idle__when">{{ idleLabel(item.idleDays) }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nada parado — todo produto com saldo girou nos últimos 90 dias.</p>
+      }
+    </section>
+
+    <!-- ─── Últimas movimentações ─────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Últimas movimentações</h2>
+      <p class="card__hint">De todos os produtos, mais recentes primeiro.</p>
+
+      @for (item of feed(); track item.product + item.date) {
+        <div class="feed">
+          <span class="feed__delta" [class.feed__delta--out]="item.delta < 0">
+            {{ item.delta > 0 ? '+' : '' }}{{ item.delta }}
+          </span>
+          <span class="feed__name">{{ item.product }}</span>
+          <span class="feed__meta">
+            {{ item.date | date: 'dd/MM HH:mm' }} · saldo {{ item.stock }}
+          </span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhuma movimentação registrada.</p>
+      }
+    </section>
+  </div>
+
+</div>
