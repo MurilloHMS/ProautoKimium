@@ -3,6 +3,7 @@ import {FuelSupplyReportRequest, ReportFormat} from "../../../../../domain/model
 import {environment} from "../../../../../../environments/environment";
 import {Observable} from "rxjs";
 import {HttpClient} from "@angular/common/http";
+import {FuelSupply} from "../../../../../domain/models/fuel-supply.model";
 import {file} from "@primeuix/themes/aura/fileupload";
 
 @Injectable({
@@ -10,6 +11,18 @@ import {file} from "@primeuix/themes/aura/fileupload";
 })
 export class FuelSuppyService {
   constructor(private http: HttpClient) {}
+
+  /**
+   * Abastecimentos de um período, para o Hub montar os indicadores.
+   *
+   * Datas em `yyyy-MM-dd` — a API recebe `LocalDate`, e o intervalo inclui as
+   * duas pontas (`findByFuelSupplyDateBetween`).
+   */
+  listByPeriod(start: string, end: string): Observable<FuelSupply[]> {
+    return this.http.get<FuelSupply[]>(`${environment.apiUrl}/fuelsupply`, {
+      params: { start, end },
+    });
+  }
 
   generateReport(request: FuelSupplyReportRequest): Observable<Blob> {
     return this.http.post(`${environment.apiUrl}/fuelsupply`, request, {
