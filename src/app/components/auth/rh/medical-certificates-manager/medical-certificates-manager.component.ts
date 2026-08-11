@@ -10,6 +10,7 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { MedicalCertificateService } from '../../../../infrastructure/services/hr/medical-certificate.service';
 import { MedicalCertificate } from '../../../../domain/models/hr/medical-certificate.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { formatDateBr } from '../../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-medical-certificates-manager',
@@ -48,7 +49,7 @@ export class MedicalCertificatesManagerComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   formatDateTime(iso: string): string {

@@ -7,6 +7,7 @@ import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.co
 import { ReimbursementService } from '../../../infrastructure/services/hr/reimbursement.service';
 import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { formatDateBr } from '../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-hr-reimbursements',
@@ -107,7 +108,7 @@ export class HrReimbursementsComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   statusLabel(status: ReimbursementStatus): string {

@@ -8,6 +8,7 @@ import { PkCheckboxComponent } from '../../theme/ProautoKimium/pk-checkbox/pk-ch
 import { MedicalCertificateService } from '../../../infrastructure/services/hr/medical-certificate.service';
 import { MedicalCertificate, SubmissionType } from '../../../domain/models/hr/medical-certificate.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { formatDateBr } from '../../../domain/utils/date-only';
 
 @Component({
   selector: 'app-hr-medical-certificates',
@@ -129,7 +130,7 @@ export class HrMedicalCertificatesComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('pt-BR');
+    return formatDateBr(iso);
   }
 
   baixar(cert: MedicalCertificate): void {
