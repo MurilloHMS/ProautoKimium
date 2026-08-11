@@ -72,7 +72,7 @@ export class MachinesComponent implements OnInit, TabDirtyCheck {
       name: ['', Validators.required],
       brand: [''],
       machineType: [MachineType.CAPO, Validators.required],
-      machineStatus: [MachineStatus.PRONTA, Validators.required],
+      machineStatus: [MachineStatus.DISPONIVEL, Validators.required],
       minimum_stock: [0],
       active: [true],
     });
@@ -111,7 +111,7 @@ export class MachinesComponent implements OnInit, TabDirtyCheck {
     this.editing = null;
     this.form.reset({
       machineType: MachineType.CAPO,
-      machineStatus: MachineStatus.PRONTA,
+      machineStatus: MachineStatus.DISPONIVEL,
       minimum_stock: 0,
       active: true,
     });

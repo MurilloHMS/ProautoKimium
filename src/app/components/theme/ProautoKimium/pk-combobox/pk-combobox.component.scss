@@ -114,3 +114,23 @@
     font-size: var(--text-ui);
   }
 }
+
+// ─── Modo compacto ──────────────────────────────────────────────────────────
+// Para toolbar e célula de tabela: sem rótulo e sem rodapé, a altura passa a
+// ser a do controle. O campo de formulário continua igual.
+.pk-field--dense {
+  gap: 0;
+
+  ::ng-deep .pk-combobox {
+    min-height: var(--field-h);
+
+    .p-select-label,
+    .p-multiselect-label {
+      padding-top: 0;
+      padding-bottom: 0;
+      font-size: var(--text-ui-sm);
+      display: flex;
+      align-items: center;
+    }
+  }
+}

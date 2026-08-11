@@ -23,42 +23,46 @@ export interface MachineMovement {
 }
 
 /**
- * Estado da máquina.
+ * Estado da máquina — os seis valores da planilha de programação.
  *
- * ATENÇÃO: esta lista é a do enum da API. A planilha de programação usa outra
- * (DISPONÍVEL, AGUARDANDO AQUISIÇÃO, LIBERAR EQUIPAMENTOS) e só três valores
- * coincidem. Enquanto o enum não for decidido, a tela mostra o que a API aceita.
+ * Quem usa é quem manda: o enum antigo da API (PRONTA, MANUTENCAO, ENTRADA)
+ * não era o vocabulário do time, e a pessoa que preenche a planilha procuraria
+ * "DISPONÍVEL" sem achar. O enum da API passa a ser este.
  */
 export enum MachineStatus {
-  PRONTA = 'PRONTA',
-  REFORMA = 'REFORMA',
-  MANUTENCAO = 'MANUTENCAO',
+  DISPONIVEL = 'DISPONIVEL',
   ENTREGUE = 'ENTREGUE',
   RESERVADA = 'RESERVADA',
-  ENTRADA = 'ENTRADA',
+  AGUARDANDO_AQUISICAO = 'AGUARDANDO_AQUISICAO',
+  LIBERAR_EQUIPAMENTOS = 'LIBERAR_EQUIPAMENTOS',
+  REFORMA = 'REFORMA',
 }
 
 export const MACHINE_STATUS_LABEL: Record<MachineStatus, string> = {
-  [MachineStatus.PRONTA]: 'Pronta',
-  [MachineStatus.REFORMA]: 'Reforma',
-  [MachineStatus.MANUTENCAO]: 'Manutenção',
+  [MachineStatus.DISPONIVEL]: 'Disponível',
   [MachineStatus.ENTREGUE]: 'Entregue',
   [MachineStatus.RESERVADA]: 'Reservada',
-  [MachineStatus.ENTRADA]: 'Aguardando entrada',
+  [MachineStatus.AGUARDANDO_AQUISICAO]: 'Aguardando aquisição',
+  [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'Liberar equipamentos',
+  [MachineStatus.REFORMA]: 'Reforma',
 };
 
 /**
- * Cor por PAPEL, não por enfeite: pronta é sucesso, reforma e manutenção avisam,
- * entregue é informação neutra concluída.
+ * Cor por PAPEL: disponível é bom, entregue é assunto encerrado, aguardando
+ * aquisição está travado esperando terceiro, o resto pede ação nossa.
  */
 export const MACHINE_STATUS_SEVERITY: Record<MachineStatus, 'success' | 'warning' | 'danger' | 'neutral'> = {
-  [MachineStatus.PRONTA]: 'success',
-  [MachineStatus.REFORMA]: 'warning',
-  [MachineStatus.MANUTENCAO]: 'warning',
+  [MachineStatus.DISPONIVEL]: 'success',
   [MachineStatus.ENTREGUE]: 'neutral',
-  [MachineStatus.RESERVADA]: 'warning',
-  [MachineStatus.ENTRADA]: 'danger',
+  [MachineStatus.RESERVADA]: 'neutral',
+  [MachineStatus.AGUARDANDO_AQUISICAO]: 'danger',
+  [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'warning',
+  [MachineStatus.REFORMA]: 'warning',
 };
+
+/** Status que ainda esperam saída — usado no Hub e nos alertas. */
+export const OPEN_STATUSES: MachineStatus[] = Object.values(MachineStatus)
+  .filter(status => status !== MachineStatus.ENTREGUE);
 
 export enum MachineType {
   CAPO = 'CAPO',

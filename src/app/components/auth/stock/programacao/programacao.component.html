@@ -6,10 +6,33 @@
     <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
 
+    <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
+    <pk-button
+      [pkType]="onlyLate() ? 'cancel' : 'filter'"
+      pkSize="sm"
+      [pkLabel]="onlyLate() ? 'Ver todos' : 'Atrasados (' + lateCount() + ')'"
+      (clicked)="onlyLate.set(!onlyLate())"/>
+
+    @if (hasFilters()) {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters()"/>
+    }
+
     <div filters>
+      <pk-multiselect class="filter-control"
+                      [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
+                      [options]="statusOptions" optionLabel="label" optionValue="value"
+                      placeholder="Status" display="chip"
+                      [showClear]="true" [dense]="true" />
+
+      <pk-combobox class="filter-control"
+                   [ngModel]="machineFilter()" (ngModelChange)="machineFilter.set($event)"
+                   [options]="machineOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Máquina" [filter]="true"
+                   [showClear]="true" [dense]="true" />
+
       <input type="text"
              class="toolbar-search"
-             placeholder="Buscar cliente, técnico ou máquina…"
+             placeholder="Buscar cliente, região, consultor…"
              aria-label="Buscar na programação"
              [(ngModel)]="search"
              (ngModelChange)="onSearch()" />
@@ -29,10 +52,12 @@
         <tr>
           <th style="width: 190px">Máquina</th>
           <th style="width: 230px">Cliente</th>
+          <th style="width: 110px">Região</th>
           <th style="width: 140px">Solicitante</th>
           <th style="width: 150px">Status</th>
           <th style="width: 220px">Observação</th>
           <th style="width: 140px">Previsão saída</th>
+          <th style="width: 140px">Consultor</th>
           <th style="width: 150px">Técnico</th>
           <th style="width: 80px">Tag</th>
           <th style="width: 70px" class="col-center">—</th>
@@ -40,15 +65,15 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-row>
-        <tr [class.sheet-row--draft]="isDraft(row)" [class.sheet-row--saved]="isSaved(row.id)">
+        <tr [class.sheet-row--draft]="isDraft(row)" [class.sheet-row--saved]="isSaved(row.id)" [class.sheet-row--late]="isLate(row)">
 
           <!-- Máquina: o equivalente da validação de dados da planilha -->
           <td [pEditableColumn]="row" pEditableColumnField="machineId">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-select [(ngModel)]="row.machineId" [options]="machineOptions()"
-                          optionLabel="label" optionValue="value" appendTo="body"
-                          styleClass="cell-select" (onChange)="onCellEdited(row)" />
+                <pk-combobox [(ngModel)]="row.machineId" [options]="machineOptions()"
+                             optionLabel="label" optionValue="value" [dense]="true"
+                             (changed)="onCellEdited(row)" />
               </ng-template>
               <ng-template pTemplate="output">{{ machineName(row.machineId) }}</ng-template>
             </p-cellEditor>
@@ -60,6 +85,15 @@
                 <input pInputText type="text" [(ngModel)]="row.nomeCliente" (blur)="onCellEdited(row)" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.nomeCliente || '—' }}</ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="regiao">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.regiao" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.regiao || '—' }}</ng-template>
             </p-cellEditor>
           </td>
 
@@ -75,9 +109,9 @@
           <td [pEditableColumn]="row" pEditableColumnField="status">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-select [(ngModel)]="row.status" [options]="statusOptions"
-                          optionLabel="label" optionValue="value" appendTo="body"
-                          styleClass="cell-select" (onChange)="onCellEdited(row)" />
+                <pk-combobox [(ngModel)]="row.status" [options]="statusOptions"
+                             optionLabel="label" optionValue="value" [dense]="true"
+                             (changed)="onCellEdited(row)" />
               </ng-template>
               <ng-template pTemplate="output">
                 <span [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
@@ -103,6 +137,15 @@
               <ng-template pTemplate="output">
                 {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : '—' }}
               </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td [pEditableColumn]="row" pEditableColumnField="consultor">
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input pInputText type="text" [(ngModel)]="row.consultor" (blur)="onCellEdited(row)" />
+              </ng-template>
+              <ng-template pTemplate="output">{{ row.consultor || '—' }}</ng-template>
             </p-cellEditor>
           </td>
 
@@ -143,7 +186,7 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="9" class="sheet-empty">
+          <td colspan="11" class="sheet-empty">
             <i class="pi pi-table"></i>
             <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
           </td>
@@ -155,7 +198,6 @@
   <p class="sheet-note">
     <i class="pi pi-info-circle"></i>
     Clique numa célula para editar e saia com <kbd>Tab</kbd> — cada linha é salva
-    sozinha. <strong>Região</strong> e <strong>Consultor</strong> ainda não existem
-    na API, então continuam só na planilha.
+    sozinha. Linha em vermelho é previsão vencida sem entrega.
   </p>
 </div>

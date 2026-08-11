@@ -65,10 +65,12 @@ export class MachineHubComponent implements OnInit {
     return counts;
   });
 
-  readonly available = computed(() => this.byStatus().get(MachineStatus.PRONTA) ?? 0);
+  readonly available = computed(() => this.byStatus().get(MachineStatus.DISPONIVEL) ?? 0);
   readonly delivered = computed(() => this.byStatus().get(MachineStatus.ENTREGUE) ?? 0);
-  readonly inRepair = computed(() =>
-    (this.byStatus().get(MachineStatus.REFORMA) ?? 0) + (this.byStatus().get(MachineStatus.MANUTENCAO) ?? 0));
+  readonly inRepair = computed(() => this.byStatus().get(MachineStatus.REFORMA) ?? 0);
+
+  /** Travado esperando compra — o status que mais empurra entrega para frente. */
+  readonly waitingPurchase = computed(() => this.byStatus().get(MachineStatus.AGUARDANDO_AQUISICAO) ?? 0);
 
   /** Distribuição dos registros por status, do maior para o menor. */
   readonly statusSlices = computed<Slice[]>(() => {

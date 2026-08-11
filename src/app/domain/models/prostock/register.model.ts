@@ -8,18 +8,19 @@ import { MachineStatus } from './machine.model';
  * (o record Java declara o campo com maiúscula). Renomear aqui faria o campo
  * chegar vazio do outro lado.
  *
- * Faltam `regiao` e `consultor`, que existem na planilha e ainda não na API.
- * Enquanto não existirem, a tela não substitui a planilha por completo.
+ * `regiao` e `consultor` vieram da planilha (colunas C e H).
  */
 export interface MachineRegister {
   id: string;
   machineId: string;
   nomeCliente: string;
   tag: number;
+  regiao: string;
   solicitante: string;
   status: MachineStatus;
   Observacao: string;
   previsaoEntrega: string | null;
+  consultor: string;
   tecnico: string;
 }
 
@@ -27,10 +28,12 @@ export interface CreateMachineRegister {
   machineId: string;
   nomeCliente: string;
   tag: number;
+  regiao: string;
   solicitante: string;
   status: MachineStatus;
   Observacao: string;
   previsaoEntrega: string | null;
+  consultor: string;
   tecnico: string;
 }
 

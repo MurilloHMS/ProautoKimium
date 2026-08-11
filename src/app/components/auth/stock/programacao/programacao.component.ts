@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
-import { SelectModule } from 'primeng/select';
+import { PkComboboxComponent } from '../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
+import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { TableModule } from 'primeng/table';
 import { Toast } from 'primeng/toast';
 import { Tooltip } from 'primeng/tooltip';
@@ -43,15 +44,17 @@ interface Row extends MachineRegister {
  * abrir um formulário por linha seria mais lento do que a ferramenta que estamos
  * substituindo. Edita na célula, sai com Tab, salva a linha.
  *
- * Faltam REGIÃO e CONSULTOR — existem na planilha e ainda não na API. Enquanto
- * não existirem, esta tela não aposenta o Excel.
+ * As colunas são as nove da planilha. Os filtros da toolbar existem porque o
+ * quadro passa de duzentas linhas: status, máquina e atraso são os recortes que
+ * o time faz com o olho hoje.
  */
 @Component({
   selector: 'app-programacao',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, InputTextModule,
+    CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
     ButtonModule, Toast, Tooltip, ToolbarComponent, PkButtonComponent,
+    PkComboboxComponent, PkMultiselectComponent,
   ],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
@@ -70,6 +73,30 @@ export class ProgramacaoComponent implements OnInit {
 
   search = '';
   private readonly searchTrigger = signal(0);
+
+  // ─── Filtros da toolbar ───────────────────────────────────────────────────
+  // Visão rápida: o quadro tem ~200 linhas e ninguém lê tudo. Os três recortes
+  // que o time usa são status, máquina e "o que está atrasado".
+  readonly statusFilter = signal<MachineStatus[]>([]);
+  readonly machineFilter = signal<string | null>(null);
+  readonly onlyLate = signal(false);
+
+  readonly hasFilters = computed(() =>
+    this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
+
+  clearFilters(): void {
+    this.statusFilter.set([]);
+    this.machineFilter.set(null);
+    this.onlyLate.set(false);
+    this.search = '';
+    this.onSearch();
+  }
+
+  /** Atrasado: previsão vencida e ainda não entregue. */
+  isLate(row: Row): boolean {
+    if (!row.previsao || row.status === MachineStatus.ENTREGUE) return false;
+    return row.previsao < startOfToday();
+  }
 
   /** Linhas ainda não salvas, no topo — some quando a API confirma. */
   readonly drafts = signal<Row[]>([]);
@@ -93,16 +120,33 @@ export class ProgramacaoComponent implements OnInit {
   readonly rows = computed<Row[]>(() => {
     this.searchTrigger();
     const term = this.search.toLowerCase().trim();
+    const statuses = this.statusFilter();
+    const machine = this.machineFilter();
+    const late = this.onlyLate();
 
-    const saved = this.store.items().map(register => this.toRow(register));
-    const filtered = !term ? saved : saved.filter(row =>
-      row.nomeCliente?.toLowerCase().includes(term)
-      || row.tecnico?.toLowerCase().includes(term)
-      || row.solicitante?.toLowerCase().includes(term)
-      || this.machineName(row.machineId).toLowerCase().includes(term));
+    const filtered = this.store.items()
+      .map(register => this.toRow(register))
+      .filter(row => {
+        if (statuses.length && !statuses.includes(row.status)) return false;
+        if (machine && row.machineId !== machine) return false;
+        if (late && !this.isLate(row)) return false;
 
+        if (!term) return true;
+        return row.nomeCliente?.toLowerCase().includes(term)
+          || row.tecnico?.toLowerCase().includes(term)
+          || row.consultor?.toLowerCase().includes(term)
+          || row.regiao?.toLowerCase().includes(term)
+          || row.solicitante?.toLowerCase().includes(term)
+          || this.machineName(row.machineId).toLowerCase().includes(term);
+      });
+
+    // Rascunho sempre no topo, sem passar pelo filtro: some da tela ao filtrar
+    // seria confuso logo depois de clicar em "Nova linha".
     return [...this.drafts(), ...filtered];
   });
+
+  readonly lateCount = computed(() =>
+    this.store.items().map(r => this.toRow(r)).filter(row => this.isLate(row)).length);
 
   ngOnInit(): void {
     this.store.load();
@@ -151,10 +195,12 @@ export class ProgramacaoComponent implements OnInit {
       machineId: this.machineOptions()[0]?.value ?? '',
       nomeCliente: '',
       tag: 0,
+      regiao: '',
       solicitante: '',
-      status: MachineStatus.PRONTA,
+      status: MachineStatus.DISPONIVEL,
       Observacao: '',
       previsaoEntrega: null,
+      consultor: '',
       tecnico: '',
       previsao: null,
     };
@@ -177,10 +223,12 @@ export class ProgramacaoComponent implements OnInit {
       machineId: row.machineId,
       nomeCliente: row.nomeCliente.trim(),
       tag: Number(row.tag) || 0,
+      regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
       Observacao: row.Observacao ?? '',
       previsaoEntrega: this.toLocalDateTime(row.previsao),
+      consultor: row.consultor ?? '',
       tecnico: row.tecnico ?? '',
     };
 
@@ -216,10 +264,12 @@ export class ProgramacaoComponent implements OnInit {
     const payload = {
       nomeCliente: row.nomeCliente ?? '',
       tag: Number(row.tag) || 0,
+      regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
       Observacao: row.Observacao ?? '',
       previsaoEntrega: this.toLocalDateTime(row.previsao),
+      consultor: row.consultor ?? '',
       tecnico: row.tecnico ?? '',
     };
 
@@ -268,4 +318,9 @@ export class ProgramacaoComponent implements OnInit {
         : typeof err.error === 'string' ? err.error : 'Erro inesperado.',
     });
   }
+}
+
+function startOfToday(): Date {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }

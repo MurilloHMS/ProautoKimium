@@ -30,6 +30,13 @@ export class PkComboboxComponent implements ControlValueAccessor, Validator {
   pkRequired  = input<boolean>(false);
   errorMsg    = input<string>('');
 
+  /**
+   * `dense` tira a folga do campo de formulário: sem rótulo e sem rodapé de
+   * erro, para caber numa toolbar ou dentro de uma célula de tabela, onde a
+   * altura é a do controle e não a de um campo com legenda.
+   */
+  dense       = input<boolean>(false);
+
   changed = output<any>();
 
   innerValue: any = null;
@@ -70,7 +77,10 @@ export class PkComboboxComponent implements ControlValueAccessor, Validator {
   }
 
   get resolvedStyleClass(): string {
-    return this.showError ? 'pk-combobox pk-combobox--error' : 'pk-combobox';
+    const classes = ['pk-combobox'];
+    if (this.showError) classes.push('pk-combobox--error');
+    if (this.dense()) classes.push('pk-combobox--dense');
+    return classes.join(' ');
   }
 
   get resolvedError(): string {

@@ -1,0 +1,86 @@
+<p-toast position="top-right" />
+
+<div class="alerts">
+
+  <app-page-header
+    icon="pi pi-bell"
+    title="Alertas de saída"
+    subtitle="Quando avisar e quem recebe o e-mail sobre a previsão de saída das máquinas" />
+
+  <div class="alerts__panel">
+
+    <!-- Liga/desliga sem perder o resto da configuração -->
+    <div class="row row--switch">
+      <pk-checkbox
+        [ngModel]="config().active"
+        (ngModelChange)="patch('active', $event)"
+        label="Enviar alertas automaticamente"
+        description="Desligado, a configuração fica guardada mas nenhum e-mail sai." />
+    </div>
+
+    <hr class="sep" />
+
+    <!-- Antecedências -->
+    <div class="row">
+      <label for="days">Avisar quantos dias antes <span class="required">*</span></label>
+      <input id="days" type="text" [ngModel]="daysInput" (ngModelChange)="onDaysChange($event)"
+             placeholder="Ex: 7, 1" [class.is-invalid]="daysInvalid" />
+      <small class="hint">
+        Separe por vírgula para mandar mais de um aviso. <strong>7, 1</strong> avisa
+        com uma semana e de novo na véspera.
+      </small>
+      @if (daysInvalid) {
+        <small class="error"><i class="pi pi-exclamation-circle"></i> Informe ao menos um número de dias.</small>
+      }
+    </div>
+
+    <div class="row">
+      <pk-checkbox
+        [ngModel]="config().alertWhenLate"
+        (ngModelChange)="patch('alertWhenLate', $event)"
+        label="Continuar avisando quando a previsão vencer"
+        description="Um e-mail por dia enquanto a máquina não for entregue." />
+    </div>
+
+    <div class="row row--narrow">
+      <label for="sendAt">Horário do envio</label>
+      <input id="sendAt" type="time" [ngModel]="config().sendAt" (ngModelChange)="patch('sendAt', $event)" />
+    </div>
+
+    <hr class="sep" />
+
+    <!-- Destinatários -->
+    <div class="row">
+      <label for="recipients">Quem recebe <span class="required">*</span></label>
+      <pk-multiselect [ngModel]="config().recipientEmployeeIds"
+                      (ngModelChange)="patch('recipientEmployeeIds', $event)"
+                      [options]="employeeOptions()"
+                      optionLabel="label" optionValue="value"
+                      placeholder="Escolha os funcionários"
+                      display="chip" [filter]="true" />
+      <small class="hint">
+        O e-mail sai do cadastro do funcionário — se ele mudar de endereço no RH,
+        o alerta acompanha sozinho.
+      </small>
+      @if (recipientsInvalid) {
+        <small class="error"><i class="pi pi-exclamation-circle"></i> Escolha pelo menos uma pessoa.</small>
+      }
+    </div>
+
+    <!-- Prévia: o efeito da configuração, antes de salvar -->
+    <div class="preview" [class.preview--none]="preview() === 0">
+      <i class="pi" [ngClass]="preview() > 0 ? 'pi-send' : 'pi-inbox'"></i>
+      <span>
+        Com esta configuração, <strong>{{ preview() }}</strong> registro(s) seriam
+        avisados hoje.
+      </span>
+    </div>
+
+    <div class="actions">
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar"
+                 [pkDisabled]="!canSave" [pkLoading]="saving()" (clicked)="save()"/>
+      <pk-button pkType="send" pkSize="sm" pkLabel="Enviar teste agora"
+                 [pkLoading]="testing()" (clicked)="sendTest()"/>
+    </div>
+  </div>
+</div>

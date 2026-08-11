@@ -36,8 +36,13 @@
     </div>
 
     <div class="kpi" [class.kpi--hero]="inRepair() > 0">
-      <span class="kpi__label">Em reforma ou manutenção</span>
+      <span class="kpi__label">Em reforma</span>
       <span class="kpi__value kpi__value--warn">{{ inRepair() }}</span>
+    </div>
+
+    <div class="kpi">
+      <span class="kpi__label">Aguardando aquisição</span>
+      <span class="kpi__value kpi__value--bad">{{ waitingPurchase() }}</span>
     </div>
   </div>
 

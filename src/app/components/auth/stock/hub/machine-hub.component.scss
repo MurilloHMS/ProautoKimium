@@ -68,6 +68,7 @@
 
     &--ok   { color: var(--app-success); }
     &--warn { color: var(--app-warning); }
+    &--bad  { color: var(--app-danger); }
   }
 }
 

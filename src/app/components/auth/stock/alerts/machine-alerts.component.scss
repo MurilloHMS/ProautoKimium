@@ -1,0 +1,104 @@
+@use 'variables' as v;
+
+:host {
+  display: block;
+  background: var(--app-bg);
+  min-height: 100%;
+}
+
+.alerts {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3vw, 40px) 56px;
+}
+
+.alerts__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+  padding: 22px 24px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--narrow input { max-width: 140px; }
+
+  label {
+    font-size: var(--text-ui-sm);
+    font-weight: 600;
+    color: var(--app-text-muted);
+  }
+
+  input[type='text'],
+  input[type='time'] {
+    height: var(--field-h);
+    padding: 0 10px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-size: var(--text-ui);
+
+    &:focus {
+      outline: none;
+      border-color: var(--app-action);
+      box-shadow: var(--app-focus-ring);
+    }
+
+    &.is-invalid { border-color: var(--app-danger); }
+  }
+}
+
+.required { color: var(--app-danger); }
+
+.hint {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+  line-height: 1.45;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-micro);
+  color: var(--app-danger);
+}
+
+.sep {
+  height: 1px;
+  margin: 0;
+  border: none;
+  background: var(--app-border);
+}
+
+// Prévia: mostra o efeito da configuração antes de salvar, porque senão o
+// usuário só descobre se acertou quando o e-mail chega — ou não chega.
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-ui);
+
+  &--none {
+    background: var(--app-surface-2);
+    color: var(--app-text-muted);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+}

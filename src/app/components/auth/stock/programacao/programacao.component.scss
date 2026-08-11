@@ -54,8 +54,25 @@
   .cell-select, .cell-date { width: 100%; }
 }
 
+// Filtros na toolbar: precisam caber lado a lado sem esticar a barra.
+::ng-deep .filter-select {
+  min-width: 170px;
+  max-width: 230px;
+}
+
 .sheet-row--draft > td {
   background: var(--app-warning-soft);
+}
+
+// Previsão vencida sem entrega: a informação que hoje se descobre lendo linha
+// a linha na planilha.
+.sheet-row--late > td:first-child {
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.sheet-row--late .sheet-date-late {
+  color: var(--app-danger);
+  font-weight: 700;
 }
 
 .sheet-row--saved > td {

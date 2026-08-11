@@ -86,6 +86,7 @@ export const routes: Routes = [
       { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
       { path: 'stock/machines', loadComponent: () => import('./components/auth/stock/machines/machines.component').then(m => m.MachinesComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/alerts', loadComponent: () => import('./components/auth/stock/alerts/machine-alerts.component').then(m => m.MachineAlertsComponent), data: { roles: ['ADMIN', 'ALMOXARIFADO'] } },
 
       // ── Ferramentas ──────────────────────────────────────────────────────
       // Cada ferramenta é uma rota própria para abrir na sua aba, como as
