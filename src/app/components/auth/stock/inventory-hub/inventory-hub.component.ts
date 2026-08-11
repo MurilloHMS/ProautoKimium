@@ -72,6 +72,12 @@ export class InventoryHubComponent implements OnInit {
   readonly total = signal(0);
   readonly failed = signal(false);
 
+  /**
+   * Produtos cujo histórico a API recusou. Ficam de fora das contas: entrar
+   * como estoque zero seria pior que faltar, porque o número mentiria.
+   */
+  readonly brokenCodes = signal<string[]>([]);
+
   readonly products = signal<InventoryProductResponse[]>([]);
   private readonly histories = signal<Map<string, InventoryMovement[]>>(new Map());
 
@@ -94,8 +100,9 @@ export class InventoryHubComponent implements OnInit {
     const histories = this.histories();
     const from = this.periodStart();
     const today = startOfToday();
+    const broken = new Set(this.brokenCodes());
 
-    return this.products().map(product => {
+    return this.products().filter(product => !broken.has(product.systemCode)).map(product => {
       const history = [...(histories.get(product.systemCode) ?? [])]
         .sort((a, b) => a.movementDate.localeCompare(b.movementDate));
 
@@ -291,13 +298,19 @@ export class InventoryHubComponent implements OnInit {
    */
   private loadHistories(products: InventoryProductResponse[]): void {
     const histories = new Map<string, InventoryMovement[]>();
+    const broken: string[] = [];
 
     from(products)
       .pipe(
         mergeMap(product => this.service.getInventoryMovementsByProduct(product.systemCode).pipe(
-          catchError(() => of([] as InventoryMovement[])),
+          // Produto que falha entraria como estoque zero, o que é mentira.
+          // Fica de fora da conta e vai para o aviso.
+          catchError(() => {
+            broken.push(product.systemCode);
+            return of(null);
+          }),
           tap(list => {
-            histories.set(product.systemCode, list ?? []);
+            if (list) histories.set(product.systemCode, list);
             this.loaded.update(value => value + 1);
           }),
         ), CONCURRENCY),
@@ -306,6 +319,7 @@ export class InventoryHubComponent implements OnInit {
       )
       .subscribe(() => {
         this.histories.set(histories);
+        this.brokenCodes.set(broken);
         this.loading.set(false);
       });
   }
