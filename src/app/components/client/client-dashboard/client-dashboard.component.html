@@ -1,66 +1,16 @@
 <div class="dash">
 
-  <!-- ─── Saudação ────────────────────────────────────────────────────────── -->
-  <section class="greet">
-    <h1 class="greet__title">Olá, <span class="greet__name">{{ session.me()?.nome }}</span></h1>
-    <p class="greet__sub">
-      Resumo da operação de {{ session.scopeLabel() }}
-      @if (monthLabel()) { · {{ monthLabel() }} }
-    </p>
-  </section>
-
-  @if (loading()) {
-    <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando seus números…</p>
-  } @else if (failed()) {
-    <p class="state state--error">
-      <i class="pi pi-exclamation-triangle"></i> Não foi possível carregar os informativos.
-    </p>
-  } @else if (!hasData()) {
-    <pk-empty
-      icon="pi pi-inbox"
-      title="Nenhum informativo por aqui ainda"
-      subtitle="Assim que o informativo do mês for enviado, ele aparece nesta tela." />
-  } @else {
-
-    <!-- ─── Mau uso ───────────────────────────────────────────────────────── -->
-    @if (temMauUso()) {
-      <div class="alert">
-        <span class="alert__icon"><i class="pi pi-wrench"></i></span>
-        <span class="alert__text">Atenção · uso indevido detectado</span>
-        <span class="alert__value">{{ decimal(horasMauUso(), 1) }}h · {{ money(valorMauUso()) }}</span>
-      </div>
-    }
-
-    <!-- ─── Faturamento ───────────────────────────────────────────────────── -->
-    <section class="bill">
-      <span class="bill__label">FATURAMENTO — {{ monthLabel() | uppercase }}</span>
-
-      <p class="bill__amount">
-        <span class="bill__currency">R$</span>
-        <span class="bill__int">{{ faturamentoParts().inteiro }}</span>
-        <span class="bill__cents">,{{ faturamentoParts().centavos }}</span>
+  <!-- ─── Saudação + período (mesma linha no desktop) ─────────────────────── -->
+  <header class="top">
+    <div class="top__greet">
+      <h1 class="greet__title">Olá, <span class="greet__name">{{ session.me()?.nome }}</span></h1>
+      <p class="greet__sub">
+        Resumo da operação de <strong>{{ session.scopeLabel() }}</strong>
+        @if (monthLabel()) { · {{ monthLabel() }} }
+        · cliente {{ session.me()?.codParceiro }}
       </p>
+    </div>
 
-      <span class="bill__sub">
-        {{ notas() }} nota(s) emitida(s)
-        @if (session.me()?.matriz) { · {{ current().length }} unidade(s) }
-      </span>
-
-      <span class="bill__line"></span>
-
-      <div class="bill__metrics">
-        <span class="bill__metric">
-          <small>PEÇAS E SERVIÇOS</small>
-          <strong>{{ money(pecas()) }}</strong>
-        </span>
-        <span class="bill__metric">
-          <small>HORAS TÉCNICAS</small>
-          <strong>{{ decimal(horas(), 1) }}h</strong>
-        </span>
-      </div>
-    </section>
-
-    <!-- ─── Período ───────────────────────────────────────────────────────── -->
     @if (months().length > 1) {
       <div class="period">
         <button type="button" class="period__nav" [disabled]="!canPrev()" (click)="step(-1)" aria-label="Mês anterior">
@@ -81,100 +31,148 @@
         </button>
       </div>
     }
+  </header>
+
+  @if (loading()) {
+    <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando seus números…</p>
+  } @else if (failed()) {
+    <p class="state state--error">
+      <i class="pi pi-exclamation-triangle"></i> Não foi possível carregar os informativos.
+    </p>
+  } @else if (!hasData()) {
+    <pk-empty
+      icon="pi pi-inbox"
+      title="Nenhum informativo por aqui ainda"
+      subtitle="Assim que o informativo do mês for enviado, ele aparece nesta tela." />
+  } @else {
+
+    <!-- ─── Mau uso ───────────────────────────────────────────────────────── -->
+    @if (temMauUso()) {
+      <div class="alert">
+        <span class="alert__icon"><i class="pi pi-wrench"></i></span>
+        <p class="alert__text">
+          <strong>Atenção · uso indevido detectado</strong>
+          {{ decimal(horasMauUso(), 1) }}h por mau uso · {{ money(valorMauUso()) }} cobrados separadamente
+        </p>
+      </div>
+    }
+
+    <!-- ─── Hero ──────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="hero__left">
+        <span class="hero__eyebrow"><i class="hero__dash"></i>{{ eyebrow() }}</span>
+
+        <h2 class="hero__headline">
+          {{ headline().first }}<br />
+          <span class="hero__headline-accent">{{ headline().second }}</span>
+        </h2>
+
+        <p class="hero__text">{{ summary() }}</p>
+      </div>
+
+      <div class="hero__stats">
+        <div class="hstat">
+          <span class="hstat__row">
+            <strong>R$ {{ faturamentoParts().inteiro }}</strong>
+            <small>,{{ faturamentoParts().centavos }}</small>
+          </span>
+          <span class="hstat__label">Faturamento do mês · {{ notas() }} nota(s) emitida(s)</span>
+        </div>
+
+        <div class="hstat">
+          <span class="hstat__row">
+            <strong>{{ decimal(litros()) }}</strong>
+            <small>litros</small>
+          </span>
+          <span class="hstat__label">Volume comprado no período</span>
+        </div>
+
+        <div class="hstat">
+          <span class="hstat__row">
+            <strong>{{ decimal(produtos()) }}</strong>
+            <small>produtos</small>
+          </span>
+          <span class="hstat__label">
+            @if (mediaDias() > 0) { Atendimento em {{ mediaDias() }} dias úteis }
+            @else { Itens comprados no período }
+          </span>
+        </div>
+      </div>
+    </section>
 
     <!-- ─── Produto destaque ──────────────────────────────────────────────── -->
     @if (produtoDestaque()) {
       <section class="prod">
-        <span class="prod__tag">
-          <i class="pi pi-star-fill"></i> Produto destaque · {{ monthLabel() }}
-        </span>
-        <h2 class="prod__name">{{ produtoDestaque() }}</h2>
-        <p class="prod__desc">O mais comprado por você no período.</p>
+        <div class="prod__vis"><i class="pi pi-box"></i></div>
+
+        <div class="prod__info">
+          <span class="prod__tag">
+            <i class="pi pi-star-fill"></i> Produto destaque · {{ monthLabel() }}
+          </span>
+          <h2 class="prod__name">{{ produtoDestaque() }}</h2>
+          <p class="prod__desc">O produto que você mais comprou no período.</p>
+        </div>
       </section>
     }
 
-    <!-- ─── Números do mês ────────────────────────────────────────────────── -->
-    <div class="stats">
-      <div class="stat">
-        <span class="stat__icon"><i class="pi pi-box"></i></span>
-        <span class="stat__label">Produtos</span>
-        <span class="stat__row"><strong>{{ decimal(produtos()) }}</strong><small>itens</small></span>
-      </div>
+    <!-- ─── Três cartões ──────────────────────────────────────────────────── -->
+    <div class="cards">
 
-      <div class="stat">
-        <span class="stat__icon"><img src="/assets/icons/drop.svg" alt="" width="14" height="14" /></span>
-        <span class="stat__label">Volume</span>
-        <span class="stat__row"><strong>{{ decimal(litros()) }}</strong><small>L</small></span>
-      </div>
-
-      <div class="stat">
-        <span class="stat__icon"><i class="pi pi-history"></i></span>
-        <span class="stat__label">Notas</span>
-        <span class="stat__row"><strong>{{ notas() }}</strong><small>no mês</small></span>
-      </div>
-
-      <div class="stat">
-        <span class="stat__icon"><i class="pi pi-shield"></i></span>
-        <span class="stat__label">Atendimento</span>
-        <span class="stat__row"><strong>{{ mediaDias() || '—' }}</strong><small>dias</small></span>
-      </div>
-    </div>
-
-    <!-- ─── Horas técnicas ────────────────────────────────────────────────── -->
-    @if (horas() > 0 || pecas() > 0) {
       <section class="card">
-        <h2 class="card__title">Horas técnicas — {{ monthLabel() }}</h2>
-
-        <div class="line-item">
-          <span class="line-item__icon"><i class="pi pi-wrench"></i></span>
-          <span class="line-item__label">Cobrado total</span>
-          <span class="line-item__value">{{ money(horasCobradas()) }}</span>
+        <div class="card__head">
+          <span class="card__eyebrow">PRODUTO DESTAQUE</span>
+          <span class="card__icon"><i class="pi pi-star-fill"></i></span>
         </div>
 
+        <p class="card__name">{{ produtoDestaque() || '—' }}</p>
+
+        <div class="row"><span>Produtos</span><strong>{{ decimal(produtos()) }}</strong></div>
+        <div class="row"><span>Volume</span><strong>{{ decimal(litros()) }} L</strong></div>
+        <div class="row"><span>Investimento</span><strong>{{ money(faturamento()) }}</strong></div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">HORAS TÉCNICAS</span>
+          <span class="card__icon"><i class="pi pi-wrench"></i></span>
+        </div>
+
+        <p class="card__big">{{ decimal(horas(), 1) }}<small>horas</small></p>
+
+        <div class="row"><span>Cobrado total</span><strong>{{ money(horasCobradas()) }}</strong></div>
+        <div class="row"><span>Peças e serviços</span><strong>{{ money(pecas()) }}</strong></div>
         @if (temMauUso()) {
-          <div class="line-item">
-            <span class="line-item__icon line-item__icon--warn"><i class="pi pi-exclamation-triangle"></i></span>
-            <span class="line-item__label">Mau uso ({{ decimal(horasMauUso(), 1) }}h)</span>
-            <span class="line-item__value line-item__value--warn">{{ money(valorMauUso()) }}</span>
+          <div class="row row--warn">
+            <span>Mau uso ({{ decimal(horasMauUso(), 1) }}h)</span>
+            <strong>{{ money(valorMauUso()) }}</strong>
           </div>
         }
-
-        <div class="line-item">
-          <span class="line-item__icon"><i class="pi pi-check"></i></span>
-          <span class="line-item__label">Peças e serviços</span>
-          <span class="line-item__value">{{ money(pecas()) }}</span>
-        </div>
       </section>
-    }
 
-    <!-- ─── Atendimento ───────────────────────────────────────────────────── -->
-    <section class="card">
-      <h3 class="card__eyebrow">ATENDIMENTO</h3>
-
-      <div class="row">
-        <span>Manutenções no mês</span>
-        <strong>{{ visitas() }}</strong>
-      </div>
-      <div class="row">
-        <span>Notas emitidas</span>
-        <strong>{{ notas() }}</strong>
-      </div>
-      <div class="row">
-        <span>Informativo</span>
-        <strong>{{ enviado() ? 'Enviado' : 'Em preparação' }}</strong>
-      </div>
-      @if (emailCliente()) {
-        <div class="row">
-          <span>E-mail</span>
-          <strong class="row__email">{{ emailCliente() }}</strong>
+      <section class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">ATENDIMENTO</span>
+          <span class="card__icon"><i class="pi pi-shield"></i></span>
         </div>
-      }
-    </section>
+
+        <p class="card__big">{{ mediaDias() || '—' }}<small>dias úteis</small></p>
+
+        <div class="row"><span>Manutenções</span><strong>{{ visitas() }}</strong></div>
+        <div class="row"><span>Notas emitidas</span><strong>{{ notas() }}</strong></div>
+        <div class="row"><span>Informativo</span><strong>{{ enviado() ? 'Enviado' : 'Em preparação' }}</strong></div>
+        @if (emailCliente()) {
+          <div class="row"><span>E-mail</span><strong class="row__email">{{ emailCliente() }}</strong></div>
+        }
+      </section>
+    </div>
 
     <!-- ─── Por unidade ───────────────────────────────────────────────────── -->
     @if (current().length > 1) {
       <section class="card">
-        <h2 class="card__title">Por unidade — {{ monthLabel() }}</h2>
+        <div class="card__head">
+          <span class="card__eyebrow">POR UNIDADE — {{ monthLabel() | uppercase }}</span>
+          <span class="card__icon"><i class="pi pi-building"></i></span>
+        </div>
 
         @for (row of current(); track row.codigoCliente) {
           <div class="unit-row">

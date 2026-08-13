@@ -1,11 +1,11 @@
 @use 'variables' as v;
 
-// Layout e cores do Figma `M · Início (V3)`, node 314:2.
+// Layout do Figma `V3 · Início (V1+V2)`, node 278:2, com o celular reagrupando
+// os mesmos blocos numa coluna.
 //
 // Superfícies, texto e bordas usam os tokens do projeto (`--app-*`), então o
-// tema escuro sai de graça. Só a paleta de marca do portal — o degradê navy do
-// faturamento e o teal dos destaques — vem cravada do desenho, porque ela é a
-// identidade da tela e funciona nos dois temas.
+// tema escuro sai de graça. Só a identidade do portal — o degradê navy do hero
+// e o teal dos destaques — vem cravada do desenho.
 
 :host {
   display: block;
@@ -15,24 +15,32 @@
   --portal-teal-50: #{rgba(#00b9b3, .1)};
   --portal-blue: #202a65;
   --portal-danger: #be1313;
+
+  --portal-gradient: linear-gradient(163deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
 }
 
 .dash {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1208px;
   margin: 0 auto;
-  padding: 18px clamp(14px, 4vw, 32px) 40px;
+  padding: 20px clamp(14px, 3vw, 36px) 40px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-// ─── Saudação ───────────────────────────────────────────────────────────────
+// ─── Saudação + período ─────────────────────────────────────────────────────
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .greet__title {
   margin: 0;
   font-family: v.$font-heading;
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--app-text);
@@ -40,7 +48,7 @@
 
 // O nome em degradê é do desenho: navy → azul → teal.
 .greet__name {
-  background: linear-gradient(173deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
+  background: var(--portal-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -52,166 +60,35 @@
 }
 
 .greet__sub {
-  margin: 3px 0 0;
-  font-size: 0.75rem;
+  margin: 4px 0 0;
+  font-size: 0.8rem;
   color: var(--app-text-muted);
   line-height: 1.45;
+
+  strong { font-weight: 700; }
 }
 
-// ─── Estados ────────────────────────────────────────────────────────────────
-.state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 40px 16px;
-  color: var(--app-text-muted);
-  font-size: var(--text-ui-sm);
-
-  &--error { color: var(--app-danger); }
-}
-
-// ─── Banner de mau uso ──────────────────────────────────────────────────────
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid color-mix(in srgb, var(--portal-danger) 25%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--portal-danger) 8%, transparent);
-}
-
-.alert__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  flex: 0 0 auto;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--portal-danger) 15%, transparent);
-  color: var(--portal-danger);
-  font-size: 0.8rem;
-}
-
-.alert__text {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--portal-danger);
-}
-
-.alert__value {
-  flex: 0 0 auto;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: var(--portal-danger);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-// ─── Faturamento ────────────────────────────────────────────────────────────
-.bill {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  border-radius: 16px;
-  background: linear-gradient(153deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
-  color: #fff;
-}
-
-.bill__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.bill__amount {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-  margin: 6px 0 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.bill__currency,
-.bill__cents {
-  font-size: 0.94rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.bill__int {
-  font-size: clamp(1.75rem, 8vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.bill__sub {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.bill__line {
-  height: 1px;
-  margin: 14px 0 12px;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.bill__metrics {
-  display: flex;
-  gap: 12px;
-}
-
-.bill__metric {
-  display: flex;
-  flex: 1 1 0;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-
-  small {
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.55);
-  }
-
-  strong {
-    font-size: 0.94rem;
-    font-weight: 500;
-  }
-}
-
-// ─── Período ────────────────────────────────────────────────────────────────
 .period {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   align-self: flex-start;
   max-width: 100%;
   padding: 4px;
   border: 1px solid var(--app-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--app-surface);
 }
 
 .period__nav {
-  width: 26px;
-  height: 25px;
+  width: 28px;
+  height: 27px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 6px;
+  border-radius: 7px;
   background: var(--app-surface-2);
   color: var(--app-text-muted);
   font-size: 0.7rem;
@@ -231,201 +108,299 @@
 
 .period__month {
   flex: 0 0 auto;
-  padding: 5px 11px;
+  padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
   color: var(--app-text-muted);
   font-family: v.$font-body;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
 
   &--on {
     background: var(--portal-blue);
     color: #fff;
-    font-weight: 600;
+    font-weight: 700;
   }
 }
 
-// ─── Cartões ────────────────────────────────────────────────────────────────
-.card,
-.prod,
-.stat {
-  border: 1px solid var(--app-border);
+// ─── Estados ────────────────────────────────────────────────────────────────
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+
+  &--error { color: var(--app-danger); }
+}
+
+// ─── Banner de mau uso ──────────────────────────────────────────────────────
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 1px solid var(--portal-danger);
   border-radius: 14px;
-  background: var(--app-surface);
+  background: color-mix(in srgb, var(--portal-danger) 8%, transparent);
 }
 
-.card { padding: 16px; }
-
-.card__title {
-  margin: 0 0 8px;
-  font-family: v.$font-heading;
-  font-size: 0.94rem;
-  font-weight: 700;
-  color: var(--app-text);
+.alert__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--portal-danger) 15%, transparent);
+  color: var(--portal-danger);
+  font-size: 0.95rem;
 }
 
-.card__eyebrow {
-  margin: 0 0 4px;
+.alert__text {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+
+  strong {
+    display: block;
+    color: var(--portal-danger);
+    font-weight: 700;
+  }
+}
+
+// ─── Hero ───────────────────────────────────────────────────────────────────
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 28px 24px;
+  border-radius: 24px;
+  background: var(--portal-gradient);
+  color: #fff;
+}
+
+.hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--app-text-muted);
+  letter-spacing: 0.15em;
+  color: rgba(0, 185, 179, 0.95);
+}
+
+.hero__dash {
+  width: 24px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--portal-teal);
+}
+
+.hero__headline {
+  margin: 14px 0 0;
+  font-family: v.$font-heading;
+  font-size: clamp(1.75rem, 6vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.hero__headline-accent { color: var(--portal-teal); }
+
+.hero__text {
+  margin: 16px 0 0;
+  max-width: 46ch;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hero__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hstat__row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+
+  strong {
+    font-family: v.$font-heading;
+    font-size: clamp(1.6rem, 5vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  small {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.hstat__label {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 // ─── Produto destaque ───────────────────────────────────────────────────────
 .prod {
-  padding: 8px 16px 16px;
-  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--app-border);
+  border-radius: 20px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
 }
+
+// A caixa existe no desenho com a foto do produto. Não temos imagem por
+// produto no sistema, então ela guarda a geometria com um ícone neutro em vez
+// de inventar uma foto.
+.prod__vis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 120px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  background: linear-gradient(155deg, #e6f8f7 10%, #d1f1ef 90%);
+  color: var(--portal-teal-600);
+  font-size: 1.75rem;
+}
+
+.prod__info { min-width: 0; }
 
 .prod__tag {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 9px;
+  gap: 6px;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
   background: var(--portal-teal-50);
   color: var(--portal-teal-600);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
 
   i { font-size: 0.62rem; }
 }
 
 .prod__name {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   font-family: v.$font-heading;
-  font-size: 1.12rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--app-text);
 }
 
 .prod__desc {
-  margin: 3px 0 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
+  margin: 6px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
   color: var(--app-text-muted);
 }
 
-// ─── Estatísticas ───────────────────────────────────────────────────────────
-.stats {
+// ─── Cartões ────────────────────────────────────────────────────────────────
+.cards {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
 }
 
-.stat {
+.card {
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  border-radius: 13px;
+  padding: 22px 24px;
+  border: 1px solid var(--app-border);
+  border-radius: 20px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
 }
 
-.stat__icon {
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--app-text-muted);
+}
+
+.card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: 10px;
   background: var(--portal-teal-50);
   color: var(--portal-teal-600);
-  font-size: 0.8rem;
-
-  img { display: block; width: 14px; height: 14px; }
+  font-size: 0.9rem;
 }
 
-.stat__label {
-  margin-top: 8px;
-  font-size: 0.75rem;
-  color: var(--app-text-muted);
+.card__name {
+  margin: 0 0 16px;
+  font-family: v.$font-heading;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
 }
 
-.stat__row {
+.card__big {
   display: flex;
   align-items: baseline;
-  gap: 12px;
-  margin-top: 2px;
-
-  strong {
-    font-size: 1.12rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--app-text);
-    font-variant-numeric: tabular-nums;
-  }
+  gap: 8px;
+  margin: 0 0 16px;
+  font-family: v.$font-heading;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
 
   small {
-    flex: 1 1 auto;
-    text-align: right;
-    font-size: 0.75rem;
+    font-family: v.$font-body;
+    font-size: 0.85rem;
+    font-weight: 400;
     color: var(--app-text-muted);
   }
 }
 
-// ─── Linhas com ícone ───────────────────────────────────────────────────────
-.line-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--app-border);
-
-  &:last-child { border-bottom: none; }
-}
-
-.line-item__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  border-radius: 8px;
-  background: var(--portal-teal-50);
-  color: var(--portal-teal-600);
-  font-size: 0.78rem;
-
-  &--warn {
-    background: color-mix(in srgb, var(--portal-danger) 12%, transparent);
-    color: var(--portal-danger);
-  }
-}
-
-.line-item__label {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--app-text);
-}
-
-.line-item__value {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--app-text);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-
-  &--warn { color: var(--portal-danger); }
-}
-
-// ─── Linhas simples ─────────────────────────────────────────────────────────
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--app-border);
-  font-size: 0.8rem;
+  padding: 8px 0;
+  border-top: 1px solid var(--app-border);
+  font-size: 0.75rem;
   color: var(--app-text-muted);
-
-  &:last-child { border-bottom: none; }
 
   strong {
     color: var(--app-text);
@@ -433,13 +408,18 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+
+  &--warn {
+    color: var(--portal-danger);
+    strong { color: var(--portal-danger); }
+  }
 }
 
 .row__email {
+  font-size: 0.7rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600 !important;
 }
 
 .unit-row {
@@ -447,12 +427,10 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 2px 12px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--app-border);
-
-  &:last-child { border-bottom: none; }
+  border-top: 1px solid var(--app-border);
 
   &__name {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: var(--app-text);
     overflow: hidden;
@@ -463,7 +441,8 @@
   &__value {
     grid-row: 1;
     grid-column: 2;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+    font-weight: 700;
     color: var(--app-text);
     font-variant-numeric: tabular-nums;
   }
@@ -476,11 +455,38 @@
 }
 
 // ─── Desktop ────────────────────────────────────────────────────────────────
-// O desenho de desktop (V3 · Início) usa duas colunas; o de celular manda no
-// resto. Aqui só soltamos a grade quando há espaço.
 @media (min-width: v.$bp-md) {
-  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-  .bill { padding: 26px 28px; }
-  .bill__int { font-size: 2.6rem; }
-  .greet__title { font-size: 1.3rem; }
+  .dash { gap: 20px; }
+
+  .top {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .greet__title { font-size: 1.75rem; }
+  .greet__sub { font-size: 0.88rem; }
+
+  .hero {
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+    padding: 40px 48px;
+    border-radius: 28px;
+  }
+
+  .hero__left { flex: 1 1 58%; min-width: 0; }
+
+  .hero__stats {
+    flex: 1 1 42%;
+    min-width: 0;
+    padding: 0 0 0 40px;
+    border-top: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .prod__vis { width: 140px; height: 180px; font-size: 2.25rem; }
+
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .card--wide { grid-column: 1 / -1; }
 }

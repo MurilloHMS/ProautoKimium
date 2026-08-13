@@ -145,6 +145,36 @@ export class ClientDashboardComponent {
   readonly emailCliente = computed(() => this.current()[0]?.email ?? '');
   readonly enviado = computed(() => this.current().some(row => row.status === 'SENT'));
 
+  /** `JUNHO 2026 · CLEANING BRASIL` — a sobrancelha do hero. */
+  readonly eyebrow = computed(() => {
+    const mes = this.monthLabel().replace(' de ', ' ');
+    return `${mes} · ${this.session.scopeLabel()}`.toUpperCase();
+  });
+
+  /**
+   * A manchete do desenho muda de tom conforme o mês: com mau uso, ela chama
+   * para a conversa; sem, celebra o número. O designer escreveu a primeira.
+   */
+  readonly headline = computed(() => this.temMauUso()
+    ? { first: 'Sua operação merece', second: 'uma conversa.' }
+    : { first: 'Sua operação', second: 'em números.' });
+
+  /** O parágrafo do hero, montado com os números do mês. */
+  readonly summary = computed(() => {
+    const partes = [
+      `Em ${this.monthLabel().split(' de ')[0]} você consumiu ${this.decimal(this.litros())} litros`,
+      `e emitiu ${this.notas()} nota(s)`,
+    ];
+
+    if (this.mediaDias() > 0) partes.push(`— atendimento médio em ${this.mediaDias()} dias úteis`);
+
+    const texto = `${partes.join(' ')}.`;
+
+    return this.temMauUso()
+      ? `${texto} Identificamos horas técnicas por mau uso que precisam da sua atenção.`
+      : texto;
+  });
+
   private readonly monthIndex = computed(() =>
     this.months().findIndex(option => option.value === this.month()));
 
