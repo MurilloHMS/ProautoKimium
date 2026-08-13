@@ -22,7 +22,7 @@
     <!-- Ação à direita (desktop) -->
     <div class="actions">
       <!-- O cliente procura o painel dele no site, não no /login do sistema. -->
-      <a routerLink="/cliente" class="btn-client" title="Área do Cliente">
+      <a routerLink="/cliente/login" class="btn-client" title="Área do Cliente">
         <i class="pi pi-chart-bar"></i>
         <span>Área do Cliente</span>
       </a>
@@ -90,7 +90,7 @@
   </ul>
 
   <div class="drawer-auth">
-    <a routerLink="/cliente" class="btn-client" (click)="fecharMenuMobile()">
+    <a routerLink="/cliente/login" class="btn-client" (click)="fecharMenuMobile()">
       <i class="pi pi-chart-bar"></i>
       <span>Área do Cliente</span>
     </a>
