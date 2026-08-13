@@ -100,6 +100,69 @@
       </div>
     </section>
 
+    <!-- ─── Indicadores ───────────────────────────────────────────────────── -->
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi__label">Faturamento</span>
+        <strong class="kpi__value">{{ money(faturamento()) }}</strong>
+        @if (varFaturamento() !== null) {
+          <span class="kpi__delta" [class.kpi__delta--down]="varFaturamento()! < 0">
+            <i class="pi" [class.pi-arrow-up-right]="varFaturamento()! >= 0" [class.pi-arrow-down-right]="varFaturamento()! < 0"></i>
+            {{ sinal(varFaturamento()) }} vs mês anterior
+          </span>
+        }
+      </div>
+
+      <div class="kpi">
+        <span class="kpi__label">Volume</span>
+        <strong class="kpi__value">{{ decimal(litros()) }} L</strong>
+        @if (varLitros() !== null) {
+          <span class="kpi__delta" [class.kpi__delta--down]="varLitros()! < 0">
+            <i class="pi" [class.pi-arrow-up-right]="varLitros()! >= 0" [class.pi-arrow-down-right]="varLitros()! < 0"></i>
+            {{ sinal(varLitros()) }} vs mês anterior
+          </span>
+        }
+      </div>
+
+      <div class="kpi">
+        <span class="kpi__label">Valor médio por nota</span>
+        <strong class="kpi__value">{{ money(ticketMedio()) }}</strong>
+        <span class="kpi__sub">{{ notas() }} nota(s) no mês</span>
+      </div>
+
+      <div class="kpi">
+        <span class="kpi__label">Preço médio do litro</span>
+        <strong class="kpi__value">{{ money(precoLitro()) }}</strong>
+        <span class="kpi__sub">Faturamento sobre volume</span>
+      </div>
+    </div>
+
+    <!-- ─── Evolução ──────────────────────────────────────────────────────── -->
+    @if (serie().length > 1) {
+      <section class="card">
+        <div class="card__head">
+          <span class="card__eyebrow">EVOLUÇÃO DO FATURAMENTO</span>
+          <span class="card__icon"><i class="pi pi-chart-bar"></i></span>
+        </div>
+
+        <div class="chart">
+          @for (mes of serie(); track mes.key) {
+            <button type="button"
+                    class="chart__col"
+                    [class.chart__col--on]="mes.key === month()"
+                    [pTooltip]="mes.label + ': ' + money(mes.faturamento) + ' · ' + decimal(mes.litros) + ' L'"
+                    tooltipPosition="top"
+                    (click)="setMonth(mes.key)">
+              <span class="chart__bar" [style.height.%]="mes.percent"></span>
+              <span class="chart__label">{{ mes.label }}</span>
+            </button>
+          }
+        </div>
+
+        <p class="chart__hint">Toque num mês para ver os números dele.</p>
+      </section>
+    }
+
     <!-- ─── Produto destaque ──────────────────────────────────────────────── -->
     @if (produtoDestaque()) {
       <section class="prod">
@@ -174,12 +237,12 @@
           <span class="card__icon"><i class="pi pi-building"></i></span>
         </div>
 
-        @for (row of current(); track row.codigoCliente) {
-          <div class="unit-row">
-            <span class="unit-row__name">{{ row.nomeCliente }}</span>
-            <span class="unit-row__meta">{{ decimal(row.quantidadeLitros) }} L · {{ row.quantidadeNotasEmitidas }} nota(s)</span>
-            <strong class="unit-row__value">{{ money(row.faturamentoTotal) }}</strong>
-          </div>
+        @for (item of porUnidade(); track item.row.codigoCliente) {
+          <pk-bar
+            [label]="item.row.nomeCliente"
+            [sub]="decimal(item.row.quantidadeLitros) + ' L · ' + item.row.quantidadeNotasEmitidas + ' nota(s)'"
+            [percent]="item.percent"
+            [value]="money(item.row.faturamentoTotal)" />
         }
       </section>
     }

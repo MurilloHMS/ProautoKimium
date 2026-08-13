@@ -5,6 +5,8 @@ import { ClientNewsletter } from '../../../domain/models/client.model';
 import { ClientService } from '../../../infrastructure/services/client/client.service';
 import { ClientSessionStore } from '../../../infrastructure/state/client-session.store';
 import { PkEmptyComponent } from '../../theme/ProautoKimium/pk-empty/pk-empty.component';
+import { PkBarComponent } from '../../theme/ProautoKimium/pk-bar/pk-bar.component';
+import { Tooltip } from 'primeng/tooltip';
 
 /** Doze meses para trás: a newsletter é mensal e o cliente compara com o ano. */
 const MONTHS_BACK = 12;
@@ -22,7 +24,7 @@ const MONTHS_BACK = 12;
 @Component({
   selector: 'app-client-dashboard',
   standalone: true,
-  imports: [CommonModule, PkEmptyComponent],
+  imports: [CommonModule, Tooltip, PkEmptyComponent, PkBarComponent],
   templateUrl: './client-dashboard.component.html',
   styleUrl: './client-dashboard.component.scss',
 })
@@ -183,6 +185,89 @@ export class ClientDashboardComponent {
     const index = this.monthIndex();
     return index >= 0 && index < this.months().length - 1;
   });
+
+  // ─── Série e comparações ──────────────────────────────────────────────────
+
+  /**
+   * Faturamento e litros de cada mês da série.
+   *
+   * Os doze meses já vêm na primeira carga — o gráfico não custa requisição
+   * nenhuma, só a soma das linhas de cada mês.
+   */
+  readonly serie = computed(() => {
+    const porMes = new Map<string, { faturamento: number; litros: number }>();
+
+    for (const row of this.rows()) {
+      const key = (row.data ?? '').slice(0, 7);
+      if (!key) continue;
+
+      const bucket = porMes.get(key) ?? { faturamento: 0, litros: 0 };
+      bucket.faturamento += row.faturamentoTotal || 0;
+      bucket.litros += row.quantidadeLitros || 0;
+      porMes.set(key, bucket);
+    }
+
+    const meses = [...porMes.entries()].sort(([a], [b]) => a.localeCompare(b));
+    const maior = Math.max(1, ...meses.map(([, bucket]) => bucket.faturamento));
+
+    return meses.map(([key, bucket]) => ({
+      key,
+      label: MONTH_SHORT[Number(key.slice(5, 7)) - 1],
+      faturamento: bucket.faturamento,
+      litros: bucket.litros,
+      percent: Math.round((bucket.faturamento / maior) * 100),
+    }));
+  });
+
+  /** O mês anterior ao escolhido, quando ele existe na série. */
+  private readonly anterior = computed(() => {
+    const index = this.monthIndex();
+    return index > 0 ? this.serie()[index - 1] : null;
+  });
+
+  /** Variação percentual contra o mês anterior; `null` quando não há base. */
+  private variacao(atual: number, base: number | undefined): number | null {
+    if (base === undefined || base <= 0) return null;
+    return Math.round(((atual - base) / base) * 100);
+  }
+
+  readonly varFaturamento = computed(() => this.variacao(this.faturamento(), this.anterior()?.faturamento));
+  readonly varLitros = computed(() => this.variacao(this.litros(), this.anterior()?.litros));
+
+  /** Quanto vale cada nota emitida no mês. */
+  readonly ticketMedio = computed(() => {
+    const notas = this.notas();
+    return notas > 0 ? this.faturamento() / notas : 0;
+  });
+
+  /** Quanto custou o litro no mês — o número que o comprador compara. */
+  readonly precoLitro = computed(() => {
+    const litros = this.litros();
+    return litros > 0 ? this.faturamento() / litros : 0;
+  });
+
+  /** Fatia das horas técnicas que foi cobrada como mau uso. */
+  readonly percentMauUso = computed(() => {
+    const horas = this.horas();
+    return horas > 0 ? Math.round((this.horasMauUso() / horas) * 100) : 0;
+  });
+
+  /** Participação de cada unidade no faturamento do mês — para as barras. */
+  readonly porUnidade = computed(() => {
+    const total = this.faturamento() || 1;
+
+    return [...this.current()]
+      .sort((a, b) => b.faturamentoTotal - a.faturamentoTotal)
+      .map(row => ({
+        row,
+        percent: Math.round((row.faturamentoTotal / total) * 100),
+      }));
+  });
+
+  sinal(valor: number | null): string {
+    if (valor === null) return '';
+    return valor > 0 ? `+${valor}%` : `${valor}%`;
+  }
 
   setMonth(value: string): void {
     this.month.set(value);

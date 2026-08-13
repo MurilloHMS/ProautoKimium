@@ -491,3 +491,121 @@
   .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .card--wide { grid-column: 1 / -1; }
 }
+
+// ─── Indicadores ────────────────────────────────────────────────────────────
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.kpi__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.kpi__value {
+  font-family: v.$font-heading;
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+// Verde é alta e vermelho é queda — mas só de faturamento e volume, que são os
+// dois onde crescer é bom. Não uso a mesma cor em custo.
+.kpi__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--app-success);
+
+  &--down { color: var(--portal-danger); }
+
+  i { font-size: 0.6rem; }
+}
+
+.kpi__sub {
+  font-size: 0.7rem;
+  color: var(--app-text-subtle);
+}
+
+// ─── Gráfico de colunas ─────────────────────────────────────────────────────
+// CSS puro, como nos hubs internos: o projeto não tem biblioteca de gráfico e
+// uma série de doze colunas não justifica acrescentar uma.
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 180px;
+  padding-top: 8px;
+}
+
+.chart__col {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover .chart__bar { filter: brightness(1.08); }
+
+  &--on {
+    .chart__bar { background: var(--portal-blue); }
+    .chart__label { color: var(--app-text); font-weight: 700; }
+  }
+}
+
+.chart__bar {
+  width: 100%;
+  max-width: 54px;
+  min-height: 3px;
+  border-radius: 6px 6px 0 0;
+  background: var(--portal-teal);
+  transition: height .25s ease, background .15s ease;
+}
+
+.chart__label {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+  white-space: nowrap;
+}
+
+.chart__hint {
+  margin: 10px 0 0;
+  font-size: 0.7rem;
+  color: var(--app-text-subtle);
+}
+
+@media (min-width: v.$bp-md) {
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .chart { height: 220px; gap: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart__bar { transition: none; }
+}
