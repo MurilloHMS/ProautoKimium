@@ -1,0 +1,110 @@
+<div class="dash">
+
+  <!-- ─── Saudação ────────────────────────────────────────────────────────── -->
+  <section class="greet">
+    <h1 class="greet__title">Olá, {{ session.me()?.nome }}</h1>
+    <p class="greet__sub">
+      Resumo da operação de {{ session.scopeLabel() }}
+      @if (monthLabel()) { · {{ monthLabel() }} }
+    </p>
+  </section>
+
+  @if (months().length > 1) {
+    <pk-segmented
+      class="dash__period"
+      [options]="months()"
+      [value]="month()"
+      [fill]="true"
+      (valueChange)="setMonth($event)"
+      ariaLabel="Mês do informativo" />
+  }
+
+  @if (loading()) {
+    <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando seus números…</p>
+  } @else if (failed()) {
+    <p class="state state--error">
+      <i class="pi pi-exclamation-triangle"></i> Não foi possível carregar os informativos.
+    </p>
+  } @else if (!hasData()) {
+    <pk-empty
+      icon="pi pi-inbox"
+      title="Nenhum informativo por aqui ainda"
+      subtitle="Assim que o informativo do mês for enviado, ele aparece nesta tela." />
+  } @else {
+
+    <!-- ─── Aviso de mau uso ──────────────────────────────────────────────── -->
+    @if (temMauUso()) {
+      <p class="alert">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          <strong>Atenção · uso indevido detectado.</strong>
+          {{ decimal(horasMauUso(), 1) }}h por mau uso, {{ money(valorMauUso()) }} cobrados
+          separadamente.
+        </span>
+      </p>
+    }
+
+    <!-- ─── Faturamento ───────────────────────────────────────────────────── -->
+    <section class="hero">
+      <span class="hero__label">Faturamento — {{ monthLabel() }}</span>
+      <strong class="hero__value">{{ money(faturamento()) }}</strong>
+      <span class="hero__sub">
+        {{ notas() }} nota(s) emitida(s)
+        @if (session.me()?.matriz) { · {{ current().length }} unidade(s) }
+      </span>
+    </section>
+
+    <!-- ─── Números do mês ────────────────────────────────────────────────── -->
+    <div class="kpi-row">
+      <pk-kpi label="Produtos" [value]="decimal(produtos())" unit="itens" />
+      <pk-kpi label="Volume" [value]="decimal(litros())" unit="L" />
+      <pk-kpi label="Manutenções" [value]="visitas()" [sub]="mediaDias() ? mediaDias() + ' dias de atendimento' : ''" />
+      <pk-kpi label="Horas técnicas" [value]="decimal(horas(), 1)" unit="h" [sub]="money(horasCobradas()) + ' cobrados'" />
+    </div>
+
+    <div class="two-col">
+      <!-- ─── Produto destaque ────────────────────────────────────────────── -->
+      @if (produtoDestaque()) {
+        <pk-card title="Produto destaque" [hint]="monthLabel()">
+          <p class="product">{{ produtoDestaque() }}</p>
+          <p class="product__hint">O mais comprado no período.</p>
+        </pk-card>
+      }
+
+      <!-- ─── Manutenção ──────────────────────────────────────────────────── -->
+      <pk-card title="Manutenção" hint="Peças e serviços aplicados, cobrados ou em garantia.">
+        <div class="row">
+          <span>Peças e serviços</span>
+          <strong>{{ money(pecas()) }}</strong>
+        </div>
+        <div class="row">
+          <span>Horas técnicas</span>
+          <strong>{{ decimal(horas(), 1) }}h</strong>
+        </div>
+        <div class="row">
+          <span>Cobrado no período</span>
+          <strong>{{ money(horasCobradas()) }}</strong>
+        </div>
+        @if (temMauUso()) {
+          <div class="row row--warn">
+            <span>Sendo mau uso</span>
+            <strong>{{ decimal(horasMauUso(), 1) }}h · {{ money(valorMauUso()) }}</strong>
+          </div>
+        }
+      </pk-card>
+    </div>
+
+    <!-- ─── Por unidade ───────────────────────────────────────────────────── -->
+    @if (current().length > 1) {
+      <pk-card title="Por unidade" [hint]="monthLabel()">
+        @for (row of current(); track row.codigoCliente) {
+          <div class="unit-row">
+            <span class="unit-row__name">{{ row.nomeCliente }}</span>
+            <span class="unit-row__meta">{{ decimal(row.quantidadeLitros) }} L · {{ row.quantidadeNotasEmitidas }} nota(s)</span>
+            <strong class="unit-row__value">{{ money(row.faturamentoTotal) }}</strong>
+          </div>
+        }
+      </pk-card>
+    }
+  }
+</div>

@@ -1,27 +1,27 @@
 <app-login-layout
   title="Área do Cliente"
-  subtitle="Entre com suas credenciais para acessar sua conta"
+  subtitle="Use seu e-mail corporativo ou CNPJ para entrar."
   footerText="Acesso restrito a clientes cadastrados"
   backRoute="/">
 
   <form class="auth-form" [formGroup]="form" (ngSubmit)="login()" novalidate>
 
     <div class="auth-field">
-      <label class="auth-label" for="email">E-mail</label>
+      <label class="auth-label" for="login">E-mail ou CNPJ</label>
       <div class="auth-input-wrap">
-        <span class="auth-icon"><i class="pi pi-envelope"></i></span>
+        <span class="auth-icon"><i class="pi pi-user"></i></span>
         <input
-          type="email"
-          id="email"
-          formControlName="email"
+          type="text"
+          id="login"
+          formControlName="login"
           class="auth-input"
-          placeholder="seu@email.com"
-          autocomplete="email"
-          inputmode="email"
-          autocapitalize="none" />
+          placeholder="seu@email.com.br ou 00.000.000/0000-00"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false" />
       </div>
-      @if (form.get('email')?.touched && form.get('email')?.invalid) {
-        <small class="auth-error"><i class="pi pi-exclamation-circle"></i> Informe um e-mail válido.</small>
+      @if (form.get('login')?.touched && form.get('login')?.invalid) {
+        <small class="auth-error"><i class="pi pi-exclamation-circle"></i> Informe seu e-mail ou CNPJ.</small>
       }
     </div>
 

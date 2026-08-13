@@ -1,0 +1,183 @@
+@use 'variables' as v;
+
+// Mobile primeiro: uma coluna em 390px, duas a partir de 640px.
+
+:host { display: block; }
+
+.dash {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 20px clamp(14px, 4vw, 32px) 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ─── Saudação ───────────────────────────────────────────────────────────────
+.greet__title {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--app-text);
+}
+
+.greet__sub {
+  margin: 4px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.45;
+}
+
+.dash__period { align-self: stretch; }
+
+// ─── Estados ────────────────────────────────────────────────────────────────
+.state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+
+  &--error { color: var(--app-danger); }
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--app-warning) 45%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { color: var(--app-warning); margin-top: 2px; }
+}
+
+// ─── Faturamento ────────────────────────────────────────────────────────────
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 22px 20px;
+  border-radius: var(--radius-surface);
+  background: linear-gradient(135deg, var(--app-action), color-mix(in srgb, var(--app-action) 78%, #000));
+  color: #fff;
+}
+
+.hero__label {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--tracking-head);
+  text-transform: uppercase;
+  opacity: .85;
+}
+
+.hero__value {
+  font-family: v.$font-heading;
+  font-size: clamp(1.9rem, 8vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__sub {
+  font-size: var(--text-ui-sm);
+  opacity: .9;
+}
+
+// ─── Grades ─────────────────────────────────────────────────────────────────
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: v.$bp-sm) {
+  .kpi-row { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+  .two-col { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+}
+
+// ─── Conteúdo dos cartões ───────────────────────────────────────────────────
+.product {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--app-text);
+  line-height: 1.3;
+}
+
+.product__hint {
+  margin: 6px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--app-border);
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  &:last-child { border-bottom: none; }
+
+  strong {
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  &--warn strong { color: var(--app-warning); }
+}
+
+.unit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child { border-bottom: none; }
+
+  &__name {
+    font-size: var(--text-ui-sm);
+    font-weight: 600;
+    color: var(--app-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__value {
+    grid-row: 1;
+    grid-column: 2;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__meta {
+    grid-column: 1 / -1;
+    font-size: var(--text-micro);
+    color: var(--app-text-subtle);
+  }
+}

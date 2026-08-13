@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout.component';
+import { ClientAuthService } from '../../../infrastructure/services/client/client-auth.service';
 
 @Component({
   selector: 'app-client-login',
@@ -12,21 +14,49 @@ import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout
 })
 export class ClientLoginComponent {
 
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(ClientAuthService);
+  private readonly router = inject(Router);
+
   form: FormGroup;
   errorMessage = '';
   loading = false;
 
-  constructor(private fb: FormBuilder) {
-    // O controle se chamava `username` com padrão alfanumérico, mas o template
-    // pedia `email` — o formulário nem chegava a montar. Agora bate com a tela.
+  constructor() {
+    // Um campo só, aceitando e-mail ou CNPJ, como no desenho. A API resolve os
+    // dois: 14 dígitos viram busca de cliente, o resto é e-mail ou login.
     this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      login: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required]],
     });
   }
 
-  /** Área do cliente ainda não tem endpoint de autenticação na API. */
   login(): void {
-    this.errorMessage = 'A área do cliente ainda não está disponível.';
+    if (this.form.invalid || this.loading) return;
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const { login, password } = this.form.value;
+
+    this.auth.login(String(login).trim(), password).subscribe({
+      next: () => this.router.navigate(['/cliente']),
+      error: (err: HttpErrorResponse) => {
+        this.loading = false;
+        this.errorMessage = this.messageFor(err);
+      },
+    });
+  }
+
+  /**
+   * Erro de login não diz o que estava errado de propósito: responder "esse
+   * CNPJ não existe" conta a quem está tentando adivinhar que os outros
+   * existem.
+   */
+  private messageFor(err: HttpErrorResponse): string {
+    if (err.status === 0) return 'Sem conexão com o servidor. Tente novamente.';
+    if (err.status === 403) return 'Acesso bloqueado. Fale com o seu contato na Proauto Kimium.';
+    if (err.status === 401 || err.status === 400) return 'E-mail, CNPJ ou senha incorretos.';
+    return 'Não foi possível entrar agora. Tente novamente em alguns minutos.';
   }
 }

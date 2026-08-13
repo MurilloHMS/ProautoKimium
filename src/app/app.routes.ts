@@ -23,6 +23,7 @@ import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/t
 import { ViewSecretsComponent } from './components/public/view-secrets/view-secrets.component';
 import { VcardComponent } from './components/public/profile/vcard/vcard.component';
 import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
+import { clientGuard, clientLoggedOutGuard } from './infrastructure/guard/client.guard';
 
 export const routes: Routes = [
   // ═══════════════════════════════════════════════════════════════════════
@@ -155,9 +156,37 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
     children: [
       { path: 'login', component: LoginComponent, pathMatch: 'full' },
-      { path: 'client-login', component: ClientLoginComponent, pathMatch: 'full' },
+      { path: 'client-login', redirectTo: 'cliente/login', pathMatch: 'full' },
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'login/first-access', component: FirstAccessComponent, pathMatch: 'full' },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Área do Cliente — sessão própria, casca própria.
+  //
+  // Não entra na árvore autenticada do ERP: o token é outro (`client_token`),
+  // o guard é outro e o layout não tem drawer nem abas. Um funcionário logado
+  // no sistema interno não deve entrar aqui por ter um token no navegador.
+  // ═══════════════════════════════════════════════════════════════════════
+  {
+    path: 'cliente/login',
+    component: NoHeaderLayoutComponent,
+    canActivate: [clientLoggedOutGuard],
+    children: [
+      { path: '', component: ClientLoginComponent, pathMatch: 'full' },
+    ],
+  },
+  {
+    path: 'cliente',
+    loadComponent: () => import('./layouts/client-layout/client-layout.component').then(m => m.ClientLayoutComponent),
+    canActivate: [clientGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/client/client-dashboard/client-dashboard.component').then(m => m.ClientDashboardComponent),
+        pathMatch: 'full',
+      },
     ],
   },
 
