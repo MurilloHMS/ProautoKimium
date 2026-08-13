@@ -48,6 +48,35 @@
   }
 }
 
+// Volta para o site: canto superior esquerdo, discreta. Em telas curtas ela
+// entra no fluxo para não cobrir o discurso.
+.back {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: v.$font-body;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .15s ease, color .15s ease;
+
+  &:hover {
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  i { font-size: 0.7rem; }
+}
+
 .stage {
   position: relative;
   display: grid;
@@ -330,6 +359,18 @@
   .pitch__title { font-size: clamp(1.6rem, 8vw, 2.2rem); }
 }
 
+@media (max-width: v.$bp-sm) {
+  .back {
+    top: 16px;
+    left: 16px;
+    padding: 7px 12px;
+    font-size: 0.72rem;
+  }
+
+  .login { padding-top: 72px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .submit { transition: none; }
+  .submit,
+  .back { transition: none; }
 }
