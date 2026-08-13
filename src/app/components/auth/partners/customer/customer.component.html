@@ -9,21 +9,19 @@
 
     <span class="toolbar__divider"></span>
 
+    <!-- Escolher a planilha já envia: não há passo intermediário. -->
     <pk-fileUpload
       mode="button"
       chooseLabel="Importar Excel"
       chooseType="excel"
       chooseSize="sm"
       accept=".xlsx"
-      [maxFileSize]="1000000"
+      [maxFileSize]="5000000"
+      [loading]="isUploading"
+      loadingTitle="Importando clientes..."
       fileIcon="pi pi-file-excel"
       (filesSelected)="onFileSelect($event)"
-      (cleared)="selectedFile = null">
-
-      @if(selectedFile){
-        <pk-button pkType="upload" pkSize="sm" pkLabel="Enviar" (clicked)="importByExcel()"/>
-      }
-    </pk-fileUpload>
+      (cleared)="selectedFile = null" />
 
     <div filters>
       <input type="text"

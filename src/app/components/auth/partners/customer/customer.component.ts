@@ -267,6 +267,8 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
     this.customerStore.importByExcel(this.selectedFile).subscribe({
       next: (msg) => {
         this.isUploading = false;
+        // Sem limpar, o botão continua na tela e convida a mandar de novo.
+        this.selectedFile = null;
         this.messageService.add({
           severity: 'success',
           summary: 'Sucesso',
@@ -285,8 +287,15 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
   }
 
 
-  onFileSelect(event: any) {
-    this.selectedFile = event.files[0];
+  /**
+   * Escolher a planilha já envia — não há passo intermediário.
+   *
+   * `pk-fileUpload` emite `File[]`; o `p-fileUpload` do PrimeNG emitia
+   * `{ files }`, e o handler antigo lia o campo errado.
+   */
+  onFileSelect(files: File[]) {
+    this.selectedFile = files?.[0] ?? null;
+    if (this.selectedFile) this.importByExcel();
   }
 
 }
