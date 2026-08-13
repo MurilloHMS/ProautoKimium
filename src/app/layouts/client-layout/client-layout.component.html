@@ -79,7 +79,7 @@
     } @else if (session.error()) {
       <p class="state state--error">
         <i class="pi pi-exclamation-triangle"></i>
-        {{ session.error() === 'expired' ? 'Sua sessão expirou.' : 'Não foi possível carregar seus dados.' }}
+        {{ session.error() === 'expired' ? 'Sua sessão expirou.' : 'Não foi possível carregar seus dados (erro ' + session.errorStatus() + ').' }}
         <button type="button" class="state__retry" (click)="retry()">
           {{ session.error() === 'expired' ? 'Entrar de novo' : 'Tentar de novo' }}
         </button>

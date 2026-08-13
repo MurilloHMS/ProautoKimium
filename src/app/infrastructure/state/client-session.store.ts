@@ -25,6 +25,9 @@ export class ClientSessionStore {
    */
   readonly error = signal<'expired' | 'no-access' | 'network' | null>(null);
 
+  /** Status HTTP do último erro. Sem ele, "não foi possível" não diz nada. */
+  readonly errorStatus = signal<number | null>(null);
+
   /** Vazio significa "todas as que eu vejo" — é o padrão da matriz. */
   readonly selectedUnits = signal<string[]>([]);
 
@@ -55,6 +58,7 @@ export class ClientSessionStore {
       },
       error: err => {
         this.loading.set(false);
+        this.errorStatus.set(err.status ?? null);
 
         if (err.status === 401) this.error.set('expired');
         else if (err.status === 403) this.error.set('no-access');
@@ -71,5 +75,6 @@ export class ClientSessionStore {
     this.me.set(null);
     this.selectedUnits.set([]);
     this.error.set(null);
+    this.errorStatus.set(null);
   }
 }

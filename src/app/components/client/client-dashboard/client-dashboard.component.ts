@@ -4,9 +4,6 @@ import { CommonModule } from '@angular/common';
 import { ClientNewsletter } from '../../../domain/models/client.model';
 import { ClientService } from '../../../infrastructure/services/client/client.service';
 import { ClientSessionStore } from '../../../infrastructure/state/client-session.store';
-import { PkKpiComponent } from '../../theme/ProautoKimium/pk-kpi/pk-kpi.component';
-import { PkCardComponent } from '../../theme/ProautoKimium/pk-card/pk-card.component';
-import { PkSegmentedComponent } from '../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { PkEmptyComponent } from '../../theme/ProautoKimium/pk-empty/pk-empty.component';
 
 /** Doze meses para trás: a newsletter é mensal e o cliente compara com o ano. */
@@ -25,7 +22,7 @@ const MONTHS_BACK = 12;
 @Component({
   selector: 'app-client-dashboard',
   standalone: true,
-  imports: [CommonModule, PkKpiComponent, PkCardComponent, PkSegmentedComponent, PkEmptyComponent],
+  imports: [CommonModule, PkEmptyComponent],
   templateUrl: './client-dashboard.component.html',
   styleUrl: './client-dashboard.component.scss',
 })
@@ -135,8 +132,36 @@ export class ClientDashboardComponent {
     return `${MONTH_FULL[Number(key.slice(5, 7)) - 1]} de ${key.slice(0, 4)}`;
   });
 
+  /**
+   * O faturamento do desenho é um número só em três tamanhos: "R$" pequeno,
+   * inteiro grande, centavos pequenos. Separar aqui evita `slice` no template.
+   */
+  readonly faturamentoParts = computed(() => {
+    const parts = this.decimal(this.faturamento(), 2).split(',');
+    return { inteiro: parts[0], centavos: parts[1] ?? '00' };
+  });
+
+  /** E-mail e status vêm da própria linha do informativo. */
+  readonly emailCliente = computed(() => this.current()[0]?.email ?? '');
+  readonly enviado = computed(() => this.current().some(row => row.status === 'SENT'));
+
+  private readonly monthIndex = computed(() =>
+    this.months().findIndex(option => option.value === this.month()));
+
+  readonly canPrev = computed(() => this.monthIndex() > 0);
+  readonly canNext = computed(() => {
+    const index = this.monthIndex();
+    return index >= 0 && index < this.months().length - 1;
+  });
+
   setMonth(value: string): void {
     this.month.set(value);
+  }
+
+  step(direction: -1 | 1): void {
+    const months = this.months();
+    const next = this.monthIndex() + direction;
+    if (next >= 0 && next < months.length) this.month.set(months[next].value);
   }
 
   money(value: number): string {

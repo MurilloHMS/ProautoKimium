@@ -1,14 +1,27 @@
 @use 'variables' as v;
 
-// Mobile primeiro: uma coluna em 390px, duas a partir de 640px.
+// Layout e cores do Figma `M · Início (V3)`, node 314:2.
+//
+// Superfícies, texto e bordas usam os tokens do projeto (`--app-*`), então o
+// tema escuro sai de graça. Só a paleta de marca do portal — o degradê navy do
+// faturamento e o teal dos destaques — vem cravada do desenho, porque ela é a
+// identidade da tela e funciona nos dois temas.
 
-:host { display: block; }
+:host {
+  display: block;
+
+  --portal-teal: #00b9b3;
+  --portal-teal-600: #00a39e;
+  --portal-teal-50: #{rgba(#00b9b3, .1)};
+  --portal-blue: #202a65;
+  --portal-danger: #be1313;
+}
 
 .dash {
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 20px clamp(14px, 4vw, 32px) 48px;
+  padding: 18px clamp(14px, 4vw, 32px) 40px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -19,19 +32,31 @@
 .greet__title {
   margin: 0;
   font-family: v.$font-heading;
-  font-size: 1.4rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--app-text);
 }
 
+// O nome em degradê é do desenho: navy → azul → teal.
+.greet__name {
+  background: linear-gradient(173deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  :host-context(.dark-mode) & {
+    background: none;
+    color: var(--app-text);
+  }
+}
+
 .greet__sub {
-  margin: 4px 0 0;
-  font-size: var(--text-ui-sm);
+  margin: 3px 0 0;
+  font-size: 0.75rem;
   color: var(--app-text-muted);
   line-height: 1.45;
 }
-
-.dash__period { align-self: stretch; }
 
 // ─── Estados ────────────────────────────────────────────────────────────────
 .state {
@@ -46,107 +71,375 @@
   &--error { color: var(--app-danger); }
 }
 
+// ─── Banner de mau uso ──────────────────────────────────────────────────────
 .alert {
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin: 0;
-  padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--app-warning) 45%, transparent);
-  border-radius: var(--radius-control);
-  background: var(--app-warning-soft);
-  color: var(--app-text);
-  font-size: var(--text-ui-sm);
-  line-height: 1.45;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--portal-danger) 25%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--portal-danger) 8%, transparent);
+}
 
-  i { color: var(--app-warning); margin-top: 2px; }
+.alert__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--portal-danger) 15%, transparent);
+  color: var(--portal-danger);
+  font-size: 0.8rem;
+}
+
+.alert__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--portal-danger);
+}
+
+.alert__value {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--portal-danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 // ─── Faturamento ────────────────────────────────────────────────────────────
-.hero {
+.bill {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 22px 20px;
-  border-radius: var(--radius-surface);
-  background: linear-gradient(135deg, var(--app-action), color-mix(in srgb, var(--app-action) 78%, #000));
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(153deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
   color: #fff;
 }
 
-.hero__label {
-  font-size: var(--text-micro);
-  font-weight: 700;
-  letter-spacing: var(--tracking-head);
-  text-transform: uppercase;
-  opacity: .85;
+.bill__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.hero__value {
-  font-family: v.$font-heading;
-  font-size: clamp(1.9rem, 8vw, 2.6rem);
-  font-weight: 800;
-  line-height: 1.05;
+.bill__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin: 6px 0 0;
   font-variant-numeric: tabular-nums;
 }
 
-.hero__sub {
-  font-size: var(--text-ui-sm);
-  opacity: .9;
+.bill__currency,
+.bill__cents {
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-// ─── Grades ─────────────────────────────────────────────────────────────────
-.kpi-row {
+.bill__int {
+  font-size: clamp(1.75rem, 8vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.bill__sub {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.bill__line {
+  height: 1px;
+  margin: 14px 0 12px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.bill__metrics {
+  display: flex;
+  gap: 12px;
+}
+
+.bill__metric {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  small {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  strong {
+    font-size: 0.94rem;
+    font-weight: 500;
+  }
+}
+
+// ─── Período ────────────────────────────────────────────────────────────────
+.period {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--app-border);
+  border-radius: 9px;
+  background: var(--app-surface);
+}
+
+.period__nav {
+  width: 26px;
+  height: 25px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+
+  &:disabled { opacity: .35; cursor: default; }
+}
+
+.period__months {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.period__month {
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-family: v.$font-body;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &--on {
+    background: var(--portal-blue);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ─── Cartões ────────────────────────────────────────────────────────────────
+.card,
+.prod,
+.stat {
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface);
+}
+
+.card { padding: 16px; }
+
+.card__title {
+  margin: 0 0 8px;
+  font-family: v.$font-heading;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.card__eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--app-text-muted);
+}
+
+// ─── Produto destaque ───────────────────────────────────────────────────────
+.prod {
+  padding: 8px 16px 16px;
+  border-radius: 16px;
+}
+
+.prod__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--portal-teal-50);
+  color: var(--portal-teal-600);
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  i { font-size: 0.62rem; }
+}
+
+.prod__name {
+  margin: 8px 0 0;
+  font-family: v.$font-heading;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--app-text);
+}
+
+.prod__desc {
+  margin: 3px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--app-text-muted);
+}
+
+// ─── Estatísticas ───────────────────────────────────────────────────────────
+.stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.two-col {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: 13px;
 }
 
-@media (min-width: v.$bp-sm) {
-  .kpi-row { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-  .two-col { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.stat__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--portal-teal-50);
+  color: var(--portal-teal-600);
+  font-size: 0.8rem;
+
+  img { display: block; width: 14px; height: 14px; }
 }
 
-// ─── Conteúdo dos cartões ───────────────────────────────────────────────────
-.product {
-  margin: 0;
-  font-family: v.$font-heading;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--app-text);
-  line-height: 1.3;
-}
-
-.product__hint {
-  margin: 6px 0 0;
-  font-size: var(--text-ui-sm);
+.stat__label {
+  margin-top: 8px;
+  font-size: 0.75rem;
   color: var(--app-text-muted);
 }
 
+.stat__row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 2px;
+
+  strong {
+    font-size: 1.12rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  small {
+    flex: 1 1 auto;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--app-text-muted);
+  }
+}
+
+// ─── Linhas com ícone ───────────────────────────────────────────────────────
+.line-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child { border-bottom: none; }
+}
+
+.line-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: var(--portal-teal-50);
+  color: var(--portal-teal-600);
+  font-size: 0.78rem;
+
+  &--warn {
+    background: color-mix(in srgb, var(--portal-danger) 12%, transparent);
+    color: var(--portal-danger);
+  }
+}
+
+.line-item__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--app-text);
+}
+
+.line-item__value {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  &--warn { color: var(--portal-danger); }
+}
+
+// ─── Linhas simples ─────────────────────────────────────────────────────────
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--app-border);
-  font-size: var(--text-ui-sm);
+  font-size: 0.8rem;
   color: var(--app-text-muted);
 
   &:last-child { border-bottom: none; }
 
   strong {
     color: var(--app-text);
-    font-variant-numeric: tabular-nums;
+    font-weight: 700;
     text-align: right;
+    font-variant-numeric: tabular-nums;
   }
+}
 
-  &--warn strong { color: var(--app-warning); }
+.row__email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600 !important;
 }
 
 .unit-row {
@@ -159,7 +452,7 @@
   &:last-child { border-bottom: none; }
 
   &__name {
-    font-size: var(--text-ui-sm);
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--app-text);
     overflow: hidden;
@@ -170,14 +463,24 @@
   &__value {
     grid-row: 1;
     grid-column: 2;
-    font-size: var(--text-ui-sm);
+    font-size: 0.8rem;
     color: var(--app-text);
     font-variant-numeric: tabular-nums;
   }
 
   &__meta {
     grid-column: 1 / -1;
-    font-size: var(--text-micro);
+    font-size: 0.7rem;
     color: var(--app-text-subtle);
   }
+}
+
+// ─── Desktop ────────────────────────────────────────────────────────────────
+// O desenho de desktop (V3 · Início) usa duas colunas; o de celular manda no
+// resto. Aqui só soltamos a grade quando há espaço.
+@media (min-width: v.$bp-md) {
+  .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .bill { padding: 26px 28px; }
+  .bill__int { font-size: 2.6rem; }
+  .greet__title { font-size: 1.3rem; }
 }

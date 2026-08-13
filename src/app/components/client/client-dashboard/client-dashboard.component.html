@@ -2,22 +2,12 @@
 
   <!-- ─── Saudação ────────────────────────────────────────────────────────── -->
   <section class="greet">
-    <h1 class="greet__title">Olá, {{ session.me()?.nome }}</h1>
+    <h1 class="greet__title">Olá, <span class="greet__name">{{ session.me()?.nome }}</span></h1>
     <p class="greet__sub">
       Resumo da operação de {{ session.scopeLabel() }}
       @if (monthLabel()) { · {{ monthLabel() }} }
     </p>
   </section>
-
-  @if (months().length > 1) {
-    <pk-segmented
-      class="dash__period"
-      [options]="months()"
-      [value]="month()"
-      [fill]="true"
-      (valueChange)="setMonth($event)"
-      ariaLabel="Mês do informativo" />
-  }
 
   @if (loading()) {
     <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando seus números…</p>
@@ -32,71 +22,160 @@
       subtitle="Assim que o informativo do mês for enviado, ele aparece nesta tela." />
   } @else {
 
-    <!-- ─── Aviso de mau uso ──────────────────────────────────────────────── -->
+    <!-- ─── Mau uso ───────────────────────────────────────────────────────── -->
     @if (temMauUso()) {
-      <p class="alert">
-        <i class="pi pi-exclamation-triangle"></i>
-        <span>
-          <strong>Atenção · uso indevido detectado.</strong>
-          {{ decimal(horasMauUso(), 1) }}h por mau uso, {{ money(valorMauUso()) }} cobrados
-          separadamente.
-        </span>
-      </p>
+      <div class="alert">
+        <span class="alert__icon"><i class="pi pi-wrench"></i></span>
+        <span class="alert__text">Atenção · uso indevido detectado</span>
+        <span class="alert__value">{{ decimal(horasMauUso(), 1) }}h · {{ money(valorMauUso()) }}</span>
+      </div>
     }
 
     <!-- ─── Faturamento ───────────────────────────────────────────────────── -->
-    <section class="hero">
-      <span class="hero__label">Faturamento — {{ monthLabel() }}</span>
-      <strong class="hero__value">{{ money(faturamento()) }}</strong>
-      <span class="hero__sub">
+    <section class="bill">
+      <span class="bill__label">FATURAMENTO — {{ monthLabel() | uppercase }}</span>
+
+      <p class="bill__amount">
+        <span class="bill__currency">R$</span>
+        <span class="bill__int">{{ faturamentoParts().inteiro }}</span>
+        <span class="bill__cents">,{{ faturamentoParts().centavos }}</span>
+      </p>
+
+      <span class="bill__sub">
         {{ notas() }} nota(s) emitida(s)
         @if (session.me()?.matriz) { · {{ current().length }} unidade(s) }
       </span>
+
+      <span class="bill__line"></span>
+
+      <div class="bill__metrics">
+        <span class="bill__metric">
+          <small>PEÇAS E SERVIÇOS</small>
+          <strong>{{ money(pecas()) }}</strong>
+        </span>
+        <span class="bill__metric">
+          <small>HORAS TÉCNICAS</small>
+          <strong>{{ decimal(horas(), 1) }}h</strong>
+        </span>
+      </div>
     </section>
 
+    <!-- ─── Período ───────────────────────────────────────────────────────── -->
+    @if (months().length > 1) {
+      <div class="period">
+        <button type="button" class="period__nav" [disabled]="!canPrev()" (click)="step(-1)" aria-label="Mês anterior">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+
+        <div class="period__months">
+          @for (option of months(); track option.value) {
+            <button type="button"
+                    class="period__month"
+                    [class.period__month--on]="option.value === month()"
+                    (click)="setMonth(option.value)">{{ option.label }}</button>
+          }
+        </div>
+
+        <button type="button" class="period__nav" [disabled]="!canNext()" (click)="step(1)" aria-label="Próximo mês">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+    }
+
+    <!-- ─── Produto destaque ──────────────────────────────────────────────── -->
+    @if (produtoDestaque()) {
+      <section class="prod">
+        <span class="prod__tag">
+          <i class="pi pi-star-fill"></i> Produto destaque · {{ monthLabel() }}
+        </span>
+        <h2 class="prod__name">{{ produtoDestaque() }}</h2>
+        <p class="prod__desc">O mais comprado por você no período.</p>
+      </section>
+    }
+
     <!-- ─── Números do mês ────────────────────────────────────────────────── -->
-    <div class="kpi-row">
-      <pk-kpi label="Produtos" [value]="decimal(produtos())" unit="itens" />
-      <pk-kpi label="Volume" [value]="decimal(litros())" unit="L" />
-      <pk-kpi label="Manutenções" [value]="visitas()" [sub]="mediaDias() ? mediaDias() + ' dias de atendimento' : ''" />
-      <pk-kpi label="Horas técnicas" [value]="decimal(horas(), 1)" unit="h" [sub]="money(horasCobradas()) + ' cobrados'" />
+    <div class="stats">
+      <div class="stat">
+        <span class="stat__icon"><i class="pi pi-box"></i></span>
+        <span class="stat__label">Produtos</span>
+        <span class="stat__row"><strong>{{ decimal(produtos()) }}</strong><small>itens</small></span>
+      </div>
+
+      <div class="stat">
+        <span class="stat__icon"><img src="/assets/icons/drop.svg" alt="" width="14" height="14" /></span>
+        <span class="stat__label">Volume</span>
+        <span class="stat__row"><strong>{{ decimal(litros()) }}</strong><small>L</small></span>
+      </div>
+
+      <div class="stat">
+        <span class="stat__icon"><i class="pi pi-history"></i></span>
+        <span class="stat__label">Notas</span>
+        <span class="stat__row"><strong>{{ notas() }}</strong><small>no mês</small></span>
+      </div>
+
+      <div class="stat">
+        <span class="stat__icon"><i class="pi pi-shield"></i></span>
+        <span class="stat__label">Atendimento</span>
+        <span class="stat__row"><strong>{{ mediaDias() || '—' }}</strong><small>dias</small></span>
+      </div>
     </div>
 
-    <div class="two-col">
-      <!-- ─── Produto destaque ────────────────────────────────────────────── -->
-      @if (produtoDestaque()) {
-        <pk-card title="Produto destaque" [hint]="monthLabel()">
-          <p class="product">{{ produtoDestaque() }}</p>
-          <p class="product__hint">O mais comprado no período.</p>
-        </pk-card>
-      }
+    <!-- ─── Horas técnicas ────────────────────────────────────────────────── -->
+    @if (horas() > 0 || pecas() > 0) {
+      <section class="card">
+        <h2 class="card__title">Horas técnicas — {{ monthLabel() }}</h2>
 
-      <!-- ─── Manutenção ──────────────────────────────────────────────────── -->
-      <pk-card title="Manutenção" hint="Peças e serviços aplicados, cobrados ou em garantia.">
-        <div class="row">
-          <span>Peças e serviços</span>
-          <strong>{{ money(pecas()) }}</strong>
+        <div class="line-item">
+          <span class="line-item__icon"><i class="pi pi-wrench"></i></span>
+          <span class="line-item__label">Cobrado total</span>
+          <span class="line-item__value">{{ money(horasCobradas()) }}</span>
         </div>
-        <div class="row">
-          <span>Horas técnicas</span>
-          <strong>{{ decimal(horas(), 1) }}h</strong>
-        </div>
-        <div class="row">
-          <span>Cobrado no período</span>
-          <strong>{{ money(horasCobradas()) }}</strong>
-        </div>
+
         @if (temMauUso()) {
-          <div class="row row--warn">
-            <span>Sendo mau uso</span>
-            <strong>{{ decimal(horasMauUso(), 1) }}h · {{ money(valorMauUso()) }}</strong>
+          <div class="line-item">
+            <span class="line-item__icon line-item__icon--warn"><i class="pi pi-exclamation-triangle"></i></span>
+            <span class="line-item__label">Mau uso ({{ decimal(horasMauUso(), 1) }}h)</span>
+            <span class="line-item__value line-item__value--warn">{{ money(valorMauUso()) }}</span>
           </div>
         }
-      </pk-card>
-    </div>
+
+        <div class="line-item">
+          <span class="line-item__icon"><i class="pi pi-check"></i></span>
+          <span class="line-item__label">Peças e serviços</span>
+          <span class="line-item__value">{{ money(pecas()) }}</span>
+        </div>
+      </section>
+    }
+
+    <!-- ─── Atendimento ───────────────────────────────────────────────────── -->
+    <section class="card">
+      <h3 class="card__eyebrow">ATENDIMENTO</h3>
+
+      <div class="row">
+        <span>Manutenções no mês</span>
+        <strong>{{ visitas() }}</strong>
+      </div>
+      <div class="row">
+        <span>Notas emitidas</span>
+        <strong>{{ notas() }}</strong>
+      </div>
+      <div class="row">
+        <span>Informativo</span>
+        <strong>{{ enviado() ? 'Enviado' : 'Em preparação' }}</strong>
+      </div>
+      @if (emailCliente()) {
+        <div class="row">
+          <span>E-mail</span>
+          <strong class="row__email">{{ emailCliente() }}</strong>
+        </div>
+      }
+    </section>
 
     <!-- ─── Por unidade ───────────────────────────────────────────────────── -->
     @if (current().length > 1) {
-      <pk-card title="Por unidade" [hint]="monthLabel()">
+      <section class="card">
+        <h2 class="card__title">Por unidade — {{ monthLabel() }}</h2>
+
         @for (row of current(); track row.codigoCliente) {
           <div class="unit-row">
             <span class="unit-row__name">{{ row.nomeCliente }}</span>
@@ -104,7 +183,7 @@
             <strong class="unit-row__value">{{ money(row.faturamentoTotal) }}</strong>
           </div>
         }
-      </pk-card>
+      </section>
     }
   }
 </div>
