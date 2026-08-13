@@ -70,6 +70,44 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // replaceState em vez de mexer no hash: registra onde o usuário está sem
     // disparar navegação nenhuma.
     history.replaceState(null, '', `#${id}`);
+
+    this.reanimarNaChegada(alvo);
+  }
+
+  /**
+   * Reexecuta o `appReveal` da seção quando a rolagem termina.
+   *
+   * A diretiva anima o bloco ao entrar na viewport e para de observar depois.
+   * Rolando suave, a página cruza as seções do caminho e todas animam durante
+   * o trajeto — na chegada, o destino já apareceu e o efeito se perde. Aqui a
+   * animação é rebobinada e tocada de novo, no momento em que a pessoa está
+   * olhando.
+   */
+  private reanimarNaChegada(alvo: HTMLElement) {
+    const alvos = [alvo, ...Array.from(alvo.querySelectorAll<HTMLElement>('.reveal'))]
+      .filter(node => node.classList.contains('reveal'));
+
+    if (alvos.length === 0) return;
+
+    const tocar = () => {
+      for (const node of alvos) {
+        node.classList.remove('is-visible');
+        void node.offsetWidth;          // força reflow: sem isto o navegador
+        node.classList.add('is-visible'); // agrupa as duas mudanças e nada anima
+      }
+    };
+
+    // `scrollend` ainda não existe no Safari, então o tempo é a rede de
+    // segurança — e o `once` garante que só um dos dois toque.
+    let tocado = false;
+    const umaVez = () => {
+      if (tocado) return;
+      tocado = true;
+      tocar();
+    };
+
+    document.addEventListener('scrollend', umaVez, { once: true });
+    setTimeout(umaVez, 700);
   }
 
   toggleMenu() {
