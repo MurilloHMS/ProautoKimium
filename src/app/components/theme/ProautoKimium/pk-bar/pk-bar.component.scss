@@ -1,0 +1,83 @@
+@use 'variables' as v;
+
+:host { display: block; }
+
+.pk-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 150px) 1fr minmax(44px, auto);
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+
+.pk-bar__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pk-bar__name {
+  font-size: 0.78rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-bar__sub {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-bar__track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--app-surface-2);
+  overflow: hidden;
+}
+
+.pk-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--app-action);
+  transition: width .25s ease;
+
+  &--success { background: var(--app-success); }
+  &--warning { background: var(--app-warning); }
+  &--danger  { background: var(--app-danger); }
+  &--neutral { background: var(--app-text-muted); }
+}
+
+.pk-bar__value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--app-text);
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+// Em tela estreita o rótulo sobe e a barra usa a linha inteira: 150px de nome
+// mais barra mais valor não cabem em 390px sem cortar os três.
+@media (max-width: v.$bp-xs) {
+  .pk-bar {
+    grid-template-columns: 1fr auto;
+    gap: 4px 10px;
+  }
+
+  .pk-bar__label { grid-column: 1; }
+  .pk-bar__value { grid-column: 2; }
+
+  .pk-bar__track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-bar__fill { transition: none; }
+}

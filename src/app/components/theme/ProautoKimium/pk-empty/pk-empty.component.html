@@ -1,0 +1,12 @@
+<div class="pk-empty" [class.pk-empty--compact]="compact()">
+  <i class="pk-empty__icon" [class]="'pk-empty__icon ' + icon()"></i>
+  <p class="pk-empty__title">{{ title() }}</p>
+
+  @if (subtitle()) {
+    <p class="pk-empty__subtitle">{{ subtitle() }}</p>
+  }
+
+  <div class="pk-empty__actions">
+    <ng-content />
+  </div>
+</div>
