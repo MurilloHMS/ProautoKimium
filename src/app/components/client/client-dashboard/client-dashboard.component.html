@@ -150,6 +150,7 @@
                proporção nenhuma. -->
           <span class="chart__grid chart__grid--top"></span>
           <span class="chart__grid chart__grid--mid"></span>
+          <span class="chart__grid chart__grid--base"></span>
 
           <div class="chart__cols">
             @for (mes of serie(); track mes.key) {
@@ -160,7 +161,9 @@
                       tooltipPosition="top"
                       (click)="setMonth(mes.key)">
                 <span class="chart__value">{{ compacto(mes.faturamento) }}</span>
-                <span class="chart__bar" [style.height.%]="mes.percent"></span>
+                <span class="chart__track">
+                  <span class="chart__bar" [style.height.%]="mes.percent"></span>
+                </span>
                 <span class="chart__label">
                   {{ mes.label }}
                   @if (serieCruzaAno()) { <small>{{ mes.key.slice(2, 4) }}</small> }

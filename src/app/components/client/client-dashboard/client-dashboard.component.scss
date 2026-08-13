@@ -548,17 +548,20 @@
 }
 
 // ─── Gráfico de colunas ─────────────────────────────────────────────────────
-// CSS puro, como nos hubs internos: o projeto não tem biblioteca de gráfico e
-// uma série de doze colunas não justifica acrescentar uma.
+// CSS puro, como nos hubs internos: uma série de doze colunas não justifica
+// uma biblioteca de gráfico.
 //
-// As colunas têm largura fixa e ficam à esquerda: com dois meses, esticar até
-// a borda da tela deixa duas barras perdidas no meio do nada.
+// O rótulo fica no fluxo, e não posicionado por baixo da caixa: com
+// `overflow-x: auto`, o navegador também recorta na vertical — a especificação
+// não deixa rolar num eixo e manter o outro visível — e o mês sumia.
 .chart {
+  // Alturas do valor e do rótulo, para as réguas caírem no mesmo lugar do trilho.
+  --chart-value-h: 18px;
+  --chart-label-h: 20px;
+
   position: relative;
-  height: 200px;
+  height: 220px;
   margin-top: 8px;
-  padding-bottom: 22px;
-  border-bottom: 1px solid var(--app-border);
 }
 
 .chart__grid {
@@ -567,31 +570,31 @@
   right: 0;
   height: 1px;
   border-top: 1px dashed var(--app-border);
+  pointer-events: none;
 
-  &--top { top: 0; }
-  &--mid { top: 50%; }
+  &--top { top: var(--chart-value-h); }
+  &--mid { top: calc(var(--chart-value-h) + (100% - var(--chart-value-h) - var(--chart-label-h)) / 2); }
+  &--base { top: calc(100% - var(--chart-label-h)); border-top-style: solid; }
 }
 
 .chart__cols {
-  position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   gap: 14px;
   height: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
 }
 
 .chart__col {
-  position: relative;   // o rótulo é absoluto e se ancora nesta coluna
   flex: 0 0 auto;
   width: 64px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   padding: 0;
   border: none;
   background: transparent;
@@ -601,16 +604,27 @@
 
   &--on {
     .chart__bar { background: var(--portal-blue); }
-    .chart__label { color: var(--app-text); font-weight: 700; }
+    .chart__label,
     .chart__value { color: var(--app-text); font-weight: 700; }
   }
 }
 
 .chart__value {
+  height: var(--chart-value-h);
   font-size: var(--text-micro);
   color: var(--app-text-subtle);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+// O trilho toma a altura que sobra, então a porcentagem da barra é sempre
+// relativa ao mesmo espaço, independente do tamanho do rótulo.
+.chart__track {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 0;
 }
 
 .chart__bar {
@@ -622,20 +636,21 @@
 }
 
 .chart__label {
-  position: absolute;
-  bottom: -20px;
+  height: var(--chart-label-h);
+  display: flex;
+  align-items: center;
   font-size: var(--text-micro);
   color: var(--app-text-subtle);
   white-space: nowrap;
 
-  small { opacity: .7; }
+  small { opacity: .7; margin-left: 2px; }
 }
 
 .chart__hint {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 26px 0 0;
+  margin: 12px 0 0;
   font-size: 0.7rem;
   color: var(--app-text-subtle);
 }
