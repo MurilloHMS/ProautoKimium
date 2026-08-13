@@ -19,11 +19,12 @@
   --portal-gradient: linear-gradient(163deg, #202a65 0%, #2b3784 50%, #137f9e 100%);
 }
 
+// Sem largura máxima: o painel ocupa a tela toda. O arquivo tem 1280 porque é
+// a prancheta do desenho, não um limite de leitura — em monitor largo, os três
+// cartões e o hero preferem o espaço a uma coluna centralizada.
 .dash {
   width: 100%;
-  max-width: 1208px;
-  margin: 0 auto;
-  padding: 20px clamp(14px, 3vw, 36px) 40px;
+  padding: 20px clamp(14px, 3vw, 40px) 40px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
