@@ -165,3 +165,86 @@ $text-light:        var(--app-text-subtle);
     color: var(--app-text-muted);
   }
 }
+
+// ─── Acessos ao portal ──────────────────────────────────────────────────────
+.access {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.access__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text);
+
+  i { color: var(--app-text-muted); }
+}
+
+.access__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child { border-bottom: none; }
+}
+
+.access__who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong {
+    font-size: var(--text-ui);
+    color: var(--app-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-subtle);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.access__state {
+  margin: 0;
+  padding: 12px 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
+
+// A senha provisória é uma limitação temporária, não um recurso: o aviso
+// existe para ninguém achar que é assim que deveria funcionar.
+.access__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--app-warning) 40%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+  color: var(--app-text);
+
+  i { color: var(--app-warning); margin-top: 2px; }
+}
+
+.access__form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}

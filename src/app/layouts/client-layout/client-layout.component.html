@@ -1,0 +1,108 @@
+<div class="shell">
+
+  <header class="head">
+    <div class="head__brand">
+      <span class="head__mark" aria-hidden="true"></span>
+      <span class="head__names">
+        <strong>Proauto Kimium</strong>
+        <small>
+          ÁREA DO CLIENTE
+          @if (session.me(); as me) { · {{ me.codParceiro }} }
+        </small>
+      </span>
+    </div>
+
+    <div class="head__right">
+      <!-- Trocar de unidade só faz sentido para matriz: quem tem uma unidade
+           não tem o que escolher, e um seletor de um item só confunde. -->
+      @if (session.isMatriz() && session.units().length > 1) {
+        <button type="button" class="unit" (click)="toggleMenu()"
+                [attr.aria-expanded]="menuOpen()" aria-haspopup="listbox">
+          <i class="pi pi-building"></i>
+          <span class="unit__label">{{ session.scopeLabel() }}</span>
+          <i class="pi" [class.pi-chevron-down]="!menuOpen()" [class.pi-chevron-up]="menuOpen()"></i>
+        </button>
+      } @else if (session.me()) {
+        <span class="unit unit--static">
+          <i class="pi pi-building"></i>
+          <span class="unit__label">{{ session.scopeLabel() }}</span>
+        </span>
+      }
+
+      <button type="button" class="icon-btn" (click)="theme.toggle()"
+              [attr.aria-label]="theme.isDark() ? 'Tema claro' : 'Tema escuro'">
+        <i class="pi" [class.pi-moon]="!theme.isDark()" [class.pi-sun]="theme.isDark()"></i>
+      </button>
+
+      <!-- Antes o avatar deslogava direto, o que ninguém adivinha. Agora ele
+           abre um menu com o nome e a saída escrita. -->
+      <button type="button" class="user" (click)="toggleUser()"
+              [attr.aria-expanded]="userOpen()" aria-haspopup="menu">
+        <span class="avatar">{{ initials() }}</span>
+        <i class="pi" [class.pi-chevron-down]="!userOpen()" [class.pi-chevron-up]="userOpen()"></i>
+      </button>
+    </div>
+  </header>
+
+  @if (userOpen()) {
+    <div class="user-menu" role="menu">
+      <div class="user-menu__who">
+        <strong>{{ session.me()?.nome }}</strong>
+        <small>{{ session.scopeLabel() }}</small>
+      </div>
+
+      <button type="button" class="user-menu__item" role="menuitem" (click)="logout()">
+        <i class="pi pi-sign-out"></i> Sair da minha conta
+      </button>
+    </div>
+  }
+
+  @if (menuOpen()) {
+    <div class="unit-menu" role="listbox">
+      <button type="button" class="unit-menu__item"
+              [class.unit-menu__item--on]="session.selectedUnits().length === 0"
+              (click)="selectUnit(null)">
+        <span class="unit-menu__name">Todas as unidades</span>
+        <small class="unit-menu__code">{{ session.units().length }} no grupo</small>
+      </button>
+
+      @for (unit of session.units(); track unit.codParceiro) {
+        <button type="button" class="unit-menu__item"
+                [class.unit-menu__item--on]="session.selectedUnits()[0] === unit.codParceiro"
+                (click)="selectUnit(unit.codParceiro)">
+          <span class="unit-menu__name">{{ unit.nome }}</span>
+          <small class="unit-menu__code">{{ unit.codParceiro }}</small>
+        </button>
+      }
+    </div>
+  }
+
+  <main class="body">
+    @if (session.loading()) {
+      <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+    } @else if (session.error() === 'no-access') {
+      <!-- Conta existe e a senha está certa: o que falta é vínculo ou o
+           cliente está inativo. Mandar para o login faria a pessoa tentar de
+           novo o que vai falhar igual. -->
+      <div class="state state--block">
+        <i class="pi pi-lock"></i>
+        <p>Seu acesso ainda não está liberado.</p>
+        <small>
+          Esta conta não está vinculada a um cliente ativo. Fale com o seu
+          contato na Proauto Kimium.
+        </small>
+        <button type="button" class="state__retry" (click)="logout()">Sair</button>
+      </div>
+    } @else if (session.error()) {
+      <p class="state state--error">
+        <i class="pi pi-exclamation-triangle"></i>
+        {{ session.error() === 'expired' ? 'Sua sessão expirou.' : 'Não foi possível carregar seus dados (erro ' + session.errorStatus() + ').' }}
+        <button type="button" class="state__retry" (click)="retry()">
+          {{ session.error() === 'expired' ? 'Entrar de novo' : 'Tentar de novo' }}
+        </button>
+      </p>
+    } @else {
+      <router-outlet />
+    }
+  </main>
+</div>

@@ -45,6 +45,16 @@ export class LoginComponent {
     this.authService.login(username.toLowerCase(), password).subscribe({
       next: () => {
         this.loading = false;
+
+        // A credencial é válida, mas esta é a entrada do sistema interno. Um
+        // cliente que entrasse aqui veria todas as telas que não declaram
+        // role. A sessão é descartada na hora e ele vai para o portal dele.
+        if (this.authService.getUserRoles().includes('CLIENTE')) {
+          this.authService.logout();
+          this.router.navigate(['/cliente/login']);
+          return;
+        }
+
         this.router.navigate(['/home'])
       },
       error: (err) => {

@@ -9,21 +9,19 @@
 
     <span class="toolbar__divider"></span>
 
+    <!-- Escolher a planilha já envia: não há passo intermediário. -->
     <pk-fileUpload
       mode="button"
       chooseLabel="Importar Excel"
       chooseType="excel"
       chooseSize="sm"
       accept=".xlsx"
-      [maxFileSize]="1000000"
+      [maxFileSize]="5000000"
+      [loading]="isUploading"
+      loadingTitle="Importando clientes..."
       fileIcon="pi pi-file-excel"
       (filesSelected)="onFileSelect($event)"
-      (cleared)="selectedFile = null">
-
-      @if(selectedFile){
-        <pk-button pkType="upload" pkSize="sm" pkLabel="Enviar" (clicked)="importByExcel()"/>
-      }
-    </pk-fileUpload>
+      (cleared)="selectedFile = null" />
 
     <div filters>
       <input type="text"
@@ -108,6 +106,12 @@
               [pkIconOnly]="true"
               pkTooltip="Editar cliente"
               (clicked)="editCustomer(customer)"/>
+            <pk-button
+              pkType="token"
+              pkSize="sm"
+              [pkIconOnly]="true"
+              pkTooltip="Acessos ao portal"
+              (clicked)="openAccess(customer)"/>
           </td>
         </tr>
       </ng-template>
@@ -206,6 +210,12 @@
             description="Notificações e comunicados por email"
             formControlName="recebeEmail"
           />
+          <pk-checkbox
+            inputId="isMatriz"
+            label="É matriz do grupo"
+            description="No portal, enxerga todas as unidades que apontam para este código"
+            formControlName="isMatriz"
+          />
         </div>
       </div>
 
@@ -215,6 +225,98 @@
     <div formActions>
       <pk-button pkType="cancel" pkSize="sm" (clicked)="closeForm()"/>
       <pk-button pkType="save" pkSize="sm" [pkDisabled]="form.invalid" (clicked)="saveCustomer()"/>
+    </div>
+  </app-form-screen>
+  }
+
+  @if (mode() === 'access') {
+  <app-form-screen
+    [title]="'Acessos ao portal — ' + accessCustomer()?.nome"
+    subtitle="Quem entra na Área do Cliente por esta unidade"
+    (back)="closeAccess()">
+
+    <div class="access">
+
+      <!-- ─── Quem já tem acesso ──────────────────────────────────────────── -->
+      <section class="access__block">
+        <h3 class="access__title"><i class="pi pi-users"></i> Pessoas com acesso</h3>
+
+        @if (accessLoading()) {
+          <p class="access__state"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+        } @else {
+          @for (user of accessUsers(); track user.login) {
+            <div class="access__row">
+              <span class="access__who">
+                <strong>{{ user.login }}</strong>
+                <small>{{ user.email }}</small>
+              </span>
+
+              <span class="status-chip" [ngClass]="user.active ? 'status-chip--active' : 'status-chip--inactive'">
+                <i class="pi" [ngClass]="user.active ? 'pi-check' : 'pi-times'"></i>
+                {{ user.active ? 'Ativo' : 'Bloqueado' }}
+              </span>
+
+              <pk-button
+                pkType="delete"
+                pkSize="sm"
+                [pkIconOnly]="true"
+                pkTooltip="Remover acesso"
+                (clicked)="removeAccess(user)"/>
+            </div>
+          } @empty {
+            <p class="access__state">
+              Ninguém tem acesso ao portal por esta unidade ainda.
+            </p>
+          }
+        }
+      </section>
+
+      <!-- ─── Dar acesso a alguém ─────────────────────────────────────────── -->
+      <section class="access__block">
+        <h3 class="access__title"><i class="pi pi-user-plus"></i> Dar acesso</h3>
+
+        <p class="access__note">
+          <i class="pi pi-info-circle"></i>
+          A senha é provisória e você precisa passá-la à pessoa. O primeiro
+          acesso por e-mail ainda não existe para clientes.
+        </p>
+
+        <form [formGroup]="inviteForm" (ngSubmit)="invite()" class="access__form">
+          <pk-input
+            label="Nome da pessoa"
+            icon="pi pi-user"
+            placeholder="Nome Cliente"
+            formControlName="nome"
+            [pkRequired]="true"/>
+
+          <pk-input
+            label="E-mail"
+            type="email"
+            icon="pi pi-envelope"
+            placeholder="email@seudominio.com.br"
+            formControlName="email"
+            [pkRequired]="true"/>
+
+          <pk-input
+            label="Senha provisória"
+            type="password"
+            icon="pi pi-lock"
+            placeholder="Mínimo 8 caracteres"
+            formControlName="password"
+            [pkRequired]="true"/>
+        </form>
+      </section>
+    </div>
+
+    <div formActions>
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="closeAccess()"/>
+      <pk-button
+        pkType="save"
+        pkSize="sm"
+        pkLabel="Criar acesso"
+        [pkDisabled]="inviteForm.invalid"
+        [pkLoading]="accessSaving()"
+        (clicked)="invite()"/>
     </div>
   </app-form-screen>
   }

@@ -19,3 +19,15 @@
   min-height: 0;
   overflow-y: auto;
 }
+
+// A Área do Cliente pinta a página inteira, não só a caixa do layout.
+//
+// `html` e `body` não têm fundo — no ERP isso nunca apareceu porque
+// `.app-content` ocupa a viewport e trava a rolagem. No portal a página rola
+// no documento, e o branco do navegador aparecia embaixo do conteúdo quando o
+// tema escuro estava ligado.
+//
+// Escopo por `:has` para o site público continuar com o fundo dele.
+body:has(app-client-layout) {
+  background: var(--app-bg);
+}

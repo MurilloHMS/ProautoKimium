@@ -6,6 +6,15 @@ export interface Customer {
   ativo: boolean;
   recebeEmail: boolean;
   codMatriz: string;
+  /** Matriz do grupo: no portal, enxerga as unidades que apontam para ela. */
+  isMatriz: boolean;
+}
+
+/** Uma pessoa com acesso ao portal por este cliente. */
+export interface ClientUser {
+  login: string;
+  email: string;
+  active: boolean;
 }
 
 export interface CustomerResponse {

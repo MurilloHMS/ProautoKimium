@@ -2,7 +2,7 @@
   <div class="header-container">
     <!-- Logo -->
     <div class="logo">
-      <a href="#home" fragment="home" aria-label="Início — Proauto Kimium">
+      <a href="#home" (click)="irParaSecao('home', $event)" aria-label="Início — Proauto Kimium">
         <img src="logo-proauto.png" alt="Proauto Kimium">
       </a>
     </div>
@@ -10,17 +10,26 @@
     <!-- Navegação (desktop) -->
     <nav class="nav-desktop">
       <ul>
-        <li><a href="#home" fragment="home">Início</a></li>
+        <li><a href="#home" (click)="irParaSecao('home', $event)">Início</a></li>
         <li><a routerLink="produtos">Produtos</a></li>
-        <li><a href="#services">Serviços</a></li>
-        <li><a href="#about-us">Sobre nós</a></li>
+        <li><a href="#services" (click)="irParaSecao('services', $event)">Serviços</a></li>
+        <li><a href="#about-us" (click)="irParaSecao('about-us', $event)">Sobre nós</a></li>
         <li><a routerLink="trabalhe-conosco">Trabalhe Conosco</a></li>
-        <li><a href="#contact">Contato</a></li>
+        <li><a href="#contact" (click)="irParaSecao('contact', $event)">Contato</a></li>
       </ul>
     </nav>
 
     <!-- Ação à direita (desktop) -->
     <div class="actions">
+      <!-- href e não routerLink: o portal é outra aplicação dentro do mesmo
+           domínio, com sessão e casca próprias, e a navegação dura garante
+           que ele comece limpo. Também imune ao roteador ficar fora de sincronia
+           com a barra de endereço por causa das âncoras #hash deste menu. -->
+      <a href="/cliente/login" class="btn-client" title="Área do Cliente">
+        <i class="pi pi-chart-bar"></i>
+        <span>Área do Cliente</span>
+      </a>
+
       <a routerLink="login" class="btn-login" title="Entrar">
         <i class="pi pi-sign-in"></i>
         <span>Entrar</span>
@@ -33,11 +42,11 @@
 <nav class="bottom-nav" [class.is-condensed]="navCondensed" aria-label="Navegação principal">
   <span class="bottom-nav__indicator" [style.transform]="'translateX(' + activeIndex * 100 + '%)'" aria-hidden="true"></span>
 
-  <a class="bottom-nav__item" [class.is-active]="activeIndex === 0 && !menuAberto" (click)="setActive(0)" href="#home" fragment="home">
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 0 && !menuAberto" href="#home" (click)="setActive(0); irParaSecao('home', $event)">
     <i class="pi pi-home"></i>
     <span>Início</span>
   </a>
-  <a class="bottom-nav__item" [class.is-active]="activeIndex === 3 && !menuAberto" (click)="setActive(3)" href="#contact">
+  <a class="bottom-nav__item" [class.is-active]="activeIndex === 3 && !menuAberto" href="#contact" (click)="setActive(3); irParaSecao('contact', $event)">
     <i class="pi pi-envelope"></i>
     <span>Contato</span>
   </a>
@@ -75,15 +84,20 @@
   </div>
 
   <ul class="drawer-links">
-    <li><a href="#home" fragment="home" (click)="fecharMenuMobile()">Início</a></li>
+    <li><a href="#home" (click)="irParaSecao('home', $event)">Início</a></li>
     <li><a routerLink="produtos" (click)="fecharMenuMobile()">Produtos</a></li>
-    <li><a href="#services" (click)="fecharMenuMobile()">Serviços</a></li>
-    <li><a href="#about-us" (click)="fecharMenuMobile()">Sobre nós</a></li>
+    <li><a href="#services" (click)="irParaSecao('services', $event)">Serviços</a></li>
+    <li><a href="#about-us" (click)="irParaSecao('about-us', $event)">Sobre nós</a></li>
     <li><a routerLink="trabalhe-conosco" (click)="fecharMenuMobile()">Trabalhe Conosco</a></li>
-    <li><a href="#contact" (click)="fecharMenuMobile()">Contato</a></li>
+    <li><a href="#contact" (click)="irParaSecao('contact', $event)">Contato</a></li>
   </ul>
 
   <div class="drawer-auth">
+    <a href="/cliente/login" class="btn-client" (click)="fecharMenuMobile()">
+      <i class="pi pi-chart-bar"></i>
+      <span>Área do Cliente</span>
+    </a>
+
     <a routerLink="login" class="btn-login" (click)="fecharMenuMobile()">
       <i class="pi pi-sign-in"></i>
       <span>Entrar</span>
