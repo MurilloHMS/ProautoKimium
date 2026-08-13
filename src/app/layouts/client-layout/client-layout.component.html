@@ -34,11 +34,28 @@
         <i class="pi" [class.pi-moon]="!theme.isDark()" [class.pi-sun]="theme.isDark()"></i>
       </button>
 
-      <button type="button" class="avatar" (click)="logout()" aria-label="Sair">
-        {{ initials() }}
+      <!-- Antes o avatar deslogava direto, o que ninguém adivinha. Agora ele
+           abre um menu com o nome e a saída escrita. -->
+      <button type="button" class="user" (click)="toggleUser()"
+              [attr.aria-expanded]="userOpen()" aria-haspopup="menu">
+        <span class="avatar">{{ initials() }}</span>
+        <i class="pi" [class.pi-chevron-down]="!userOpen()" [class.pi-chevron-up]="userOpen()"></i>
       </button>
     </div>
   </header>
+
+  @if (userOpen()) {
+    <div class="user-menu" role="menu">
+      <div class="user-menu__who">
+        <strong>{{ session.me()?.nome }}</strong>
+        <small>{{ session.scopeLabel() }}</small>
+      </div>
+
+      <button type="button" class="user-menu__item" role="menuitem" (click)="logout()">
+        <i class="pi pi-sign-out"></i> Sair da minha conta
+      </button>
+    </div>
+  }
 
   @if (menuOpen()) {
     <div class="unit-menu" role="listbox">

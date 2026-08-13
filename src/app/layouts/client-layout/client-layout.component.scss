@@ -233,3 +233,61 @@
 
   .state__retry { margin-top: 10px; }
 }
+
+// ─── Menu do usuário ────────────────────────────────────────────────────────
+// O avatar sozinho não anuncia que desloga. Vira botão com seta e abre um
+// menu onde "Sair" está escrito.
+.user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.user-menu {
+  position: sticky;
+  top: calc(54px + env(safe-area-inset-top));
+  z-index: 39;
+  align-self: flex-end;
+  width: min(260px, calc(100vw - 28px));
+  margin: 0 clamp(14px, 4vw, 32px);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+  overflow: hidden;
+}
+
+.user-menu__who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--app-border);
+
+  strong { font-size: var(--text-ui); color: var(--app-text); }
+  small { font-size: var(--text-micro); color: var(--app-text-subtle); }
+}
+
+.user-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  color: var(--app-danger);
+  font-family: v.$font-body;
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: var(--app-danger-soft); }
+}

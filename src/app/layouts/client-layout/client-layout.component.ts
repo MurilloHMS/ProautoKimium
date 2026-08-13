@@ -29,6 +29,7 @@ export class ClientLayoutComponent implements OnInit {
   readonly theme = inject(ThemeService);
 
   readonly menuOpen = signal(false);
+  readonly userOpen = signal(false);
 
   /** Iniciais para o avatar do cabeçalho, como no desenho ("BR"). */
   readonly initials = computed(() => {
@@ -55,7 +56,13 @@ export class ClientLayoutComponent implements OnInit {
   }
 
   toggleMenu(): void {
+    this.userOpen.set(false);
     this.menuOpen.update(open => !open);
+  }
+
+  toggleUser(): void {
+    this.menuOpen.set(false);
+    this.userOpen.update(open => !open);
   }
 
   logout(): void {
