@@ -156,7 +156,9 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
     children: [
       { path: 'login', component: LoginComponent, pathMatch: 'full' },
-      { path: 'client-login', redirectTo: 'cliente/login', pathMatch: 'full' },
+      // Absoluto de propósito: dentro de `children`, redirectTo é resolvido
+      // relativo ao pai e vai parar num lugar que não existe.
+      { path: 'client-login', redirectTo: '/cliente/login', pathMatch: 'full' },
       { path: 'login/forgot-password', component: ForgotPasswordComponent, pathMatch: 'full' },
       { path: 'login/first-access', component: FirstAccessComponent, pathMatch: 'full' },
     ],

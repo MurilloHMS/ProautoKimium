@@ -285,7 +285,8 @@ $shadow-float-s: 0 4px 16px rgba(35, 46, 97, 0.12);
   opacity: 0;
   transform: translateY(12px);
 
-  .btn-login {
+  .btn-login,
+  .btn-client {
     width: 100%;
     padding: 13px 16px;
     font-size: 0.95rem;
@@ -332,6 +333,35 @@ $shadow-float-s: 0 4px 16px rgba(35, 46, 97, 0.12);
       linear-gradient(#f3f6fb, #f3f6fb) padding-box,
       linear-gradient(135deg, v.$primary, v.$secondary) border-box;
   }
+  &:active { transform: scale(0.98); }
+}
+
+// Área do Cliente: mesma forma do "Entrar", peso menor. É o caminho do
+// cliente, não a entrada do sistema interno — não pode competir com ela.
+.btn-client {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1.5px solid v.$border;
+  border-radius: v.$radius-md;
+  background: transparent;
+  color: v.$text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: $transition;
+
+  i { font-size: 1rem; }
+
+  &:hover {
+    border-color: v.$primary;
+    color: v.$primary;
+  }
+
   &:active { transform: scale(0.98); }
 }
 
@@ -423,6 +453,7 @@ $shadow-float-s: 0 4px 16px rgba(35, 46, 97, 0.12);
   .actions {
     display: flex;
     align-items: center;
+    gap: 10px;
     flex-shrink: 0;
   }
 

@@ -42,7 +42,7 @@ export class ClientLayoutComponent implements OnInit {
   }
 
   retry(): void {
-    if (this.session.error() === 'auth') {
+    if (this.session.error() === 'expired') {
       this.logout();
       return;
     }

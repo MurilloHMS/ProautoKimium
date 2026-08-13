@@ -204,3 +204,32 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+// Acesso não liberado: não é erro nem sessão vencida, é um estado de espera.
+// Merece explicação e uma saída, não um botão de "tentar de novo".
+.state--block {
+  flex-direction: column;
+  text-align: center;
+  gap: 6px;
+  color: var(--app-text);
+
+  i {
+    font-size: 1.6rem;
+    color: var(--app-text-subtle);
+    margin-bottom: 4px;
+  }
+
+  p {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-weight: 700;
+  }
+
+  small {
+    max-width: 38ch;
+    color: var(--app-text-muted);
+    line-height: 1.5;
+  }
+
+  .state__retry { margin-top: 10px; }
+}

@@ -17,7 +17,13 @@ export class ClientSessionStore {
 
   readonly me = signal<ClientMe | null>(null);
   readonly loading = signal(false);
-  readonly error = signal<'auth' | 'network' | null>(null);
+
+  /**
+   * `expired` é sessão vencida; `no-access` é conta sem cliente vinculado ou
+   * cliente inativo. Tratar os dois como "expirou" mandava a pessoa de volta
+   * ao login para tentar de novo o que ia falhar igual.
+   */
+  readonly error = signal<'expired' | 'no-access' | 'network' | null>(null);
 
   /** Vazio significa "todas as que eu vejo" — é o padrão da matriz. */
   readonly selectedUnits = signal<string[]>([]);
@@ -49,10 +55,10 @@ export class ClientSessionStore {
       },
       error: err => {
         this.loading.set(false);
-        // 401/403 é sessão vencida ou usuário sem cliente vinculado — quem
-        // trata é o layout, mandando para o login. Erro de rede é diferente:
-        // vale oferecer "tentar de novo" em vez de derrubar a sessão.
-        this.error.set(err.status === 401 || err.status === 403 ? 'auth' : 'network');
+
+        if (err.status === 401) this.error.set('expired');
+        else if (err.status === 403) this.error.set('no-access');
+        else this.error.set('network');
       },
     });
   }

@@ -63,12 +63,25 @@
   <main class="body">
     @if (session.loading()) {
       <p class="state"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+    } @else if (session.error() === 'no-access') {
+      <!-- Conta existe e a senha está certa: o que falta é vínculo ou o
+           cliente está inativo. Mandar para o login faria a pessoa tentar de
+           novo o que vai falhar igual. -->
+      <div class="state state--block">
+        <i class="pi pi-lock"></i>
+        <p>Seu acesso ainda não está liberado.</p>
+        <small>
+          Esta conta não está vinculada a um cliente ativo. Fale com o seu
+          contato na Proauto Kimium.
+        </small>
+        <button type="button" class="state__retry" (click)="logout()">Sair</button>
+      </div>
     } @else if (session.error()) {
       <p class="state state--error">
         <i class="pi pi-exclamation-triangle"></i>
-        {{ session.error() === 'auth' ? 'Sua sessão expirou.' : 'Não foi possível carregar seus dados.' }}
+        {{ session.error() === 'expired' ? 'Sua sessão expirou.' : 'Não foi possível carregar seus dados.' }}
         <button type="button" class="state__retry" (click)="retry()">
-          {{ session.error() === 'auth' ? 'Entrar de novo' : 'Tentar de novo' }}
+          {{ session.error() === 'expired' ? 'Entrar de novo' : 'Tentar de novo' }}
         </button>
       </p>
     } @else {
