@@ -21,8 +21,11 @@
 
     <!-- Ação à direita (desktop) -->
     <div class="actions">
-      <!-- O cliente procura o painel dele no site, não no /login do sistema. -->
-      <a routerLink="/cliente/login" class="btn-client" title="Área do Cliente">
+      <!-- href e não routerLink: o portal é outra aplicação dentro do mesmo
+           domínio, com sessão e casca próprias, e a navegação dura garante
+           que ele comece limpo. Também imune ao roteador ficar fora de sincronia
+           com a barra de endereço por causa das âncoras #hash deste menu. -->
+      <a href="/cliente/login" class="btn-client" title="Área do Cliente">
         <i class="pi pi-chart-bar"></i>
         <span>Área do Cliente</span>
       </a>
@@ -90,7 +93,7 @@
   </ul>
 
   <div class="drawer-auth">
-    <a routerLink="/cliente/login" class="btn-client" (click)="fecharMenuMobile()">
+    <a href="/cliente/login" class="btn-client" (click)="fecharMenuMobile()">
       <i class="pi pi-chart-bar"></i>
       <span>Área do Cliente</span>
     </a>
