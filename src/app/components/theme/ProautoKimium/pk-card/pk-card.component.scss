@@ -1,0 +1,65 @@
+@use 'variables' as v;
+
+:host { display: block; }
+
+.pk-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+
+  &--flush {
+    padding: 0;
+
+    .pk-card__head { padding: 16px 18px 0; }
+  }
+}
+
+.pk-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pk-card__heading { min-width: 0; }
+
+.pk-card__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text);
+
+  i { color: var(--app-text-muted); font-size: 0.85rem; }
+}
+
+.pk-card__hint {
+  margin: 4px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.4;
+}
+
+.pk-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  flex: 0 0 auto;
+
+  &:empty { display: none; }
+}
+
+.pk-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}

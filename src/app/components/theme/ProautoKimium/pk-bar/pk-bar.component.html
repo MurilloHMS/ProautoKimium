@@ -1,0 +1,15 @@
+<div class="pk-bar">
+
+  <span class="pk-bar__label">
+    <span class="pk-bar__name">{{ label() }}</span>
+    @if (sub()) { <small class="pk-bar__sub">{{ sub() }}</small> }
+  </span>
+
+  <span class="pk-bar__track">
+    <span class="pk-bar__fill"
+          [class]="'pk-bar__fill pk-bar__fill--' + tone()"
+          [style.width.%]="width()"></span>
+  </span>
+
+  <span class="pk-bar__value">{{ value() }}</span>
+</div>

@@ -6,18 +6,14 @@
     subtitle="Entradas, saídas e o que está parado"
     size="lg">
     <div actions class="hub__actions">
-      <div class="period">
-        @for (days of periodOptions; track days) {
-          <button type="button"
-                  class="period__btn"
-                  [class.period__btn--on]="periodDays() === days"
-                  (click)="setPeriod(days)">{{ days }} dias</button>
-        }
-      </div>
-      <button type="button" class="period__btn" [disabled]="loading()" (click)="load()">
-        <i class="pi" [class.pi-refresh]="!loading()" [class.pi-spin]="loading()" [class.pi-spinner]="loading()"></i>
-        Atualizar
-      </button>
+      <pk-segmented
+        [options]="periodSegments"
+        [value]="periodDays()"
+        (valueChange)="setPeriod($event)"
+        ariaLabel="Período dos indicadores" />
+
+      <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar"
+                 [pkLoading]="loading()" (clicked)="load()" />
     </div>
   </app-page-header>
 
@@ -50,51 +46,34 @@
 
   <!-- ─── KPIs ────────────────────────────────────────────────────────────── -->
   <div class="kpi-row">
-    <a class="kpi" routerLink="/stock/products">
-      <span class="kpi__label">Produtos ativos</span>
-      <span class="kpi__value">{{ activeCount() }}</span>
+    <a class="kpi-link" routerLink="/stock/products">
+      <pk-kpi label="Produtos ativos" [value]="activeCount()" [loading]="loading()" />
     </a>
 
-    <div class="kpi">
-      <span class="kpi__label">Itens em estoque</span>
-      <span class="kpi__value">{{ totalItems() }}</span>
-    </div>
+    <pk-kpi label="Itens em estoque" [value]="totalItems()" [loading]="loading()" />
 
-    <div class="kpi" [class.kpi--hero]="belowMinimum().length > 0">
-      <span class="kpi__label">Abaixo do mínimo</span>
-      <span class="kpi__value kpi__value--warn">{{ belowMinimum().length }}</span>
-    </div>
+    <pk-kpi label="Abaixo do mínimo"
+            [value]="belowMinimum().length"
+            tone="warning"
+            [hero]="belowMinimum().length > 0"
+            [loading]="loading()" />
 
-    <div class="kpi">
-      <span class="kpi__label">Sem estoque</span>
-      <span class="kpi__value kpi__value--bad">{{ outOfStock().length }}</span>
-    </div>
+    <pk-kpi label="Sem estoque" [value]="outOfStock().length" tone="danger" [loading]="loading()" />
 
-    <div class="kpi">
-      <span class="kpi__label">Entradas no período</span>
-      <span class="kpi__value kpi__value--ok">+{{ totalIn() }}</span>
-    </div>
+    <pk-kpi label="Entradas no período" [value]="'+' + totalIn()" tone="success" [loading]="loading()" />
 
-    <div class="kpi">
-      <span class="kpi__label">Saídas no período</span>
-      <span class="kpi__value kpi__value--bad">−{{ totalOut() }}</span>
-    </div>
+    <pk-kpi label="Saídas no período" [value]="'−' + totalOut()" tone="danger" [loading]="loading()" />
 
-    <div class="kpi">
-      <span class="kpi__label">Saldo do período</span>
-      <span class="kpi__value" [class.kpi__value--ok]="balance() > 0" [class.kpi__value--bad]="balance() < 0">
-        {{ balance() > 0 ? '+' : '' }}{{ balance() }}
-      </span>
-    </div>
+    <pk-kpi label="Saldo do período"
+            [value]="(balance() > 0 ? '+' : '') + balance()"
+            [tone]="balance() > 0 ? 'success' : balance() < 0 ? 'danger' : 'default'"
+            [loading]="loading()" />
   </div>
 
   <!-- ─── Fluxo diário ────────────────────────────────────────────────────── -->
-  <section class="card">
-    <h2 class="card__title">Entradas e saídas por dia</h2>
-    <p class="card__hint">
-      A base guarda o estoque resultante, não a diferença — entrada e saída aqui
-      são a variação de um movimento para o anterior.
-    </p>
+  <pk-card
+    title="Entradas e saídas por dia"
+    hint="A base guarda o estoque resultante, não a diferença — entrada e saída aqui são a variação de um movimento para o anterior.">
 
     <div class="flow">
       @for (day of dailyFlow(); track day.key) {
@@ -107,7 +86,9 @@
           </span>
         </div>
       } @empty {
-        <p class="card__empty">Nenhuma movimentação no período.</p>
+        <pk-empty [compact]="true" icon="pi pi-chart-bar"
+                  title="Nenhuma movimentação no período"
+                  subtitle="Aumente o período ou lance uma entrada em Movimentações." />
       }
     </div>
 
@@ -121,60 +102,43 @@
         <span><i class="dot dot--danger"></i> saídas</span>
       </div>
     }
-  </section>
+  </pk-card>
 
   <div class="two-col">
     <!-- ─── Mais movimentados ─────────────────────────────────────────────── -->
-    <section class="card">
-      <h2 class="card__title">Mais movimentados</h2>
-      <p class="card__hint">Entradas e saídas somadas no período.</p>
-
+    <pk-card title="Mais movimentados" hint="Entradas e saídas somadas no período.">
       @for (row of topMoved(); track row.product.systemCode) {
-        <div class="rank">
-          <span class="rank__label" [pTooltip]="row.product.systemCode" tooltipPosition="left">
-            {{ row.product.name }}
-          </span>
-          <span class="rank__track">
-            <span class="rank__bar" [style.width.%]="row.percent"></span>
-          </span>
-          <span class="rank__value">{{ row.moved }}</span>
-        </div>
+        <pk-bar [label]="row.product.name"
+                [sub]="row.product.systemCode"
+                [percent]="row.percent"
+                [value]="row.moved" />
       } @empty {
-        <p class="card__empty">Nenhuma movimentação no período.</p>
+        <pk-empty [compact]="true" title="Nenhuma movimentação no período" />
       }
-    </section>
+    </pk-card>
 
     <!-- ─── Situação do estoque ───────────────────────────────────────────── -->
-    <section class="card">
-      <h2 class="card__title">Situação do estoque</h2>
-      <p class="card__hint">Posição de hoje, independente do período escolhido.</p>
-
+    <pk-card title="Situação do estoque" hint="Posição de hoje, independente do período escolhido.">
       @for (slice of healthSlices(); track slice.label) {
-        <div class="rank">
-          <span class="rank__label">{{ slice.label }}</span>
-          <span class="rank__track">
-            <span class="rank__bar" [class]="'rank__bar rank__bar--' + slice.tone" [style.width.%]="slice.percent"></span>
-          </span>
-          <span class="rank__value">{{ slice.count }}</span>
-        </div>
+        <pk-bar [label]="slice.label"
+                [percent]="slice.percent"
+                [value]="slice.count"
+                [tone]="slice.tone" />
       } @empty {
-        <p class="card__empty">Nenhum produto cadastrado.</p>
+        <pk-empty [compact]="true" title="Nenhum produto cadastrado" />
       }
 
       @if (belowMinimum().length > 0) {
-        <a class="card__link" routerLink="/stock/movements">
+        <a class="card-link" routerLink="/stock/movements">
           <i class="pi pi-arrow-right"></i> Repor os {{ belowMinimum().length }} abaixo do mínimo
         </a>
       }
-    </section>
+    </pk-card>
   </div>
 
   <div class="two-col">
     <!-- ─── Estoque parado ────────────────────────────────────────────────── -->
-    <section class="card">
-      <h2 class="card__title">Estoque parado</h2>
-      <p class="card__hint">Tem saldo, mas não movimenta há 90 dias ou mais.</p>
-
+    <pk-card title="Estoque parado" hint="Tem saldo, mas não movimenta há 90 dias ou mais.">
       @for (item of idle(); track item.product.systemCode) {
         <div class="idle">
           <span class="idle__name">{{ item.product.name }}</span>
@@ -182,15 +146,14 @@
           <span class="idle__when">{{ idleLabel(item.idleDays) }}</span>
         </div>
       } @empty {
-        <p class="card__empty">Nada parado — todo produto com saldo girou nos últimos 90 dias.</p>
+        <pk-empty [compact]="true" icon="pi pi-check-circle"
+                  title="Nada parado"
+                  subtitle="Todo produto com saldo girou nos últimos 90 dias." />
       }
-    </section>
+    </pk-card>
 
     <!-- ─── Últimas movimentações ─────────────────────────────────────────── -->
-    <section class="card">
-      <h2 class="card__title">Últimas movimentações</h2>
-      <p class="card__hint">De todos os produtos, mais recentes primeiro.</p>
-
+    <pk-card title="Últimas movimentações" hint="De todos os produtos, mais recentes primeiro.">
       @for (item of feed(); track item.product + item.date) {
         <div class="feed">
           <span class="feed__delta" [class.feed__delta--out]="item.delta < 0">
@@ -202,9 +165,9 @@
           </span>
         </div>
       } @empty {
-        <p class="card__empty">Nenhuma movimentação registrada.</p>
+        <pk-empty [compact]="true" title="Nenhuma movimentação registrada" />
       }
-    </section>
+    </pk-card>
   </div>
 
 </div>

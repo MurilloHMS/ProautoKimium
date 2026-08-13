@@ -1,0 +1,69 @@
+@use 'variables' as v;
+
+:host { display: inline-block; max-width: 100%; }
+
+.pk-seg {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  box-sizing: border-box;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  max-width: 100%;
+  // Com muitas opções em tela estreita, rola em vez de estourar a linha.
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &--fill {
+    display: flex;
+    width: 100%;
+
+    .pk-seg__btn { flex: 1 1 0; }
+  }
+}
+
+.pk-seg__btn {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--app-text-muted);
+  font-family: v.$font-body;
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+
+  &:hover:not(:disabled):not(.pk-seg__btn--on) {
+    color: var(--app-action);
+    background: var(--app-surface-2);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+
+  &:disabled { opacity: .45; cursor: default; }
+
+  &--on {
+    background: var(--app-action);
+    color: var(--app-on-action, #fff);
+  }
+
+  .pk-seg--sm & {
+    height: 26px;
+    padding: 0 12px;
+    font-size: var(--text-micro);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-seg__btn { transition: none; }
+}

@@ -1,0 +1,24 @@
+<section class="pk-card" [class.pk-card--flush]="flush()">
+
+  @if (title() || icon()) {
+    <header class="pk-card__head">
+      <div class="pk-card__heading">
+        <h2 class="pk-card__title">
+          @if (icon()) { <i [class]="icon()"></i> }
+          {{ title() }}
+        </h2>
+        @if (hint()) {
+          <p class="pk-card__hint">{{ hint() }}</p>
+        }
+      </div>
+
+      <div class="pk-card__actions">
+        <ng-content select="[actions]" />
+      </div>
+    </header>
+  }
+
+  <div class="pk-card__body">
+    <ng-content />
+  </div>
+</section>

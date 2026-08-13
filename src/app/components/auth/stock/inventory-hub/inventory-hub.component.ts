@@ -8,6 +8,12 @@ import { catchError, from, mergeMap, of, tap, toArray } from 'rxjs';
 import { InventoryMovement, InventoryProductResponse } from '../../../../domain/models/products.model';
 import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
+import { PkBarComponent, PkBarTone } from '../../../theme/ProautoKimium/pk-bar/pk-bar.component';
+import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkCardComponent } from '../../../theme/ProautoKimium/pk-card/pk-card.component';
+import { PkEmptyComponent } from '../../../theme/ProautoKimium/pk-empty/pk-empty.component';
+import { PkKpiComponent } from '../../../theme/ProautoKimium/pk-kpi/pk-kpi.component';
+import { PkSegmentedComponent } from '../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 
 /** Requisições simultâneas ao buscar o histórico produto a produto. */
 const CONCURRENCY = 6;
@@ -58,7 +64,11 @@ interface FeedItem {
 @Component({
   selector: 'app-inventory-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, Tooltip, PageHeaderComponent],
+  imports: [
+    CommonModule, RouterLink, Tooltip, PageHeaderComponent,
+    PkBarComponent, PkButtonComponent, PkCardComponent, PkEmptyComponent,
+    PkKpiComponent, PkSegmentedComponent,
+  ],
   templateUrl: './inventory-hub.component.html',
   styleUrl: './inventory-hub.component.scss',
 })
@@ -83,7 +93,11 @@ export class InventoryHubComponent implements OnInit {
 
   /** Janela dos indicadores de fluxo. O estoque atual não depende dela. */
   readonly periodDays = signal(30);
-  readonly periodOptions = [7, 30, 90];
+  readonly periodSegments = [
+    { label: '7 dias', value: 7 },
+    { label: '30 dias', value: 30 },
+    { label: '90 dias', value: 90 },
+  ];
 
   readonly progress = computed(() => {
     const total = this.total();
@@ -165,17 +179,21 @@ export class InventoryHubComponent implements OnInit {
       .slice(0, 8));
 
   /** Situação do estoque, para a barra de distribuição. */
-  readonly healthSlices = computed(() => {
+  readonly healthSlices = computed<{ label: string; count: number; percent: number; tone: PkBarTone }[]>(() => {
     const total = this.summaries().length || 1;
     const zero = this.outOfStock().length;
     const below = this.belowMinimum().filter(item => item.stock > 0).length;
     const ok = this.summaries().length - zero - below;
 
-    return [
+    // Tipado antes do filter: o `.filter` corta a inferência contextual e o
+    // literal 'success' voltaria a ser um string qualquer.
+    const slices: { label: string; count: number; percent: number; tone: PkBarTone }[] = [
       { label: 'Dentro do mínimo', count: ok, percent: Math.round((ok / total) * 100), tone: 'success' },
       { label: 'Abaixo do mínimo', count: below, percent: Math.round((below / total) * 100), tone: 'warning' },
       { label: 'Sem estoque', count: zero, percent: Math.round((zero / total) * 100), tone: 'danger' },
-    ].filter(slice => slice.count > 0);
+    ];
+
+    return slices.filter(slice => slice.count > 0);
   });
 
   /** Os oito que mais giraram no período — entradas e saídas somadas. */

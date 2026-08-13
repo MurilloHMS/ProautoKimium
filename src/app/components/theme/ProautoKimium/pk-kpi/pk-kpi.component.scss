@@ -1,0 +1,70 @@
+@use 'variables' as v;
+
+:host { display: block; }
+
+.pk-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 18px 20px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+
+  &--hero {
+    background: linear-gradient(135deg, var(--app-action-soft), var(--app-surface));
+    border-color: color-mix(in srgb, var(--app-action) 35%, transparent);
+  }
+}
+
+.pk-kpi__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-head);
+  color: var(--app-text-subtle);
+
+  i { font-size: 0.8rem; }
+}
+
+.pk-kpi__value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--app-text);
+  // Números de tamanhos diferentes não podem dançar quando o valor muda.
+  font-variant-numeric: tabular-nums;
+
+  &--success { color: var(--app-success); }
+  &--warning { color: var(--app-warning); }
+  &--danger  { color: var(--app-danger); }
+}
+
+.pk-kpi__unit {
+  margin-left: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--app-text-subtle);
+}
+
+.pk-kpi__skeleton { color: var(--app-text-subtle); }
+
+.pk-kpi__sub {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.35;
+}
+
+// No celular o número não precisa ser tão grande quanto no desktop: o cartão
+// ocupa a largura toda e o rótulo já dá o contexto.
+@media (max-width: v.$bp-sm) {
+  .pk-kpi { padding: 14px 16px; }
+  .pk-kpi__value { font-size: 1.5rem; }
+}

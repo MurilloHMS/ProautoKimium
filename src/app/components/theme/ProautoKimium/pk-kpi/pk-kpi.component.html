@@ -1,0 +1,19 @@
+<div class="pk-kpi" [class.pk-kpi--hero]="hero()">
+
+  <span class="pk-kpi__label">
+    @if (icon()) { <i [class]="icon()"></i> }
+    {{ label() }}
+  </span>
+
+  <span class="pk-kpi__value" [class]="'pk-kpi__value pk-kpi__value--' + tone()">
+    @if (loading()) {
+      <span class="pk-kpi__skeleton" aria-label="Carregando">—</span>
+    } @else {
+      {{ value() }}@if (unit()) { <small class="pk-kpi__unit">{{ unit() }}</small> }
+    }
+  </span>
+
+  @if (sub()) {
+    <span class="pk-kpi__sub">{{ sub() }}</span>
+  }
+</div>
