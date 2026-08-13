@@ -1,0 +1,335 @@
+@use 'variables' as v;
+
+// Frame `Login · Acesso` (node 49:2). Tela cheia em navy escuro, com dois
+// brilhos ao fundo, discurso à esquerda e cartão de vidro à direita.
+//
+// Aqui as cores são cravadas de propósito e não seguem os tokens: esta tela é
+// escura nos dois temas, como o desenho — é a porta de entrada de um produto
+// para cliente, não uma tela do ERP.
+
+:host {
+  display: block;
+
+  --ink-900: #0e1538;
+  --teal: #00b9b3;
+  --teal-600: #00a39e;
+  --blue: #202a65;
+}
+
+.login {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 40px 20px calc(40px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--ink-900);
+}
+
+.login__glow {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+
+  &--a {
+    width: 700px;
+    height: 700px;
+    top: -143px;
+    right: -180px;
+  }
+
+  &--b {
+    width: 640px;
+    height: 640px;
+    bottom: -180px;
+    left: -180px;
+  }
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 980px;
+}
+
+// ─── Discurso ───────────────────────────────────────────────────────────────
+.pitch__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 185, 179, 0.3);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 185, 179, 0.12);
+  color: var(--teal);
+  font-family: v.$font-mono;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+
+.pitch__dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+.pitch__title {
+  margin: 20px 0 0;
+  font-family: v.$font-heading;
+  font-size: clamp(2rem, 7vw, 3rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.pitch__title-accent { color: var(--teal); }
+
+.pitch__text {
+  margin: 18px 0 0;
+  max-width: 380px;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.pitch__pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+// ─── Cartão ─────────────────────────────────────────────────────────────────
+.card {
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.card__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 1px 6px rgba(255, 255, 255, 0.35);
+
+  img { width: 40px; height: 40px; object-fit: contain; }
+}
+
+.card__title {
+  margin: 20px 0 0;
+  font-family: v.$font-heading;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.card__sub {
+  margin: 4px 0 24px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.field__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: border-color .15s ease;
+
+  &:focus-within { border-color: var(--teal); }
+
+  i {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85rem;
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-family: v.$font-body;
+    font-size: 0.88rem;
+
+    &::placeholder { color: rgba(255, 255, 255, 0.35); }
+    &:focus { outline: none; }
+
+    // O preenchimento automático do Chrome pinta o campo de branco e some
+    // com o texto claro. A sombra interna repinta sem tocar no valor.
+    &:-webkit-autofill {
+      -webkit-text-fill-color: #fff;
+      -webkit-box-shadow: 0 0 0 60px #171e42 inset;
+      caret-color: #fff;
+    }
+  }
+}
+
+.field__label + .field { margin-bottom: 16px; }
+.field { margin-bottom: 16px; }
+
+.field__error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -10px 0 14px;
+  font-size: 0.72rem;
+  color: #ff8f8f;
+}
+
+.aux {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 0.75rem;
+}
+
+.aux__remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+
+  input {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--teal);
+    cursor: pointer;
+  }
+}
+
+.aux__link {
+  color: var(--teal);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+.card__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 100, 100, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 80, 80, 0.12);
+  color: #ffb4b4;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(173deg, #00b9b3 0%, #00a39e 100%);
+  box-shadow: 0 10px 15px rgba(0, 185, 179, 0.45);
+  color: var(--blue);
+  font-family: v.$font-body;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s ease, box-shadow .15s ease;
+
+  &:hover:not(:disabled) { filter: brightness(1.05); }
+
+  &:disabled {
+    opacity: .55;
+    box-shadow: none;
+    cursor: default;
+  }
+}
+
+.card__or {
+  margin: 16px 0;
+  text-align: center;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.card__signup {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+
+  a {
+    color: var(--teal);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ─── Desktop ────────────────────────────────────────────────────────────────
+@media (min-width: v.$bp-lg) {
+  .stage {
+    grid-template-columns: 460px 460px;
+    gap: 60px;
+    justify-content: center;
+  }
+
+  .card { padding: 36px; }
+}
+
+// No celular o discurso vira uma abertura curta: o cartão é o que importa, e
+// três pilares e um parágrafo empurrariam o formulário para fora da tela.
+@media (max-width: v.$bp-lg) {
+  .pitch__text,
+  .pitch__pillars { display: none; }
+
+  .pitch__title { font-size: clamp(1.6rem, 8vw, 2.2rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submit { transition: none; }
+}

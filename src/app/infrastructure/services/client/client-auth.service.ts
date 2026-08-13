@@ -21,20 +21,30 @@ export class ClientAuthService {
 
   private readonly http = inject(HttpClient);
 
-  /** Aceita e-mail ou CNPJ, com ou sem pontuação — a API resolve os dois. */
-  login(login: string, password: string): Observable<LoginResponseDTO> {
+  /**
+   * Aceita e-mail ou CNPJ, com ou sem pontuação — a API resolve os dois.
+   *
+   * Sem "lembrar de mim", a sessão vai para o `sessionStorage` e morre quando
+   * a aba fecha. O portal é usado em computador compartilhado de recepção;
+   * a caixa desmarcada precisa significar alguma coisa.
+   */
+  login(login: string, password: string, remember = true): Observable<LoginResponseDTO> {
     this.logout();
 
     return this.http.post<LoginResponseDTO>(`${environment.apiUrl}/auth/login`, { login, password })
-      .pipe(tap(response => localStorage.setItem(CLIENT_TOKEN_KEY, response.token)));
+      .pipe(tap(response => {
+        const store = remember ? localStorage : sessionStorage;
+        store.setItem(CLIENT_TOKEN_KEY, response.token);
+      }));
   }
 
   logout(): void {
     localStorage.removeItem(CLIENT_TOKEN_KEY);
+    sessionStorage.removeItem(CLIENT_TOKEN_KEY);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(CLIENT_TOKEN_KEY);
+    return localStorage.getItem(CLIENT_TOKEN_KEY) ?? sessionStorage.getItem(CLIENT_TOKEN_KEY);
   }
 
   isLoggedIn(): boolean {
