@@ -269,6 +269,22 @@ export class ClientDashboardComponent {
     return valor > 0 ? `+${valor}%` : `${valor}%`;
   }
 
+  /**
+   * Valor curto para caber em cima da coluna: `R$ 17,0 mil`, `R$ 3,7 mi`.
+   *
+   * O valor cheio continua no tooltip — aqui o que importa é comparar alturas,
+   * e `R$ 17.000,92` em cima de uma barra de 54px não cabe nem ajuda.
+   */
+  compacto(valor: number): string {
+    if (valor >= 1_000_000) return `R$ ${this.decimal(valor / 1_000_000, 1)} mi`;
+    if (valor >= 1_000) return `R$ ${this.decimal(valor / 1_000, 1)} mil`;
+    return this.money(valor);
+  }
+
+  /** O ano só entra no rótulo quando a série cruza a virada. */
+  readonly serieCruzaAno = computed(() =>
+    new Set(this.serie().map(mes => mes.key.slice(0, 4))).size > 1);
+
   setMonth(value: string): void {
     this.month.set(value);
   }

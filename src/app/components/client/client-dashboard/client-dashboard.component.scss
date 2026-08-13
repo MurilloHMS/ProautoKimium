@@ -550,23 +550,48 @@
 // ─── Gráfico de colunas ─────────────────────────────────────────────────────
 // CSS puro, como nos hubs internos: o projeto não tem biblioteca de gráfico e
 // uma série de doze colunas não justifica acrescentar uma.
+//
+// As colunas têm largura fixa e ficam à esquerda: com dois meses, esticar até
+// a borda da tela deixa duas barras perdidas no meio do nada.
 .chart {
+  position: relative;
+  height: 200px;
+  margin-top: 8px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.chart__grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  border-top: 1px dashed var(--app-border);
+
+  &--top { top: 0; }
+  &--mid { top: 50%; }
+}
+
+.chart__cols {
+  position: relative;
   display: flex;
   align-items: flex-end;
-  gap: 6px;
-  height: 180px;
-  padding-top: 8px;
+  gap: 14px;
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .chart__col {
-  flex: 1 1 0;
-  min-width: 0;
+  position: relative;   // o rótulo é absoluto e se ancora nesta coluna
+  flex: 0 0 auto;
+  width: 64px;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 0;
   border: none;
   background: transparent;
@@ -577,26 +602,40 @@
   &--on {
     .chart__bar { background: var(--portal-blue); }
     .chart__label { color: var(--app-text); font-weight: 700; }
+    .chart__value { color: var(--app-text); font-weight: 700; }
   }
+}
+
+.chart__value {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .chart__bar {
   width: 100%;
-  max-width: 54px;
-  min-height: 3px;
+  min-height: 4px;
   border-radius: 6px 6px 0 0;
   background: var(--portal-teal);
   transition: height .25s ease, background .15s ease;
 }
 
 .chart__label {
+  position: absolute;
+  bottom: -20px;
   font-size: var(--text-micro);
   color: var(--app-text-subtle);
   white-space: nowrap;
+
+  small { opacity: .7; }
 }
 
 .chart__hint {
-  margin: 10px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 26px 0 0;
   font-size: 0.7rem;
   color: var(--app-text-subtle);
 }
