@@ -12,9 +12,12 @@ export interface Customer {
 
 /** Uma pessoa com acesso ao portal por este cliente. */
 export interface ClientUser {
-  login: string;
+  /** Nulo enquanto o convite não foi aceito: o usuário só nasce no primeiro acesso. */
+  login: string | null;
   email: string;
   active: boolean;
+  /** Convite enviado e ainda não usado. Some sozinho quando vence. */
+  pending: boolean;
 }
 
 export interface CustomerResponse {

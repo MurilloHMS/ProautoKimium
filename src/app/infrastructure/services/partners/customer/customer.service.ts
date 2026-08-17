@@ -34,6 +34,19 @@ export class CustomerService {
   }
 
   /**
+   * Convida alguém para o portal. A API cria o convite e manda o link por
+   * e-mail; o usuário só passa a existir quando a pessoa define a senha.
+   *
+   * Uma chamada só, e sem senha: quem convida escolhe o endereço, e o convite
+   * fica preso a ele até ser usado.
+   */
+  invite(codParceiro: string, email: string): Observable<string> {
+    return this.http.post(`${environment.apiUrl}/customer/${codParceiro}/users`, { email }, {
+      responseType: 'text',
+    });
+  }
+
+  /**
    * Liga uma pessoa a um cliente. A API acrescenta a role CLIENTE junto — sem
    * ela o portal recusa e a pessoa entra numa tela vazia.
    */
