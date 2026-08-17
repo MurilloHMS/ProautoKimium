@@ -1,107 +1,64 @@
-<div class="login">
+<app-client-auth-layout
+  title="Acesse sua conta"
+  subtitle="Use seu e-mail corporativo ou CNPJ para entrar.">
 
-  <!-- Brilhos do fundo, exportados do arquivo. Decorativos: fora do fluxo e
-       invisíveis para leitor de tela. -->
-  <img class="login__glow login__glow--a" src="/assets/icons/login-glow-1.svg" alt="" aria-hidden="true" />
-  <img class="login__glow login__glow--b" src="/assets/icons/login-glow-2.svg" alt="" aria-hidden="true" />
+  <form [formGroup]="form" (ngSubmit)="login()" novalidate>
 
-  <!-- Sai do portal para o site. `href` e não routerLink pelo mesmo motivo do
-       botão que traz para cá: a volta é entre duas áreas com cascas próprias. -->
-  <a class="back" href="/">
-    <i class="pi pi-arrow-left"></i>
-    <span>Voltar ao site</span>
-  </a>
+    <label class="field__label" for="login">E-MAIL OU CNPJ</label>
+    <div class="field">
+      <i class="pi pi-envelope"></i>
+      <input
+        type="text"
+        id="login"
+        formControlName="login"
+        placeholder="email@seudominio.com.br"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false" />
+    </div>
+    @if (form.get('login')?.touched && form.get('login')?.invalid) {
+      <small class="field__error"><i class="pi pi-exclamation-circle"></i> Informe seu e-mail ou CNPJ.</small>
+    }
 
-  <div class="stage">
+    <label class="field__label" for="password">SENHA</label>
+    <div class="field">
+      <i class="pi pi-shield"></i>
+      <input
+        type="password"
+        id="password"
+        formControlName="password"
+        placeholder="••••••••••"
+        autocomplete="current-password" />
+    </div>
 
-    <!-- ─── Discurso ────────────────────────────────────────────────────── -->
-    <section class="pitch">
-      <span class="pitch__badge"><i class="pitch__dot"></i> ÁREA DO CLIENTE</span>
+    <div class="aux">
+      <label class="aux__remember">
+        <input type="checkbox" formControlName="remember" />
+        <span>Lembrar de mim</span>
+      </label>
 
-      <h1 class="pitch__title">
-        Higiene profissional,<br />
-        <span class="pitch__title-accent">controle total.</span>
-      </h1>
+      <a routerLink="/cliente/esqueci-senha" class="aux__link">Esqueci minha senha</a>
+    </div>
 
-      <p class="pitch__text">
-        Acompanhe seu consumo, faturamento e manutenções — em um só lugar.
+    @if (errorMessage) {
+      <p class="card__error" role="alert">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ errorMessage }}</span>
       </p>
+    }
 
-      <ul class="pitch__pillars">
-        <li><i class="pitch__dot"></i> Seus números do mês</li>
-        <li><i class="pitch__dot"></i> Histórico por unidade</li>
-        <li><i class="pitch__dot"></i> Horas técnicas detalhadas</li>
-      </ul>
-    </section>
+    <button type="submit" class="submit" [disabled]="form.invalid || loading">
+      <span>{{ loading ? 'Entrando…' : 'Entrar' }}</span>
+      <i class="pi" [class.pi-arrow-right]="!loading" [class.pi-spin]="loading" [class.pi-spinner]="loading"></i>
+    </button>
+  </form>
 
-    <!-- ─── Cartão de acesso ────────────────────────────────────────────── -->
-    <section class="card">
-      <span class="card__mark">
-        <img src="/logo.png" alt="Proauto Kimium" />
-      </span>
+  <p class="card__or">— OU —</p>
 
-      <h2 class="card__title">Acesse sua conta</h2>
-      <p class="card__sub">Use seu e-mail corporativo ou CNPJ para entrar.</p>
-
-      <form [formGroup]="form" (ngSubmit)="login()" novalidate>
-
-        <label class="field__label" for="login">E-MAIL OU CNPJ</label>
-        <div class="field">
-          <i class="pi pi-envelope"></i>
-          <input
-            type="text"
-            id="login"
-            formControlName="login"
-            placeholder="email@seudominio.com.br"
-            autocomplete="username"
-            autocapitalize="none"
-            spellcheck="false" />
-        </div>
-        @if (form.get('login')?.touched && form.get('login')?.invalid) {
-          <small class="field__error"><i class="pi pi-exclamation-circle"></i> Informe seu e-mail ou CNPJ.</small>
-        }
-
-        <label class="field__label" for="password">SENHA</label>
-        <div class="field">
-          <i class="pi pi-shield"></i>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            placeholder="••••••••••"
-            autocomplete="current-password" />
-        </div>
-
-        <div class="aux">
-          <label class="aux__remember">
-            <input type="checkbox" formControlName="remember" />
-            <span>Lembrar de mim</span>
-          </label>
-
-          <a routerLink="/login/forgot-password" class="aux__link">Esqueci minha senha</a>
-        </div>
-
-        @if (errorMessage) {
-          <p class="card__error" role="alert">
-            <i class="pi pi-exclamation-circle"></i>
-            <span>{{ errorMessage }}</span>
-          </p>
-        }
-
-        <button type="submit" class="submit" [disabled]="form.invalid || loading">
-          <span>{{ loading ? 'Entrando…' : 'Entrar' }}</span>
-          <i class="pi" [class.pi-arrow-right]="!loading" [class.pi-spin]="loading" [class.pi-spinner]="loading"></i>
-        </button>
-      </form>
-
-      <p class="card__or">— OU —</p>
-
-      <p class="card__signup">
-        Primeiro acesso?
-        <a href="mailto:sac@proautokimium.com.br?subject=Acesso%20%C3%A0%20%C3%81rea%20do%20Cliente">
-          Solicite seu cadastro
-        </a>
-      </p>
-    </section>
-  </div>
-</div>
+  <p class="card__signup">
+    Primeiro acesso?
+    <a href="mailto:sac@proautokimium.com.br?subject=Acesso%20%C3%A0%20%C3%81rea%20do%20Cliente">
+      Solicite seu cadastro
+    </a>
+  </p>
+</app-client-auth-layout>
