@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { ClientAuthLayoutComponent } from '../../../layouts/client-auth-layout/client-auth-layout.component';
 import { ClientAccessService } from '../../../infrastructure/services/client/client-access.service';
+import { apiMessage } from '../../../domain/utils/api-error';
 import { PASSWORD_RULES, passwordStrengthValidator, passwordsMatchValidator } from '../../../domain/utils/password-rules';
 
 /**
@@ -72,7 +73,13 @@ export class ClientResetPasswordComponent {
 
   private messageFor(err: HttpErrorResponse): string {
     if (err.status === 0) return 'Sem conexão com o servidor. Tente novamente.';
-    if (err.status === 400) return 'Código inválido, expirado ou já utilizado. Peça um novo código.';
+
+    // Código vencido e senha recusada chegam os dois como 400; o servidor
+    // distingue, a tela não.
+    if (err.status === 400) {
+      return apiMessage(err) ?? 'Código inválido, expirado ou já utilizado. Peça um novo código.';
+    }
+
     return 'Não foi possível redefinir a senha agora. Tente novamente em alguns minutos.';
   }
 }

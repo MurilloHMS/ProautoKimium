@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { ClientAuthLayoutComponent } from '../../../layouts/client-auth-layout/client-auth-layout.component';
 import { ClientAccessService } from '../../../infrastructure/services/client/client-access.service';
+import { apiMessage } from '../../../domain/utils/api-error';
 import { PASSWORD_RULES, passwordStrengthValidator, passwordsMatchValidator } from '../../../domain/utils/password-rules';
 
 type Stage = 'checking' | 'form' | 'expired' | 'done';
@@ -110,7 +111,14 @@ export class ClientFirstAccessComponent {
     if (err.status === 0) return 'Sem conexão com o servidor. Tente novamente.';
     if (err.status === 409) return 'Este e-mail já tem acesso. Use "Esqueci minha senha" para entrar.';
     if (err.status === 403) return 'Este cliente está inativo. Fale com o seu contato na Proauto Kimium.';
-    if (err.status === 400) return 'Convite inválido ou já utilizado. Peça um novo à Proauto Kimium.';
+
+    // 400 tem duas causas aqui: o convite venceu ou a senha foi recusada pela
+    // regra do servidor. Só o servidor sabe qual — e a segunda é a única que a
+    // pessoa consegue resolver sozinha, então a mensagem dele vem na frente.
+    if (err.status === 400) {
+      return apiMessage(err) ?? 'Convite inválido ou já utilizado. Peça um novo à Proauto Kimium.';
+    }
+
     return 'Não foi possível criar o acesso agora. Tente novamente em alguns minutos.';
   }
 }
