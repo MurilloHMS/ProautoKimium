@@ -8,7 +8,6 @@ import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ClientUser, Customer } from '../../../../domain/models/customer.model';
 import { CustomerService } from '../../../../infrastructure/services/partners/customer/customer.service';
-import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { CustomerStore } from '../../../../infrastructure/state/customer.store';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
@@ -57,7 +56,6 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
   // ─── Acessos ao portal ────────────────────────────────────────────────────
 
   private readonly customerService = inject(CustomerService);
-  private readonly authService = inject(AuthService);
 
   readonly accessCustomer = signal<Customer | null>(null);
   readonly accessUsers = signal<ClientUser[]>([]);
@@ -65,7 +63,8 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
   readonly accessSaving = signal(false);
 
   /**
-   * Formulário do convite. A senha é provisória: ver o aviso na tela.
+   * Formulário do convite: um campo só. Quem define a senha é a pessoa
+   * convidada, na tela do portal — aqui ninguém escolhe senha de ninguém.
    *
    * Montado no construtor, e não como inicializador de campo: o campo seria
    * avaliado antes de o construtor atribuir o FormBuilder, e a chamada
@@ -100,51 +99,50 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
     });
   }
 
-  /**
-   * Cria o usuário e vincula em seguida — são duas chamadas porque a API não
-   * tem um "criar acesso" único. Se a segunda falhar, o usuário fica criado e
-   * sem portal, então a mensagem diz exatamente isso em vez de "erro".
-   */
+  /** Uma chamada: a API cria o convite e envia o link. O usuário nasce depois. */
   invite(): void {
     const customer = this.accessCustomer();
     if (!customer || this.inviteForm.invalid || this.accessSaving()) return;
 
-    const { nome, email, password } = this.inviteForm.value;
-    const login = loginFrom(String(nome), String(email));
+    const email = String(this.inviteForm.value.email).trim();
 
     this.accessSaving.set(true);
 
-    this.authService.registerUser({
-      login,
-      email: String(email),
-      password: String(password),
-      roles: ['CLIENTE'],
-    }).subscribe({
-      next: () => this.linkInvited(login, customer.codParceiro),
-      error: err => {
-        this.accessSaving.set(false);
-        this.toast('error', err?.error || 'Não foi possível criar o acesso');
-      },
-    });
-  }
-
-  private linkInvited(login: string, codParceiro: string): void {
-    this.customerService.linkUser(login, codParceiro).subscribe({
+    this.customerService.invite(customer.codParceiro, email).subscribe({
       next: () => {
         this.accessSaving.set(false);
         this.inviteForm.reset();
-        this.toast('success', `Acesso criado para ${login}`);
+        this.toast('success', `Convite enviado para ${email}`);
         this.loadAccess();
       },
-      error: () => {
+      error: err => {
         this.accessSaving.set(false);
-        this.toast('error', `Usuário ${login} foi criado, mas não ficou vinculado. Tente vincular de novo.`);
-        this.loadAccess();
+        this.toast('error', this.inviteErrorFor(err, email));
       },
     });
   }
 
+  /**
+   * O status HTTP diz o que houve — desde que a API pare de responder 500 para
+   * regra recusada, cada caso vira uma frase que a pessoa consegue agir sobre.
+   */
+  private inviteErrorFor(err: { status?: number; error?: unknown }, email: string): string {
+    if (err?.status === 409) return `${email} já tem acesso ou um convite em aberto.`;
+    if (err?.status === 403) return 'Cliente inativo não recebe acesso ao portal.';
+    if (err?.status === 404) return 'Cliente não encontrado.';
+    return typeof err?.error === 'string' && err.error
+      ? err.error
+      : 'Não foi possível enviar o convite';
+  }
+
   removeAccess(user: ClientUser): void {
+    // Convite pendente não tem usuário para desvincular — ele vence sozinho em
+    // 48 horas. Remover teria de apagar o token, e isso a API ainda não faz.
+    if (user.pending || !user.login) {
+      this.toast('info', 'Convite pendente expira sozinho em 48 horas.');
+      return;
+    }
+
     if (!confirm(`Remover o acesso de ${user.login} ao portal?`)) return;
 
     this.customerService.unlinkUser(user.login).subscribe({
@@ -161,10 +159,10 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
     this.mode.set('grid');
   }
 
-  private toast(severity: 'success' | 'error', detail: string): void {
+  private toast(severity: 'success' | 'error' | 'info', detail: string): void {
     this.messageService.add({
       severity,
-      summary: severity === 'success' ? 'Pronto' : 'Erro',
+      summary: { success: 'Pronto', error: 'Erro', info: 'Aviso' }[severity],
       detail,
     });
   }
@@ -190,9 +188,7 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
     });
 
     this.inviteForm = this.fb.group({
-      nome: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
 
@@ -300,19 +296,3 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
 
 }
 
-/**
- * Login a partir do nome e do e-mail: `bruno.rodrigues`, e o trecho antes do
- * arroba quando o nome não serve. Sem acento nem espaço, porque o login é
- * digitado no celular e precisa ser previsível.
- */
-function loginFrom(nome: string, email: string): string {
-  const clean = (value: string) => value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9.]+/g, '.')
-    .replace(/^\.+|\.+$/g, '');
-
-  const fromName = clean(nome);
-  return fromName.length >= 3 ? fromName : clean(email.split('@')[0]);
-}

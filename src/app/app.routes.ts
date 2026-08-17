@@ -179,6 +179,43 @@ export const routes: Routes = [
       { path: '', component: ClientLoginComponent, pathMatch: 'full' },
     ],
   },
+  // Entrada e recuperação de acesso. Ficam fora do `clientLoggedOutGuard` de
+  // propósito: quem chega por um link de e-mail pode ter uma sessão velha no
+  // navegador, e ser mandado para a dashboard em vez de definir a senha é o
+  // beco sem saída que essas telas existem para resolver.
+  {
+    path: 'cliente/primeiro-acesso',
+    component: NoHeaderLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/public/client-first-access/client-first-access.component').then(m => m.ClientFirstAccessComponent),
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: 'cliente/esqueci-senha',
+    component: NoHeaderLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/public/client-forgot-password/client-forgot-password.component').then(m => m.ClientForgotPasswordComponent),
+        pathMatch: 'full',
+      },
+    ],
+  },
+  {
+    path: 'cliente/redefinir-senha',
+    component: NoHeaderLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/public/client-reset-password/client-reset-password.component').then(m => m.ClientResetPasswordComponent),
+        pathMatch: 'full',
+      },
+    ],
+  },
   {
     path: 'cliente',
     loadComponent: () => import('./layouts/client-layout/client-layout.component').then(m => m.ClientLayoutComponent),

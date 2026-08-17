@@ -3,21 +3,20 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
+import { ClientAuthLayoutComponent } from '../../../layouts/client-auth-layout/client-auth-layout.component';
 import { ClientAuthService } from '../../../infrastructure/services/client/client-auth.service';
 
 /**
  * Entrada da Área do Cliente — frame `Login · Acesso` do Figma.
  *
- * Tela cheia, com discurso à esquerda e cartão à direita. Não usa o
- * `app-login-layout` do sistema interno de propósito: aquele é um cartão
- * branco centralizado, e este é outro produto, com identidade própria.
+ * Não usa o `app-login-layout` do sistema interno de propósito: aquele é um
+ * cartão branco centralizado, e este é outro produto, com identidade própria.
  */
 @Component({
   selector: 'app-client-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, ClientAuthLayoutComponent],
   templateUrl: './client-login.component.html',
-  styleUrl: './client-login.component.scss',
 })
 export class ClientLoginComponent {
 

@@ -244,22 +244,29 @@
         @if (accessLoading()) {
           <p class="access__state"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
         } @else {
-          @for (user of accessUsers(); track user.login) {
+          @for (user of accessUsers(); track user.email) {
             <div class="access__row">
               <span class="access__who">
-                <strong>{{ user.login }}</strong>
-                <small>{{ user.email }}</small>
+                <strong>{{ user.login ?? user.email }}</strong>
+                <small>{{ user.pending ? 'Convite enviado, aguardando a senha' : user.email }}</small>
               </span>
 
-              <span class="status-chip" [ngClass]="user.active ? 'status-chip--active' : 'status-chip--inactive'">
-                <i class="pi" [ngClass]="user.active ? 'pi-check' : 'pi-times'"></i>
-                {{ user.active ? 'Ativo' : 'Bloqueado' }}
-              </span>
+              @if (user.pending) {
+                <span class="status-chip status-chip--pending">
+                  <i class="pi pi-clock"></i> Pendente
+                </span>
+              } @else {
+                <span class="status-chip" [ngClass]="user.active ? 'status-chip--active' : 'status-chip--inactive'">
+                  <i class="pi" [ngClass]="user.active ? 'pi-check' : 'pi-times'"></i>
+                  {{ user.active ? 'Ativo' : 'Bloqueado' }}
+                </span>
+              }
 
               <pk-button
                 pkType="delete"
                 pkSize="sm"
                 [pkIconOnly]="true"
+                [pkDisabled]="user.pending"
                 pkTooltip="Remover acesso"
                 (clicked)="removeAccess(user)"/>
             </div>
@@ -273,36 +280,22 @@
 
       <!-- ─── Dar acesso a alguém ─────────────────────────────────────────── -->
       <section class="access__block">
-        <h3 class="access__title"><i class="pi pi-user-plus"></i> Dar acesso</h3>
+        <h3 class="access__title"><i class="pi pi-send"></i> Convidar</h3>
 
         <p class="access__note">
           <i class="pi pi-info-circle"></i>
-          A senha é provisória e você precisa passá-la à pessoa. O primeiro
-          acesso por e-mail ainda não existe para clientes.
+          A pessoa recebe um link por e-mail e escolhe a própria senha. O
+          convite vale 48 horas e uma única vez — ninguém aqui vê ou define
+          senha de cliente.
         </p>
 
         <form [formGroup]="inviteForm" (ngSubmit)="invite()" class="access__form">
           <pk-input
-            label="Nome da pessoa"
-            icon="pi pi-user"
-            placeholder="Nome Cliente"
-            formControlName="nome"
-            [pkRequired]="true"/>
-
-          <pk-input
-            label="E-mail"
+            label="E-mail de quem vai acessar"
             type="email"
             icon="pi pi-envelope"
             placeholder="email@seudominio.com.br"
             formControlName="email"
-            [pkRequired]="true"/>
-
-          <pk-input
-            label="Senha provisória"
-            type="password"
-            icon="pi pi-lock"
-            placeholder="Mínimo 8 caracteres"
-            formControlName="password"
             [pkRequired]="true"/>
         </form>
       </section>
@@ -313,7 +306,7 @@
       <pk-button
         pkType="save"
         pkSize="sm"
-        pkLabel="Criar acesso"
+        pkLabel="Enviar convite"
         [pkDisabled]="inviteForm.invalid"
         [pkLoading]="accessSaving()"
         (clicked)="invite()"/>

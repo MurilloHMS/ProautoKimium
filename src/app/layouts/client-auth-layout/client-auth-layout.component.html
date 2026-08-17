@@ -1,0 +1,49 @@
+<div class="client-auth">
+
+  <!-- Brilhos do fundo, exportados do arquivo. Decorativos: fora do fluxo e
+       invisíveis para leitor de tela. -->
+  <img class="glow glow--a" src="/assets/icons/login-glow-1.svg" alt="" aria-hidden="true" />
+  <img class="glow glow--b" src="/assets/icons/login-glow-2.svg" alt="" aria-hidden="true" />
+
+  <!-- Sai do portal para o site. `href` e não routerLink pelo mesmo motivo do
+       botão que traz para cá: a volta é entre duas áreas com cascas próprias. -->
+  <a class="back" href="/">
+    <i class="pi pi-arrow-left"></i>
+    <span>Voltar ao site</span>
+  </a>
+
+  <div class="stage">
+
+    <!-- ─── Discurso ────────────────────────────────────────────────────── -->
+    <section class="pitch">
+      <span class="pitch__badge"><i class="pitch__dot"></i> ÁREA DO CLIENTE</span>
+
+      <h1 class="pitch__title">
+        {{ headline() }}<br />
+        <span class="pitch__title-accent">{{ headlineAccent() }}</span>
+      </h1>
+
+      <p class="pitch__text">{{ pitch() }}</p>
+
+      <ul class="pitch__pillars">
+        @for (pillar of pillars(); track pillar) {
+          <li><i class="pitch__dot"></i> {{ pillar }}</li>
+        }
+      </ul>
+    </section>
+
+    <!-- ─── Cartão ──────────────────────────────────────────────────────── -->
+    <section class="card">
+      <span class="card__mark">
+        <img src="/logo.png" alt="Proauto Kimium" />
+      </span>
+
+      <h2 class="card__title">{{ title() }}</h2>
+      @if (subtitle()) {
+        <p class="card__sub">{{ subtitle() }}</p>
+      }
+
+      <ng-content />
+    </section>
+  </div>
+</div>
