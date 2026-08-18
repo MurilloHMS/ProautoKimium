@@ -1,5 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { Machine } from '../../domain/models/prostock/machine.model';
 import { MachineService } from '../services/prostock/machine.service';
@@ -8,9 +8,9 @@ import { ReferenceStore } from './reference-store';
 /**
  * Catálogo de máquinas.
  *
- * Três telas leem a mesma lista: Máquinas, Programação (que escolhe a máquina do
- * registro) e o Hub. Cadastrar uma máquina precisa aparecer no seletor da
- * programação na hora, sem recarregar a página.
+ * Duas telas leem a mesma lista: Programação (que escolhe a máquina do registro)
+ * e o Hub. Só leitura — cadastrar máquina agora é cadastrar produto marcando
+ * "é máquina", em Estoque › Produtos.
  */
 @Injectable({ providedIn: 'root' })
 export class MachineStore extends ReferenceStore<Machine> {
@@ -30,23 +30,5 @@ export class MachineStore extends ReferenceStore<Machine> {
   /** Traduz o id gravado no registro. Cai no próprio id se a máquina sumiu. */
   nameOf(machineId: string): string {
     return this.items().find(machine => machine.id === machineId)?.name ?? machineId;
-  }
-
-  /** A API responde texto ("Máquina Cadastrada com sucesso!"), não a entidade. */
-  create(machine: Omit<Machine, 'id'>): Observable<string> {
-    return this.refreshAfter(this.service.create(machine));
-  }
-
-  update(machine: Machine): Observable<string> {
-    return this.refreshAfter(this.service.update(machine));
-  }
-
-  /** Apaga no servidor. O `remove` da base só tira da lista local. */
-  deleteById(id: string): Observable<string> {
-    return this.refreshAfter(this.service.delete(id));
-  }
-
-  private refreshAfter(source: Observable<string>): Observable<string> {
-    return source.pipe(tap(() => this.refresh()));
   }
 }

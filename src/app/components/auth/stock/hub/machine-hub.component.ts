@@ -106,6 +106,10 @@ export class MachineHubComponent implements OnInit {
   readonly typeSlices = computed<Slice[]>(() => {
     const counts = new Map<MachineType, number>();
     for (const machine of this.machineStore.items()) {
+      // Máquina é produto: o tipo é opcional e fica nulo em quem foi cadastrado
+      // pela tela de produtos sem preencher. Sem tipo, fora da distribuição —
+      // um fatia "null" não diria nada a ninguém.
+      if (!machine.machineType) continue;
       counts.set(machine.machineType, (counts.get(machine.machineType) ?? 0) + 1);
     }
     const total = this.totalMachines() || 1;

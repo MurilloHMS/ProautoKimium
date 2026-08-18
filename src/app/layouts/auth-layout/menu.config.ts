@@ -135,7 +135,6 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Hub do Estoque', icon: 'pi pi-fw pi-chart-bar', routerLink: ['stock/inventory-hub'], roles: ['ADMIN', 'ALMOXARIFADO'] },
       { label: 'Produtos', icon: 'pi pi-fw pi-box', routerLink: ['stock/products'], roles: ['ADMIN', 'ALMOXARIFADO'] },
       { label: 'Movimentações', icon: 'pi pi-fw pi-arrow-right-arrow-left', routerLink: ['stock/movements'], roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Máquinas', icon: 'pi pi-fw pi-cog', routerLink: ['stock/machines'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
       { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
     ],
   },
