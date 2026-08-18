@@ -16,7 +16,14 @@
       [loading]="uploading"
       (filesSelected)="onSheetSelected($event)" />
 
-    <!-- Estoque baixo é filtro da mesma grade, não outra tela. -->
+    <!-- Máquina e estoque baixo são recortes da mesma grade, não telas à parte. -->
+    <pk-button
+      [pkType]="kindFilter() === 'all' ? 'filter' : 'cancel'"
+      pkSize="sm"
+      [pkLabel]="kindLabel()"
+      (clicked)="cycleKind()"/>
+
+
     <pk-button
       [pkType]="onlyLowStock() ? 'cancel' : 'filter'"
       pkSize="sm"
@@ -48,6 +55,7 @@
         <tr>
           <th pSortableColumn="systemCode">Código <p-sortIcon field="systemCode"></p-sortIcon></th>
           <th pSortableColumn="name">Produto <p-sortIcon field="name"></p-sortIcon></th>
+          <th class="col-center">Tipo</th>
           <th class="col-center" pSortableColumn="minimumStock">Estoque mínimo <p-sortIcon field="minimumStock"></p-sortIcon></th>
           <th class="col-center">Situação</th>
           <th class="col-center">Ativo</th>
@@ -59,6 +67,15 @@
         <tr class="table-row">
           <td><span class="code-badge">{{ p.systemCode }}</span></td>
           <td>{{ p.name }}</td>
+          <td class="col-center">
+            @if (p.isMachine) {
+              <span class="status-chip status-chip--neutral" [pTooltip]="statusLabel(p.machineStatus)" tooltipPosition="top">
+                <i class="pi pi-cog"></i> Máquina
+              </span>
+            } @else {
+              <span class="text-muted">Insumo</span>
+            }
+          </td>
           <td class="col-center">{{ p.minimumStock }}</td>
           <td class="col-center">
             @if (isLow(p)) {
@@ -92,7 +109,7 @@
 @if (mode() === 'form') {
 <app-form-screen
   [title]="formTitle"
-  subtitle="Código, descrição e estoque mínimo"
+  subtitle="Código, descrição, estoque mínimo — e os dados do modelo, se for máquina"
   (back)="closeForm()">
 
   <form [formGroup]="form" (ngSubmit)="save()">
@@ -115,6 +132,41 @@
       <div class="form-field">
         <pk-checkbox formControlName="active" label="Produto ativo" />
       </div>
+
+      <!--
+        Marcar aqui é o que substitui o cadastro separado de máquinas. Os campos
+        abaixo só aparecem marcados, e são gravados nulos quando desmarcados.
+      -->
+      <div class="form-field">
+        <pk-checkbox formControlName="isMachine" label="É máquina" />
+      </div>
+
+      @if (isMachine()) {
+        <div class="form-field">
+          <label for="brand">Marca</label>
+          <input id="brand" type="text" formControlName="brand" placeholder="Ex: Kimium" />
+        </div>
+
+        <div class="form-field">
+          <label for="machineType">Tipo</label>
+          <select id="machineType" formControlName="machineType">
+            <option [ngValue]="null">Selecione…</option>
+            @for (option of typeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="machineStatus">Situação</label>
+          <select id="machineStatus" formControlName="machineStatus">
+            <option [ngValue]="null">Selecione…</option>
+            @for (option of statusOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+      }
     </div>
   </form>
 

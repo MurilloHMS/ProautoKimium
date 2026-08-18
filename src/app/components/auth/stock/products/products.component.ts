@@ -11,6 +11,7 @@ import { Toast } from 'primeng/toast';
 import { Tooltip } from 'primeng/tooltip';
 
 import { InventoryProduct, InventoryProductResponse } from '../../../../domain/models/products.model';
+import { MACHINE_STATUS_LABEL, MachineStatus, machineStatusOptions, machineTypeOptions } from '../../../../domain/models/prostock/machine.model';
 import { InventoryProductStore } from '../../../../infrastructure/state/inventory-product.store';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
@@ -48,13 +49,51 @@ export class ProductsComponent implements OnInit, TabDirtyCheck {
   readonly onlyLowStock = signal(false);
   private readonly lowStockCodes = signal<ReadonlySet<string>>(new Set<string>());
 
+  /**
+   * Máquina é filtro pelo mesmo motivo do estoque baixo: é um estado desta
+   * grade, não outra tela. Era outra tela até agora, e essa separação é
+   * justamente o que deixava a máquina fora do controle de estoque.
+   */
+  readonly kindFilter = signal<'all' | 'machines' | 'supplies'>('all');
+
+  /** Cicla Todos → Máquinas → Insumos, como o botão de estoque baixo ao lado. */
+  cycleKind(): void {
+    this.kindFilter.update(current =>
+      current === 'all' ? 'machines' : current === 'machines' ? 'supplies' : 'all');
+  }
+
+  readonly kindLabel = computed(() => {
+    switch (this.kindFilter()) {
+      case 'machines': return 'Só máquinas (' + this.machineCount() + ')';
+      case 'supplies': return 'Só insumos';
+      default:         return 'Todos os tipos';
+    }
+  });
+
   readonly products = computed(() => {
-    const all = this.productStore.items();
+    let all = this.productStore.items();
+
+    const kind = this.kindFilter();
+    if (kind === 'machines') all = all.filter(product => product.isMachine);
+    if (kind === 'supplies') all = all.filter(product => !product.isMachine);
+
     if (!this.onlyLowStock()) return all;
 
     const low = this.lowStockCodes();
     return all.filter(product => low.has(product.systemCode));
   });
+
+  readonly machineCount = computed(() => this.productStore.items().filter(p => p.isMachine).length);
+
+  readonly statusOptions = machineStatusOptions();
+  readonly typeOptions = machineTypeOptions();
+
+  /** Os campos de máquina só existem no formulário quando a caixa está marcada. */
+  readonly isMachine = signal(false);
+
+  statusLabel(status: MachineStatus | null | undefined): string {
+    return status ? MACHINE_STATUS_LABEL[status] : '—';
+  }
 
   readonly lowStockCount = computed(() => this.lowStockCodes().size);
 
@@ -73,7 +112,15 @@ export class ProductsComponent implements OnInit, TabDirtyCheck {
       name: ['', Validators.required],
       active: [true, Validators.required],
       minimumStock: [0, Validators.required],
+      isMachine: [false],
+      brand: [''],
+      machineType: [null],
+      machineStatus: [null],
     });
+
+    // Espelha a caixa num signal para o template revelar os campos de máquina
+    // sem precisar consultar o form a cada ciclo de detecção.
+    this.form.get('isMachine')!.valueChanges.subscribe(value => this.isMachine.set(!!value));
   }
 
   /** Cadastro em andamento avisa antes de fechar a aba. */
@@ -119,7 +166,7 @@ export class ProductsComponent implements OnInit, TabDirtyCheck {
   newProduct(): void {
     this.formTitle = 'Adicionar Produto';
     this.productToEdit = null;
-    this.form.reset({ active: true, minimumStock: 0 });
+    this.form.reset({ active: true, minimumStock: 0, isMachine: false, brand: '', machineType: null, machineStatus: null });
     this.form.get('systemCode')?.enable();
     this.mode.set('form');
   }
@@ -132,6 +179,10 @@ export class ProductsComponent implements OnInit, TabDirtyCheck {
       name: product.name,
       active: product.active,
       minimumStock: product.minimumStock,
+      isMachine: product.isMachine,
+      brand: product.brand ?? '',
+      machineType: product.machineType ?? null,
+      machineStatus: product.machineStatus ?? null,
     });
     // O código do sistema é a chave usada pela API; mudar viraria outro produto.
     this.form.get('systemCode')?.disable();

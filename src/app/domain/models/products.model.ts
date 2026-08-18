@@ -1,8 +1,21 @@
+import { MachineStatus, MachineType } from './prostock/machine.model';
+
+/**
+ * Produto de estoque — e máquina, que é um produto marcado.
+ *
+ * `isMachine` é flag e não tipo: a máquina precisa ser produto de estoque ao
+ * mesmo tempo em que é máquina, e um discriminador obrigaria a escolher. Os
+ * três campos seguintes só valem quando ela está marcada.
+ */
 export interface InventoryProduct{
   systemCode: string;
   name: string;
   active: boolean;
   minimumStock: number;
+  isMachine: boolean;
+  brand?: string | null;
+  machineType?: MachineType | null;
+  machineStatus?: MachineStatus | null;
 }
 
 export interface InventoryProductResponse{
@@ -11,6 +24,10 @@ export interface InventoryProductResponse{
   name: string;
   active: boolean;
   minimumStock: number;
+  isMachine: boolean;
+  brand?: string | null;
+  machineType?: MachineType | null;
+  machineStatus?: MachineStatus | null;
 }
 
 /**

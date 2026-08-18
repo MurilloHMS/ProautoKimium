@@ -1,5 +1,5 @@
 /**
- * Máquinas do ProStock.
+ * Máquinas do ProStock — hoje uma projeção de `products` onde `isMachine`.
  *
  * Os nomes dos campos seguem o DTO do desktop (`MachineDTO.java`), inclusive o
  * `minimum_stock` em snake_case — o desktop continua no ar e escreve na mesma
@@ -10,8 +10,9 @@ export interface Machine {
   systemCode: string;
   name: string;
   brand: string;
-  machineType: MachineType;
-  machineStatus: MachineStatus;
+  machineType: MachineType | null;
+  /** Pode vir nulo: são campos do produto, preenchidos só se alguém preencheu. */
+  machineStatus: MachineStatus | null;
   minimum_stock: number;
   active: boolean;
 }

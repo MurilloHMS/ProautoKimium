@@ -2,14 +2,19 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Machine, MachineMovement } from '../../../domain/models/prostock/machine.model';
+import { Machine } from '../../../domain/models/prostock/machine.model';
 import { environment } from '../../../../environments/environment';
 
 /**
- * Catálogo de máquinas e suas movimentações (`api/machine`).
+ * Catálogo de máquinas (`GET api/machine`) — só leitura.
  *
- * A API responde texto nas escritas ("Máquina Cadastrada com sucesso!"), não a
- * entidade salva — por isso o store recarrega em vez de fazer `upsert`.
+ * Máquina deixou de ter cadastro próprio: é um produto marcado com `isMachine`,
+ * criado e alterado em `api/inventory` como qualquer outro. Este endpoint
+ * sobreviveu como projeção sobre `products` porque a Programação e o Hub já o
+ * consomem e não ganhariam nada mudando de endereço.
+ *
+ * A movimentação também saiu daqui: o estoque da máquina é lançado pela mesma
+ * tela dos demais produtos.
  */
 @Injectable({ providedIn: 'root' })
 export class MachineService {
@@ -19,36 +24,5 @@ export class MachineService {
 
   getAll(): Observable<Machine[]> {
     return this.http.get<Machine[]>(this.url);
-  }
-
-  create(machine: Omit<Machine, 'id'>): Observable<string> {
-    return this.http.post(this.url, machine, { responseType: 'text' });
-  }
-
-  update(machine: Machine): Observable<string> {
-    return this.http.put(this.url, machine, { responseType: 'text' });
-  }
-
-  delete(id: string): Observable<string> {
-    return this.http.delete(`${this.url}/${id}`, { responseType: 'text' });
-  }
-
-  // ─── Movimentações da máquina ────────────────────────────────────────────
-
-  getMovements(machineId: string): Observable<MachineMovement[]> {
-    return this.http.get<MachineMovement[]>(`${this.url}/movements/${machineId}`);
-  }
-
-  createMovement(machineId: string, movement: Omit<MachineMovement, 'id'>): Observable<string> {
-    return this.http.post(`${this.url}/movements/${machineId}`, movement, { responseType: 'text' });
-  }
-
-  /** O id do path aqui é o do MOVIMENTO, não o da máquina — a API mistura os dois. */
-  updateMovement(movementId: string, movement: MachineMovement): Observable<string> {
-    return this.http.put(`${this.url}/movements/${movementId}`, movement, { responseType: 'text' });
-  }
-
-  deleteMovement(movementId: string): Observable<string> {
-    return this.http.delete(`${this.url}/movements/${movementId}`, { responseType: 'text' });
   }
 }

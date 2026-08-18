@@ -41,18 +41,22 @@
           <strong>{{ warningCount() }}</strong>
           <span>com aviso</span>
         </div>
-        <div class="summary__item">
+        <div class="summary__item" [class.summary__item--warn]="missingMachines().length > 0">
           <strong>{{ missingMachines().length }}</strong>
-          <span>máquinas a criar</span>
+          <span>máquinas não cadastradas</span>
         </div>
       </div>
 
       @if (missingMachines().length > 0) {
         <div class="notice">
-          <i class="pi pi-info-circle"></i>
+          <i class="pi pi-exclamation-triangle"></i>
           <span>
-            Estas máquinas não estão no cadastro e serão criadas:
-            <em>{{ missingMachines().join(', ') }}</em>
+            Estas máquinas não estão cadastradas:
+            <em>{{ missingMachines().join(', ') }}</em>.
+            Cadastre em <strong>Estoque › Produtos</strong>, marcando
+            <strong>"É máquina"</strong> e com o código do sistema, e importe
+            de novo. A planilha não traz o código, e inventar um criaria um
+            produto duplicado que ninguém consegue reconciliar depois.
           </span>
         </div>
       }
@@ -114,8 +118,16 @@
       <div class="done">
         <p class="done__title">
           <i class="pi pi-check-circle"></i>
-          {{ total() - failed().length }} de {{ total() }} linha(s) importada(s).
+          {{ total() - failed().length - skipped() }} de {{ total() }} linha(s) importada(s).
         </p>
+
+        @if (skipped() > 0) {
+          <p class="import__hint">
+            {{ skipped() }} já estava(m) na programação e foi(ram) pulada(s).
+            Subir a mesma planilha de novo não duplica: a implantação é
+            identificada por máquina, cliente e previsão de saída.
+          </p>
+        }
 
         @if (failed().length > 0) {
           <p class="done__failed">{{ failed().length }} não entrou(aram):</p>
@@ -128,8 +140,8 @@
             }
           </ul>
           <p class="import__hint">
-            Corrija estas na planilha ou direto na grade. Importar de novo
-            duplicaria as que já entraram.
+            Corrija estas na planilha ou direto na grade e importe de novo — as
+            que já entraram não serão duplicadas.
           </p>
         }
       </div>
@@ -140,6 +152,7 @@
     @if (phase() === 'review') {
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()"/>
       <pk-button pkType="save" pkSize="sm"
+                 [pkDisabled]="!canStart"
                  [pkLabel]="'Importar ' + total() + ' linha(s)'" (clicked)="start()"/>
     } @else if (phase() === 'done') {
       <pk-button pkType="save" pkSize="sm" pkLabel="Voltar para a programação" (clicked)="close()"/>
