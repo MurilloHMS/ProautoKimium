@@ -66,7 +66,6 @@ export class NewsletterComponent implements OnInit {
     this.loading = true;
 
     if(fileList.length > 0){
-      console.log("isMatriz:", this.checked);
       this.newsletterService.createNewsletterWithOneFile(fileList[0], this.checked)
         .subscribe({
           next: (msg: string) => {
