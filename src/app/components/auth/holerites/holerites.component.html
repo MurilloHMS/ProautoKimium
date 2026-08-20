@@ -20,16 +20,14 @@
               (click)="setFiltro('TODOS')">
         Todos
       </button>
-      <button class="hl-filter"
-              [class.hl-filter--active]="filtro() === 'SALARIO'"
-              (click)="setFiltro('SALARIO')">
-        <i class="pi pi-wallet"></i> Salário
-      </button>
-      <button class="hl-filter"
-              [class.hl-filter--active]="filtro() === 'ADIANTAMENTO'"
-              (click)="setFiltro('ADIANTAMENTO')">
-        <i class="pi pi-calendar"></i> Adiantamento
-      </button>
+      @for (item of tipos; track item.value) {
+        <button class="hl-filter"
+                [class.hl-filter--active]="filtro() === item.value"
+                [title]="item.label"
+                (click)="setFiltro(item.value)">
+          <i [class]="item.icon"></i> {{ item.curto }}
+        </button>
+      }
     </div>
   }
 
@@ -80,7 +78,8 @@
                   <span class="hl-card__comp">{{ mesLabel(h.competencia) }}</span>
                   <span class="hl-card__meta">
                     <span class="hl-card__badge"
-                          [class.hl-card__badge--adiant]="h.tipo === 'ADIANTAMENTO'">
+                          [class.hl-card__badge--adiant]="h.tipo === 'ADIANTAMENTO'"
+                          [class.hl-card__badge--decimo]="h.tipo.startsWith('DECIMO')">
                       {{ tipoLabel(h.tipo) }}
                     </span>
                     <span class="hl-card__date">{{ h.createdAt | date:'dd/MM/yyyy' }}</span>

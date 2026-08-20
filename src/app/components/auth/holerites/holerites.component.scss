@@ -257,6 +257,13 @@
       background: color-mix(in srgb, var(--app-warning) 16%, transparent);
       color: var(--app-warning);
     }
+
+    // O 13º precisa de cor própria: sem isso ele sai verde, igual a salário, e
+    // na lista do ano os dois ficam indistinguíveis de relance.
+    &--decimo {
+      background: color-mix(in srgb, var(--app-action) 14%, transparent);
+      color: var(--app-action);
+    }
   }
 
   &__date {

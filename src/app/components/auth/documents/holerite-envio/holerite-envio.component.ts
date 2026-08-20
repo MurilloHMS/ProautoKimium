@@ -7,6 +7,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RouterLink } from '@angular/router';
 
 import {
+  HOLERITE_TIPOS,
   HOLERITE_TIPO_LABEL,
   HoleritePreviewItem,
   HoleritePreviewStatus,
@@ -59,6 +60,7 @@ export class HoleriteEnvioComponent {
 
   readonly statusInfo = PREVIEW_STATUS_INFO;
   readonly tipoLabel = HOLERITE_TIPO_LABEL;
+  readonly tipos = HOLERITE_TIPOS;
 
   /** Quantas páginas em cada situação — alimenta o resumo e o texto da confirmação. */
   readonly contagem = computed(() => {

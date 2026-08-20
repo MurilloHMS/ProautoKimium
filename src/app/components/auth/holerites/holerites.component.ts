@@ -4,17 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { animate, style, transition, trigger, query, stagger } from '@angular/animations';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import {
+  HOLERITE_TIPOS,
+  HOLERITE_TIPO_LABEL,
+  Holerite,
+  HoleriteTipo,
+} from '../../../domain/models/hr/holerite.model';
 
-type HoleriteTipo = 'ADIANTAMENTO' | 'SALARIO';
 type Filtro = 'TODOS' | HoleriteTipo;
-
-interface Holerite {
-  id: string;
-  competencia: string;
-  tipo: HoleriteTipo;
-  originalFilename: string;
-  createdAt: string;
-}
 
 interface GrupoAno {
   ano: string;
@@ -46,6 +43,9 @@ export class HoleritesComponent implements OnInit {
   erro = signal(false);
   baixandoId = signal<string | null>(null);
   filtro = signal<Filtro>('TODOS');
+
+  /** Os mesmos tipos do envio, na mesma ordem — uma lista só para as duas telas. */
+  readonly tipos = HOLERITE_TIPOS;
 
   private readonly meses = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -98,7 +98,7 @@ export class HoleritesComponent implements OnInit {
   }
 
   tipoLabel(tipo: HoleriteTipo): string {
-    return tipo === 'ADIANTAMENTO' ? 'Adiantamento' : 'Salário';
+    return HOLERITE_TIPO_LABEL[tipo] ?? tipo;
   }
 
   setFiltro(f: Filtro): void {

@@ -17,18 +17,15 @@
     <div class="envio__campo">
       <label>Tipo</label>
       <div class="envio__tipos">
-        <button type="button"
-                class="envio__tipo"
-                [class.envio__tipo--ativo]="tipo() === 'SALARIO'"
-                (click)="tipo.set('SALARIO'); voltarParaEscolha()">
-          Salário
-        </button>
-        <button type="button"
-                class="envio__tipo"
-                [class.envio__tipo--ativo]="tipo() === 'ADIANTAMENTO'"
-                (click)="tipo.set('ADIANTAMENTO'); voltarParaEscolha()">
-          Adiantamento
-        </button>
+        @for (item of tipos; track item.value) {
+          <button type="button"
+                  class="envio__tipo"
+                  [class.envio__tipo--ativo]="tipo() === item.value"
+                  [title]="item.label"
+                  (click)="tipo.set(item.value); voltarParaEscolha()">
+            <i [class]="item.icon"></i> {{ item.curto }}
+          </button>
+        }
       </div>
     </div>
 

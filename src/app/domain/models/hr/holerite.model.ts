@@ -6,12 +6,38 @@
  * quebrava.
  */
 
-export type HoleriteTipo = 'SALARIO' | 'ADIANTAMENTO';
+export type HoleriteTipo =
+  | 'SALARIO'
+  | 'ADIANTAMENTO'
+  | 'DECIMO_TERCEIRO_1'
+  | 'DECIMO_TERCEIRO_2';
 
-export const HOLERITE_TIPO_LABEL: Record<HoleriteTipo, string> = {
-  SALARIO: 'Salário',
-  ADIANTAMENTO: 'Adiantamento',
-};
+/**
+ * Os tipos na ordem em que aparecem para escolher, com o rótulo curto do botão
+ * e o completo do resto.
+ *
+ * Uma lista só: o seletor do envio, o filtro do funcionário e o texto da
+ * confirmação leem daqui. Antes eram três lugares com o mesmo ternário, e o do
+ * aviso de notificação já chamava qualquer coisa de "salário".
+ *
+ * O mês de cada parcela do 13º não está aqui de propósito — quem diz o mês é a
+ * competência escolhida no envio. Fixar novembro e dezembro no código quebraria
+ * no ano em que o RH pagar as duas juntas.
+ */
+export const HOLERITE_TIPOS: ReadonlyArray<{
+  value: HoleriteTipo;
+  label: string;
+  curto: string;
+  icon: string;
+}> = [
+  { value: 'SALARIO',           label: 'Salário',          curto: 'Salário',      icon: 'pi pi-wallet' },
+  { value: 'ADIANTAMENTO',      label: 'Adiantamento',     curto: 'Adiantamento', icon: 'pi pi-calendar' },
+  { value: 'DECIMO_TERCEIRO_1', label: '13º — 1ª parcela', curto: '13º · 1ª',     icon: 'pi pi-gift' },
+  { value: 'DECIMO_TERCEIRO_2', label: '13º — 2ª parcela', curto: '13º · 2ª',     icon: 'pi pi-gift' },
+];
+
+export const HOLERITE_TIPO_LABEL: Record<HoleriteTipo, string> =
+  Object.fromEntries(HOLERITE_TIPOS.map(t => [t.value, t.label])) as Record<HoleriteTipo, string>;
 
 /**
  * O que vai acontecer com cada página do PDF, decidido pelo servidor.
