@@ -1,16 +1,17 @@
+@if (mode() === 'grid') {
 <section class="gallery-page">
 
   <!-- Header -->
   <app-page-header
     icon="pi pi-images"
     title="Galeria de Documentos"
-    subtitle="Fotos, logos e catálogos da empresa">
+    subtitle="Fotos, logos, catálogos e artes de datas comemorativas">
     <div actions class="gl-header__actions">
       @if (documents().length > 0) {
         <span class="gl-count">{{ filtrados().length }} de {{ documents().length }}</span>
       }
       @if (isAdmin) {
-        <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadDialog()"/>
+        <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadForm()"/>
       }
     </div>
   </app-page-header>
@@ -62,6 +63,13 @@
                (click)="openViewer(doc)">
             @if (thumbnails()[doc.id]) {
               <img [src]="thumbnails()[doc.id]" [alt]="doc.title"/>
+            } @else if (broken().has(doc.id)) {
+              <!-- Registro no banco sem arquivo no disco. Antes disso o card
+                   girava o spinner para sempre. -->
+              <div class="gl-card__file-icon gl-card__file-icon--broken"
+                   title="O arquivo não está mais no servidor">
+                <i class="pi pi-exclamation-triangle"></i>
+              </div>
             } @else if (isImage(doc)) {
               <div class="gl-card__file-icon">
                 <i class="pi pi-spin pi-spinner"></i>
@@ -96,6 +104,17 @@
                 <i class="pi pi-download"></i> Baixar
               }
             </button>
+            <!-- Manda direto para o WhatsApp pela folha nativa do celular. -->
+            <button class="gl-card__btn gl-card__btn--share"
+                    [disabled]="sharingId() === doc.id"
+                    (click)="share(doc)"
+                    title="Compartilhar no WhatsApp">
+              @if (sharingId() === doc.id) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-whatsapp"></i>
+              }
+            </button>
             @if (isAdmin) {
               <button class="gl-card__btn gl-card__btn--delete" (click)="deleteDoc(doc)">
                 <i class="pi pi-trash"></i>
@@ -107,7 +126,16 @@
     </div>
   }
 
+  <!-- O compartilhamento tem três caminhos e nem sempre o primeiro funciona;
+       sem este aviso, o fallback acontecia sem ninguém entender. -->
+  @if (aviso()) {
+    <div class="gl-aviso" role="status">
+      <i class="pi pi-info-circle"></i> {{ aviso() }}
+    </div>
+  }
+
 </section>
+}
 
 <!-- Image Viewer -->
 @if (viewerDoc(); as doc) {
@@ -123,6 +151,13 @@
     </div>
     <img class="viewer-img" [src]="thumbnails()[doc.id]" [alt]="doc.title" (click)="$event.stopPropagation()"/>
     <div class="viewer-actions" (click)="$event.stopPropagation()">
+      <button class="viewer-btn viewer-btn--share" (click)="share(doc)" [disabled]="sharingId() === doc.id">
+        @if (sharingId() === doc.id) {
+          <i class="pi pi-spin pi-spinner"></i> Compartilhando...
+        } @else {
+          <i class="pi pi-whatsapp"></i> WhatsApp
+        }
+      </button>
       <button class="viewer-btn" (click)="download(doc)" [disabled]="downloadingId() === doc.id">
         @if (downloadingId() === doc.id) {
           <i class="pi pi-spin pi-spinner"></i> Baixando...
@@ -134,73 +169,71 @@
   </div>
 }
 
-<!-- Upload Dialog -->
-<pk-dialog
-  header="Enviar Arquivo"
-  [visible]="uploadDialogVisible()"
-  (visibleChange)="uploadDialogVisible() ? closeUploadDialog() : null"
-  width="560px">
+@if (mode() === 'form') {
+<app-form-screen
+  title="Enviar Arquivo"
+  subtitle="Imagem, PDF ou documento, com título e categoria"
+  (back)="closeUploadForm()">
 
-  <div pkDialogContent>
-    <div class="upload-form">
-      <!-- File drop zone -->
-      <div class="upload-dropzone" (click)="fileInput.click()">
-        @if (filePreview) {
-          <img [src]="filePreview" alt="Preview" class="upload-dropzone__preview"/>
-        } @else if (selectedFile) {
-          <div class="upload-dropzone__file">
-            <i class="pi pi-file"></i>
-            <span>{{ selectedFile.name }}</span>
-          </div>
-        } @else {
-          <i class="pi pi-cloud-upload upload-dropzone__icon"></i>
-          <span class="upload-dropzone__label">Clique para selecionar um arquivo</span>
-          <span class="upload-dropzone__hint">Imagens, PDFs ou documentos</span>
-        }
-        <input #fileInput type="file" hidden (change)="onFileSelected($event)"/>
-      </div>
-
-      <!-- Title -->
-      <div class="upload-field">
-        <label class="upload-field__label" for="uploadTitle">Título *</label>
-        <input id="uploadTitle"
-               class="upload-field__input"
-               type="text"
-               placeholder="Ex: Logo principal da empresa"
-               [(ngModel)]="uploadTitle"
-               maxlength="200"/>
-      </div>
-
-      <!-- Description -->
-      <div class="upload-field">
-        <label class="upload-field__label" for="uploadDesc">Descrição</label>
-        <textarea id="uploadDesc"
-                  class="upload-field__input upload-field__textarea"
-                  placeholder="Descrição opcional do arquivo"
-                  [(ngModel)]="uploadDescription"
-                  maxlength="500"
-                  rows="3"></textarea>
-      </div>
-
-      <!-- Category -->
-      <div class="upload-field">
-        <label class="upload-field__label">Categoria *</label>
-        <div class="upload-categories">
-          @for (cat of categories.slice(1); track cat.key) {
-            <button class="upload-cat"
-                    [class.upload-cat--active]="uploadCategory === cat.key"
-                    (click)="uploadCategory = $any(cat.key)">
-              <i [class]="cat.icon"></i> {{ cat.label }}
-            </button>
-          }
+  <div class="upload-form">
+    <!-- File drop zone -->
+    <div class="upload-dropzone" (click)="fileInput.click()">
+      @if (filePreview) {
+        <img [src]="filePreview" alt="Preview" class="upload-dropzone__preview"/>
+      } @else if (selectedFile) {
+        <div class="upload-dropzone__file">
+          <i class="pi pi-file"></i>
+          <span>{{ selectedFile.name }}</span>
         </div>
+      } @else {
+        <i class="pi pi-cloud-upload upload-dropzone__icon"></i>
+        <span class="upload-dropzone__label">Clique para selecionar um arquivo</span>
+        <span class="upload-dropzone__hint">Imagens, PDFs ou documentos</span>
+      }
+      <input #fileInput type="file" hidden (change)="onFileSelected($event)"/>
+    </div>
+
+    <!-- Title -->
+    <div class="upload-field">
+      <label class="upload-field__label" for="uploadTitle">Título *</label>
+      <input id="uploadTitle"
+             class="upload-field__input"
+             type="text"
+             placeholder="Ex: Logo principal da empresa"
+             [(ngModel)]="uploadTitle"
+             maxlength="200"/>
+    </div>
+
+    <!-- Description -->
+    <div class="upload-field">
+      <label class="upload-field__label" for="uploadDesc">Descrição</label>
+      <textarea id="uploadDesc"
+                class="upload-field__input upload-field__textarea"
+                placeholder="Descrição opcional do arquivo"
+                [(ngModel)]="uploadDescription"
+                maxlength="500"
+                rows="3"></textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="upload-field">
+      <label class="upload-field__label">Categoria *</label>
+      <div class="upload-categories">
+        @for (cat of categories.slice(1); track cat.key) {
+          <button class="upload-cat"
+                  [class.upload-cat--active]="uploadCategory === cat.key"
+                  (click)="uploadCategory = $any(cat.key)">
+            <i [class]="cat.icon"></i> {{ cat.label }}
+          </button>
+        }
       </div>
     </div>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="closeUploadDialog()" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeUploadForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="upload" (clicked)="submitUpload()" pkLabel="Enviar" pkSize="sm"
                [pkDisabled]="!selectedFile || !uploadTitle.trim()" [pkLoading]="uploading()"/>
   </div>
-</pk-dialog>
+</app-form-screen>
+}

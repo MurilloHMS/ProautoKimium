@@ -6,6 +6,22 @@
   @include m.page-layout;
 }
 
+// O corpo do form-screen é a área rolável, e ela só rola se o host tiver altura
+// definida. A galeria usa `page-layout` (display block, sem altura), então no
+// modo formulário ela precisa virar coluna de altura cheia — senão o formulário
+// é cortado e os últimos campos ficam inalcançáveis.
+//
+// O `:has` mantém o modo grade intacto: a regra só vale quando o form está na
+// tela.
+:host:has(app-form-screen) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 // ── Header ── (o cabeçalho é o app-page-header; sobra só o slot de ações)
 .gl-header__actions {
   display: flex;
@@ -259,6 +275,25 @@
       }
     }
 
+    // Verde do WhatsApp, cravado: é a cor da marca de destino, não um estado
+    // da nossa interface, então não sai dos tokens de tema.
+    &--share {
+      // Um pouco mais largo que os outros: é a ação mais usada da tela, e o
+      // alvo de 42px pedia pontaria demais no celular.
+      flex: 0 0 64px;
+      color: #25d366;
+      border-left: 1px solid var(--app-border);
+
+      &:hover {
+        background: color-mix(in srgb, #25d366 8%, transparent);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
     &--delete {
       flex: 0 0 42px;
       color: var(--app-text-muted);
@@ -504,6 +539,15 @@
   }
 }
 
+.viewer-btn--share {
+  background: #25d366;
+  color: #0b3d20;
+
+  &:hover {
+    background: color-mix(in srgb, #25d366 88%, #000);
+  }
+}
+
 .viewer-btn {
   display: flex;
   align-items: center;
@@ -528,8 +572,21 @@
   }
 }
 
-.pk-dialog-footer {
+// Aviso do compartilhamento — só aparece quando o caminho nativo não rolou.
+.gl-aviso {
   display: flex;
-  justify-content: flex-end;
-  gap: v.$space-2;
+  align-items: center;
+  gap: 8px;
+  margin-top: v.$space-4;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  font-size: 0.82rem;
+}
+
+// Arquivo que sumiu do disco: o card mostra o motivo em vez de girar para sempre.
+.gl-card__file-icon--broken {
+  color: var(--app-warning);
 }
