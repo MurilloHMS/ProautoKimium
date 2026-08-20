@@ -38,6 +38,10 @@
                    [pkDisabled]="!podeConferir()" [pkLoading]="conferindo()"
                    (clicked)="conferir()" />
       } @else if (etapa() === 'conferencia') {
+        <!-- Corrigiu o cadastro numa outra aba? Reconfere o mesmo arquivo, sem
+             precisar subir de novo. O servidor relê e os status mudam. -->
+        <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar"
+                   [pkLoading]="conferindo()" (clicked)="conferir()" />
         <pk-button pkType="cancel" pkSize="sm" pkLabel="Trocar arquivo" (clicked)="recomecar()" />
         <pk-button pkType="send" pkSize="sm"
                    [pkLabel]="'Enviar ' + totalEnviar()"
