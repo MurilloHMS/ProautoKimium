@@ -5,9 +5,10 @@ import { firstValueFrom } from 'rxjs';
 import { GalleryService } from '../../../infrastructure/services/gallery/gallery.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { GalleryDocument, GalleryCategory, CreateGalleryDocumentDTO } from '../../../domain/models/gallery.model';
-import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { FormScreenComponent } from '../shared/form-screen/form-screen.component';
+import { TabDirtyCheck } from '../../../infrastructure/routing/tab-dirty-check';
 
 type Filtro = 'TODOS' | GalleryCategory;
 
@@ -21,11 +22,20 @@ interface CategoryTab {
 @Component({
   selector: 'app-gallery',
   standalone: true,
-  imports: [CommonModule, FormsModule, PkDialogComponent, PkButtonComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, PkButtonComponent, PageHeaderComponent, FormScreenComponent],
   templateUrl: './gallery.component.html',
   styleUrl: './gallery.component.scss',
 })
-export class GalleryComponent implements OnInit {
+export class GalleryComponent implements OnInit, TabDirtyCheck {
+
+  /**
+   * Grade ou formulário — o envio deixou de ser diálogo.
+   *
+   * A máscara modal do PrimeNG cobre a barra de abas da área de trabalho, então
+   * quem abrisse o envio ficava preso até fechar. É o mesmo motivo que já tinha
+   * levado os cadastros para `app-form-screen`.
+   */
+  mode = signal<'grid' | 'form'>('grid');
   documents = signal<GalleryDocument[]>([]);
   loading = signal(true);
   erro = signal(false);
@@ -36,7 +46,6 @@ export class GalleryComponent implements OnInit {
   /** Aviso curto no rodapé — o compartilhamento falha em silêncio sem isso. */
   aviso = signal('');
   private avisoTimer?: ReturnType<typeof setTimeout>;
-  uploadDialogVisible = signal(false);
   uploading = signal(false);
   thumbnails = signal<Record<string, string>>({});
   viewerDoc = signal<GalleryDocument | null>(null);
@@ -233,20 +242,26 @@ export class GalleryComponent implements OnInit {
     this.avisoTimer = setTimeout(() => this.aviso.set(''), 5000);
   }
 
-  openUploadDialog(): void {
+  /** Envio em andamento avisa antes de a aba ser fechada. */
+  isTabDirty(): boolean {
+    return this.mode() === 'form' && (!!this.selectedFile || !!this.uploadTitle.trim());
+  }
+
+  openUploadForm(): void {
     this.uploadTitle = '';
     this.uploadDescription = '';
     this.uploadCategory = 'PRODUCT';
     this.selectedFile = null;
     this.filePreview = null;
-    this.uploadDialogVisible.set(true);
+    this.mode.set('form');
   }
 
-  closeUploadDialog(): void {
+  closeUploadForm(): void {
     if (this.filePreview) {
       URL.revokeObjectURL(this.filePreview);
+      this.filePreview = null;
     }
-    this.uploadDialogVisible.set(false);
+    this.mode.set('grid');
   }
 
   onFileSelected(event: Event): void {
@@ -270,7 +285,7 @@ export class GalleryComponent implements OnInit {
     this.galleryService.upload(dto, this.selectedFile).subscribe({
       next: () => {
         this.uploading.set(false);
-        this.closeUploadDialog();
+        this.closeUploadForm();
         this.loadDocuments();
       },
       error: () => {

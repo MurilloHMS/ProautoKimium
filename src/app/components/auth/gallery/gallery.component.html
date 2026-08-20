@@ -1,3 +1,4 @@
+@if (mode() === 'grid') {
 <section class="gallery-page">
 
   <!-- Header -->
@@ -10,7 +11,7 @@
         <span class="gl-count">{{ filtrados().length }} de {{ documents().length }}</span>
       }
       @if (isAdmin) {
-        <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadDialog()"/>
+        <pk-button pkType="upload" pkLabel="Enviar Arquivo" pkSize="sm" (clicked)="openUploadForm()"/>
       }
     </div>
   </app-page-header>
@@ -127,6 +128,7 @@
   }
 
 </section>
+}
 
 <!-- Image Viewer -->
 @if (viewerDoc(); as doc) {
@@ -160,73 +162,71 @@
   </div>
 }
 
-<!-- Upload Dialog -->
-<pk-dialog
-  header="Enviar Arquivo"
-  [visible]="uploadDialogVisible()"
-  (visibleChange)="uploadDialogVisible() ? closeUploadDialog() : null"
-  width="560px">
+@if (mode() === 'form') {
+<app-form-screen
+  title="Enviar Arquivo"
+  subtitle="Imagem, PDF ou documento, com título e categoria"
+  (back)="closeUploadForm()">
 
-  <div pkDialogContent>
-    <div class="upload-form">
-      <!-- File drop zone -->
-      <div class="upload-dropzone" (click)="fileInput.click()">
-        @if (filePreview) {
-          <img [src]="filePreview" alt="Preview" class="upload-dropzone__preview"/>
-        } @else if (selectedFile) {
-          <div class="upload-dropzone__file">
-            <i class="pi pi-file"></i>
-            <span>{{ selectedFile.name }}</span>
-          </div>
-        } @else {
-          <i class="pi pi-cloud-upload upload-dropzone__icon"></i>
-          <span class="upload-dropzone__label">Clique para selecionar um arquivo</span>
-          <span class="upload-dropzone__hint">Imagens, PDFs ou documentos</span>
-        }
-        <input #fileInput type="file" hidden (change)="onFileSelected($event)"/>
-      </div>
-
-      <!-- Title -->
-      <div class="upload-field">
-        <label class="upload-field__label" for="uploadTitle">Título *</label>
-        <input id="uploadTitle"
-               class="upload-field__input"
-               type="text"
-               placeholder="Ex: Logo principal da empresa"
-               [(ngModel)]="uploadTitle"
-               maxlength="200"/>
-      </div>
-
-      <!-- Description -->
-      <div class="upload-field">
-        <label class="upload-field__label" for="uploadDesc">Descrição</label>
-        <textarea id="uploadDesc"
-                  class="upload-field__input upload-field__textarea"
-                  placeholder="Descrição opcional do arquivo"
-                  [(ngModel)]="uploadDescription"
-                  maxlength="500"
-                  rows="3"></textarea>
-      </div>
-
-      <!-- Category -->
-      <div class="upload-field">
-        <label class="upload-field__label">Categoria *</label>
-        <div class="upload-categories">
-          @for (cat of categories.slice(1); track cat.key) {
-            <button class="upload-cat"
-                    [class.upload-cat--active]="uploadCategory === cat.key"
-                    (click)="uploadCategory = $any(cat.key)">
-              <i [class]="cat.icon"></i> {{ cat.label }}
-            </button>
-          }
+  <div class="upload-form">
+    <!-- File drop zone -->
+    <div class="upload-dropzone" (click)="fileInput.click()">
+      @if (filePreview) {
+        <img [src]="filePreview" alt="Preview" class="upload-dropzone__preview"/>
+      } @else if (selectedFile) {
+        <div class="upload-dropzone__file">
+          <i class="pi pi-file"></i>
+          <span>{{ selectedFile.name }}</span>
         </div>
+      } @else {
+        <i class="pi pi-cloud-upload upload-dropzone__icon"></i>
+        <span class="upload-dropzone__label">Clique para selecionar um arquivo</span>
+        <span class="upload-dropzone__hint">Imagens, PDFs ou documentos</span>
+      }
+      <input #fileInput type="file" hidden (change)="onFileSelected($event)"/>
+    </div>
+
+    <!-- Title -->
+    <div class="upload-field">
+      <label class="upload-field__label" for="uploadTitle">Título *</label>
+      <input id="uploadTitle"
+             class="upload-field__input"
+             type="text"
+             placeholder="Ex: Logo principal da empresa"
+             [(ngModel)]="uploadTitle"
+             maxlength="200"/>
+    </div>
+
+    <!-- Description -->
+    <div class="upload-field">
+      <label class="upload-field__label" for="uploadDesc">Descrição</label>
+      <textarea id="uploadDesc"
+                class="upload-field__input upload-field__textarea"
+                placeholder="Descrição opcional do arquivo"
+                [(ngModel)]="uploadDescription"
+                maxlength="500"
+                rows="3"></textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="upload-field">
+      <label class="upload-field__label">Categoria *</label>
+      <div class="upload-categories">
+        @for (cat of categories.slice(1); track cat.key) {
+          <button class="upload-cat"
+                  [class.upload-cat--active]="uploadCategory === cat.key"
+                  (click)="uploadCategory = $any(cat.key)">
+            <i [class]="cat.icon"></i> {{ cat.label }}
+          </button>
+        }
       </div>
     </div>
   </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="closeUploadDialog()" pkLabel="Cancelar" pkSize="sm"/>
+  <div formActions>
+    <pk-button pkType="cancel" (clicked)="closeUploadForm()" pkLabel="Cancelar" pkSize="sm"/>
     <pk-button pkType="upload" (clicked)="submitUpload()" pkLabel="Enviar" pkSize="sm"
                [pkDisabled]="!selectedFile || !uploadTitle.trim()" [pkLoading]="uploading()"/>
   </div>
-</pk-dialog>
+</app-form-screen>
+}

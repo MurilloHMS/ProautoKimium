@@ -6,6 +6,22 @@
   @include m.page-layout;
 }
 
+// O corpo do form-screen é a área rolável, e ela só rola se o host tiver altura
+// definida. A galeria usa `page-layout` (display block, sem altura), então no
+// modo formulário ela precisa virar coluna de altura cheia — senão o formulário
+// é cortado e os últimos campos ficam inalcançáveis.
+//
+// O `:has` mantém o modo grade intacto: a regra só vale quando o form está na
+// tela.
+:host:has(app-form-screen) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
 // ── Header ── (o cabeçalho é o app-page-header; sobra só o slot de ações)
 .gl-header__actions {
   display: flex;
@@ -552,12 +568,6 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
-}
-
-.pk-dialog-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: v.$space-2;
 }
 
 // Aviso do compartilhamento — só aparece quando o caminho nativo não rolou.
