@@ -1,0 +1,33 @@
+<p-toast position="bottom-right" />
+
+<app-page-header
+  icon="pi pi-file-pdf"
+  title="Holerites"
+  subtitle="Conferir, enviar e separar os contracheques da folha" />
+
+<div class="hub">
+
+  <!-- Menu de ferramentas: fica parado, não rola com o conteúdo. -->
+  <nav class="rail" aria-label="Ferramentas de holerite">
+    @for (item of ferramentas; track item.key) {
+      <button type="button"
+              class="rail__item"
+              [class.rail__item--ativo]="ativa() === item.key"
+              [attr.aria-current]="ativa() === item.key ? 'page' : null"
+              (click)="selecionar(item.key)">
+        <i [class]="item.icon"></i>
+        <span class="rail__texto">
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.hint }}</small>
+        </span>
+      </button>
+    }
+  </nav>
+
+  <section class="conteudo">
+    @switch (ativa()) {
+      @case ('envio')   { <app-holerite-envio /> }
+      @case ('separar') { <app-holerit-spliter /> }
+    }
+  </section>
+</div>
