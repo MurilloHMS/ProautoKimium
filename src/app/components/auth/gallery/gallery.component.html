@@ -4,7 +4,7 @@
   <app-page-header
     icon="pi pi-images"
     title="Galeria de Documentos"
-    subtitle="Fotos, logos e catálogos da empresa">
+    subtitle="Fotos, logos, catálogos e artes de datas comemorativas">
     <div actions class="gl-header__actions">
       @if (documents().length > 0) {
         <span class="gl-count">{{ filtrados().length }} de {{ documents().length }}</span>
@@ -96,6 +96,17 @@
                 <i class="pi pi-download"></i> Baixar
               }
             </button>
+            <!-- Manda direto para o WhatsApp pela folha nativa do celular. -->
+            <button class="gl-card__btn gl-card__btn--share"
+                    [disabled]="sharingId() === doc.id"
+                    (click)="share(doc)"
+                    title="Compartilhar no WhatsApp">
+              @if (sharingId() === doc.id) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-whatsapp"></i>
+              }
+            </button>
             @if (isAdmin) {
               <button class="gl-card__btn gl-card__btn--delete" (click)="deleteDoc(doc)">
                 <i class="pi pi-trash"></i>
@@ -104,6 +115,14 @@
           </div>
         </div>
       }
+    </div>
+  }
+
+  <!-- O compartilhamento tem três caminhos e nem sempre o primeiro funciona;
+       sem este aviso, o fallback acontecia sem ninguém entender. -->
+  @if (aviso()) {
+    <div class="gl-aviso" role="status">
+      <i class="pi pi-info-circle"></i> {{ aviso() }}
     </div>
   }
 
@@ -123,6 +142,13 @@
     </div>
     <img class="viewer-img" [src]="thumbnails()[doc.id]" [alt]="doc.title" (click)="$event.stopPropagation()"/>
     <div class="viewer-actions" (click)="$event.stopPropagation()">
+      <button class="viewer-btn viewer-btn--share" (click)="share(doc)" [disabled]="sharingId() === doc.id">
+        @if (sharingId() === doc.id) {
+          <i class="pi pi-spin pi-spinner"></i> Compartilhando...
+        } @else {
+          <i class="pi pi-whatsapp"></i> WhatsApp
+        }
+      </button>
       <button class="viewer-btn" (click)="download(doc)" [disabled]="downloadingId() === doc.id">
         @if (downloadingId() === doc.id) {
           <i class="pi pi-spin pi-spinner"></i> Baixando...
