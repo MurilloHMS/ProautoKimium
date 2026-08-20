@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, signal, computed, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -40,6 +40,11 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
   loading = signal(true);
   erro = signal(false);
   filtro = signal<Filtro>('TODOS');
+  busca = signal('');
+
+  /** Fechada, a busca é só mais um item da fileira de filtros. */
+  buscaAberta = signal(false);
+  private readonly buscaInput = viewChild<ElementRef<HTMLInputElement>>('buscaInput');
   downloadingId = signal<string | null>(null);
   sharingId = signal<string | null>(null);
 
@@ -81,8 +86,22 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
 
   filtrados = computed(() => {
     const f = this.filtro();
-    const all = this.documents();
-    return f === 'TODOS' ? all : all.filter(d => d.category === f);
+    const termo = normalizar(this.busca());
+
+    let docs = this.documents();
+
+    if (f !== 'TODOS') docs = docs.filter(d => d.category === f);
+
+    if (termo) {
+      // Título, descrição e nome do arquivo: quem procura "natal" pode ter
+      // guardado a arte com esse nome em qualquer um dos três campos.
+      docs = docs.filter(d =>
+        normalizar(d.title).includes(termo)
+        || normalizar(d.description).includes(termo)
+        || normalizar(d.originalFilename).includes(termo));
+    }
+
+    return docs;
   });
 
   constructor(
@@ -130,6 +149,25 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
 
   setFiltro(f: Filtro): void {
     this.filtro.set(f);
+  }
+
+  toggleBusca(): void {
+    if (this.buscaAberta()) {
+      this.buscaAberta.set(false);
+      this.busca.set('');
+      return;
+    }
+
+    this.buscaAberta.set(true);
+
+    // O foco espera o próximo quadro: o input tem largura zero enquanto está
+    // fechado, e o navegador ignora foco em elemento sem caixa.
+    requestAnimationFrame(() => this.buscaInput()?.nativeElement.focus());
+  }
+
+  /** Sair da caixa vazia fecha; com texto digitado ela fica, senão o filtro sumiria sem aviso. */
+  fecharSeVazia(): void {
+    if (!this.busca().trim()) this.buscaAberta.set(false);
   }
 
   getCategoryTab(category: GalleryCategory): CategoryTab {
@@ -336,4 +374,18 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
       next: () => this.loadDocuments(),
     });
   }
+}
+
+/**
+ * Sem acento e sem caixa, dos dois lados da comparação.
+ *
+ * Sem isso "natal" não acha "Natal" e "pascoa" não acha "Páscoa" — e ninguém
+ * digita acento numa caixa de busca.
+ */
+function normalizar(valor: string | null | undefined): string {
+  return (valor ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 }
