@@ -36,57 +36,66 @@
 }
 
 // ── Busca ──
+// Mora dentro da fileira de filtros e tem a mesma casca de pílula. Fechada é um
+// botão redondo; aberta, a caixa cresce para o lado. Só ocupa espaço em uso.
 .gl-search {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: v.$space-6;
-  padding: 0 14px;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-pill);
   background: var(--app-surface);
   transition: border-color v.$transition-fast ease;
 
-  &:focus-within {
+  &--open {
     border-color: var(--app-action);
   }
 
-  > i {
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 36px;
+    border: none;
+    background: none;
     color: var(--app-text-muted);
-    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color v.$transition-fast ease;
+
+    &:hover { color: var(--app-action); }
   }
 
-  input {
-    flex: 1;
+  &__input {
+    width: 0;
     min-width: 0;
-    padding: 11px 0;
+    padding: 0;
     border: none;
     background: none;
     color: var(--app-text);
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    // A largura é o que anima: `display: none` não tem transição, e animar
+    // `visibility` deixaria o campo clicável antes de existir na tela.
+    transition: width v.$transition-base ease, padding v.$transition-base ease;
 
     &::placeholder { color: var(--app-text-muted); }
     &:focus { outline: none; }
   }
 
-  &__clear {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 50%;
-    background: none;
-    color: var(--app-text-muted);
-    cursor: pointer;
+  &--open &__input {
+    width: 240px;
+    padding-right: 14px;
 
-    &:hover {
-      background: var(--app-bg);
-      color: var(--app-text);
+    @media (max-width: v.$bp-sm) {
+      width: 55vw;
     }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl-search__input { transition: none; }
 }
 
 // ── Filters ──

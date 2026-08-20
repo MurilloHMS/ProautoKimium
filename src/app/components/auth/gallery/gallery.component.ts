@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, ElementRef, OnInit, signal, computed, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
@@ -41,6 +41,10 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
   erro = signal(false);
   filtro = signal<Filtro>('TODOS');
   busca = signal('');
+
+  /** Fechada, a busca é só mais um item da fileira de filtros. */
+  buscaAberta = signal(false);
+  private readonly buscaInput = viewChild<ElementRef<HTMLInputElement>>('buscaInput');
   downloadingId = signal<string | null>(null);
   sharingId = signal<string | null>(null);
 
@@ -147,8 +151,23 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
     this.filtro.set(f);
   }
 
-  limparBusca(): void {
-    this.busca.set('');
+  toggleBusca(): void {
+    if (this.buscaAberta()) {
+      this.buscaAberta.set(false);
+      this.busca.set('');
+      return;
+    }
+
+    this.buscaAberta.set(true);
+
+    // O foco espera o próximo quadro: o input tem largura zero enquanto está
+    // fechado, e o navegador ignora foco em elemento sem caixa.
+    requestAnimationFrame(() => this.buscaInput()?.nativeElement.focus());
+  }
+
+  /** Sair da caixa vazia fecha; com texto digitado ela fica, senão o filtro sumiria sem aviso. */
+  fecharSeVazia(): void {
+    if (!this.busca().trim()) this.buscaAberta.set(false);
   }
 
   getCategoryTab(category: GalleryCategory): CategoryTab {

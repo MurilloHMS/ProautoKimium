@@ -26,20 +26,26 @@
           <i [class]="cat.icon"></i> {{ cat.label }}
         </button>
       }
-    </div>
 
-    <div class="gl-search">
-      <i class="pi pi-search"></i>
-      <input type="text"
-             [ngModel]="busca()"
-             (ngModelChange)="busca.set($event)"
-             placeholder="Buscar por nome, descrição ou arquivo…"
-             aria-label="Buscar na galeria"/>
-      @if (busca()) {
-        <button class="gl-search__clear" (click)="limparBusca()" aria-label="Limpar busca">
-          <i class="pi pi-times"></i>
+      <!-- Último item da fileira: fechada é um botão, aberta é a caixa. -->
+      <div class="gl-search" [class.gl-search--open]="buscaAberta()">
+        <button class="gl-search__toggle"
+                (click)="toggleBusca()"
+                [attr.aria-label]="buscaAberta() ? 'Fechar busca' : 'Buscar na galeria'"
+                [attr.aria-expanded]="buscaAberta()">
+          <i class="pi" [class.pi-search]="!buscaAberta()" [class.pi-times]="buscaAberta()"></i>
         </button>
-      }
+
+        <input #buscaInput
+               type="text"
+               class="gl-search__input"
+               [ngModel]="busca()"
+               (ngModelChange)="busca.set($event)"
+               (blur)="fecharSeVazia()"
+               [attr.tabindex]="buscaAberta() ? 0 : -1"
+               placeholder="Nome, descrição ou arquivo…"
+               aria-label="Buscar na galeria"/>
+      </div>
     </div>
   }
 
