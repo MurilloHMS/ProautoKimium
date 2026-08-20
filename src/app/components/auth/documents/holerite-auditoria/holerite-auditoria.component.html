@@ -136,7 +136,10 @@
            width="480px">
 
   <div pkDialogContent>
-    @if (cancelando(); as item) {
+    <!-- `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+         conteúdo de propósito, e é a seção que traz o espaçamento. -->
+    <div class="pk-form-section">
+      @if (cancelando(); as item) {
       <p class="cancelar__aviso">
         O holerite de <strong>{{ item.employeeNome }}</strong> some da tela dele e
         continua aqui, com o motivo. Depois disso é possível enviar outro para a
@@ -149,8 +152,9 @@
                 rows="3"
                 maxlength="300"
                 placeholder="Ex: arquivo do mês errado"
-                [(ngModel)]="motivo"></textarea>
-    }
+                  [(ngModel)]="motivo"></textarea>
+      }
+    </div>
   </div>
 
   <div pkDialogFooter class="pk-dialog-footer">

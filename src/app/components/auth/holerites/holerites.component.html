@@ -123,15 +123,19 @@
            width="440px">
 
   <div pkDialogContent>
-    @if (confirmando(); as h) {
-      <p class="confirmar__titulo">
-        {{ tipoLabel(h.tipo) }} de <strong>{{ mesLabel(h.competencia) }}</strong>
-      </p>
-      <p class="confirmar__texto">
-        Ao baixar, você confirma que recebeu este holerite. A data fica
-        registrada no seu histórico.
-      </p>
-    }
+    <!-- `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+         conteúdo de propósito, e é a seção que traz o espaçamento. -->
+    <div class="pk-form-section">
+      @if (confirmando(); as h) {
+        <p class="confirmar__titulo">
+          {{ tipoLabel(h.tipo) }} de <strong>{{ mesLabel(h.competencia) }}</strong>
+        </p>
+        <p class="confirmar__texto">
+          Ao baixar, você confirma que recebeu este holerite. A data fica
+          registrada no seu histórico.
+        </p>
+      }
+    </div>
   </div>
 
   <div pkDialogFooter class="pk-dialog-footer">
