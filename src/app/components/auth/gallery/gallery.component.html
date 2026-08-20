@@ -63,6 +63,13 @@
                (click)="openViewer(doc)">
             @if (thumbnails()[doc.id]) {
               <img [src]="thumbnails()[doc.id]" [alt]="doc.title"/>
+            } @else if (broken().has(doc.id)) {
+              <!-- Registro no banco sem arquivo no disco. Antes disso o card
+                   girava o spinner para sempre. -->
+              <div class="gl-card__file-icon gl-card__file-icon--broken"
+                   title="O arquivo não está mais no servidor">
+                <i class="pi pi-exclamation-triangle"></i>
+              </div>
             } @else if (isImage(doc)) {
               <div class="gl-card__file-icon">
                 <i class="pi pi-spin pi-spinner"></i>

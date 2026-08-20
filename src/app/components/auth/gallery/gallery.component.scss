@@ -583,3 +583,8 @@
   color: var(--app-text-muted);
   font-size: 0.82rem;
 }
+
+// Arquivo que sumiu do disco: o card mostra o motivo em vez de girar para sempre.
+.gl-card__file-icon--broken {
+  color: var(--app-warning);
+}

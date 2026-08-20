@@ -43,11 +43,24 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
   downloadingId = signal<string | null>(null);
   sharingId = signal<string | null>(null);
 
+  /** Documentos cujo arquivo não veio — o registro existe, o arquivo não. */
+  broken = signal<ReadonlySet<string>>(new Set<string>());
+
   /** Aviso curto no rodapé — o compartilhamento falha em silêncio sem isso. */
   aviso = signal('');
   private avisoTimer?: ReturnType<typeof setTimeout>;
   uploading = signal(false);
   thumbnails = signal<Record<string, string>>({});
+
+  /**
+   * O arquivo pronto, guardado junto da miniatura.
+   *
+   * O Safari do iPhone exige que `navigator.share` seja chamado **dentro** do
+   * gesto do usuário. Qualquer `await` antes da chamada consome essa permissão
+   * e o compartilhamento é recusado com NotAllowedError. Com o File já em
+   * memória, o toque dispara o share na hora, sem esperar por nada.
+   */
+  private files = signal<Record<string, File>>({});
   viewerDoc = signal<GalleryDocument | null>(null);
 
   uploadTitle = '';
@@ -104,7 +117,13 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
         next: (blob) => {
           const url = URL.createObjectURL(blob);
           this.thumbnails.update(map => ({ ...map, [doc.id]: url }));
+
+          const file = new File([blob], doc.originalFilename, { type: blob.type || doc.contentType });
+          this.files.update(map => ({ ...map, [doc.id]: file }));
         },
+        // Registro órfão: existe no banco e não no disco. Sem isto o card fica
+        // girando o spinner para sempre.
+        error: () => this.broken.update(set => new Set(set).add(doc.id)),
       });
     }
   }
@@ -163,10 +182,28 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
   async share(doc: GalleryDocument): Promise<void> {
     if (this.sharingId()) return;
 
+    // Sem contexto seguro não existe nem share nem área de transferência: o
+    // navegador esconde as duas fora de HTTPS. Vale dizer isso, senão o
+    // download parece um bug em vez de um limite do ambiente.
+    if (!window.isSecureContext) {
+      this.download(doc);
+      this.flash('Compartilhar exige HTTPS. Fora dele o navegador só permite baixar.');
+      return;
+    }
+
     this.sharingId.set(doc.id);
 
     try {
-      const file = await this.fileFor(doc);
+      // Sem `await` antes do share quando o arquivo já está carregado — é o que
+      // preserva o gesto do usuário no Safari do iPhone.
+      const ready = this.files()[doc.id];
+
+      if (ready && navigator.canShare?.({ files: [ready] })) {
+        await navigator.share({ files: [ready], title: doc.title, text: doc.description || doc.title });
+        return;
+      }
+
+      const file = ready ?? await this.fileFor(doc);
 
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: doc.title, text: doc.description || doc.title });
