@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: v.$space-3;
+  margin-bottom: v.$space-6;
   padding: 0 14px;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-pill);
@@ -93,7 +93,7 @@
 .gl-filters {
   display: flex;
   gap: 8px;
-  margin-bottom: v.$space-6;
+  margin-bottom: v.$space-3;
   flex-wrap: wrap;
 }
 

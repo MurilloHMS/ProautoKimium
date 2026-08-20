@@ -16,8 +16,18 @@
     </div>
   </app-page-header>
 
-  <!-- Busca e filtros -->
+  <!-- Filtros e busca -->
   @if (documents().length > 0 && !loading()) {
+    <div class="gl-filters">
+      @for (cat of categories; track cat.key) {
+        <button class="gl-filter"
+                [class.gl-filter--active]="filtro() === cat.key"
+                (click)="setFiltro(cat.key)">
+          <i [class]="cat.icon"></i> {{ cat.label }}
+        </button>
+      }
+    </div>
+
     <div class="gl-search">
       <i class="pi pi-search"></i>
       <input type="text"
@@ -28,16 +38,6 @@
       @if (busca()) {
         <button class="gl-search__clear" (click)="limparBusca()" aria-label="Limpar busca">
           <i class="pi pi-times"></i>
-        </button>
-      }
-    </div>
-
-    <div class="gl-filters">
-      @for (cat of categories; track cat.key) {
-        <button class="gl-filter"
-                [class.gl-filter--active]="filtro() === cat.key"
-                (click)="setFiltro(cat.key)">
-          <i [class]="cat.icon"></i> {{ cat.label }}
         </button>
       }
     </div>
