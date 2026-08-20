@@ -42,6 +42,7 @@ export class HoleritesComponent implements OnInit {
   loading = signal(true);
   erro = signal(false);
   baixandoId = signal<string | null>(null);
+  confirmandoId = signal<string | null>(null);
   filtro = signal<Filtro>('TODOS');
 
   /** Os mesmos tipos do envio, na mesma ordem — uma lista só para as duas telas. */
@@ -103,6 +104,31 @@ export class HoleritesComponent implements OnInit {
 
   setFiltro(f: Filtro): void {
     this.filtro.set(f);
+  }
+
+  /**
+   * Confirmação de recebimento — só o dono pode, e a API recusa o resto.
+   *
+   * Abrir o arquivo já é registrado sozinho, mas abrir não é receber: quem
+   * clica aqui está dizendo que viu e conferiu, e é isso que a auditoria do RH
+   * mostra na coluna própria.
+   */
+  confirmar(h: Holerite, event: Event): void {
+    event.stopPropagation();   // o cartão inteiro é o botão de baixar
+    if (h.confirmedAt || this.confirmandoId()) return;
+
+    this.confirmandoId.set(h.id);
+
+    this.http.post(`${environment.apiUrl}/holerite/${h.id}/confirmar`, null, { responseType: 'text' })
+      .subscribe({
+        next: () => {
+          this.confirmandoId.set(null);
+          // Atualiza a lista local: recarregar tudo por um clique seria exagero.
+          this.holerites.update(lista => lista.map(item =>
+            item.id === h.id ? { ...item, confirmedAt: new Date().toISOString() } : item));
+        },
+        error: () => this.confirmandoId.set(null),
+      });
   }
 
   baixar(h: Holerite): void {

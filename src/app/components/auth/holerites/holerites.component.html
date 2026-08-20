@@ -86,6 +86,29 @@
                   </span>
                 </span>
 
+                <!-- Confirmar fica fora do fluxo de baixar: abrir o arquivo é
+                     registrado sozinho, mas abrir não é receber. -->
+                @if (h.confirmedAt) {
+                  <span class="hl-card__recibo hl-card__recibo--ok" title="Recebimento confirmado">
+                    <i class="pi pi-verified"></i>
+                    <span class="hl-card__action-label">Confirmado</span>
+                  </span>
+                } @else {
+                  <span class="hl-card__recibo"
+                        role="button"
+                        tabindex="0"
+                        title="Confirmar que recebeu este holerite"
+                        (click)="confirmar(h, $event)"
+                        (keydown.enter)="confirmar(h, $event)">
+                    @if (confirmandoId() === h.id) {
+                      <i class="pi pi-spin pi-spinner"></i>
+                    } @else {
+                      <i class="pi pi-check-circle"></i>
+                    }
+                    <span class="hl-card__action-label">Confirmar</span>
+                  </span>
+                }
+
                 <span class="hl-card__action">
                   @if (baixandoId() === h.id) {
                     <i class="pi pi-spin pi-spinner"></i>
