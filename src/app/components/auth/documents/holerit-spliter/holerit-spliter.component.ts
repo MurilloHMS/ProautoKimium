@@ -1,7 +1,5 @@
 import { Component } from '@angular/core';
-import { ToastModule } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -10,27 +8,13 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { environment } from '../../../../../environments/environment';
+import { PdfPageInfo } from '../../../../domain/models/hr/holerite.model';
+import { HoleriteService } from '../../../../infrastructure/services/hr/holerite.service';
 import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-button.component";
 import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component";
 
-interface PdfPageInfoDTO {
-  name: string;
-}
-
-interface PageItem extends PdfPageInfoDTO {
+interface PageItem extends PdfPageInfo {
   originalName: string;
-}
-
-interface UploadResponse {
-  uploadId: string;
-  pages: PdfPageInfoDTO[];
-}
-
-interface VincularResult {
-  totalPaginas: number;
-  vinculados: number;
-  naoEncontrados: string[];
 }
 
 @Component({
@@ -42,14 +26,12 @@ interface VincularResult {
     ButtonModule,
     InputTextModule,
     ProgressSpinnerModule,
-    ToastModule,
     TooltipModule,
     PkButtonComponent,
     PkFileUploadComponent,
   ],
   templateUrl: './holerit-spliter.component.html',
   styleUrl: './holerit-spliter.component.scss',
-  providers: [MessageService],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
@@ -60,20 +42,17 @@ interface VincularResult {
   ]
 })
 export class HoleritSpliterComponent {
+  // Só separa e baixa o ZIP. Vincular ao funcionário é a ferramenta "Enviar
+  // holerites", que confere antes de gravar — misturar as duas na mesma tela
+  // era o que fazia o RH publicar sem ver o que ia acontecer.
   selectedFile: File | null = null;
   uploadId = '';
   pages: PageItem[] = [];
   isUploading = false;
   isSaving = false;
 
-  // Vínculo aos funcionários
-  competencia = '';          // "AAAA-MM"
-  tipo: 'SALARIO' | 'ADIANTAMENTO' = 'SALARIO';   // dia 05 = SALARIO, dia 20 = ADIANTAMENTO
-  isLinking = false;
-  linkResult: VincularResult | null = null;
-
   constructor(
-    private http: HttpClient,
+    private service: HoleriteService,
     private messageService: MessageService
   ) {}
 
@@ -95,10 +74,7 @@ export class HoleritSpliterComponent {
     this.pages = [];
     this.uploadId = '';
 
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-
-    this.http.post<UploadResponse>(`${environment.apiUrl}/pdf/upload`, formData)
+    this.service.separarPdf(this.selectedFile)
       .subscribe({
         next: (response) => {
           this.uploadId = response.uploadId;
@@ -131,10 +107,7 @@ export class HoleritSpliterComponent {
 
     const pagesToSave = this.pages.map(page => ({ name: page.name }));
 
-    this.http.post(`${environment.apiUrl}/pdf/save/${this.uploadId}`, pagesToSave, {
-      responseType: 'blob',
-      observe: 'response'
-    }).subscribe({
+    this.service.baixarZip(this.uploadId, pagesToSave).subscribe({
       next: (response) => {
         this.isSaving = false;
         const blob = response.body;
@@ -175,47 +148,6 @@ export class HoleritSpliterComponent {
     });
   }
 
-  vincularHolerites(): void {
-    if (!this.selectedFile) {
-      this.showError('Selecione o PDF dos holerites primeiro');
-      return;
-    }
-    if (!this.competencia) {
-      this.showError('Selecione a competência (mês/ano)');
-      return;
-    }
-    if (!this.tipo) {
-      this.showError('Selecione o tipo (adiantamento ou salário)');
-      return;
-    }
-
-    this.isLinking = true;
-    this.linkResult = null;
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile);
-    formData.append('competencia', this.competencia);
-    formData.append('tipo', this.tipo);
-
-    this.http.post<VincularResult>(`${environment.apiUrl}/holerite/vincular`, formData)
-      .subscribe({
-        next: (res) => {
-          this.isLinking = false;
-          this.linkResult = res;
-          this.messageService.add({
-            severity: res.vinculados > 0 ? 'success' : 'warn',
-            summary: 'Vínculo concluído',
-            detail: `${res.vinculados} de ${res.totalPaginas} holerite(s) vinculado(s).`,
-            life: 5000
-          });
-        },
-        error: (err) => {
-          this.isLinking = false;
-          this.showError(typeof err.error === 'string' ? err.error : 'Erro ao vincular os holerites');
-        }
-      });
-  }
-
   getOriginalName(index: number): string {
     return this.pages[index]?.originalName ?? '';
   }
@@ -230,8 +162,6 @@ export class HoleritSpliterComponent {
     this.selectedFile = null;
     this.uploadId = '';
     this.pages = [];
-    this.competencia = '';
-    this.linkResult = null;
   }
 
   onClear(): void {

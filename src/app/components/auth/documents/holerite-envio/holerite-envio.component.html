@@ -1,0 +1,196 @@
+<p-confirmDialog [style]="{ width: '460px' }"></p-confirmDialog>
+
+<div class="envio">
+
+  <!-- ─── Barra de ações: fica no topo, sempre alcançável ──────────────────
+       Antes as ações ficavam depois da lista de páginas. Com 200 páginas,
+       achar o botão de enviar exigia rolar a tela inteira. -->
+  <div class="envio__barra">
+    <div class="envio__campo">
+      <label for="competencia">Competência</label>
+      <input id="competencia"
+             type="month"
+             [ngModel]="competencia()"
+             (ngModelChange)="competencia.set($event); voltarParaEscolha()" />
+    </div>
+
+    <div class="envio__campo">
+      <label>Tipo</label>
+      <div class="envio__tipos">
+        <button type="button"
+                class="envio__tipo"
+                [class.envio__tipo--ativo]="tipo() === 'SALARIO'"
+                (click)="tipo.set('SALARIO'); voltarParaEscolha()">
+          Salário
+        </button>
+        <button type="button"
+                class="envio__tipo"
+                [class.envio__tipo--ativo]="tipo() === 'ADIANTAMENTO'"
+                (click)="tipo.set('ADIANTAMENTO'); voltarParaEscolha()">
+          Adiantamento
+        </button>
+      </div>
+    </div>
+
+    <div class="envio__acoes">
+      @if (etapa() === 'escolha') {
+        <pk-button pkType="filter" pkSize="sm" pkLabel="Conferir antes de enviar"
+                   [pkDisabled]="!podeConferir()" [pkLoading]="conferindo()"
+                   (clicked)="conferir()" />
+      } @else if (etapa() === 'conferencia') {
+        <!-- Corrigiu o cadastro numa outra aba? Reconfere o mesmo arquivo, sem
+             precisar subir de novo. O servidor relê e os status mudam. -->
+        <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar"
+                   [pkLoading]="conferindo()" (clicked)="conferir()" />
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Trocar arquivo" (clicked)="recomecar()" />
+        <pk-button pkType="send" pkSize="sm"
+                   [pkLabel]="'Enviar ' + totalEnviar()"
+                   [pkDisabled]="totalEnviar() === 0 || temIlegivel()"
+                   [pkLoading]="enviando()"
+                   (clicked)="confirmarEnvio()" />
+      } @else {
+        <pk-button pkType="new" pkSize="sm" pkLabel="Enviar outro arquivo" (clicked)="recomecar()" />
+      }
+    </div>
+  </div>
+
+  <div class="envio__corpo">
+
+    <!-- ─── 1. Escolha do arquivo ─────────────────────────────────────── -->
+    @if (etapa() === 'escolha') {
+      <pk-fileUpload
+        mode="both"
+        accept=".pdf"
+        chooseLabel="Selecionar PDF"
+        dropTitle="Arraste o PDF dos holerites"
+        dropHint="Um arquivo com todas as páginas, como vem da folha"
+        fileIcon="pi pi-file-pdf"
+        [loading]="conferindo()"
+        loadingTitle="Lendo o arquivo…"
+        loadingSubtitle="Nada é gravado nesta etapa"
+        (filesSelected)="onArquivo($event)" />
+
+      @if (arquivo() && !competencia()) {
+        <p class="envio__dica">
+          <i class="pi pi-info-circle"></i>
+          Escolha a competência acima para conferir o arquivo.
+        </p>
+      }
+    }
+
+    <!-- ─── 2. Conferência ────────────────────────────────────────────── -->
+    @if (etapa() === 'conferencia') {
+
+      <div class="resumo">
+        @for (bloco of resumo(); track bloco.status) {
+          <div class="resumo__item" [ngClass]="'resumo__item--' + bloco.chip">
+            <span class="resumo__n">{{ bloco.quantidade }}</span>
+            <span class="resumo__label"><i class="pi" [ngClass]="bloco.icon"></i> {{ bloco.label }}</span>
+          </div>
+        }
+      </div>
+
+      @if (temIlegivel()) {
+        <p class="envio__bloqueio" role="alert">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>
+            Há página com CPF ilegível. O envio está bloqueado porque uma página
+            não lida pode deixar alguém com o holerite incompleto — e isso passa
+            despercebido. Confira o PDF na origem antes de continuar.
+          </span>
+        </p>
+      }
+
+      @if (contagem().NAO_CADASTRADO) {
+        <p class="envio__aviso">
+          <i class="pi pi-user-plus"></i>
+          <span>
+            {{ contagem().NAO_CADASTRADO }} pessoa(s) não estão no cadastro.
+            <a routerLink="/rh/employees">Cadastre</a> e envie <strong>este mesmo arquivo</strong>
+            de novo — quem já recebeu não será duplicado.
+          </span>
+        </p>
+      }
+
+      <div class="tabela">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-num">Pág.</th>
+              <th>Nome no PDF</th>
+              <th>CPF</th>
+              <th>Funcionário</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itens(); track item.pagina) {
+              <tr [class.linha--problema]="item.status === 'NAO_CADASTRADO' || item.status === 'CPF_DUPLICADO'">
+                <td class="col-num">{{ item.pagina }}</td>
+                <td>{{ item.nome || '—' }}</td>
+                <td class="col-cpf">{{ item.cpf || '—' }}</td>
+                <td>
+                  @if (item.employeeNome) {
+                    {{ item.employeeNome }}
+                    <small class="col-cod">{{ item.codParceiro }}</small>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+                <td>
+                  <span class="status-chip"
+                        [ngClass]="'status-chip--' + statusInfo[item.status].chip"
+                        [title]="statusInfo[item.status].ajuda">
+                    <i class="pi" [ngClass]="statusInfo[item.status].icon"></i>
+                    {{ statusInfo[item.status].label }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    <!-- ─── 3. Resultado ──────────────────────────────────────────────── -->
+    @if (etapa() === 'enviado' && resultado(); as res) {
+      <div class="resultado">
+        <p class="resultado__titulo">
+          <i class="pi pi-check-circle"></i>
+          {{ res.vinculados }} de {{ res.totalPaginas }} página(s) enviada(s).
+        </p>
+
+        @if (res.jaExistiam.length) {
+          <div class="resultado__bloco">
+            <h4><i class="pi pi-history"></i> {{ res.jaExistiam.length }} já tinham holerite — pulados</h4>
+            <p class="resultado__hint">
+              Nenhum foi gravado de novo e ninguém foi avisado duas vezes.
+            </p>
+            <ul>
+              @for (nome of res.jaExistiam; track nome) { <li>{{ nome }}</li> }
+            </ul>
+          </div>
+        }
+
+        @if (res.naoEncontrados.length) {
+          <div class="resultado__bloco resultado__bloco--alerta">
+            <h4><i class="pi pi-user-minus"></i> {{ res.naoEncontrados.length }} ficaram de fora</h4>
+            <p class="resultado__hint">
+              Cadastre e envie o mesmo arquivo de novo: só estes entram.
+            </p>
+            <ul>
+              @for (nome of res.naoEncontrados; track nome) { <li>{{ nome }}</li> }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+
+    @if (etapa() === 'escolha' && !arquivo()) {
+      <pk-empty icon="pi pi-file-pdf"
+                title="Nenhum arquivo escolhido"
+                subtitle="Selecione o PDF da folha para conferir antes de enviar."
+                [compact]="true" />
+    }
+  </div>
+</div>

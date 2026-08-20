@@ -62,7 +62,10 @@ export const routes: Routes = [
 
       // ── RH (gestão) ──────────────────────────────────────────────────────
       { path: 'rh/hub', loadComponent: () => import('./components/auth/rh/rh-hub/rh-hub.component').then(m => m.RhHubComponent), data: { roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerit-spliter/holerit-spliter.component').then(m => m.HoleritSpliterComponent) },
+      // Menu de ferramentas + conteúdo ao lado. A rota era o separador direto;
+      // ele virou uma das ferramentas de dentro. Papéis declarados: esta era a
+      // única tela do RH sem `roles`, e ela publica holerite.
+      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { roles: ['ADMIN', 'RH'] } },
       { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { roles: ['ADMIN', 'RH'] } },
