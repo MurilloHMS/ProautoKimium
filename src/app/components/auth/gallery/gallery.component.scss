@@ -278,7 +278,9 @@
     // Verde do WhatsApp, cravado: é a cor da marca de destino, não um estado
     // da nossa interface, então não sai dos tokens de tema.
     &--share {
-      flex: 0 0 42px;
+      // Um pouco mais largo que os outros: é a ação mais usada da tela, e o
+      // alvo de 42px pedia pontaria demais no celular.
+      flex: 0 0 64px;
       color: #25d366;
       border-left: 1px solid var(--app-border);
 
