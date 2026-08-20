@@ -35,6 +35,60 @@
   white-space: nowrap;
 }
 
+// ── Busca ──
+.gl-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: v.$space-3;
+  padding: 0 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  transition: border-color v.$transition-fast ease;
+
+  &:focus-within {
+    border-color: var(--app-action);
+  }
+
+  > i {
+    color: var(--app-text-muted);
+    font-size: 0.9rem;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 0;
+    border: none;
+    background: none;
+    color: var(--app-text);
+    font-family: inherit;
+    font-size: 0.9rem;
+
+    &::placeholder { color: var(--app-text-muted); }
+    &:focus { outline: none; }
+  }
+
+  &__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--app-text-muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--app-bg);
+      color: var(--app-text);
+    }
+  }
+}
+
 // ── Filters ──
 .gl-filters {
   display: flex;

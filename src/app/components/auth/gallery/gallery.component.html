@@ -16,8 +16,22 @@
     </div>
   </app-page-header>
 
-  <!-- Filters -->
+  <!-- Busca e filtros -->
   @if (documents().length > 0 && !loading()) {
+    <div class="gl-search">
+      <i class="pi pi-search"></i>
+      <input type="text"
+             [ngModel]="busca()"
+             (ngModelChange)="busca.set($event)"
+             placeholder="Buscar por nome, descrição ou arquivo…"
+             aria-label="Buscar na galeria"/>
+      @if (busca()) {
+        <button class="gl-search__clear" (click)="limparBusca()" aria-label="Limpar busca">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+
     <div class="gl-filters">
       @for (cat of categories; track cat.key) {
         <button class="gl-filter"
@@ -49,7 +63,12 @@
     </div>
   } @else if (filtrados().length === 0) {
     <div class="gl-empty gl-empty--small">
-      <p>Nenhum documento nessa categoria</p>
+      @if (busca()) {
+        <p>Nada encontrado para "{{ busca() }}"</p>
+        <small>Tente outro termo, ou limpe a busca.</small>
+      } @else {
+        <p>Nenhum documento nessa categoria</p>
+      }
     </div>
   } @else {
 

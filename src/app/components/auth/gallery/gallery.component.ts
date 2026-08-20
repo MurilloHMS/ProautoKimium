@@ -40,6 +40,7 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
   loading = signal(true);
   erro = signal(false);
   filtro = signal<Filtro>('TODOS');
+  busca = signal('');
   downloadingId = signal<string | null>(null);
   sharingId = signal<string | null>(null);
 
@@ -81,8 +82,22 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
 
   filtrados = computed(() => {
     const f = this.filtro();
-    const all = this.documents();
-    return f === 'TODOS' ? all : all.filter(d => d.category === f);
+    const termo = normalizar(this.busca());
+
+    let docs = this.documents();
+
+    if (f !== 'TODOS') docs = docs.filter(d => d.category === f);
+
+    if (termo) {
+      // Título, descrição e nome do arquivo: quem procura "natal" pode ter
+      // guardado a arte com esse nome em qualquer um dos três campos.
+      docs = docs.filter(d =>
+        normalizar(d.title).includes(termo)
+        || normalizar(d.description).includes(termo)
+        || normalizar(d.originalFilename).includes(termo));
+    }
+
+    return docs;
   });
 
   constructor(
@@ -130,6 +145,10 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
 
   setFiltro(f: Filtro): void {
     this.filtro.set(f);
+  }
+
+  limparBusca(): void {
+    this.busca.set('');
   }
 
   getCategoryTab(category: GalleryCategory): CategoryTab {
@@ -336,4 +355,18 @@ export class GalleryComponent implements OnInit, TabDirtyCheck {
       next: () => this.loadDocuments(),
     });
   }
+}
+
+/**
+ * Sem acento e sem caixa, dos dois lados da comparação.
+ *
+ * Sem isso "natal" não acha "Natal" e "pascoa" não acha "Páscoa" — e ninguém
+ * digita acento numa caixa de busca.
+ */
+function normalizar(valor: string | null | undefined): string {
+  return (valor ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 }
