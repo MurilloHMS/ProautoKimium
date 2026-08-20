@@ -1,0 +1,294 @@
+@use 'variables' as v;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.auditoria {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+// ── Barra de ações ──
+// Fica no topo e não rola: era o pedido principal. Antes o botão de enviar
+// vinha depois da lista de páginas, e com 200 páginas ninguém o alcançava sem
+// rolar a tela inteira.
+.auditoria__barra {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: v.$space-4;
+  flex: 0 0 auto;
+  padding-bottom: v.$space-4;
+  border-bottom: 1px solid var(--app-border);
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--app-text-muted);
+  }
+
+  input[type='month'] {
+    padding: 8px 12px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font-family: inherit;
+    font-size: 0.88rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--app-action);
+    }
+  }
+}
+
+.auditoria__tipos {
+  display: flex;
+  gap: 6px;
+}
+
+.auditoria__tipo {
+  padding: 8px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+
+  &--ativo {
+    border-color: var(--app-action);
+    background: color-mix(in srgb, var(--app-action) 10%, transparent);
+    color: var(--app-action);
+    font-weight: 600;
+  }
+}
+
+.auditoria__acoes {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+// ── Corpo: a única parte que rola ──
+.auditoria__corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: v.$space-4;
+}
+
+.auditoria__dica,
+.auditoria__aviso,
+.auditoria__bloqueio {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: v.$space-4 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-surface);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.auditoria__dica {
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+}
+
+.auditoria__aviso {
+  border: 1px solid color-mix(in srgb, var(--app-warning) 35%, transparent);
+  background: var(--app-warning-soft);
+  color: var(--app-text);
+
+  a { color: var(--app-action); font-weight: 600; }
+}
+
+.auditoria__bloqueio {
+  border: 1px solid color-mix(in srgb, var(--app-danger) 35%, transparent);
+  background: var(--app-danger-soft);
+  color: var(--app-text);
+}
+
+// ── Resumo ──
+.resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.resumo__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  font-size: 0.76rem;
+  color: var(--app-text-muted);
+
+  &--ok     { border-left-color: var(--app-success); }
+  &--alerta { border-left-color: var(--app-warning); }
+  &--erro   { border-left-color: var(--app-danger); }
+}
+
+.resumo__n {
+  font-family: v.$font-heading;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--app-text);
+}
+
+// ── Tabela ──
+.tabela {
+  margin-top: v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+    background: var(--app-bg);
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--app-border);
+    color: var(--app-text);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  // Cancelado continua visível, mas recuado: ele é histórico, não pendência.
+  .linha--cancelada td {
+    background: color-mix(in srgb, var(--app-danger) 4%, transparent);
+    opacity: 0.75;
+  }
+}
+
+.col-cod {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+}
+
+.col-nota {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+
+  &--erro { color: var(--app-danger); }
+}
+
+.col-data {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-muted);
+}
+
+.col-acoes {
+  width: 130px;
+  white-space: nowrap;
+}
+
+.acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 4px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: all v.$transition-fast ease;
+
+  &:hover {
+    background: var(--app-bg);
+    color: var(--app-action);
+  }
+
+  &--perigo:hover { color: var(--app-danger); }
+}
+
+@media (max-width: v.$bp-md) {
+  .auditoria__acoes {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+// ── Diálogo de cancelamento ──
+.cancelar__aviso {
+  margin: 0 0 v.$space-4;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}
+
+.cancelar__label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.cancelar__campo {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--app-action);
+  }
+}
+
+.pk-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$space-2;
+}
