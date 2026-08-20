@@ -124,7 +124,57 @@ export interface Holerite {
   tipo: HoleriteTipo;
   originalFilename: string;
   createdAt: string;
+  openedAt?: string | null;
+  confirmedAt?: string | null;
 }
+
+/**
+ * Uma linha da auditoria do RH.
+ *
+ * `temUsuario` responde "essa pessoa consegue ser avisada?". Sem ele a tela
+ * mostraria "nunca abriu" para quem nunca foi notificado, e o RH cobraria a
+ * pessoa errada.
+ */
+export interface HoleriteAuditoria {
+  id: string;
+  employeeId: string;
+  employeeNome: string;
+  codParceiro: string;
+  competencia: string;
+  tipo: HoleriteTipo;
+  originalFilename: string;
+  createdAt: string;
+  openedAt: string | null;
+  confirmedAt: string | null;
+  canceledAt: string | null;
+  canceledBy: string | null;
+  cancelReason: string | null;
+  replacedAt: string | null;
+  temUsuario: boolean;
+}
+
+/** A situação de uma linha, derivada das datas — a tela não repete essa regra. */
+export type AuditoriaSituacao = 'CANCELADO' | 'CONFIRMADO' | 'ABERTO' | 'ENTREGUE' | 'SEM_AVISO';
+
+export function situacaoDe(item: HoleriteAuditoria): AuditoriaSituacao {
+  if (item.canceledAt) return 'CANCELADO';
+  if (item.confirmedAt) return 'CONFIRMADO';
+  if (item.openedAt) return 'ABERTO';
+  // Sem login não há como avisar: "nunca abriu" aqui é a nossa falha, não dela.
+  return item.temUsuario ? 'ENTREGUE' : 'SEM_AVISO';
+}
+
+export const AUDITORIA_SITUACAO_INFO: Record<AuditoriaSituacao, {
+  label: string;
+  chip: 'active' | 'warning' | 'danger' | 'neutral';
+  icon: string;
+}> = {
+  CONFIRMADO: { label: 'Confirmado', chip: 'active',  icon: 'pi-verified' },
+  ABERTO:     { label: 'Abriu',      chip: 'active',  icon: 'pi-eye' },
+  ENTREGUE:   { label: 'Não abriu',  chip: 'warning', icon: 'pi-clock' },
+  SEM_AVISO:  { label: 'Sem login',  chip: 'warning', icon: 'pi-bell-slash' },
+  CANCELADO:  { label: 'Cancelado',  chip: 'danger',  icon: 'pi-ban' },
+};
 
 // ─── Separação em PDFs (a outra ferramenta, que não vincula nada) ────────────
 

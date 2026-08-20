@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   Holerite,
+  HoleriteAuditoria,
   HoleritePreviewItem,
   HoleriteTipo,
   PdfUploadResponse,
@@ -44,6 +45,31 @@ export class HoleriteService {
   /** Holerites do próprio usuário logado. */
   meus(): Observable<Holerite[]> {
     return this.http.get<Holerite[]>(`${this.url}/me`);
+  }
+
+  // ─── Auditoria (RH) ──────────────────────────────────────────────────────
+
+  auditoria(competencia: string, tipo: HoleriteTipo): Observable<HoleriteAuditoria[]> {
+    return this.http.get<HoleriteAuditoria[]>(`${this.url}/auditoria`, {
+      params: { competencia, tipo },
+    });
+  }
+
+  /** Cancela sem apagar: o registro fica na auditoria e some da tela da pessoa. */
+  cancelar(id: string, motivo: string): Observable<string> {
+    return this.http.put(`${this.url}/${id}/cancelar`, { motivo }, { responseType: 'text' });
+  }
+
+  /** Troca o PDF de um holerite já enviado. Zera abriu e confirmou. */
+  substituirArquivo(id: string, file: File): Observable<string> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.put(`${this.url}/${id}/arquivo`, form, { responseType: 'text' });
+  }
+
+  /** Só o dono confirma — a API recusa qualquer outro. */
+  confirmarRecebimento(id: string): Observable<string> {
+    return this.http.post(`${this.url}/${id}/confirmar`, null, { responseType: 'text' });
   }
 
   baixar(id: string): Observable<Blob> {

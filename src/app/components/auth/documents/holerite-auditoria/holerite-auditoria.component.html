@@ -1,0 +1,166 @@
+<p-confirmDialog [style]="{ width: '480px' }"></p-confirmDialog>
+
+<div class="auditoria">
+
+  <div class="auditoria__barra">
+    <div class="auditoria__campo">
+      <label for="aud-competencia">Competência</label>
+      <input id="aud-competencia"
+             type="month"
+             [ngModel]="competencia()"
+             (ngModelChange)="competencia.set($event)" />
+    </div>
+
+    <div class="auditoria__campo">
+      <label>Tipo</label>
+      <div class="auditoria__tipos">
+        @for (item of tipos; track item.value) {
+          <button type="button"
+                  class="auditoria__tipo"
+                  [class.auditoria__tipo--ativo]="tipo() === item.value"
+                  [title]="item.label"
+                  (click)="tipo.set(item.value)">
+            <i [class]="item.icon"></i> {{ item.curto }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="auditoria__acoes">
+      <pk-button pkType="filter" pkSize="sm" pkLabel="Buscar"
+                 [pkLoading]="carregando()" (clicked)="buscar()" />
+    </div>
+  </div>
+
+  <div class="auditoria__corpo">
+
+    @if (itens().length > 0) {
+      <div class="resumo">
+        <div class="resumo__item"><span class="resumo__n">{{ resumo().total }}</span><span>enviados</span></div>
+        <div class="resumo__item resumo__item--ok"><span class="resumo__n">{{ resumo().confirmados }}</span><span>confirmaram</span></div>
+        <div class="resumo__item resumo__item--ok"><span class="resumo__n">{{ resumo().abertos }}</span><span>abriram</span></div>
+        <div class="resumo__item resumo__item--alerta"><span class="resumo__n">{{ resumo().naoAbertos }}</span><span>não abriram</span></div>
+        @if (resumo().cancelados) {
+          <div class="resumo__item resumo__item--erro"><span class="resumo__n">{{ resumo().cancelados }}</span><span>cancelados</span></div>
+        }
+      </div>
+
+      <div class="tabela">
+        <table>
+          <thead>
+            <tr>
+              <th>Funcionário</th>
+              <th>Situação</th>
+              <th>Abriu</th>
+              <th>Confirmou</th>
+              <th class="col-acoes">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of itens(); track item.id) {
+              <tr [class.linha--cancelada]="item.canceledAt">
+                <td>
+                  <strong>{{ item.employeeNome }}</strong>
+                  <small class="col-cod">{{ item.codParceiro }}</small>
+                  @if (item.replacedAt) {
+                    <small class="col-nota">
+                      <i class="pi pi-refresh"></i>
+                      arquivo substituído em {{ item.replacedAt | date: 'dd/MM/yy HH:mm' }}
+                    </small>
+                  }
+                  @if (item.canceledAt) {
+                    <small class="col-nota col-nota--erro">
+                      <i class="pi pi-ban"></i>
+                      {{ item.cancelReason }} — {{ item.canceledBy }},
+                      {{ item.canceledAt | date: 'dd/MM/yy' }}
+                    </small>
+                  }
+                </td>
+                <td>
+                  <span class="status-chip"
+                        [ngClass]="'status-chip--' + situacaoInfo[situacaoDe(item)].chip">
+                    <i class="pi" [ngClass]="situacaoInfo[situacaoDe(item)].icon"></i>
+                    {{ situacaoInfo[situacaoDe(item)].label }}
+                  </span>
+                </td>
+                <td class="col-data">{{ item.openedAt ? (item.openedAt | date: 'dd/MM/yy HH:mm') : '—' }}</td>
+                <td class="col-data">{{ item.confirmedAt ? (item.confirmedAt | date: 'dd/MM/yy HH:mm') : '—' }}</td>
+                <td class="col-acoes">
+                  <button type="button" class="acao" title="Baixar o PDF" (click)="baixar(item)">
+                    <i class="pi pi-download"></i>
+                  </button>
+
+                  @if (!item.canceledAt) {
+                    <!-- O input fica escondido atrás do botão: substituir é trocar
+                         um arquivo, e um seletor por linha polui a grade. -->
+                    <label class="acao" title="Substituir o arquivo">
+                      @if (substituindoId() === item.id) {
+                        <i class="pi pi-spin pi-spinner"></i>
+                      } @else {
+                        <i class="pi pi-refresh"></i>
+                      }
+                      <input type="file" accept=".pdf" hidden
+                             (change)="onArquivoSubstituto(item, $event)" />
+                    </label>
+
+                    <button type="button" class="acao acao--perigo" title="Cancelar holerite"
+                            (click)="cancelar(item)">
+                      <i class="pi pi-ban"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else if (buscou() && !carregando()) {
+      <pk-empty icon="pi pi-inbox"
+                title="Nenhum holerite nesta competência"
+                subtitle="Confira o mês e o tipo, ou envie os holerites na primeira ferramenta."
+                [compact]="true" />
+    } @else if (!buscou()) {
+      <pk-empty icon="pi pi-search"
+                title="Escolha a competência e busque"
+                subtitle="A auditoria mostra quem recebeu, quem abriu e quem confirmou."
+                [compact]="true" />
+    }
+  </div>
+</div>
+
+<!-- Cancelamento: o motivo fica no registro para sempre, e é a explicação que
+     alguém vai procurar meses depois, quando ninguém lembrar do contexto. -->
+<pk-dialog header="Cancelar holerite"
+           [visible]="!!cancelando()"
+           (visibleChange)="fecharCancelamento()"
+           width="480px">
+
+  <div pkDialogContent>
+    <!-- `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+         conteúdo de propósito, e é a seção que traz o espaçamento. -->
+    <div class="pk-form-section">
+      @if (cancelando(); as item) {
+      <p class="cancelar__aviso">
+        O holerite de <strong>{{ item.employeeNome }}</strong> some da tela dele e
+        continua aqui, com o motivo. Depois disso é possível enviar outro para a
+        mesma competência.
+      </p>
+
+      <label class="cancelar__label" for="motivo">Motivo <span class="required">*</span></label>
+      <textarea id="motivo"
+                class="cancelar__campo"
+                rows="3"
+                maxlength="300"
+                placeholder="Ex: arquivo do mês errado"
+                  [(ngModel)]="motivo"></textarea>
+      }
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="fecharCancelamento()" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Cancelar holerite"
+               [pkDisabled]="!motivo.trim()" [pkLoading]="cancelandoSalvando()"
+               (clicked)="confirmarCancelamento()" />
+  </div>
+</pk-dialog>

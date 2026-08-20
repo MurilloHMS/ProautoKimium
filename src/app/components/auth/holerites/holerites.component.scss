@@ -327,3 +327,41 @@
     font-size: 0.78rem;
   }
 }
+
+// Recibo de recebimento, ao lado do botão de baixar. Cinza enquanto pendente,
+// verde depois — e sem voltar atrás: confirmar é um ato, não um interruptor.
+.hl-card__recibo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  color: var(--app-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: default;
+
+  &--ok {
+    border-color: color-mix(in srgb, var(--app-success) 40%, transparent);
+    background: color-mix(in srgb, var(--app-success) 10%, transparent);
+    color: var(--app-success);
+    cursor: default;
+  }
+}
+
+// ── Diálogo de confirmação ──
+.confirmar__titulo {
+  margin: 0 0 6px;
+  font-family: v.$font-heading;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.confirmar__texto {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}

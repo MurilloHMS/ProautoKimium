@@ -3,11 +3,12 @@ import { Component, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
+import { HoleriteAuditoriaComponent } from '../holerite-auditoria/holerite-auditoria.component';
 import { HoleriteEnvioComponent } from '../holerite-envio/holerite-envio.component';
 import { HoleritSpliterComponent } from '../holerit-spliter/holerit-spliter.component';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
-type Ferramenta = 'envio' | 'separar';
+type Ferramenta = 'envio' | 'auditoria' | 'separar';
 
 interface ItemFerramenta {
   key: Ferramenta;
@@ -32,7 +33,7 @@ interface ItemFerramenta {
   selector: 'app-holerite-hub',
   standalone: true,
   imports: [CommonModule, ToastModule, PageHeaderComponent,
-            HoleriteEnvioComponent, HoleritSpliterComponent],
+            HoleriteEnvioComponent, HoleriteAuditoriaComponent, HoleritSpliterComponent],
   templateUrl: './holerite-hub.component.html',
   styleUrl: './holerite-hub.component.scss',
   providers: [MessageService],
@@ -47,6 +48,12 @@ export class HoleriteHubComponent {
       label: 'Enviar holerites',
       icon: 'pi pi-send',
       hint: 'Confere e publica para os funcionários',
+    },
+    {
+      key: 'auditoria',
+      label: 'Auditoria',
+      icon: 'pi pi-verified',
+      hint: 'Quem recebeu, abriu e confirmou',
     },
     {
       key: 'separar',

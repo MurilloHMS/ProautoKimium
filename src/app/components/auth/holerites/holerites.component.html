@@ -67,7 +67,7 @@
                       class="hl-card"
                       [class.hl-card--downloading]="baixandoId() === h.id"
                       [disabled]="baixandoId() === h.id"
-                      (click)="baixar(h)">
+                      (click)="abrir(h)">
 
                 <span class="hl-card__icon"
                       [class.hl-card__icon--adiant]="h.tipo === 'ADIANTAMENTO'">
@@ -85,6 +85,16 @@
                     <span class="hl-card__date">{{ h.createdAt | date:'dd/MM/yyyy' }}</span>
                   </span>
                 </span>
+
+                <!-- Selo, não botão: a confirmação acontece na porta do
+                     download, e aqui só mostra que já aconteceu. -->
+                @if (h.confirmedAt) {
+                  <span class="hl-card__recibo hl-card__recibo--ok"
+                        [title]="'Recebimento confirmado em ' + (h.confirmedAt | date: 'dd/MM/yyyy')">
+                    <i class="pi pi-verified"></i>
+                    <span class="hl-card__action-label">Confirmado</span>
+                  </span>
+                }
 
                 <span class="hl-card__action">
                   @if (baixandoId() === h.id) {
@@ -104,3 +114,33 @@
   }
 
 </section>
+
+<!-- A porta do download. O recibo depende de um ato que a pessoa faria de
+     qualquer jeito: ela quer o arquivo, e confirmar é o caminho até ele. -->
+<pk-dialog header="Confirmar recebimento"
+           [visible]="!!confirmando()"
+           (visibleChange)="fecharConfirmacao()"
+           width="440px">
+
+  <div pkDialogContent>
+    <!-- `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+         conteúdo de propósito, e é a seção que traz o espaçamento. -->
+    <div class="pk-form-section">
+      @if (confirmando(); as h) {
+        <p class="confirmar__titulo">
+          {{ tipoLabel(h.tipo) }} de <strong>{{ mesLabel(h.competencia) }}</strong>
+        </p>
+        <p class="confirmar__texto">
+          Ao baixar, você confirma que recebeu este holerite. A data fica
+          registrada no seu histórico.
+        </p>
+      }
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Agora não" (clicked)="fecharConfirmacao()" />
+    <pk-button pkType="download" pkSize="sm" pkLabel="Confirmar e baixar"
+               [pkLoading]="salvandoConfirmacao()" (clicked)="confirmarEBaixar()" />
+  </div>
+</pk-dialog>
