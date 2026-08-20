@@ -50,9 +50,12 @@ export class HoleriteEnvioComponent {
   readonly itens = signal<HoleritePreviewItem[]>([]);
   readonly resultado = signal<VincularHoleriteResult | null>(null);
 
-  arquivo: File | null = null;
-  competencia = '';
-  tipo: HoleriteTipo = 'SALARIO';
+  // Signals, e não campos comuns: `computed` só reage a signals. Com campo
+  // comum, `podeConferir` calculava uma vez, guardava `false` e nunca mais
+  // recalculava — escolher arquivo e mês não desbloqueava nada.
+  readonly arquivo = signal<File | null>(null);
+  readonly competencia = signal('');
+  readonly tipo = signal<HoleriteTipo>('SALARIO');
 
   readonly statusInfo = PREVIEW_STATUS_INFO;
   readonly tipoLabel = HOLERITE_TIPO_LABEL;
@@ -88,10 +91,10 @@ export class HoleriteEnvioComponent {
    */
   readonly temIlegivel = computed(() => (this.contagem().CPF_ILEGIVEL ?? 0) > 0);
 
-  readonly podeConferir = computed(() => !!this.arquivo && !!this.competencia);
+  readonly podeConferir = computed(() => !!this.arquivo() && !!this.competencia());
 
   onArquivo(files: File[]): void {
-    this.arquivo = files[0] ?? null;
+    this.arquivo.set(files[0] ?? null);
     this.voltarParaEscolha();
   }
 
@@ -107,7 +110,7 @@ export class HoleriteEnvioComponent {
 
     this.conferindo.set(true);
 
-    this.service.preview(this.arquivo!, this.competencia, this.tipo).subscribe({
+    this.service.preview(this.arquivo()!, this.competencia(), this.tipo()).subscribe({
       next: (itens) => {
         this.conferindo.set(false);
         this.itens.set(itens ?? []);
@@ -140,7 +143,7 @@ export class HoleriteEnvioComponent {
     const c = this.contagem();
     const partes = [
       `Enviar <strong>${this.totalEnviar()}</strong> holerite(s) de `
-      + `<strong>${this.tipoLabel[this.tipo].toLowerCase()}</strong> de `
+      + `<strong>${this.tipoLabel[this.tipo()].toLowerCase()}</strong> de `
       + `<strong>${this.competenciaLegivel()}</strong>?`,
     ];
 
@@ -153,8 +156,8 @@ export class HoleriteEnvioComponent {
   }
 
   competenciaLegivel(): string {
-    if (!this.competencia) return '';
-    const [ano, mes] = this.competencia.split('-');
+    if (!this.competencia()) return '';
+    const [ano, mes] = this.competencia().split('-');
     const nomes = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
                    'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
     return `${nomes[Number(mes) - 1]}/${ano}`;
@@ -163,7 +166,7 @@ export class HoleriteEnvioComponent {
   private enviar(): void {
     this.enviando.set(true);
 
-    this.service.vincular(this.arquivo!, this.competencia, this.tipo).subscribe({
+    this.service.vincular(this.arquivo()!, this.competencia(), this.tipo()).subscribe({
       next: (resultado) => {
         this.enviando.set(false);
         this.resultado.set(resultado);
@@ -183,8 +186,8 @@ export class HoleriteEnvioComponent {
   }
 
   recomecar(): void {
-    this.arquivo = null;
-    this.competencia = '';
+    this.arquivo.set(null);
+    this.competencia.set('');
     this.voltarParaEscolha();
   }
 

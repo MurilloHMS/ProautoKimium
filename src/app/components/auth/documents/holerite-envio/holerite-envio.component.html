@@ -10,8 +10,8 @@
       <label for="competencia">Competência</label>
       <input id="competencia"
              type="month"
-             [(ngModel)]="competencia"
-             (ngModelChange)="voltarParaEscolha()" />
+             [ngModel]="competencia()"
+             (ngModelChange)="competencia.set($event); voltarParaEscolha()" />
     </div>
 
     <div class="envio__campo">
@@ -19,14 +19,14 @@
       <div class="envio__tipos">
         <button type="button"
                 class="envio__tipo"
-                [class.envio__tipo--ativo]="tipo === 'SALARIO'"
-                (click)="tipo = 'SALARIO'; voltarParaEscolha()">
+                [class.envio__tipo--ativo]="tipo() === 'SALARIO'"
+                (click)="tipo.set('SALARIO'); voltarParaEscolha()">
           Salário
         </button>
         <button type="button"
                 class="envio__tipo"
-                [class.envio__tipo--ativo]="tipo === 'ADIANTAMENTO'"
-                (click)="tipo = 'ADIANTAMENTO'; voltarParaEscolha()">
+                [class.envio__tipo--ativo]="tipo() === 'ADIANTAMENTO'"
+                (click)="tipo.set('ADIANTAMENTO'); voltarParaEscolha()">
           Adiantamento
         </button>
       </div>
@@ -66,7 +66,7 @@
         loadingSubtitle="Nada é gravado nesta etapa"
         (filesSelected)="onArquivo($event)" />
 
-      @if (arquivo && !competencia) {
+      @if (arquivo() && !competencia()) {
         <p class="envio__dica">
           <i class="pi pi-info-circle"></i>
           Escolha a competência acima para conferir o arquivo.
@@ -182,7 +182,7 @@
       </div>
     }
 
-    @if (etapa() === 'escolha' && !arquivo) {
+    @if (etapa() === 'escolha' && !arquivo()) {
       <pk-empty icon="pi pi-file-pdf"
                 title="Nenhum arquivo escolhido"
                 subtitle="Selecione o PDF da folha para conferir antes de enviar."
