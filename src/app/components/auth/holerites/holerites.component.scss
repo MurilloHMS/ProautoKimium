@@ -340,13 +340,7 @@
   color: var(--app-text-muted);
   font-size: 0.78rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all v.$transition-fast ease;
-
-  &:hover {
-    border-color: var(--app-success);
-    color: var(--app-success);
-  }
+  cursor: default;
 
   &--ok {
     border-color: color-mix(in srgb, var(--app-success) 40%, transparent);
@@ -354,4 +348,26 @@
     color: var(--app-success);
     cursor: default;
   }
+}
+
+// ── Diálogo de confirmação ──
+.confirmar__titulo {
+  margin: 0 0 6px;
+  font-family: v.$font-heading;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.confirmar__texto {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--app-text-muted);
+}
+
+.pk-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: v.$space-2;
 }

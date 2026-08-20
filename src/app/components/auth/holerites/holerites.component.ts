@@ -4,6 +4,8 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { animate, style, transition, trigger, query, stagger } from '@angular/animations';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import {
   HOLERITE_TIPOS,
   HOLERITE_TIPO_LABEL,
@@ -21,7 +23,7 @@ interface GrupoAno {
 @Component({
   selector: 'app-holerites',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent],
+  imports: [CommonModule, PageHeaderComponent, PkButtonComponent, PkDialogComponent],
   templateUrl: './holerites.component.html',
   styleUrl: './holerites.component.scss',
   animations: [
@@ -42,7 +44,17 @@ export class HoleritesComponent implements OnInit {
   loading = signal(true);
   erro = signal(false);
   baixandoId = signal<string | null>(null);
-  confirmandoId = signal<string | null>(null);
+
+  /**
+   * O holerite esperando confirmação para ser baixado.
+   *
+   * O botão voluntário de confirmar não funcionava: ninguém clica em algo que
+   * não precisa clicar, e a auditoria ficava vazia como se ninguém tivesse
+   * recebido nada. Agora o recibo vem do ato que a pessoa já queria praticar —
+   * ela quer o arquivo, e confirmar é o caminho até ele.
+   */
+  confirmando = signal<Holerite | null>(null);
+  salvandoConfirmacao = signal(false);
   filtro = signal<Filtro>('TODOS');
 
   /** Os mesmos tipos do envio, na mesma ordem — uma lista só para as duas telas. */
@@ -106,28 +118,43 @@ export class HoleritesComponent implements OnInit {
     this.filtro.set(f);
   }
 
-  /**
-   * Confirmação de recebimento — só o dono pode, e a API recusa o resto.
-   *
-   * Abrir o arquivo já é registrado sozinho, mas abrir não é receber: quem
-   * clica aqui está dizendo que viu e conferiu, e é isso que a auditoria do RH
-   * mostra na coluna própria.
-   */
-  confirmar(h: Holerite, event: Event): void {
-    event.stopPropagation();   // o cartão inteiro é o botão de baixar
-    if (h.confirmedAt || this.confirmandoId()) return;
+  /** Já confirmado baixa direto; o primeiro download passa pela confirmação. */
+  abrir(h: Holerite): void {
+    if (h.confirmedAt) {
+      this.baixar(h);
+      return;
+    }
+    this.confirmando.set(h);
+  }
 
-    this.confirmandoId.set(h.id);
+  fecharConfirmacao(): void {
+    this.confirmando.set(null);
+  }
+
+  /** Confirma e baixa em seguida: para a pessoa é um clique só, com um aviso. */
+  confirmarEBaixar(): void {
+    const h = this.confirmando();
+    if (!h || this.salvandoConfirmacao()) return;
+
+    this.salvandoConfirmacao.set(true);
 
     this.http.post(`${environment.apiUrl}/holerite/${h.id}/confirmar`, null, { responseType: 'text' })
       .subscribe({
         next: () => {
-          this.confirmandoId.set(null);
-          // Atualiza a lista local: recarregar tudo por um clique seria exagero.
+          this.salvandoConfirmacao.set(false);
+          this.confirmando.set(null);
+          // Atualiza no lugar: recarregar a lista inteira por um clique é exagero.
           this.holerites.update(lista => lista.map(item =>
             item.id === h.id ? { ...item, confirmedAt: new Date().toISOString() } : item));
+          this.baixar(h);
         },
-        error: () => this.confirmandoId.set(null),
+        error: () => {
+          this.salvandoConfirmacao.set(false);
+          this.confirmando.set(null);
+          // O recibo falhou, mas o holerite é dela: baixar não pode ser bloqueado
+          // por causa da nossa auditoria.
+          this.baixar(h);
+        },
       });
   }
 
