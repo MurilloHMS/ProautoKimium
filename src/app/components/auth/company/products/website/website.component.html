@@ -371,13 +371,34 @@
       <div class="form-grid">
         <div class="form-field field-full">
           <label for="imagemEdit">Trocar imagem</label>
-          <input
-            id="imagemEdit"
-            type="file"
-            accept="image/*"
-            class="file-input"
-            (change)="onEditImageSelected($event)" />
+          <!--
+            Duas portas para a mesma coisa. Escolher da galeria não aponta o
+            produto para lá: a API copia os bytes para /upload/images, que é a
+            pasta pública e a que o guia lê do disco.
+          -->
+          <div class="imagem-origens">
+            <input
+              #inputImagemEdit
+              id="imagemEdit"
+              type="file"
+              accept="image/*"
+              class="file-input"
+              (change)="onEditImageSelected($event)" />
+
+            <pk-button
+              pkType="filter"
+              pkSize="sm"
+              pkLabel="Escolher da galeria"
+              (clicked)="galeriaEditAberta.set(true)" />
+          </div>
         </div>
+
+        <app-gallery-picker
+          [visible]="galeriaEditAberta()"
+          categoria="PRODUCT"
+          titulo="Fotos de produto na galeria"
+          (visibleChange)="galeriaEditAberta.set($event)"
+          (escolhido)="onGaleriaEscolhidaEdit($event)" />
 
         @if (editingProduct()?.imagem && !editImagePreview) {
           <div class="form-field field-full">
@@ -620,13 +641,34 @@
       <div class="form-grid">
         <div class="form-field field-full">
           <label for="imagemCreate">Adicionar imagem</label>
-          <input
-            id="imagemCreate"
-            type="file"
-            accept="image/*"
-            class="file-input"
-            (change)="onCreateImageSelected($event)" />
+          <!--
+            Duas portas para a mesma coisa. Escolher da galeria não aponta o
+            produto para lá: a API copia os bytes para /upload/images, que é a
+            pasta pública e a que o guia lê do disco.
+          -->
+          <div class="imagem-origens">
+            <input
+              #inputImagemCreate
+              id="imagemCreate"
+              type="file"
+              accept="image/*"
+              class="file-input"
+              (change)="onCreateImageSelected($event)" />
+
+            <pk-button
+              pkType="filter"
+              pkSize="sm"
+              pkLabel="Escolher da galeria"
+              (clicked)="galeriaCreateAberta.set(true)" />
+          </div>
         </div>
+
+        <app-gallery-picker
+          [visible]="galeriaCreateAberta()"
+          categoria="PRODUCT"
+          titulo="Fotos de produto na galeria"
+          (visibleChange)="galeriaCreateAberta.set($event)"
+          (escolhido)="onGaleriaEscolhidaCreate($event)" />
 
         @if (createImagePreview) {
           <div class="form-field field-full">

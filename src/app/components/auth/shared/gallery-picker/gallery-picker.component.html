@@ -1,0 +1,99 @@
+<pk-dialog
+  [header]="titulo()"
+  [visible]="visible()"
+  width="820px"
+  (visibleChange)="fechar()">
+
+  <!-- pk-dialog zera o padding do conteúdo de propósito: o respiro vem daqui. -->
+  <div pkDialogContent class="pk-form-section">
+
+    <div class="gp-busca">
+      <i class="pi pi-search gp-busca__icone"></i>
+      <input
+        pInputText
+        class="gp-busca__campo"
+        placeholder="Buscar por título, descrição ou arquivo..."
+        [(ngModel)]="termo"
+        (input)="aplicarBusca()" />
+      @if (termo) {
+        <button type="button" class="gp-busca__limpar" (click)="limparBusca()">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+
+    @if (carregando()) {
+      <div class="gp-grade">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <p-skeleton height="130px" borderRadius="10px" />
+        }
+      </div>
+    }
+
+    @if (erro()) {
+      <div class="gp-vazio">
+        <i class="pi pi-exclamation-triangle"></i>
+        <p>Não foi possível carregar a galeria.</p>
+      </div>
+    }
+
+    @if (!carregando() && !erro() && filtrados().length === 0) {
+      <div class="gp-vazio">
+        <i class="pi pi-images"></i>
+        @if (documentos().length === 0) {
+          <p>Nenhuma imagem nesta categoria da galeria ainda.</p>
+        } @else {
+          <p>Nada encontrado para "{{ termo }}".</p>
+        }
+      </div>
+    }
+
+    @if (!carregando() && filtrados().length > 0) {
+      <div class="gp-grade" role="listbox" [attr.aria-label]="titulo()">
+        @for (doc of filtrados(); track doc.id) {
+          <button
+            type="button"
+            class="gp-item"
+            role="option"
+            [class.gp-item--on]="selecionado() === doc.id"
+            [class.gp-item--quebrado]="quebrados().has(doc.id)"
+            [attr.aria-selected]="selecionado() === doc.id"
+            [disabled]="quebrados().has(doc.id)"
+            [title]="doc.title"
+            (click)="selecionar(doc)"
+            (dblclick)="selecionar(doc); confirmar()">
+
+            @if (quebrados().has(doc.id)) {
+              <!-- Registro no banco sem arquivo no disco. Dizer isso é melhor
+                   que um card em branco que parece uma imagem que não carregou. -->
+              <div class="gp-item__falha">
+                <i class="pi pi-image"></i>
+                <small>Arquivo ausente</small>
+              </div>
+            } @else if (miniaturas()[doc.id]) {
+              <img [src]="miniaturas()[doc.id]" [alt]="doc.title" class="gp-item__img" />
+            } @else {
+              <p-skeleton height="100%" borderRadius="0" />
+            }
+
+            <span class="gp-item__nome">{{ doc.title || doc.originalFilename }}</span>
+
+            @if (selecionado() === doc.id) {
+              <span class="gp-item__marca"><i class="pi pi-check"></i></span>
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fechar()" />
+    <pk-button
+      pkType="save"
+      pkSize="sm"
+      pkLabel="Usar esta imagem"
+      [pkDisabled]="!selecionado()"
+      (clicked)="confirmar()" />
+  </div>
+</pk-dialog>

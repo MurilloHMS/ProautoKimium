@@ -58,6 +58,14 @@ export interface ProductWebSiteCreateDTO{
   descricao: string;
   descricaoGuia?: string;
   equipmentId?: string | null;
+  /**
+   * Preenchido só quando a foto veio da galeria.
+   *
+   * A API copia os bytes para o acervo do produto a partir daqui — o produto
+   * guarda a cópia, nunca um ponteiro para a galeria. Arquivo enviado no
+   * multipart tem precedência sobre este campo.
+   */
+  galleryDocumentId?: string | null;
 }
 
 export interface ProductWebSiteUpdateDTO{
@@ -71,6 +79,7 @@ export interface ProductWebSiteUpdateDTO{
   descricao: string;
   descricaoGuia?: string;
   equipmentId?: string | null;
+  galleryDocumentId?: string | null;
 }
 
 export interface ProductWebSiteResponseDTO{
