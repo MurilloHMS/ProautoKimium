@@ -25,7 +25,17 @@ export class WebsiteProductStore extends ReferenceStore<ProductWebSiteResponseDT
   protected fetch(): Observable<ProductWebSiteResponseDTO[]> { return this.service.getAllProducts(); }
   protected idOf(item: ProductWebSiteResponseDTO): string { return item.id; }
 
-  /** No ar e fora do ar — a tela de produtos separa as duas em abas. */
+  /**
+   * No ar e fora do ar na **vitrine pública** — só isso.
+   *
+   * `active` não fala pelo guia de utilização: o guia lê `items()`, a lista
+   * inteira, e o `GuideReportService` busca o produto por id sem filtro
+   * nenhum. Produto oculto continua saindo no guia, e é assim de propósito —
+   * descontinuado, exclusivo de contrato e uso interno são casos legítimos.
+   *
+   * A tela de produtos usa os dois recortes como filtro da mesma lista. Eram
+   * abas, e a aba escondia a existência do produto.
+   */
   readonly active = computed(() => this.items().filter(product => product.active));
   readonly hidden = computed(() => this.items().filter(product => !product.active));
 

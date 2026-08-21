@@ -28,8 +28,12 @@ import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.comp
 export class GuideComponent implements OnInit {
   // ─── State ──────────────────────────────────────────────────────────────────
   /**
-   * A lista é a mesma de Produtos do site: ocultar um produto lá tira ele
-   * daqui na hora, mesmo com as duas telas abertas em abas.
+   * A lista é a mesma de Produtos do site, e é a lista **inteira**: `items()`,
+   * não `active()`.
+   *
+   * Ocultar um produto lá **não** tira ele daqui — ocultar decide só a vitrine
+   * do site. O guia mostra o oculto marcado, e o PDF sai com ele. É o que
+   * impede a tela de produtos de passar a publicar por padrão.
    */
   private readonly productStore = inject(WebsiteProductStore);
   readonly products = this.productStore.items;

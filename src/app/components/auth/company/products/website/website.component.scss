@@ -2,7 +2,6 @@
 @use 'cards';
 @use 'buttons';
 @use 'typography';
-@use 'tabs';
 @use 'tables';
 @use 'chips';
 @use 'dialogs';
@@ -48,6 +47,13 @@
 .stat-total  { .stat-icon { background: var(--app-action); color: #fff; } .stat-value { color: var(--app-action); } }
 .stat-active { .stat-icon { background: var(--app-success); color: var(--app-action); } .stat-value { color: var(--app-success); } }
 .stat-hidden { .stat-icon { background: var(--app-warning-soft);        color: var(--app-warning) } .stat-value { color: var(--app-warning); } }
+
+// Onde ficava .tabs-nav. A separação visual antes vinha da borda inferior da
+// aba; o pk-segmented é uma pílula solta, então o respiro precisa ser explícito.
+.filtros-row {
+  display: flex;
+  margin-bottom: 1rem;
+}
 
 .estado-vazio {
   display: flex;

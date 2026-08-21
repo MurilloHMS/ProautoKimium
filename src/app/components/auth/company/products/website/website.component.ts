@@ -1,6 +1,8 @@
 import { ToolbarComponent } from '../../../shared/toolbar/toolbar.component';
 import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkCheckboxComponent } from '../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
+import { PkSegmentedComponent, PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -32,7 +34,15 @@ import {
 
 import { WebsiteProductStore } from '../../../../../infrastructure/state/website-product.store';
 
-export type TabKey = 'active' | 'hidden';
+/**
+ * Os três recortes da mesma lista.
+ *
+ * Eram duas abas — "Visíveis no Site" e "Ocultos" — e a tela abria na primeira.
+ * Produto novo nasce oculto, então ele caía na aba que ninguém estava vendo, e
+ * a que estava aberta dizia "Nenhum produto encontrado". Daí o relato de que o
+ * cadastro tinha sumido: ele estava do outro lado, atrás de um clique.
+ */
+export type FiltroProduto = 'todos' | 'publicados' | 'ocultos';
 
 @Component({
   selector: 'app-website',
@@ -58,6 +68,8 @@ export type TabKey = 'active' | 'hidden';
     ToolbarComponent,
     FormScreenComponent,
     PkButtonComponent,
+    PkCheckboxComponent,
+    PkSegmentedComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './website.component.html',
@@ -86,7 +98,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   readonly mode = signal<'grid' | 'edit' | 'create'>('grid');
   editingProduct = signal<ProductWebSiteResponseDTO | null>(null);
 
-  activeTab = signal<TabKey>('active');
+  filtro = signal<FiltroProduto>('todos');
   termoBusca = '';
 
   selectedCreateImage: File | null = null;
@@ -103,9 +115,18 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   /** Equipamentos disponíveis para vincular ao produto (1 por produto). */
   equipamentos = signal<EquipmentResponseDTO[]>([]);
 
-  tabs = [
-    { key: 'active' as TabKey, label: 'Visíveis no Site', icon: 'pi-eye' },
-    { key: 'hidden' as TabKey, label: 'Ocultos', icon: 'pi-eye-slash' },
+  /**
+   * O que era aba virou recorte da mesma lista.
+   *
+   * As contagens continuam nos cards acima, sempre as três. O que sumiu foi o
+   * badge da aba, que só mostrava o número do recorte selecionado: "Ocultos 4"
+   * aparecia depois de clicar em Ocultos, e quem não clicava não tinha como
+   * saber que existia.
+   */
+  readonly filtros: PkSegmentedOption[] = [
+    { value: 'todos',      label: 'Todos' },
+    { value: 'publicados', label: 'Publicados' },
+    { value: 'ocultos',    label: 'Ocultos' },
   ];
 
   private _buscaTrigger = signal(0);
@@ -117,9 +138,9 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     this._buscaTrigger();
 
     const lista =
-      this.activeTab() === 'active'
-        ? this.activeProducts()
-        : this.hiddenProducts();
+      this.filtro() === 'publicados' ? this.activeProducts() :
+      this.filtro() === 'ocultos'    ? this.hiddenProducts() :
+                                       this.allProducts();
 
     const termo = this.termoBusca.toLowerCase().trim();
     if (!termo) return lista;
@@ -171,6 +192,12 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   initCreateForm(): void {
     this.createForm = this.fb.group({
       systemCode: ['', [Validators.required, Validators.minLength(2)]],
+      // Desmarcado de propósito, e agora visível. O campo não existia: o JSON
+      // ia sem a chave, o `boolean` primitivo da API virava `false`, e o
+      // produto nascia oculto sem ninguém ter escolhido isso. O padrão
+      // continua o mesmo — publicar sozinho um produto no site da empresa é
+      // pior do que esquecer de publicar —, o que muda é que agora se vê.
+      active: [false],
       name: ['', [Validators.required, Validators.minLength(2)]],
       cores: [[]],
       finalidade: ['', Validators.required],
@@ -187,8 +214,17 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     this.productStore.refresh();
   }
 
-  setTab(key: TabKey): void {
-    this.activeTab.set(key);
+  setFiltro(key: FiltroProduto): void {
+    this.filtro.set(key);
+    // A busca sobrevive à troca de recorte de propósito: com uma lista só,
+    // "procurei X e mudei para Ocultos" é uma pergunta legítima. A aba antiga
+    // limpava o campo, e o termo digitado sumia sem aviso.
+    this.aplicarFiltro();
+  }
+
+  /** Usado pelo estado vazio, que oferece ver a lista inteira em vez de só dizer "nada aqui". */
+  limparFiltros(): void {
+    this.filtro.set('todos');
     this.termoBusca = '';
     this.aplicarFiltro();
   }
@@ -210,6 +246,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     this.createForm.reset({
       systemCode: '',
       name: '',
+      active: false,
       cores: [],
       finalidade: '',
       diluicao: '',
