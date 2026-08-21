@@ -1,0 +1,159 @@
+@use 'variables' as v;
+
+:host { display: block; }
+
+.pk-cp {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.pk-cp__label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--app-action);
+}
+
+.pk-cp__hint {
+  font-weight: 400;
+  color: var(--app-text-subtle);
+  margin-left: .35rem;
+}
+
+// ─── Paleta ────────────────────────────────────────────────────────────────
+
+.pk-cp__paleta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.pk-cp__swatch {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1.5px solid var(--app-border);
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .12s ease, box-shadow .12s ease;
+
+  i { font-size: .8rem; }
+
+  &:hover:not(:disabled) { transform: translateY(-1px); }
+
+  &--on {
+    // A borda escura é o que separa o branco escolhido do branco do fundo.
+    border-color: var(--app-action);
+    box-shadow: 0 0 0 2px var(--app-surface), 0 0 0 3px var(--app-action);
+  }
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+// ─── Seletor livre ─────────────────────────────────────────────────────────
+
+.pk-cp__livre {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.pk-cp__hex {
+  width: 8.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: lowercase;
+}
+
+.pk-cp__add {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  height: var(--btn-h-md, 36px);
+  padding: 0 .85rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--app-surface-2);
+  color: var(--app-action);
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: var(--app-surface-3, var(--app-surface-2)); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.pk-cp__erro {
+  color: var(--app-danger);
+  font-size: .78rem;
+}
+
+// ─── Escolhidas ────────────────────────────────────────────────────────────
+
+.pk-cp__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.pk-cp__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .3rem .35rem .3rem .6rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill, 999px);
+  font-size: .78rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  i { font-size: .72rem; }
+
+  // Fora do guia: tracejado, porque o valor continua gravado — não é um erro
+  // de preenchimento, é uma informação que não chega ao PDF.
+  &--fora {
+    border-style: dashed;
+    border-color: var(--app-warning, var(--app-border));
+    opacity: .85;
+  }
+}
+
+.pk-cp__chip-nome {
+  font-family: inherit;
+  opacity: .75;
+  font-size: .7rem;
+  letter-spacing: .01em;
+}
+
+.pk-cp__chip-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .12);
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: rgba(0, 0, 0, .25); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+// ─── Avisos ────────────────────────────────────────────────────────────────
+
+.pk-cp__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: .4rem;
+  font-size: .75rem;
+  line-height: 1.35;
+  color: var(--app-text-subtle);
+
+  i { margin-top: .15rem; flex-shrink: 0; }
+
+  &--erro { color: var(--app-danger); }
+}

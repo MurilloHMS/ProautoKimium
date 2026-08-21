@@ -22,7 +22,7 @@
       <div class="stat-icon"><i class="pi pi-eye"></i></div>
       <div class="stat-info">
         <span class="stat-value">{{ activeProducts().length }}</span>
-        <span class="stat-label">Visíveis no Site</span>
+        <span class="stat-label">Publicados</span>
       </div>
     </div>
     <div class="app-card app-card--sm stat-hidden">
@@ -34,24 +34,14 @@
     </div>
   </div>
 
-  <!-- TABS NAV -->
-  <nav class="tabs-nav">
-    @for (tab of tabs; track tab.key) {
-      <button
-        class="tab-btn"
-        [class.tab-btn--active]="activeTab() === tab.key"
-        (click)="setTab(tab.key)"
-      >
-        <i [class]="'pi ' + tab.icon"></i>
-        {{ tab.label }}
-        @if (activeTab() === tab.key) {
-          <span class="tab-badge">
-            {{ tab.key === 'active' ? activeProducts().length : hiddenProducts().length }}
-          </span>
-        }
-      </button>
-    }
-  </nav>
+  <!-- RECORTE — uma lista só, e a situação de cada produto vai na linha -->
+  <div class="filtros-row">
+    <pk-segmented
+      [options]="filtros"
+      [value]="filtro()"
+      (valueChange)="setFiltro($event)"
+      ariaLabel="Recorte da lista de produtos" />
+  </div>
 
   <!-- TABELA -->
   <div class="table-section">
@@ -62,7 +52,7 @@
         <input
           pInputText
           class="search-input"
-          [placeholder]="activeTab() === 'active' ? 'Buscar produto visível...' : 'Buscar produto oculto...'"
+          placeholder="Buscar por nome, código, finalidade ou diluição..."
           [(ngModel)]="termoBusca"
           (input)="aplicarFiltro()"
         />
@@ -93,12 +83,27 @@
     @if (!loading() && produtosFiltrados().length === 0) {
       <div class="estado-vazio">
         <i class="pi pi-inbox"></i>
-        <p>Nenhum produto encontrado nesta categoria.</p>
+        @if (allProducts().length === 0) {
+          <p>Nenhum produto cadastrado ainda.</p>
+          <pk-button pkType="new" pkSize="sm" pkLabel="Cadastrar o primeiro" (clicked)="openCreateDialog()" />
+        } @else {
+          <!-- Havia produto, o recorte é que escondeu. A tela diz isso e oferece a saída. -->
+          <p>Nenhum produto neste recorte@if (termoBusca) { para "{{ termoBusca }}"}.</p>
+          <pk-button
+            pkType="filter"
+            pkSize="sm"
+            [pkLabel]="'Ver todos os ' + allProducts().length + ' produtos'"
+            (clicked)="limparFiltros()" />
+        }
       </div>
     }
 
-    <!-- VISÍVEIS -->
-    @if (!loading() && activeTab() === 'active' && produtosFiltrados().length > 0) {
+    <!--
+      Uma tabela só. Eram duas, idênticas byte a byte, diferindo no p-tag de
+      situação e no ícone da ação — e a duplicata era o que obrigava a aba a
+      existir. A situação virou coluna, que é onde ela sempre coube.
+    -->
+    @if (!loading() && produtosFiltrados().length > 0) {
       <p-table
         [value]="produtosFiltrados()"
         [paginator]="true"
@@ -115,13 +120,13 @@
             <th style="width: 160px">Finalidade</th>
             <th style="width: 130px">Diluição</th>
             <th style="width: 150px">Cores</th>
-            <th style="width: 90px; text-align:center">Status</th>
+            <th pSortableColumn="active" style="width: 120px; text-align:center">Situação <p-sortIcon field="active" /></th>
             <th style="width: 120px; text-align:center">Ações</th>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="body" let-product>
-          <tr class="product-row">
+          <tr class="product-row" [class.product-row-hidden]="!product.active">
             <td style="text-align:center">
               <img
                 [src]="resolverImagem(product)"
@@ -129,8 +134,8 @@
                 class="product-thumb"
                 onerror="this.src='images/products/placeholder.png'" />
             </td>
-            <td><span class="code-badge">{{ product.systemCode }}</span></td>
-            <td><span class="product-name">{{ product.name }}</span></td>
+            <td><span class="code-badge" [class.code-badge-hidden]="!product.active">{{ product.systemCode }}</span></td>
+            <td><span class="product-name" [class.product-name-hidden]="!product.active">{{ product.name }}</span></td>
             <td><span class="text-muted">{{ product.finalidade }}</span></td>
             <td><span class="text-muted">{{ product.diluicao }}</span></td>
             <td>
@@ -144,86 +149,17 @@
               </div>
             </td>
             <td style="text-align:center">
-              <p-tag severity="success" value="Visível" icon="pi pi-eye" />
-            </td>
-            <td>
-              <div class="action-buttons">
-                <button
-                  pButton
-                  icon="pi pi-pencil"
-                  class="btn-acao"
-                  text
-                  rounded
-                  pTooltip="Editar"
-                  tooltipPosition="top"
-                  (click)="openEditDialog(product)">
-                </button>
-                <button
-                  pButton
+              @if (product.active) {
+                <p-tag severity="success" value="Publicado" icon="pi pi-eye" />
+              } @else {
+                <!-- Oculto não é pendência: o produto continua valendo no guia de utilização. -->
+                <p-tag
+                  severity="secondary"
+                  value="Oculto"
                   icon="pi pi-eye-slash"
-                  class="btn-acao"
-                  text
-                  rounded
-                  severity="warn"
-                  pTooltip="Ocultar do site"
-                  tooltipPosition="top"
-                  (click)="confirmHide(product)">
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
-
-    <!-- OCULTOS -->
-    @if (!loading() && activeTab() === 'hidden' && produtosFiltrados().length > 0) {
-      <p-table
-        [value]="produtosFiltrados()"
-        [paginator]="true"
-        [rows]="8"
-        [rowsPerPageOptions]="[8, 15, 30]"
-        styleClass="p-datatable-sm product-table"
-        responsiveLayout="scroll"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 92px; text-align:center">Imagem</th>
-            <th pSortableColumn="systemCode" style="width: 130px">Código <p-sortIcon field="systemCode" /></th>
-            <th pSortableColumn="name">Nome <p-sortIcon field="name" /></th>
-            <th style="width: 160px">Finalidade</th>
-            <th style="width: 130px">Diluição</th>
-            <th style="width: 150px">Cores</th>
-            <th style="width: 90px; text-align:center">Status</th>
-            <th style="width: 120px; text-align:center">Ações</th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-product>
-          <tr class="product-row product-row-hidden">
-            <td style="text-align:center">
-              <img
-                [src]="resolverImagem(product)"
-                [alt]="product.name"
-                class="product-thumb"
-                onerror="this.src='images/products/placeholder.png'" />
-            </td>
-            <td><span class="code-badge code-badge-hidden">{{ product.systemCode }}</span></td>
-            <td><span class="product-name product-name-hidden">{{ product.name }}</span></td>
-            <td><span class="text-muted">{{ product.finalidade }}</span></td>
-            <td><span class="text-muted">{{ product.diluicao }}</span></td>
-            <td>
-              <div class="chip-container">
-                @for (cor of product.cores?.slice(0, 3); track cor) {
-                  <span class="chip-color" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">{{ cor }}</span>
-                }
-                @if (product.cores?.length > 3) {
-                  <span class="chip-color chip-color-more">+{{ product.cores.length - 3 }}</span>
-                }
-              </div>
-            </td>
-            <td style="text-align:center">
-              <p-tag severity="secondary" value="Oculto" icon="pi pi-eye-slash" />
+                  pTooltip="Fora da vitrine do site. Continua aparecendo no guia de utilização."
+                  tooltipPosition="top" />
+              }
             </td>
             <td>
               <div class="action-buttons">
@@ -237,24 +173,37 @@
                   tooltipPosition="top"
                   (click)="openEditDialog(product)">
                 </button>
-                <button
-                  pButton
-                  icon="pi pi-eye"
-                  class="btn-acao"
-                  text
-                  rounded
-                  severity="success"
-                  pTooltip="Tornar visível no site"
-                  tooltipPosition="top"
-                  (click)="confirmUnhide(product)">
-                </button>
+                @if (product.active) {
+                  <button
+                    pButton
+                    icon="pi pi-eye-slash"
+                    class="btn-acao"
+                    text
+                    rounded
+                    severity="warn"
+                    pTooltip="Ocultar do site"
+                    tooltipPosition="top"
+                    (click)="confirmHide(product)">
+                  </button>
+                } @else {
+                  <button
+                    pButton
+                    icon="pi pi-eye"
+                    class="btn-acao"
+                    text
+                    rounded
+                    severity="success"
+                    pTooltip="Publicar no site"
+                    tooltipPosition="top"
+                    (click)="confirmUnhide(product)">
+                  </button>
+                }
               </div>
             </td>
           </tr>
         </ng-template>
       </p-table>
     }
-
   </div>
 </div>
 
@@ -351,30 +300,15 @@
         <span class="divider-label"><i class="pi pi-palette"></i> Cores Disponíveis</span>
       </p-divider>
       <div class="form-field field-full">
-        <label>Cores <small class="label-hint">(escolha no seletor ou digite o hex e clique em Adicionar)</small></label>
-        <div class="cor-add-row">
-          <p-colorPicker [(ngModel)]="corSelector" [ngModelOptions]="{ standalone: true }"
-                         (onChange)="onCorPicker($event)" appendTo="body" />
-          <input type="text" pInputText [(ngModel)]="novaCor" [ngModelOptions]="{ standalone: true }"
-                 placeholder="#1E90FF" maxlength="7" class="cor-hex-input"
-                 (keydown.enter)="adicionarCor(editForm); $event.preventDefault()" />
-          <button type="button" class="cor-add-btn" (click)="adicionarCor(editForm)">
-            <i class="pi pi-plus"></i> Adicionar
-          </button>
-        </div>
-        <div class="cores-lista">
-          @for (cor of editForm.get('cores')?.value || []; track cor) {
-            <span class="cor-tag" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">
-              {{ cor }}
-              <button type="button" class="cor-remove" (click)="removerCor(editForm, cor)" aria-label="Remover cor">
-                <i class="pi pi-times"></i>
-              </button>
-            </span>
-          }
-          @if (!(editForm.get('cores')?.value?.length)) {
-            <span class="cores-vazio">Nenhuma cor adicionada.</span>
-          }
-        </div>
+        <!--
+          O seletor sabe o que o guia faz com estas cores: marca a que ficou
+          fora das quatro que o PDF desenha, e a que está gravada como texto e
+          não vira bolinha nenhuma. Antes os dois casos só apareciam no PDF.
+        -->
+        <pk-color-picker
+          inputId="coresEdit"
+          formControlName="cores"
+          label="Cores do produto" />
       </div>
     </div>
 
@@ -478,6 +412,28 @@
         }
       </div>
     </div>
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-globe"></i> Publicação no Site</span>
+      </p-divider>
+
+      <div class="form-grid">
+        <div class="form-field field-full">
+          <!--
+            O controle existia no editForm desde sempre e não tinha campo
+            nenhum no template. Publicar ou ocultar só dava pela grade; quem
+            abria o formulário para editar não via nem em que situação o
+            produto estava.
+          -->
+          <pk-checkbox
+            inputId="activeEdit"
+            formControlName="active"
+            label="Publicar no site"
+            description="Decide apenas a vitrine do site institucional. O produto entra no guia de utilização de qualquer forma, publicado ou não." />
+        </div>
+      </div>
+    </div>
+
   </form>
 
   <div formActions>
@@ -593,30 +549,15 @@
         <span class="divider-label"><i class="pi pi-palette"></i> Cores Disponíveis</span>
       </p-divider>
       <div class="form-field field-full">
-        <label>Cores <small class="label-hint">(escolha no seletor ou digite o hex e clique em Adicionar)</small></label>
-        <div class="cor-add-row">
-          <p-colorPicker [(ngModel)]="corSelector" [ngModelOptions]="{ standalone: true }"
-                         (onChange)="onCorPicker($event)" appendTo="body" />
-          <input type="text" pInputText [(ngModel)]="novaCor" [ngModelOptions]="{ standalone: true }"
-                 placeholder="#1E90FF" maxlength="7" class="cor-hex-input"
-                 (keydown.enter)="adicionarCor(createForm); $event.preventDefault()" />
-          <button type="button" class="cor-add-btn" (click)="adicionarCor(createForm)">
-            <i class="pi pi-plus"></i> Adicionar
-          </button>
-        </div>
-        <div class="cores-lista">
-          @for (cor of createForm.get('cores')?.value || []; track cor) {
-            <span class="cor-tag" [style.background]="cor" [style.color]="corContraste(cor)" [title]="cor">
-              {{ cor }}
-              <button type="button" class="cor-remove" (click)="removerCor(createForm, cor)" aria-label="Remover cor">
-                <i class="pi pi-times"></i>
-              </button>
-            </span>
-          }
-          @if (!(createForm.get('cores')?.value?.length)) {
-            <span class="cores-vazio">Nenhuma cor adicionada.</span>
-          }
-        </div>
+        <!--
+          O seletor sabe o que o guia faz com estas cores: marca a que ficou
+          fora das quatro que o PDF desenha, e a que está gravada como texto e
+          não vira bolinha nenhuma. Antes os dois casos só apareciam no PDF.
+        -->
+        <pk-color-picker
+          inputId="coresCreate"
+          formControlName="cores"
+          label="Cores do produto" />
       </div>
     </div>
 
@@ -708,6 +649,32 @@
         }
       </div>
     </div>
+    <div class="form-section">
+      <p-divider align="left">
+        <span class="divider-label"><i class="pi pi-globe"></i> Publicação no Site</span>
+      </p-divider>
+
+      <div class="form-grid">
+        <div class="form-field field-full">
+          <!--
+            Desmarcado, e agora visível. O campo não existia no createForm: o
+            JSON ia sem a chave, o `boolean` primitivo da API virava `false`, e
+            todo produto nascia oculto sem ninguém ter escolhido isso. Depois a
+            grade abria em "Visíveis no Site" e o produto recém-cadastrado não
+            estava lá — era o relato de que o cadastro sumia.
+
+            O padrão continua desmarcado de propósito: publicar sozinho um
+            produto no site da empresa é pior do que esquecer de publicar.
+          -->
+          <pk-checkbox
+            inputId="activeCreate"
+            formControlName="active"
+            label="Publicar no site"
+            description="Decide apenas a vitrine do site institucional. O produto entra no guia de utilização de qualquer forma, publicado ou não." />
+        </div>
+      </div>
+    </div>
+
   </form>
 
   <div formActions>

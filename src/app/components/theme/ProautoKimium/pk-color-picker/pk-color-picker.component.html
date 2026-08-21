@@ -1,0 +1,120 @@
+<div class="pk-cp">
+
+  @if (label()) {
+    <label class="pk-cp__label" [for]="inputId() || null">
+      {{ label() }}
+      <small class="pk-cp__hint">(até {{ max() }} aparecem no guia de utilização)</small>
+    </label>
+  }
+
+  <!--
+    A paleta vem primeiro porque é a única escolha que não tem surpresa: o guia
+    dá nome à cor pela mais próxima destas onze, então escolher daqui garante
+    que o nome impresso é o nome do botão.
+  -->
+  <div class="pk-cp__paleta" role="group" aria-label="Cores da paleta do guia">
+    @for (cor of paleta; track cor.hex) {
+      <button
+        type="button"
+        class="pk-cp__swatch"
+        [class.pk-cp__swatch--on]="estaEscolhida(cor.hex)"
+        [style.background]="cor.hex"
+        [disabled]="isDisabled"
+        [attr.aria-pressed]="estaEscolhida(cor.hex)"
+        [pTooltip]="cor.nome"
+        tooltipPosition="top"
+        (click)="alternarDaPaleta(cor.hex)">
+        @if (estaEscolhida(cor.hex)) {
+          <i class="pi pi-check" [style.color]="contraste(cor.hex)"></i>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Para o resto: seletor livre e hex digitado, as duas portas no mesmo valor. -->
+  <div class="pk-cp__livre">
+    <p-colorPicker
+      [ngModel]="rascunho()"
+      (ngModelChange)="aoEscolherNoSeletor($event)"
+      [disabled]="isDisabled"
+      appendTo="body" />
+
+    <input
+      pInputText
+      class="pk-cp__hex"
+      [id]="inputId() || null"
+      [ngModel]="rascunho()"
+      (ngModelChange)="aoDigitar($event)"
+      (keydown.enter)="$event.preventDefault(); adicionar()"
+      [disabled]="isDisabled"
+      placeholder="#1E90FF"
+      maxlength="7"
+      autocomplete="off" />
+
+    <button
+      type="button"
+      class="pk-cp__add"
+      [disabled]="isDisabled || !rascunho()"
+      (click)="adicionar()">
+      <i class="pi pi-plus"></i> Adicionar
+    </button>
+  </div>
+
+  @if (erro()) {
+    <small class="pk-cp__erro">{{ erro() }}</small>
+  }
+
+  @if (chips().length > 0) {
+    <div class="pk-cp__chips">
+      @for (chip of chips(); track chip.valor) {
+        <span
+          class="pk-cp__chip"
+          [class.pk-cp__chip--fora]="!chip.noGuia"
+          [style.background]="chip.hex || 'var(--app-surface-2)'"
+          [style.color]="contraste(chip.hex)">
+
+          @if (!chip.hex) {
+            <i class="pi pi-exclamation-triangle"></i>
+          } @else if (!chip.noGuia) {
+            <i class="pi pi-eye-slash"></i>
+          }
+
+          {{ chip.valor }}
+
+          @if (chip.nome && chip.noGuia) {
+            <small class="pk-cp__chip-nome">{{ chip.nome }}</small>
+          }
+
+          <button
+            type="button"
+            class="pk-cp__chip-x"
+            [disabled]="isDisabled"
+            [style.color]="contraste(chip.hex)"
+            aria-label="Remover cor"
+            (click)="remover(chip.valor)">
+            <i class="pi pi-times"></i>
+          </button>
+        </span>
+      }
+    </div>
+  }
+
+  <!--
+    Os dois avisos existem porque a falha correspondente é silenciosa: o PDF
+    sai, ninguém vê erro, e a bolinha simplesmente não está lá.
+  -->
+  @if (temInvalida()) {
+    <small class="pk-cp__aviso pk-cp__aviso--erro">
+      <i class="pi pi-exclamation-triangle"></i>
+      Cor gravada como texto não vira bolinha no guia — o PDF imprime a palavra crua.
+      Troque pelo hex da cor real do produto.
+    </small>
+  }
+
+  @if (temExcedente()) {
+    <small class="pk-cp__aviso">
+      <i class="pi pi-eye-slash"></i>
+      O guia desenha só as {{ max() }} primeiras. As marcadas ficam gravadas, mas não saem no PDF.
+    </small>
+  }
+</div>
