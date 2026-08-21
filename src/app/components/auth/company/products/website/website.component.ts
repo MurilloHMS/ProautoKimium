@@ -2,6 +2,7 @@ import { ToolbarComponent } from '../../../shared/toolbar/toolbar.component';
 import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkCheckboxComponent } from '../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
+import { PkColorPickerComponent } from '../../../../theme/ProautoKimium/pk-color-picker/pk-color-picker.component';
 import { PkSegmentedComponent, PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
@@ -20,8 +21,6 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DividerModule } from 'primeng/divider';
-import { AutoCompleteModule } from 'primeng/autocomplete';
-import { ColorPickerModule } from 'primeng/colorpicker';
 import { SelectModule } from 'primeng/select';
 import { EquipmentService } from '../../../../../infrastructure/services/company/equipment/equipment.service';
 import { EquipmentResponseDTO } from '../../../../../domain/models/equipment.model';
@@ -61,14 +60,13 @@ export type FiltroProduto = 'todos' | 'publicados' | 'ocultos';
     ConfirmDialogModule,
     SkeletonModule,
     TooltipModule,
-    AutoCompleteModule,
-    ColorPickerModule,
     SelectModule,
     DividerModule,
     ToolbarComponent,
     FormScreenComponent,
     PkButtonComponent,
     PkCheckboxComponent,
+    PkColorPickerComponent,
     PkSegmentedComponent,
   ],
   providers: [MessageService, ConfirmationService],
@@ -105,12 +103,6 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   selectedEditImage: File | null = null;
   createImagePreview: string | null = null;
   editImagePreview: string | null = null;
-
-  filteredCores: string[] = [];
-
-  /** Modelos do seletor de cor (picker em hex sem '#') e do campo de texto (hex com '#'). */
-  corSelector = '';
-  novaCor = '';
 
   /** Equipamentos disponíveis para vincular ao produto (1 por produto). */
   equipamentos = signal<EquipmentResponseDTO[]>([]);
@@ -231,15 +223,6 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
 
   aplicarFiltro(): void {
     this._buscaTrigger.update(v => v + 1);
-  }
-
-  filtrarCores(event: any): void {
-    const query = event.query?.toLowerCase() || '';
-    const coresBase = ['Vermelho', 'Azul', 'Verde', 'Preto', 'Branco', 'Amarelo', 'Cinza'];
-
-    this.filteredCores = coresBase.filter(c =>
-      c.toLowerCase().includes(query)
-    );
   }
 
   openCreateDialog(): void {
@@ -457,74 +440,13 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     return !!(control && control.invalid && control.touched);
   }
 
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.key !== 'Tab' && event.key !== 'Enter') return;
-    const target = event.target as HTMLInputElement;
-    const valor = target?.value?.trim();
-    this.addCoresToForm(this.editForm, valor);
-    if (target) target.value = '';
-    event.preventDefault();
-  }
-
-  onBlurAdd(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const valor = target?.value?.trim();
-    this.addCoresToForm(this.editForm, valor);
-    if (target) target.value = '';
-  }
-
-  onCreateKeyDown(event: KeyboardEvent): void {
-    if (event.key !== 'Tab' && event.key !== 'Enter') return;
-    const target = event.target as HTMLInputElement;
-    const valor = target?.value?.trim();
-    this.addCoresToForm(this.createForm, valor);
-    if (target) target.value = '';
-    event.preventDefault();
-  }
-
-  onCreateBlurAdd(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const valor = target?.value?.trim();
-    this.addCoresToForm(this.createForm, valor);
-    if (target) target.value = '';
-  }
-
-  /** Recebe a cor escolhida no seletor visual e reflete no campo de hex (com '#'). */
-  onCorPicker(event: any): void {
-    const v: string = (event?.value ?? '') + '';
-    if (!v) return;
-    this.novaCor = v.startsWith('#') ? v : '#' + v;
-  }
-
-  /** Valida e adiciona o hex atual à lista de cores do formulário. */
-  adicionarCor(form: FormGroup): void {
-    let hex = (this.novaCor || '').trim();
-    if (!hex) return;
-    if (!hex.startsWith('#')) hex = '#' + hex;
-    hex = hex.toLowerCase();
-
-    if (!/^#[0-9a-f]{6}$/.test(hex)) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Cor inválida',
-        detail: 'Use um hex no formato #RRGGBB (ex.: #1E90FF).'
-      });
-      return;
-    }
-
-    const control = form.get('cores');
-    const atual: string[] = control?.value || [];
-    if (!atual.some(c => (c || '').toLowerCase() === hex)) {
-      control?.setValue([...atual, hex]);
-      control?.markAsDirty();
-      control?.markAsTouched();
-    }
-
-    this.novaCor = '';
-    this.corSelector = '';
-  }
-
-  /** Texto legível (escuro/claro) para sobrepor a uma amostra de cor. */
+  /**
+   * Texto legível (escuro/claro) para sobrepor a uma amostra de cor, na grade.
+   *
+   * O formulário não usa mais isto: quem cuida de cor lá é o `pk-color-picker`,
+   * que traz a própria conta. Aqui ficou porque a tabela pinta os chips de cor
+   * direto na linha.
+   */
   corContraste(hex: string): string {
     const c = (hex || '').replace('#', '');
     if (c.length < 6) return '#1f2937';
@@ -533,36 +455,6 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     const b = parseInt(c.slice(4, 6), 16);
     const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return lum > 0.6 ? '#1f2937' : '#ffffff';
-  }
-
-  removerCor(form: FormGroup, cor: string): void {
-    const control = form.get('cores');
-    const atual: string[] = control?.value || [];
-    control?.setValue(atual.filter(c => c !== cor));
-  }
-
-  private addCoresToForm(form: FormGroup, valor?: string): void {
-    if (!valor) return;
-
-    const control = form.get('cores');
-    const atual: string[] = control?.value || [];
-
-    const novas = valor
-      .split(/[,\n;]+/)
-      .map(v => v.trim())
-      .filter(v => v.length > 0);
-
-    const resultado = [...atual];
-
-    for (const cor of novas) {
-      if (!resultado.some(c => c.toLowerCase() === cor.toLowerCase())) {
-        resultado.push(cor);
-      }
-    }
-
-    control?.setValue(resultado);
-    control?.markAsDirty();
-    control?.markAsTouched();
   }
 
   resolverImagem(produto: ProductWebSiteResponseDTO): string {
