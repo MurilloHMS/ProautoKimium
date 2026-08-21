@@ -116,3 +116,12 @@
   background: var(--app-surface);
 }
 
+// As duas origens da foto lado a lado: enviar arquivo ou escolher da galeria.
+.imagem-origens {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+
+  .file-input { flex: 1 1 260px; }
+}

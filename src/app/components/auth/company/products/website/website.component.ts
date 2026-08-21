@@ -3,9 +3,10 @@ import { FormScreenComponent } from '../../../shared/form-screen/form-screen.com
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkCheckboxComponent } from '../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
 import { PkColorPickerComponent } from '../../../../theme/ProautoKimium/pk-color-picker/pk-color-picker.component';
+import { GalleryEscolha, GalleryPickerComponent } from '../../../shared/gallery-picker/gallery-picker.component';
 import { PkSegmentedComponent, PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, signal, computed, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -65,6 +66,7 @@ export type FiltroProduto = 'todos' | 'publicados' | 'ocultos';
     ToolbarComponent,
     FormScreenComponent,
     PkButtonComponent,
+    GalleryPickerComponent,
     PkCheckboxComponent,
     PkColorPickerComponent,
     PkSegmentedComponent,
@@ -103,6 +105,25 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   selectedEditImage: File | null = null;
   createImagePreview: string | null = null;
   editImagePreview: string | null = null;
+
+  /**
+   * O diálogo da galeria, um por formulário.
+   *
+   * Os dois formulários coexistem no template — `mode()` decide qual aparece —
+   * então um sinal só faria o diálogo abrir nos dois ao mesmo tempo.
+   */
+  readonly galeriaCreateAberta = signal(false);
+  readonly galeriaEditAberta = signal(false);
+
+  /**
+   * Referência ao `<input type="file">` para poder zerar o valor dele.
+   *
+   * Escolher da galeria depois de ter escolhido um arquivo precisa apagar o
+   * nome que o navegador mostra ao lado do botão — senão a tela afirma que vai
+   * subir um arquivo que já foi descartado.
+   */
+  private readonly inputImagemCreate = viewChild<ElementRef<HTMLInputElement>>('inputImagemCreate');
+  private readonly inputImagemEdit = viewChild<ElementRef<HTMLInputElement>>('inputImagemEdit');
 
   /** Equipamentos disponíveis para vincular ao produto (1 por produto). */
   equipamentos = signal<EquipmentResponseDTO[]>([]);
@@ -178,6 +199,9 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
       descricao: ['', Validators.required],
       descricaoGuia: [''],
       equipmentId: [null],
+      // Só é preenchido quando a foto vem da galeria. A API copia os bytes a
+      // partir daqui; arquivo enviado tem precedência sobre este campo.
+      galleryDocumentId: [null],
     });
   }
 
@@ -199,6 +223,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
       descricao: ['', Validators.required],
       descricaoGuia: [''],
       equipmentId: [null],
+      galleryDocumentId: [null],
     });
   }
 
@@ -238,6 +263,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
       descricao: '',
       descricaoGuia: '',
       equipmentId: null,
+      galleryDocumentId: null,
     });
 
     this.selectedCreateImage = null;
@@ -268,6 +294,9 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
       descricao: product.descricao,
       descricaoGuia: product.descricaoGuia ?? '',
       equipmentId: product.equipmentId ?? null,
+      // Sempre nulo ao abrir: escolher da galeria é uma ação desta edição, não
+      // um estado do produto. O produto guarda a cópia, não a origem.
+      galleryDocumentId: null,
     });
 
     this.mode.set('edit');
@@ -410,6 +439,32 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
 
     this.selectedCreateImage = file;
     this.createImagePreview = file ? URL.createObjectURL(file) : null;
+
+    // A API daria precedência ao arquivo de qualquer forma, mas deixar os dois
+    // marcados na tela é mentira: some com a escolha da galeria.
+    if (file) this.createForm.get('galleryDocumentId')?.setValue(null);
+  }
+
+  onGaleriaEscolhidaCreate(escolha: GalleryEscolha): void {
+    this.createForm.get('galleryDocumentId')?.setValue(escolha.documento.id);
+    this.createForm.markAsDirty();
+
+    this.selectedCreateImage = null;
+    this.createImagePreview = escolha.previewUrl;
+
+    const input = this.inputImagemCreate();
+    if (input) input.nativeElement.value = '';
+  }
+
+  onGaleriaEscolhidaEdit(escolha: GalleryEscolha): void {
+    this.editForm.get('galleryDocumentId')?.setValue(escolha.documento.id);
+    this.editForm.markAsDirty();
+
+    this.selectedEditImage = null;
+    this.editImagePreview = escolha.previewUrl;
+
+    const input = this.inputImagemEdit();
+    if (input) input.nativeElement.value = '';
   }
 
   onEditImageSelected(event: Event): void {
@@ -418,16 +473,26 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
 
     this.selectedEditImage = file;
     this.editImagePreview = file ? URL.createObjectURL(file) : null;
+
+    if (file) this.editForm.get('galleryDocumentId')?.setValue(null);
   }
 
   removerImagemCreate(): void {
     this.selectedCreateImage = null;
     this.createImagePreview = null;
+    this.createForm.get('galleryDocumentId')?.setValue(null);
+
+    const input = this.inputImagemCreate();
+    if (input) input.nativeElement.value = '';
   }
 
   removerImagemEdit(): void {
     this.selectedEditImage = null;
     this.editImagePreview = null;
+    this.editForm.get('galleryDocumentId')?.setValue(null);
+
+    const input = this.inputImagemEdit();
+    if (input) input.nativeElement.value = '';
   }
 
   isFieldInvalid(field: string): boolean {
