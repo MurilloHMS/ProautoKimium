@@ -1,29 +1,48 @@
 <div class="home">
 
   <!--
-    Faixa de uma linha. Era um banner de ~180px com gradiente e emoji, dizendo
-    "Boa tarde, Murillo" todo dia — a única informação da página que nunca muda,
-    ocupando o topo.
+    O topo é conteúdo, não enfeite: os números moram dentro dele.
+    Já foi um banner de gradiente que dizia "Boa tarde" e mais nada, e depois
+    uma linha de texto sobre uma borda. O primeiro não informava, o segundo não
+    ancorava a página. Este faz as duas coisas — e continua cheio no dia em que
+    não há pendência nenhuma, que é o dia mais comum.
   -->
-  <header class="topo">
-    <div class="topo__saudacao">
-      <h1 class="topo__titulo">{{ greeting }}@if (firstName) {, {{ firstName }}}</h1>
-      <p class="topo__data">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
-    </div>
+  <header class="hero">
+    <p class="hero__eyebrow">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
 
-    <div class="topo__chips">
-      @if (saldoFerias() !== null) {
-        <span class="topo__papel" title="Saldo de férias">
-          <i class="pi pi-sun"></i>{{ saldoFerias() }} dias de férias
-        </span>
+    <h1 class="hero__nome">
+      {{ greeting }}@if (firstName) {, <em>{{ firstName }}</em>}
+    </h1>
+
+    <div class="hero__nums">
+      <!--
+        Zero não vira "0 precisa de você". Vira "tudo em dia" — a mesma
+        informação, dita como estado desejado em vez de contagem vazia.
+      -->
+      @if (totalPendencias() > 0) {
+        <div class="hnum">
+          <span class="hnum__v">{{ totalPendencias() }}</span>
+          <span class="hnum__l">{{ totalPendencias() === 1 ? 'precisa de você' : 'precisam de você' }}</span>
+        </div>
+      } @else if (!resumoCarregando()) {
+        <div class="hnum">
+          <span class="hnum__v hnum__v--ok"><i class="pi pi-check"></i></span>
+          <span class="hnum__l">tudo em dia</span>
+        </div>
       }
 
       @if (notifications.unreadCount() > 0) {
-        <a routerLink="/notificacoes" class="topo__pendencia">
-          <i class="pi pi-bell"></i>
-          {{ notifications.unreadCount() }}
-          {{ notifications.unreadCount() === 1 ? 'não lida' : 'não lidas' }}
+        <a routerLink="/notificacoes" class="hnum hnum--link">
+          <span class="hnum__v">{{ notifications.unreadCount() }}</span>
+          <span class="hnum__l">{{ notifications.unreadCount() === 1 ? 'não lida' : 'não lidas' }}</span>
         </a>
+      }
+
+      @if (saldoFerias() !== null) {
+        <div class="hnum">
+          <span class="hnum__v">{{ saldoFerias() }}</span>
+          <span class="hnum__l">dias de férias</span>
+        </div>
       }
     </div>
   </header>
@@ -45,7 +64,9 @@
       <div class="pend-lista">
         @for (item of minhasPendencias(); track item.title + item.since) {
           <a [routerLink]="info(item).rota" class="pend-linha">
-            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__icone" [class]="'pend-linha__icone pend-linha__icone--' + info(item).accent">
+              <i [class]="info(item).icon"></i>
+            </span>
             <span class="pend-linha__corpo">
               <span class="pend-linha__titulo">{{ item.title }}</span>
               <span class="pend-linha__detalhe">{{ item.detail }}</span>
@@ -73,7 +94,9 @@
       <div class="pend-lista">
         @for (item of aprovacoes(); track item.title + item.detail + item.since) {
           <a [routerLink]="info(item).rota" class="pend-linha">
-            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__icone" [class]="'pend-linha__icone pend-linha__icone--' + info(item).accent">
+              <i [class]="info(item).icon"></i>
+            </span>
             <span class="pend-linha__corpo">
               <span class="pend-linha__titulo">{{ item.title }}</span>
               <span class="pend-linha__detalhe">{{ item.detail }}</span>

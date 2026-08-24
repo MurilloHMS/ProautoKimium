@@ -7,7 +7,7 @@ import { NotificationService } from '../../../infrastructure/services/notificati
 import { AnnouncementService } from '../../../infrastructure/services/hr/announcement.service';
 import { HomeService } from '../../../infrastructure/services/home/home.service';
 import { Announcement } from '../../../domain/models/hr/announcement.model';
-import { HomeSummary, PENDING_INFO, PendingItem } from '../../../domain/models/home/home-summary.model';
+import { HomeSummary, PENDING_INFO, PendingAccent, PendingItem } from '../../../domain/models/home/home-summary.model';
 
 /**
  * Home da área autenticada — o que está esperando você.
@@ -87,9 +87,20 @@ export class AuthHomeComponent implements OnInit {
   }
 
   /** Tipo desconhecido não quebra a tela: cai num ícone genérico e na home. */
-  info(item: PendingItem): { icon: string; rota: string } {
-    return PENDING_INFO[item.type] ?? { icon: 'pi pi-circle', rota: '/home' };
+  info(item: PendingItem): { icon: string; rota: string; accent: PendingAccent } {
+    return PENDING_INFO[item.type] ?? { icon: 'pi pi-circle', rota: '/home', accent: 'navy' };
   }
+
+  /**
+   * Quantas linhas a faixa do topo anuncia.
+   *
+   * Soma as duas listas porque, para quem está olhando, "três coisas te
+   * esperam" é um número só — separar em "1 sua e 2 para aprovar" é detalhe
+   * que as seções abaixo já dão.
+   */
+  readonly totalPendencias = computed(() =>
+    this.minhasPendencias().length + this.aprovacoes().length
+  );
 
   // ─── Saudação ─────────────────────────────────────────────────────────────
 

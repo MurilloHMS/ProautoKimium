@@ -1,13 +1,31 @@
 @use 'variables.scss' as v;
 
-// Sem `max-width`. A home era uma coluna de 1200px centralizada: num monitor
-// largo sobrava metade da tela vazia, e as notificações — a informação mais
-// perecível — ficavam abaixo da dobra, porque tudo era uma pilha vertical.
+// Cores por assunto nas pendências. Férias é âmbar, dinheiro é teal, documento
+// é navy — a mesma família de tokens do resto do sistema, só que usada.
+:host {
+  --pend-navy:  var(--app-action);
+  --pend-amber: var(--app-warning);
+  --pend-teal:  var(--app-success);
+}
+
+// A identidade da marca, cravada como no `client-dashboard`: degradê é
+// identidade, não tema, e por isso não sai dos tokens.
+:host {
+  --hero-gradiente: linear-gradient(148deg, #0e1538 0%, #202a65 52%, #14707f 100%);
+  --hero-teal: #00b9b3;
+}
+
+// O `max-width` tinha saído quando a página tinha dezenove cartões para
+// preencher. Sem eles, os painéis se esticavam por um monitor inteiro
+// segurando cinco linhas curtas. Voltou, e o `clamp` no padding é o mesmo
+// recurso do `client-dashboard`: respiro que acompanha a tela.
 .home {
-  padding: v.$space-8;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: v.$space-6 clamp(14px, 3vw, 40px) v.$space-8;
   display: flex;
   flex-direction: column;
-  gap: v.$space-8;
+  gap: v.$space-6;
 }
 
 // Notificações e avisos ocupam a faixa de cima, meia página cada.
@@ -26,10 +44,12 @@
   }
 }
 
-// Altura mínima igual nos dois: sem ela, "nenhum aviso" encolhe uma coluna e
-// as duas ficam desalinhadas justamente no caso mais comum.
+// O `min-height: 240px` saiu daqui. Ele existia para alinhar as duas colunas,
+// e o preço era vazio forçado dentro de caixa que já estava vazia — o painel
+// com dois avisos ficava com metade de ar. `align-items: start` no grid resolve
+// o alinhamento sem inventar altura.
 .painel__corpo {
-  min-height: 240px;
+  min-height: 0;
 }
 
 // Contador ao lado do título, onde o olho já está quando lê "Notificações".
@@ -50,88 +70,94 @@
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TOPO — era um banner de ~180px com gradiente e emoji
+// HERO — o topo carrega os números
 //
-// Ele dizia "Boa tarde, Murillo 👋" e mais nada, todo dia, ocupando o espaço
-// que a informação útil queria. Virou uma faixa de uma linha, e ganhou o que
-// faltava: uma frase que só aparece quando há algo esperando por você.
+// Já foi um banner de gradiente que só dizia "Boa tarde", e depois uma linha de
+// texto sobre uma borda. O primeiro não informava; o segundo não ancorava a
+// página. Este faz as duas coisas, e é o único lugar da home que rompe com os
+// tokens do ERP: o degradê é identidade da marca, como no `client-dashboard`.
+//
+// O rompimento fica contido nesta faixa de propósito. Tudo abaixo dela continua
+// com raio 12px e as cores do sistema, senão a home deixaria de parecer com as
+// outras sessenta telas.
 // ═══════════════════════════════════════════════════════════════
-.topo {
+.hero {
+  padding: v.$space-6 v.$space-6 v.$space-5;
+  border-radius: 18px;
+  background: var(--hero-gradiente);
+  color: #fff;
+}
+
+.hero__eyebrow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: v.$space-4;
-  padding-bottom: v.$space-5;
-  border-bottom: 1px solid var(--app-border);
+  gap: 9px;
+  margin: 0 0 10px;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--hero-teal);
+
+  &::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    flex: 0 0 auto;
+    background: var(--hero-teal);
+  }
 }
 
-.topo__saudacao {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.topo__titulo {
+.hero__nome {
   margin: 0;
   font-family: v.$font-heading;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--app-text);
-  line-height: 1.2;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+
+  em { font-style: normal; color: var(--hero-teal); }
 }
 
-.topo__data {
-  margin: 0;
-  font-size: var(--text-ui-sm);
-  color: var(--app-text-subtle);
-  text-transform: capitalize;
-}
-
-// Só aparece quando há algo. Faixa sem pendência nenhuma não vira "0
-// notificações" — vira nada, e a linha fica limpa.
-.topo__pendencia {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill, 999px);
-  border: 1px solid var(--app-danger);
-  background: var(--app-danger-soft, transparent);
-  color: var(--app-danger);
-  font-size: var(--text-ui-sm);
-  font-weight: 600;
-  text-decoration: none;
-
-  &:hover { filter: brightness(.95); }
-}
-
-.topo__chips {
+.hero__nums {
   display: flex;
-  align-items: center;
-  gap: v.$space-3;
   flex-wrap: wrap;
+  gap: v.$space-6;
+  margin-top: v.$space-5;
+  padding-top: v.$space-4;
+  border-top: 1px solid rgba(255, 255, 255, .22);
 }
 
-.topo__papel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill, 999px);
-  background: var(--app-surface-2);
-  color: var(--app-text-muted);
-  font-size: var(--text-ui-sm);
-  font-weight: 600;
+.hnum {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
 }
 
-@media (max-width: v.$bp-sm) {
-  .topo { align-items: flex-start; }
+.hnum--link:hover .hnum__v { color: var(--hero-teal); }
 
-  // O saldo de férias sai: numa linha estreita ele empurra a pílula de
-  // notificação para baixo, e a não lida é a mais urgente das duas.
-  .topo__papel { display: none; }
+.hnum__v {
+  font-family: v.$font-heading;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color .15s ease;
+
+  // Zero pendência não vira "0": vira um visto. A mesma informação, dita como
+  // estado desejado em vez de contagem vazia.
+  &--ok {
+    color: var(--hero-teal);
+    font-size: 1.4rem;
+  }
+}
+
+.hnum__l {
+  font-size: .68rem;
+  letter-spacing: .04em;
+  color: rgba(255, 255, 255, .72);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -341,6 +367,9 @@
   }
 }
 
+// Era cinza com ícone navy para todo tipo — holerite, férias e reembolso
+// ficavam idênticos. A cor é por assunto, não por urgência: urgência já é a
+// ordem da lista.
 .pend-linha__icone {
   flex-shrink: 0;
   width: 38px;
@@ -348,9 +377,13 @@
   border-radius: var(--radius-control);
   display: grid;
   place-items: center;
-  background: var(--app-surface-2);
+  background: color-mix(in srgb, var(--pend-cor, var(--app-action)) 14%, transparent);
 
-  i { font-size: 1rem; color: var(--app-action); }
+  i { font-size: 1rem; color: var(--pend-cor, var(--app-action)); }
+
+  &--navy  { --pend-cor: var(--pend-navy); }
+  &--amber { --pend-cor: var(--pend-amber); }
+  &--teal  { --pend-cor: var(--pend-teal); }
 }
 
 .pend-linha__corpo {
