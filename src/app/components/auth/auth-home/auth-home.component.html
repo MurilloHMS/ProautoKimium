@@ -1,98 +1,169 @@
 <div class="home">
 
-  <!-- ═══════════════════════════════════════════════════
-       HERO — saudação personalizada
-  ═══════════════════════════════════════════════════ -->
-  <section class="hero">
-    <div class="hero__bg" aria-hidden="true"></div>
+  <!--
+    Faixa de uma linha. Era um banner de ~180px com gradiente e emoji, dizendo
+    "Boa tarde, Murillo" todo dia — a única informação da página que nunca muda,
+    ocupando o topo.
+  -->
+  <header class="topo">
+    <div class="topo__saudacao">
+      <h1 class="topo__titulo">{{ greeting }}@if (firstName) {, {{ firstName }}}</h1>
+      <p class="topo__data">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
+    </div>
 
-    <div class="hero__content">
-      <p class="hero__date">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
+    <div class="topo__chips">
+      @if (saldoFerias() !== null) {
+        <span class="topo__papel" title="Saldo de férias">
+          <i class="pi pi-sun"></i>{{ saldoFerias() }} dias de férias
+        </span>
+      }
 
-      <h1 class="hero__greeting">
-        {{ greeting }}@if (firstName) {, {{ firstName }}}!
-        <span class="hero__wave">👋</span>
-      </h1>
-
-      <p class="hero__lead">
-        Bem-vindo ao portal interno da <strong>Proauto Kimium</strong> —
-        seus sistemas e ferramentas reunidos em um só lugar.
-      </p>
-
-      <div class="hero__meta">
-        <a routerLink="/notificacoes" class="hero-pill">
+      @if (notifications.unreadCount() > 0) {
+        <a routerLink="/notificacoes" class="topo__pendencia">
           <i class="pi pi-bell"></i>
-          @if (notifications.unreadCount() > 0) {
-            {{ notifications.unreadCount() }}
-            {{ notifications.unreadCount() === 1 ? 'nova notificação' : 'novas notificações' }}
-          } @else {
-            Nenhuma notificação nova
-          }
-        </a>
-
-        @if (primaryRole) {
-          <span class="hero-pill hero-pill--ghost">
-            <i class="pi pi-shield"></i>{{ primaryRole }}
-          </span>
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════
-       ATALHOS RÁPIDOS — módulos internos (por papel)
-  ═══════════════════════════════════════════════════ -->
-  <section class="section">
-    <div class="section__head">
-      <h2 class="section__title"><i class="pi pi-th-large"></i> Atalhos rápidos</h2>
-      <span class="section__hint">Acesso direto aos módulos que você utiliza</span>
-    </div>
-
-    <div class="quick-grid">
-      @for (link of quickLinks; track link.link) {
-        <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
-          <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-          <span class="quick-card__body">
-            <span class="quick-card__label">{{ link.label }}</span>
-            <span class="quick-card__desc">{{ link.description }}</span>
-          </span>
-          <i class="pi pi-arrow-right quick-card__arrow"></i>
+          {{ notifications.unreadCount() }}
+          {{ notifications.unreadCount() === 1 ? 'não lida' : 'não lidas' }}
         </a>
       }
     </div>
-  </section>
+  </header>
 
-  <!-- ═══════════════════════════════════════════════════
-       NOTIFICAÇÕES RECENTES
-  ═══════════════════════════════════════════════════ -->
-  <section class="section">
-    <div class="section__head">
-      <h2 class="section__title"><i class="pi pi-bell"></i> Notificações recentes</h2>
-      <a routerLink="/notificacoes" class="section__link">Ver todas <i class="pi pi-angle-right"></i></a>
-    </div>
+  <!--
+    PRECISA DE VOCÊ — some inteiro quando não há nada.
+    Um bloco vazio ocupando meia tela seria pior que bloco nenhum: ensina a
+    pessoa a ignorar aquela área da página.
+  -->
+  @if (minhasPendencias().length > 0) {
+    <section class="section pendencias">
+      <div class="section__head">
+        <h2 class="section__title">
+          <i class="pi pi-exclamation-circle"></i> Precisa de você
+          <span class="section__badge">{{ minhasPendencias().length }}</span>
+        </h2>
+      </div>
 
-    <div class="notif-panel">
-      @if (recentNotifications().length > 0) {
-        @for (n of recentNotifications(); track n.id) {
-          <a routerLink="/notificacoes" class="notif-row" [class.notif-row--unread]="!n.read">
-            <span class="notif-row__icon" [class.is-holerite]="n.type === 'HOLERITE'">
-              <i class="pi" [ngClass]="n.type === 'HOLERITE' ? 'pi-file' : 'pi-megaphone'"></i>
+      <div class="pend-lista">
+        @for (item of minhasPendencias(); track item.title + item.since) {
+          <a [routerLink]="info(item).rota" class="pend-linha">
+            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__corpo">
+              <span class="pend-linha__titulo">{{ item.title }}</span>
+              <span class="pend-linha__detalhe">{{ item.detail }}</span>
             </span>
-            <span class="notif-row__body">
-              <span class="notif-row__title">{{ n.title }}</span>
-              <span class="notif-row__msg">{{ n.message }}</span>
-            </span>
-            <span class="notif-row__time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+            @if (item.since) {
+              <span class="pend-linha__data">{{ item.since | date:'dd/MM' }}</span>
+            }
+            <i class="pi pi-angle-right pend-linha__seta"></i>
           </a>
         }
-      } @else {
-        <div class="notif-empty">
-          <span class="notif-empty__icon"><i class="pi pi-check-circle"></i></span>
-          <p class="notif-empty__title">Você está em dia!</p>
-          <span class="notif-empty__sub">Nenhuma notificação por aqui no momento.</span>
-        </div>
-      }
-    </div>
-  </section>
+      </div>
+    </section>
+  }
 
+  <!-- Só chega aqui quem é RH ou ADMIN: a API devolve a lista vazia para o resto. -->
+  @if (aprovacoes().length > 0) {
+    <section class="section pendencias">
+      <div class="section__head">
+        <h2 class="section__title">
+          <i class="pi pi-check-square"></i> Aguardando sua aprovação
+          <span class="section__badge section__badge--neutro">{{ aprovacoes().length }}</span>
+        </h2>
+      </div>
+
+      <div class="pend-lista">
+        @for (item of aprovacoes(); track item.title + item.detail + item.since) {
+          <a [routerLink]="info(item).rota" class="pend-linha">
+            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__corpo">
+              <span class="pend-linha__titulo">{{ item.title }}</span>
+              <span class="pend-linha__detalhe">{{ item.detail }}</span>
+            </span>
+            @if (item.since) {
+              <span class="pend-linha__data">{{ item.since | date:'dd/MM' }}</span>
+            }
+            <i class="pi pi-angle-right pend-linha__seta"></i>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- O que sustenta a página nos dias sem pendência nenhuma. -->
+  <div class="painel-duplo">
+
+    <section class="section painel">
+      <div class="section__head">
+        <h2 class="section__title">
+          <i class="pi pi-bell"></i> Notificações
+          @if (notifications.unreadCount() > 0) {
+            <span class="section__badge">{{ notifications.unreadCount() }}</span>
+          }
+        </h2>
+        <a routerLink="/notificacoes" class="section__link">Ver todas <i class="pi pi-angle-right"></i></a>
+      </div>
+
+      <div class="notif-panel painel__corpo">
+        @if (recentNotifications().length > 0) {
+          @for (n of recentNotifications(); track n.id) {
+            <a routerLink="/notificacoes" class="notif-row" [class.notif-row--unread]="!n.read">
+              <span class="notif-row__icon" [class.is-holerite]="n.type === 'HOLERITE'">
+                <i class="pi" [ngClass]="n.type === 'HOLERITE' ? 'pi-file' : 'pi-megaphone'"></i>
+              </span>
+              <span class="notif-row__body">
+                <span class="notif-row__title">{{ n.title }}</span>
+                <span class="notif-row__msg">{{ n.message }}</span>
+              </span>
+              <span class="notif-row__time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+            </a>
+          }
+        } @else {
+          <div class="notif-empty">
+            <span class="notif-empty__icon"><i class="pi pi-check-circle"></i></span>
+            <p class="notif-empty__title">Você está em dia!</p>
+            <span class="notif-empty__sub">Nenhuma notificação por aqui no momento.</span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="section painel">
+      <div class="section__head">
+        <h2 class="section__title"><i class="pi pi-megaphone"></i> Avisos do RH</h2>
+        <a routerLink="/documentos/rh/announcements" class="section__link">Ver mural <i class="pi pi-angle-right"></i></a>
+      </div>
+
+      <div class="notif-panel painel__corpo">
+        @if (avisosCarregando()) {
+          @for (i of [1,2,3]; track i) {
+            <div class="aviso-skeleton"></div>
+          }
+        } @else if (avisosComErro()) {
+          <!-- Mural fora do ar não pode parecer mural vazio: um diz "tente de
+               novo", o outro diz "não há avisos", e são coisas diferentes. -->
+          <div class="notif-empty">
+            <span class="notif-empty__icon notif-empty__icon--warn"><i class="pi pi-exclamation-triangle"></i></span>
+            <p class="notif-empty__title">Não foi possível carregar</p>
+            <span class="notif-empty__sub">O mural está indisponível no momento.</span>
+          </div>
+        } @else if (avisosRecentes().length > 0) {
+          @for (a of avisosRecentes(); track a.id) {
+            <a routerLink="/documentos/rh/announcements" class="aviso-row">
+              <span class="aviso-row__title">{{ a.title }}</span>
+              <span class="aviso-row__content">{{ a.content }}</span>
+              <span class="aviso-row__meta">
+                {{ a.publishedByName }} · {{ a.publishedAt | date:'dd/MM' }}
+              </span>
+            </a>
+          }
+        } @else {
+          <div class="notif-empty">
+            <span class="notif-empty__icon"><i class="pi pi-megaphone"></i></span>
+            <p class="notif-empty__title">Nenhum aviso publicado</p>
+            <span class="notif-empty__sub">Os comunicados do RH aparecem aqui.</span>
+          </div>
+        }
+      </div>
+    </section>
+
+  </div>
 </div>
