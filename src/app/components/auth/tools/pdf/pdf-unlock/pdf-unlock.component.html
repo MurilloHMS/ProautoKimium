@@ -1,13 +1,13 @@
 <p-toast position="top-right" />
 
-<div class="pdf-tool">
+<div class="tool-screen">
 
   <app-page-header
     [icon]="tool.icon"
     [title]="tool.label"
     [subtitle]="tool.description" />
 
-  <div class="pdf-tool__panel">
+  <div class="tool-screen__panel">
 
     <pk-fileUpload
       mode="dropzone"
@@ -23,7 +23,7 @@
       (cleared)="onCleared()" />
 
     @if (file()) {
-      <div class="pdf-tool__form">
+      <div class="tool-screen__form">
         <!-- `new-password`, não `off`: o Chrome ignora `off` em campo de senha
              (sites abusaram disso) e preencheria a senha DA CONTA do usuário
              aqui. Se ele enviasse sem reparar, a senha pessoal iria para a API
@@ -44,7 +44,7 @@
       </div>
     }
 
-    <p class="pdf-tool__note">
+    <p class="tool-screen__note">
       <i class="pi pi-info-circle"></i>
       O arquivo é processado e devolvido na hora — nada fica guardado no servidor.
       Você precisa saber a senha: a ferramenta remove a proteção, não a descobre.
