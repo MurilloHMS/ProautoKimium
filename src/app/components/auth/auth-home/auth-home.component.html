@@ -1,40 +1,26 @@
 <div class="home">
 
-  <!-- ═══════════════════════════════════════════════════
-       HERO — compacto de propósito. O texto de boas-vindas
-       que estava aqui não dizia nada depois da primeira
-       visita, e custava altura em toda abertura da página.
-  ═══════════════════════════════════════════════════ -->
-  <section class="hero">
-    <div class="hero__bg" aria-hidden="true"></div>
-
-    <div class="hero__content">
-      <p class="hero__date">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
-
-      <h1 class="hero__greeting">
-        {{ greeting }}@if (firstName) {, {{ firstName }}}!
-        <span class="hero__wave">👋</span>
-      </h1>
-
-      <div class="hero__meta">
-        <a routerLink="/notificacoes" class="hero-pill">
-          <i class="pi pi-bell"></i>
-          @if (notifications.unreadCount() > 0) {
-            {{ notifications.unreadCount() }}
-            {{ notifications.unreadCount() === 1 ? 'nova notificação' : 'novas notificações' }}
-          } @else {
-            Nenhuma notificação nova
-          }
-        </a>
-
-        @if (primaryRole) {
-          <span class="hero-pill hero-pill--ghost">
-            <i class="pi pi-shield"></i>{{ primaryRole }}
-          </span>
-        }
-      </div>
+  <!--
+    Era um banner de ~180px com gradiente e emoji, dizendo "Boa tarde, Murillo"
+    todo dia. Virou uma faixa de uma linha, e ganhou o que faltava: a pendência
+    só aparece quando existe.
+  -->
+  <header class="topo">
+    <div class="topo__saudacao">
+      <h1 class="topo__titulo">{{ greeting }}@if (firstName) {, {{ firstName }}}</h1>
+      <p class="topo__data">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
     </div>
-  </section>
+
+    @if (notifications.unreadCount() > 0) {
+      <a routerLink="/notificacoes" class="topo__pendencia">
+        <i class="pi pi-bell"></i>
+        {{ notifications.unreadCount() }}
+        {{ notifications.unreadCount() === 1 ? 'notificação não lida' : 'notificações não lidas' }}
+      </a>
+    } @else if (primaryRole) {
+      <span class="topo__papel"><i class="pi pi-shield"></i>{{ primaryRole }}</span>
+    }
+  </header>
 
   <!--
     O QUE MUDOU, primeiro e em meia página cada.
@@ -133,11 +119,7 @@
       @for (link of PERSONAL_LINKS; track link.link) {
         <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
           <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-          <span class="quick-card__body">
-            <span class="quick-card__label">{{ link.label }}</span>
-            <span class="quick-card__desc">{{ link.description }}</span>
-          </span>
-          <i class="pi pi-arrow-right quick-card__arrow"></i>
+          <span class="quick-card__label">{{ link.label }}</span>
         </a>
       }
     </div>
@@ -156,11 +138,7 @@
         @for (link of managementLinks; track link.link) {
           <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
             <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-            <span class="quick-card__body">
-              <span class="quick-card__label">{{ link.label }}</span>
-              <span class="quick-card__desc">{{ link.description }}</span>
-            </span>
-            <i class="pi pi-arrow-right quick-card__arrow"></i>
+            <span class="quick-card__label">{{ link.label }}</span>
           </a>
         }
       </div>
