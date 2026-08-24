@@ -1,15 +1,18 @@
 @use 'variables' as v;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Casca das telas de ferramenta de PDF
+// Casca das telas de ferramenta
 //
 // As ferramentas têm a mesma forma: cabeçalho, um painel estreito com a área
-// de upload e o controle da vez, e uma nota no rodapé. Fica aqui para as telas
-// não repetirem o mesmo SCSS — e para uma ferramenta nova nascer só com o que
-// tem de próprio.
+// de entrada e o controle da vez, e uma nota no rodapé. Fica aqui para as
+// telas não repetirem o mesmo SCSS — e para uma ferramenta nova nascer só com
+// o que tem de próprio.
+//
+// Chamava-se `pdf-tool` até a terceira ferramenta não ser de PDF. A forma
+// nunca teve nada de PDF; só o nome tinha.
 // ═══════════════════════════════════════════════════════════════════════════
 
-.pdf-tool {
+.tool-screen {
   max-width: 720px;
   margin: 0 auto;
   padding: v.$space-8;
@@ -17,7 +20,7 @@
   @media (max-width: v.$bp-md) { padding: v.$space-5; }
 }
 
-.pdf-tool__panel {
+.tool-screen__panel {
   display: flex;
   flex-direction: column;
   gap: v.$space-5;
@@ -30,7 +33,7 @@
 
 // O controle da vez só aparece depois do arquivo escolhido: sem arquivo, não
 // há o que configurar.
-.pdf-tool__form {
+.tool-screen__form {
   display: flex;
   flex-direction: column;
   gap: v.$space-4;
@@ -38,7 +41,7 @@
   pk-button { align-self: flex-start; }
 }
 
-.pdf-tool__note {
+.tool-screen__note {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -53,7 +56,7 @@
   i { margin-top: 2px; flex-shrink: 0; }
 }
 
-.pdf-tool__result {
+.tool-screen__result {
   display: flex;
   align-items: center;
   gap: 8px;

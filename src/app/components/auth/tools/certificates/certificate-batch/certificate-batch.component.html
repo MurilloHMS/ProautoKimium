@@ -1,0 +1,103 @@
+<p-toast position="top-right" />
+
+<div class="tool-screen">
+
+  <app-page-header
+    icon="pi pi-verified"
+    title="Certificados em lote"
+    subtitle="Um nome por linha, um certificado para cada, tudo num ZIP" />
+
+  <!--
+    Duas colunas no monitor, uma no celular. A entrada é alta e o resumo muda
+    enquanto se digita: lado a lado, a contagem fica no campo de visão de quem
+    está colando a lista, em vez de embaixo dela.
+  -->
+  <div class="tool-screen__panel lote-grade">
+
+    <div class="lote-entrada">
+      <label for="nomes">Nomes</label>
+      <textarea
+        id="nomes"
+        pTextarea
+        class="lote-entrada__texto"
+        placeholder="Ana Souza&#10;Bruno Lima&#10;Carla Dias"
+        [ngModel]="texto()"
+        (ngModelChange)="aoDigitar($event)"
+        [disabled]="gerando()"></textarea>
+      <small class="lote-entrada__dica">
+        Cole a coluna direto do Excel. Uma linha, um nome.
+      </small>
+    </div>
+
+    <aside class="lote-lateral">
+
+      <!--
+        O que a tela entendeu, antes de gerar. Colar uma coluna traz linha em
+        branco e nome repetido sem ninguém ver, e sem isto o erro só apareceria
+        dentro do ZIP — depois da espera.
+      -->
+      <div class="lote-resumo">
+        <div class="lote-resumo__total">
+          <span class="lote-resumo__numero">{{ analise().nomes.length }}</span>
+          <span class="lote-resumo__rotulo">
+            {{ analise().nomes.length === 1 ? 'certificado' : 'certificados' }}
+          </span>
+        </div>
+
+        @if (analise().linhasEmBranco > 0) {
+          <p class="lote-resumo__aviso">
+            <i class="pi pi-minus-circle"></i>
+            {{ analise().linhasEmBranco }} linha(s) em branco ignorada(s)
+          </p>
+        }
+
+        @if (analise().repetidos > 0) {
+          <p class="lote-resumo__aviso">
+            <i class="pi pi-clone"></i>
+            {{ analise().repetidos }} nome(s) repetido(s) — cada um gera o seu arquivo
+          </p>
+        }
+
+        @if (analise().nomes.length === 0) {
+          <p class="lote-resumo__aviso">
+            <i class="pi pi-arrow-left"></i>
+            Cole ou digite os nomes ao lado
+          </p>
+        }
+      </div>
+
+      @if (analise().excedente > 0) {
+        <p class="lote-erro">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ analise().nomes.length }} nomes, e o limite é {{ LIMITE }}.
+          Tire {{ analise().excedente }} ou gere em duas partes.
+        </p>
+      }
+
+      <div class="lote-acoes">
+        <pk-button
+          pkType="download"
+          pkLabel="Gerar e baixar ZIP"
+          [pkDisabled]="!podeGerar()"
+          [pkLoading]="gerando()"
+          (clicked)="gerar()" />
+
+        @if (texto()) {
+          <pk-button
+            pkType="cancel"
+            pkLabel="Limpar"
+            [pkDisabled]="gerando()"
+            (clicked)="limpar()" />
+        }
+      </div>
+
+      <p class="tool-screen__note">
+        <i class="pi pi-info-circle"></i>
+        Estes certificados <strong>não geram registro</strong> — servem para
+        emissão em massa de treinamento. O certificado com validação continua na
+        página pública, um de cada vez.
+      </p>
+
+    </aside>
+  </div>
+</div>
