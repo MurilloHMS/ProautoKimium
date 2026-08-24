@@ -293,7 +293,12 @@
 @media (pointer: coarse) {
   input:not([type='file']):not([type='checkbox']):not([type='radio']),
   textarea,
-  select {
+  select,
+  /* `contenteditable` conta como campo para o WebKit e não é `input` nenhum:
+     o editor de e-mail (`.ql-editor`, do Quill) tem 14px próprios e ficaria de
+     fora da regra. Um seletor por atributo cobre ele e qualquer editor que
+     venha depois. */
+  [contenteditable='true'] {
     font-size: 16px !important;
   }
 }
