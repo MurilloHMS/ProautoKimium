@@ -1,10 +1,38 @@
 @use 'variables' as v;
 @use 'tool-screen';
 
-.lote-campo {
+// A casca padrão é uma coluna de 720px centralizada. Isso funciona no celular,
+// onde ela ocupa a tela inteira, e numa ferramenta de um controle só. Aqui não:
+// no monitor, 720px no meio de 1920px lê como tela inacabada, não como
+// minimalismo — sobra espaço e o olho cobra o que fazer com ele.
+//
+// Esta tela tem duas coisas: uma entrada alta e um resumo que muda enquanto se
+// digita. Duas coisas cabem lado a lado quando há largura.
+.tool-screen {
+  @media (min-width: v.$bp-lg) {
+    max-width: 1120px;
+  }
+}
+
+// Mobile-first de verdade: a base é a coluna única, e a segunda coluna é o que
+// se acrescenta quando existe espaço — não o contrário.
+.lote-grade {
+  display: grid;
+  gap: v.$space-6;
+
+  @media (min-width: v.$bp-lg) {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+// ─── Entrada ───────────────────────────────────────────────────────────────
+
+.lote-entrada {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 
   label {
     font-size: var(--text-ui-sm);
@@ -13,43 +41,86 @@
   }
 }
 
-.lote-campo__texto {
+.lote-entrada__texto {
   width: 100%;
-  // Nome é linha curta: quebrar automaticamente esconderia que a pessoa colou
+  // Altura fixa em vez de `rows`: no monitor a lista tem que caber sem rolar a
+  // página, e no celular 14 linhas seriam a tela inteira.
+  min-height: 260px;
+  resize: vertical;
+
+  @media (min-width: v.$bp-lg) {
+    min-height: 420px;
+  }
+
+  // Nome é linha curta. Quebrar automaticamente esconderia que a pessoa colou
   // uma célula inteira numa linha só.
   white-space: pre;
   overflow-x: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--text-ui-sm);
   line-height: 1.6;
-  resize: vertical;
 }
 
-.lote-campo__dica {
+.lote-entrada__dica {
   color: var(--app-text-muted);
   font-size: var(--text-ui-sm);
+}
+
+// ─── Lateral ───────────────────────────────────────────────────────────────
+
+.lote-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-5;
+  min-width: 0;
+
+  // Acompanha a rolagem quando a lista é longa: com 200 nomes, o botão sairia
+  // da tela e a pessoa rolaria de volta só para clicar.
+  @media (min-width: v.$bp-lg) {
+    position: sticky;
+    top: v.$space-6;
+  }
 }
 
 .lote-resumo {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: v.$space-4;
-  padding: 10px 14px;
-  border-radius: var(--radius-control);
+  flex-direction: column;
+  gap: v.$space-3;
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   background: var(--app-surface-2);
-  font-size: var(--text-ui-sm);
-
-  i { margin-right: 6px; }
 }
 
 .lote-resumo__total {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.lote-resumo__numero {
+  font-size: 2.4rem;
   font-weight: 700;
+  line-height: 1;
   color: var(--app-action);
+  font-variant-numeric: tabular-nums;
+}
+
+.lote-resumo__rotulo {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
 }
 
 .lote-resumo__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
   color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { margin-top: 3px; flex-shrink: 0; }
 }
 
 .lote-erro {
@@ -67,10 +138,15 @@
   i { margin-top: 2px; flex-shrink: 0; }
 }
 
-// O botão de gerar e o de limpar ficam lado a lado; o `tool-screen__form`
-// empilha por padrão, porque as outras ferramentas têm um controle só.
-.tool-screen__form {
-  flex-direction: row;
+.lote-acoes {
+  display: flex;
   flex-wrap: wrap;
   gap: v.$space-3;
+
+  // No celular o botão principal ocupa a linha: alvo grande, e a ordem de
+  // leitura já diz qual é o principal.
+  @media (max-width: v.$bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
