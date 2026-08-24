@@ -18,13 +18,37 @@
   --accent-purple: #a78bfa;
 }
 
+// Sem `max-width`. A home era uma coluna de 1200px centralizada: num monitor
+// largo sobrava metade da tela vazia, e as notificações — a informação mais
+// perecível — ficavam abaixo da dobra, porque tudo era uma pilha vertical.
 .home {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: v.$space-8;
   display: flex;
   flex-direction: column;
   gap: v.$space-8;
+}
+
+// Duas colunas a partir do desktop; uma no resto.
+//
+// A ordem no celular é atalho primeiro, e é deliberada: quem abre no telefone
+// quase sempre quer FAZER algo — ver holerite, mandar nota. O que mudou já tem
+// o contador de não lidas na pílula do topo e o sino da barra inferior.
+.home__grid {
+  display: grid;
+  gap: v.$space-8;
+  align-items: start;
+
+  @media (min-width: v.$bp-lg) {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+.home__main,
+.home__rail {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-8;
+  min-width: 0;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -407,11 +431,75 @@
 }
 
 // ═══════════════════════════════════════════════════════════════
+// AVISOS DO RH
+// ═══════════════════════════════════════════════════════════════
+.aviso-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: v.$space-4 v.$space-5;
+  border-bottom: 1px solid var(--app-border);
+  text-decoration: none;
+  transition: background .15s ease;
+
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--app-surface-2); }
+}
+
+.aviso-row__title {
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--app-action);
+}
+
+.aviso-row__content {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.45;
+  // Comunicado é texto livre e pode vir longo: duas linhas na trilha, o resto
+  // no mural. Sem o corte, um aviso empurraria os outros dois para fora.
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.aviso-row__meta {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
+
+.aviso-skeleton {
+  height: 58px;
+  margin: v.$space-4 v.$space-5;
+  border-radius: var(--radius-control);
+  background: linear-gradient(90deg,
+              var(--app-surface-2) 25%,
+              var(--app-surface-3, var(--app-border)) 50%,
+              var(--app-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: aviso-pulsa 1.4s ease-in-out infinite;
+}
+
+@keyframes aviso-pulsa {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+.notif-empty__icon--warn {
+  color: var(--app-warning);
+}
+
+// ═══════════════════════════════════════════════════════════════
 // RESPONSIVO
 // ═══════════════════════════════════════════════════════════════
 @media (max-width: v.$bp-md) {
   .home { padding: v.$space-5; gap: v.$space-6; }
   .hero { padding: v.$space-6; }
+
+  .home__grid,
+  .home__main,
+  .home__rail { gap: v.$space-6; }
 }
 
 @media (max-width: v.$bp-xs) {

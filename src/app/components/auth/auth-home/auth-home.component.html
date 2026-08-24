@@ -1,7 +1,9 @@
 <div class="home">
 
   <!-- ═══════════════════════════════════════════════════
-       HERO — saudação personalizada
+       HERO — compacto de propósito. O texto de boas-vindas
+       que estava aqui não dizia nada depois da primeira
+       visita, e custava altura em toda abertura da página.
   ═══════════════════════════════════════════════════ -->
   <section class="hero">
     <div class="hero__bg" aria-hidden="true"></div>
@@ -13,11 +15,6 @@
         {{ greeting }}@if (firstName) {, {{ firstName }}}!
         <span class="hero__wave">👋</span>
       </h1>
-
-      <p class="hero__lead">
-        Bem-vindo ao portal interno da <strong>Proauto Kimium</strong> —
-        seus sistemas e ferramentas reunidos em um só lugar.
-      </p>
 
       <div class="hero__meta">
         <a routerLink="/notificacoes" class="hero-pill">
@@ -39,60 +36,134 @@
     </div>
   </section>
 
-  <!-- ═══════════════════════════════════════════════════
-       ATALHOS RÁPIDOS — módulos internos (por papel)
-  ═══════════════════════════════════════════════════ -->
-  <section class="section">
-    <div class="section__head">
-      <h2 class="section__title"><i class="pi pi-th-large"></i> Atalhos rápidos</h2>
-      <span class="section__hint">Acesso direto aos módulos que você utiliza</span>
-    </div>
+  <!--
+    Duas colunas no monitor, uma no celular. Os atalhos à esquerda, e o que
+    mudou — notificações e avisos — numa trilha à direita, visível sem rolar.
+    Antes as notificações eram a última seção: a informação mais perecível era
+    a que pedia mais rolagem.
+  -->
+  <div class="home__grid">
 
-    <div class="quick-grid">
-      @for (link of quickLinks; track link.link) {
-        <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
-          <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-          <span class="quick-card__body">
-            <span class="quick-card__label">{{ link.label }}</span>
-            <span class="quick-card__desc">{{ link.description }}</span>
-          </span>
-          <i class="pi pi-arrow-right quick-card__arrow"></i>
-        </a>
-      }
-    </div>
-  </section>
+    <!-- ─── Coluna principal: atalhos ─────────────────── -->
+    <div class="home__main">
 
-  <!-- ═══════════════════════════════════════════════════
-       NOTIFICAÇÕES RECENTES
-  ═══════════════════════════════════════════════════ -->
-  <section class="section">
-    <div class="section__head">
-      <h2 class="section__title"><i class="pi pi-bell"></i> Notificações recentes</h2>
-      <a routerLink="/notificacoes" class="section__link">Ver todas <i class="pi pi-angle-right"></i></a>
-    </div>
-
-    <div class="notif-panel">
-      @if (recentNotifications().length > 0) {
-        @for (n of recentNotifications(); track n.id) {
-          <a routerLink="/notificacoes" class="notif-row" [class.notif-row--unread]="!n.read">
-            <span class="notif-row__icon" [class.is-holerite]="n.type === 'HOLERITE'">
-              <i class="pi" [ngClass]="n.type === 'HOLERITE' ? 'pi-file' : 'pi-megaphone'"></i>
-            </span>
-            <span class="notif-row__body">
-              <span class="notif-row__title">{{ n.title }}</span>
-              <span class="notif-row__msg">{{ n.message }}</span>
-            </span>
-            <span class="notif-row__time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
-          </a>
-        }
-      } @else {
-        <div class="notif-empty">
-          <span class="notif-empty__icon"><i class="pi pi-check-circle"></i></span>
-          <p class="notif-empty__title">Você está em dia!</p>
-          <span class="notif-empty__sub">Nenhuma notificação por aqui no momento.</span>
+      <section class="section">
+        <div class="section__head">
+          <h2 class="section__title"><i class="pi pi-user"></i> Para você</h2>
+          <span class="section__hint">Disponível para toda a equipe</span>
         </div>
+
+        <div class="quick-grid">
+          @for (link of PERSONAL_LINKS; track link.link) {
+            <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
+              <span class="quick-card__icon"><i [class]="link.icon"></i></span>
+              <span class="quick-card__body">
+                <span class="quick-card__label">{{ link.label }}</span>
+                <span class="quick-card__desc">{{ link.description }}</span>
+              </span>
+              <i class="pi pi-arrow-right quick-card__arrow"></i>
+            </a>
+          }
+        </div>
+      </section>
+
+      <!-- Some inteiro para quem não tem papel de gestão, em vez de deixar
+           um título com uma lista vazia embaixo. -->
+      @if (managementLinks.length > 0) {
+        <section class="section">
+          <div class="section__head">
+            <h2 class="section__title"><i class="pi pi-th-large"></i> Gestão</h2>
+            <span class="section__hint">Módulos do seu perfil de acesso</span>
+          </div>
+
+          <div class="quick-grid">
+            @for (link of managementLinks; track link.link) {
+              <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
+                <span class="quick-card__icon"><i [class]="link.icon"></i></span>
+                <span class="quick-card__body">
+                  <span class="quick-card__label">{{ link.label }}</span>
+                  <span class="quick-card__desc">{{ link.description }}</span>
+                </span>
+                <i class="pi pi-arrow-right quick-card__arrow"></i>
+              </a>
+            }
+          </div>
+        </section>
       }
     </div>
-  </section>
 
+    <!-- ─── Trilha: o que mudou ───────────────────────── -->
+    <aside class="home__rail">
+
+      <section class="section">
+        <div class="section__head">
+          <h2 class="section__title"><i class="pi pi-bell"></i> Notificações</h2>
+          <a routerLink="/notificacoes" class="section__link">Ver todas <i class="pi pi-angle-right"></i></a>
+        </div>
+
+        <div class="notif-panel">
+          @if (recentNotifications().length > 0) {
+            @for (n of recentNotifications(); track n.id) {
+              <a routerLink="/notificacoes" class="notif-row" [class.notif-row--unread]="!n.read">
+                <span class="notif-row__icon" [class.is-holerite]="n.type === 'HOLERITE'">
+                  <i class="pi" [ngClass]="n.type === 'HOLERITE' ? 'pi-file' : 'pi-megaphone'"></i>
+                </span>
+                <span class="notif-row__body">
+                  <span class="notif-row__title">{{ n.title }}</span>
+                  <span class="notif-row__msg">{{ n.message }}</span>
+                </span>
+                <span class="notif-row__time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+              </a>
+            }
+          } @else {
+            <div class="notif-empty">
+              <span class="notif-empty__icon"><i class="pi pi-check-circle"></i></span>
+              <p class="notif-empty__title">Você está em dia!</p>
+              <span class="notif-empty__sub">Nenhuma notificação por aqui no momento.</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section__head">
+          <h2 class="section__title"><i class="pi pi-megaphone"></i> Avisos do RH</h2>
+          <a routerLink="/documentos/rh/announcements" class="section__link">Ver mural <i class="pi pi-angle-right"></i></a>
+        </div>
+
+        <div class="notif-panel">
+          @if (avisosCarregando()) {
+            @for (i of [1,2,3]; track i) {
+              <div class="aviso-skeleton"></div>
+            }
+          } @else if (avisosComErro()) {
+            <!-- Mural fora do ar não pode parecer mural vazio: um diz "tente de
+                 novo", o outro diz "não há avisos", e são coisas diferentes. -->
+            <div class="notif-empty">
+              <span class="notif-empty__icon notif-empty__icon--warn"><i class="pi pi-exclamation-triangle"></i></span>
+              <p class="notif-empty__title">Não foi possível carregar</p>
+              <span class="notif-empty__sub">O mural está indisponível no momento.</span>
+            </div>
+          } @else if (avisosRecentes().length > 0) {
+            @for (a of avisosRecentes(); track a.id) {
+              <a routerLink="/documentos/rh/announcements" class="aviso-row">
+                <span class="aviso-row__title">{{ a.title }}</span>
+                <span class="aviso-row__content">{{ a.content }}</span>
+                <span class="aviso-row__meta">
+                  {{ a.publishedByName }} · {{ a.publishedAt | date:'dd/MM' }}
+                </span>
+              </a>
+            }
+          } @else {
+            <div class="notif-empty">
+              <span class="notif-empty__icon"><i class="pi pi-megaphone"></i></span>
+              <p class="notif-empty__title">Nenhum aviso publicado</p>
+              <span class="notif-empty__sub">Os comunicados do RH aparecem aqui.</span>
+            </div>
+          }
+        </div>
+      </section>
+
+    </aside>
+  </div>
 </div>
