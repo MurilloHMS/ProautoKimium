@@ -268,3 +268,32 @@
         box-shadow: var(--app-focus-ring);
     }
 }
+
+/* ===========================================================================
+   iOS: o campo não pode ter menos de 16px
+
+   O Safari do iPhone dá zoom ao focar qualquer input com fonte menor que 16px.
+   Não é preferência do usuário nem configuração do site — é regra do WebKit, e
+   vale para input, textarea e select. Com `--text-ui` em 13px, todo formulário
+   do sistema disparava isso: a tela pulava a cada campo tocado, e voltar exigia
+   pinch manual.
+
+   **A correção é a fonte, não o viewport.** `maximum-scale=1` no meta também
+   impediria o zoom, e junto tiraria o pinch de quem aumenta a tela para
+   enxergar. O iOS ignora esse atributo desde o iOS 10 exatamente por isso.
+
+   `pointer: coarse` limita a regra ao dedo: no monitor os campos seguem com os
+   13px compactos do resto da interface.
+
+   O `!important` é deliberado. Estilo de componente Angular carrega
+   `[_ngcontent-…]` e ganha em especificidade de qualquer seletor global — sem
+   ele, cada tela que define o próprio `font-size` volta a dar zoom, e a regra
+   passaria a valer só onde ninguém personalizou nada.
+   =========================================================================== */
+@media (pointer: coarse) {
+  input:not([type='file']):not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
