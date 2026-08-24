@@ -1,9 +1,9 @@
 <div class="home">
 
   <!--
-    Era um banner de ~180px com gradiente e emoji, dizendo "Boa tarde, Murillo"
-    todo dia. Virou uma faixa de uma linha, e ganhou o que faltava: a pendência
-    só aparece quando existe.
+    Faixa de uma linha. Era um banner de ~180px com gradiente e emoji, dizendo
+    "Boa tarde, Murillo" todo dia — a única informação da página que nunca muda,
+    ocupando o topo.
   -->
   <header class="topo">
     <div class="topo__saudacao">
@@ -11,23 +11,84 @@
       <p class="topo__data">{{ currentDate | date:'EEEE, d \'de\' MMMM':'':'pt-BR' }}</p>
     </div>
 
-    @if (notifications.unreadCount() > 0) {
-      <a routerLink="/notificacoes" class="topo__pendencia">
-        <i class="pi pi-bell"></i>
-        {{ notifications.unreadCount() }}
-        {{ notifications.unreadCount() === 1 ? 'notificação não lida' : 'notificações não lidas' }}
-      </a>
-    } @else if (primaryRole) {
-      <span class="topo__papel"><i class="pi pi-shield"></i>{{ primaryRole }}</span>
-    }
+    <div class="topo__chips">
+      @if (saldoFerias() !== null) {
+        <span class="topo__papel" title="Saldo de férias">
+          <i class="pi pi-sun"></i>{{ saldoFerias() }} dias de férias
+        </span>
+      }
+
+      @if (notifications.unreadCount() > 0) {
+        <a routerLink="/notificacoes" class="topo__pendencia">
+          <i class="pi pi-bell"></i>
+          {{ notifications.unreadCount() }}
+          {{ notifications.unreadCount() === 1 ? 'não lida' : 'não lidas' }}
+        </a>
+      }
+    </div>
   </header>
 
   <!--
-    O QUE MUDOU, primeiro e em meia página cada.
-    Antes isto era uma trilha de 360px ao lado dos atalhos, e antes disso a
-    última seção da página. É a informação mais perecível da home: se exige
-    rolagem, chega tarde.
+    PRECISA DE VOCÊ — some inteiro quando não há nada.
+    Um bloco vazio ocupando meia tela seria pior que bloco nenhum: ensina a
+    pessoa a ignorar aquela área da página.
   -->
+  @if (minhasPendencias().length > 0) {
+    <section class="section pendencias">
+      <div class="section__head">
+        <h2 class="section__title">
+          <i class="pi pi-exclamation-circle"></i> Precisa de você
+          <span class="section__badge">{{ minhasPendencias().length }}</span>
+        </h2>
+      </div>
+
+      <div class="pend-lista">
+        @for (item of minhasPendencias(); track item.title + item.since) {
+          <a [routerLink]="info(item).rota" class="pend-linha">
+            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__corpo">
+              <span class="pend-linha__titulo">{{ item.title }}</span>
+              <span class="pend-linha__detalhe">{{ item.detail }}</span>
+            </span>
+            @if (item.since) {
+              <span class="pend-linha__data">{{ item.since | date:'dd/MM' }}</span>
+            }
+            <i class="pi pi-angle-right pend-linha__seta"></i>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Só chega aqui quem é RH ou ADMIN: a API devolve a lista vazia para o resto. -->
+  @if (aprovacoes().length > 0) {
+    <section class="section pendencias">
+      <div class="section__head">
+        <h2 class="section__title">
+          <i class="pi pi-check-square"></i> Aguardando sua aprovação
+          <span class="section__badge section__badge--neutro">{{ aprovacoes().length }}</span>
+        </h2>
+      </div>
+
+      <div class="pend-lista">
+        @for (item of aprovacoes(); track item.title + item.detail + item.since) {
+          <a [routerLink]="info(item).rota" class="pend-linha">
+            <span class="pend-linha__icone"><i [class]="info(item).icon"></i></span>
+            <span class="pend-linha__corpo">
+              <span class="pend-linha__titulo">{{ item.title }}</span>
+              <span class="pend-linha__detalhe">{{ item.detail }}</span>
+            </span>
+            @if (item.since) {
+              <span class="pend-linha__data">{{ item.since | date:'dd/MM' }}</span>
+            }
+            <i class="pi pi-angle-right pend-linha__seta"></i>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- O que sustenta a página nos dias sem pendência nenhuma. -->
   <div class="painel-duplo">
 
     <section class="section painel">
@@ -105,44 +166,4 @@
     </section>
 
   </div>
-
-  <!-- ═══════════════════════════════════════════════════
-       ATALHOS — abaixo do que mudou, de propósito
-  ═══════════════════════════════════════════════════ -->
-  <section class="section">
-    <div class="section__head">
-      <h2 class="section__title"><i class="pi pi-user"></i> Para você</h2>
-      <span class="section__hint">Disponível para toda a equipe</span>
-    </div>
-
-    <div class="quick-grid">
-      @for (link of PERSONAL_LINKS; track link.link) {
-        <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
-          <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-          <span class="quick-card__label">{{ link.label }}</span>
-        </a>
-      }
-    </div>
-  </section>
-
-  <!-- Some inteiro para quem não tem papel de gestão, em vez de deixar um
-       título com uma lista vazia embaixo. -->
-  @if (managementLinks.length > 0) {
-    <section class="section">
-      <div class="section__head">
-        <h2 class="section__title"><i class="pi pi-th-large"></i> Gestão</h2>
-        <span class="section__hint">Módulos do seu perfil de acesso</span>
-      </div>
-
-      <div class="quick-grid">
-        @for (link of managementLinks; track link.link) {
-          <a [routerLink]="link.link" class="quick-card quick-card--{{ link.accent }}">
-            <span class="quick-card__icon"><i [class]="link.icon"></i></span>
-            <span class="quick-card__label">{{ link.label }}</span>
-          </a>
-        }
-      </div>
-    </section>
-  }
-
 </div>

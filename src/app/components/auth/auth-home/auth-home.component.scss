@@ -1,23 +1,5 @@
 @use 'variables.scss' as v;
 
-// Acentos dos atalhos: onde existe papel no vocabulário, o token responde
-// sozinho ao tema. Roxo e verde não têm papel — são identidade de módulo —
-// então ganham valor próprio e uma versão clara para o fundo escuro, senão
-// somem contra ele.
-:host {
-  --accent-navy:   var(--app-action);
-  --accent-teal:   var(--app-success);
-  --accent-amber:  var(--app-warning);
-  --accent-red:    var(--app-danger);
-  --accent-green:  #{var(--app-success)};
-  --accent-purple: #7c3aed;
-}
-
-:host-context(.dark-mode) {
-  --accent-green:  #4ade80;
-  --accent-purple: #a78bfa;
-}
-
 // Sem `max-width`. A home era uma coluna de 1200px centralizada: num monitor
 // largo sobrava metade da tela vazia, e as notificações — a informação mais
 // perecível — ficavam abaixo da dobra, porque tudo era uma pilha vertical.
@@ -125,6 +107,13 @@
   &:hover { filter: brightness(.95); }
 }
 
+.topo__chips {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  flex-wrap: wrap;
+}
+
 .topo__papel {
   display: inline-flex;
   align-items: center;
@@ -139,6 +128,9 @@
 
 @media (max-width: v.$bp-sm) {
   .topo { align-items: flex-start; }
+
+  // O saldo de férias sai: numa linha estreita ele empurra a pílula de
+  // notificação para baixo, e a não lida é a mais urgente das duas.
   .topo__papel { display: none; }
 }
 
@@ -188,73 +180,6 @@
   transition: gap v.$transition-base, color v.$transition-base;
 
   &:hover { gap: 8px; color: var(--app-action-hover); }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// ATALHOS RÁPIDOS
-// ═══════════════════════════════════════════════════════════════
-// Ladrilho, não cartão.
-//
-// Eram dezenove painéis de 240px com ícone, título, descrição, seta, sombra e
-// barra de acento, em seis cores. Cada um pedia atenção, e juntos viravam
-// parede. A descrição repetia o título, a seta não informava nada, e a cor
-// competia com a do vizinho.
-//
-// Sobrou o que identifica: o ícone, colorido, e o nome. O resto do cartão fica
-// neutro, e a grade lê como grade em vez de mosaico.
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: v.$space-3;
-}
-
-.quick-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: v.$space-5 v.$space-3;
-  border-radius: var(--radius-surface);
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
-  text-decoration: none;
-  text-align: center;
-  transition: border-color v.$transition-base, background v.$transition-base;
-
-  &:hover {
-    border-color: var(--accent, var(--app-action));
-    background: var(--app-surface-2);
-  }
-}
-
-.quick-card__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-control);
-  display: grid;
-  place-items: center;
-  background: var(--accent-soft, var(--app-surface-2));
-
-  i { font-size: 1.15rem; color: var(--accent, var(--app-action)); }
-}
-
-.quick-card__label {
-  font-size: var(--text-ui-sm);
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--app-text);
-}
-
-.quick-card--navy   { --accent: var(--accent-navy); }
-.quick-card--teal   { --accent: var(--accent-teal); }
-.quick-card--amber  { --accent: var(--accent-amber); }
-.quick-card--green  { --accent: var(--accent-green); }
-.quick-card--purple { --accent: var(--accent-purple); }
-.quick-card--red    { --accent: var(--accent-red); }
-
-.quick-card[class*='quick-card--'] {
-  --accent-soft: #{'color-mix(in srgb, var(--accent) 14%, transparent)'};
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -391,6 +316,81 @@
 }
 
 // ═══════════════════════════════════════════════════════════════
+// PENDÊNCIAS — o que precisa de você
+// ═══════════════════════════════════════════════════════════════
+.pend-lista {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.pend-linha {
+  display: flex;
+  align-items: center;
+  gap: v.$space-4;
+  padding: v.$space-4 v.$space-5;
+  border-bottom: 1px solid var(--app-border);
+  text-decoration: none;
+  transition: background .15s ease;
+
+  &:last-child { border-bottom: none; }
+  &:hover {
+    background: var(--app-surface-2);
+    .pend-linha__seta { transform: translateX(2px); }
+  }
+}
+
+.pend-linha__icone {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-control);
+  display: grid;
+  place-items: center;
+  background: var(--app-surface-2);
+
+  i { font-size: 1rem; color: var(--app-action); }
+}
+
+.pend-linha__corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pend-linha__titulo {
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.pend-linha__detalhe {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.pend-linha__data {
+  flex-shrink: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.pend-linha__seta {
+  flex-shrink: 0;
+  font-size: .8rem;
+  color: var(--app-text-subtle);
+  transition: transform .15s ease;
+}
+
+.section__badge--neutro {
+  background: var(--app-action);
+}
+
+// ═══════════════════════════════════════════════════════════════
 // AVISOS DO RH
 // ═══════════════════════════════════════════════════════════════
 .aviso-row {
@@ -464,14 +464,7 @@
   .home { padding: v.$space-4; }
   .notif-row__msg { display: none; }
 
-  // Duas colunas fixas, não `auto-fill`.
-  //
-  // O ladrilho tem 132px de mínimo, e num telefone estreito o auto-fill cairia
-  // sozinho para uma coluna — oito atalhos viravam oito linhas de rolagem. Com
-  // duas colunas fixas eles ocupam quatro linhas, e o ladrilho encolhe em vez
-  // de a lista crescer.
-  .quick-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: v.$space-3;
-  }
+  // Data da pendência sai no celular: título e detalhe são o que importa, e
+  // com 360px a data empurrava o detalhe para reticências.
+  .pend-linha__data { display: none; }
 }
