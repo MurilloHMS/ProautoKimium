@@ -28,27 +28,44 @@
   gap: v.$space-8;
 }
 
-// Duas colunas a partir do desktop; uma no resto.
+// Notificações e avisos ocupam a faixa de cima, meia página cada.
 //
-// A ordem no celular é atalho primeiro, e é deliberada: quem abre no telefone
-// quase sempre quer FAZER algo — ver holerite, mandar nota. O que mudou já tem
-// o contador de não lidas na pílula do topo e o sino da barra inferior.
-.home__grid {
+// Foram uma trilha de 360px ao lado dos atalhos, e antes disso a última seção
+// da página. Nas duas versões a informação mais perecível da home era a que
+// pedia mais rolagem. No celular a ordem é a mesma: primeiro o que mudou,
+// depois os atalhos.
+.painel-duplo {
   display: grid;
-  gap: v.$space-8;
+  gap: v.$space-6;
   align-items: start;
 
   @media (min-width: v.$bp-lg) {
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.home__main,
-.home__rail {
-  display: flex;
-  flex-direction: column;
-  gap: v.$space-8;
-  min-width: 0;
+// Altura mínima igual nos dois: sem ela, "nenhum aviso" encolhe uma coluna e
+// as duas ficam desalinhadas justamente no caso mais comum.
+.painel__corpo {
+  min-height: 240px;
+}
+
+// Contador ao lado do título — o mesmo número da pílula do hero, agora onde o
+// olho já está quando lê "Notificações".
+.section__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--app-danger);
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -497,9 +514,8 @@
   .home { padding: v.$space-5; gap: v.$space-6; }
   .hero { padding: v.$space-6; }
 
-  .home__grid,
-  .home__main,
-  .home__rail { gap: v.$space-6; }
+  .painel-duplo { gap: v.$space-5; }
+  .painel__corpo { min-height: 0; }
 }
 
 @media (max-width: v.$bp-xs) {

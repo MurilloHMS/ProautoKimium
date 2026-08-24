@@ -27,10 +27,10 @@ interface QuickLink {
  * **Gestão** é o que já existia, e continua filtrado por papel — quem não tem
  * papel nenhum simplesmente não vê esse bloco, em vez de ver uma página vazia.
  *
- * O layout é dashboard no monitor e coluna única no celular. No desktop os
- * atalhos ficam à esquerda e o que mudou — notificações e avisos do RH — numa
- * trilha à direita, visível sem rolar. Antes as notificações eram a última
- * seção da página: a informação mais perecível era a que exigia mais rolagem.
+ * **O que mudou vem primeiro.** Notificações e avisos do RH ocupam a faixa de
+ * cima, meia página cada, e os atalhos ficam abaixo. Antes as notificações
+ * eram a última seção: a informação mais perecível era a que exigia mais
+ * rolagem. No celular a ordem é a mesma — notificações, avisos, atalhos.
  */
 @Component({
   selector: 'app-auth-home',
@@ -56,7 +56,7 @@ export class AuthHomeComponent implements OnInit {
   readonly avisosCarregando = signal(true);
   readonly avisosComErro = signal(false);
 
-  readonly avisosRecentes = computed(() => this.avisos().slice(0, 3));
+  readonly avisosRecentes = computed(() => this.avisos().slice(0, 4));
 
   ngOnInit(): void {
     // O mural é aberto a qualquer funcionário autenticado — não precisa de
@@ -94,7 +94,7 @@ export class AuthHomeComponent implements OnInit {
   }
 
   readonly recentNotifications = computed(() =>
-    this.notifications.notifications().slice(0, 4)
+    this.notifications.notifications().slice(0, 5)
   );
 
   // ─── Atalhos ──────────────────────────────────────────────────────────────
