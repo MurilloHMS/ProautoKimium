@@ -42,13 +42,8 @@
   }
 }
 
-@media (max-width: v.$bp-md) {
-  .app-content {
-    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
-  }
-}
-
-// Respiro para o conteúdo não ficar atrás do bottom nav no mobile.
+// No mobile a barra de abas some e entra o bottom nav; o respiro embaixo é
+// para o conteúdo não ficar atrás dele.
 @media (max-width: v.$bp-md) {
   .app-content {
     padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
