@@ -143,6 +143,7 @@ export const APP_MENU: AppMenuItem[] = [
     icon: 'pi pi-fw pi-wrench',
     items: [
       { label: 'PDF', icon: 'pi pi-fw pi-file-pdf', routerLink: ['tools/pdf'] },
+      { label: 'Certificados em lote', icon: 'pi pi-fw pi-verified', routerLink: ['tools/certificados'], roles: ['ADMIN'] },
     ],
   },
   {

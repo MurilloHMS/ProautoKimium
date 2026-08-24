@@ -103,6 +103,7 @@ export const routes: Routes = [
       { path: 'tools/pdf', loadComponent: () => import('./components/auth/tools/pdf/pdf-hub/pdf-hub.component').then(m => m.PdfHubComponent) },
       { path: 'tools/pdf/unlock', loadComponent: () => import('./components/auth/tools/pdf/pdf-unlock/pdf-unlock.component').then(m => m.PdfUnlockComponent) },
       { path: 'tools/pdf/nfse-rename', loadComponent: () => import('./components/auth/tools/pdf/pdf-nfse-rename/pdf-nfse-rename.component').then(m => m.PdfNfseRenameComponent) },
+      { path: 'tools/certificados', loadComponent: () => import('./components/auth/tools/certificates/certificate-batch/certificate-batch.component').then(m => m.CertificateBatchComponent), data: { roles: ['ADMIN'] } },
 
       // ── Empresa ──────────────────────────────────────────────────────────
       { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
