@@ -462,6 +462,16 @@
 
 @media (max-width: v.$bp-xs) {
   .home { padding: v.$space-4; }
-  .quick-grid { grid-template-columns: 1fr; gap: v.$space-3; }
   .notif-row__msg { display: none; }
+
+  // Duas colunas fixas, não `auto-fill`.
+  //
+  // O ladrilho tem 132px de mínimo, e num telefone estreito o auto-fill cairia
+  // sozinho para uma coluna — oito atalhos viravam oito linhas de rolagem. Com
+  // duas colunas fixas eles ocupam quatro linhas, e o ladrilho encolhe em vez
+  // de a lista crescer.
+  .quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: v.$space-3;
+  }
 }
