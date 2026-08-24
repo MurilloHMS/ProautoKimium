@@ -48,10 +48,6 @@
   min-height: 260px;
   resize: vertical;
 
-  @media (min-width: v.$bp-lg) {
-    min-height: 420px;
-  }
-
   // Nome é linha curta. Quebrar automaticamente esconderia que a pessoa colou
   // uma célula inteira numa linha só.
   white-space: pre;
@@ -59,6 +55,13 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--text-ui-sm);
   line-height: 1.6;
+
+  // Regra aninhada por último, sempre. Declaração depois de bloco aninhado é o
+  // `mixed-decls` do Sass 1.77: a saída deixa de sair na ordem do código-fonte,
+  // e o que vem depois do @media pode acabar aplicado antes dele.
+  @media (min-width: v.$bp-lg) {
+    min-height: 420px;
+  }
 }
 
 .lote-entrada__dica {
