@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TextareaModule } from 'primeng/textarea';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import { PkComboboxComponent } from '../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
@@ -29,6 +30,7 @@ import { RegisterService } from '../../../../infrastructure/services/prostock/re
 import { formatStampBr, parseDateOnly } from '../../../../domain/utils/date-only';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { ProgramacaoImportComponent } from './programacao-import.component';
 
 /**
@@ -60,6 +62,7 @@ interface Row extends MachineRegister {
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
     ButtonModule, Toast, Tooltip, ToolbarComponent, PkButtonComponent,
     PkComboboxComponent, PkMultiselectComponent, ProgramacaoImportComponent,
+    PkDialogComponent, TextareaModule,
   ],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
@@ -85,6 +88,21 @@ export class ProgramacaoComponent implements OnInit {
   readonly statusFilter = signal<MachineStatus[]>([]);
   readonly machineFilter = signal<string | null>(null);
   readonly onlyLate = signal(false);
+
+  // ─── Motivo do adiamento ─────────────────────────────────────────────────
+  //
+  // A API recusa com 400 quando a previsão muda e já havia data. Em vez de
+  // deixar o erro chegar e a linha voltar atrás, a tela pergunta antes — o
+  // motivo é informação que só a pessoa tem, e pedir depois de falhar seria
+  // castigo por algo que ela não podia adivinhar.
+
+  readonly motivoAberto = signal(false);
+  readonly motivoTexto = signal('');
+
+  /** O que fica esperando o motivo para poder ser gravado. */
+  private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
+
+  readonly motivoValido = computed(() => this.motivoTexto().trim().length > 0);
 
   readonly hasFilters = computed(() =>
     this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
@@ -299,6 +317,43 @@ export class ProgramacaoComponent implements OnInit {
     const stored = this.store.items().find(item => item.id === row.id);
     if (stored && !hasChanges(stored, payload)) return;
 
+    // Adiar exige motivo; preencher pela primeira vez, não. A regra é a mesma
+    // da API, e está repetida aqui só para perguntar antes de falhar — quem
+    // decide continua sendo o servidor.
+    if (stored && adiouPrevisao(stored, payload)) {
+      this.pendente = { row, payload };
+      this.motivoTexto.set('');
+      this.motivoAberto.set(true);
+      return;
+    }
+
+    this.gravar(row, payload);
+  }
+
+  /** Confirma o motivo e solta o PUT que estava esperando. */
+  confirmarMotivo(): void {
+    if (!this.motivoValido() || !this.pendente) return;
+
+    const { row, payload } = this.pendente;
+    this.pendente = null;
+    this.motivoAberto.set(false);
+
+    this.gravar(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() });
+  }
+
+  /**
+   * Desistir do motivo desfaz a edição.
+   *
+   * Deixar a data nova na tela sem gravar seria pior que o erro: a pessoa sai
+   * achando que salvou. O `refresh` traz de volta o que está no banco.
+   */
+  cancelarMotivo(): void {
+    this.pendente = null;
+    this.motivoAberto.set(false);
+    this.store.refresh();
+  }
+
+  private gravar(row: Row, payload: UpdateMachineRegister): void {
     this.mark('saving', row.id, true);
     this.mark('saved', row.id, false);
 
@@ -385,6 +440,18 @@ function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): bo
     || (stored.consultor ?? '') !== payload.consultor
     || (stored.tecnico ?? '') !== payload.tecnico
     || dayPart(stored.previsaoEntrega) !== dayPart(payload.previsaoEntrega);
+}
+
+/**
+ * Mudou a previsão de um registro que **já tinha** data.
+ *
+ * Preencher pela primeira vez não entra: é completar cadastro, não adiar.
+ * Apagar entra — e é o caso mais grave, porque a máquina some das próximas
+ * saídas sem ninguém perceber.
+ */
+function adiouPrevisao(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
+  if (!stored.previsaoEntrega) return false;
+  return dayPart(stored.previsaoEntrega) !== dayPart(payload.previsaoEntrega);
 }
 
 function dayPart(value: string | null | undefined): string {

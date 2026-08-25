@@ -226,3 +226,46 @@
     (closed)="mode.set('grid')"
     (finished)="refresh()" />
 }
+
+<!--
+  Motivo do adiamento.
+
+  A API recusa a alteração sem ele, então a tela pergunta antes de tentar —
+  deixar o 400 chegar seria castigar a pessoa por algo que ela não tinha como
+  adivinhar. Fechar sem preencher desfaz a edição: data nova na tela sem estar
+  gravada é pior que o erro.
+-->
+<pk-dialog
+  header="Por que a previsão mudou?"
+  [visible]="motivoAberto()"
+  width="480px"
+  (visibleChange)="cancelarMotivo()">
+
+  <div pkDialogContent class="pk-form-section">
+    <div class="form-field field-full">
+      <label for="motivoAdiamento">Motivo <span class="required">*</span></label>
+      <textarea
+        id="motivoAdiamento"
+        pTextarea
+        rows="4"
+        style="width: 100%; resize: vertical;"
+        placeholder="Ex.: peça atrasada no fornecedor"
+        [ngModel]="motivoTexto()"
+        (ngModelChange)="motivoTexto.set($event)"></textarea>
+      <small class="label-hint">
+        Fica no histórico da programação. É o que responde, daqui a três meses,
+        por que essa máquina atrasou.
+      </small>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarMotivo()" />
+    <pk-button
+      pkType="save"
+      pkSize="sm"
+      pkLabel="Salvar alteração"
+      [pkDisabled]="!motivoValido()"
+      (clicked)="confirmarMotivo()" />
+  </div>
+</pk-dialog>
