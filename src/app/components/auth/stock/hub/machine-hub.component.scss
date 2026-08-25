@@ -88,11 +88,31 @@
   box-shadow: var(--app-shadow-sm);
 
   &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin: 0 0 4px;
     font-family: v.$font-heading;
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--app-text);
+  }
+
+  // Quantas estão paradas. É a informação que faz alguém abrir a lista — o
+  // título sozinho não diz se há uma ou trinta.
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
   }
 
   &__hint {

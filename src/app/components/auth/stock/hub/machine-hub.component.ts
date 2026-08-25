@@ -48,6 +48,19 @@ interface UpcomingExit {
 }
 
 /**
+ * Máquina no galpão sem data de saída.
+ *
+ * `diasParada` vem da auditoria, e é o que faz a lista valer: um nome sozinho
+ * não diz nada, "há 40 dias sem previsão" diz. Sem `createdAt` — registro
+ * importado antes da V74 — fica nulo e a linha não mente inventando idade.
+ */
+interface Parada {
+  register: MachineRegister;
+  machine: string;
+  diasParada: number | null;
+}
+
+/**
  * Hub das Máquinas.
  *
  * Tudo aqui sai de duas listas que já estão em memória (`MachineStore` e
@@ -151,6 +164,37 @@ export class MachineHubComponent implements OnInit {
   });
 
   readonly lateCount = computed(() => this.upcoming().filter(item => item.late).length);
+
+  /**
+   * O complemento de "Próximas saídas": o que está parado.
+   *
+   * Aquela lista filtra por **ter** previsão; esta pega justamente quem não
+   * tem. São as máquinas fisicamente no galpão sem compromisso — o hub mostrava
+   * só o que ia sair, e nunca o que estava encalhado.
+   *
+   * `ENTREGUE` fica de fora porque já saiu: sem previsão e entregue não é
+   * máquina parada, é registro histórico.
+   *
+   * Mais antiga no topo. Uma máquina sem previsão há dois meses é o problema;
+   * a que chegou ontem ainda não é.
+   */
+  readonly paradas = computed<Parada[]>(() => {
+    const hoje = startOfToday();
+
+    return this.registerStore.items()
+      .filter(register => !register.previsaoEntrega && register.status !== MachineStatus.ENTREGUE)
+      .map(register => {
+        const desde = parseDateOnly(register.createdAt ?? null);
+        return {
+          register,
+          machine: this.machineStore.nameOf(register.machineId),
+          diasParada: desde
+            ? Math.round((hoje.getTime() - desde.getTime()) / 86_400_000)
+            : null,
+        };
+      })
+      .sort((a, b) => (b.diasParada ?? -1) - (a.diasParada ?? -1));
+  });
 
   // ─── Calendário de implantações ───────────────────────────────────────────
   //
@@ -271,6 +315,18 @@ export class MachineHubComponent implements OnInit {
   refresh(): void {
     this.machineStore.refresh();
     this.registerStore.refresh();
+  }
+
+  /** O mesmo rótulo que o calendário usa, agora também na lista de paradas. */
+  statusLabel(status: MachineStatus): string {
+    return MACHINE_STATUS_LABEL[status] ?? status;
+  }
+
+  paradaLabel(item: Parada): string {
+    if (item.diasParada === null) return 'Sem data de entrada';
+    if (item.diasParada <= 0) return 'Entrou hoje';
+    if (item.diasParada === 1) return 'Há 1 dia';
+    return `Há ${item.diasParada} dias`;
   }
 
   dueLabel(item: UpcomingExit): string {
