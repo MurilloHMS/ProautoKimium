@@ -5,8 +5,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { PkComboboxComponent } from '../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
 import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { TableModule } from 'primeng/table';
@@ -62,11 +63,11 @@ interface Row extends MachineRegister {
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
     ButtonModule, Toast, Tooltip, ToolbarComponent, PkButtonComponent,
     PkComboboxComponent, PkMultiselectComponent, ProgramacaoImportComponent,
-    PkDialogComponent, TextareaModule,
+    PkDialogComponent, TextareaModule, ConfirmDialogModule,
   ],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
 })
 export class ProgramacaoComponent implements OnInit {
 
@@ -74,6 +75,7 @@ export class ProgramacaoComponent implements OnInit {
   private readonly machineStore = inject(MachineStore);
   private readonly registerService = inject(RegisterService);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly loading = this.store.loading;
   readonly statusOptions = machineStatusOptions();
@@ -389,14 +391,41 @@ export class ProgramacaoComponent implements OnInit {
     Object.assign(row, stored, { previsao: parseDateOnly(stored.previsaoEntrega) });
   }
 
+  /**
+   * Excluir pede confirmação; descartar rascunho, não.
+   *
+   * Rascunho é uma linha que nunca existiu no banco — perguntar ali é atrito
+   * por nada. Já a exclusão de verdade leva junto **o histórico de adiamentos**
+   * (`ON DELETE CASCADE` na V82), e é isso que a pergunta precisa dizer: o que
+   * some não é só a linha.
+   */
   deleteRow(row: Row): void {
     if (this.isDraft(row)) {
       this.discardDraft(row);
       return;
     }
 
+    const quem = row.nomeCliente?.trim() || 'sem cliente';
+
+    this.confirmationService.confirm({
+      header: 'Excluir programação',
+      message: `Excluir a programação de <strong>${quem}</strong>? `
+        + 'O histórico de adiamentos dessa linha vai junto, e não há como recuperar.',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Excluir',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.confirmarExclusao(row),
+    });
+  }
+
+  private confirmarExclusao(row: Row): void {
     this.store.deleteById(row.id).subscribe({
-      next: () => this.messageService.add({ severity: 'success', summary: 'Linha removida', detail: row.nomeCliente }),
+      next: () => this.messageService.add({
+        severity: 'success',
+        summary: 'Linha removida',
+        detail: row.nomeCliente,
+      }),
       error: (err: HttpErrorResponse) => this.showError(err),
     });
   }
