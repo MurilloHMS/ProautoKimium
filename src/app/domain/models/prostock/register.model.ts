@@ -51,4 +51,22 @@ export interface CreateMachineRegister {
 }
 
 /** O update não leva `machineId`: a máquina do registro não muda. */
-export type UpdateMachineRegister = Omit<CreateMachineRegister, 'machineId'>;
+export type UpdateMachineRegister = Omit<CreateMachineRegister, 'machineId'> & {
+  /**
+   * Obrigatório só quando a previsão **muda** e já havia data.
+   *
+   * A API recusa com 400 sem ele nesse caso. Preencher pela primeira vez não
+   * é adiamento e não precisa de nada.
+   */
+  motivoAlteracaoPrevisao?: string | null;
+};
+
+/** Uma alteração de previsão já registrada — espelha `ScheduleChangeDTO`. */
+export interface ScheduleChange {
+  id: string;
+  previsaoAnterior: string;
+  previsaoNova: string | null;
+  motivo: string;
+  changedBy: string | null;
+  changedAt: string;
+}

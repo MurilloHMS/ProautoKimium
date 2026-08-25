@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   CreateMachineRegister,
   MachineRegister,
+  ScheduleChange,
   UpdateMachineRegister,
 } from '../../../domain/models/prostock/register.model';
 import { environment } from '../../../../environments/environment';
@@ -37,5 +38,10 @@ export class RegisterService {
 
   delete(id: string): Observable<string> {
     return this.http.delete(`${this.url}/${id}`, { responseType: 'text' });
+  }
+
+  /** Os adiamentos de uma programação, mais recente primeiro. */
+  scheduleChanges(id: string): Observable<ScheduleChange[]> {
+    return this.http.get<ScheduleChange[]>(`${this.url}/${id}/schedule-changes`);
   }
 }
