@@ -61,11 +61,18 @@
 }
 
 // ─── Cartões ────────────────────────────────────────────────────────────────
-.dist-row {
+// Par de cartões lado a lado, um embaixo do outro quando não cabe.
+//
+// `auto-fit` e não `1fr 1fr` de propósito: quando um dos dois não tem o que
+// mostrar e o `@if` o esconde, o que sobra ocupa a linha inteira em vez de
+// deixar metade vazia.
+.hub-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 14px;
   margin-bottom: 22px;
+
+  > * { margin-bottom: 0; }
 }
 
 .card {
@@ -617,19 +624,6 @@ pk-calendar {
   color: var(--app-success);
   font-size: var(--text-ui-sm);
   font-weight: 600;
-}
-
-// ─── Título de faixa ────────────────────────────────────────────────────────
-// Separa referência de ação sem gastar um cartão. Discreto de propósito: quem
-// está procurando alguma coisa usa como marco, quem não está nem repara.
-.tier {
-  margin: 26px 0 12px;
-  font-family: v.$font-heading;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--app-text-subtle);
 }
 
 @media (max-width: 600px) {

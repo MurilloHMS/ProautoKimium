@@ -12,102 +12,6 @@
     é o que fazia a tela parecer cheia sem dizer mais nada.
   -->
 
-  <!--
-    Precisa de você.
-    A única faixa que abre a tela, e a que some inteira num dia bom.
-  -->
-  @if (attention().length) {
-    <section class="needs">
-      <h2 class="needs__title">
-        Precisa de você
-        <span class="needs__count">{{ attention().length }}</span>
-      </h2>
-
-      @for (item of attention(); track item.lead) {
-        <a class="needs__item" [routerLink]="item.link">
-          <i class="needs__bar" [class]="'needs__bar needs__bar--' + item.tone"></i>
-          <span class="needs__what">
-            <span class="needs__lead">{{ item.lead }}</span>
-            <span class="needs__detail">{{ item.detail }}</span>
-          </span>
-          <span class="needs__cta">{{ item.cta }} <i class="pi pi-arrow-right"></i></span>
-        </a>
-      }
-    </section>
-  } @else {
-    <p class="needs__quiet">
-      <i class="pi pi-check-circle"></i>
-      Nenhuma máquina atrasada, sem previsão ou divergente.
-    </p>
-  }
-
-  <p class="tier">O que vem</p>
-
-  <!-- ─── Calendário de implantações ────────────────────────────────────── -->
-  <!--
-    O calendário é o mesmo componente do Painel de RH. O que é das Máquinas
-    fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
-  -->
-  <pk-calendar
-    storageKey="machine-hub-calendar-view"
-    [events]="calendarEvents()"
-    [legend]="calendarLegend"
-    (monthChange)="displayedMonth.set($event)"
-    (dayClick)="openDay($event)">
-    <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
-  </pk-calendar>
-
-  <!-- ─── Próximas saídas ───────────────────────────────────────────────── -->
-  <section class="card">
-    <h2 class="card__title">Próximas saídas</h2>
-    <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
-
-    @for (item of upcoming(); track item.register.id) {
-      <div class="exit" [class.exit--late]="item.late">
-        <span class="exit__when">
-          <strong>{{ item.date | date: 'dd/MM' }}</strong>
-          <small>{{ dueLabel(item) }}</small>
-        </span>
-        <span class="exit__client">{{ item.register.nomeCliente || '—' }}</span>
-        <span class="exit__machine">{{ item.machine }}</span>
-        <span class="exit__tech">{{ item.register.tecnico || 'Sem técnico' }}</span>
-      </div>
-    } @empty {
-      <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
-    }
-  </section>
-
-  <!--
-    O complemento de "Próximas saídas". Aquela lista mostra o que vai sair;
-    esta mostra o que está encalhado — máquina no galpão sem compromisso, que
-    o hub nunca contou.
-  -->
-  <section class="card">
-    <h2 class="card__title">
-      Sem previsão
-      @if (paradas().length > 0) {
-        <span class="card__badge">{{ paradas().length }}</span>
-      }
-    </h2>
-    <p class="card__hint">Máquinas no galpão sem data de saída marcada.</p>
-
-    @for (item of paradas(); track item.register.id) {
-      <div class="exit" [class.exit--late]="(item.diasParada ?? 0) > 30">
-        <span class="exit__when">
-          <strong>{{ item.diasParada ?? '—' }}</strong>
-          <small>{{ paradaLabel(item) }}</small>
-        </span>
-        <span class="exit__client">{{ item.register.nomeCliente || 'Sem cliente' }}</span>
-        <span class="exit__machine">{{ item.machine }}</span>
-        <span class="exit__tech">{{ statusLabel(item.register.status) }}</span>
-      </div>
-    } @empty {
-      <p class="card__empty">Toda máquina tem previsão de saída.</p>
-    }
-  </section>
-
-  <p class="tier">Como está</p>
-
   <!-- ─── KPIs ──────────────────────────────────────────────────────────── -->
   <div class="kpi-row">
     <a class="kpi" routerLink="/stock/products">
@@ -141,8 +45,51 @@
     </div>
   </div>
 
-  <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
-  <div class="dist-row">
+  <!-- ─── Calendário de implantações ────────────────────────────────────── -->
+  <!--
+    O calendário é o mesmo componente do Painel de RH. O que é das Máquinas
+    fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
+  -->
+  <pk-calendar
+    storageKey="machine-hub-calendar-view"
+    [events]="calendarEvents()"
+    [legend]="calendarLegend"
+    (monthChange)="displayedMonth.set($event)"
+    (dayClick)="openDay($event)">
+    <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
+  </pk-calendar>
+
+  <!--
+    Precisa de você.
+    A única faixa que abre a tela, e a que some inteira num dia bom.
+  -->
+  @if (attention().length) {
+    <section class="needs">
+      <h2 class="needs__title">
+        Precisa de você
+        <span class="needs__count">{{ attention().length }}</span>
+      </h2>
+
+      @for (item of attention(); track item.lead) {
+        <a class="needs__item" [routerLink]="item.link">
+          <i class="needs__bar" [class]="'needs__bar needs__bar--' + item.tone"></i>
+          <span class="needs__what">
+            <span class="needs__lead">{{ item.lead }}</span>
+            <span class="needs__detail">{{ item.detail }}</span>
+          </span>
+          <span class="needs__cta">{{ item.cta }} <i class="pi pi-arrow-right"></i></span>
+        </a>
+      }
+    </section>
+  } @else {
+    <p class="needs__quiet">
+      <i class="pi pi-check-circle"></i>
+      Nenhuma máquina atrasada, sem previsão ou divergente.
+    </p>
+  }
+
+  <!-- Como o parque está dividido. -->
+  <div class="hub-row">
     <section class="card">
       <h2 class="card__title">Por status</h2>
 
@@ -208,98 +155,150 @@
     </section>
   }
 
-  <!--
-    Estoque × programação.
+  <!-- Os dois que olham para trás: o que não bate, e o que vive atrasando. -->
+  <div class="hub-row">
+    <!--
+      Estoque × programação.
 
-    Aparece sempre, inclusive quando tudo bate: uma lista vazia seria
-    indistinguível de tela quebrada, e "os números fecham" é informação.
-  -->
-  @if (divergences().length) {
-    <section class="card">
-      <h2 class="card__title">
-        Estoque × Programação
+      Aparece sempre, inclusive quando tudo bate: uma lista vazia seria
+      indistinguível de tela quebrada, e "os números fecham" é informação.
+    -->
+    @if (divergences().length) {
+      <section class="card">
+        <h2 class="card__title">
+          Estoque × Programação
+          @if (allMatch()) {
+            <span class="card__badge card__badge--ok">tudo bate</span>
+          } @else {
+            <span class="card__badge card__badge--bad">
+              {{ divergent().length }} divergente{{ divergent().length > 1 ? 's' : '' }}
+            </span>
+          }
+        </h2>
+
         @if (allMatch()) {
-          <span class="card__badge card__badge--ok">tudo bate</span>
+          <p class="dv__ok">
+            <i class="pi pi-check-circle"></i>
+            As {{ divergences().length }} máquinas têm o mesmo número nos dois lados.
+          </p>
         } @else {
-          <span class="card__badge card__badge--bad">
-            {{ divergent().length }} divergente{{ divergent().length > 1 ? 's' : '' }}
-          </span>
-        }
-      </h2>
+          <div class="dv__head">
+            <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Diferença</span>
+          </div>
 
-      @if (allMatch()) {
-        <p class="dv__ok">
-          <i class="pi pi-check-circle"></i>
-          As {{ divergences().length }} máquinas têm o mesmo número nos dois lados.
-        </p>
-      } @else {
-        <div class="dv__head">
-          <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Diferença</span>
+          <div class="dv">
+            @for (item of divergences(); track item.machineId) {
+              <div class="dv__row" [class.dv__row--bad]="differenceOf(item) !== 0">
+                <span class="dv__name" [title]="item.name">{{ item.name }}</span>
+                <span class="dv__n">{{ item.stock }}</span>
+                <span class="dv__n">{{ item.scheduled }}</span>
+                @if (differenceOf(item) === 0) {
+                  <span class="dv__gap dv__gap--ok">✓</span>
+                } @else {
+                  <span class="dv__gap">
+                    {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
+                  </span>
+                }
+              </div>
+            }
+          </div>
+
+          <p class="dv__hint">
+            <i class="pi pi-info-circle"></i>
+            Diferença positiva sobra no estoque; negativa, sobra na programação.
+            Acerte pela tela de movimentação, que ajusta os dois lados juntos.
+          </p>
+        }
+      </section>
+    }
+    <!--
+      Adiamentos do mês. Uma máquina adiada quatro vezes é informação diferente
+      de quatro máquinas adiadas uma vez.
+    -->
+    @if (slipCount()) {
+      <section class="card">
+        <h2 class="card__title">Adiamentos no mês</h2>
+
+        <div class="slip__stats">
+          <span>
+            <span class="slip__value slip__value--warn">{{ slipCount() }}</span>
+            <span class="slip__label">adiamentos</span>
+          </span>
+          <span>
+            <span class="slip__value">{{ repeatOffenders() }}</span>
+            <span class="slip__label">adiaram 2× ou mais</span>
+          </span>
+          <span>
+            <span class="slip__value">{{ medianSlipDays() }}</span>
+            <span class="slip__label">dias adiados, na mediana</span>
+          </span>
         </div>
 
-        <div class="dv">
-          @for (item of divergences(); track item.machineId) {
-            <div class="dv__row" [class.dv__row--bad]="differenceOf(item) !== 0">
-              <span class="dv__name" [title]="item.name">{{ item.name }}</span>
-              <span class="dv__n">{{ item.stock }}</span>
-              <span class="dv__n">{{ item.scheduled }}</span>
-              @if (differenceOf(item) === 0) {
-                <span class="dv__gap dv__gap--ok">✓</span>
-              } @else {
-                <span class="dv__gap">
-                  {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
-                </span>
-              }
+        <div class="slip">
+          @for (item of topSlips(); track item.label + item.machine) {
+            <div class="slip__row">
+              <span class="slip__who">
+                {{ item.label }}
+                <span class="slip__why">{{ item.machine }} · {{ item.motivo }}</span>
+              </span>
+              <span class="slip__count">{{ item.count }}×</span>
             </div>
           }
         </div>
+      </section>
+    }
+  </div>
 
-        <p class="dv__hint">
-          <i class="pi pi-info-circle"></i>
-          Diferença positiva sobra no estoque; negativa, sobra na programação.
-          Acerte pela tela de movimentação, que ajusta os dois lados juntos.
-        </p>
+  <!-- O que sai, e o que está encalhado. -->
+  <div class="hub-row">
+    <!-- ─── Próximas saídas ───────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Próximas saídas</h2>
+      <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
+
+      @for (item of upcoming(); track item.register.id) {
+        <div class="exit" [class.exit--late]="item.late">
+          <span class="exit__when">
+            <strong>{{ item.date | date: 'dd/MM' }}</strong>
+            <small>{{ dueLabel(item) }}</small>
+          </span>
+          <span class="exit__client">{{ item.register.nomeCliente || '—' }}</span>
+          <span class="exit__machine">{{ item.machine }}</span>
+          <span class="exit__tech">{{ item.register.tecnico || 'Sem técnico' }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
       }
     </section>
-  }
-
-  <!--
-    Adiamentos do mês. Uma máquina adiada quatro vezes é informação diferente
-    de quatro máquinas adiadas uma vez.
-  -->
-  @if (slipCount()) {
+    <!--
+      O complemento de "Próximas saídas". Aquela lista mostra o que vai sair;
+      esta mostra o que está encalhado — máquina no galpão sem compromisso, que
+      o hub nunca contou.
+    -->
     <section class="card">
-      <h2 class="card__title">Adiamentos no mês</h2>
-
-      <div class="slip__stats">
-        <span>
-          <span class="slip__value slip__value--warn">{{ slipCount() }}</span>
-          <span class="slip__label">adiamentos</span>
-        </span>
-        <span>
-          <span class="slip__value">{{ repeatOffenders() }}</span>
-          <span class="slip__label">adiaram 2× ou mais</span>
-        </span>
-        <span>
-          <span class="slip__value">{{ medianSlipDays() }}</span>
-          <span class="slip__label">dias adiados, na mediana</span>
-        </span>
-      </div>
-
-      <div class="slip">
-        @for (item of topSlips(); track item.label + item.machine) {
-          <div class="slip__row">
-            <span class="slip__who">
-              {{ item.label }}
-              <span class="slip__why">{{ item.machine }} · {{ item.motivo }}</span>
-            </span>
-            <span class="slip__count">{{ item.count }}×</span>
-          </div>
+      <h2 class="card__title">
+        Sem previsão
+        @if (paradas().length > 0) {
+          <span class="card__badge">{{ paradas().length }}</span>
         }
-      </div>
-    </section>
-  }
+      </h2>
+      <p class="card__hint">Máquinas no galpão sem data de saída marcada.</p>
 
+      @for (item of paradas(); track item.register.id) {
+        <div class="exit" [class.exit--late]="(item.diasParada ?? 0) > 30">
+          <span class="exit__when">
+            <strong>{{ item.diasParada ?? '—' }}</strong>
+            <small>{{ paradaLabel(item) }}</small>
+          </span>
+          <span class="exit__client">{{ item.register.nomeCliente || 'Sem cliente' }}</span>
+          <span class="exit__machine">{{ item.machine }}</span>
+          <span class="exit__tech">{{ statusLabel(item.register.status) }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Toda máquina tem previsão de saída.</p>
+      }
+    </section>
+  </div>
 
 </div>
 
