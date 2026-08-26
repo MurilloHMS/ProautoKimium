@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import {
+  CalendarDayEvent,
+  CalendarLegendItem,
+  CalendarTone,
+  PkCalendarComponent,
+} from '../../../theme/ProautoKimium/pk-calendar/pk-calendar.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
@@ -46,22 +52,16 @@ interface ActivityItem {
   route: string;
 }
 
-const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const MONTH_LABELS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
 
 @Component({
   selector: 'app-rh-hub',
   standalone: true,
-  imports: [CommonModule, RouterModule, PkDialogComponent, PageHeaderComponent],
+  imports: [CommonModule, RouterModule, PkDialogComponent, PageHeaderComponent, PkCalendarComponent],
   templateUrl: './rh-hub.component.html',
   styleUrl: './rh-hub.component.scss',
 })
 export class RhHubComponent implements OnInit {
   loading = true;
-  weekdayLabels = WEEKDAY_LABELS;
 
   // ---- KPIs ----
   pendingVacations = 0;
@@ -108,7 +108,15 @@ export class RhHubComponent implements OnInit {
   // ---- Calendário visual ----
   displayedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   calendarLoading = false;
-  weeks: Date[][] = [];
+
+  /** O que o `pk-calendar` desenha — férias já expandidas dia a dia. */
+  calendarDays: CalendarDayEvent[] = [];
+
+  readonly calendarLegend: CalendarLegendItem[] = [
+    { tone: 'muted', label: 'pendente' },
+    { tone: 'success', label: 'aprovado' },
+  ];
+
   private eventsByDay = new Map<string, CalendarEvent[]>();
 
   dayDialogVisible = false;
@@ -258,22 +266,15 @@ export class RhHubComponent implements OnInit {
 
   // ---- Calendário visual ----
 
-  get monthLabel(): string {
-    return `${MONTH_LABELS[this.displayedMonth.getMonth()]} de ${this.displayedMonth.getFullYear()}`;
-  }
-
-  prevMonth(): void {
-    this.displayedMonth = new Date(this.displayedMonth.getFullYear(), this.displayedMonth.getMonth() - 1, 1);
-    this.loadMonth();
-  }
-
-  nextMonth(): void {
-    this.displayedMonth = new Date(this.displayedMonth.getFullYear(), this.displayedMonth.getMonth() + 1, 1);
-    this.loadMonth();
-  }
-
-  goToday(): void {
-    this.displayedMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  /**
+   * O mês virou dentro do calendário.
+   *
+   * Aqui isso é um GET: ao contrário das Máquinas, que já têm a programação
+   * inteira em memória, o RH busca as férias de cada mês. É a razão de o
+   * componente não guardar dado nenhum.
+   */
+  onMonthChange(month: Date): void {
+    this.displayedMonth = month;
     this.loadMonth();
   }
 
@@ -292,53 +293,53 @@ export class RhHubComponent implements OnInit {
     return [this.toIsoDate(start), this.toIsoDate(end)];
   }
 
+  /**
+   * Espalha cada período pelos dias que ele cobre.
+   *
+   * Férias são um intervalo e o calendário só sabe de dias — quem tem período
+   * expande antes de entregar. A montagem da grade em si saiu daqui: virou
+   * responsabilidade do `pk-calendar`.
+   */
   private buildGrid(events: CalendarEvent[]): void {
-    const year = this.displayedMonth.getFullYear();
-    const month = this.displayedMonth.getMonth();
-    const firstOfMonth = new Date(year, month, 1);
-    const startWeekday = firstOfMonth.getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const totalCells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
-
-    const gridStart = new Date(year, month, 1 - startWeekday);
-    const weeks: Date[][] = [];
-    let week: Date[] = [];
-    const cursor = new Date(gridStart);
-    for (let i = 0; i < totalCells; i++) {
-      week.push(new Date(cursor));
-      cursor.setDate(cursor.getDate() + 1);
-      if (week.length === 7) {
-        weeks.push(week);
-        week = [];
-      }
-    }
-    this.weeks = weeks;
-
     this.eventsByDay = new Map();
+    this.calendarDays = [];
+
     for (const ev of events) {
       if (ev.status === 'REJECTED') continue;
+
       const cursorDate = new Date(ev.startDate + 'T00:00:00');
       const endDate = new Date(ev.endDate + 'T00:00:00');
+
       while (cursorDate <= endDate) {
         const key = this.dayKey(cursorDate);
         if (!this.eventsByDay.has(key)) this.eventsByDay.set(key, []);
         this.eventsByDay.get(key)!.push(ev);
+
+        this.calendarDays.push({
+          date: new Date(cursorDate),
+          label: ev.employeeName,
+          tone: this.statusTone(ev.status),
+          detail: `Férias ${this.statusLabel(ev.status).toLowerCase()}`,
+        });
+
         cursorDate.setDate(cursorDate.getDate() + 1);
       }
     }
   }
 
+  /** As mesmas cores do feed de atividade, agora como vocabulário do calendário. */
+  private statusTone(status: string): CalendarTone {
+    switch (status) {
+      case 'PENDING':  return 'muted';
+      case 'APPROVED': return 'success';
+      case 'REJECTED': return 'danger';
+      case 'PAID':     return 'info';
+      default:         return 'neutral';
+    }
+  }
+
   eventsFor(day: Date): CalendarEvent[] {
     return this.eventsByDay.get(this.dayKey(day)) ?? [];
-  }
-
-  isCurrentMonth(day: Date): boolean {
-    return day.getMonth() === this.displayedMonth.getMonth();
-  }
-
-  isToday(day: Date): boolean {
-    const today = new Date();
-    return day.getFullYear() === today.getFullYear() && day.getMonth() === today.getMonth() && day.getDate() === today.getDate();
   }
 
   openDay(day: Date): void {

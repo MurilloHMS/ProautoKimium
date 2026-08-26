@@ -126,55 +126,19 @@
 
   <section class="dash__main">
 
-    <div class="cal">
-      <div class="cal__header">
-        <div class="cal__title">
-          <i class="pi pi-calendar"></i>
-          <span>{{ monthLabel }}</span>
-          @if (calendarLoading) { <i class="pi pi-spin pi-spinner cal__spinner"></i> }
-        </div>
-        <div class="cal__nav">
-          <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
-          <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior"><i class="pi pi-chevron-left"></i></button>
-          <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês"><i class="pi pi-chevron-right"></i></button>
-        </div>
-      </div>
-
-      <div class="cal__weekdays">
-        @for (w of weekdayLabels; track w) {
-          <span>{{ w }}</span>
-        }
-      </div>
-
-      <div class="cal__grid">
-        @for (week of weeks; track $index) {
-          @for (day of week; track day.getTime()) {
-            <button
-              type="button"
-              class="cal__day"
-              [class.cal__day--outside]="!isCurrentMonth(day)"
-              [class.cal__day--today]="isToday(day)"
-              [class.cal__day--has-events]="eventsFor(day).length > 0"
-              (click)="openDay(day)">
-              <span class="cal__day-num">{{ day.getDate() }}</span>
-              <span class="cal__day-events">
-                @for (ev of eventsFor(day).slice(0, 2); track $index) {
-                  <span class="cal__chip" [ngClass]="statusColorClass(ev.status)">{{ ev.employeeName }}</span>
-                }
-                @if (eventsFor(day).length > 2) {
-                  <span class="cal__more">+{{ eventsFor(day).length - 2 }}</span>
-                }
-              </span>
-            </button>
-          }
-        }
-      </div>
-
-      <div class="cal__legend">
-        <span><i class="cal__dot act--pending"></i> pendente</span>
-        <span><i class="cal__dot act--approved"></i> aprovado</span>
-      </div>
-    </div>
+    <!--
+      Mesmo componente do Hub das Máquinas. O que é do RH fica aqui: os itens
+      já expandidos por dia, a legenda, e a busca do mês novo.
+    -->
+    <pk-calendar
+      [events]="calendarDays"
+      [legend]="calendarLegend"
+      (monthChange)="onMonthChange($event)"
+      (dayClick)="openDay($event)">
+      @if (calendarLoading) {
+        <i calTitle class="pi pi-spin pi-spinner cal__spinner"></i>
+      }
+    </pk-calendar>
 
     <aside class="feed">
       <div class="feed__header">

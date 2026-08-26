@@ -15,12 +15,12 @@ import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { parseDateOnly } from '../../../../domain/utils/date-only';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
-
-const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const MONTH_LABELS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
+import {
+  CalendarDayEvent,
+  CalendarLegendItem,
+  CalendarTone,
+  PkCalendarComponent,
+} from '../../../theme/ProautoKimium/pk-calendar/pk-calendar.component';
 
 interface Slice {
   label: string;
@@ -73,7 +73,7 @@ interface Parada {
 @Component({
   selector: 'app-machine-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent],
+  imports: [CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent],
   templateUrl: './machine-hub.component.html',
   styleUrl: './machine-hub.component.scss',
 })
@@ -202,13 +202,35 @@ export class MachineHubComponent implements OnInit {
   // programação inteira já está no store, então virar o mês é só refiltrar o
   // que está em memória.
 
-  readonly weekdayLabels = WEEKDAY_LABELS;
   readonly displayedMonth = signal(startOfMonth(new Date()));
 
-  readonly monthLabel = computed(() => {
-    const month = this.displayedMonth();
-    return `${MONTH_LABELS[month.getMonth()]} de ${month.getFullYear()}`;
-  });
+  /**
+   * As cores da legenda são as mesmas severidades dos chips de status da
+   * Programação — quem vê o quadro lá reconhece aqui sem reaprender.
+   */
+  readonly calendarLegend: CalendarLegendItem[] = [
+    { tone: 'success', label: 'Disponível' },
+    { tone: 'warning', label: 'Reforma / liberar equipamentos' },
+    { tone: 'danger', label: 'Aguardando aquisição' },
+    { tone: 'neutral', label: 'Entregue / reservada' },
+    { alert: true, label: 'Previsão vencida sem entrega' },
+  ];
+
+  /**
+   * O que o calendário desenha.
+   *
+   * Vai a lista inteira, sem recortar pelo mês: o componente indexa por dia e
+   * virar o mês passa a ser leitura de um `Map` que já existe, em vez de um
+   * recálculo a cada clique.
+   */
+  readonly calendarEvents = computed<CalendarDayEvent[]>(() =>
+    [...this.entriesByDay().values()].flat().map(entry => ({
+      date: parseDateOnly(entry.register.previsaoEntrega)!,
+      label: entry.label,
+      tone: entry.severity as CalendarTone,
+      detail: `${entry.machine} · ${entry.statusLabel}`,
+      alert: entry.late,
+    })));
 
   /**
    * Previsões indexadas por dia. O template chama `entriesFor` uma vez por
@@ -242,31 +264,18 @@ export class MachineHubComponent implements OnInit {
     return byDay;
   });
 
-  /** Seis semanas quando o mês precisa; cinco quando cabe. */
-  readonly weeks = computed<Date[][]>(() => {
-    const month = this.displayedMonth();
-    const year = month.getFullYear();
-    const index = month.getMonth();
-
-    const startWeekday = new Date(year, index, 1).getDay();
-    const daysInMonth = new Date(year, index + 1, 0).getDate();
-    const cells = Math.ceil((startWeekday + daysInMonth) / 7) * 7;
-
-    const weeks: Date[][] = [];
-    for (let cell = 0; cell < cells; cell += 7) {
-      weeks.push(Array.from({ length: 7 }, (_, offset) =>
-        new Date(year, index, 1 - startWeekday + cell + offset)));
-    }
-    return weeks;
-  });
-
-  /** Quantas implantações caem no mês aberto — o número do cabeçalho. */
+  /**
+   * Quantas implantações caem no mês aberto — o número do cabeçalho.
+   *
+   * Contava varrendo as 42 células da grade; agora que a grade mora no
+   * componente, conta pelas previsões direto. Mesmo número, sem depender do
+   * desenho.
+   */
   readonly monthCount = computed(() => {
     const month = this.displayedMonth();
-    return this.weeks()
-      .flat()
-      .filter(day => day.getMonth() === month.getMonth())
-      .reduce((total, day) => total + this.entriesFor(day).length, 0);
+    return this.calendarEvents().filter(event =>
+      event.date.getMonth() === month.getMonth()
+      && event.date.getFullYear() === month.getFullYear()).length;
   });
 
   readonly dayDialogVisible = signal(false);
@@ -279,26 +288,6 @@ export class MachineHubComponent implements OnInit {
 
   entriesFor(day: Date): DayEntry[] {
     return this.entriesByDay().get(dayKey(day)) ?? [];
-  }
-
-  isCurrentMonth(day: Date): boolean {
-    return day.getMonth() === this.displayedMonth().getMonth();
-  }
-
-  isToday(day: Date): boolean {
-    return dayKey(day) === dayKey(new Date());
-  }
-
-  prevMonth(): void {
-    this.displayedMonth.update(month => new Date(month.getFullYear(), month.getMonth() - 1, 1));
-  }
-
-  nextMonth(): void {
-    this.displayedMonth.update(month => new Date(month.getFullYear(), month.getMonth() + 1, 1));
-  }
-
-  goToday(): void {
-    this.displayedMonth.set(startOfMonth(new Date()));
   }
 
   openDay(day: Date): void {

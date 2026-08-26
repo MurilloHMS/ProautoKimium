@@ -1,0 +1,69 @@
+<div class="cal">
+  <div class="cal__header">
+    <div class="cal__title">
+      <i class="pi pi-calendar"></i>
+      <span>{{ monthLabel() }}</span>
+      <!--
+        O extra do cabeçalho é de quem usa: as Máquinas põem a contagem do mês,
+        o RH põe o spinner de quem está buscando no servidor.
+      -->
+      <ng-content select="[calTitle]"></ng-content>
+    </div>
+
+    <div class="cal__nav">
+      <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
+      <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+      <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="cal__weekdays">
+    @for (weekday of weekdayLabels; track weekday) {
+      <span>{{ weekday }}</span>
+    }
+  </div>
+
+  <div class="cal__grid">
+    @for (week of weeks(); track $index) {
+      @for (day of week; track day.getTime()) {
+        <button
+          type="button"
+          class="cal__day"
+          [class.cal__day--outside]="!isCurrentMonth(day)"
+          [class.cal__day--today]="isToday(day)"
+          [class.cal__day--has-events]="eventsFor(day).length > 0"
+          (click)="dayClick.emit(day)">
+          <span class="cal__day-num">{{ day.getDate() }}</span>
+          <span class="cal__day-events">
+            @for (event of eventsFor(day).slice(0, 2); track $index) {
+              <span class="cal__chip"
+                    [class]="'cal__chip cal__chip--' + event.tone"
+                    [class.cal__chip--alert]="event.alert">{{ event.label }}</span>
+            }
+            @if (eventsFor(day).length > 2) {
+              <span class="cal__more">+{{ eventsFor(day).length - 2 }}</span>
+            }
+          </span>
+        </button>
+      }
+    }
+  </div>
+
+  <!-- A legenda é de quem usa: o RH tem dois estados, as Máquinas têm cinco. -->
+  @if (legend().length) {
+    <div class="cal__legend">
+      @for (item of legend(); track item.label) {
+        <span>
+          <i class="cal__dot"
+             [class]="'cal__dot cal__dot--' + (item.tone ?? 'neutral')"
+             [class.cal__dot--alert]="item.alert"></i>
+          {{ item.label }}
+        </span>
+      }
+    </div>
+  }
+</div>

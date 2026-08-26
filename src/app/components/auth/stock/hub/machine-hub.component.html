@@ -47,65 +47,17 @@
   </div>
 
   <!-- ─── Calendário de implantações ────────────────────────────────────── -->
-  <section class="cal">
-    <div class="cal__header">
-      <div class="cal__title">
-        <i class="pi pi-calendar"></i>
-        <span>{{ monthLabel() }}</span>
-        <span class="cal__count">{{ monthCount() }} implantação(ões)</span>
-      </div>
-      <div class="cal__nav">
-        <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
-        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior">
-          <i class="pi pi-chevron-left"></i>
-        </button>
-        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês">
-          <i class="pi pi-chevron-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <div class="cal__weekdays">
-      @for (weekday of weekdayLabels; track weekday) {
-        <span>{{ weekday }}</span>
-      }
-    </div>
-
-    <div class="cal__grid">
-      @for (week of weeks(); track $index) {
-        @for (day of week; track day.getTime()) {
-          <button
-            type="button"
-            class="cal__day"
-            [class.cal__day--outside]="!isCurrentMonth(day)"
-            [class.cal__day--today]="isToday(day)"
-            [class.cal__day--has-events]="entriesFor(day).length > 0"
-            (click)="openDay(day)">
-            <span class="cal__day-num">{{ day.getDate() }}</span>
-            <span class="cal__day-events">
-              @for (entry of entriesFor(day).slice(0, 2); track entry.register.id) {
-                <span class="cal__chip"
-                      [class]="'cal__chip cal__chip--' + entry.severity"
-                      [class.cal__chip--late]="entry.late">{{ entry.label }}</span>
-              }
-              @if (entriesFor(day).length > 2) {
-                <span class="cal__more">+{{ entriesFor(day).length - 2 }}</span>
-              }
-            </span>
-          </button>
-        }
-      }
-    </div>
-
-    <!-- As cores são as mesmas severidades dos chips de status da Programação. -->
-    <div class="cal__legend">
-      <span><i class="cal__dot cal__dot--success"></i> Disponível</span>
-      <span><i class="cal__dot cal__dot--warning"></i> Reforma / liberar equipamentos</span>
-      <span><i class="cal__dot cal__dot--danger"></i> Aguardando aquisição</span>
-      <span><i class="cal__dot cal__dot--neutral"></i> Entregue / reservada</span>
-      <span><i class="cal__dot cal__dot--late"></i> Previsão vencida sem entrega</span>
-    </div>
-  </section>
+  <!--
+    O calendário é o mesmo componente do Painel de RH. O que é das Máquinas
+    fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
+  -->
+  <pk-calendar
+    [events]="calendarEvents()"
+    [legend]="calendarLegend"
+    (monthChange)="displayedMonth.set($event)"
+    (dayClick)="openDay($event)">
+    <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
+  </pk-calendar>
 
   <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
   <div class="dist-row">
