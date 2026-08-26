@@ -5,146 +5,355 @@
     title="Hub das Máquinas"
     subtitle="Situação do parque e o que sai nos próximos dias"
     size="lg">
-    @if (lateCount() > 0) {
-      <div actions class="hub__alert">
-        <i class="pi pi-exclamation-triangle"></i>
-        <strong>{{ lateCount() }}</strong> entrega(s) em atraso
-      </div>
-    }
   </app-page-header>
-
-  <!-- ─── KPIs ──────────────────────────────────────────────────────────── -->
-  <div class="kpi-row">
-    <a class="kpi" routerLink="/stock/products">
-      <span class="kpi__label">Máquinas no catálogo</span>
-      <span class="kpi__value">{{ totalMachines() }}</span>
-    </a>
-
-    <a class="kpi" routerLink="/stock/programacao">
-      <span class="kpi__label">Registros na programação</span>
-      <span class="kpi__value">{{ totalRegisters() }}</span>
-    </a>
-
-    <div class="kpi">
-      <span class="kpi__label">Prontas</span>
-      <span class="kpi__value kpi__value--ok">{{ available() }}</span>
-    </div>
-
-    <div class="kpi">
-      <span class="kpi__label">Entregues</span>
-      <span class="kpi__value">{{ delivered() }}</span>
-    </div>
-
-    <div class="kpi" [class.kpi--hero]="inRepair() > 0">
-      <span class="kpi__label">Em reforma</span>
-      <span class="kpi__value kpi__value--warn">{{ inRepair() }}</span>
-    </div>
-
-    <div class="kpi">
-      <span class="kpi__label">Aguardando aquisição</span>
-      <span class="kpi__value kpi__value--bad">{{ waitingPurchase() }}</span>
-    </div>
-  </div>
-
-  <!-- ─── Calendário de implantações ────────────────────────────────────── -->
   <!--
-    O calendário é o mesmo componente do Painel de RH. O que é das Máquinas
-    fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
+    O alerta de atraso saiu daqui: ele virou a primeira linha de "Precisa de
+    você", com os nomes das duas piores. Repetir o mesmo aviso em dois lugares
+    é o que fazia a tela parecer cheia sem dizer mais nada.
   -->
-  <pk-calendar
-    storageKey="machine-hub-calendar-view"
-    [events]="calendarEvents()"
-    [legend]="calendarLegend"
-    (monthChange)="displayedMonth.set($event)"
-    (dayClick)="openDay($event)">
-    <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
-  </pk-calendar>
-
-  <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
-  <div class="dist-row">
-    <section class="card">
-      <h2 class="card__title">Por status</h2>
-
-      @for (slice of statusSlices(); track slice.label) {
-        <div class="dist">
-          <span class="dist__label">{{ slice.label }}</span>
-          <span class="dist__track">
-            <span class="dist__bar" [class]="'dist__bar--' + slice.severity" [style.width.%]="slice.percent"></span>
-          </span>
-          <span class="dist__value">{{ slice.count }}</span>
-        </div>
-      } @empty {
-        <p class="card__empty">Nenhum registro na programação ainda.</p>
-      }
-    </section>
-
-    <section class="card">
-      <h2 class="card__title">Por tipo de máquina</h2>
-
-      @for (slice of typeSlices(); track slice.label) {
-        <div class="dist">
-          <span class="dist__label">{{ slice.label }}</span>
-          <span class="dist__track">
-            <span class="dist__bar dist__bar--action" [style.width.%]="slice.percent"></span>
-          </span>
-          <span class="dist__value">{{ slice.count }}</span>
-        </div>
-      } @empty {
-        <p class="card__empty">Nenhuma máquina cadastrada.</p>
-      }
-    </section>
-  </div>
-
-  <!-- ─── Próximas saídas ───────────────────────────────────────────────── -->
-  <section class="card">
-    <h2 class="card__title">Próximas saídas</h2>
-    <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
-
-    @for (item of upcoming(); track item.register.id) {
-      <div class="exit" [class.exit--late]="item.late">
-        <span class="exit__when">
-          <strong>{{ item.date | date: 'dd/MM' }}</strong>
-          <small>{{ dueLabel(item) }}</small>
-        </span>
-        <span class="exit__client">{{ item.register.nomeCliente || '—' }}</span>
-        <span class="exit__machine">{{ item.machine }}</span>
-        <span class="exit__tech">{{ item.register.tecnico || 'Sem técnico' }}</span>
-      </div>
-    } @empty {
-      <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
-    }
-  </section>
 
   <!--
-    O complemento de "Próximas saídas". Aquela lista mostra o que vai sair;
-    esta mostra o que está encalhado — máquina no galpão sem compromisso, que
-    o hub nunca contou.
+    Topo em duas colunas: à esquerda o que ocupa espaço — números grandes e o
+    calendário; à direita a coluna estreita, com o que se lê de relance.
   -->
-  <section class="card">
-    <h2 class="card__title">
-      Sem previsão
-      @if (paradas().length > 0) {
-        <span class="card__badge">{{ paradas().length }}</span>
-      }
-    </h2>
-    <p class="card__hint">Máquinas no galpão sem data de saída marcada.</p>
+  <div class="hub-top">
+    <div class="hub-top__main">
+    <!-- ─── KPIs ──────────────────────────────────────────────────────────── -->
+    <div class="kpi-row">
+      <a class="kpi" routerLink="/stock/products">
+        <span class="kpi__label">Máquinas no catálogo</span>
+        <span class="kpi__value">{{ totalMachines() }}</span>
+      </a>
 
-    @for (item of paradas(); track item.register.id) {
-      <div class="exit" [class.exit--late]="(item.diasParada ?? 0) > 30">
-        <span class="exit__when">
-          <strong>{{ item.diasParada ?? '—' }}</strong>
-          <small>{{ paradaLabel(item) }}</small>
-        </span>
-        <span class="exit__client">{{ item.register.nomeCliente || 'Sem cliente' }}</span>
-        <span class="exit__machine">{{ item.machine }}</span>
-        <span class="exit__tech">{{ statusLabel(item.register.status) }}</span>
+      <a class="kpi" routerLink="/stock/programacao">
+        <span class="kpi__label">Registros na programação</span>
+        <span class="kpi__value">{{ totalRegisters() }}</span>
+      </a>
+
+      <div class="kpi">
+        <span class="kpi__label">Prontas</span>
+        <span class="kpi__value kpi__value--ok">{{ available() }}</span>
       </div>
-    } @empty {
-      <p class="card__empty">Toda máquina tem previsão de saída.</p>
+
+      <div class="kpi">
+        <span class="kpi__label">Entregues</span>
+        <span class="kpi__value">{{ delivered() }}</span>
+      </div>
+
+      <div class="kpi" [class.kpi--hero]="inRepair() > 0">
+        <span class="kpi__label">Em reforma</span>
+        <span class="kpi__value kpi__value--warn">{{ inRepair() }}</span>
+      </div>
+
+      <div class="kpi">
+        <span class="kpi__label">Aguardando aquisição</span>
+        <span class="kpi__value kpi__value--bad">{{ waitingPurchase() }}</span>
+      </div>
+    </div>
+
+    <!-- ─── Calendário de implantações ────────────────────────────────────── -->
+    <!--
+      O calendário é o mesmo componente do Painel de RH. O que é das Máquinas
+      fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
+    -->
+    <pk-calendar
+      storageKey="machine-hub-calendar-view"
+      [events]="calendarEvents()"
+      [legend]="calendarLegend"
+      (monthChange)="displayedMonth.set($event)"
+      (dayClick)="openDay($event)">
+      <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
+    </pk-calendar>
+    </div>
+
+    <aside class="hub-side">
+    <!--
+      Precisa de você.
+      A única faixa que abre a tela, e a que some inteira num dia bom.
+    -->
+    @if (attention().length) {
+      <section class="needs">
+        <h2 class="needs__title">
+          Precisa de você
+          <span class="needs__count">{{ attention().length }}</span>
+        </h2>
+
+        @for (item of attention(); track item.lead) {
+          <a class="needs__item" [routerLink]="item.link">
+            <i class="needs__bar" [class]="'needs__bar needs__bar--' + item.tone"></i>
+            <span class="needs__what">
+              <span class="needs__lead">{{ item.lead }}</span>
+              <span class="needs__detail">{{ item.detail }}</span>
+            </span>
+            <span class="needs__cta">{{ item.cta }} <i class="pi pi-arrow-right"></i></span>
+          </a>
+        }
+      </section>
+    } @else {
+      <p class="needs__quiet">
+        <i class="pi pi-check-circle"></i>
+        Nenhuma máquina atrasada, sem previsão ou divergente.
+      </p>
     }
-  </section>
+
+      <section class="card">
+        <h2 class="card__title">Por status</h2>
+
+        @for (slice of statusSlices(); track slice.label) {
+          <div class="dist">
+            <span class="dist__label">{{ slice.label }}</span>
+            <span class="dist__track">
+              <span class="dist__bar" [class]="'dist__bar--' + slice.severity" [style.width.%]="slice.percent"></span>
+            </span>
+            <span class="dist__value">{{ slice.count }}</span>
+          </div>
+        } @empty {
+          <p class="card__empty">Nenhum registro na programação ainda.</p>
+        }
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">Por tipo de máquina</h2>
+
+        @for (slice of typeSlices(); track slice.label) {
+          <div class="dist">
+            <span class="dist__label">{{ slice.label }}</span>
+            <span class="dist__track">
+              <span class="dist__bar dist__bar--action" [style.width.%]="slice.percent"></span>
+            </span>
+            <span class="dist__value">{{ slice.count }}</span>
+          </div>
+        } @empty {
+          <p class="card__empty">Nenhuma máquina cadastrada.</p>
+        }
+      </section>
+
+    <!--
+      Carga por consultor. Responde "quem está com a máquina do cliente X?" com
+      dado que já estava na tela ao lado, sem chamada nova.
+    -->
+    @if (consultantLoad().length) {
+      <section class="card">
+        <h2 class="card__title">
+          Carga por consultor
+          <span class="card__badge">{{ totalOpen() }} em aberto</span>
+        </h2>
+
+        <div class="load">
+          @for (entry of consultantLoad(); track entry.name) {
+            <div class="load__row">
+              <span class="load__name" [title]="entry.name">{{ entry.name }}</span>
+              <span class="load__bar">
+                <span class="load__fill"
+                      [class.load__fill--late]="entry.late > 0"
+                      [style.width.%]="loadWidth()(entry.open)"></span>
+              </span>
+              <span class="load__n">{{ entry.open }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="load__legend">
+          <span><i class="load__dot"></i> em aberto</span>
+          <span><i class="load__dot load__dot--late"></i> tem máquina com previsão vencida</span>
+        </div>
+      </section>
+    }
+    </aside>
+  </div>
+
+  <!-- Os dois que olham para trás: o que não bate, e o que vive atrasando. -->
+  <div class="hub-row">
+    <!--
+      Estoque × programação.
+
+      Aparece sempre, inclusive quando tudo bate: uma lista vazia seria
+      indistinguível de tela quebrada, e "os números fecham" é informação.
+    -->
+    @if (divergences().length) {
+      <section class="card">
+        <h2 class="card__title">
+          Estoque × Programação
+          @if (allMatch()) {
+            <span class="card__badge card__badge--ok">tudo bate</span>
+          } @else {
+            <span class="card__badge card__badge--bad">
+              {{ divergent().length }} divergente{{ divergent().length > 1 ? 's' : '' }}
+            </span>
+          }
+        </h2>
+
+        @if (allMatch()) {
+          <p class="dv__ok">
+            <i class="pi pi-check-circle"></i>
+            As {{ divergences().length }} máquinas têm o mesmo número nos dois lados.
+          </p>
+        } @else {
+          <div class="dv__head">
+            <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Dif.</span><span></span>
+          </div>
+
+          <!--
+            Só quem não bate. Não é corte por espaço: é o que o cartão existe
+            para mostrar. Com cinquenta máquinas e duas divergentes, ninguém
+            quer ler quarenta e oito linhas de ✓ para achar as duas.
+          -->
+          <div class="dv">
+            @for (item of divergent(); track item.machineId) {
+              <div class="dv__row dv__row--bad">
+                <span class="dv__name" [title]="item.name">{{ item.name }}</span>
+                <span class="dv__n">{{ item.stock }}</span>
+                <span class="dv__n">{{ item.scheduled }}</span>
+                <span class="dv__gap">
+                  {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
+                </span>
+                <!--
+                  O `title` diz o que o botão faz: criar programação e ajustar
+                  estoque são coisas bem diferentes, e o ícone sozinho não conta
+                  qual das duas vai acontecer.
+                -->
+                <button type="button" class="dv__fix"
+                        [title]="alignSummary(item)"
+                        [disabled]="isAligning(item)"
+                        (click)="align(item)">
+                  @if (isAligning(item)) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                  } @else {
+                    <i class="pi pi-sync"></i>
+                  }
+                  Acertar
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (matchingCount() > 0) {
+            <p class="dv__rest">
+              <i class="pi pi-check-circle"></i>
+              {{ matchingCount() === 1 ? 'A outra máquina bate.'
+                                       : 'As outras ' + matchingCount() + ' máquinas batem.' }}
+            </p>
+          }
+
+          <p class="dv__hint">
+            <i class="pi pi-info-circle"></i>
+            Diferença positiva sobra no estoque; negativa, sobra na programação.
+            Acerte pela tela de movimentação, que ajusta os dois lados juntos.
+          </p>
+        }
+      </section>
+    }
+    <!--
+      Adiamentos do mês. Uma máquina adiada quatro vezes é informação diferente
+      de quatro máquinas adiadas uma vez.
+    -->
+    @if (slipCount()) {
+      <section class="card">
+        <h2 class="card__title">Adiamentos no mês</h2>
+
+        <div class="slip__stats">
+          <span>
+            <span class="slip__value slip__value--warn">{{ slipCount() }}</span>
+            <span class="slip__label">adiamentos</span>
+          </span>
+          <span>
+            <span class="slip__value">{{ repeatOffenders() }}</span>
+            <span class="slip__label">adiaram 2× ou mais</span>
+          </span>
+          <span>
+            <span class="slip__value">{{ medianSlipDays() }}</span>
+            <span class="slip__label">dias adiados, na mediana</span>
+          </span>
+        </div>
+
+        <div class="slip">
+          @for (item of topSlips(); track item.label + item.machine) {
+            <div class="slip__row">
+              <span class="slip__who">
+                {{ item.label }}
+                <span class="slip__why">{{ item.machine }} · {{ item.motivo }}</span>
+              </span>
+              <span class="slip__count">{{ item.count }}×</span>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+
+  <!-- O que sai, e o que está encalhado. -->
+  <div class="hub-row">
+    <!-- ─── Próximas saídas ───────────────────────────────────────────────── -->
+    <section class="card">
+      <h2 class="card__title">Próximas saídas</h2>
+      <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
+
+      @for (item of visibleUpcoming(); track item.register.id) {
+        <div class="exit" [class.exit--late]="item.late">
+          <span class="exit__when">
+            <strong>{{ item.date | date: 'dd/MM' }}</strong>
+            <small>{{ dueLabel(item) }}</small>
+          </span>
+          <span class="exit__client">{{ item.register.nomeCliente || '—' }}</span>
+          <span class="exit__machine">{{ item.machine }}</span>
+          <span class="exit__tech">{{ item.register.tecnico || 'Sem técnico' }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
+      }
+
+      <!--
+        O corte é dito, nunca silencioso: quem vê cinco linhas sem aviso acredita
+        que viu tudo, e decide em cima de meia informação sem saber disso.
+      -->
+      @if (hiddenUpcoming() > 0) {
+        <p class="card__more">
+          <span>Mostrando as {{ visibleUpcoming().length }} mais próximas, de {{ upcoming().length }}</span>
+          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+        </p>
+      }
+    </section>
+    <!--
+      O complemento de "Próximas saídas". Aquela lista mostra o que vai sair;
+      esta mostra o que está encalhado — máquina no galpão sem compromisso, que
+      o hub nunca contou.
+    -->
+    <section class="card">
+      <h2 class="card__title">
+        Sem previsão
+        @if (paradas().length > 0) {
+          <span class="card__badge">{{ paradas().length }}</span>
+        }
+      </h2>
+      <p class="card__hint">Máquinas no galpão sem data de saída marcada.</p>
+
+      @for (item of visibleParadas(); track item.register.id) {
+        <div class="exit" [class.exit--late]="(item.diasParada ?? 0) > 30">
+          <span class="exit__when">
+            <strong>{{ item.diasParada ?? '—' }}</strong>
+            <small>{{ paradaLabel(item) }}</small>
+          </span>
+          <span class="exit__client">{{ item.register.nomeCliente || 'Sem cliente' }}</span>
+          <span class="exit__machine">{{ item.machine }}</span>
+          <span class="exit__tech">{{ statusLabel(item.register.status) }}</span>
+        </div>
+      } @empty {
+        <p class="card__empty">Toda máquina tem previsão de saída.</p>
+      }
+
+      @if (hiddenParadas() > 0) {
+        <p class="card__more">
+          <span>Mostrando as {{ visibleParadas().length }} mais antigas, de {{ paradas().length }}</span>
+          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+        </p>
+      }
+    </section>
+  </div>
 
 </div>
+
+<p-toast />
+<p-confirmDialog />
 
 <pk-dialog
   [header]="'Implantações de ' + (selectedDay() | date: 'dd/MM/yyyy')"

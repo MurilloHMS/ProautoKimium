@@ -12,18 +12,6 @@
   box-sizing: border-box;
 }
 
-.hub__alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: var(--radius-pill);
-  background: var(--app-danger-soft);
-  color: var(--app-danger);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 // ─── KPIs ───────────────────────────────────────────────────────────────────
 .kpi-row {
   display: grid;
@@ -73,11 +61,18 @@
 }
 
 // ─── Cartões ────────────────────────────────────────────────────────────────
-.dist-row {
+// Par de cartões lado a lado, um embaixo do outro quando não cabe.
+//
+// `auto-fit` e não `1fr 1fr` de propósito: quando um dos dois não tem o que
+// mostrar e o `@if` o esconde, o que sobra ocupa a linha inteira em vez de
+// deixar metade vazia.
+.hub-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 14px;
   margin-bottom: 22px;
+
+  > * { margin-bottom: 0; }
 }
 
 .card {
@@ -113,6 +108,19 @@
     font-size: 0.7rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    // O padrão é âmbar, que serve para contagem ("3 sem previsão"). Estes dois
+    // dizem outra coisa: se os números batem ou não.
+    &--ok {
+      background: var(--app-success-soft);
+      color: var(--app-success);
+    }
+
+    &--bad {
+      background: var(--app-danger-soft, rgba(229, 62, 62, .10));
+      color: var(--app-danger);
+    }
   }
 
   &__hint {
@@ -268,4 +276,509 @@ pk-calendar {
   color: var(--app-text-muted);
 
   em { color: var(--app-danger); font-style: normal; font-weight: 700; }
+}
+
+// ─── Carga por consultor ────────────────────────────────────────────────────
+.load {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// Nome com largura fixa: os nomes variam muito e a barra tem que começar no
+// mesmo lugar em todas as linhas, senão comparar fica impossível.
+.load__row {
+  display: grid;
+  grid-template-columns: 132px 1fr 34px;
+  gap: 12px;
+  align-items: center;
+}
+
+.load__name {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.load__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--app-surface-2);
+  overflow: hidden;
+}
+
+// A barra é relativa a quem tem mais, não ao total: o que interessa é comparar
+// as cargas entre si, não saber a fatia de cada um.
+.load__fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--app-action);
+  transition: width 0.2s ease;
+
+  &--late { background: var(--app-danger); }
+}
+
+.load__n {
+  text-align: right;
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.load__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--app-text-subtle);
+
+  span { display: flex; align-items: center; gap: 6px; }
+}
+
+.load__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--app-action);
+
+  &--late { background: var(--app-danger); }
+}
+
+@media (max-width: 600px) {
+  .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
+}
+
+// ─── Estoque × Programação ──────────────────────────────────────────────────
+// A grade é a mesma no cabeçalho e nas linhas: números têm que alinhar em
+// coluna, senão comparar exige contar casas.
+.dv,
+.dv__head,
+.dv__row {
+  display: grid;
+  grid-template-columns: 1fr 54px 54px 54px auto;
+  gap: 10px;
+}
+
+.dv { display: flex; flex-direction: column; gap: 8px; }
+
+.dv__head {
+  padding: 0 12px 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-subtle);
+
+  span:not(:first-child) { text-align: right; }
+}
+
+.dv__row {
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+  font-variant-numeric: tabular-nums;
+
+  &--bad { background: var(--app-danger-soft, rgba(229, 62, 62, .10)); }
+}
+
+.dv__name {
+  font-weight: 600;
+  font-size: var(--text-ui-sm);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dv__n {
+  text-align: right;
+  font-size: var(--text-ui);
+  font-weight: 700;
+}
+
+.dv__gap {
+  text-align: right;
+  font-size: var(--text-ui-sm);
+  font-weight: 800;
+  color: var(--app-danger);
+
+  &--ok { color: var(--app-success); }
+}
+
+.dv__ok,
+.dv__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.45;
+}
+
+.dv__ok { color: var(--app-success); font-weight: 600; }
+
+.dv__hint {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-subtle);
+}
+
+// ─── Adiamentos ─────────────────────────────────────────────────────────────
+.slip__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  margin-bottom: 16px;
+}
+
+.slip__value {
+  display: block;
+  font-family: v.$font-heading;
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+
+  &--warn { color: var(--app-warning); }
+}
+
+.slip__label {
+  display: block;
+  margin-top: 5px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.slip {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.slip__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+}
+
+.slip__who {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  min-width: 0;
+}
+
+// O motivo é o que explica o número — sem ele o cartão vira placar.
+.slip__why {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slip__count {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--app-warning);
+  background: var(--app-warning-soft, rgba(246, 173, 85, .20));
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .dv,
+  .dv__head,
+  .dv__row { grid-template-columns: 1fr 46px 46px 56px; gap: 6px; }
+
+  .slip__stats { gap: 18px; }
+  .slip__value { font-size: 1.5rem; }
+}
+
+// ─── Precisa de você ────────────────────────────────────────────────────────
+// A única faixa que abre a tela. Linha e não cartão: cartão ocupa altura fixa
+// mesmo vazio, linha some quando não tem o que dizer — e é isso que permite a
+// faixa inteira desaparecer num dia bom.
+.needs {
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.needs__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-family: v.$font-heading;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.needs__count {
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--app-danger-soft, rgba(229, 62, 62, .10));
+  color: var(--app-danger);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.needs__item {
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+
+  &:last-child { margin-bottom: 0; }
+  &:hover { background: color-mix(in srgb, var(--app-action) 6%, var(--app-surface-2)); }
+}
+
+// A cor diz a urgência: vencido é vermelho, parado é âmbar, divergente é da
+// casa — nenhum dos três é emergência, mas o primeiro tem hora marcada.
+.needs__bar {
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--app-text-muted);
+
+  &--danger  { background: var(--app-danger); }
+  &--warning { background: var(--app-warning); }
+  &--info    { background: var(--app-action); }
+}
+
+.needs__what { min-width: 0; }
+
+.needs__lead {
+  display: block;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+// O detalhe é o que diz por onde começar: a contagem sozinha não ajuda.
+.needs__detail {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.needs__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i { font-size: 0.65rem; }
+}
+
+// Dia bom. Uma linha, não um cartão vazio ocupando meia tela.
+.needs__quiet {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 22px;
+  padding: 14px 18px;
+  border-radius: var(--radius-surface);
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .needs__item { grid-template-columns: 4px 1fr; row-gap: 8px; }
+  .needs__cta { grid-column: 2; justify-self: start; }
+}
+
+// ─── Topo em duas colunas ───────────────────────────────────────────────────
+// À esquerda o que precisa de espaço: números grandes e o calendário, que tem
+// sete colunas e não sobrevive espremido. À direita a coluna estreita, com o
+// que se lê de relance.
+.hub-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.hub-top__main {
+  min-width: 0;
+
+  // O espaçamento vira da coluna, não de cada cartão: o `margin: 22px 0` do
+  // `.kpi-row` abriria um buraco acima dele agora que ele não é mais o
+  // primeiro elemento da página.
+  > * { margin: 0 0 14px; }
+  > *:last-child { margin-bottom: 0; }
+}
+
+// ─── A coluna estreita ──────────────────────────────────────────────────────
+// 320px é metade da largura em que esses cartões foram desenhados. O que muda
+// não é só fonte: linha de três colunas vira de duas, e o que era lado a lado
+// empilha.
+.hub-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+
+  > * { margin-bottom: 0; }
+
+  .card,
+  .needs { padding: 14px 15px; }
+
+  // O CTA desce para baixo do texto: em 320px ele espremia o nome do cliente
+  // até sobrar a primeira sílaba.
+  .needs__item {
+    grid-template-columns: 4px 1fr;
+    row-gap: 8px;
+  }
+
+  .needs__cta {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  // O nome do consultor perde a coluna larga: em 320px ela comia a barra.
+  .load__row { grid-template-columns: 84px 1fr 26px; gap: 8px; }
+  .load__name { font-size: 0.74rem; }
+  .load__legend { gap: 10px; font-size: 0.68rem; }
+}
+
+// Abaixo de 1100px a lateral não cabe ao lado sem espremer o calendário, então
+// ela desce e vira uma faixa de cartões — com o desenho largo de volta, porque
+// aqui eles têm espaço outra vez.
+@media (max-width: 1100px) {
+  .hub-top { grid-template-columns: 1fr; }
+
+  .hub-side {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+    .needs__item { grid-template-columns: 4px 1fr auto; row-gap: 0; }
+    .needs__cta { grid-column: auto; justify-self: auto; }
+    .load__row { grid-template-columns: 132px 1fr 34px; gap: 12px; }
+  }
+}
+
+@media (max-width: 600px) {
+  .hub-side {
+    .needs__item { grid-template-columns: 4px 1fr; row-gap: 8px; }
+    .needs__cta { grid-column: 2; justify-self: start; }
+    .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
+  }
+}
+
+// ─── O corte anunciado ──────────────────────────────────────────────────────
+// "Mostrando 5 de 23". Corte em silêncio faz a pessoa acreditar que viu tudo,
+// e decidir em cima de meia informação sem saber disso.
+.card__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+  font-size: 0.74rem;
+  color: var(--app-text-muted);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    color: var(--app-action);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover { text-decoration: underline; }
+    i { font-size: 0.62rem; }
+  }
+}
+
+// A confirmação de que o resto fecha. Uma linha no lugar de dezenas de ✓.
+.dv__rest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+// O botão de acertar, em cada linha divergente.
+.dv__fix {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--app-action);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--app-action);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) { background: var(--app-action-soft); }
+
+  &:disabled { opacity: 0.6; cursor: default; }
+
+  i { font-size: 0.65rem; }
+}
+
+// Na coluna estreita o texto do botão não cabe: fica o ícone, e o `title`
+// continua dizendo o que vai acontecer.
+@media (max-width: 1100px) {
+  .hub-side .dv__fix { font-size: 0; padding: 5px 7px; }
+  .hub-side .dv__fix i { font-size: 0.75rem; }
 }

@@ -1,20 +1,29 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 
 import {
+  AlignResult,
+  MachineDivergence,
+  divergenceOf,
   MACHINE_STATUS_LABEL,
   MACHINE_STATUS_SEVERITY,
   MACHINE_TYPE_LABEL,
   MachineStatus,
   MachineType,
 } from '../../../../domain/models/prostock/machine.model';
-import { MachineRegister } from '../../../../domain/models/prostock/register.model';
+import { MachineRegister, ScheduleSlip } from '../../../../domain/models/prostock/register.model';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
 import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { parseDateOnly } from '../../../../domain/utils/date-only';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { MachineService } from '../../../../infrastructure/services/prostock/machine.service';
+import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
 import {
   CalendarDayEvent,
   CalendarLegendItem,
@@ -38,6 +47,24 @@ interface DayEntry {
   severity: string;
   late: boolean;
 }
+
+/**
+ * Quantas linhas um cartão do Hub mostra antes de mandar para a tela.
+ *
+ * O Hub responde "tem alguma coisa?"; a tela responde "quais?". Cinco é o que
+ * cabe sem o cartão virar rolagem, e o corte é sempre anunciado — corte em
+ * silêncio faz a pessoa acreditar que viu tudo.
+ */
+const HUB_LIST_LIMIT = 5;
+
+/**
+ * Depois de trinta dias vencida, a máquina para de ser "próxima saída".
+ *
+ * A lista limitava sete dias para frente e nada para trás, então uma previsão
+ * vencida há seis meses ficava lá para sempre e ia acumulando. Passou disso, é
+ * problema parado — e o lugar dele é a faixa "Precisa de você", que já mostra.
+ */
+const LATE_CUTOFF_DAYS = 30;
 
 interface UpcomingExit {
   register: MachineRegister;
@@ -73,13 +100,21 @@ interface Parada {
 @Component({
   selector: 'app-machine-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent],
+  imports: [
+    CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent,
+    ConfirmDialogModule, Toast,
+  ],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './machine-hub.component.html',
   styleUrl: './machine-hub.component.scss',
 })
 export class MachineHubComponent implements OnInit {
 
   private readonly machineStore = inject(MachineStore);
+  private readonly machineService = inject(MachineService);
+  private readonly registerService = inject(RegisterService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
   private readonly registerStore = inject(MachineRegisterStore);
 
   readonly loading = computed(() => this.machineStore.loading() || this.registerStore.loading());
@@ -159,11 +194,14 @@ export class MachineHubComponent implements OnInit {
           late: daysLeft < 0,
         };
       })
-      .filter(item => item.date <= limit)
+      .filter(item => item.date <= limit && item.daysLeft >= -LATE_CUTOFF_DAYS)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   });
 
   readonly lateCount = computed(() => this.upcoming().filter(item => item.late).length);
+
+  readonly visibleUpcoming = computed(() => this.upcoming().slice(0, HUB_LIST_LIMIT));
+  readonly hiddenUpcoming = computed(() => this.upcoming().length - this.visibleUpcoming().length);
 
   /**
    * O complemento de "Próximas saídas": o que está parado.
@@ -194,6 +232,309 @@ export class MachineHubComponent implements OnInit {
         };
       })
       .sort((a, b) => (b.diasParada ?? -1) - (a.diasParada ?? -1));
+  });
+
+  readonly visibleParadas = computed(() => this.paradas().slice(0, HUB_LIST_LIMIT));
+  readonly hiddenParadas = computed(() => this.paradas().length - this.visibleParadas().length);
+
+  // ─── Precisa de você ──────────────────────────────────────────────────────
+  //
+  // A mesma pergunta que organiza a home do ERP. O Hub abria com seis KPIs —
+  // referência pura, nada para fazer — e enterrava o que pede ação no meio da
+  // pilha.
+  //
+  // É **linha, não cartão**: cartão ocupa altura fixa mesmo vazio, linha some
+  // quando não tem o que dizer. É o que permite a faixa inteira desaparecer num
+  // dia bom, e faixa vazia aqui é a meta, não defeito.
+
+  readonly attention = computed<AttentionItem[]>(() => {
+    const items: AttentionItem[] = [];
+
+    const atrasadas = this.upcoming().filter(item => item.late);
+    if (atrasadas.length) {
+      items.push({
+        tone: 'danger',
+        lead: `${atrasadas.length} ${plural(atrasadas.length, 'máquina', 'máquinas')} com previsão vencida`,
+        // Os dois piores por nome: a contagem sozinha não diz por onde começar.
+        // `daysLeft` é negativo quando venceu — o sinal já foi usado para
+        // marcar `late`, aqui interessa só o tamanho do atraso.
+        detail: atrasadas.slice(0, 2)
+          .map(item => {
+            const dias = Math.abs(item.daysLeft);
+            return `${item.register.nomeCliente?.trim() || 'sem cliente'} há ${dias} ${plural(dias, 'dia', 'dias')}`;
+          })
+          .join(' · '),
+        cta: 'Ver na programação',
+        link: '/stock/programacao',
+      });
+    }
+
+    const paradas = this.paradas();
+    if (paradas.length) {
+      const maisAntiga = paradas[0]?.diasParada;
+      items.push({
+        tone: 'warning',
+        lead: `${paradas.length} ${plural(paradas.length, 'máquina', 'máquinas')} sem previsão`,
+        detail: maisAntiga
+          ? `a mais antiga parada há ${maisAntiga} ${plural(maisAntiga, 'dia', 'dias')}`
+          : 'sem data de saída marcada',
+        cta: 'Programar',
+        link: '/stock/programacao',
+      });
+    }
+
+    const divergentes = this.divergent();
+    if (divergentes.length) {
+      items.push({
+        tone: 'info',
+        lead: `${divergentes.length} ${plural(divergentes.length, 'máquina', 'máquinas')} com estoque e programação divergentes`,
+        detail: divergentes.slice(0, 2)
+          .map(item => {
+            const gap = divergenceOf(item);
+            return `${item.name} ${gap > 0 ? 'sobra' : 'falta'} ${Math.abs(gap)}`;
+          })
+          .join(' · '),
+        cta: 'Conciliar',
+        link: '/stock/movements',
+      });
+    }
+
+    return items;
+  });
+
+  // ─── As duas contagens ────────────────────────────────────────────────────
+  //
+  // Estoque e programação contam a mesma coisa por caminhos diferentes. A
+  // conciliação fechou os caminhos normais, mas nada avisava quando eles
+  // separavam — e a divergência só aparecia contando na mão.
+
+  readonly divergences = signal<MachineDivergence[]>([]);
+  readonly loadingDivergences = signal(false);
+
+  readonly divergent = computed(() =>
+    this.divergences().filter(item => divergenceOf(item) !== 0));
+
+  /** Quando tudo bate, o cartão vira uma linha de confirmação, não some. */
+  readonly allMatch = computed(() =>
+    this.divergences().length > 0 && this.divergent().length === 0);
+
+  /**
+   * Quantas fecham.
+   *
+   * O cartão mostra **só quem não bate** — isso não é corte por espaço, é o que
+   * ele existe para mostrar. Com cinquenta máquinas e duas divergentes,
+   * ninguém quer ler quarenta e oito linhas de `✓` para achar as duas. Este
+   * número vira a linha que preserva a informação sem gastar a tela.
+   */
+  readonly matchingCount = computed(() =>
+    this.divergences().length - this.divergent().length);
+
+  // ─── Acertar uma divergência ──────────────────────────────────────────────
+  //
+  // A conciliação normal exige um delta e serve a quem está lançando estoque
+  // agora. Uma divergência que já estava lá não tinha como ser consertada — a
+  // tela mostrava o problema e não tinha botão.
+  //
+  // Aqui não há escolha a fazer: uma linha É uma máquina física, então a
+  // programação é a verdade e o acerto segue dela. Mas a pessoa vê o que vai
+  // acontecer antes, porque criar 35 linhas de uma vez não é reversível com um
+  // Ctrl+Z.
+
+  readonly aligning = signal<string | null>(null);
+
+  isAligning(item: MachineDivergence): boolean {
+    return this.aligning() === item.systemCode;
+  }
+
+  /** O que o botão vai fazer, dito antes de fazer. */
+  alignSummary(item: MachineDivergence): string {
+    const gap = divergenceOf(item);
+    return gap > 0
+      ? `Criar ${gap} ${plural(gap, 'programação', 'programações')} sem previsão para ${item.name}?`
+      : `Ajustar o estoque de ${item.name} de ${item.stock} para ${item.scheduled}?`;
+  }
+
+  align(item: MachineDivergence): void {
+    if (this.aligning()) return;
+
+    const gap = divergenceOf(item);
+    const detalhe = gap > 0
+      ? `Vão nascer <strong>${gap}</strong> ${plural(gap, 'programação', 'programações')} `
+        + 'com status Disponível, sem cliente e sem previsão. '
+        + 'Elas aparecem em <strong>Sem previsão</strong>, esperando destino.'
+      : `O estoque em movimentações vai de <strong>${item.stock}</strong> para `
+        + `<strong>${item.scheduled}</strong>, que é o número de máquinas que a `
+        + 'programação diz existir. Nenhuma linha é apagada.';
+
+    this.confirmationService.confirm({
+      header: 'Acertar os dois números',
+      message: `${this.alignSummary(item)}<br><br>${detalhe}`,
+      icon: 'pi pi-sync',
+      acceptLabel: 'Acertar',
+      rejectLabel: 'Cancelar',
+      accept: () => this.confirmAlign(item),
+    });
+  }
+
+  private confirmAlign(item: MachineDivergence): void {
+    this.aligning.set(item.systemCode);
+
+    this.machineService.align(item.systemCode).subscribe({
+      next: (result) => {
+        this.aligning.set(null);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Números acertados',
+          detail: result.created > 0
+            ? `${result.created} ${plural(result.created, 'programação criada', 'programações criadas')} para ${result.name}.`
+            : `Estoque de ${result.name} ajustado para ${result.stockAfter}.`,
+        });
+        // As duas listas mudaram: a programação ganhou linhas, ou o estoque
+        // mudou. Recarregar as duas é mais barato que adivinhar o novo estado.
+        this.registerStore.refresh();
+        this.loadDivergences();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.aligning.set(null);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Não foi possível acertar',
+          detail: typeof err.error === 'string' ? err.error : 'Erro inesperado.',
+        });
+      },
+    });
+  }
+
+  differenceOf(item: MachineDivergence): number {
+    return divergenceOf(item);
+  }
+
+  /** O sinal já é mostrado separado, então o template pede só o tamanho. */
+  abs(value: number): number {
+    return Math.abs(value);
+  }
+
+  private loadDivergences(): void {
+    this.loadingDivergences.set(true);
+    this.machineService.divergences().subscribe({
+      next: (list) => {
+        this.divergences.set(list ?? []);
+        this.loadingDivergences.set(false);
+      },
+      // Silencioso de propósito: é um cartão de apoio, e derrubar o Hub inteiro
+      // por causa dele seria pior que não mostrá-lo.
+      error: () => {
+        this.divergences.set([]);
+        this.loadingDivergences.set(false);
+      },
+    });
+  }
+
+  // ─── Adiamentos do mês ────────────────────────────────────────────────────
+  //
+  // A tabela existe desde a Parte 2 e ninguém lia o conjunto. Uma máquina
+  // adiada quatro vezes é informação diferente de quatro máquinas adiadas uma
+  // vez, e o motivo que mais se repete diz onde está o gargalo.
+
+  readonly slips = signal<ScheduleSlip[]>([]);
+
+  readonly slipCount = computed(() => this.slips().length);
+
+  /** Quantas programações distintas adiaram mais de uma vez. */
+  readonly repeatOffenders = computed(() => {
+    const byRegister = new Map<string, number>();
+    for (const slip of this.slips()) {
+      byRegister.set(slip.registerId, (byRegister.get(slip.registerId) ?? 0) + 1);
+    }
+    return [...byRegister.values()].filter(total => total > 1).length;
+  });
+
+  /**
+   * Mediana, não média: um adiamento de seis meses puxaria a média sozinho e
+   * faria o número descrever um caso em vez do conjunto.
+   */
+  readonly medianSlipDays = computed(() => {
+    const days = this.slips()
+      .map(slip => {
+        const antes = parseDateOnly(slip.previsaoAnterior);
+        const depois = parseDateOnly(slip.previsaoNova);
+        // Apagar a previsão não tem "quantos dias" — fica fora da conta.
+        return antes && depois
+          ? Math.round((depois.getTime() - antes.getTime()) / 86_400_000)
+          : null;
+      })
+      .filter((value): value is number => value !== null)
+      .sort((a, b) => a - b);
+
+    if (!days.length) return 0;
+    const middle = Math.floor(days.length / 2);
+    return days.length % 2 ? days[middle] : Math.round((days[middle - 1] + days[middle]) / 2);
+  });
+
+  /** Quem mais adiou, com o último motivo — que é o que explica. */
+  readonly topSlips = computed(() => {
+    const byRegister = new Map<string, { label: string; machine: string; count: number; motivo: string }>();
+
+    // A lista vem mais recente primeiro, então o primeiro motivo visto é o último.
+    for (const slip of this.slips()) {
+      const entry = byRegister.get(slip.registerId);
+      if (entry) entry.count += 1;
+      else byRegister.set(slip.registerId, {
+        label: slip.nomeCliente?.trim() || 'Sem cliente',
+        machine: slip.machineName,
+        count: 1,
+        motivo: slip.motivo,
+      });
+    }
+
+    return [...byRegister.values()].sort((a, b) => b.count - a.count).slice(0, 5);
+  });
+
+  private loadSlips(): void {
+    // Desde o primeiro dia do mês aberto — acompanha a navegação do calendário
+    // seria confuso, então é sempre o mês corrente.
+    const month = startOfMonth(new Date());
+    const from = `${month.getFullYear()}-${`${month.getMonth() + 1}`.padStart(2, '0')}-01`;
+
+    this.registerService.slipsSince(from).subscribe({
+      next: (list) => this.slips.set(list ?? []),
+      error: () => this.slips.set([]),
+    });
+  }
+
+  // ─── Carga por consultor ──────────────────────────────────────────────────
+  //
+  // `consultor` já vem na programação e o hub não usava. Responde a pergunta
+  // que aparece toda semana — "quem está com a máquina do cliente X?" — sem
+  // nenhuma chamada nova: a lista inteira já está no store.
+
+  readonly consultantLoad = computed<ConsultantLoad[]>(() => {
+    const byConsultant = new Map<string, ConsultantLoad>();
+
+    for (const register of this.registerStore.items()) {
+      // Entregue saiu da mão de todo mundo. Carga é o que ainda pesa.
+      if (register.status === MachineStatus.ENTREGUE) continue;
+
+      const name = register.consultor?.trim() || 'Sem consultor';
+      const entry = byConsultant.get(name)
+        ?? { name, open: 0, late: 0 };
+
+      entry.open += 1;
+      if (isLate(register)) entry.late += 1;
+
+      byConsultant.set(name, entry);
+    }
+
+    return [...byConsultant.values()].sort((a, b) => b.open - a.open);
+  });
+
+  readonly totalOpen = computed(() =>
+    this.consultantLoad().reduce((total, entry) => total + entry.open, 0));
+
+  /** A barra é relativa a quem tem mais, não ao total — comparar é o ponto. */
+  readonly loadWidth = computed(() => {
+    const most = this.consultantLoad()[0]?.open ?? 0;
+    return (open: number) => (most ? Math.round((open / most) * 100) : 0);
   });
 
   // ─── Calendário de implantações ───────────────────────────────────────────
@@ -299,11 +640,15 @@ export class MachineHubComponent implements OnInit {
   ngOnInit(): void {
     this.machineStore.load();
     this.registerStore.load();
+    this.loadDivergences();
+    this.loadSlips();
   }
 
   refresh(): void {
     this.machineStore.refresh();
     this.registerStore.refresh();
+    this.loadDivergences();
+    this.loadSlips();
   }
 
   /** O mesmo rótulo que o calendário usa, agora também na lista de paradas. */
@@ -329,6 +674,40 @@ export class MachineHubComponent implements OnInit {
 function startOfToday(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Uma linha da faixa "Precisa de você". */
+interface AttentionItem {
+  tone: 'danger' | 'warning' | 'info';
+  lead: string;
+  detail: string;
+  cta: string;
+  link: string;
+}
+
+/** "1 máquina" e "2 máquinas" — o `(s)` no meio do texto lê mal. */
+function plural(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural;
+}
+
+/** Quantas máquinas em aberto cada consultor carrega, e quantas já atrasaram. */
+interface ConsultantLoad {
+  name: string;
+  open: number;
+  late: number;
+}
+
+/**
+ * Previsão vencida e a máquina não saiu.
+ *
+ * Mesmo critério do chip do calendário: sem previsão não é atraso, é falta de
+ * programação — e essa lista já existe separada.
+ */
+function isLate(register: MachineRegister): boolean {
+  const previsao = parseDateOnly(register.previsaoEntrega);
+  return !!previsao
+    && previsao < startOfToday()
+    && register.status !== MachineStatus.ENTREGUE;
 }
 
 function startOfMonth(date: Date): Date {

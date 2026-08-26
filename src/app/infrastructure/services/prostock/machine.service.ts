@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Machine, ReconcileRequest } from '../../../domain/models/prostock/machine.model';
+import {
+  AlignResult,
+  Machine,
+  MachineDivergence,
+  ReconcileRequest,
+} from '../../../domain/models/prostock/machine.model';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -33,6 +38,28 @@ export class MachineService {
    * servidor. Se a tela fizesse dois POSTs, a segunda podendo falhar sozinha,
    * ficaria meia conciliação — e ninguém saberia qual metade valeu.
    */
+  /**
+   * As duas contagens de cada máquina — inclusive as que batem.
+   *
+   * Vêm todas de propósito: ver que treze máquinas fecham é metade da
+   * informação, e sem isso uma lista vazia seria indistinguível de tela
+   * quebrada.
+   */
+  divergences(): Observable<MachineDivergence[]> {
+    return this.http.get<MachineDivergence[]>(`${this.url}/divergences`);
+  }
+
+  /**
+   * Acerta uma máquina que já estava divergente.
+   *
+   * Diferente do `reconcile`, que exige um delta e serve a quem está lançando
+   * estoque agora. Aqui não há nada a escolher: a programação é a verdade
+   * sobre quantas máquinas existem, e o acerto segue dela.
+   */
+  align(systemCode: string): Observable<AlignResult> {
+    return this.http.post<AlignResult>(`${this.url}/${encodeURIComponent(systemCode)}/align`, {});
+  }
+
   reconcile(request: ReconcileRequest): Observable<string> {
     return this.http.post(`${this.url}/reconcile`, request, { responseType: 'text' });
   }

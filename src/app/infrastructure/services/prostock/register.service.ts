@@ -6,6 +6,7 @@ import {
   CreateMachineRegister,
   MachineRegister,
   ScheduleChange,
+  ScheduleSlip,
   UpdateMachineRegister,
 } from '../../../domain/models/prostock/register.model';
 import { environment } from '../../../../environments/environment';
@@ -38,6 +39,16 @@ export class RegisterService {
 
   delete(id: string): Observable<string> {
     return this.http.delete(`${this.url}/${id}`, { responseType: 'text' });
+  }
+
+  /**
+   * Os adiamentos de todas as programações desde uma data.
+   *
+   * `from` é obrigatório na API: sem recorte, um dia isto traria três anos de
+   * histórico numa tela que só quer o mês.
+   */
+  slipsSince(from: string): Observable<ScheduleSlip[]> {
+    return this.http.get<ScheduleSlip[]>(`${this.url}/schedule-changes`, { params: { from } });
   }
 
   /** Os adiamentos de uma programação, mais recente primeiro. */

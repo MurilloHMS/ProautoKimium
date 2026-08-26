@@ -102,6 +102,39 @@ export function machineStatusOptions(): { label: string; value: MachineStatus }[
 }
 
 /**
+ * As duas contagens da mesma máquina, lado a lado.
+ *
+ * Existe por causa de uma decisão de projeto: o estoque de máquina é contado
+ * por dois caminhos, e a escolha foi sincronizar em vez de derivar um do outro.
+ * O custo assumido é que todo caminho novo precisa lembrar de conciliar — e no
+ * dia em que alguém esquecer, os números separam em silêncio.
+ */
+export interface MachineDivergence {
+  machineId: string;
+  systemCode: string;
+  name: string;
+  /** O que `products_movements` diz. */
+  stock: number;
+  /** Quantas linhas de programação estão em estoque. */
+  scheduled: number;
+}
+
+/** Positivo, sobra no estoque; negativo, sobra na programação. */
+export function divergenceOf(item: MachineDivergence): number {
+  return item.stock - item.scheduled;
+}
+
+/** O que o acerto fez — espelha `AlignResultDTO`. */
+export interface AlignResult {
+  systemCode: string;
+  name: string;
+  stockBefore: number;
+  scheduledBefore: number;
+  created: number;
+  stockAfter: number;
+}
+
+/**
  * Conciliação entre o estoque e a programação (`POST api/machine/reconcile`).
  *
  * `delta` e não estoque absoluto — ao contrário de `InventoryMovement`. A

@@ -72,6 +72,23 @@ export type UpdateMachineRegister = Omit<CreateMachineRegister, 'machineId'> & {
   adjustStock?: boolean;
 };
 
+/**
+ * Um adiamento com de quem ele é — espelha `ScheduleSlipDTO`.
+ *
+ * Diferente de `ScheduleChange`, que serve ao histórico de UMA linha: aqui
+ * quem lê está olhando o conjunto e não sabe de qual programação cada
+ * adiamento veio.
+ */
+export interface ScheduleSlip {
+  registerId: string;
+  nomeCliente: string;
+  machineName: string;
+  previsaoAnterior: string;
+  previsaoNova: string | null;
+  motivo: string;
+  changedAt: string;
+}
+
 /** Uma alteração de previsão já registrada — espelha `ScheduleChangeDTO`. */
 export interface ScheduleChange {
   id: string;
