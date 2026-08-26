@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PkTableComponent } from './pk-table.component';
 
 describe('PkTableComponent', () => {
-  let component: PkTableComponent;
-  let fixture: ComponentFixture<PkTableComponent>;
+  let component: PkTableComponent<unknown>;
+  let fixture: ComponentFixture<PkTableComponent<unknown>>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
