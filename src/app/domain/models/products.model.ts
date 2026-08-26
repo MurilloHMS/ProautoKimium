@@ -41,9 +41,21 @@ export interface InventoryProductResponse{
  * nulo e a API respondia 404 "código do sistema está nulo ou vazio".
  */
 export interface InventoryMovement{
+  /** Quando a movimentação aconteceu. É o que a tela **mostra**. */
   movementDate: string;
   quantity: number;
   systemCode: string;
+
+  /**
+   * Quando foi registrada. É por ela que a lista se **ordena**.
+   *
+   * `movementDate` é `date` no banco, sem hora: dois lançamentos do mesmo dia
+   * empatam, e ordenar por ela deixava o estoque atual por conta do acaso —
+   * uma entrega de uma máquina levou o estoque de 2 para 0.
+   *
+   * Opcional porque só a leitura devolve: no POST quem manda é o servidor.
+   */
+  createdAt?: string;
 }
 
 export interface ProductWebSiteCreateDTO{

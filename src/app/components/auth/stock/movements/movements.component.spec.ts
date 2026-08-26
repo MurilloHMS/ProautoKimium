@@ -97,6 +97,37 @@ describe('MovementsComponent · conciliação', () => {
   };
 
   /**
+   * **O teste do bug de 2026-08-26.**
+   *
+   * Ele tinha 2 máquinas em estoque, marcou uma como entregue e o estoque foi
+   * para 0. `movementDate` é `date` no banco, sem hora: dois lançamentos do
+   * mesmo dia empatam, e o "último" da lista saía por acaso.
+   *
+   * Os itens chegam fora de ordem de propósito. Ordenando por `movementDate`,
+   * este teste devolveria 9 — o último da lista como ela chegou.
+   */
+  it('estoque atual é o último REGISTRADO, não o último datado', () => {
+    const mesmoDia = '2026-09-10T00:00:00';
+    component.movements.set([
+      { systemCode: 'MAQ-001', quantity: 7, movementDate: mesmoDia, createdAt: '2026-09-10T08:00:02Z' },
+      { systemCode: 'MAQ-001', quantity: 5, movementDate: mesmoDia, createdAt: '2026-09-10T08:00:03Z' },
+      { systemCode: 'MAQ-001', quantity: 9, movementDate: mesmoDia, createdAt: '2026-09-10T08:00:01Z' },
+    ]);
+
+    expect(component.currentStock()).toBe(5);
+  });
+
+  /** Movimentação antiga, de cliente que não manda o campo, não pode quebrar. */
+  it('sem createdAt, cai na data e não estoura', () => {
+    component.movements.set([
+      { systemCode: 'MAQ-001', quantity: 3, movementDate: '2026-09-09T00:00:00' },
+      { systemCode: 'MAQ-001', quantity: 4, movementDate: '2026-09-10T00:00:00' },
+    ]);
+
+    expect(component.currentStock()).toBe(4);
+  });
+
+  /**
    * **A garantia de que nada mudou para quem não é máquina.**
    *
    * O lançamento de estoque comum é operação diária, e a conciliação não pode
