@@ -48,6 +48,14 @@ export interface CreateMachineRegister {
   previsaoEntrega: string | null;
   consultor: string;
   tecnico: string;
+
+  /**
+   * Pedido explícito para lançar a movimentação de estoque junto.
+   *
+   * Omitido, a API cai em `false` — o campo é primitivo do outro lado. É o que
+   * mantém a importação de planilha e o desktop inertes: eles nunca mandam.
+   */
+  adjustStock?: boolean;
 }
 
 /** O update não leva `machineId`: a máquina do registro não muda. */
@@ -59,6 +67,9 @@ export type UpdateMachineRegister = Omit<CreateMachineRegister, 'machineId'> & {
    * é adiamento e não precisa de nada.
    */
   motivoAlteracaoPrevisao?: string | null;
+
+  /** Ver `CreateMachineRegister.adjustStock`. */
+  adjustStock?: boolean;
 };
 
 /** Uma alteração de previsão já registrada — espelha `ScheduleChangeDTO`. */

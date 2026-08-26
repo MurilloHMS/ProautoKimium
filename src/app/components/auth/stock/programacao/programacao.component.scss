@@ -243,3 +243,60 @@
   color: var(--app-text-muted);
   font-size: var(--text-ui-sm);
 }
+
+// ─── Confirmação de estoque ─────────────────────────────────────────────────
+.estoque {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.estoque__lead {
+  margin: 0;
+  font-size: var(--text-ui);
+}
+
+// O número é a informação. Grande porque é o que a pessoa precisa conferir.
+.estoque__conta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  padding: 12px 0;
+  font-size: 1.6rem;
+
+  i { font-size: 1rem; color: var(--app-text-muted); }
+}
+
+.estoque__de { color: var(--app-text-muted); }
+
+.estoque__para {
+  color: var(--app-primary);
+
+  &--bad { color: var(--app-danger); }
+}
+
+.estoque__nota {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+.estoque__aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--app-danger-soft, rgba(220, 38, 38, .08));
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { margin-top: 2px; }
+}
