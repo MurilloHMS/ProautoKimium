@@ -61,6 +61,22 @@ export const MACHINE_STATUS_SEVERITY: Record<MachineStatus, 'success' | 'warning
   [MachineStatus.REFORMA]: 'warning',
 };
 
+/**
+ * O que conta como "está no galpão" — espelha `MachineReconciliationService.IN_STOCK`.
+ *
+ * Não confundir com `OPEN_STATUSES`, que é só "≠ ENTREGUE": AGUARDANDO_AQUISICAO
+ * e LIBERAR_EQUIPAMENTOS estão abertas e **não** estão em estoque. Usar a lista
+ * errada aqui ofereceria para entregar uma máquina que ainda não chegou.
+ *
+ * REFORMA entra: fisicamente está lá, mesmo sem poder ser vendida.
+ *
+ * A API valida de novo. Isto é conveniência de tela, não a regra — a regra mora
+ * no servidor, e é o servidor que recusa.
+ */
+export const IN_STOCK_STATUSES: MachineStatus[] = [
+  MachineStatus.DISPONIVEL, MachineStatus.RESERVADA, MachineStatus.REFORMA,
+];
+
 /** Status que ainda esperam saída — usado no Hub e nos alertas. */
 export const OPEN_STATUSES: MachineStatus[] = Object.values(MachineStatus)
   .filter(status => status !== MachineStatus.ENTREGUE);
@@ -83,4 +99,23 @@ export function machineTypeOptions(): { label: string; value: MachineType }[] {
 
 export function machineStatusOptions(): { label: string; value: MachineStatus }[] {
   return Object.values(MachineStatus).map(value => ({ label: MACHINE_STATUS_LABEL[value], value }));
+}
+
+/**
+ * Conciliação entre o estoque e a programação (`POST api/machine/reconcile`).
+ *
+ * `delta` e não estoque absoluto — ao contrário de `InventoryMovement`. A
+ * diferença é de propósito: o servidor precisa saber **quantas** máquinas
+ * mudaram para conferir que os dois lados contam o mesmo número, e ele lê o
+ * estoque atual do banco em vez de aceitar o que a tela tinha em cache.
+ */
+export interface ReconcileRequest {
+  systemCode: string;
+  /** Positivo entra, negativo sai. Zero é recusado. */
+  delta: number;
+  movementDate: string;
+  /** Quais programações viram ENTREGUE. Só quando `delta` é negativo. */
+  registersToDeliver: string[];
+  /** Quantas programações nascem DISPONIVEL. Só quando `delta` é positivo. */
+  registersToCreate: number;
 }

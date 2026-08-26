@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Machine } from '../../../domain/models/prostock/machine.model';
+import { Machine, ReconcileRequest } from '../../../domain/models/prostock/machine.model';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -24,5 +24,16 @@ export class MachineService {
 
   getAll(): Observable<Machine[]> {
     return this.http.get<Machine[]>(this.url);
+  }
+
+  /**
+   * Lança o movimento **e** ajusta a programação, numa chamada só.
+   *
+   * Uma chamada, não duas, porque as duas escritas estão na mesma transação do
+   * servidor. Se a tela fizesse dois POSTs, a segunda podendo falhar sozinha,
+   * ficaria meia conciliação — e ninguém saberia qual metade valeu.
+   */
+  reconcile(request: ReconcileRequest): Observable<string> {
+    return this.http.post(`${this.url}/reconcile`, request, { responseType: 'text' });
   }
 }

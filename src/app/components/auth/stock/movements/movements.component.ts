@@ -9,6 +9,14 @@ import { TableModule } from 'primeng/table';
 import { Toast } from 'primeng/toast';
 
 import { InventoryMovement, InventoryProductResponse } from '../../../../domain/models/products.model';
+import {
+  IN_STOCK_STATUSES,
+  MACHINE_STATUS_LABEL,
+  ReconcileRequest,
+} from '../../../../domain/models/prostock/machine.model';
+import { MachineRegister } from '../../../../domain/models/prostock/register.model';
+import { MachineService } from '../../../../infrastructure/services/prostock/machine.service';
+import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
 import { InventoryProductStore } from '../../../../infrastructure/state/inventory-product.store';
 import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
 import { downloadFileResponse } from '../../../../infrastructure/services/tools/pdf-tools.service';
@@ -16,6 +24,7 @@ import { formatDateOnly } from '../../../../domain/utils/date-only';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 
 type MovementKind = 'in' | 'out';
 
@@ -24,7 +33,7 @@ type MovementKind = 'in' | 'out';
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule, Toast,
-    ToolbarComponent, PkButtonComponent, PkTableComponent,
+    ToolbarComponent, PkButtonComponent, PkTableComponent, PkDialogComponent,
   ],
   templateUrl: './movements.component.html',
   styleUrl: './movements.component.scss',
@@ -35,6 +44,8 @@ export class MovementsComponent implements OnInit {
   private readonly productStore = inject(InventoryProductStore);
   private readonly service = inject(InventoryProductService);
   private readonly messageService = inject(MessageService);
+  private readonly machineService = inject(MachineService);
+  private readonly registerService = inject(RegisterService);
 
   readonly loadingProducts = this.productStore.loading;
 
@@ -180,6 +191,14 @@ export class MovementsComponent implements OnInit {
     const product = this.selected();
     if (!product || !this.canSubmit() || this.saving) return;
 
+    // Máquina não grava direto: uma linha de programação É uma máquina física,
+    // então mexer no estoque sem mexer na programação separa os dois números em
+    // silêncio. A conciliação pergunta antes; produto comum segue igual.
+    if (product.isMachine) {
+      this.openReconciliation(product);
+      return;
+    }
+
     this.saving = true;
 
     // `quantity` é o estoque resultante: é assim que o desktop grava, e os dois
@@ -206,6 +225,130 @@ export class MovementsComponent implements OnInit {
         this.showError(err);
       },
     });
+  }
+
+  // ─── Conciliação com a programação (só máquina) ───────────────────────────
+  // Entrada cria programações; saída entrega as que a pessoa escolher. A tela
+  // LISTA e CONFIRMA, nunca decide: qual máquina foi para qual cliente é
+  // informação que só quem lançou tem.
+
+  /** Máquina é produto marcado, não tipo à parte — por isso é uma flag. */
+  readonly isMachine = computed(() => !!this.selected()?.isMachine);
+
+  readonly reconciliationOpen = signal(false);
+  readonly candidates = signal<MachineRegister[]>([]);
+  readonly loadingCandidates = signal(false);
+  readonly chosenIds = signal<ReadonlySet<string>>(new Set<string>());
+
+  /** Quantas máquinas o lançamento move — sempre positivo, para o texto. */
+  readonly reconciliationCount = computed(() => this.quantity());
+
+  /**
+   * A conta só fecha com o número exato.
+   *
+   * Escolher menos e confirmar é justamente o erro que a conciliação existe
+   * para impedir: o estoque cairia 3 e a programação perderia 2. A API recusa
+   * de novo — aqui é só para o botão não mentir que dá.
+   */
+  readonly canConfirmReconciliation = computed(() =>
+    this.kind() === 'in' || this.chosenIds().size === this.quantity());
+
+  /** Saída de 3 com 2 máquinas programadas: não tem como fechar. */
+  readonly notEnoughCandidates = computed(() =>
+    this.kind() === 'out'
+    && !this.loadingCandidates()
+    && this.candidates().length < this.quantity());
+
+  private openReconciliation(product: InventoryProductResponse): void {
+    this.chosenIds.set(new Set<string>());
+    this.candidates.set([]);
+    this.reconciliationOpen.set(true);
+
+    if (this.kind() === 'out') this.loadCandidates(product);
+  }
+
+  /**
+   * As candidatas são as que estão no galpão — e só as daquela máquina.
+   *
+   * ENTREGUE fica de fora porque já saiu, e entregar de novo faria o movimento
+   * baixar estoque sem nada ter saído.
+   */
+  private loadCandidates(product: InventoryProductResponse): void {
+    this.loadingCandidates.set(true);
+    this.registerService.getByMachine(product.id).subscribe({
+      next: (list) => {
+        this.candidates.set((list ?? []).filter(r => IN_STOCK_STATUSES.includes(r.status)));
+        this.loadingCandidates.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.candidates.set([]);
+        this.loadingCandidates.set(false);
+        if (err.status !== 404) this.showError(err);
+      },
+    });
+  }
+
+  toggleCandidate(id: string): void {
+    // Set novo a cada clique: mutar o mesmo objeto não trocaria a referência, e
+    // o signal não avisaria ninguém.
+    const next = new Set(this.chosenIds());
+    next.has(id) ? next.delete(id) : next.add(id);
+    this.chosenIds.set(next);
+  }
+
+  isChosen(id: string): boolean {
+    return this.chosenIds().has(id);
+  }
+
+  closeReconciliation(): void {
+    this.reconciliationOpen.set(false);
+    this.chosenIds.set(new Set<string>());
+    this.candidates.set([]);
+  }
+
+  confirmReconciliation(): void {
+    const product = this.selected();
+    if (!product || !this.canConfirmReconciliation() || this.saving) return;
+
+    const incoming = this.kind() === 'in';
+    this.saving = true;
+
+    const request: ReconcileRequest = {
+      systemCode: product.systemCode,
+      // Delta, não estoque resultante: é o que deixa o servidor conferir que os
+      // dois lados contam o mesmo número — e ele lê o estoque atual do banco em
+      // vez de aceitar o que esta tela tinha em cache.
+      delta: incoming ? this.quantity() : -this.quantity(),
+      movementDate: this.toLocalDateTime(this.movementDate),
+      registersToDeliver: incoming ? [] : [...this.chosenIds()],
+      registersToCreate: incoming ? this.quantity() : 0,
+    };
+
+    this.machineService.reconcile(request).subscribe({
+      next: () => {
+        this.saving = false;
+        this.closeReconciliation();
+        this.resetEntry();
+        this.loadMovements(product.systemCode);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Estoque e programação atualizados',
+          detail: incoming
+            ? `${request.registersToCreate} programação(ões) criada(s) sem previsão.`
+            : `${request.registersToDeliver.length} programação(ões) marcada(s) como entregue.`,
+        });
+      },
+      error: (err: HttpErrorResponse) => {
+        this.saving = false;
+        // Fica aberto de propósito: 400 aqui é a conta não fechando, e fechar o
+        // diálogo faria a pessoa refazer a escolha inteira para ler o motivo.
+        this.showError(err);
+      },
+    });
+  }
+
+  statusLabel(register: MachineRegister): string {
+    return MACHINE_STATUS_LABEL[register.status] ?? register.status;
   }
 
   private resetEntry(): void {
