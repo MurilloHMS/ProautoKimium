@@ -183,3 +183,63 @@
 }
 
 .audit__none { color: var(--app-text-subtle); }
+
+// ─── Histórico de adiamentos ────────────────────────────────────────────────
+
+.hist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// Cada adiamento é um bloco. A barra à esquerda liga visualmente os itens numa
+// linha do tempo — sem ela, três blocos parecem três coisas soltas.
+.hist__item {
+  padding: 10px 14px;
+  border-left: 2px solid var(--app-warning);
+  background: var(--app-surface-2);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+
+.hist__datas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  i { font-size: .7rem; color: var(--app-text-subtle); }
+}
+
+// A data que saiu fica riscada: o "de → para" já diz a direção, e o risco
+// deixa claro qual das duas não vale mais.
+.hist__de {
+  color: var(--app-text-subtle);
+  text-decoration: line-through;
+}
+
+.hist__para { color: var(--app-text); }
+
+.hist__motivo {
+  margin: 6px 0 4px;
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+  color: var(--app-text);
+}
+
+.hist__quem {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
+
+.hist-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 12px;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}

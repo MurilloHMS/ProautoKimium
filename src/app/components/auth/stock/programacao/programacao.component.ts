@@ -23,6 +23,7 @@ import {
 import {
   CreateMachineRegister,
   MachineRegister,
+  ScheduleChange,
   UpdateMachineRegister,
 } from '../../../../domain/models/prostock/register.model';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
@@ -105,6 +106,38 @@ export class ProgramacaoComponent implements OnInit {
   private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
 
   readonly motivoValido = computed(() => this.motivoTexto().trim().length > 0);
+
+  // ─── Histórico de adiamentos ─────────────────────────────────────────────
+  //
+  // Carregado sob demanda, um GET por vez que alguém abre. A alternativa seria
+  // trazer a contagem junto da grade, e aí seria um GET por linha numa tela que
+  // costuma ter centenas — caro para uma informação que se consulta raramente.
+
+  readonly historicoAberto = signal(false);
+  readonly historicoCarregando = signal(false);
+  readonly historico = signal<ScheduleChange[]>([]);
+  readonly historicoDe = signal<string>('');
+
+  abrirHistorico(row: Row): void {
+    if (this.isDraft(row)) return;
+
+    this.historicoDe.set(row.nomeCliente?.trim() || 'programação sem cliente');
+    this.historico.set([]);
+    this.historicoCarregando.set(true);
+    this.historicoAberto.set(true);
+
+    this.registerService.scheduleChanges(row.id).subscribe({
+      next: (lista) => {
+        this.historico.set(lista ?? []);
+        this.historicoCarregando.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.historicoCarregando.set(false);
+        this.historicoAberto.set(false);
+        this.showError(err);
+      },
+    });
+  }
 
   readonly hasFilters = computed(() =>
     this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
