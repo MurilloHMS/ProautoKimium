@@ -12,18 +12,6 @@
   box-sizing: border-box;
 }
 
-.hub__alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-radius: var(--radius-pill);
-  background: var(--app-danger-soft);
-  color: var(--app-danger);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 // ─── KPIs ───────────────────────────────────────────────────────────────────
 .kpi-row {
   display: grid;
@@ -518,4 +506,133 @@ pk-calendar {
 
   .slip__stats { gap: 18px; }
   .slip__value { font-size: 1.5rem; }
+}
+
+// ─── Precisa de você ────────────────────────────────────────────────────────
+// A única faixa que abre a tela. Linha e não cartão: cartão ocupa altura fixa
+// mesmo vazio, linha some quando não tem o que dizer — e é isso que permite a
+// faixa inteira desaparecer num dia bom.
+.needs {
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.needs__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-family: v.$font-heading;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.needs__count {
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--app-danger-soft, rgba(229, 62, 62, .10));
+  color: var(--app-danger);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.needs__item {
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+
+  &:last-child { margin-bottom: 0; }
+  &:hover { background: color-mix(in srgb, var(--app-action) 6%, var(--app-surface-2)); }
+}
+
+// A cor diz a urgência: vencido é vermelho, parado é âmbar, divergente é da
+// casa — nenhum dos três é emergência, mas o primeiro tem hora marcada.
+.needs__bar {
+  align-self: stretch;
+  border-radius: 2px;
+  background: var(--app-text-muted);
+
+  &--danger  { background: var(--app-danger); }
+  &--warning { background: var(--app-warning); }
+  &--info    { background: var(--app-action); }
+}
+
+.needs__what { min-width: 0; }
+
+.needs__lead {
+  display: block;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+// O detalhe é o que diz por onde começar: a contagem sozinha não ajuda.
+.needs__detail {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.needs__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: 7px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  i { font-size: 0.65rem; }
+}
+
+// Dia bom. Uma linha, não um cartão vazio ocupando meia tela.
+.needs__quiet {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 22px;
+  padding: 14px 18px;
+  border-radius: var(--radius-surface);
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+// ─── Título de faixa ────────────────────────────────────────────────────────
+// Separa referência de ação sem gastar um cartão. Discreto de propósito: quem
+// está procurando alguma coisa usa como marco, quem não está nem repara.
+.tier {
+  margin: 26px 0 12px;
+  font-family: v.$font-heading;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+@media (max-width: 600px) {
+  .needs__item { grid-template-columns: 4px 1fr; row-gap: 8px; }
+  .needs__cta { grid-column: 2; justify-self: start; }
 }

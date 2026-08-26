@@ -82,7 +82,14 @@ describe('MachineHubComponent · carga por consultor', () => {
     registerStore = TestBed.inject(MachineRegisterStore);
   });
 
-  const carregar = (registers: MachineRegister[]) => registers.forEach(r => registerStore.upsert(r));
+  /**
+   * Alimenta os dois caminhos: o `upsert` para quem lê o store direto, e o
+   * `getAll` porque o `ngOnInit` chama `load()` e sobrescreveria a lista.
+   */
+  const carregar = (registers: MachineRegister[]) => {
+    registerService.getAll.and.returnValue(of(registers));
+    registers.forEach(r => registerStore.upsert(r));
+  };
 
   it('conta as máquinas em aberto de cada consultor, do maior para o menor', () => {
     carregar([
@@ -282,5 +289,66 @@ describe('MachineHubComponent · carga por consultor', () => {
     // A lista vem mais recente primeiro, então o motivo guardado é o último —
     // que é o que explica por que ela ainda não saiu.
     expect(topo.motivo).toBe('técnico de férias');
+  });
+
+  // ─── Precisa de você ──────────────────────────────────────────────────────
+
+  /**
+   * **A faixa vazia é a meta, não o defeito.**
+   *
+   * O Hub responde "o que precisa de você". Num dia em que nada precisa, ele
+   * tem que conseguir dizer isso — e não mostrar três cartões zerados.
+   */
+  it('sem nada pendente, a faixa não existe', () => {
+    comDivergencias([divergence('Lavadora', 5, 5)]);
+
+    expect(component.attention()).toEqual([]);
+  });
+
+  it('máquina com previsão vencida abre a faixa, com nome e dias', () => {
+    carregar([register('Marcos', MachineStatus.DISPONIVEL, diasDaqui(-3))]);
+    fixture.detectChanges();
+
+    const item = component.attention()[0];
+    expect(item.tone).toBe('danger');
+    expect(item.lead).toContain('1 máquina');
+    // O detalhe é o que diz por onde começar — a contagem sozinha não ajuda.
+    expect(item.detail).toContain('3 dias');
+    expect(item.link).toBe('/stock/programacao');
+  });
+
+  /** Singular e plural de verdade: "1 máquinas" denuncia código preguiçoso. */
+  it('concorda o número com o substantivo', () => {
+    carregar([
+      register('Marcos', MachineStatus.DISPONIVEL, diasDaqui(-3)),
+      register('Juliana', MachineStatus.DISPONIVEL, diasDaqui(-5)),
+    ]);
+    fixture.detectChanges();
+
+    expect(component.attention()[0].lead).toContain('2 máquinas');
+  });
+
+  it('divergência entra na faixa e aponta para a movimentação', () => {
+    comDivergencias([divergence('Lavadora', 5, 4), divergence('Capô', 2, 4)]);
+
+    const item = component.attention().find(i => i.tone === 'info');
+    expect(item?.link).toBe('/stock/movements');
+    // Diz de que lado sobra: "sobra 1" e "falta 2" são problemas diferentes.
+    expect(item?.detail).toContain('Lavadora sobra 1');
+    expect(item?.detail).toContain('Capô falta 2');
+  });
+
+  /**
+   * A ordem é a de urgência: vencido tem hora marcada, parado não, e divergência
+   * é da casa. Trocar isso faria a primeira linha deixar de ser a mais grave.
+   */
+  it('vencidas vêm antes de paradas, que vêm antes de divergências', () => {
+    carregar([
+      register('Marcos', MachineStatus.DISPONIVEL, diasDaqui(-3)),
+      register('Juliana', MachineStatus.DISPONIVEL, null),
+    ]);
+    comDivergencias([divergence('Lavadora', 5, 4)]);
+
+    expect(component.attention().map(i => i.tone)).toEqual(['danger', 'warning', 'info']);
   });
 });

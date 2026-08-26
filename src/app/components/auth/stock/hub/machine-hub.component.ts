@@ -202,6 +202,71 @@ export class MachineHubComponent implements OnInit {
       .sort((a, b) => (b.diasParada ?? -1) - (a.diasParada ?? -1));
   });
 
+  // ─── Precisa de você ──────────────────────────────────────────────────────
+  //
+  // A mesma pergunta que organiza a home do ERP. O Hub abria com seis KPIs —
+  // referência pura, nada para fazer — e enterrava o que pede ação no meio da
+  // pilha.
+  //
+  // É **linha, não cartão**: cartão ocupa altura fixa mesmo vazio, linha some
+  // quando não tem o que dizer. É o que permite a faixa inteira desaparecer num
+  // dia bom, e faixa vazia aqui é a meta, não defeito.
+
+  readonly attention = computed<AttentionItem[]>(() => {
+    const items: AttentionItem[] = [];
+
+    const atrasadas = this.upcoming().filter(item => item.late);
+    if (atrasadas.length) {
+      items.push({
+        tone: 'danger',
+        lead: `${atrasadas.length} ${plural(atrasadas.length, 'máquina', 'máquinas')} com previsão vencida`,
+        // Os dois piores por nome: a contagem sozinha não diz por onde começar.
+        // `daysLeft` é negativo quando venceu — o sinal já foi usado para
+        // marcar `late`, aqui interessa só o tamanho do atraso.
+        detail: atrasadas.slice(0, 2)
+          .map(item => {
+            const dias = Math.abs(item.daysLeft);
+            return `${item.register.nomeCliente?.trim() || 'sem cliente'} há ${dias} ${plural(dias, 'dia', 'dias')}`;
+          })
+          .join(' · '),
+        cta: 'Ver na programação',
+        link: '/stock/programacao',
+      });
+    }
+
+    const paradas = this.paradas();
+    if (paradas.length) {
+      const maisAntiga = paradas[0]?.diasParada;
+      items.push({
+        tone: 'warning',
+        lead: `${paradas.length} ${plural(paradas.length, 'máquina', 'máquinas')} sem previsão`,
+        detail: maisAntiga
+          ? `a mais antiga parada há ${maisAntiga} ${plural(maisAntiga, 'dia', 'dias')}`
+          : 'sem data de saída marcada',
+        cta: 'Programar',
+        link: '/stock/programacao',
+      });
+    }
+
+    const divergentes = this.divergent();
+    if (divergentes.length) {
+      items.push({
+        tone: 'info',
+        lead: `${divergentes.length} ${plural(divergentes.length, 'máquina', 'máquinas')} com estoque e programação divergentes`,
+        detail: divergentes.slice(0, 2)
+          .map(item => {
+            const gap = divergenceOf(item);
+            return `${item.name} ${gap > 0 ? 'sobra' : 'falta'} ${Math.abs(gap)}`;
+          })
+          .join(' · '),
+        cta: 'Conciliar',
+        link: '/stock/movements',
+      });
+    }
+
+    return items;
+  });
+
   // ─── As duas contagens ────────────────────────────────────────────────────
   //
   // Estoque e programação contam a mesma coisa por caminhos diferentes. A
@@ -487,6 +552,20 @@ export class MachineHubComponent implements OnInit {
 function startOfToday(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Uma linha da faixa "Precisa de você". */
+interface AttentionItem {
+  tone: 'danger' | 'warning' | 'info';
+  lead: string;
+  detail: string;
+  cta: string;
+  link: string;
+}
+
+/** "1 máquina" e "2 máquinas" — o `(s)` no meio do texto lê mal. */
+function plural(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural;
 }
 
 /** Quantas máquinas em aberto cada consultor carrega, e quantas já atrasaram. */
