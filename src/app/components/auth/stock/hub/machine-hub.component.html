@@ -193,22 +193,31 @@
             <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Diferença</span>
           </div>
 
+          <!--
+            Só quem não bate. Não é corte por espaço: é o que o cartão existe
+            para mostrar. Com cinquenta máquinas e duas divergentes, ninguém
+            quer ler quarenta e oito linhas de ✓ para achar as duas.
+          -->
           <div class="dv">
-            @for (item of divergences(); track item.machineId) {
-              <div class="dv__row" [class.dv__row--bad]="differenceOf(item) !== 0">
+            @for (item of divergent(); track item.machineId) {
+              <div class="dv__row dv__row--bad">
                 <span class="dv__name" [title]="item.name">{{ item.name }}</span>
                 <span class="dv__n">{{ item.stock }}</span>
                 <span class="dv__n">{{ item.scheduled }}</span>
-                @if (differenceOf(item) === 0) {
-                  <span class="dv__gap dv__gap--ok">✓</span>
-                } @else {
-                  <span class="dv__gap">
-                    {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
-                  </span>
-                }
+                <span class="dv__gap">
+                  {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
+                </span>
               </div>
             }
           </div>
+
+          @if (matchingCount() > 0) {
+            <p class="dv__rest">
+              <i class="pi pi-check-circle"></i>
+              {{ matchingCount() === 1 ? 'A outra máquina bate.'
+                                       : 'As outras ' + matchingCount() + ' máquinas batem.' }}
+            </p>
+          }
 
           <p class="dv__hint">
             <i class="pi pi-info-circle"></i>
@@ -263,7 +272,7 @@
       <h2 class="card__title">Próximas saídas</h2>
       <p class="card__hint">Previsões dos próximos 7 dias e o que já venceu sem entrega.</p>
 
-      @for (item of upcoming(); track item.register.id) {
+      @for (item of visibleUpcoming(); track item.register.id) {
         <div class="exit" [class.exit--late]="item.late">
           <span class="exit__when">
             <strong>{{ item.date | date: 'dd/MM' }}</strong>
@@ -275,6 +284,17 @@
         </div>
       } @empty {
         <p class="card__empty">Nada previsto para os próximos 7 dias.</p>
+      }
+
+      <!--
+        O corte é dito, nunca silencioso: quem vê cinco linhas sem aviso acredita
+        que viu tudo, e decide em cima de meia informação sem saber disso.
+      -->
+      @if (hiddenUpcoming() > 0) {
+        <p class="card__more">
+          <span>Mostrando as {{ visibleUpcoming().length }} mais próximas, de {{ upcoming().length }}</span>
+          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+        </p>
       }
     </section>
     <!--
@@ -291,7 +311,7 @@
       </h2>
       <p class="card__hint">Máquinas no galpão sem data de saída marcada.</p>
 
-      @for (item of paradas(); track item.register.id) {
+      @for (item of visibleParadas(); track item.register.id) {
         <div class="exit" [class.exit--late]="(item.diasParada ?? 0) > 30">
           <span class="exit__when">
             <strong>{{ item.diasParada ?? '—' }}</strong>
@@ -303,6 +323,13 @@
         </div>
       } @empty {
         <p class="card__empty">Toda máquina tem previsão de saída.</p>
+      }
+
+      @if (hiddenParadas() > 0) {
+        <p class="card__more">
+          <span>Mostrando as {{ visibleParadas().length }} mais antigas, de {{ paradas().length }}</span>
+          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+        </p>
       }
     </section>
   </div>

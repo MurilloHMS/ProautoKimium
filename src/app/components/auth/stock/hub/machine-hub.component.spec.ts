@@ -351,4 +351,75 @@ describe('MachineHubComponent · carga por consultor', () => {
 
     expect(component.attention().map(i => i.tone)).toEqual(['danger', 'warning', 'info']);
   });
+
+  // ─── O tamanho dos cartões com muita máquina ──────────────────────────────
+
+  /**
+   * **O cartão mostra só quem NÃO bate.**
+   *
+   * Isso não é corte por espaço, é o que ele existe para mostrar: com cinquenta
+   * máquinas e duas divergentes, ninguém quer ler quarenta e oito linhas de ✓
+   * para achar as duas.
+   */
+  it('a divergência lista só as divergentes e conta as que fecham', () => {
+    const muitas = Array.from({ length: 50 }, (_, i) =>
+      divergence(`Máquina ${i}`, 3, i < 2 ? 2 : 3));
+
+    comDivergencias(muitas);
+
+    expect(component.divergent().length).toBe(2);
+    expect(component.matchingCount()).toBe(48);
+  });
+
+  it('sem divergência nenhuma, todas contam como fechando', () => {
+    comDivergencias([divergence('Lavadora', 3, 3), divergence('Capô', 5, 5)]);
+
+    expect(component.divergent()).toEqual([]);
+    expect(component.matchingCount()).toBe(2);
+  });
+
+  /**
+   * **Corte anunciado.**
+   *
+   * O que se protege aqui não é o `slice` — é o número escondido continuar
+   * disponível. Quem vê cinco linhas sem aviso acredita que viu tudo.
+   */
+  it('sem previsão corta em 5 e diz quantas ficaram de fora', () => {
+    carregar(Array.from({ length: 23 }, () => register('Marcos', MachineStatus.DISPONIVEL)));
+    fixture.detectChanges();
+
+    expect(component.paradas().length).toBe(23);
+    expect(component.visibleParadas().length).toBe(5);
+    expect(component.hiddenParadas()).toBe(18);
+  });
+
+  it('com poucas, não anuncia corte nenhum', () => {
+    carregar([register('Marcos', MachineStatus.DISPONIVEL)]);
+    fixture.detectChanges();
+
+    expect(component.visibleParadas().length).toBe(1);
+    expect(component.hiddenParadas()).toBe(0);
+  });
+
+  /**
+   * **O vazamento que a pergunta dele expôs.**
+   *
+   * A lista limitava sete dias para frente e nada para trás: uma previsão
+   * vencida há seis meses ficava lá para sempre e ia acumulando. Passou de
+   * trinta dias, deixou de ser "próxima saída" — vira problema parado, e o
+   * lugar dele é a faixa "Precisa de você".
+   */
+  it('previsão vencida há muito tempo sai das próximas saídas', () => {
+    carregar([
+      register('Marcos', MachineStatus.DISPONIVEL, diasDaqui(-5)),    // atrasada, mas recente
+      register('Juliana', MachineStatus.DISPONIVEL, diasDaqui(-200)), // encalhada há meses
+      register('Paulo', MachineStatus.DISPONIVEL, diasDaqui(3)),      // vai sair
+    ]);
+    fixture.detectChanges();
+
+    const clientes = component.upcoming().map(item => item.register.consultor);
+    expect(clientes).toContain('Marcos');
+    expect(clientes).toContain('Paulo');
+    expect(clientes).not.toContain('Juliana');
+  });
 });

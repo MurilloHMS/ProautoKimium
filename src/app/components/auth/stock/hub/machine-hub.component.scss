@@ -709,3 +709,46 @@ pk-calendar {
     .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
   }
 }
+
+// ─── O corte anunciado ──────────────────────────────────────────────────────
+// "Mostrando 5 de 23". Corte em silêncio faz a pessoa acreditar que viu tudo,
+// e decidir em cima de meia informação sem saber disso.
+.card__more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--app-border);
+  font-size: 0.74rem;
+  color: var(--app-text-muted);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 700;
+    color: var(--app-action);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover { text-decoration: underline; }
+    i { font-size: 0.62rem; }
+  }
+}
+
+// A confirmação de que o resto fecha. Uma linha no lugar de dezenas de ✓.
+.dv__rest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}

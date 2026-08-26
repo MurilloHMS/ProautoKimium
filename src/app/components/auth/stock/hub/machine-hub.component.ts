@@ -43,6 +43,24 @@ interface DayEntry {
   late: boolean;
 }
 
+/**
+ * Quantas linhas um cartão do Hub mostra antes de mandar para a tela.
+ *
+ * O Hub responde "tem alguma coisa?"; a tela responde "quais?". Cinco é o que
+ * cabe sem o cartão virar rolagem, e o corte é sempre anunciado — corte em
+ * silêncio faz a pessoa acreditar que viu tudo.
+ */
+const HUB_LIST_LIMIT = 5;
+
+/**
+ * Depois de trinta dias vencida, a máquina para de ser "próxima saída".
+ *
+ * A lista limitava sete dias para frente e nada para trás, então uma previsão
+ * vencida há seis meses ficava lá para sempre e ia acumulando. Passou disso, é
+ * problema parado — e o lugar dele é a faixa "Precisa de você", que já mostra.
+ */
+const LATE_CUTOFF_DAYS = 30;
+
 interface UpcomingExit {
   register: MachineRegister;
   machine: string;
@@ -165,11 +183,14 @@ export class MachineHubComponent implements OnInit {
           late: daysLeft < 0,
         };
       })
-      .filter(item => item.date <= limit)
+      .filter(item => item.date <= limit && item.daysLeft >= -LATE_CUTOFF_DAYS)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   });
 
   readonly lateCount = computed(() => this.upcoming().filter(item => item.late).length);
+
+  readonly visibleUpcoming = computed(() => this.upcoming().slice(0, HUB_LIST_LIMIT));
+  readonly hiddenUpcoming = computed(() => this.upcoming().length - this.visibleUpcoming().length);
 
   /**
    * O complemento de "Próximas saídas": o que está parado.
@@ -201,6 +222,9 @@ export class MachineHubComponent implements OnInit {
       })
       .sort((a, b) => (b.diasParada ?? -1) - (a.diasParada ?? -1));
   });
+
+  readonly visibleParadas = computed(() => this.paradas().slice(0, HUB_LIST_LIMIT));
+  readonly hiddenParadas = computed(() => this.paradas().length - this.visibleParadas().length);
 
   // ─── Precisa de você ──────────────────────────────────────────────────────
   //
@@ -282,6 +306,17 @@ export class MachineHubComponent implements OnInit {
   /** Quando tudo bate, o cartão vira uma linha de confirmação, não some. */
   readonly allMatch = computed(() =>
     this.divergences().length > 0 && this.divergent().length === 0);
+
+  /**
+   * Quantas fecham.
+   *
+   * O cartão mostra **só quem não bate** — isso não é corte por espaço, é o que
+   * ele existe para mostrar. Com cinquenta máquinas e duas divergentes,
+   * ninguém quer ler quarenta e oito linhas de `✓` para achar as duas. Este
+   * número vira a linha que preserva a informação sem gastar a tela.
+   */
+  readonly matchingCount = computed(() =>
+    this.divergences().length - this.divergent().length);
 
   differenceOf(item: MachineDivergence): number {
     return divergenceOf(item);
