@@ -204,4 +204,27 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.stockDialogOpen()).toBeFalse();
     expect(registerService.update).not.toHaveBeenCalled();
   });
+
+  // ─── Linha nova ───────────────────────────────────────────────────────────
+
+  /**
+   * **Linha sem cliente é legítima.**
+   *
+   * Uma linha É uma máquina física, então máquina no galpão que ninguém
+   * prometeu ainda tem linha — ela cai em "Sem previsão" esperando destino. O
+   * acerto de divergência já cria linhas assim; exigir cliente aqui deixava o
+   * sistema fazer o que a pessoa não podia.
+   */
+  it('salva a linha só com a máquina', () => {
+    const draft = { machineId: 'm1', nomeCliente: '', status: MachineStatus.DISPONIVEL } as never;
+
+    expect(component.canSaveDraft(draft)).toBeTrue();
+  });
+
+  /** A máquina continua obrigatória: sem ela a linha não é de nada. */
+  it('sem máquina, não salva', () => {
+    const draft = { machineId: '', nomeCliente: 'Cliente', status: MachineStatus.DISPONIVEL } as never;
+
+    expect(component.canSaveDraft(draft)).toBeFalse();
+  });
 });

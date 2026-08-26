@@ -296,9 +296,9 @@ export class ProgramacaoComponent implements OnInit {
   // ─── Linha nova ───────────────────────────────────────────────────────────
 
   /**
-   * A linha nasce local. Só vai para a API quando tiver máquina e cliente —
-   * assim ninguém cria registro vazio por engano, que é o que aconteceria se
-   * gravássemos no clique.
+   * A linha nasce local e só vai para a API quando alguém clica em salvar —
+   * assim ninguém cria registro por engano, que é o que aconteceria se
+   * gravássemos no clique de "nova linha".
    */
   addRow(): void {
     const draft: Row = {
@@ -322,8 +322,19 @@ export class ProgramacaoComponent implements OnInit {
     this.drafts.update(list => list.filter(item => item.id !== row.id));
   }
 
+  /**
+   * Só a máquina é obrigatória.
+   *
+   * O cliente era exigido também, e isso ficou errado quando o modelo se
+   * fechou: uma linha **é** uma máquina física, então linha sem cliente é
+   * legítima — é máquina no galpão que ninguém prometeu ainda, e ela cai em
+   * "Sem previsão" esperando destino.
+   *
+   * O acerto de divergência já cria linhas assim. Manter a trava aqui deixava
+   * o sistema fazer o que a pessoa não podia.
+   */
   canSaveDraft(row: Row): boolean {
-    return !!row.machineId && row.nomeCliente.trim().length > 0;
+    return !!row.machineId;
   }
 
   saveDraft(row: Row): void {
