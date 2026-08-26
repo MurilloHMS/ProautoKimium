@@ -108,9 +108,23 @@
             <strong class="preview__to" [class.preview__to--bad]="wouldGoNegative()">{{ newStock() }}</strong>
           </div>
 
-          <pk-button pkType="save" pkSize="sm" pkLabel="Lançar"
+          <!--
+            Rótulo diferente para máquina porque o clique faz coisa diferente:
+            abre a conciliação em vez de gravar. Botão que diz "Lançar" e abre
+            diálogo ensina a pessoa a desconfiar do botão.
+          -->
+          <pk-button pkType="save" pkSize="sm"
+                     [pkLabel]="isMachine() ? 'Conciliar…' : 'Lançar'"
                      [pkDisabled]="!canSubmit()" [pkLoading]="saving" (clicked)="submit()"/>
         </div>
+
+        @if (isMachine()) {
+          <p class="entry__hint">
+            <i class="pi pi-info-circle"></i>
+            Cada máquina em estoque tem uma linha na programação. O lançamento
+            ajusta as duas coisas juntas.
+          </p>
+        }
 
         @if (wouldGoNegative()) {
           <p class="entry__warn">
@@ -164,3 +178,89 @@
     </section>
   </div>
 </div>
+
+<!--
+  Conciliação — só aparece para máquina.
+
+  Entrada confirma; saída escolhe. A diferença é de informação: quantas entraram
+  o sistema sabe pelo número lançado, mas QUAIS saíram só quem lançou sabe.
+-->
+<pk-dialog
+  [header]="kind() === 'in' ? 'Confirmar entrada de máquinas' : 'Quais máquinas saíram?'"
+  [visible]="reconciliationOpen()"
+  width="620px"
+  (visibleChange)="closeReconciliation()">
+
+  <div pkDialogContent class="reconcile">
+    @if (kind() === 'in') {
+      <p class="reconcile__lead">
+        Serão criadas <strong>{{ reconciliationCount() }}</strong> programação(ões)
+        com status <strong>Disponível</strong>, sem cliente e sem previsão.
+      </p>
+      <p class="reconcile__note">
+        <i class="pi pi-info-circle"></i>
+        Elas ficam em <strong>Sem previsão</strong> no Hub das Máquinas, esperando
+        alguém definir o destino.
+      </p>
+    } @else {
+      <p class="reconcile__lead">
+        Escolha <strong>{{ reconciliationCount() }}</strong> programação(ões) para
+        marcar como <strong>Entregue</strong>.
+      </p>
+
+      @if (loadingCandidates()) {
+        <p class="reconcile__note"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+      } @else if (!candidates().length) {
+        <p class="reconcile__empty">
+          <i class="pi pi-exclamation-triangle"></i>
+          Esta máquina não tem nenhuma programação em estoque. O estoque e a
+          programação já estão divergentes — corrija a programação antes de lançar.
+        </p>
+      } @else {
+        @if (notEnoughCandidates()) {
+          <p class="reconcile__empty">
+            <i class="pi pi-exclamation-triangle"></i>
+            Só há {{ candidates().length }} em estoque, e a saída é de
+            {{ reconciliationCount() }}.
+          </p>
+        }
+
+        <ul class="reconcile__list">
+          @for (register of candidates(); track register.id) {
+            <li class="reconcile__item"
+                [class.reconcile__item--on]="isChosen(register.id)"
+                (click)="toggleCandidate(register.id)">
+              <i class="pi" [class.pi-check-square]="isChosen(register.id)"
+                            [class.pi-stop]="!isChosen(register.id)"></i>
+              <div class="reconcile__info">
+                <strong>{{ register.nomeCliente || 'Sem cliente' }}</strong>
+                <span>
+                  {{ statusLabel(register) }}
+                  @if (register.previsaoEntrega) {
+                    · previsto {{ formatDateTime(register.previsaoEntrega) }}
+                  }
+                </span>
+              </div>
+              <span class="reconcile__tag">TAG {{ register.tag }}</span>
+            </li>
+          }
+        </ul>
+
+        <p class="reconcile__count" [class.reconcile__count--ok]="canConfirmReconciliation()">
+          {{ chosenIds().size }} de {{ reconciliationCount() }} escolhida(s)
+        </p>
+      }
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="closeReconciliation()" />
+    <pk-button
+      pkType="save"
+      pkSize="sm"
+      [pkLabel]="kind() === 'in' ? 'Criar e lançar' : 'Entregar e lançar'"
+      [pkDisabled]="!canConfirmReconciliation()"
+      [pkLoading]="saving"
+      (clicked)="confirmReconciliation()" />
+  </div>
+</pk-dialog>

@@ -297,3 +297,106 @@
 
   label { font-size: var(--text-ui-sm); color: var(--app-text-muted); white-space: nowrap; }
 }
+
+// ─── Conciliação (só máquina) ───────────────────────────────────────────────
+.entry__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+.reconcile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reconcile__lead {
+  margin: 0;
+  font-size: var(--text-ui);
+}
+
+.reconcile__note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+.reconcile__empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--app-danger-soft, rgba(220, 38, 38, .08));
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+// Lista rolável: uma máquina popular tem dezenas de linhas em estoque, e o
+// diálogo não pode crescer até sair da tela.
+.reconcile__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reconcile__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+
+  &:hover { background: var(--app-surface-hover); }
+
+  &--on {
+    border-color: var(--app-primary);
+    background: var(--app-primary-soft, rgba(0, 90, 170, .08));
+  }
+
+  i { color: var(--app-primary); }
+}
+
+.reconcile__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  strong { font-size: var(--text-ui); }
+  span { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+}
+
+.reconcile__tag {
+  flex: 0 0 auto;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+// O contador é a resposta a "por que o botão está desabilitado?".
+.reconcile__count {
+  margin: 0;
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+
+  &--ok { color: var(--app-success, #16a34a); }
+}
