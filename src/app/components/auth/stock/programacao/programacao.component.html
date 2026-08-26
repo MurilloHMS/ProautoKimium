@@ -195,6 +195,11 @@
                       [disabled]="!canSaveDraft(row)" pTooltip="Salvar linha" tooltipPosition="left"
                       (click)="saveDraft(row)"></button>
             }
+            @if (!isDraft(row)) {
+              <button pButton type="button" icon="pi pi-history" class="row-btn"
+                      pTooltip="Histórico de adiamentos" tooltipPosition="left"
+                      (click)="abrirHistorico(row)"></button>
+            }
             <button pButton type="button" icon="pi pi-trash" class="row-btn row-btn--danger"
                     [pTooltip]="isDraft(row) ? 'Descartar' : 'Excluir'" tooltipPosition="left"
                     (click)="deleteRow(row)"></button>
@@ -268,5 +273,55 @@
       pkLabel="Salvar alteração"
       [pkDisabled]="!motivoValido()"
       (clicked)="confirmarMotivo()" />
+  </div>
+</pk-dialog>
+
+<!--
+  Histórico de adiamentos.
+
+  Carregado no clique, não junto da grade: seria um GET por linha numa tela de
+  centenas, para uma informação que se consulta raramente.
+-->
+<pk-dialog
+  [header]="'Adiamentos · ' + historicoDe()"
+  [visible]="historicoAberto()"
+  width="560px"
+  (visibleChange)="historicoAberto.set(false)">
+
+  <div pkDialogContent class="pk-form-section">
+    @if (historicoCarregando()) {
+      <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+    } @else if (historico().length > 0) {
+      <!--
+        Do mais recente para o mais antigo. Quem abre quer saber a justificativa
+        da última mudança; o resto é contexto.
+      -->
+      <div class="hist">
+        @for (item of historico(); track item.id) {
+          <div class="hist__item">
+            <div class="hist__datas">
+              <span class="hist__de">{{ item.previsaoAnterior | date: 'dd/MM/yyyy' }}</span>
+              <i class="pi pi-arrow-right"></i>
+              <span class="hist__para">
+                {{ item.previsaoNova ? (item.previsaoNova | date: 'dd/MM/yyyy') : 'sem previsão' }}
+              </span>
+            </div>
+            <p class="hist__motivo">{{ item.motivo }}</p>
+            <span class="hist__quem">
+              {{ item.changedBy || 'Autor não registrado' }} · {{ item.changedAt | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="hist-vazio">
+        <i class="pi pi-check-circle"></i>
+        Esta programação nunca foi adiada.
+      </p>
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
   </div>
 </pk-dialog>
