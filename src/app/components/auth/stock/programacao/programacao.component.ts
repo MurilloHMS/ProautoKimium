@@ -414,7 +414,11 @@ export class ProgramacaoComponent implements OnInit {
 
     this.inventoryService.getInventoryMovementsByProduct(machine.systemCode).subscribe({
       next: (list) => {
-        const sorted = [...(list ?? [])].sort((a, b) => a.movementDate.localeCompare(b.movementDate));
+        // Por `createdAt`, não por `movementDate`: a segunda não tem hora, e
+        // dois lançamentos do mesmo dia empatam. Era o que fazia o diálogo
+        // mostrar um estoque de partida errado.
+        const sorted = [...(list ?? [])].sort((a, b) =>
+          (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate));
         this.currentStock.set(sorted.length ? sorted[sorted.length - 1].quantity : 0);
         this.loadingStock.set(false);
       },

@@ -71,8 +71,11 @@ export class MovementsComponent implements OnInit {
 
   /**
    * Estoque atual é a quantidade do ÚLTIMO movimento — a base guarda o valor
-   * absoluto resultante, não a diferença. O desktop confia na ordem que a API
-   * devolve; aqui ordenamos por data, que é o mesmo resultado sem depender disso.
+   * absoluto resultante, não a diferença.
+   *
+   * "Último" é o último **registrado**, não o último datado: `movementDate` é
+   * `date` no banco e não tem hora, então dois lançamentos do mesmo dia
+   * empatavam e o último da lista saía por acaso.
    */
   readonly currentStock = computed(() => {
     const list = this.sortedMovements();
@@ -84,8 +87,14 @@ export class MovementsComponent implements OnInit {
     return list.length ? list[list.length - 1].movementDate : null;
   });
 
+  /**
+   * A API já devolve ordenado por `createdAt`. Reordenar aqui é cinto de
+   * segurança para o dia em que alguém mexer lá — e o `??` cobre movimentação
+   * antiga vinda de cliente que não manda o campo.
+   */
   readonly sortedMovements = computed(() =>
-    [...this.movements()].sort((a, b) => a.movementDate.localeCompare(b.movementDate)));
+    [...this.movements()].sort((a, b) =>
+      (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate)));
 
   /** Histórico mostrado: mais recente primeiro, com filtro opcional de período. */
   readonly historyRows = computed(() => {

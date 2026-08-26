@@ -117,8 +117,15 @@ export class InventoryHubComponent implements OnInit {
     const broken = new Set(this.brokenCodes());
 
     return this.products().filter(product => !broken.has(product.systemCode)).map(product => {
+      // Ordem por `createdAt`, aqui e nos outros dois pontos desta tela.
+      //
+      // Não é cosmético: o delta de cada linha é `quantity` menos a `quantity`
+      // da anterior. `movementDate` é `date` no banco, sem hora, então dois
+      // lançamentos do mesmo dia empatavam — e na ordem trocada uma entrada
+      // aparecia como saída. O dia exibido continua vindo de `movementDate`,
+      // que é quando a movimentação aconteceu.
       const history = [...(histories.get(product.systemCode) ?? [])]
-        .sort((a, b) => a.movementDate.localeCompare(b.movementDate));
+        .sort((a, b) => (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate));
 
       let entered = 0;
       let left = 0;
@@ -215,7 +222,7 @@ export class InventoryHubComponent implements OnInit {
     const byDay = new Map<string, { in: number; out: number }>();
 
     for (const history of histories.values()) {
-      const sorted = [...history].sort((a, b) => a.movementDate.localeCompare(b.movementDate));
+      const sorted = [...history].sort((a, b) => (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate));
 
       sorted.forEach((movement, index) => {
         const day = movement.movementDate.slice(0, 10);
@@ -262,7 +269,7 @@ export class InventoryHubComponent implements OnInit {
     const items: FeedItem[] = [];
 
     for (const [systemCode, history] of this.histories()) {
-      const sorted = [...history].sort((a, b) => a.movementDate.localeCompare(b.movementDate));
+      const sorted = [...history].sort((a, b) => (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate));
 
       sorted.forEach((movement, index) => {
         items.push({
