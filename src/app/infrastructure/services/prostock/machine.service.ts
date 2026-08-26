@@ -2,7 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Machine, ReconcileRequest } from '../../../domain/models/prostock/machine.model';
+import {
+  Machine,
+  MachineDivergence,
+  ReconcileRequest,
+} from '../../../domain/models/prostock/machine.model';
 import { environment } from '../../../../environments/environment';
 
 /**
@@ -33,6 +37,17 @@ export class MachineService {
    * servidor. Se a tela fizesse dois POSTs, a segunda podendo falhar sozinha,
    * ficaria meia conciliação — e ninguém saberia qual metade valeu.
    */
+  /**
+   * As duas contagens de cada máquina — inclusive as que batem.
+   *
+   * Vêm todas de propósito: ver que treze máquinas fecham é metade da
+   * informação, e sem isso uma lista vazia seria indistinguível de tela
+   * quebrada.
+   */
+  divergences(): Observable<MachineDivergence[]> {
+    return this.http.get<MachineDivergence[]>(`${this.url}/divergences`);
+  }
+
   reconcile(request: ReconcileRequest): Observable<string> {
     return this.http.post(`${this.url}/reconcile`, request, { responseType: 'text' });
   }

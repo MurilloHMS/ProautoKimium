@@ -113,6 +113,19 @@
     font-size: 0.7rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    // O padrão é âmbar, que serve para contagem ("3 sem previsão"). Estes dois
+    // dizem outra coisa: se os números batem ou não.
+    &--ok {
+      background: var(--app-success-soft);
+      color: var(--app-success);
+    }
+
+    &--bad {
+      background: var(--app-danger-soft, rgba(229, 62, 62, .10));
+      color: var(--app-danger);
+    }
   }
 
   &__hint {
@@ -347,4 +360,162 @@ pk-calendar {
 
 @media (max-width: 600px) {
   .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
+}
+
+// ─── Estoque × Programação ──────────────────────────────────────────────────
+// A grade é a mesma no cabeçalho e nas linhas: números têm que alinhar em
+// coluna, senão comparar exige contar casas.
+.dv,
+.dv__head,
+.dv__row {
+  display: grid;
+  grid-template-columns: 1fr 62px 62px 74px;
+  gap: 10px;
+}
+
+.dv { display: flex; flex-direction: column; gap: 8px; }
+
+.dv__head {
+  padding: 0 12px 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--app-text-subtle);
+
+  span:not(:first-child) { text-align: right; }
+}
+
+.dv__row {
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+  font-variant-numeric: tabular-nums;
+
+  &--bad { background: var(--app-danger-soft, rgba(229, 62, 62, .10)); }
+}
+
+.dv__name {
+  font-weight: 600;
+  font-size: var(--text-ui-sm);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dv__n {
+  text-align: right;
+  font-size: var(--text-ui);
+  font-weight: 700;
+}
+
+.dv__gap {
+  text-align: right;
+  font-size: var(--text-ui-sm);
+  font-weight: 800;
+  color: var(--app-danger);
+
+  &--ok { color: var(--app-success); }
+}
+
+.dv__ok,
+.dv__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.45;
+}
+
+.dv__ok { color: var(--app-success); font-weight: 600; }
+
+.dv__hint {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-subtle);
+}
+
+// ─── Adiamentos ─────────────────────────────────────────────────────────────
+.slip__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  margin-bottom: 16px;
+}
+
+.slip__value {
+  display: block;
+  font-family: v.$font-heading;
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+
+  &--warn { color: var(--app-warning); }
+}
+
+.slip__label {
+  display: block;
+  margin-top: 5px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.slip {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.slip__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 9px;
+  background: var(--app-surface-2);
+}
+
+.slip__who {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  min-width: 0;
+}
+
+// O motivo é o que explica o número — sem ele o cartão vira placar.
+.slip__why {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slip__count {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--app-warning);
+  background: var(--app-warning-soft, rgba(246, 173, 85, .20));
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .dv,
+  .dv__head,
+  .dv__row { grid-template-columns: 1fr 46px 46px 56px; gap: 6px; }
+
+  .slip__stats { gap: 18px; }
+  .slip__value { font-size: 1.5rem; }
 }

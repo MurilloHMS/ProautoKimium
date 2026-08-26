@@ -61,6 +61,98 @@
   </pk-calendar>
 
   <!--
+    Estoque × programação.
+
+    Aparece sempre, inclusive quando tudo bate: uma lista vazia seria
+    indistinguível de tela quebrada, e "os números fecham" é informação.
+  -->
+  @if (divergences().length) {
+    <section class="card">
+      <h2 class="card__title">
+        Estoque × Programação
+        @if (allMatch()) {
+          <span class="card__badge card__badge--ok">tudo bate</span>
+        } @else {
+          <span class="card__badge card__badge--bad">
+            {{ divergent().length }} divergente{{ divergent().length > 1 ? 's' : '' }}
+          </span>
+        }
+      </h2>
+
+      @if (allMatch()) {
+        <p class="dv__ok">
+          <i class="pi pi-check-circle"></i>
+          As {{ divergences().length }} máquinas têm o mesmo número nos dois lados.
+        </p>
+      } @else {
+        <div class="dv__head">
+          <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Diferença</span>
+        </div>
+
+        <div class="dv">
+          @for (item of divergences(); track item.machineId) {
+            <div class="dv__row" [class.dv__row--bad]="differenceOf(item) !== 0">
+              <span class="dv__name" [title]="item.name">{{ item.name }}</span>
+              <span class="dv__n">{{ item.stock }}</span>
+              <span class="dv__n">{{ item.scheduled }}</span>
+              @if (differenceOf(item) === 0) {
+                <span class="dv__gap dv__gap--ok">✓</span>
+              } @else {
+                <span class="dv__gap">
+                  {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <p class="dv__hint">
+          <i class="pi pi-info-circle"></i>
+          Diferença positiva sobra no estoque; negativa, sobra na programação.
+          Acerte pela tela de movimentação, que ajusta os dois lados juntos.
+        </p>
+      }
+    </section>
+  }
+
+  <!--
+    Adiamentos do mês. Uma máquina adiada quatro vezes é informação diferente
+    de quatro máquinas adiadas uma vez.
+  -->
+  @if (slipCount()) {
+    <section class="card">
+      <h2 class="card__title">Adiamentos no mês</h2>
+
+      <div class="slip__stats">
+        <span>
+          <span class="slip__value slip__value--warn">{{ slipCount() }}</span>
+          <span class="slip__label">adiamentos</span>
+        </span>
+        <span>
+          <span class="slip__value">{{ repeatOffenders() }}</span>
+          <span class="slip__label">adiaram 2× ou mais</span>
+        </span>
+        <span>
+          <span class="slip__value">{{ medianSlipDays() }}</span>
+          <span class="slip__label">dias adiados, na mediana</span>
+        </span>
+      </div>
+
+      <div class="slip">
+        @for (item of topSlips(); track item.label + item.machine) {
+          <div class="slip__row">
+            <span class="slip__who">
+              {{ item.label }}
+              <span class="slip__why">{{ item.machine }} · {{ item.motivo }}</span>
+            </span>
+            <span class="slip__count">{{ item.count }}×</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!--
     Carga por consultor. Responde "quem está com a máquina do cliente X?" com
     dado que já estava na tela ao lado, sem chamada nova.
   -->

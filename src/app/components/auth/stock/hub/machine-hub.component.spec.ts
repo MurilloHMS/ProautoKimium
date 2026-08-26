@@ -1,14 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { MachineHubComponent } from './machine-hub.component';
 import { MachineService } from '../../../../infrastructure/services/prostock/machine.service';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
 import { MachineRegister } from '../../../../domain/models/prostock/register.model';
-import { MachineStatus } from '../../../../domain/models/prostock/machine.model';
+import { MachineDivergence, MachineStatus } from '../../../../domain/models/prostock/machine.model';
+import { ScheduleSlip } from '../../../../domain/models/prostock/register.model';
 
 /**
  * A carga por consultor.
@@ -22,6 +23,8 @@ describe('MachineHubComponent · carga por consultor', () => {
   let component: MachineHubComponent;
   let fixture: ComponentFixture<MachineHubComponent>;
   let registerStore: MachineRegisterStore;
+  let machineService: jasmine.SpyObj<MachineService>;
+  let registerService: jasmine.SpyObj<RegisterService>;
 
   /** Ontem e semana que vem, relativos ao dia em que o teste roda. */
   const diasDaqui = (dias: number) => {
@@ -52,13 +55,17 @@ describe('MachineHubComponent · carga por consultor', () => {
   beforeEach(async () => {
     seq = 0;
 
-    const machineService = jasmine.createSpyObj<MachineService>('MachineService', ['getAll', 'reconcile']);
+    machineService = jasmine.createSpyObj<MachineService>('MachineService', [
+      'getAll', 'reconcile', 'divergences',
+    ]);
     machineService.getAll.and.returnValue(of([]));
+    machineService.divergences.and.returnValue(of([]));
 
-    const registerService = jasmine.createSpyObj<RegisterService>('RegisterService', [
-      'getAll', 'getByMachine', 'create', 'update', 'delete', 'scheduleChanges',
+    registerService = jasmine.createSpyObj<RegisterService>('RegisterService', [
+      'getAll', 'getByMachine', 'create', 'update', 'delete', 'scheduleChanges', 'slipsSince',
     ]);
     registerService.getAll.and.returnValue(of([]));
+    registerService.slipsSince.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [MachineHubComponent],
@@ -143,5 +150,137 @@ describe('MachineHubComponent · carga por consultor', () => {
 
     expect(component.loadWidth()(2)).toBe(100);
     expect(component.loadWidth()(1)).toBe(50);
+  });
+
+  // ─── As duas contagens ────────────────────────────────────────────────────
+
+  const divergence = (name: string, stock: number, scheduled: number): MachineDivergence => ({
+    machineId: name, systemCode: name, name, stock, scheduled,
+  });
+
+  const comDivergencias = (list: MachineDivergence[]) => {
+    machineService.divergences.and.returnValue(of(list));
+    fixture.detectChanges();
+  };
+
+  it('separa quem diverge de quem bate', () => {
+    comDivergencias([
+      divergence('Lavadora', 5, 4),
+      divergence('Esteira', 3, 3),
+      divergence('Capô', 2, 4),
+    ]);
+
+    expect(component.divergent().map(d => d.name)).toEqual(['Lavadora', 'Capô']);
+    expect(component.allMatch()).toBeFalse();
+  });
+
+  /** Sobra na programação é tão errado quanto sobra no estoque. */
+  it('diferença é estoque menos programação, com sinal', () => {
+    comDivergencias([divergence('Lavadora', 5, 4), divergence('Capô', 2, 4)]);
+
+    expect(component.differenceOf(component.divergences()[0])).toBe(1);
+    expect(component.differenceOf(component.divergences()[1])).toBe(-2);
+  });
+
+  /**
+   * **Tudo bater é informação, não ausência dela.**
+   *
+   * Sumir com o cartão faria "os números fecham" parecer o mesmo que "a tela
+   * não carregou".
+   */
+  it('quando tudo bate, o cartão continua, com outro selo', () => {
+    comDivergencias([divergence('Lavadora', 5, 5), divergence('Esteira', 3, 3)]);
+
+    expect(component.allMatch()).toBeTrue();
+    expect(component.divergences().length).toBe(2);
+  });
+
+  it('lista vazia não é "tudo bate"', () => {
+    comDivergencias([]);
+    expect(component.allMatch()).toBeFalse();
+  });
+
+  /** Cartão de apoio: se a chamada falhar, o Hub não pode cair junto. */
+  it('erro na chamada não derruba a tela', () => {
+    machineService.divergences.and.returnValue(throwError(() => new Error('500')));
+
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(component.divergences()).toEqual([]);
+  });
+
+  // ─── Adiamentos ───────────────────────────────────────────────────────────
+
+  const slip = (
+    registerId: string,
+    antes: string,
+    depois: string | null,
+    motivo = 'peça atrasada',
+  ): ScheduleSlip => ({
+    registerId,
+    nomeCliente: `Cliente ${registerId}`,
+    machineName: 'Lavadora',
+    previsaoAnterior: antes,
+    previsaoNova: depois,
+    motivo,
+    changedAt: '2026-09-10T10:00:00',
+  });
+
+  const comAdiamentos = (list: ScheduleSlip[]) => {
+    registerService.slipsSince.and.returnValue(of(list));
+    fixture.detectChanges();
+  };
+
+  it('conta quantas programações adiaram mais de uma vez', () => {
+    comAdiamentos([
+      slip('a', '2026-09-01', '2026-09-05'),
+      slip('a', '2026-09-05', '2026-09-09'),
+      slip('b', '2026-09-02', '2026-09-04'),
+    ]);
+
+    expect(component.slipCount()).toBe(3);
+    // Três adiamentos, mas só UMA programação reincidente. São números
+    // diferentes e é justamente essa diferença que o cartão existe para contar.
+    expect(component.repeatOffenders()).toBe(1);
+  });
+
+  /**
+   * Mediana, não média: um adiamento de seis meses puxaria a média sozinho e
+   * faria o número descrever um caso em vez do conjunto.
+   */
+  it('usa a mediana dos dias adiados', () => {
+    comAdiamentos([
+      slip('a', '2026-09-01', '2026-09-03'),   // 2 dias
+      slip('b', '2026-09-01', '2026-09-05'),   // 4 dias
+      slip('c', '2026-09-01', '2027-03-01'),   // 181 dias
+    ]);
+
+    expect(component.medianSlipDays()).toBe(4);
+  });
+
+  /** Apagar a previsão não tem "quantos dias" — fica fora da conta. */
+  it('adiamento sem data nova não entra na mediana', () => {
+    comAdiamentos([
+      slip('a', '2026-09-01', '2026-09-03'),
+      slip('b', '2026-09-01', null),
+    ]);
+
+    expect(component.medianSlipDays()).toBe(2);
+    // Mas continua contando como adiamento: apagar a previsão é o caso mais
+    // grave, porque a máquina some das próximas saídas.
+    expect(component.slipCount()).toBe(2);
+  });
+
+  it('o ranking traz quem mais adiou, com o último motivo', () => {
+    comAdiamentos([
+      slip('a', '2026-09-05', '2026-09-09', 'técnico de férias'),   // o mais recente
+      slip('a', '2026-09-01', '2026-09-05', 'peça atrasada'),
+      slip('b', '2026-09-02', '2026-09-04', 'cliente pediu'),
+    ]);
+
+    const topo = component.topSlips()[0];
+    expect(topo.count).toBe(2);
+    // A lista vem mais recente primeiro, então o motivo guardado é o último —
+    // que é o que explica por que ela ainda não saiu.
+    expect(topo.motivo).toBe('técnico de férias');
   });
 });
