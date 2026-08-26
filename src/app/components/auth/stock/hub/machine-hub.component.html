@@ -190,7 +190,7 @@
           </p>
         } @else {
           <div class="dv__head">
-            <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Diferença</span>
+            <span>Máquina</span><span>Estoque</span><span>Prog.</span><span>Dif.</span><span></span>
           </div>
 
           <!--
@@ -207,6 +207,22 @@
                 <span class="dv__gap">
                   {{ differenceOf(item) > 0 ? '+' : '−' }}{{ abs(differenceOf(item)) }}
                 </span>
+                <!--
+                  O `title` diz o que o botão faz: criar programação e ajustar
+                  estoque são coisas bem diferentes, e o ícone sozinho não conta
+                  qual das duas vai acontecer.
+                -->
+                <button type="button" class="dv__fix"
+                        [title]="alignSummary(item)"
+                        [disabled]="isAligning(item)"
+                        (click)="align(item)">
+                  @if (isAligning(item)) {
+                    <i class="pi pi-spin pi-spinner"></i>
+                  } @else {
+                    <i class="pi pi-sync"></i>
+                  }
+                  Acertar
+                </button>
               </div>
             }
           </div>
@@ -335,6 +351,9 @@
   </div>
 
 </div>
+
+<p-toast />
+<p-confirmDialog />
 
 <pk-dialog
   [header]="'Implantações de ' + (selectedDay() | date: 'dd/MM/yyyy')"

@@ -364,7 +364,7 @@ pk-calendar {
 .dv__head,
 .dv__row {
   display: grid;
-  grid-template-columns: 1fr 62px 62px 74px;
+  grid-template-columns: 1fr 54px 54px 54px auto;
   gap: 10px;
 }
 
@@ -751,4 +751,34 @@ pk-calendar {
   color: var(--app-success);
   font-size: var(--text-ui-sm);
   font-weight: 600;
+}
+
+// O botão de acertar, em cada linha divergente.
+.dv__fix {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--app-action);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--app-action);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) { background: var(--app-action-soft); }
+
+  &:disabled { opacity: 0.6; cursor: default; }
+
+  i { font-size: 0.65rem; }
+}
+
+// Na coluna estreita o texto do botão não cabe: fica o ícone, e o `title`
+// continua dizendo o que vai acontecer.
+@media (max-width: 1100px) {
+  .hub-side .dv__fix { font-size: 0; padding: 5px 7px; }
+  .hub-side .dv__fix i { font-size: 0.75rem; }
 }

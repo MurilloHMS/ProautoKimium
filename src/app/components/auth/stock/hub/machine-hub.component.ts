@@ -1,8 +1,13 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 
 import {
+  AlignResult,
   MachineDivergence,
   divergenceOf,
   MACHINE_STATUS_LABEL,
@@ -95,7 +100,11 @@ interface Parada {
 @Component({
   selector: 'app-machine-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent],
+  imports: [
+    CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent,
+    ConfirmDialogModule, Toast,
+  ],
+  providers: [ConfirmationService, MessageService],
   templateUrl: './machine-hub.component.html',
   styleUrl: './machine-hub.component.scss',
 })
@@ -104,6 +113,8 @@ export class MachineHubComponent implements OnInit {
   private readonly machineStore = inject(MachineStore);
   private readonly machineService = inject(MachineService);
   private readonly registerService = inject(RegisterService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
   private readonly registerStore = inject(MachineRegisterStore);
 
   readonly loading = computed(() => this.machineStore.loading() || this.registerStore.loading());
@@ -317,6 +328,82 @@ export class MachineHubComponent implements OnInit {
    */
   readonly matchingCount = computed(() =>
     this.divergences().length - this.divergent().length);
+
+  // ─── Acertar uma divergência ──────────────────────────────────────────────
+  //
+  // A conciliação normal exige um delta e serve a quem está lançando estoque
+  // agora. Uma divergência que já estava lá não tinha como ser consertada — a
+  // tela mostrava o problema e não tinha botão.
+  //
+  // Aqui não há escolha a fazer: uma linha É uma máquina física, então a
+  // programação é a verdade e o acerto segue dela. Mas a pessoa vê o que vai
+  // acontecer antes, porque criar 35 linhas de uma vez não é reversível com um
+  // Ctrl+Z.
+
+  readonly aligning = signal<string | null>(null);
+
+  isAligning(item: MachineDivergence): boolean {
+    return this.aligning() === item.systemCode;
+  }
+
+  /** O que o botão vai fazer, dito antes de fazer. */
+  alignSummary(item: MachineDivergence): string {
+    const gap = divergenceOf(item);
+    return gap > 0
+      ? `Criar ${gap} ${plural(gap, 'programação', 'programações')} sem previsão para ${item.name}?`
+      : `Ajustar o estoque de ${item.name} de ${item.stock} para ${item.scheduled}?`;
+  }
+
+  align(item: MachineDivergence): void {
+    if (this.aligning()) return;
+
+    const gap = divergenceOf(item);
+    const detalhe = gap > 0
+      ? `Vão nascer <strong>${gap}</strong> ${plural(gap, 'programação', 'programações')} `
+        + 'com status Disponível, sem cliente e sem previsão. '
+        + 'Elas aparecem em <strong>Sem previsão</strong>, esperando destino.'
+      : `O estoque em movimentações vai de <strong>${item.stock}</strong> para `
+        + `<strong>${item.scheduled}</strong>, que é o número de máquinas que a `
+        + 'programação diz existir. Nenhuma linha é apagada.';
+
+    this.confirmationService.confirm({
+      header: 'Acertar os dois números',
+      message: `${this.alignSummary(item)}<br><br>${detalhe}`,
+      icon: 'pi pi-sync',
+      acceptLabel: 'Acertar',
+      rejectLabel: 'Cancelar',
+      accept: () => this.confirmAlign(item),
+    });
+  }
+
+  private confirmAlign(item: MachineDivergence): void {
+    this.aligning.set(item.systemCode);
+
+    this.machineService.align(item.systemCode).subscribe({
+      next: (result) => {
+        this.aligning.set(null);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Números acertados',
+          detail: result.created > 0
+            ? `${result.created} ${plural(result.created, 'programação criada', 'programações criadas')} para ${result.name}.`
+            : `Estoque de ${result.name} ajustado para ${result.stockAfter}.`,
+        });
+        // As duas listas mudaram: a programação ganhou linhas, ou o estoque
+        // mudou. Recarregar as duas é mais barato que adivinhar o novo estado.
+        this.registerStore.refresh();
+        this.loadDivergences();
+      },
+      error: (err: HttpErrorResponse) => {
+        this.aligning.set(null);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Não foi possível acertar',
+          detail: typeof err.error === 'string' ? err.error : 'Erro inesperado.',
+        });
+      },
+    });
+  }
 
   differenceOf(item: MachineDivergence): number {
     return divergenceOf(item);

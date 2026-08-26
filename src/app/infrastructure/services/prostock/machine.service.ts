@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
+  AlignResult,
   Machine,
   MachineDivergence,
   ReconcileRequest,
@@ -46,6 +47,17 @@ export class MachineService {
    */
   divergences(): Observable<MachineDivergence[]> {
     return this.http.get<MachineDivergence[]>(`${this.url}/divergences`);
+  }
+
+  /**
+   * Acerta uma máquina que já estava divergente.
+   *
+   * Diferente do `reconcile`, que exige um delta e serve a quem está lançando
+   * estoque agora. Aqui não há nada a escolher: a programação é a verdade
+   * sobre quantas máquinas existem, e o acerto segue dela.
+   */
+  align(systemCode: string): Observable<AlignResult> {
+    return this.http.post<AlignResult>(`${this.url}/${encodeURIComponent(systemCode)}/align`, {});
   }
 
   reconcile(request: ReconcileRequest): Observable<string> {

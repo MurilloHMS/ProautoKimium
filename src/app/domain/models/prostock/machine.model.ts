@@ -124,6 +124,16 @@ export function divergenceOf(item: MachineDivergence): number {
   return item.stock - item.scheduled;
 }
 
+/** O que o acerto fez — espelha `AlignResultDTO`. */
+export interface AlignResult {
+  systemCode: string;
+  name: string;
+  stockBefore: number;
+  scheduledBefore: number;
+  created: number;
+  stockAfter: number;
+}
+
 /**
  * Conciliação entre o estoque e a programação (`POST api/machine/reconcile`).
  *

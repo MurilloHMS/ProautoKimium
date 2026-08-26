@@ -56,10 +56,13 @@ describe('MachineHubComponent · carga por consultor', () => {
     seq = 0;
 
     machineService = jasmine.createSpyObj<MachineService>('MachineService', [
-      'getAll', 'reconcile', 'divergences',
+      'getAll', 'reconcile', 'divergences', 'align',
     ]);
     machineService.getAll.and.returnValue(of([]));
     machineService.divergences.and.returnValue(of([]));
+    machineService.align.and.returnValue(of({
+      systemCode: 'x', name: 'x', stockBefore: 0, scheduledBefore: 0, created: 0, stockAfter: 0,
+    }));
 
     registerService = jasmine.createSpyObj<RegisterService>('RegisterService', [
       'getAll', 'getByMachine', 'create', 'update', 'delete', 'scheduleChanges', 'slipsSince',
@@ -421,5 +424,59 @@ describe('MachineHubComponent · carga por consultor', () => {
     expect(clientes).toContain('Marcos');
     expect(clientes).toContain('Paulo');
     expect(clientes).not.toContain('Juliana');
+  });
+
+  // ─── O acerto de uma divergência ──────────────────────────────────────────
+
+  /**
+   * **O caso real dele: 52 no estoque, 17 linhas.**
+   *
+   * Uma linha É uma máquina física, então faltam 35. O texto tem que dizer
+   * isso antes de acontecer — criar 35 linhas de uma vez não se desfaz com um
+   * Ctrl+Z.
+   */
+  it('diz que vai criar as linhas que faltam, com o número', () => {
+    const capo = divergence('CAPÔ NT 300', 52, 17);
+
+    expect(component.alignSummary(capo)).toBe(
+      'Criar 35 programações sem previsão para CAPÔ NT 300?');
+  });
+
+  /**
+   * O outro sentido. A programação é a verdade sobre quantas máquinas existem,
+   * então quem sobe é o estoque — e o texto diz de onde para onde.
+   */
+  it('quando o estoque está atrás, diz que vai ajustá-lo', () => {
+    const capo = divergence('CAPÔ NT 300', 10, 17);
+
+    expect(component.alignSummary(capo)).toBe(
+      'Ajustar o estoque de CAPÔ NT 300 de 10 para 17?');
+  });
+
+  /** Uma linha só pede o singular: "criar 1 programações" denuncia o código. */
+  it('concorda o texto quando falta uma só', () => {
+    expect(component.alignSummary(divergence('Lavadora', 4, 3)))
+      .toContain('Criar 1 programação sem previsão');
+  });
+
+  /**
+   * O acerto escreve no banco, então ele passa pela confirmação. Chamar
+   * `align` direto não pode disparar a requisição sozinho.
+   */
+  it('o botão pergunta antes, não chama a API direto', () => {
+    comDivergencias([divergence('Lavadora', 5, 4)]);
+
+    component.align(component.divergent()[0]);
+
+    expect(machineService.align).not.toHaveBeenCalled();
+  });
+
+  /** Enquanto uma está acertando, o botão dela trava — mas só o dela. */
+  it('trava apenas a linha que está acertando', () => {
+    comDivergencias([divergence('Lavadora', 5, 4), divergence('Capô', 2, 4)]);
+    const [lavadora, capo] = component.divergent();
+
+    expect(component.isAligning(lavadora)).toBeFalse();
+    expect(component.isAligning(capo)).toBeFalse();
   });
 });
