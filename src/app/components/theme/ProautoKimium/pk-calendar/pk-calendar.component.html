@@ -1,0 +1,134 @@
+<div class="cal">
+  <div class="cal__header">
+    <div class="cal__title">
+      <i class="pi pi-calendar"></i>
+      <span>{{ monthLabel() }}</span>
+      <!--
+        O extra do cabeçalho é de quem usa: as Máquinas põem a contagem do mês,
+        o RH põe o spinner de quem está buscando no servidor.
+      -->
+      <ng-content select="[calTitle]"></ng-content>
+    </div>
+
+    <div class="cal__actions">
+      <!--
+        Mês dá forma, agenda diz quem. As duas respondem perguntas diferentes,
+        e a escolha fica guardada no navegador de quem escolheu.
+      -->
+      <div class="cal__switch" role="group" aria-label="Visualização">
+        <button
+          type="button"
+          class="cal__switch-btn"
+          [class.cal__switch-btn--on]="view() === 'month'"
+          [attr.aria-pressed]="view() === 'month'"
+          (click)="setView('month')">Mês</button>
+        <button
+          type="button"
+          class="cal__switch-btn"
+          [class.cal__switch-btn--on]="view() === 'agenda'"
+          [attr.aria-pressed]="view() === 'agenda'"
+          (click)="setView('agenda')">Agenda</button>
+      </div>
+
+      <div class="cal__nav">
+        <button type="button" class="cal__nav-btn" (click)="goToday()">Hoje</button>
+        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="prevMonth()" aria-label="Mês anterior">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <button type="button" class="cal__nav-btn cal__nav-btn--icon" (click)="nextMonth()" aria-label="Próximo mês">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (view() === 'month') {
+    <div class="cal__weekdays">
+      @for (weekday of weekdayLabels; track weekday) {
+        <span>{{ weekday }}</span>
+      }
+    </div>
+
+    <div class="cal__grid">
+      @for (week of weeks(); track $index) {
+        @for (day of week; track day.getTime()) {
+          <button
+            type="button"
+            class="cal__day"
+            [class.cal__day--outside]="!isCurrentMonth(day)"
+            [class.cal__day--today]="isToday(day)"
+            [class.cal__day--has-events]="eventsFor(day).length > 0"
+            (click)="dayClick.emit(day)">
+            <span class="cal__day-num">{{ day.getDate() }}</span>
+            <span class="cal__day-events">
+              @for (event of eventsFor(day).slice(0, 2); track $index) {
+                <span class="cal__chip"
+                      [class]="'cal__chip cal__chip--' + event.tone"
+                      [class.cal__chip--alert]="event.alert">{{ event.label }}</span>
+              }
+              @if (eventsFor(day).length > 2) {
+                <span class="cal__more">+{{ eventsFor(day).length - 2 }}</span>
+              }
+            </span>
+          </button>
+        }
+      }
+    </div>
+  } @else {
+    <!--
+      A barrinha devolve a única coisa que a agenda perde da grade: onde o mês
+      está cheio e onde está vazio.
+    -->
+    <div class="cal__strip" aria-hidden="true">
+      @for (slot of monthStrip(); track slot.day) {
+        <span [class.cal__strip-on]="slot.busy"></span>
+      }
+    </div>
+
+    @if (agendaDays().length === 0) {
+      <p class="cal__empty">
+        <i class="pi pi-calendar-times"></i>
+        Nenhum registro neste mês.
+      </p>
+    } @else {
+      <div class="cal__agenda">
+        @for (day of agendaDays(); track day.key) {
+          <button type="button" class="cal__agenda-day" (click)="dayClick.emit(day.date)">
+            <span class="cal__agenda-date" [class.cal__agenda-date--today]="isToday(day.date)">
+              <span class="cal__agenda-num">{{ day.date.getDate() }}</span>
+              <span class="cal__agenda-wd">{{ isToday(day.date) ? 'Hoje' : weekdayOf(day.date) }}</span>
+            </span>
+
+            <span class="cal__agenda-items">
+              @for (event of day.events; track $index) {
+                <span class="cal__entry" [class.cal__entry--alert]="event.alert">
+                  <i class="cal__entry-bar" [class]="'cal__entry-bar cal__entry-bar--' + event.tone"></i>
+                  <span class="cal__entry-text">
+                    <span class="cal__entry-label">{{ event.label }}</span>
+                    @if (event.detail) {
+                      <span class="cal__entry-detail">{{ event.detail }}</span>
+                    }
+                  </span>
+                </span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  }
+
+  <!-- A legenda é de quem usa: o RH tem dois estados, as Máquinas têm cinco. -->
+  @if (legend().length) {
+    <div class="cal__legend">
+      @for (item of legend(); track item.label) {
+        <span>
+          <i class="cal__dot"
+             [class]="'cal__dot cal__dot--' + (item.tone ?? 'neutral')"
+             [class.cal__dot--alert]="item.alert"></i>
+          {{ item.label }}
+        </span>
+      }
+    </div>
+  }
+</div>

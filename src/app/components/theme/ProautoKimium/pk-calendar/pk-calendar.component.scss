@@ -1,0 +1,419 @@
+@use 'variables' as v;
+
+// Vindo das duas cópias, resolvendo o drift em favor da versão mais completa:
+// o Hub das Máquinas. As diferenças que existiam eram acidente de cópia, não
+// decisão — exceto a capitalização do mês do RH, que sai porque o rótulo já
+// vem com a inicial maiúscula de `MONTH_LABELS`.
+
+.cal {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
+  padding: 20px 22px 16px;
+}
+
+.cal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.cal__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: v.$font-heading;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--app-text);
+
+  i:first-child { color: var(--app-text-muted); }
+}
+
+.cal__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cal__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// ─── Alternador de visão ────────────────────────────────────────────────────
+// Segmentado, e não dois botões soltos: a forma diz que são alternativas de
+// uma coisa só, e que uma delas está sempre ativa.
+.cal__switch {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+}
+
+.cal__switch-btn {
+  height: 26px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &--on {
+    background: var(--app-surface);
+    color: var(--app-action);
+    box-shadow: var(--app-shadow-sm);
+  }
+}
+
+.cal__nav-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-action);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  &:hover { border-color: var(--app-action); }
+
+  &--icon {
+    width: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 2px;
+  margin-bottom: 4px;
+
+  span {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--app-text-subtle);
+  }
+}
+
+.cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal__day {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 74px;
+  padding: 6px 6px 5px;
+  border-radius: 10px;
+  cursor: default;
+  background: var(--app-surface-2);
+  transition: background 0.15s ease;
+
+  &--outside { opacity: 0.35; }
+
+  &--today {
+    background: var(--app-success-soft);
+    .cal__day-num { color: var(--app-success); font-weight: 800; }
+  }
+
+  &--has-events {
+    cursor: pointer;
+    &:hover { background: color-mix(in srgb, var(--app-action) 5%, transparent); }
+  }
+}
+
+.cal__day-num {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+.cal__day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cal__chip {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  // Fica sobre o fundo colorido do próprio chip, igual nos dois temas.
+  color: #fff;
+
+  &--success { background: var(--app-success); }
+  &--warning { background: var(--app-warning); }
+  &--danger  { background: var(--app-danger); }
+  &--info    { background: var(--app-action); }
+  &--neutral { background: var(--app-text-muted); }
+  &--muted   { background: var(--app-text-subtle); }
+
+  // Atenção é sinal, não cor: mantém a cor do status e ganha contorno.
+  &--alert { box-shadow: inset 0 0 0 2px var(--app-danger); }
+}
+
+.cal__more {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: var(--app-text-subtle);
+  padding-left: 2px;
+}
+
+// ─── Agenda ─────────────────────────────────────────────────────────────────
+.cal__strip {
+  display: flex;
+  gap: 3px;
+  margin: 2px 0 12px;
+
+  span {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--app-surface-2);
+  }
+
+  .cal__strip-on { background: var(--app-action); opacity: 0.55; }
+}
+
+.cal__agenda {
+  display: flex;
+  flex-direction: column;
+}
+
+.cal__agenda-day {
+  all: unset;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+  padding: 10px 2px;
+  border-top: 1px solid var(--app-border-soft);
+  cursor: pointer;
+
+  &:first-child { border-top: 0; }
+  &:hover .cal__entry { background: color-mix(in srgb, var(--app-action) 6%, var(--app-surface-2)); }
+}
+
+.cal__agenda-date {
+  text-align: center;
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+
+  &--today {
+    .cal__agenda-num, .cal__agenda-wd { color: var(--app-action); }
+  }
+}
+
+.cal__agenda-num {
+  display: block;
+  font-family: v.$font-heading;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+}
+
+.cal__agenda-wd {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-text-subtle);
+}
+
+.cal__agenda-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.cal__entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: var(--app-surface-2);
+  min-width: 0;
+  transition: background 0.15s ease;
+
+  // Atenção é sinal, não cor: o fundo muda e a barra mantém o status.
+  &--alert { background: var(--app-danger-soft); }
+}
+
+.cal__entry-bar {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 2px;
+  flex: 0 0 auto;
+  background: var(--app-text-muted);
+
+  &--success { background: var(--app-success); }
+  &--warning { background: var(--app-warning); }
+  &--danger  { background: var(--app-danger); }
+  &--info    { background: var(--app-action); }
+  &--neutral { background: var(--app-text-muted); }
+  &--muted   { background: var(--app-text-subtle); }
+}
+
+.cal__entry-text { min-width: 0; }
+
+.cal__entry-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--app-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal__entry-detail {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal__empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 22px 4px;
+  color: var(--app-text-subtle);
+  font-size: var(--text-ui-sm);
+}
+
+.cal__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border);
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--app-text-subtle);
+  }
+}
+
+.cal__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: 0 0 auto;
+
+  &--success { background: var(--app-success); }
+  &--warning { background: var(--app-warning); }
+  &--danger  { background: var(--app-danger); }
+  &--info    { background: var(--app-action); }
+  &--neutral { background: var(--app-text-muted); }
+  &--muted   { background: var(--app-text-subtle); }
+
+  &--alert {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px var(--app-danger);
+  }
+}
+
+// ─── Celular ────────────────────────────────────────────────────────────────
+// Encolher a célula era o que as duas telas faziam, e não resolvia: sete
+// colunas com nome de cliente não cabem em 320px por menor que seja a fonte.
+// Aqui o mês vira grade de pontos — o dia continua sendo um alvo de toque de
+// 40px, e quem quer saber QUEM ou toca no dia ou troca para a agenda.
+@media (max-width: 600px) {
+  .cal { padding: 14px 12px 12px; }
+
+  .cal__header { gap: 8px; }
+  .cal__title { font-size: 0.95rem; }
+
+  // O "Hoje" some: as setas e o alternador já ocupam a linha, e voltar para o
+  // mês atual custa no máximo dois toques.
+  .cal__nav-btn:not(.cal__nav-btn--icon) { display: none; }
+
+  .cal__grid { gap: 3px; }
+
+  .cal__day {
+    aspect-ratio: 1;
+    min-height: 0;
+    padding: 5px 2px 3px;
+    gap: 3px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cal__day-num { font-size: 0.82rem; }
+
+  // O chip vira ponto: a cor é a informação que ainda cabe.
+  .cal__day-events {
+    flex-direction: row;
+    gap: 2px;
+    align-items: center;
+    min-height: 6px;
+  }
+
+  .cal__chip {
+    width: 5px;
+    height: 5px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 0;
+    flex: 0 0 auto;
+
+    // O contorno de 2px não caberia num disco de 5px.
+    &--alert { box-shadow: inset 0 0 0 5px var(--app-danger); }
+  }
+
+  .cal__more {
+    font-size: 0.55rem;
+    padding-left: 1px;
+  }
+
+  .cal__agenda-day { grid-template-columns: 38px 1fr; gap: 10px; }
+  .cal__legend { gap: 10px; margin-top: 10px; padding-top: 10px; }
+}
