@@ -119,3 +119,30 @@ export interface ReconcileRequest {
   /** Quantas programações nascem DISPONIVEL. Só quando `delta` é positivo. */
   registersToCreate: number;
 }
+
+/**
+ * Quanto o estoque anda quando o status de uma programação muda.
+ *
+ * Espelha `MachineReconciliationService.stockDeltaFor`. Existe aqui para a tela
+ * saber **se precisa perguntar** alguma coisa antes de gravar — quem decide de
+ * verdade continua sendo o servidor, que recalcula e recusa.
+ *
+ * A regra é "só ENTREGUE", com uma segunda metade que não é óbvia: o ajuste só
+ * vale quando o outro lado da transição está em estoque. AGUARDANDO_AQUISICAO
+ * é máquina que ainda não chegou, e entregá-la não pode baixar nada.
+ *
+ * `before` nulo é linha nova: nascer em estoque é entrada.
+ */
+export function stockDeltaFor(
+  before: MachineStatus | null,
+  after: MachineStatus,
+): number {
+  const inStock = (status: MachineStatus) => IN_STOCK_STATUSES.includes(status);
+
+  if (before === null) return inStock(after) ? 1 : 0;
+
+  if (inStock(before) && after === MachineStatus.ENTREGUE) return -1;
+  if (before === MachineStatus.ENTREGUE && inStock(after)) return 1;
+
+  return 0;
+}

@@ -1,0 +1,207 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
+import { of } from 'rxjs';
+
+import { ProgramacaoComponent } from './programacao.component';
+import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
+import { MachineService } from '../../../../infrastructure/services/prostock/machine.service';
+import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
+import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
+import { MachineStore } from '../../../../infrastructure/state/machine.store';
+import { MachineRegister, UpdateMachineRegister } from '../../../../domain/models/prostock/register.model';
+import { Machine, MachineStatus } from '../../../../domain/models/prostock/machine.model';
+
+/**
+ * A programação mexendo no estoque (Parte 4).
+ *
+ * O que estes testes protegem é **quando a tela não pergunta**. Perguntar
+ * demais numa grade que se edita o dia todo é o jeito mais rápido de ensinar
+ * alguém a clicar em "Confirmar" sem ler — e aí a confirmação deixa de valer
+ * para as vezes em que ela importa.
+ */
+describe('ProgramacaoComponent · estoque', () => {
+  let component: ProgramacaoComponent;
+  let fixture: ComponentFixture<ProgramacaoComponent>;
+
+  let registerService: jasmine.SpyObj<RegisterService>;
+  let inventoryService: jasmine.SpyObj<InventoryProductService>;
+  let registerStore: MachineRegisterStore;
+  let machineStore: MachineStore;
+
+  const MACHINE_ID = 'm0000000-0000-0000-0000-000000000001';
+  const REGISTER_ID = 'r0000000-0000-0000-0000-000000000001';
+
+  const machine: Machine = {
+    id: MACHINE_ID,
+    systemCode: 'MAQ-001',
+    name: 'Lavadora',
+    brand: 'Marca',
+    machineType: null,
+    machineStatus: null,
+    minimum_stock: 1,
+    active: true,
+  };
+
+  const register = (status: MachineStatus): MachineRegister => ({
+    id: REGISTER_ID,
+    machineId: MACHINE_ID,
+    nomeCliente: 'Cliente',
+    tag: 1,
+    regiao: 'Sul',
+    solicitante: 'Solicitante',
+    status,
+    Observacao: '',
+    previsaoEntrega: null,
+    consultor: 'Consultor',
+    tecnico: 'Técnico',
+  });
+
+  /** A linha da grade é o registro mais a data já convertida. */
+  const rowWith = (stored: MachineRegister, status: MachineStatus) =>
+    ({ ...stored, status, previsao: null }) as never;
+
+  const stockIs = (quantity: number) => {
+    inventoryService.getInventoryMovementsByProduct.and.returnValue(of([
+      { systemCode: 'MAQ-001', quantity, movementDate: '2026-08-01T10:00:00' },
+    ]));
+  };
+
+  /** O `update` que a tela acabou de disparar. */
+  const lastPayload = (): UpdateMachineRegister =>
+    registerService.update.calls.mostRecent().args[1];
+
+  beforeEach(async () => {
+    registerService = jasmine.createSpyObj<RegisterService>('RegisterService', [
+      'getAll', 'getByMachine', 'create', 'update', 'delete', 'scheduleChanges',
+    ]);
+    registerService.getAll.and.returnValue(of([]));
+    registerService.create.and.returnValue(of('ok'));
+    registerService.update.and.returnValue(of('ok'));
+
+    const machineService = jasmine.createSpyObj<MachineService>('MachineService', ['getAll', 'reconcile']);
+    machineService.getAll.and.returnValue(of([]));
+
+    inventoryService = jasmine.createSpyObj<InventoryProductService>(
+      'InventoryProductService', ['getInventoryProducts', 'getInventoryMovementsByProduct']);
+    inventoryService.getInventoryProducts.and.returnValue(of([]));
+    stockIs(5);
+
+    await TestBed.configureTestingModule({
+      imports: [ProgramacaoComponent],
+      providers: [
+        provideZonelessChangeDetection(),
+        { provide: RegisterService, useValue: registerService },
+        { provide: MachineService, useValue: machineService },
+        { provide: InventoryProductService, useValue: inventoryService },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(ProgramacaoComponent);
+    component = fixture.componentInstance;
+
+    // Stores reais, populados direto: `upsert` é o mesmo caminho que a tela usa
+    // depois de gravar, então o estado fica idêntico ao de uso real sem HTTP.
+    registerStore = TestBed.inject(MachineRegisterStore);
+    machineStore = TestBed.inject(MachineStore);
+    machineStore.upsert(machine);
+  });
+
+  /**
+   * **O teste que impede o atrito.**
+   *
+   * Reservar não é entregar: a máquina continua no galpão. Um diálogo aqui
+   * apareceria dezenas de vezes por dia sem nada a dizer.
+   */
+  it('mudar entre status de estoque não pergunta nada e grava direto', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+
+    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.RESERVADA));
+
+    expect(component.stockDialogOpen()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+    expect(lastPayload().adjustStock).toBeUndefined();
+  });
+
+  it('marcar ENTREGUE pergunta antes e não grava ainda', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+
+    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+
+    expect(component.stockDialogOpen()).toBeTrue();
+    expect(component.stockDelta()).toBe(-1);
+    expect(component.currentStock()).toBe(5);
+    expect(component.newStock()).toBe(4);
+    expect(registerService.update).not.toHaveBeenCalled();
+  });
+
+  it('confirmar grava com adjustStock ligado', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+
+    component.confirmStockChange();
+
+    expect(lastPayload().adjustStock).toBeTrue();
+    expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
+    expect(component.stockDialogOpen()).toBeFalse();
+  });
+
+  /** O caso que ele reportou: voltar de ENTREGUE tem que devolver ao estoque. */
+  it('voltar de ENTREGUE soma 1', () => {
+    registerStore.upsert(register(MachineStatus.ENTREGUE));
+
+    component.onCellEdited(rowWith(register(MachineStatus.ENTREGUE), MachineStatus.DISPONIVEL));
+
+    expect(component.stockDelta()).toBe(1);
+    expect(component.newStock()).toBe(6);
+  });
+
+  /**
+   * AGUARDANDO_AQUISICAO é máquina que ainda não chegou — nunca entrou no
+   * estoque, então entregá-la não pode baixar nada. É a metade da regra que
+   * some quando alguém lê só "só ENTREGUE".
+   */
+  it('entregar o que nunca esteve em estoque não pergunta nada', () => {
+    registerStore.upsert(register(MachineStatus.AGUARDANDO_AQUISICAO));
+
+    component.onCellEdited(
+      rowWith(register(MachineStatus.AGUARDANDO_AQUISICAO), MachineStatus.ENTREGUE));
+
+    expect(component.stockDialogOpen()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
+
+  /**
+   * **Divergência que já existia não pode travar o trabalho.**
+   *
+   * Se o estoque em movimentações está zerado e a programação diz que há
+   * máquina, a API recusaria a baixa. Em vez de deixar a pessoa sem saída, o
+   * botão troca de função e grava só o status.
+   */
+  it('estoque insuficiente troca o botão e grava sem mexer no estoque', () => {
+    stockIs(0);
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+
+    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+
+    expect(component.stockWouldGoNegative()).toBeTrue();
+
+    component.confirmStockChange();
+
+    expect(lastPayload().adjustStock).toBeFalse();
+    expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
+  });
+
+  /**
+   * Desistir não pode deixar o status novo na tela: a pessoa sairia achando
+   * que salvou. O `refresh` traz de volta o que está no banco.
+   */
+  it('cancelar não grava nada', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+
+    component.cancelStockChange();
+
+    expect(component.stockDialogOpen()).toBeFalse();
+    expect(registerService.update).not.toHaveBeenCalled();
+  });
+});

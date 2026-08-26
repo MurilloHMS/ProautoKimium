@@ -18,7 +18,9 @@ import {
   MACHINE_STATUS_LABEL,
   MACHINE_STATUS_SEVERITY,
   MachineStatus,
+  IN_STOCK_STATUSES,
   machineStatusOptions,
+  stockDeltaFor,
 } from '../../../../domain/models/prostock/machine.model';
 import {
   CreateMachineRegister,
@@ -29,6 +31,7 @@ import {
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
 import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
+import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
 import { formatStampBr, parseDateOnly } from '../../../../domain/utils/date-only';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
@@ -75,6 +78,7 @@ export class ProgramacaoComponent implements OnInit {
   private readonly store = inject(MachineRegisterStore);
   private readonly machineStore = inject(MachineStore);
   private readonly registerService = inject(RegisterService);
+  private readonly inventoryService = inject(InventoryProductService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
@@ -106,6 +110,36 @@ export class ProgramacaoComponent implements OnInit {
   private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
 
   readonly motivoValido = computed(() => this.motivoTexto().trim().length > 0);
+
+  // ─── Confirmação de estoque ──────────────────────────────────────────────
+  //
+  // Uma linha de programação é uma máquina física. Sair do estoque para
+  // ENTREGUE tira uma do galpão; voltar devolve. A tela mostra o número antes
+  // de gravar, porque "mudei um status" e "mexi no estoque" não parecem a
+  // mesma ação para quem está editando a grade.
+
+  readonly stockDialogOpen = signal(false);
+  readonly loadingStock = signal(false);
+  readonly currentStock = signal(0);
+  readonly stockDelta = signal(0);
+  readonly stockMachineName = signal('');
+
+  /** O que fica esperando a confirmação do estoque. */
+  private pendingStock:
+    | { row: Row; payload: UpdateMachineRegister }
+    | { draft: Row; payload: CreateMachineRegister }
+    | null = null;
+
+  readonly newStock = computed(() => this.currentStock() + this.stockDelta());
+
+  /**
+   * O estoque em movimentações não bate com a programação.
+   *
+   * Acontece de verdade: são duas contagens do mesmo fato, e qualquer caminho
+   * antigo pode tê-las separado. Travar aqui deixaria a pessoa sem saída, então
+   * o botão muda de função em vez de sumir.
+   */
+  readonly stockWouldGoNegative = computed(() => this.newStock() < 0);
 
   // ─── Histórico de adiamentos ─────────────────────────────────────────────
   //
@@ -309,6 +343,21 @@ export class ProgramacaoComponent implements OnInit {
       tecnico: row.tecnico ?? '',
     };
 
+    // Linha nova nascendo em estoque é uma máquina entrando no galpão.
+    const delta = stockDeltaFor(null, row.status);
+    if (delta !== 0) {
+      this.pendingStock = { draft: row, payload };
+      this.mark('saving', row.id, false);
+      this.openStockDialog(row.machineId, delta);
+      return;
+    }
+
+    this.createRow(row, payload);
+  }
+
+  private createRow(row: Row, payload: CreateMachineRegister): void {
+    this.mark('saving', row.id, true);
+
     this.store.create(payload).subscribe({
       next: () => {
         this.mark('saving', row.id, false);
@@ -320,6 +369,94 @@ export class ProgramacaoComponent implements OnInit {
         this.showError(err);
       },
     });
+  }
+
+  // ─── A checagem do estoque ───────────────────────────────────────────────
+
+  /**
+   * Pergunta antes de gravar, mas **só quando a transição cruza a fronteira**.
+   *
+   * DISPONIVEL → RESERVADA não pergunta nada: a máquina continua no galpão, e
+   * um diálogo aí seria atrito puro numa grade que se edita o dia todo.
+   */
+  private checkStockBeforeUpdate(row: Row, payload: UpdateMachineRegister): void {
+    const stored = this.store.items().find(item => item.id === row.id);
+    const delta = stored ? stockDeltaFor(stored.status, payload.status) : 0;
+
+    if (delta === 0) {
+      this.gravar(row, payload);
+      return;
+    }
+
+    this.pendingStock = { row, payload };
+    this.openStockDialog(row.machineId, delta);
+  }
+
+  /**
+   * O estoque atual vem do último movimento, como na tela de movimentação.
+   *
+   * Carregado no clique e não junto da grade: seria um GET por linha numa tela
+   * de centenas, para um número que só interessa nesse instante.
+   */
+  private openStockDialog(machineId: string, delta: number): void {
+    const machine = this.machineStore.items().find(item => item.id === machineId);
+
+    this.stockDelta.set(delta);
+    this.stockMachineName.set(machine?.name ?? 'esta máquina');
+    this.currentStock.set(0);
+    this.loadingStock.set(true);
+    this.stockDialogOpen.set(true);
+
+    if (!machine) {
+      this.loadingStock.set(false);
+      return;
+    }
+
+    this.inventoryService.getInventoryMovementsByProduct(machine.systemCode).subscribe({
+      next: (list) => {
+        const sorted = [...(list ?? [])].sort((a, b) => a.movementDate.localeCompare(b.movementDate));
+        this.currentStock.set(sorted.length ? sorted[sorted.length - 1].quantity : 0);
+        this.loadingStock.set(false);
+      },
+      // 404 é máquina sem movimento nenhum: estoque zero, não erro.
+      error: () => this.loadingStock.set(false),
+    });
+  }
+
+  /**
+   * Confirma e grava, com o `adjustStock` ligado.
+   *
+   * Quando o estoque ficaria negativo o botão vira "salvar sem mexer no
+   * estoque" e manda `false`: a divergência já existia antes desta edição, e
+   * travar a pessoa aqui não conserta nada — só impede o trabalho dela.
+   */
+  confirmStockChange(): void {
+    if (!this.pendingStock || this.loadingStock()) return;
+
+    const adjustStock = !this.stockWouldGoNegative();
+    const pending = this.pendingStock;
+    this.pendingStock = null;
+    this.stockDialogOpen.set(false);
+
+    if ('draft' in pending) {
+      this.createRow(pending.draft, { ...pending.payload, adjustStock });
+    } else {
+      this.gravar(pending.row, { ...pending.payload, adjustStock });
+    }
+  }
+
+  /**
+   * Desistir desfaz a edição.
+   *
+   * Mesmo motivo do `cancelarMotivo`: deixar o status novo na tela sem gravar é
+   * pior que o erro, porque a pessoa sai achando que salvou.
+   */
+  cancelStockChange(): void {
+    const pending = this.pendingStock;
+    this.pendingStock = null;
+    this.stockDialogOpen.set(false);
+
+    if (pending && !('draft' in pending)) this.store.refresh();
   }
 
   // ─── Edição em célula ─────────────────────────────────────────────────────
@@ -362,7 +499,7 @@ export class ProgramacaoComponent implements OnInit {
       return;
     }
 
-    this.gravar(row, payload);
+    this.checkStockBeforeUpdate(row, payload);
   }
 
   /** Confirma o motivo e solta o PUT que estava esperando. */
@@ -373,7 +510,10 @@ export class ProgramacaoComponent implements OnInit {
     this.pendente = null;
     this.motivoAberto.set(false);
 
-    this.gravar(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() });
+    // Os dois diálogos podem cair na mesma edição — mudar a data E o status de
+    // uma vez. Em fila, nunca ao mesmo tempo: um por cima do outro esconderia
+    // metade da pergunta.
+    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() });
   }
 
   /**
@@ -440,10 +580,19 @@ export class ProgramacaoComponent implements OnInit {
 
     const quem = row.nomeCliente?.trim() || 'sem cliente';
 
+    // Apagar não baixa o estoque de propósito: apagar é "essa linha nunca
+    // deveria ter existido". Se a máquina está no galpão, o certo é mudar o
+    // status. Mas quem clica precisa saber disso antes, não depois.
+    const contaNoEstoque = IN_STOCK_STATUSES.includes(row.status)
+      ? '<br><br>Esta máquina conta no estoque. Apagar a linha <strong>não</strong> '
+        + 'baixa o estoque — para isso, mude o status para Entregue.'
+      : '';
+
     this.confirmationService.confirm({
       header: 'Excluir programação',
       message: `Excluir a programação de <strong>${quem}</strong>? `
-        + 'O histórico de adiamentos dessa linha vai junto, e não há como recuperar.',
+        + 'O histórico de adiamentos dessa linha vai junto, e não há como recuperar.'
+        + contaNoEstoque,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Excluir',
       rejectLabel: 'Cancelar',

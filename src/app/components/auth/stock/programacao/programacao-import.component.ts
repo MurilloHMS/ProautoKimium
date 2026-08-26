@@ -195,6 +195,12 @@ export class ProgramacaoImportComponent {
         previsaoEntrega: previsao,
         consultor: row.consultor,
         tecnico: row.tecnico,
+
+        // Explícito, e nunca `true`: a planilha traz o histórico da programação,
+        // não máquinas chegando agora. Ligar isto faria uma importação de 200
+        // linhas lançar 200 entradas e estourar o estoque de todas as máquinas
+        // de uma vez.
+        adjustStock: false,
       };
 
       await new Promise<void>(resolve => {

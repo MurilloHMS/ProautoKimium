@@ -325,3 +325,56 @@
     <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
   </div>
 </pk-dialog>
+
+<!--
+  Confirmação de estoque.
+
+  Aparece só quando a transição cruza a fronteira do galpão. "Mudei um status" e
+  "mexi no estoque" não parecem a mesma ação para quem edita a grade — o número
+  antes e depois é o que liga as duas coisas na cabeça de quem clica.
+-->
+<pk-dialog
+  [header]="stockDelta() < 0 ? 'Marcar como Entregue?' : 'Devolver ao estoque?'"
+  [visible]="stockDialogOpen()"
+  width="460px"
+  (visibleChange)="cancelStockChange()">
+
+  <div pkDialogContent class="estoque">
+    @if (loadingStock()) {
+      <p class="estoque__nota"><i class="pi pi-spin pi-spinner"></i> Conferindo o estoque…</p>
+    } @else {
+      <p class="estoque__lead">
+        O estoque de <strong>{{ stockMachineName() }}</strong>
+        {{ stockDelta() < 0 ? 'cai' : 'sobe' }} de
+      </p>
+
+      <p class="estoque__conta">
+        <span class="estoque__de">{{ currentStock() }}</span>
+        <i class="pi pi-arrow-right"></i>
+        <strong class="estoque__para" [class.estoque__para--bad]="stockWouldGoNegative()">
+          {{ newStock() }}
+        </strong>
+      </p>
+
+      @if (stockWouldGoNegative()) {
+        <p class="estoque__aviso">
+          <i class="pi pi-exclamation-triangle"></i>
+          O estoque em movimentações já está em {{ currentStock() }}, então ele
+          não tem essa máquina para dar baixa. A programação e o estoque estão
+          divergentes desde antes desta edição — dá para salvar o status agora e
+          acertar o estoque pela tela de movimentação.
+        </p>
+      }
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelStockChange()" />
+    <pk-button
+      pkType="save"
+      pkSize="sm"
+      [pkLabel]="stockWouldGoNegative() ? 'Salvar sem mexer no estoque' : 'Confirmar'"
+      [pkDisabled]="loadingStock()"
+      (clicked)="confirmStockChange()" />
+  </div>
+</pk-dialog>
