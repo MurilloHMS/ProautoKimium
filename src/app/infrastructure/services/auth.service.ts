@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { PermissionStore } from '../state/permission.store';
 import { environment } from '../../../environments/environment';
 
 import {
@@ -21,6 +22,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
+  private readonly permissions = inject(PermissionStore);
+
   constructor(private http: HttpClient) {}
 
   login(login: string, password: string): Observable<LoginResponseDTO> {
@@ -33,8 +36,16 @@ export class AuthService {
     );
   }
 
+  /**
+   * Esquece o token **e as permissões**.
+   *
+   * Sem o `clear`, o próximo login herdaria o mapa do anterior: quem entrasse
+   * depois do admin veria o menu do admin até a requisição nova responder. É
+   * curto, e é exatamente o tipo de janela em que alguém clica.
+   */
   logout(): void {
     localStorage.removeItem('token');
+    this.permissions.clear();
   }
 
   getToken(): string | null {
