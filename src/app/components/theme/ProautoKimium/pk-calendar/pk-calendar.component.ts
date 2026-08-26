@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, OnInit, computed, input, output, signal } from '@angular/core';
 
 /**
  * O vocabulário de cor do calendário.
@@ -42,7 +42,12 @@ export interface CalendarLegendItem {
   alert?: boolean;
 }
 
+export type CalendarView = 'month' | 'agenda';
+
 const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+/** Abreviações do dia da semana na coluna da agenda. */
+const SHORT_WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 const MONTH_LABELS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -56,6 +61,35 @@ function dayKey(date: Date): string {
 
 function startOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/** O mesmo ponto de corte do `@media` — 600px. */
+function isNarrowScreen(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 600px)').matches;
+}
+
+/**
+ * A preferência mora no navegador de quem escolheu.
+ *
+ * Em try/catch porque `localStorage` **lança** em aba anônima de alguns
+ * navegadores e com cookies de terceiros bloqueados — não devolve nulo, lança.
+ * Uma preferência de visualização não pode derrubar a tela.
+ */
+function readStoredView(key: string): CalendarView | null {
+  try {
+    const value = window.localStorage.getItem(key);
+    return value === 'month' || value === 'agenda' ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredView(key: string, view: CalendarView): void {
+  try {
+    window.localStorage.setItem(key, view);
+  } catch {
+    // Sem memória entre visitas, mas a tela continua funcionando.
+  }
 }
 
 /**
@@ -77,10 +111,18 @@ function startOfMonth(date: Date): Date {
   templateUrl: './pk-calendar.component.html',
   styleUrl: './pk-calendar.component.scss',
 })
-export class PkCalendarComponent {
+export class PkCalendarComponent implements OnInit {
 
   readonly events = input<CalendarDayEvent[]>([]);
   readonly legend = input<CalendarLegendItem[]>([]);
+
+  /**
+   * Onde guardar a visão escolhida. Cada tela usa a sua.
+   *
+   * Sem isso o botão vira um clique repetido toda vez que a pessoa abre a
+   * tela — que é a diferença entre uma preferência e um atrito.
+   */
+  readonly storageKey = input<string>('pk-calendar-view');
 
   /** O mês virou. Quem precisa buscar no servidor escuta isto. */
   readonly monthChange = output<Date>();
@@ -90,6 +132,70 @@ export class PkCalendarComponent {
 
   readonly weekdayLabels = WEEKDAY_LABELS;
   readonly displayedMonth = signal(startOfMonth(new Date()));
+
+  /**
+   * O mês dá **forma** — onde aperta, onde folga. A agenda diz **quem**, sem
+   * exigir um toque. As duas respondem perguntas diferentes, e por isso as
+   * duas ficam.
+   *
+   * No celular a agenda abre por padrão: sete colunas com nome de cliente não
+   * cabem em 320px, e a primeira coisa que a tela mostra tem que ser legível.
+   */
+  readonly view = signal<CalendarView>('month');
+
+  /**
+   * A visão inicial é decidida aqui, e **não** no construtor.
+   *
+   * `input()` só tem valor depois que o Angular liga o componente: no
+   * construtor o `storageKey()` ainda devolve o padrão, e as duas telas
+   * acabariam dividindo a mesma preferência sem que nada quebrasse.
+   */
+  ngOnInit(): void {
+    const stored = readStoredView(this.storageKey());
+    this.view.set(stored ?? (isNarrowScreen() ? 'agenda' : 'month'));
+  }
+
+  setView(view: CalendarView): void {
+    this.view.set(view);
+    writeStoredView(this.storageKey(), view);
+  }
+
+  /**
+   * Os dias com item, em ordem — o que a agenda percorre.
+   *
+   * Só o mês aberto: a agenda é outra vista do mesmo mês, não uma lista
+   * infinita. Virar o mês continua sendo a forma de andar no tempo.
+   */
+  readonly agendaDays = computed(() => {
+    const month = this.displayedMonth();
+
+    return [...this.eventsByDay().entries()]
+      .map(([key, events]) => ({ date: events[0].date, key, events }))
+      .filter(day => day.date.getMonth() === month.getMonth()
+                  && day.date.getFullYear() === month.getFullYear())
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+  });
+
+  /**
+   * Uma barrinha por dia do mês, marcada onde há item.
+   *
+   * É o que a agenda devolve da grade: dá para ver que a semana do 20 está
+   * vazia sem gastar as 42 células de altura que o mês gasta.
+   */
+  readonly monthStrip = computed(() => {
+    const month = this.displayedMonth();
+    const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    const busy = new Set(this.agendaDays().map(day => day.date.getDate()));
+
+    return Array.from({ length: days }, (_, index) => ({
+      day: index + 1,
+      busy: busy.has(index + 1),
+    }));
+  });
+
+  weekdayOf(date: Date): string {
+    return SHORT_WEEKDAY_LABELS[date.getDay()];
+  }
 
   readonly monthLabel = computed(() => {
     const month = this.displayedMonth();

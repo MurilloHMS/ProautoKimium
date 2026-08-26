@@ -52,6 +52,7 @@
     fica aqui: os itens, a legenda, e o que acontece ao tocar num dia.
   -->
   <pk-calendar
+    storageKey="machine-hub-calendar-view"
     [events]="calendarEvents()"
     [legend]="calendarLegend"
     (monthChange)="displayedMonth.set($event)"
