@@ -196,6 +196,41 @@ export class MachineHubComponent implements OnInit {
       .sort((a, b) => (b.diasParada ?? -1) - (a.diasParada ?? -1));
   });
 
+  // ─── Carga por consultor ──────────────────────────────────────────────────
+  //
+  // `consultor` já vem na programação e o hub não usava. Responde a pergunta
+  // que aparece toda semana — "quem está com a máquina do cliente X?" — sem
+  // nenhuma chamada nova: a lista inteira já está no store.
+
+  readonly consultantLoad = computed<ConsultantLoad[]>(() => {
+    const byConsultant = new Map<string, ConsultantLoad>();
+
+    for (const register of this.registerStore.items()) {
+      // Entregue saiu da mão de todo mundo. Carga é o que ainda pesa.
+      if (register.status === MachineStatus.ENTREGUE) continue;
+
+      const name = register.consultor?.trim() || 'Sem consultor';
+      const entry = byConsultant.get(name)
+        ?? { name, open: 0, late: 0 };
+
+      entry.open += 1;
+      if (isLate(register)) entry.late += 1;
+
+      byConsultant.set(name, entry);
+    }
+
+    return [...byConsultant.values()].sort((a, b) => b.open - a.open);
+  });
+
+  readonly totalOpen = computed(() =>
+    this.consultantLoad().reduce((total, entry) => total + entry.open, 0));
+
+  /** A barra é relativa a quem tem mais, não ao total — comparar é o ponto. */
+  readonly loadWidth = computed(() => {
+    const most = this.consultantLoad()[0]?.open ?? 0;
+    return (open: number) => (most ? Math.round((open / most) * 100) : 0);
+  });
+
   // ─── Calendário de implantações ───────────────────────────────────────────
   //
   // Mesmo desenho do Painel de RH, mas sem ir ao servidor a cada mês: a
@@ -329,6 +364,26 @@ export class MachineHubComponent implements OnInit {
 function startOfToday(): Date {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Quantas máquinas em aberto cada consultor carrega, e quantas já atrasaram. */
+interface ConsultantLoad {
+  name: string;
+  open: number;
+  late: number;
+}
+
+/**
+ * Previsão vencida e a máquina não saiu.
+ *
+ * Mesmo critério do chip do calendário: sem previsão não é atraso, é falta de
+ * programação — e essa lista já existe separada.
+ */
+function isLate(register: MachineRegister): boolean {
+  const previsao = parseDateOnly(register.previsaoEntrega);
+  return !!previsao
+    && previsao < startOfToday()
+    && register.status !== MachineStatus.ENTREGUE;
 }
 
 function startOfMonth(date: Date): Date {

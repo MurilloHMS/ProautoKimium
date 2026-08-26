@@ -269,3 +269,82 @@ pk-calendar {
 
   em { color: var(--app-danger); font-style: normal; font-weight: 700; }
 }
+
+// ─── Carga por consultor ────────────────────────────────────────────────────
+.load {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+// Nome com largura fixa: os nomes variam muito e a barra tem que começar no
+// mesmo lugar em todas as linhas, senão comparar fica impossível.
+.load__row {
+  display: grid;
+  grid-template-columns: 132px 1fr 34px;
+  gap: 12px;
+  align-items: center;
+}
+
+.load__name {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.load__bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--app-surface-2);
+  overflow: hidden;
+}
+
+// A barra é relativa a quem tem mais, não ao total: o que interessa é comparar
+// as cargas entre si, não saber a fatia de cada um.
+.load__fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--app-action);
+  transition: width 0.2s ease;
+
+  &--late { background: var(--app-danger); }
+}
+
+.load__n {
+  text-align: right;
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.load__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--app-text-subtle);
+
+  span { display: flex; align-items: center; gap: 6px; }
+}
+
+.load__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--app-action);
+
+  &--late { background: var(--app-danger); }
+}
+
+@media (max-width: 600px) {
+  .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
+}

@@ -60,6 +60,38 @@
     <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
   </pk-calendar>
 
+  <!--
+    Carga por consultor. Responde "quem está com a máquina do cliente X?" com
+    dado que já estava na tela ao lado, sem chamada nova.
+  -->
+  @if (consultantLoad().length) {
+    <section class="card">
+      <h2 class="card__title">
+        Carga por consultor
+        <span class="card__badge">{{ totalOpen() }} em aberto</span>
+      </h2>
+
+      <div class="load">
+        @for (entry of consultantLoad(); track entry.name) {
+          <div class="load__row">
+            <span class="load__name" [title]="entry.name">{{ entry.name }}</span>
+            <span class="load__bar">
+              <span class="load__fill"
+                    [class.load__fill--late]="entry.late > 0"
+                    [style.width.%]="loadWidth()(entry.open)"></span>
+            </span>
+            <span class="load__n">{{ entry.open }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="load__legend">
+        <span><i class="load__dot"></i> em aberto</span>
+        <span><i class="load__dot load__dot--late"></i> tem máquina com previsão vencida</span>
+      </div>
+    </section>
+  }
+
   <!-- ─── Distribuições ─────────────────────────────────────────────────── -->
   <div class="dist-row">
     <section class="card">
