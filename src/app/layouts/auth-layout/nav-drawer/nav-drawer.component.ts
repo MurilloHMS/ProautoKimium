@@ -9,8 +9,7 @@ import {
   input,
   output,
   signal,
-  viewChild,
-} from '@angular/core';
+  viewChild, computed } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
@@ -53,8 +52,15 @@ export class NavDrawerComponent {
 
   readonly auth = inject(AuthService);
 
-  /** Papéis não mudam sem recarregar a página, então basta montar uma vez. */
-  readonly nodes: DrawerNode[] = this.toNodes(this.menuService.menu());
+  /**
+   * `computed` e não campo: as permissões chegam por HTTP **depois** do login.
+   *
+   * Isto era um campo, com o comentário "papéis não mudam sem recarregar a
+   * página, então basta montar uma vez" — verdade com roles, que vêm no token.
+   * Com permissão vindo de requisição, o menu montava vazio e nunca mais
+   * recalculava.
+   */
+  readonly nodes = computed<DrawerNode[]>(() => this.toNodes(this.menuService.menu()));
 
   readonly expanded = signal<ReadonlySet<string>>(new Set<string>());
 
@@ -168,7 +174,7 @@ export class NavDrawerComponent {
       return false;
     };
 
-    walk(this.nodes, []);
+    walk(this.nodes(), []);
     this.expanded.set(branch);
   }
 

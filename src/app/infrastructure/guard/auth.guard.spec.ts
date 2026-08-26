@@ -4,7 +4,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideZonelessChangeDetection } from '@angular/core';
 import { ActivatedRouteSnapshot, Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
-import { isObservable, firstValueFrom, of } from 'rxjs';
+import { Observable, isObservable, firstValueFrom } from 'rxjs';
 
 import { AuthGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
@@ -127,8 +127,29 @@ describe('AuthGuard', () => {
    * Rota sem `screen` não participa do controle: a de acesso negado, as
    * notificações, o início. Trancá-las deixaria a pessoa sem nem o aviso.
    */
-  it('rota sem screen passa direto, sem consultar nada', async () => {
-    expect(await decidir(undefined)).toBeTrue();
-    http.expectNone(url);
+  it('rota sem screen passa, e mesmo assim carrega as permissões', async () => {
+    expect(await decidir(undefined, {})).toBeTrue();
+  });
+
+  /**
+   * **O bug de 2026-08-26, e é por isso que este teste existe.**
+   *
+   * Depois do login a primeira rota é `/home`, que não declara tela. Com o
+   * `if (!screen) return true` na frente do `ensureLoaded`, o guard devolvia
+   * `true` sem nunca carregar — e o menu ficava vazio para sempre, inclusive
+   * para o admin.
+   *
+   * O teste anterior a este chegou a AFIRMAR o comportamento errado
+   * (`http.expectNone`), o que mostra o quanto ele parecia razoável.
+   */
+  it('carrega as permissões mesmo na rota que não participa do controle', () => {
+    const resultado = guard.canActivate(rota(undefined));
+
+    // Precisa assinar: o observable é frio, e quem assina de verdade é o
+    // Router. Sem isto a requisição não sai nem no código certo.
+    (resultado as Observable<boolean>).subscribe();
+
+    // Se o guard tivesse voltado antes, não haveria requisição para casar.
+    http.expectOne(url).flush({ 'rh/hub': ['CONSULTAR'] });
   });
 });

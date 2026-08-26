@@ -42,13 +42,18 @@ export class AuthGuard implements CanActivate {
 
     const screen = route.data?.['screen'] as string | undefined;
 
-    // Rota sem tela declarada é rota que não participa do controle — a de
-    // acesso negado, as notificações, o próprio início. Trancá-las deixaria a
-    // pessoa sem nem o aviso de que foi barrada.
-    if (!screen) return true;
-
+    // O `ensureLoaded` vem ANTES da checagem de `screen`, e isso não é estilo.
+    //
+    // Depois do login a primeira rota é `/home`, que não declara tela. Com o
+    // `if (!screen) return true` na frente, o guard devolvia `true` e nunca
+    // carregava as permissões — o menu ficava vazio para sempre, inclusive
+    // para o admin. Aconteceu de verdade em 2026-08-26.
     return this.permissions.ensureLoaded().pipe(
       map(() => {
+        // Rota sem tela não participa do controle: acesso negado, notificações,
+        // o próprio início. Trancá-las deixaria a pessoa sem nem o aviso.
+        if (!screen) return true;
+
         if (this.permissions.canOpen(screen)) return true;
 
         this.router.navigate(['/unauthorized']);

@@ -17,9 +17,9 @@
     <p class="drawer__section">Navegação</p>
 
     <ul class="drawer__list">
-      @for (node of nodes; track node.id) {
+      @for (node of nodes(); track node.id) {
         <li>
-          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, siblings: nodes, depth: 0 }" />
+          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, siblings: nodes(), depth: 0 }" />
         </li>
       }
     </ul>

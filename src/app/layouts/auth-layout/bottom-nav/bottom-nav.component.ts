@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { MenuService } from '../../../infrastructure/services/menu.service';
@@ -16,5 +16,6 @@ export class BottomNavComponent {
 
   private readonly menuService = inject(MenuService);
 
-  readonly items: AppMenuItem[] = this.menuService.mobileItems();
+  /** `computed` pelo mesmo motivo do drawer: as permissões chegam depois. */
+  readonly items = computed<AppMenuItem[]>(() => this.menuService.mobileItems());
 }
