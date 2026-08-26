@@ -630,3 +630,82 @@ pk-calendar {
   .needs__item { grid-template-columns: 4px 1fr; row-gap: 8px; }
   .needs__cta { grid-column: 2; justify-self: start; }
 }
+
+// ─── Topo em duas colunas ───────────────────────────────────────────────────
+// À esquerda o que precisa de espaço: números grandes e o calendário, que tem
+// sete colunas e não sobrevive espremido. À direita a coluna estreita, com o
+// que se lê de relance.
+.hub-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.hub-top__main {
+  min-width: 0;
+
+  // O espaçamento vira da coluna, não de cada cartão: o `margin: 22px 0` do
+  // `.kpi-row` abriria um buraco acima dele agora que ele não é mais o
+  // primeiro elemento da página.
+  > * { margin: 0 0 14px; }
+  > *:last-child { margin-bottom: 0; }
+}
+
+// ─── A coluna estreita ──────────────────────────────────────────────────────
+// 320px é metade da largura em que esses cartões foram desenhados. O que muda
+// não é só fonte: linha de três colunas vira de duas, e o que era lado a lado
+// empilha.
+.hub-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+
+  > * { margin-bottom: 0; }
+
+  .card,
+  .needs { padding: 14px 15px; }
+
+  // O CTA desce para baixo do texto: em 320px ele espremia o nome do cliente
+  // até sobrar a primeira sílaba.
+  .needs__item {
+    grid-template-columns: 4px 1fr;
+    row-gap: 8px;
+  }
+
+  .needs__cta {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  // O nome do consultor perde a coluna larga: em 320px ela comia a barra.
+  .load__row { grid-template-columns: 84px 1fr 26px; gap: 8px; }
+  .load__name { font-size: 0.74rem; }
+  .load__legend { gap: 10px; font-size: 0.68rem; }
+}
+
+// Abaixo de 1100px a lateral não cabe ao lado sem espremer o calendário, então
+// ela desce e vira uma faixa de cartões — com o desenho largo de volta, porque
+// aqui eles têm espaço outra vez.
+@media (max-width: 1100px) {
+  .hub-top { grid-template-columns: 1fr; }
+
+  .hub-side {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+
+    .needs__item { grid-template-columns: 4px 1fr auto; row-gap: 0; }
+    .needs__cta { grid-column: auto; justify-self: auto; }
+    .load__row { grid-template-columns: 132px 1fr 34px; gap: 12px; }
+  }
+}
+
+@media (max-width: 600px) {
+  .hub-side {
+    .needs__item { grid-template-columns: 4px 1fr; row-gap: 8px; }
+    .needs__cta { grid-column: 2; justify-self: start; }
+    .load__row { grid-template-columns: 96px 1fr 30px; gap: 8px; }
+  }
+}
