@@ -61,6 +61,12 @@ export interface UserSummary {
   name: string;
   login: string;
   active: boolean;
+  /**
+   * Conta de desenvolvedor: tem tudo por resolução, e a grade dela não se
+   * edita. É a saída de emergência do controle de acesso — o que garante que
+   * sempre exista alguém capaz de reabrir o sistema.
+   */
+  developer: boolean;
   templates: string[];
 }
 
@@ -76,6 +82,7 @@ export interface UserGrid {
   id: string;
   name: string;
   login: string;
+  developer: boolean;
   cells: PermissionCells;
   /**
    * O que os modelos aplicados nesta pessoa permitem.

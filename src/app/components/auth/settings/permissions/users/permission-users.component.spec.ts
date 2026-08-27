@@ -39,12 +39,12 @@ describe('PermissionUsersComponent', () => {
   ];
 
   const PESSOAS: UserSummary[] = [
-    { id: 'u-1', name: 'Weslley Almeida', login: 'weslley', active: true, templates: ['Base'] },
-    { id: 'u-2', name: 'Ricardo Souza', login: 'ricardo', active: true, templates: [] },
+    { id: 'u-1', name: 'Weslley Almeida', login: 'weslley', active: true, developer: false, templates: ['Base'] },
+    { id: 'u-2', name: 'Ricardo Souza', login: 'ricardo', active: true, developer: false, templates: [] },
   ];
 
   const GRADE: UserGrid = {
-    id: 'u-1', name: 'Weslley Almeida', login: 'weslley',
+    id: 'u-1', name: 'Weslley Almeida', login: 'weslley', developer: false,
     cells: { 'stock/movements': ['CONSULTAR'] },
     appliedCells: { 'stock/movements': ['CONSULTAR', 'EXCLUIR'] },
     appliedTemplates: [],
@@ -309,5 +309,29 @@ describe('PermissionUsersComponent', () => {
     montar();
 
     expect(api.userGrid).toHaveBeenCalledWith('u-1');
+  });
+
+  // ─── A conta que não se tranca ────────────────────────────────────────────
+
+  /**
+   * **A grade do desenvolvedor abre em leitura.**
+   *
+   * Ele tem tudo por resolução, não pela tabela — escrever ali não mudaria
+   * nada, e a API recusa. Se a tela deixasse editar, o clique acabaria num
+   * erro que parece defeito.
+   */
+  it('a grade de um desenvolvedor não é editável', () => {
+    api.userGrid.and.returnValue(of({ ...GRADE, developer: true }));
+    montar();
+
+    expect(component.canEdit()).toBeFalse();
+  });
+
+  /** E a tela diz por quê, senão a grade sem botão parece defeito. */
+  it('a tela explica que é conta de desenvolvedor', () => {
+    api.userGrid.and.returnValue(of({ ...GRADE, developer: true }));
+    montar();
+
+    expect(fixture.nativeElement.textContent).toContain('Conta de desenvolvedor');
   });
 });

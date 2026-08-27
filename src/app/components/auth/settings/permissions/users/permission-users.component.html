@@ -23,7 +23,10 @@
                 [attr.aria-current]="u.id === selected()?.id"
                 (click)="select(u)">
           <b>{{ u.name }}</b>
-          <span>{{ u.templates.length ? u.templates.join(' · ') : 'nenhum modelo aplicado' }}</span>
+          <span>
+            @if (u.developer) { desenvolvedor · acesso total }
+            @else { {{ u.templates.length ? u.templates.join(' · ') : 'nenhum modelo aplicado' }} }
+          </span>
         </button>
       } @empty {
         <p class="pshell__empty-list">Ninguém com esse nome.</p>
@@ -76,7 +79,7 @@
         </div>
 
         <div class="pshell__subject-acts">
-          @if (canConfigure()) {
+          @if (canConfigure() && !pessoa.developer) {
             <pk-button pkType="new" pkSize="sm" pkLabel="Aplicar modelo"
                        pkIcon="pi pi-bookmark" (clicked)="openApplyToCurrent()" />
             <pk-button pkType="upload" pkSize="sm" pkLabel="Copiar de outro"
@@ -89,7 +92,22 @@
         O ponto âmbar contado. Sem este número, decidir se reaplicar um modelo
         é seguro depende de alguém varrer 385 células com o olho.
       -->
-      @if (divergences() > 0) {
+      <!--
+        A conta que não se tranca. Sem este aviso, a grade toda marcada e sem
+        botão parece defeito.
+      -->
+      @if (pessoa.developer) {
+        <div class="pshell__note">
+          <span>
+            <b>Conta de desenvolvedor.</b> Ela tem acesso a tudo por definição, e
+            por isso a grade abre só para leitura — é o que garante que sempre
+            exista alguém capaz de reabrir o sistema. Para tirar isso, só pelo
+            banco.
+          </span>
+        </div>
+      }
+
+      @if (divergences() > 0 && !pessoa.developer) {
         <div class="pshell__note">
           <span>
             <b>{{ divergences() }}</b>

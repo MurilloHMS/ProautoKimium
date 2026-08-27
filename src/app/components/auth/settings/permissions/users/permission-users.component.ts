@@ -59,7 +59,17 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
   readonly loading = signal(false);
   readonly saving = signal(false);
 
-  readonly canEdit = computed(() => this.permissions.can(SCREEN, 'ALTERAR'));
+  /**
+   * A grade abre em leitura quando falta `ALTERAR` — ou quando a pessoa é
+   * desenvolvedora.
+   *
+   * No segundo caso não é falta de permissão de quem está olhando: é que
+   * escrever ali não mudaria nada. As authorities do desenvolvedor vêm da
+   * resolução, não da tabela, e uma tela que aceita o clique e não muda nada é
+   * pior que uma que diz não.
+   */
+  readonly canEdit = computed(() =>
+    this.permissions.can(SCREEN, 'ALTERAR') && !this.selected()?.developer);
   readonly canConfigure = computed(() => this.permissions.can(SCREEN, 'CONFIGURAR'));
 
   readonly visibleUsers = computed(() => {
