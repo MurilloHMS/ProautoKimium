@@ -1,0 +1,63 @@
+@use '../permission-shell' as *;
+
+// O que é só desta tela. O esqueleto vem do parcial compartilhado — as duas
+// telas de permissão têm a mesma moldura, e mantê-la em dois arquivos garantiria
+// que elas divergissem sozinhas.
+
+.pshell__blank {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+.pshell__empty-list {
+  margin: 12px 10px;
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.pform__hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--app-text-muted);
+  line-height: 1.55;
+
+  b { color: var(--app-text); font-weight: 600; }
+}
+
+// O aviso que precede a única ação desta tela que apaga trabalho de alguém.
+.pform__danger {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+  border: 1px solid var(--app-warning);
+  color: var(--app-warning);
+  font-size: 12.5px;
+  line-height: 1.55;
+
+  b { font-weight: 700; }
+}
+
+.pform__people {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+
+  li {
+    padding: 7px 12px;
+    font-size: 12.5px;
+    border-bottom: 1px solid var(--app-border);
+
+    &:last-child { border-bottom: 0; }
+
+    span { color: var(--app-text-subtle); font-size: 11px; margin-left: 6px; }
+  }
+}

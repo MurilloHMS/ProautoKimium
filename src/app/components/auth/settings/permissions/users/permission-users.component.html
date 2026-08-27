@@ -1,0 +1,320 @@
+<p-toast></p-toast>
+
+<div class="pshell">
+
+  <!-- ─── As pessoas ─────────────────────────────────────────────────────── -->
+  <aside class="pshell__rail">
+    <div class="pshell__rail-head">
+      <div class="pshell__rail-title">
+        Usuários <span>{{ users().length }}</span>
+      </div>
+      <pk-input placeholder="Buscar pessoa…"
+                icon="pi pi-search"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
+    </div>
+
+    <div class="pshell__list">
+      @for (u of visibleUsers(); track u.id) {
+        <button type="button"
+                class="pshell__item"
+                [class.pshell__item--off]="!u.active"
+                [attr.aria-current]="u.id === selected()?.id"
+                (click)="select(u)">
+          <b>{{ u.name }}</b>
+          <span>
+            @if (u.developer) { desenvolvedor · acesso total }
+            @else { {{ u.templates.length ? u.templates.join(' · ') : 'nenhum modelo aplicado' }} }
+          </span>
+        </button>
+      } @empty {
+        <p class="pshell__empty-list">Ninguém com esse nome.</p>
+      }
+    </div>
+
+    @if (canConfigure()) {
+      <div class="pshell__rail-foot">
+        <pk-button pkType="new" pkSize="sm" pkLabel="Aplicar a vários"
+                   pkIcon="pi pi-users" (clicked)="openApplyToMany()" />
+      </div>
+    }
+  </aside>
+
+  <!-- ─── A pessoa aberta ────────────────────────────────────────────────── -->
+  <div class="pshell__main">
+
+    @if (selected(); as pessoa) {
+
+      <div class="pshell__subject">
+        <div class="pshell__subject-id">
+          <h2>{{ pessoa.name }}</h2>
+          <p>{{ pessoa.login }}</p>
+
+          <!--
+            Os modelos aplicados, com o desfazer em cada um.
+            Antes eram texto corrido: "carimbado com A, B" — que dizia o que
+            aconteceu e não oferecia saída nenhuma, e foi de onde veio a
+            pergunta "como eu removo um carimbo?".
+          -->
+          @if (pessoa.appliedTemplates.length) {
+            <div class="pshell__applied">
+              <span class="pshell__applied-label">Modelos aplicados</span>
+
+              @for (t of pessoa.appliedTemplates; track t.id) {
+                <span class="pshell__applied-chip">
+                  {{ t.name }}
+                  @if (canConfigure()) {
+                    <button type="button"
+                            [attr.aria-label]="'Desfazer ' + t.name"
+                            [title]="'Desfazer ' + t.name"
+                            (click)="openUndo(t)">×</button>
+                  }
+                </span>
+              }
+            </div>
+          } @else {
+            <p class="pshell__applied-none">Nenhum modelo aplicado.</p>
+          }
+        </div>
+
+        <div class="pshell__subject-acts">
+          @if (canConfigure() && !pessoa.developer) {
+            <pk-button pkType="new" pkSize="sm" pkLabel="Aplicar modelo"
+                       pkIcon="pi pi-bookmark" (clicked)="openApplyToCurrent()" />
+            <pk-button pkType="upload" pkSize="sm" pkLabel="Copiar de outro"
+                       pkIcon="pi pi-clone" (clicked)="openCopy()" />
+          }
+        </div>
+      </div>
+
+      <!--
+        O ponto âmbar contado. Sem este número, decidir se reaplicar um modelo
+        é seguro depende de alguém varrer 385 células com o olho.
+      -->
+      <!--
+        A conta que não se tranca. Sem este aviso, a grade toda marcada e sem
+        botão parece defeito.
+      -->
+      @if (pessoa.developer) {
+        <div class="pshell__note">
+          <span>
+            <b>Conta de desenvolvedor.</b> Ela tem acesso a tudo por definição, e
+            por isso a grade abre só para leitura — é o que garante que sempre
+            exista alguém capaz de reabrir o sistema. Para tirar isso, só pelo
+            banco.
+          </span>
+        </div>
+      }
+
+      @if (divergences() > 0 && !pessoa.developer) {
+        <div class="pshell__note">
+          <span>
+            <b>{{ divergences() }}</b>
+            {{ divergences() === 1 ? 'célula difere' : 'células diferem' }}
+            dos modelos aplicados — marcadas com o ponto âmbar.
+            Reaplicar um modelo por cima devolveria esses valores.
+          </span>
+        </div>
+      }
+
+      <app-permission-grid
+        [screens]="screens()"
+        [saved]="pessoa.cells"
+        [applied]="pessoa.appliedCells"
+        [disabled]="!canEdit()"
+        (changedCount)="changed.set($event)" />
+
+      <div class="pshell__save" [attr.data-dirty]="changed() > 0">
+        <div class="pshell__legend">
+          <i><span class="sw sw--on"></span> permitido</i>
+          <i><span class="sw"></span> negado</i>
+          <i><span class="sw sw--diverges"></span> difere do modelo aplicado</i>
+        </div>
+
+        <div class="pshell__save-msg">
+          @if (changed() > 0) {
+            <b>{{ changed() }}</b> {{ changed() === 1 ? 'célula' : 'células' }} sem gravar
+          } @else {
+            Nada para gravar
+          }
+        </div>
+
+        @if (canEdit()) {
+          <div class="pshell__save-acts">
+            <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar" (clicked)="discard()" />
+            <pk-button pkType="save" pkSize="sm" pkLabel="Salvar permissões"
+                       [pkLoading]="saving()" (clicked)="save()" />
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="pshell__blank">
+        {{ loading() ? 'Carregando…' : 'Escolha uma pessoa à esquerda.' }}
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ─── Aplicar modelo ──────────────────────────────────────────────────── -->
+<pk-dialog header="Aplicar modelo" [visible]="applyOpen()" width="580px"
+           (visibleChange)="applyOpen.set($event)">
+
+  <!--
+    Três seções do tema em vez de rótulos inventados: o pk-dialog zera o
+    padding do conteúdo, e é a `pk-form-section` que traz o espaçamento e o
+    traço entre os blocos.
+  -->
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-bookmark"></i> Modelo
+      </h3>
+
+      <div class="pform__opts">
+        @for (t of templates(); track t.id) {
+          <button type="button" class="pform__chip"
+                  [attr.aria-pressed]="t.id === applyTemplateId()"
+                  (click)="applyTemplateId.set(t.id)">{{ t.name }}</button>
+        }
+      </div>
+    </div>
+
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-users"></i> Pessoas · {{ applyTargets().length }} selecionadas
+      </h3>
+
+      <div class="pform__people">
+        @for (u of users(); track u.id) {
+          <button type="button"
+                  class="pform__person"
+                  [attr.aria-pressed]="isTarget(u.id)"
+                  (click)="toggleTarget(u.id)">
+            <span class="pform__tick" aria-hidden="true"></span>
+            {{ u.name }} <span class="pform__login">{{ u.login }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!--
+      As duas consequências, escritas antes do clique. É a única escolha desta
+      feature que apaga trabalho de alguém.
+    -->
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-sliders-h"></i> Como aplicar
+      </h3>
+
+      <div class="pform">
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="applyMode() === 'SOMAR'"
+                (click)="applyMode.set('SOMAR')">
+          <div>
+            <b>Somar — liga o que o modelo permite</b>
+            <span>Nada é desligado. É o que faz “Vendas + Estoque” funcionar:
+              a segunda aplicação não apaga a primeira.</span>
+          </div>
+        </button>
+
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="applyMode() === 'SUBSTITUIR'"
+                (click)="applyMode.set('SUBSTITUIR')">
+          <div>
+            <b>Substituir — grava exatamente o modelo</b>
+            <span class="pform__warn">Liga e desliga. As pessoas ficam idênticas ao
+              modelo, e todo ajuste individual delas se perde.</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="applyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="'Aplicar a ' + applyTargets().length"
+               (clicked)="confirmApply()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Desfazer a aplicação de um modelo ───────────────────────────────── -->
+<pk-dialog [header]="'Desfazer ' + (undoTemplate()?.name ?? '')"
+           [visible]="undoOpen()" width="480px"
+           (visibleChange)="undoOpen.set($event)">
+
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <p class="pform__hint">
+        Desliga em <b>{{ selected()?.name }}</b> as permissões que
+        <b>{{ undoTemplate()?.name }}</b> deu.
+      </p>
+
+      <!--
+        O que fica de pé é a informação que faz alguém usar o botão. Sem ela,
+        "desfazer" parece que derruba tudo.
+      -->
+      @if (undoKeeps() > 0) {
+        <p class="pform__hint">
+          O que os outros <b>{{ undoKeeps() }}</b>
+          {{ undoKeeps() === 1 ? 'modelo aplicado também dá' : 'modelos aplicados também dão' }}
+          <b>fica de pé</b>.
+        </p>
+      } @else {
+        <p class="pform__hint">
+          É o único modelo aplicado nesta pessoa — depois disto ela fica só com
+          o que você tiver ligado à mão.
+        </p>
+      }
+
+      <p class="pform__hint">
+        O modelo continua existindo, e quem mais o recebeu não é afetado.
+      </p>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="undoOpen.set(false)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Desfazer" (clicked)="confirmUndo()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Copiar de outra pessoa ──────────────────────────────────────────── -->
+<pk-dialog [header]="'Copiar permissões para ' + (selected()?.name ?? '')"
+           [visible]="copyOpen()" width="480px"
+           (visibleChange)="copyOpen.set($event)">
+
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-clone"></i> Copiar de quem
+      </h3>
+
+      <div class="pform__people">
+        @for (u of copyCandidates(); track u.id) {
+          <button type="button"
+                  class="pform__person"
+                  [attr.aria-pressed]="u.id === copySourceId()"
+                  (click)="copySourceId.set(u.id)">
+            <span class="pform__tick" aria-hidden="true"></span>
+            {{ u.name }} <span class="pform__login">{{ u.login }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="pk-form-section">
+      <p class="pform__danger">
+        A grade inteira de <b>{{ selected()?.name }}</b> é substituída, e os
+        modelos aplicados nela passam a ser os da pessoa de origem.
+      </p>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="copyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Copiar" (clicked)="confirmCopy()" />
+  </div>
+</pk-dialog>

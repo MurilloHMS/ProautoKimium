@@ -1,0 +1,205 @@
+<p-toast></p-toast>
+
+<div class="pshell">
+
+  <!-- ─── Os modelos ─────────────────────────────────────────────────────── -->
+  <aside class="pshell__rail">
+    <div class="pshell__rail-head">
+      <div class="pshell__rail-title">
+        Modelos <span>{{ templates().length }}</span>
+      </div>
+      <pk-input placeholder="Buscar modelo…"
+                icon="pi pi-search"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
+    </div>
+
+    <div class="pshell__list">
+      @for (t of visibleTemplates(); track t.id) {
+        <button type="button"
+                class="pshell__item"
+                [class.pshell__item--off]="!t.active"
+                [attr.aria-current]="t.id === selected()?.id"
+                (click)="select(t)">
+          <b>{{ t.name }}</b>
+          <span>{{ t.allowedCells }} permissões · aplicado a {{ t.appliedToUsers }}</span>
+        </button>
+      } @empty {
+        <p class="pshell__empty-list">Nenhum modelo com esse nome.</p>
+      }
+    </div>
+
+    @if (canCreate()) {
+      <div class="pshell__rail-foot">
+        <pk-button pkType="new" pkSize="sm" pkLabel="Novo modelo" (clicked)="openNew()" />
+      </div>
+    }
+  </aside>
+
+  <!-- ─── O modelo aberto ────────────────────────────────────────────────── -->
+  <div class="pshell__main">
+
+    @if (selected(); as modelo) {
+
+      <div class="pshell__subject">
+        <div class="pshell__subject-id">
+          <h2>{{ modelo.name }}</h2>
+          <p>
+            {{ modelo.description || 'Sem descrição' }}
+            @if (!modelo.active) { · <b>desativado</b> }
+          </p>
+        </div>
+
+        <div class="pshell__subject-acts">
+          @if (canCreate()) {
+            <pk-button pkType="new" pkSize="sm" pkLabel="Duplicar"
+                       pkIcon="pi pi-copy" (clicked)="openDuplicate()" />
+          }
+          @if (canEdit()) {
+            <pk-button pkType="edit" pkSize="sm" pkLabel="Renomear" (clicked)="openRename()" />
+            <pk-button pkType="cancel" pkSize="sm"
+                       [pkLabel]="modelo.active ? 'Desativar' : 'Reativar'"
+                       (clicked)="toggleActive()" />
+          }
+        </div>
+      </div>
+
+      <!--
+        O aviso que impede a correção silenciosa: mexer aqui NÃO alcança quem já
+        recebeu o modelo, e sem isto dito na cara ninguém descobre.
+      -->
+      @if (appliedToUsers().length) {
+        <div class="pshell__note">
+          <span>
+            Este modelo já foi aplicado a <b>{{ appliedToUsers().length }}</b>
+            {{ appliedToUsers().length === 1 ? 'pessoa' : 'pessoas' }}.
+            Alterá-lo aqui <b>não muda o que elas podem hoje</b> — a aplicação
+            copiou as permissões para dentro delas.
+          </span>
+          @if (canApply()) {
+            <span class="pshell__note-act">
+              <pk-button pkType="refresh" pkSize="sm"
+                         [pkLabel]="'Reaplicar a ' + appliedToUsers().length"
+                         (clicked)="reapplyOpen.set(true)" />
+            </span>
+          }
+        </div>
+      }
+
+      <app-permission-grid
+        [screens]="screens()"
+        [saved]="modelo.cells"
+        [disabled]="!canEdit()"
+        (changedCount)="changed.set($event)" />
+
+      <div class="pshell__save" [attr.data-dirty]="changed() > 0">
+        <div class="pshell__legend">
+          <i><span class="sw sw--on"></span> permitido</i>
+          <i><span class="sw"></span> negado</i>
+        </div>
+
+        <div class="pshell__save-msg">
+          @if (changed() > 0) {
+            <b>{{ changed() }}</b> {{ changed() === 1 ? 'célula' : 'células' }} sem gravar
+          } @else {
+            Nada para gravar
+          }
+        </div>
+
+        @if (canEdit()) {
+          <div class="pshell__save-acts">
+            <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar" (clicked)="discard()" />
+            <pk-button pkType="save" pkSize="sm" pkLabel="Salvar modelo"
+                       [pkLoading]="saving()" (clicked)="save()" />
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="pshell__blank">
+        {{ loading() ? 'Carregando…' : 'Escolha um modelo à esquerda.' }}
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ─── Criar, duplicar, renomear ───────────────────────────────────────── -->
+<pk-dialog [header]="formTitle()" [visible]="formOpen()" width="480px"
+           (visibleChange)="formOpen.set($event)">
+
+  <!--
+    `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+    conteúdo de propósito, e é a seção que traz o espaçamento.
+  -->
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <div class="pform">
+        <pk-input label="Nome"
+                  placeholder="Ex.: Vendas Júnior"
+                  [pkRequired]="true"
+                  [ngModel]="formName()"
+                  (ngModelChange)="formName.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
+
+        <pk-input label="Descrição"
+                  placeholder="Para que serve este modelo"
+                  [ngModel]="formDescription()"
+                  (ngModelChange)="formDescription.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
+
+        @if (formKind() === 'duplicate') {
+          <p class="pform__hint">
+            Nasce com as mesmas permissões de <b>{{ current()?.name }}</b>. Do zero
+            seriam 385 cliques.
+          </p>
+        }
+        @if (formKind() === 'new') {
+          <p class="pform__hint">Nasce com <b>tudo fechado</b>. Libere o que ele deve dar.</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Reaplicar ───────────────────────────────────────────────────────── -->
+<pk-dialog header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
+           (visibleChange)="reapplyOpen.set($event)">
+
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-users"></i> Quem fica idêntico ao modelo
+      </h3>
+
+      <ul class="pform__people">
+        @for (p of appliedToUsers(); track p.id) {
+          <li>{{ p.name }} <span>{{ p.login }}</span></li>
+        }
+      </ul>
+    </div>
+
+    <!--
+      Reaplicar é sempre SUBSTITUIR. Somar não reaplicaria nada: deixaria
+      ligado o que o modelo passou a negar. O preço é este aviso.
+    -->
+    <div class="pk-form-section">
+      <p class="pform__danger">
+        Todo <b>ajuste individual</b> dessas pessoas se perde — inclusive uma
+        permissão que alguém tirou de propósito.
+      </p>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="'Reaplicar a ' + appliedToUsers().length"
+               (clicked)="confirmReapply()" />
+  </div>
+</pk-dialog>

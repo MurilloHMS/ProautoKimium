@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
+import { PermissionStore } from '../state/permission.store';
 import { APP_MENU, AppMenuItem, MOBILE_NAV } from '../../layouts/auth-layout/menu.config';
-import { AuthService } from './auth.service';
 
 /** Item de menu achatado — usado pela busca e pelo breadcrumb da topbar. */
 export interface FlatMenuItem {
@@ -26,7 +26,8 @@ export interface FlatMenuItem {
 @Injectable({ providedIn: 'root' })
 export class MenuService {
 
-  private readonly auth = inject(AuthService);
+  private readonly permissions = inject(PermissionStore);
+
 
   private cacheKey: string | null = null;
   private cachedMenu: AppMenuItem[] = [];
@@ -72,27 +73,44 @@ export class MenuService {
 
   // ── Interno ───────────────────────────────────────────────────────────────
 
+  /**
+   * A chave do cache são as telas que a pessoa enxerga.
+   *
+   * As permissões chegam **depois** do login, por HTTP: sem elas na chave, o
+   * menu ficaria congelado no que foi calculado antes da resposta chegar —
+   * vazio. As roles saíram da chave no passo 6, junto com o resto: elas não
+   * decidem mais nada de menu.
+   */
   private refreshIfNeeded(): void {
-    const key = this.auth.getUserRoles().slice().sort().join('|');
+    const key = Object.keys(this.permissions.permissions()).sort().join('|');
+
     if (key === this.cacheKey) return;
 
     this.cacheKey = key;
-    this.cachedMenu = this.filterByRoles(APP_MENU);
+    this.cachedMenu = this.filterByAccess(APP_MENU);
     this.cachedFlat = this.flatten(this.cachedMenu);
     this.cachedMobile = MOBILE_NAV.filter(item => this.isAllowed(item));
   }
 
+  /**
+   * Item sem `screen` aparece para todo logado.
+   *
+   * São os que não participam do controle — início, notificações — e as pastas,
+   * que não têm rota própria: elas somem sozinhas quando todos os filhos somem,
+   * pelo último `filter` do método abaixo.
+   */
   private isAllowed(item: AppMenuItem): boolean {
-    return !item.roles?.length || this.auth.hasRole(item.roles);
+    if (!item.screen) return true;
+    return this.permissions.canOpen(item.screen);
   }
 
   /** Remove itens sem permissão e grupos que ficaram vazios (recursivo). */
-  private filterByRoles(items: AppMenuItem[]): AppMenuItem[] {
+  private filterByAccess(items: AppMenuItem[]): AppMenuItem[] {
     return items
       .filter(item => this.isAllowed(item))
       .map(item => ({
         ...item,
-        items: item.items ? this.filterByRoles(item.items) : undefined,
+        items: item.items ? this.filterByAccess(item.items) : undefined,
       }))
       .filter(item => !item.items || item.items.length > 0);
   }

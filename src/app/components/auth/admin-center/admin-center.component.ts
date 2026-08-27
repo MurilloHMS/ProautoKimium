@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './../../../infrastructure/services/auth.service';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { TabDirtyCheck } from '../../../infrastructure/routing/tab-dirty-check';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -40,6 +41,8 @@ export class AdminCenterComponent implements OnInit, TabDirtyCheck {
   isTabDirty(): boolean {
     return this.mode() === 'form' && this.registerForm.dirty;
   }
+
+  private readonly router = inject(Router);
 
   loading = false;
   registerForm!: FormGroup;
@@ -92,7 +95,6 @@ export class AdminCenterComponent implements OnInit, TabDirtyCheck {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', [Validators.required]],
-      roles: [[], [Validators.required]]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -106,25 +108,17 @@ export class AdminCenterComponent implements OnInit, TabDirtyCheck {
     this.mode.set('form');
   }
 
-  /** Abre o modal já preenchido para editar as permissões de um usuário. */
-  selectUserToEdit(user: UserResponseDTO): void {
-    this.editingUser = user;
-    this.buildRegisterForm();
-
-    // Na edição só as permissões mudam: login travado; e-mail e senha não se aplicam
-    ['email', 'password', 'confirmPassword'].forEach(name => {
-      const control = this.registerForm.get(name);
-      control?.clearValidators();
-      control?.updateValueAndValidity();
-    });
-    this.registerForm.get('login')?.disable();
-
-    this.registerForm.patchValue({
-      login: user.login,
-      roles: [...user.roles]
-    });
-
-    this.mode.set('form');
+  /**
+   * Leva para as permissões desta pessoa.
+   *
+   * Antes isto abria um formulário cujo único campo editável era o multiselect
+   * de papéis — e desde a V86 mexer nele **não muda o menu de ninguém**. Quem
+   * decide acesso agora é a tela de Permissões por usuário, e o caminho mais
+   * curto até ela é este botão.
+   */
+  openPermissions(user: UserResponseDTO): void {
+    this.router.navigate(['settings/permissions/users'],
+      { queryParams: { login: user.login } });
   }
 
   /** Fecha o modal e restaura o formulário ao estado inicial. */
@@ -153,30 +147,7 @@ export class AdminCenterComponent implements OnInit, TabDirtyCheck {
       return;
     }
 
-    if (this.editingUser) {
-      this.updateRoles();
-    } else {
-      this.registerNewUser();
-    }
-  }
-
-  private updateRoles(): void {
-    this.isSubmitting = true;
-    const roles: string[] = this.registerForm.get('roles')?.value;
-
-    const editingLogin = this.editingUser!.login;
-    this.authService.updateUserRoles(editingLogin, roles).subscribe({
-      next: () => {
-        this.editingUser!.roles = [...roles]; // atualiza linha na tabela sem recarregar
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: `Permissões de "${editingLogin}" atualizadas!` });
-        this.isSubmitting = false;
-        this.closeDialog();
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao atualizar permissões.' });
-      }
-    });
+    this.registerNewUser();
   }
 
   private registerNewUser(): void {
@@ -186,7 +157,9 @@ export class AdminCenterComponent implements OnInit, TabDirtyCheck {
       login: formValue.login,
       email: formValue.email,
       password: formValue.password,
-      roles: formValue.roles
+      // Tipo de conta, e nada mais: quem dá acesso é a tela de Permissões, e o
+      // primeiro acesso já carimba o modelo Base.
+      roles: ['USER']
     };
 
     this.authService.registerUser(registerData).subscribe({

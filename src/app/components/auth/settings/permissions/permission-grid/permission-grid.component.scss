@@ -1,0 +1,279 @@
+// A grade de permissões.
+//
+// Densidade de ERP: linha de 38px, cabeçalho de 34px, texto de 13px — os mesmos
+// tokens do resto do sistema. Uma grade "arejada" aqui viraria rolagem infinita
+// em 55 linhas.
+
+.pgrid {
+  display: flex;
+  flex-direction: column;
+  background: var(--app-surface);
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  min-width: 0;
+}
+
+// ─── Barra de filtro ────────────────────────────────────────────────────────
+.pgrid__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.pgrid__search { width: 200px; }
+
+.pgrid__chips { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.pgrid__chip {
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  border-radius: var(--radius-pill);
+  padding: 4px 11px;
+
+  &[aria-pressed='true'] {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+    font-weight: 600;
+  }
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.pgrid__spacer { flex: 1; }
+
+.pgrid__mini {
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  height: var(--btn-h-sm);
+  padding: 0 10px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-text-muted);
+
+    &:hover { background: var(--app-surface-3); }
+  }
+}
+
+// ─── A tabela ───────────────────────────────────────────────────────────────
+.pgrid__scroll {
+  overflow: auto;
+  max-height: 62vh;
+  min-height: 240px;
+}
+
+.pgrid__table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  min-width: 760px;
+}
+
+// O cabeçalho gruda: com 55 linhas, rolar até o meio sem ele significa contar
+// colunas para saber qual é o Excluir.
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--app-surface-3);
+  border-bottom: 1px solid var(--app-border-strong);
+  height: var(--row-head-h);
+  padding: 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.pgrid__th-screen {
+  text-align: left;
+  padding-left: 16px;
+  left: 0;
+  z-index: 4;
+  min-width: 240px;
+}
+
+.pgrid__th-perm {
+  width: 62px;
+
+  button {
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: inherit;
+    padding: 6px 2px;
+    border-radius: 5px;
+    width: 100%;
+
+    &:hover:not(:disabled) { background: var(--app-action-soft); color: var(--app-action); }
+    &:disabled { cursor: default; }
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+}
+
+.pgrid__th-row { width: 92px; }
+
+// ─── Faixa de módulo ────────────────────────────────────────────────────────
+.pgrid__module > td {
+  position: sticky;
+  top: var(--row-head-h);
+  z-index: 2;
+  background: var(--app-surface-3);
+  border-top: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-border);
+  padding: 0 16px;
+  height: 32px;
+}
+
+.pgrid__module-inner { display: flex; align-items: center; gap: 10px; }
+
+.pgrid__module-toggle {
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--app-action);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.pgrid__caret {
+  font-size: 9px;
+  display: inline-block;
+  transition: transform .15s ease;
+}
+
+.pgrid__module[data-open='false'] .pgrid__caret { transform: rotate(-90deg); }
+
+.pgrid__module-score {
+  font-size: 11px;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pgrid__module-acts { margin-left: auto; display: flex; gap: 4px; }
+
+// ─── Linhas ─────────────────────────────────────────────────────────────────
+tbody td {
+  height: var(--row-h);
+  border-bottom: 1px solid var(--app-border);
+  padding: 0 6px;
+  text-align: center;
+}
+
+.pgrid__row:hover td { background: var(--app-surface-2); }
+
+.pgrid__cell-screen {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--app-surface);
+  padding-left: 16px;
+  text-align: left;
+  border-right: 1px solid var(--app-border);
+}
+
+.pgrid__row:hover .pgrid__cell-screen { background: var(--app-surface-2); }
+
+.pgrid__label { font-size: 13px; font-weight: 500; display: block; }
+.pgrid__code {
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 10px;
+  color: var(--app-text-subtle);
+}
+
+.pgrid__empty {
+  padding: 28px 16px;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+// ─── A célula ───────────────────────────────────────────────────────────────
+//
+// Botão e não `<input type="checkbox">`: são 385 por tela, e o checkbox nativo
+// não aceita o ponto de divergência no canto sem um elemento extra por célula.
+.pgrid__box {
+  cursor: pointer;
+  padding: 0;
+  margin: 0 auto;
+  display: block;
+  width: 19px;
+  height: 19px;
+  border-radius: 5px;
+  border: 1.5px solid var(--app-border-strong);
+  background: var(--app-surface);
+  position: relative;
+  transition: background .1s ease, border-color .1s ease;
+
+  &:hover:not(:disabled) { border-color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &:disabled { cursor: default; opacity: .75; }
+
+  &[aria-checked='true'] {
+    background: var(--app-success);
+    border-color: var(--app-success);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid var(--app-on-action);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+
+  // Difere dos modelos aplicados. É o que impede o "reaplicar" cego: sem esta
+  // marca, devolver uma permissão que alguém tirou de propósito é invisível.
+  &[data-diverges]::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--app-warning);
+    border: 1.5px solid var(--app-surface);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pgrid__caret, .pgrid__box { transition: none; }
+}

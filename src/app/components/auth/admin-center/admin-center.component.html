@@ -55,6 +55,12 @@
             Sem vínculo
           </span>
         </td>
+        <!--
+          Setor, e não acesso. Desde a V86 estes valores não decidem mais nada:
+          o menu e a API leem `user_permissions`. Ficam como histórico de onde a
+          pessoa veio, e o rótulo diz isso para ninguém mexer achando que muda
+          alguma coisa.
+        -->
         <td>
           <span class="ac-tag" *ngFor="let role of user.roles" [attr.data-role]="role">
             {{ getRoleLabel(role) }}
@@ -69,7 +75,9 @@
         <td style="text-align: center">
           <div class="ac-actions">
             <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true"
-                       pkTooltip="Editar permissões" (clicked)="selectUserToEdit(user)"/>
+                       pkIcon="pi pi-lock"
+                       pkTooltip="Permissões desta pessoa"
+                       (clicked)="openPermissions(user)"/>
             <pk-button *ngIf="!user.roles.includes('DEVELOPER')"
                        [pkType]="user.active ? 'delete' : 'save'" pkSize="sm" [pkIconOnly]="true"
                        [pkIcon]="user.active ? 'pi pi-lock' : 'pi pi-lock-open'"
@@ -115,9 +123,11 @@
                        placeholder="Repita a senha"/>
         </ng-container>
 
-        <pk-multiselect formControlName="roles" label="Permissões" [pkRequired]="true"
-                        [options]="availableRoles" optionLabel="label" optionValue="value"
-                        placeholder="Selecione as permissões"/>
+        <p class="ac-form-hint">
+          O acesso não é dado aqui. O usuário nasce sem tela nenhuma e recebe o
+          modelo <b>Base</b> no primeiro acesso; o resto se configura em
+          <b>Configurações › Permissões por usuário</b>.
+        </p>
       </div>
 
       <button type="submit" hidden></button>

@@ -1,0 +1,121 @@
+<div class="pgrid">
+
+  <!-- Filtro e ações em massa. O alcance de tudo aqui é o que está visível. -->
+  <div class="pgrid__bar">
+    <pk-input class="pgrid__search"
+              placeholder="Filtrar tela…"
+              icon="pi pi-search"
+              [ngModel]="filter()"
+              (ngModelChange)="setFilter($event)"
+              [ngModelOptions]="{ standalone: true }" />
+
+    <div class="pgrid__chips" role="group" aria-label="Filtrar por módulo">
+      <button type="button" class="pgrid__chip"
+              [attr.aria-pressed]="module() === 'todos'"
+              (click)="setModule('todos')">Todos</button>
+
+      @for (m of modules(); track m) {
+        <button type="button" class="pgrid__chip"
+                [attr.aria-pressed]="module() === m"
+                (click)="setModule(m)">{{ m }}</button>
+      }
+    </div>
+
+    <span class="pgrid__spacer"></span>
+
+    @if (!disabled()) {
+      <button type="button" class="pgrid__mini" (click)="toggleAll(true)">Liberar tudo</button>
+      <button type="button" class="pgrid__mini" (click)="toggleAll(false)">Bloquear tudo</button>
+    }
+  </div>
+
+  <div class="pgrid__scroll">
+    <table class="pgrid__table">
+      <thead>
+        <tr>
+          <th class="pgrid__th-screen">Tela</th>
+
+          @for (p of permissions; track p) {
+            <th class="pgrid__th-perm">
+              <button type="button"
+                      [disabled]="disabled()"
+                      [title]="'Ligar ou desligar ' + p + ' nas telas visíveis'"
+                      (click)="toggleColumn(p)">{{ labels[p] }}</button>
+            </th>
+          }
+
+          <th class="pgrid__th-row">Linha</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (block of blocks(); track block.kind === 'module' ? 'm:' + block.module : block.screen.code) {
+
+          @if (block.kind === 'module') {
+            <tr class="pgrid__module" [attr.data-open]="block.open">
+              <td [attr.colspan]="permissions.length + 2">
+                <div class="pgrid__module-inner">
+                  <button type="button" class="pgrid__module-toggle"
+                          (click)="collapse(block.module)">
+                    <span class="pgrid__caret" aria-hidden="true">▼</span>{{ block.module }}
+                  </button>
+
+                  <span class="pgrid__module-score">{{ block.allowed }}/{{ block.total }}</span>
+
+                  @if (!disabled()) {
+                    <span class="pgrid__module-acts">
+                      <button type="button" class="pgrid__mini pgrid__mini--ghost"
+                              (click)="toggleModule(block.module, true)">tudo</button>
+                      <button type="button" class="pgrid__mini pgrid__mini--ghost"
+                              (click)="toggleModule(block.module, false)">nada</button>
+                    </span>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @else {
+            <tr class="pgrid__row">
+              <td class="pgrid__cell-screen">
+                <span class="pgrid__label">{{ block.screen.label }}</span>
+                <span class="pgrid__code">{{ block.screen.code }}</span>
+              </td>
+
+              @for (cell of block.cells; track cell.key) {
+                <td class="pgrid__cell">
+                  <button type="button"
+                          class="pgrid__box"
+                          role="checkbox"
+                          [attr.aria-checked]="cell.on"
+                          [attr.data-diverges]="cell.diverges ? true : null"
+                          [disabled]="disabled()"
+                          [attr.aria-label]="block.screen.label + ' — ' + cell.permission"
+                          (click)="toggleCell(cell.key)"></button>
+                </td>
+              }
+
+              <td class="pgrid__cell">
+                @if (!disabled()) {
+                  @if (block.full) {
+                    <button type="button" class="pgrid__mini pgrid__mini--ghost"
+                            (click)="toggleRow(block.screen, false)">limpar</button>
+                  } @else {
+                    <button type="button" class="pgrid__mini pgrid__mini--ghost"
+                            (click)="toggleRow(block.screen, true)">tudo</button>
+                  }
+                }
+              </td>
+            </tr>
+          }
+        }
+
+        @if (!blocks().length) {
+          <tr>
+            <td [attr.colspan]="permissions.length + 2" class="pgrid__empty">
+              Nenhuma tela com esse filtro.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
