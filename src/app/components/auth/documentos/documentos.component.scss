@@ -81,7 +81,7 @@
 
   // ── Hover (active cards only) ──
 
-  &:hover:not(.doc-card--disabled) {
+  &:hover {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--accent) 35%, transparent);
     box-shadow: var(--app-shadow-sm);
@@ -93,36 +93,11 @@
     }
   }
 
-  &:active:not(.doc-card--disabled) {
+  &:active {
     transform: scale(0.98);
     transition-duration: 0.06s;
   }
 
-  // ── Disabled ──
-
-  &--disabled {
-    cursor: default;
-    opacity: 0.5;
-    border-style: dashed;
-
-    .doc-card__arrow { display: none; }
-  }
-
-  // ── Badge ──
-
-  &__badge {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    background: var(--app-text-muted);
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
 }
 
 // ── Tablet ───────────────────────────────────────────────────────────────────
@@ -162,14 +137,7 @@
       overflow: hidden;
     }
 
-    &__badge {
-      top: 8px;
-      right: 8px;
-      font-size: 0.6rem;
-      padding: 2px 6px;
-    }
-
-    &:hover:not(.doc-card--disabled) {
+    &:hover {
       transform: none;
     }
   }
@@ -179,4 +147,20 @@
   .docs-grid {
     grid-template-columns: 1fr;
   }
+}
+
+// ── Sem acesso a nada ────────────────────────────────────────────────────────
+//
+// A grade filtra por permissão, então esta mensagem é o único conteúdo que
+// sobra para quem não abre nenhuma pasta. Sem ela, a página apareceria vazia e
+// pareceria defeito.
+.docs-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-surface);
 }

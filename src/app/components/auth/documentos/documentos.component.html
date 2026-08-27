@@ -5,15 +5,8 @@
     subtitle="Acesse os arquivos e materiais da empresa" />
 
   <div class="docs-grid">
-    @for (cat of categorias; track cat.titulo) {
-      <button type="button"
-              class="doc-card"
-              [class.doc-card--disabled]="cat.emDesenvolvimento"
-              (click)="abrir(cat)">
-
-        @if (cat.emDesenvolvimento) {
-          <span class="doc-card__badge">Em breve</span>
-        }
+    @for (cat of categorias(); track cat.rota) {
+      <button type="button" class="doc-card" (click)="abrir(cat)">
 
         <span class="doc-card__icon" [style.--accent]="cat.accent">
           <i [class]="cat.icon"></i>
@@ -24,10 +17,17 @@
           <span class="doc-card__desc">{{ cat.descricao }}</span>
         </span>
 
-        @if (!cat.emDesenvolvimento) {
-          <i class="pi pi-chevron-right doc-card__arrow"></i>
-        }
+        <i class="pi pi-chevron-right doc-card__arrow"></i>
       </button>
+    } @empty {
+      <!--
+        Só acontece se a pessoa não puder abrir nenhuma das telas — e aí a
+        página vazia sem explicação pareceria defeito.
+      -->
+      <p class="docs-empty">
+        Você ainda não tem acesso a nenhuma pasta de documentos. Fale com quem
+        cuida das permissões.
+      </p>
     }
   </div>
 </section>
