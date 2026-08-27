@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -44,6 +45,7 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
   private readonly api = inject(PermissionAdminService);
   private readonly toast = inject(MessageService);
   private readonly permissions = inject(PermissionStore);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly grid = viewChild(PermissionGridComponent);
 
@@ -159,13 +161,25 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
       next: pessoas => {
         this.users.set(pessoas);
         this.loading.set(false);
-        if (selectFirst && pessoas.length) this.select(pessoas[0]);
+        if (selectFirst && pessoas.length) this.select(this.pedidaNaUrl(pessoas) ?? pessoas[0]);
       },
       error: () => {
         this.loading.set(false);
         this.falhou('Não foi possível carregar os usuários.');
       },
     });
+  }
+
+  /**
+   * A pessoa que veio no link, se veio.
+   *
+   * O botão de permissões na tela de Admin manda `?login=`. Sem isto, quem
+   * clica no Ricardo cai no primeiro da lista e precisa procurá-lo de novo —
+   * um atrito pequeno que, repetido, faz a pessoa parar de usar o atalho.
+   */
+  private pedidaNaUrl(pessoas: UserSummary[]): UserSummary | null {
+    const login = this.route.snapshot.queryParamMap.get('login');
+    return login ? pessoas.find(u => u.login === login) ?? null : null;
   }
 
   select(user: UserSummary): void {

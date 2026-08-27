@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 import { PermissionUsersComponent } from './permission-users.component';
@@ -49,7 +50,15 @@ describe('PermissionUsersComponent', () => {
     appliedTemplates: [],
   };
 
+  /** O `?login=` que o botão da tela de Admin manda. Vazio por padrão. */
+  let loginNaUrl: string | null;
+
+  const rota = {
+    snapshot: { queryParamMap: { get: (_: string) => loginNaUrl } },
+  };
+
   beforeEach(async () => {
+    loginNaUrl = null;
     api = jasmine.createSpyObj<PermissionAdminService>('PermissionAdminService', [
       'screens', 'templates', 'users', 'userGrid', 'saveUserGrid', 'apply', 'copyFrom', 'undoApply',
     ]);
@@ -67,6 +76,7 @@ describe('PermissionUsersComponent', () => {
         { provide: PermissionAdminService, useValue: api },
         // Quem abre esta tela tem tudo — o que se testa aqui não é a porta.
         { provide: PermissionStore, useValue: { can: () => true, canOpen: () => true } },
+        { provide: ActivatedRoute, useValue: rota },
       ],
     }).compileComponents();
 
@@ -74,6 +84,19 @@ describe('PermissionUsersComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
+
+  /**
+   * Monta de novo, depois de mexer no `?login=`.
+   *
+   * O `beforeEach` já criou uma instância — e o que estes testes medem acontece
+   * no `ngOnInit`, então precisam de uma instância nova com a URL já trocada.
+   */
+  const montar = () => {
+    api.userGrid.calls.reset();
+    fixture = TestBed.createComponent(PermissionUsersComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  };
 
   /** O diálogo do PrimeNG é modal e pode sair do elemento do componente. */
   const noDialogo = (seletor: string) => document.body.querySelector(seletor);
@@ -260,5 +283,31 @@ describe('PermissionUsersComponent', () => {
     component.select(PESSOAS[0]);
 
     expect(component.divergences()).toBe(0);
+  });
+
+  // ─── O atalho vindo da tela de Admin ──────────────────────────────────────
+
+  /**
+   * **O botão de permissões do Admin manda `?login=`.**
+   *
+   * Sem isto, quem clica no Ricardo cai no primeiro da lista e precisa
+   * procurá-lo de novo. É um atrito pequeno, e é assim que um atalho deixa de
+   * ser usado.
+   */
+  it('abre na pessoa que veio no link', () => {
+    loginNaUrl = 'ricardo';
+    const outra = { ...GRADE, id: 'u-2', name: 'Ricardo Souza', login: 'ricardo' };
+    api.userGrid.and.returnValue(of(outra));
+
+    montar();
+
+    expect(api.userGrid).toHaveBeenCalledWith('u-2');
+  });
+
+  /** Sem link, abre no primeiro — que é o comportamento de sempre. */
+  it('sem link, abre no primeiro da lista', () => {
+    montar();
+
+    expect(api.userGrid).toHaveBeenCalledWith('u-1');
   });
 });
