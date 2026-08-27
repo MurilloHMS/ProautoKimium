@@ -516,3 +516,52 @@
     .inline-input { min-width: 100%; }
   }
 }
+
+// ─── Quando o perfil não abre ───────────────────────────────────────────────
+//
+// A tela tinha só dois estados — carregando e carregado — e o erro caía no
+// vazio entre eles. Este bloco é o terceiro, e existe para o caso mais comum:
+// a conta de acesso que ninguém vinculou ao cadastro de funcionário.
+//
+// Sem botão de "tentar de novo" nesse caso, de propósito: repetir a requisição
+// não vincula nada, e oferecer um botão que não resolve é pior que não oferecer.
+.empty-state {
+  max-width: 46ch;
+  margin: 48px auto;
+  padding: 28px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+}
+
+.empty-state__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 22px;
+}
+
+.empty-state h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--app-text);
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--app-text-muted);
+}

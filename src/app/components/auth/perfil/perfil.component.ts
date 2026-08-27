@@ -50,6 +50,18 @@ export class PerfilComponent implements OnInit {
 
   data: MyProfileResponseDto | null = null;
   loading = true;
+
+  /**
+   * O que a API respondeu quando não deu para carregar.
+   *
+   * A tela tinha `@if (loading) @else if (data)` e mais nada: no erro ela
+   * ficava **em branco**, com um toast vermelho que some sozinho. Quem chegava
+   * depois de três segundos via uma página vazia sem explicação nenhuma.
+   */
+  errorMessage: string | null = null;
+
+  /** A conta não está ligada a um funcionário — o caso que tem saída conhecida. */
+  notLinked = false;
   saving = false;
   editing = false;
 
@@ -104,6 +116,9 @@ export class PerfilComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.errorMessage = null;
+    this.notLinked = false;
+
     this.vcardService.getMyProfile().subscribe({
       next: (res) => {
         this.data = res;
@@ -112,9 +127,21 @@ export class PerfilComponent implements OnInit {
           this.patchForm(res.profile);
         }
       },
-      error: () => {
+      error: (erro) => {
         this.loading = false;
-        this.toast.add({ severity: 'error', summary: 'Erro', detail: 'Não foi possível carregar seu perfil.' });
+
+        // O 404 daqui não é "não existe": é a conta sem vínculo com um
+        // funcionário. A API manda a frase com a saída — quem pedir e para
+        // quem — e a tela mostra isso em vez de um "erro" genérico.
+        this.notLinked = erro?.status === 404;
+        this.errorMessage = erro?.error?.message
+          ?? 'Não foi possível carregar seu perfil. Tente novamente em instantes.';
+
+        // Sem toast no caso conhecido: a mensagem fica NA TELA, e um toast que
+        // some em três segundos é o contrário do que alguém travado precisa.
+        if (!this.notLinked) {
+          this.toast.add({ severity: 'error', summary: 'Erro', detail: this.errorMessage ?? undefined });
+        }
       },
     });
   }

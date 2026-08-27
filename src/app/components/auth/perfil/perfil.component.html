@@ -259,6 +259,32 @@
       </section>
     }
   </div>
+} @else {
+
+  <!--
+    O ramo que faltava.
+
+    Antes eram só `loading` e `data`: no erro a tela ficava em branco, com um
+    toast que some em três segundos. Quem chegasse depois disso via uma página
+    vazia sem explicação — e o caso mais comum tem saída conhecida.
+  -->
+  <div class="perfil-wrapper">
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <i [class]="notLinked ? 'pi pi-link' : 'pi pi-exclamation-triangle'"></i>
+      </div>
+
+      <h2>{{ notLinked ? 'Sua conta ainda não está vinculada' : 'Não deu para abrir seu perfil' }}</h2>
+
+      <!-- A frase vem da API: é lá que está escrito o que fazer e para quem pedir. -->
+      <p>{{ errorMessage }}</p>
+
+      @if (!notLinked) {
+        <button pButton label="Tentar de novo" icon="pi pi-refresh"
+                class="p-button-sm" (click)="load()"></button>
+      }
+    </div>
+  </div>
 }
 
 <!-- QR Code Dialog -->
