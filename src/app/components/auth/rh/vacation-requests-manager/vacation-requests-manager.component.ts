@@ -72,6 +72,29 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
   readonly employeeOptions = this.employeeStore.activeOptions;
   setBalance = false;
 
+  /**
+   * Liga e desliga o campo de saldo — e a exigência junto.
+   *
+   * Marcar a caixa e deixar o campo vazio manda `null`, e `null` é o sinal de
+   * "não informado": a API desconta os dias em vez de gravar o valor. Ou seja,
+   * a caixa faria o **oposto** do que promete, sem erro nenhum na tela.
+   *
+   * Zero é um valor legítimo aqui: é o RH lançando as últimas férias e dizendo
+   * que a pessoa fica zerada.
+   */
+  onSetBalanceChange(ligado: boolean): void {
+    this.setBalance = ligado;
+    const campo = this.registerForm.get('vacationBalanceDays');
+
+    if (ligado) {
+      campo?.addValidators(Validators.required);
+    } else {
+      campo?.clearValidators();
+      campo?.setValue(null);
+    }
+    campo?.updateValueAndValidity();
+  }
+
   constructor(
     private vacationRequestService: VacationRequestService,
     private msgService: MessageService,
@@ -195,7 +218,7 @@ export class VacationRequestsManagerComponent implements OnInit, TabDirtyCheck {
 
   openRegisterDialog(): void {
     this.registerForm.reset();
-    this.setBalance = false;
+    this.onSetBalanceChange(false);
     this.mode.set('form');
   }
 

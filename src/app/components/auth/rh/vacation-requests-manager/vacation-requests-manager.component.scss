@@ -42,17 +42,21 @@
   align-items: center;
   justify-content: center;
 
-  &--approve:hover {
-    background: var(--app-success);
-    border-color: var(--app-success);
-    color: #fff;
-  }
+}
 
-  &--reject:hover {
-    background: var(--app-danger);
-    border-color: var(--app-danger);
-    color: #fff;
-  }
+// O `&` daqui não podia estar dentro de `.action-btn.p-button`: ele concatena
+// no ÚLTIMO seletor, então `&--approve` compilava para `.action-btn.p-button--approve`
+// — uma classe que não existe. O hover verde e o vermelho nunca apareceram.
+.action-btn--approve.p-button:hover {
+  background: var(--app-success);
+  border-color: var(--app-success);
+  color: #fff;
+}
+
+.action-btn--reject.p-button:hover {
+  background: var(--app-danger);
+  border-color: var(--app-danger);
+  color: #fff;
 }
 
 .vr-badge {

@@ -218,14 +218,20 @@
 
         <div class="form-field form-field--full">
           <label class="balance-toggle">
-            <input type="checkbox" [(ngModel)]="setBalance" [ngModelOptions]="{standalone: true}">
+            <input type="checkbox" [ngModel]="setBalance"
+                   (ngModelChange)="onSetBalanceChange($event)"
+                   [ngModelOptions]="{standalone: true}">
             Definir saldo de férias deste funcionário
           </label>
         </div>
 
         @if (setBalance) {
           <div class="form-field form-field--full">
-            <label>Saldo de férias (dias)</label>
+            <label>Saldo de férias (dias) <span class="required">*</span></label>
+            <!--
+              O valor digitado é o saldo DEPOIS deste lançamento, e não uma
+              entrada para descontar. Zero vale: é a pessoa ficando zerada.
+            -->
             <p-inputNumber
               formControlName="vacationBalanceDays"
               [min]="0"
