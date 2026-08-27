@@ -23,25 +23,7 @@
   border-bottom: 1px solid var(--app-border);
 }
 
-.pgrid__search {
-  height: var(--field-h);
-  width: 200px;
-  padding: 0 10px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--radius-control);
-  background: var(--app-surface);
-  color: var(--app-text);
-  font: inherit;
-  font-size: 13px;
-
-  &::placeholder { color: var(--app-text-subtle); }
-
-  &:focus {
-    outline: none;
-    border-color: var(--app-action);
-    box-shadow: var(--app-focus-ring);
-  }
-}
+.pgrid__search { width: 200px; }
 
 .pgrid__chips { display: flex; gap: 5px; flex-wrap: wrap; }
 

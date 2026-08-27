@@ -1,4 +1,7 @@
 import { Component, computed, effect, input, linkedSignal, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+import { PkInputComponent } from '../../../../theme/ProautoKimium/pk-input/pk-input.component';
 
 import {
   PERMISSION_LABELS, PERMISSIONS, PermissionCells, PermissionName, ScreenRow,
@@ -50,6 +53,7 @@ function keysOf(cells: PermissionCells): Set<string> {
 @Component({
   selector: 'app-permission-grid',
   standalone: true,
+  imports: [FormsModule, PkInputComponent],
   templateUrl: './permission-grid.component.html',
   styleUrl: './permission-grid.component.scss',
 })

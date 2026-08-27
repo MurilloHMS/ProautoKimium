@@ -8,12 +8,11 @@
       <div class="pshell__rail-title">
         Modelos <span>{{ templates().length }}</span>
       </div>
-      <input type="search"
-             class="pshell__field"
-             placeholder="Buscar modelo…"
-             aria-label="Buscar modelo"
-             [value]="search()"
-             (input)="search.set($any($event.target).value)" />
+      <pk-input placeholder="Buscar modelo…"
+                icon="pi pi-search"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
     </div>
 
     <div class="pshell__list">
@@ -127,33 +126,41 @@
 <!-- ─── Criar, duplicar, renomear ───────────────────────────────────────── -->
 <pk-dialog [header]="formTitle()" [visible]="formOpen()" width="480px"
            (visibleChange)="formOpen.set($event)">
-  <div class="pform" pkDialogContent>
-    <div class="pform__row">
-      <label class="pform__label" for="tpl-name">Nome</label>
-      <input id="tpl-name" class="pshell__field" type="text"
-             [value]="formName()" (input)="formName.set($any($event.target).value)" />
-    </div>
 
-    <div class="pform__row">
-      <label class="pform__label" for="tpl-desc">Descrição</label>
-      <input id="tpl-desc" class="pshell__field" type="text"
-             placeholder="Para que serve este modelo"
-             [value]="formDescription()"
-             (input)="formDescription.set($any($event.target).value)" />
-    </div>
+  <!--
+    `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
+    conteúdo de propósito, e é a seção que traz o espaçamento.
+  -->
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <div class="pform">
+        <pk-input label="Nome"
+                  placeholder="Ex.: Vendas Júnior"
+                  [pkRequired]="true"
+                  [ngModel]="formName()"
+                  (ngModelChange)="formName.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
 
-    @if (formKind() === 'duplicate') {
-      <p class="pform__hint">
-        Nasce com as mesmas permissões de <b>{{ current()?.name }}</b>. Do zero
-        seriam 385 cliques.
-      </p>
-    }
-    @if (formKind() === 'new') {
-      <p class="pform__hint">Nasce com <b>tudo fechado</b>. Libere o que ele deve dar.</p>
-    }
+        <pk-input label="Descrição"
+                  placeholder="Para que serve este modelo"
+                  [ngModel]="formDescription()"
+                  (ngModelChange)="formDescription.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
+
+        @if (formKind() === 'duplicate') {
+          <p class="pform__hint">
+            Nasce com as mesmas permissões de <b>{{ current()?.name }}</b>. Do zero
+            seriam 385 cliques.
+          </p>
+        }
+        @if (formKind() === 'new') {
+          <p class="pform__hint">Nasce com <b>tudo fechado</b>. Libere o que ele deve dar.</p>
+        }
+      </div>
+    </div>
   </div>
 
-  <div class="pform__foot" pkDialogFooter>
+  <div pkDialogFooter class="pk-dialog-footer">
     <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
     <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
   </div>
@@ -162,29 +169,33 @@
 <!-- ─── Reaplicar ───────────────────────────────────────────────────────── -->
 <pk-dialog header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
            (visibleChange)="reapplyOpen.set($event)">
-  <div class="pform" pkDialogContent>
-    <p class="pform__hint">
-      As <b>{{ stampedUsers().length }}</b> pessoas abaixo ficam <b>idênticas</b>
-      a este modelo:
-    </p>
 
-    <ul class="pform__people">
-      @for (p of stampedUsers(); track p.id) {
-        <li>{{ p.name }} <span>{{ p.login }}</span></li>
-      }
-    </ul>
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-users"></i> Quem fica idêntico ao modelo
+      </h3>
+
+      <ul class="pform__people">
+        @for (p of stampedUsers(); track p.id) {
+          <li>{{ p.name }} <span>{{ p.login }}</span></li>
+        }
+      </ul>
+    </div>
 
     <!--
       Reaplicar é sempre SUBSTITUIR. Somar não reaplicaria nada: deixaria
       ligado o que o modelo passou a negar. O preço é este aviso.
     -->
-    <p class="pform__danger">
-      Todo <b>ajuste individual</b> dessas pessoas se perde — inclusive uma
-      permissão que alguém tirou de propósito.
-    </p>
+    <div class="pk-form-section">
+      <p class="pform__danger">
+        Todo <b>ajuste individual</b> dessas pessoas se perde — inclusive uma
+        permissão que alguém tirou de propósito.
+      </p>
+    </div>
   </div>
 
-  <div class="pform__foot" pkDialogFooter>
+  <div pkDialogFooter class="pk-dialog-footer">
     <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
     <pk-button pkType="save" pkSize="sm"
                [pkLabel]="'Reaplicar a ' + stampedUsers().length"

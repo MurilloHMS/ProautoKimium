@@ -108,12 +108,27 @@ describe('PermissionUsersComponent', () => {
       .not.toBeNull();
   });
 
-  /** O rodapé vai para o slot próprio, e some junto se o atributo cair. */
-  it('o rodapé do diálogo traz os botões', () => {
+  /**
+   * O rodapé usa a classe do tema, e não uma minha.
+   *
+   * `pk-dialog-footer` é quem traz padding, traço e alinhamento à direita — o
+   * `pk-dialog` zera os dois slots de propósito, esperando que o conteúdo use
+   * `pk-form-section` e o rodapé use esta classe. Recriar isso por fora foi o
+   * que deixou os diálogos sem respiro.
+   */
+  it('o rodapé do diálogo usa a classe do tema e traz os botões', () => {
     component.openApplyToCurrent();
     fixture.detectChanges();
 
-    expect(noDialogo('.pform__foot pk-button')).not.toBeNull();
+    expect(noDialogo('.pk-dialog-footer pk-button')).not.toBeNull();
+  });
+
+  /** O conteúdo respira porque está numa seção do tema, não numa div solta. */
+  it('o conteúdo do diálogo vive dentro de pk-form-section', () => {
+    component.openApplyToCurrent();
+    fixture.detectChanges();
+
+    expect(noDialogo('.pk-form-section .pform__mode')).not.toBeNull();
   });
 
   it('o diálogo de copiar também abre com conteúdo', () => {

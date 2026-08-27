@@ -2,12 +2,12 @@
 
   <!-- Filtro e ações em massa. O alcance de tudo aqui é o que está visível. -->
   <div class="pgrid__bar">
-    <input type="search"
-           class="pgrid__search"
-           placeholder="Filtrar tela…"
-           aria-label="Filtrar tela"
-           [value]="filter()"
-           (input)="setFilter($any($event.target).value)" />
+    <pk-input class="pgrid__search"
+              placeholder="Filtrar tela…"
+              icon="pi pi-search"
+              [ngModel]="filter()"
+              (ngModelChange)="setFilter($event)"
+              [ngModelOptions]="{ standalone: true }" />
 
     <div class="pgrid__chips" role="group" aria-label="Filtrar por módulo">
       <button type="button" class="pgrid__chip"

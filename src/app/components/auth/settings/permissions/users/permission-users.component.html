@@ -8,12 +8,11 @@
       <div class="pshell__rail-title">
         Usuários <span>{{ users().length }}</span>
       </div>
-      <input type="search"
-             class="pshell__field"
-             placeholder="Buscar pessoa…"
-             aria-label="Buscar pessoa"
-             [value]="search()"
-             (input)="search.set($any($event.target).value)" />
+      <pk-input placeholder="Buscar pessoa…"
+                icon="pi pi-search"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
     </div>
 
     <div class="pshell__list">
@@ -127,10 +126,18 @@
 <!-- ─── Aplicar modelo ──────────────────────────────────────────────────── -->
 <pk-dialog header="Aplicar modelo" [visible]="applyOpen()" width="580px"
            (visibleChange)="applyOpen.set($event)">
-  <div class="pform" pkDialogContent>
 
-    <div class="pform__row">
-      <span class="pform__label">Modelo</span>
+  <!--
+    Três seções do tema em vez de rótulos inventados: o pk-dialog zera o
+    padding do conteúdo, e é a `pk-form-section` que traz o espaçamento e o
+    traço entre os blocos.
+  -->
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-bookmark"></i> Modelo
+      </h3>
+
       <div class="pform__opts">
         @for (t of templates(); track t.id) {
           <button type="button" class="pform__chip"
@@ -140,11 +147,12 @@
       </div>
     </div>
 
-    <div class="pform__row">
-      <span class="pform__label">
-        Pessoas · {{ applyTargets().length }} selecionadas
-      </span>
-      <div class="pform__people pform__people--pick">
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-users"></i> Pessoas · {{ applyTargets().length }} selecionadas
+      </h3>
+
+      <div class="pform__people">
         @for (u of users(); track u.id) {
           <button type="button"
                   class="pform__person"
@@ -161,30 +169,36 @@
       As duas consequências, escritas antes do clique. É a única escolha desta
       feature que apaga trabalho de alguém.
     -->
-    <div class="pform__row">
-      <button type="button" class="pform__mode"
-              [attr.aria-pressed]="applyMode() === 'SOMAR'"
-              (click)="applyMode.set('SOMAR')">
-        <div>
-          <b>Somar — liga o que o modelo permite</b>
-          <span>Nada é desligado. É o que faz “Vendas + Estoque” funcionar:
-            o segundo carimbo não apaga o primeiro.</span>
-        </div>
-      </button>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-sliders-h"></i> Como aplicar
+      </h3>
 
-      <button type="button" class="pform__mode"
-              [attr.aria-pressed]="applyMode() === 'SUBSTITUIR'"
-              (click)="applyMode.set('SUBSTITUIR')">
-        <div>
-          <b>Substituir — grava exatamente o modelo</b>
-          <span class="pform__warn">Liga e desliga. As pessoas ficam idênticas ao
-            modelo, e todo ajuste individual delas se perde.</span>
-        </div>
-      </button>
+      <div class="pform">
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="applyMode() === 'SOMAR'"
+                (click)="applyMode.set('SOMAR')">
+          <div>
+            <b>Somar — liga o que o modelo permite</b>
+            <span>Nada é desligado. É o que faz “Vendas + Estoque” funcionar:
+              o segundo carimbo não apaga o primeiro.</span>
+          </div>
+        </button>
+
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="applyMode() === 'SUBSTITUIR'"
+                (click)="applyMode.set('SUBSTITUIR')">
+          <div>
+            <b>Substituir — grava exatamente o modelo</b>
+            <span class="pform__warn">Liga e desliga. As pessoas ficam idênticas ao
+              modelo, e todo ajuste individual delas se perde.</span>
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="pform__foot" pkDialogFooter>
+  <div pkDialogFooter class="pk-dialog-footer">
     <pk-button pkType="cancel" pkSize="sm" (clicked)="applyOpen.set(false)" />
     <pk-button pkType="save" pkSize="sm"
                [pkLabel]="'Aplicar a ' + applyTargets().length"
@@ -196,9 +210,13 @@
 <pk-dialog [header]="'Copiar permissões para ' + (selected()?.name ?? '')"
            [visible]="copyOpen()" width="480px"
            (visibleChange)="copyOpen.set($event)">
-  <div class="pform" pkDialogContent>
-    <div class="pform__row">
-      <span class="pform__label">Copiar de quem</span>
+
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title">
+        <i class="pi pi-clone"></i> Copiar de quem
+      </h3>
+
       <div class="pform__people">
         @for (u of copyCandidates(); track u.id) {
           <button type="button"
@@ -212,13 +230,15 @@
       </div>
     </div>
 
-    <p class="pform__danger">
-      A grade inteira de <b>{{ selected()?.name }}</b> é substituída, e os
-      carimbos dela passam a ser os da pessoa de origem.
-    </p>
+    <div class="pk-form-section">
+      <p class="pform__danger">
+        A grade inteira de <b>{{ selected()?.name }}</b> é substituída, e os
+        carimbos dela passam a ser os da pessoa de origem.
+      </p>
+    </div>
   </div>
 
-  <div class="pform__foot" pkDialogFooter>
+  <div pkDialogFooter class="pk-dialog-footer">
     <pk-button pkType="cancel" pkSize="sm" (clicked)="copyOpen.set(false)" />
     <pk-button pkType="save" pkSize="sm" pkLabel="Copiar" (clicked)="confirmCopy()" />
   </div>

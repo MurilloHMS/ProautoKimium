@@ -1,8 +1,10 @@
 import { Component, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkInputComponent } from '../../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkDialogComponent } from '../../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PermissionGridComponent } from '../permission-grid/permission-grid.component';
 import { PermissionAdminService } from '../../../../../infrastructure/services/permission/permission-admin.service';
@@ -28,7 +30,10 @@ const SCREEN = 'settings/permissions/templates';
 @Component({
   selector: 'app-permission-templates',
   standalone: true,
-  imports: [ToastModule, PkButtonComponent, PkDialogComponent, PermissionGridComponent],
+  imports: [
+    FormsModule, ToastModule,
+    PkButtonComponent, PkInputComponent, PkDialogComponent, PermissionGridComponent,
+  ],
   templateUrl: './permission-templates.component.html',
   styleUrl: './permission-templates.component.scss',
   providers: [MessageService],

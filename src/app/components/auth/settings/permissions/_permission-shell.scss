@@ -51,26 +51,6 @@
   }
 }
 
-.pshell__field {
-  height: var(--field-h);
-  width: 100%;
-  padding: 0 10px;
-  border: 1px solid var(--app-border-strong);
-  border-radius: var(--radius-control);
-  background: var(--app-surface);
-  color: var(--app-text);
-  font: inherit;
-  font-size: 13px;
-
-  &::placeholder { color: var(--app-text-subtle); }
-
-  &:focus {
-    outline: none;
-    border-color: var(--app-action);
-    box-shadow: var(--app-focus-ring);
-  }
-}
-
 .pshell__list {
   overflow-y: auto;
   padding: 8px;
@@ -217,17 +197,10 @@
 }
 
 // ─── Diálogos ───────────────────────────────────────────────────────────────
+// Empilhador, e nada mais: o padding e os traços vêm da `pk-form-section` do
+// tema, e o rodapé da `pk-dialog-footer`. Recriar isso aqui foi o erro que
+// deixou os diálogos sem respiro.
 .pform { display: flex; flex-direction: column; gap: 14px; }
-
-.pform__row { display: flex; flex-direction: column; gap: 5px; }
-
-.pform__label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--app-text-muted);
-}
 
 .pform__opts { display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -279,4 +252,3 @@
   span.pform__warn { color: var(--app-warning); font-weight: 600; }
 }
 
-.pform__foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
