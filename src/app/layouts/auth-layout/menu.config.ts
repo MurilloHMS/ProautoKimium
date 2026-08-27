@@ -24,9 +24,6 @@ export interface AppMenuItem {
    * aparecer.
    */
   screen?: string;
-
-  /** @deprecated Sai no passo 6. Quem decide agora é o `screen`. */
-  roles?: string[];
   badge?: string | number;
   items?: AppMenuItem[];
 }
@@ -51,55 +48,50 @@ export const APP_MENU: AppMenuItem[] = [
     label: 'RH - Recursos Humanos',
     icon: 'pi pi-fw pi-users',
     items: [
-      { label: 'Painel RH', icon: 'pi pi-fw pi-th-large', routerLink: ['rh/hub'], screen: 'rh/hub', roles: ['ADMIN', 'RH'] },
+      { label: 'Painel RH', icon: 'pi pi-fw pi-th-large', routerLink: ['rh/hub'], screen: 'rh/hub' },
       {
         label: 'Aprovações',
         icon: 'pi pi-fw pi-check-circle',
-        roles: ['ADMIN', 'RH'],
         items: [
-          { label: 'Férias', icon: 'pi pi-fw pi-sun', routerLink: ['rh/vacation-requests'], screen: 'rh/vacation-requests', roles: ['ADMIN', 'RH'] },
-          { label: 'Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], screen: 'rh/reimbursements', roles: ['ADMIN', 'RH'] },
-          { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], screen: 'rh/medical-certificates', roles: ['ADMIN', 'RH'] },
+          { label: 'Férias', icon: 'pi pi-fw pi-sun', routerLink: ['rh/vacation-requests'], screen: 'rh/vacation-requests' },
+          { label: 'Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], screen: 'rh/reimbursements' },
+          { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], screen: 'rh/medical-certificates' },
         ],
       },
       {
         label: 'Pessoas',
         icon: 'pi pi-fw pi-user',
-        roles: ['ADMIN', 'RH'],
         items: [
-          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees', roles: ['ADMIN', 'RH'] },
-          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], screen: 'rh/team-overview', roles: ['ADMIN', 'RH'] },
-          { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar', roles: ['ADMIN', 'RH'] },
+          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
+          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
+          { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar' },
         ],
       },
       {
         label: 'Organização',
         icon: 'pi pi-fw pi-sitemap',
-        roles: ['ADMIN', 'RH'],
         items: [
-          { label: 'Estrutura', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure', roles: ['ADMIN', 'RH'] },
-          { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], screen: 'rh/career-structure', roles: ['ADMIN', 'RH'] },
-          { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments', roles: ['ADMIN', 'RH'] },
+          { label: 'Estrutura', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure' },
+          { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], screen: 'rh/career-structure' },
+          { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
         ],
       },
       {
         label: 'Ferramentas',
         icon: 'pi pi-fw pi-wrench',
-        roles: ['ADMIN', 'RH'],
         items: [
-          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators', roles: ['ADMIN', 'RH'] },
-          { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['rh/holerit'], screen: 'rh/holerit', roles: ['ADMIN', 'RH'] },
-          { label: 'Coletar Holerite', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/holerit/extractor'], screen: 'rh/holerit/extractor', roles: ['ADMIN', 'RH'] },
+          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators' },
+          { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['rh/holerit'], screen: 'rh/holerit' },
+          { label: 'Coletar Holerite', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/holerit/extractor'], screen: 'rh/holerit/extractor' },
         ],
       },
       {
         label: 'Comunicação',
         icon: 'pi pi-fw pi-megaphone',
-        roles: ['ADMIN', 'RH'],
         items: [
-          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/announcements'], screen: 'rh/announcements', roles: ['ADMIN', 'RH'] },
-          { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], screen: 'rh/notifications', roles: ['ADMIN', 'RH'] },
-          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas', roles: ['ADMIN', 'RH'] },
+          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/announcements'], screen: 'rh/announcements' },
+          { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], screen: 'rh/notifications' },
+          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
         ],
       },
     ],
@@ -108,43 +100,43 @@ export const APP_MENU: AppMenuItem[] = [
     label: 'Financeiro',
     icon: 'pi pi-fw pi-money-bill',
     items: [
-      { label: 'Gerar Recibos Locação', icon: 'pi pi-fw pi-file-export', routerLink: ['finance/rent-receipt-generator'], screen: 'finance/rent-receipt-generator', roles: ['ADMIN', 'FINANCEIRO'] },
+      { label: 'Gerar Recibos Locação', icon: 'pi pi-fw pi-file-export', routerLink: ['finance/rent-receipt-generator'], screen: 'finance/rent-receipt-generator' },
     ],
   },
   {
     label: 'Empresa',
     icon: 'pi pi-fw pi-building',
     items: [
-      { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['company/customers'], screen: 'company/customers', roles: ['ADMIN', 'RH', 'MARKETING'] },
-      { label: 'Coletar Dados NFe', icon: 'pi pi-fw pi-file', routerLink: ['company/nfe-collector'], screen: 'company/nfe-collector', roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] },
+      { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['company/customers'], screen: 'company/customers' },
+      { label: 'Coletar Dados NFe', icon: 'pi pi-fw pi-file', routerLink: ['company/nfe-collector'], screen: 'company/nfe-collector' },
       { label: 'Remover Senha do Excel', icon: 'pi pi-fw pi-lock', routerLink: ['company/excel'], screen: 'company/excel' },
-      { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], screen: 'company/fuel-supply', roles: ['ADMIN', 'COMPRADOR'] },
-      { label: 'Hub de Abastecimento', icon: 'pi pi-fw pi-chart-line', routerLink: ['company/fuel-hub'], screen: 'company/fuel-hub', roles: ['ADMIN', 'COMPRADOR'] },
-      { label: 'Guia de Utilização', icon: 'pi pi-fw pi-file-pdf', routerLink: ['company/guide'], screen: 'company/guide', roles: ['ADMIN', 'CONTRATOS'] },
-      { label: 'Equipamentos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/equipments'], screen: 'company/equipments', roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] },
+      { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], screen: 'company/fuel-supply' },
+      { label: 'Hub de Abastecimento', icon: 'pi pi-fw pi-chart-line', routerLink: ['company/fuel-hub'], screen: 'company/fuel-hub' },
+      { label: 'Guia de Utilização', icon: 'pi pi-fw pi-file-pdf', routerLink: ['company/guide'], screen: 'company/guide' },
+      { label: 'Equipamentos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/equipments'], screen: 'company/equipments' },
     ],
   },
   {
     label: 'Comunicação',
     icon: 'pi pi-fw pi-comments',
     items: [
-      { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], screen: 'communication/newsletter', roles: ['ADMIN', 'MARKETING'] },
-      { label: 'Disparo de Emails', icon: 'pi pi-fw pi-send', routerLink: ['communication/email'], screen: 'communication/email', roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] },
-      { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-lock', routerLink: ['communication/secrets'], screen: 'communication/secrets', roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR'] },
-      { label: 'Assinatura de Email', icon: 'pi pi-fw pi-file', routerLink: ['communication/email-signature'], screen: 'communication/email-signature', roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN'] },
-      { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['communication/contact'], screen: 'communication/contact', roles: ['ADMIN', 'SUPPORT'] },
+      { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], screen: 'communication/newsletter' },
+      { label: 'Disparo de Emails', icon: 'pi pi-fw pi-send', routerLink: ['communication/email'], screen: 'communication/email' },
+      { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-lock', routerLink: ['communication/secrets'], screen: 'communication/secrets' },
+      { label: 'Assinatura de Email', icon: 'pi pi-fw pi-file', routerLink: ['communication/email-signature'], screen: 'communication/email-signature' },
+      { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['communication/contact'], screen: 'communication/contact' },
     ],
   },
   {
     label: 'Estoque',
     icon: 'pi pi-fw pi-box',
     items: [
-      { label: 'Hub das Máquinas', icon: 'pi pi-fw pi-th-large', routerLink: ['stock/hub'], screen: 'stock/hub', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
-      { label: 'Programação', icon: 'pi pi-fw pi-table', routerLink: ['stock/programacao'], screen: 'stock/programacao', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
-      { label: 'Hub do Estoque', icon: 'pi pi-fw pi-chart-bar', routerLink: ['stock/inventory-hub'], screen: 'stock/inventory-hub', roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Produtos', icon: 'pi pi-fw pi-box', routerLink: ['stock/products'], screen: 'stock/products', roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Movimentações', icon: 'pi pi-fw pi-arrow-right-arrow-left', routerLink: ['stock/movements'], screen: 'stock/movements', roles: ['ADMIN', 'ALMOXARIFADO'] },
-      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], screen: 'stock/alerts', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] },
+      { label: 'Hub das Máquinas', icon: 'pi pi-fw pi-th-large', routerLink: ['stock/hub'], screen: 'stock/hub' },
+      { label: 'Programação', icon: 'pi pi-fw pi-table', routerLink: ['stock/programacao'], screen: 'stock/programacao' },
+      { label: 'Hub do Estoque', icon: 'pi pi-fw pi-chart-bar', routerLink: ['stock/inventory-hub'], screen: 'stock/inventory-hub' },
+      { label: 'Produtos', icon: 'pi pi-fw pi-box', routerLink: ['stock/products'], screen: 'stock/products' },
+      { label: 'Movimentações', icon: 'pi pi-fw pi-arrow-right-arrow-left', routerLink: ['stock/movements'], screen: 'stock/movements' },
+      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], screen: 'stock/alerts' },
     ],
   },
   {
@@ -152,19 +144,19 @@ export const APP_MENU: AppMenuItem[] = [
     icon: 'pi pi-fw pi-wrench',
     items: [
       { label: 'PDF', icon: 'pi pi-fw pi-file-pdf', routerLink: ['tools/pdf'], screen: 'tools/pdf' },
-      { label: 'Certificados em lote', icon: 'pi pi-fw pi-verified', routerLink: ['tools/certificados'], screen: 'tools/certificados', roles: ['ADMIN'] },
+      { label: 'Certificados em lote', icon: 'pi pi-fw pi-verified', routerLink: ['tools/certificados'], screen: 'tools/certificados' },
     ],
   },
   {
     label: 'Configurações',
     icon: 'pi pi-fw pi-cog',
     items: [
-      { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], screen: 'settings/products/website', roles: ['ADMIN', 'DESIGN'] },
-      { label: 'Faq', icon: 'pi pi-fw pi-question-circle', routerLink: ['faq/manager'], screen: 'faq/manager', roles: ['ADMIN'] },
-      { label: 'Perfil', icon: 'pi pi-fw pi-id-card', routerLink: ['profile-manager'], screen: 'profile-manager', roles: ['ADMIN'] },
-      { label: 'Admin', icon: 'pi pi-fw pi-shield', routerLink: ['settings/admin'], screen: 'settings/admin', roles: ['ADMIN'] },
-      { label: 'Modelos de permissão', icon: 'pi pi-fw pi-bookmark', routerLink: ['settings/permissions/templates'], screen: 'settings/permissions/templates', roles: ['ADMIN'] },
-      { label: 'Permissões por usuário', icon: 'pi pi-fw pi-lock', routerLink: ['settings/permissions/users'], screen: 'settings/permissions/users', roles: ['ADMIN'] },
+      { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], screen: 'settings/products/website' },
+      { label: 'Faq', icon: 'pi pi-fw pi-question-circle', routerLink: ['faq/manager'], screen: 'faq/manager' },
+      { label: 'Perfil', icon: 'pi pi-fw pi-id-card', routerLink: ['profile-manager'], screen: 'profile-manager' },
+      { label: 'Admin', icon: 'pi pi-fw pi-shield', routerLink: ['settings/admin'], screen: 'settings/admin' },
+      { label: 'Modelos de permissão', icon: 'pi pi-fw pi-bookmark', routerLink: ['settings/permissions/templates'], screen: 'settings/permissions/templates' },
+      { label: 'Permissões por usuário', icon: 'pi pi-fw pi-lock', routerLink: ['settings/permissions/users'], screen: 'settings/permissions/users' },
     ],
   },
   {

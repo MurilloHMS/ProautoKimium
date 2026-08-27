@@ -61,41 +61,40 @@ export const routes: Routes = [
       { path: 'unauthorized', loadComponent: () => import('./components/auth/access-denied/access-denied.component').then(m => m.AccessDeniedComponent) },
 
       // ── RH (gestão) ──────────────────────────────────────────────────────
-      { path: 'rh/hub', loadComponent: () => import('./components/auth/rh/rh-hub/rh-hub.component').then(m => m.RhHubComponent), data: { screen: 'rh/hub', roles: ['ADMIN', 'RH'] } },
+      { path: 'rh/hub', loadComponent: () => import('./components/auth/rh/rh-hub/rh-hub.component').then(m => m.RhHubComponent), data: { screen: 'rh/hub' } },
       // Menu de ferramentas + conteúdo ao lado. A rota era o separador direto;
-      // ele virou uma das ferramentas de dentro. Papéis declarados: esta era a
-      // única tela do RH sem `roles`, e ela publica holerite.
-      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { screen: 'rh/holerit', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { screen: 'rh/holerit/extractor', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { screen: 'rh/organizational-structure', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { screen: 'rh/career-structure', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { screen: 'rh/vacation-requests', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { screen: 'rh/reimbursements', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { screen: 'rh/calendar', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/team-overview', loadComponent: () => import('./components/auth/rh/team-overview/team-overview.component').then(m => m.TeamOverviewComponent), data: { screen: 'rh/team-overview', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/calculators', loadComponent: () => import('./components/auth/rh/hr-calculators/hr-calculators.component').then(m => m.HrCalculatorsComponent), data: { screen: 'rh/calculators', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/equipment-assignments', loadComponent: () => import('./components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component').then(m => m.HrEquipmentAssignmentsComponent), data: { screen: 'rh/equipment-assignments', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/notifications', loadComponent: () => import('./components/auth/rh/hr-notifications/hr-notifications.component').then(m => m.HrNotificationsComponent), data: { screen: 'rh/notifications', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/announcements', loadComponent: () => import('./components/auth/rh/hr-announcements-manager/hr-announcements-manager.component').then(m => m.HrAnnouncementsManagerComponent), data: { screen: 'rh/announcements', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/medical-certificates', loadComponent: () => import('./components/auth/rh/medical-certificates-manager/medical-certificates-manager.component').then(m => m.MedicalCertificatesManagerComponent), data: { screen: 'rh/medical-certificates', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { screen: 'rh/painel-de-vagas', roles: ['ADMIN', 'RH'] } },
-      { path: 'rh/candidaturas', loadComponent: () => import('./components/auth/rh/candidaturas/candidaturas.component').then(m => m.CandidaturasComponent), data: { screen: 'rh/candidaturas', roles: ['ADMIN', 'RH'] } },
+      // ele virou uma das ferramentas de dentro.
+      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { screen: 'rh/holerit' } },
+      { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { screen: 'rh/holerit/extractor' } },
+      { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees' } },
+      { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { screen: 'rh/organizational-structure' } },
+      { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { screen: 'rh/career-structure' } },
+      { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { screen: 'rh/vacation-requests' } },
+      { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { screen: 'rh/reimbursements' } },
+      { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { screen: 'rh/calendar' } },
+      { path: 'rh/team-overview', loadComponent: () => import('./components/auth/rh/team-overview/team-overview.component').then(m => m.TeamOverviewComponent), data: { screen: 'rh/team-overview' } },
+      { path: 'rh/calculators', loadComponent: () => import('./components/auth/rh/hr-calculators/hr-calculators.component').then(m => m.HrCalculatorsComponent), data: { screen: 'rh/calculators' } },
+      { path: 'rh/equipment-assignments', loadComponent: () => import('./components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component').then(m => m.HrEquipmentAssignmentsComponent), data: { screen: 'rh/equipment-assignments' } },
+      { path: 'rh/notifications', loadComponent: () => import('./components/auth/rh/hr-notifications/hr-notifications.component').then(m => m.HrNotificationsComponent), data: { screen: 'rh/notifications' } },
+      { path: 'rh/announcements', loadComponent: () => import('./components/auth/rh/hr-announcements-manager/hr-announcements-manager.component').then(m => m.HrAnnouncementsManagerComponent), data: { screen: 'rh/announcements' } },
+      { path: 'rh/medical-certificates', loadComponent: () => import('./components/auth/rh/medical-certificates-manager/medical-certificates-manager.component').then(m => m.MedicalCertificatesManagerComponent), data: { screen: 'rh/medical-certificates' } },
+      { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { screen: 'rh/painel-de-vagas' } },
+      { path: 'rh/candidaturas', loadComponent: () => import('./components/auth/rh/candidaturas/candidaturas.component').then(m => m.CandidaturasComponent), data: { screen: 'rh/candidaturas' } },
 
       // ── Estoque (ProStock) ───────────────────────────────────────────────
       // Mesmas funções do desktop JavaFX, que continua no ar consumindo a
       // mesma API — nenhum contrato pode mudar aqui.
-      { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { screen: 'stock/hub', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
-      { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { screen: 'stock/programacao', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
-      { path: 'stock/inventory-hub', loadComponent: () => import('./components/auth/stock/inventory-hub/inventory-hub.component').then(m => m.InventoryHubComponent), data: { screen: 'stock/inventory-hub', roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/hub', loadComponent: () => import('./components/auth/stock/hub/machine-hub.component').then(m => m.MachineHubComponent), data: { screen: 'stock/hub' } },
+      { path: 'stock/programacao', loadComponent: () => import('./components/auth/stock/programacao/programacao.component').then(m => m.ProgramacaoComponent), data: { screen: 'stock/programacao' } },
+      { path: 'stock/inventory-hub', loadComponent: () => import('./components/auth/stock/inventory-hub/inventory-hub.component').then(m => m.InventoryHubComponent), data: { screen: 'stock/inventory-hub' } },
       // CONTRATOS entra aqui porque a tela de máquinas, que ele acessava, virou
       // esta. Sem isso, dobrar máquina dentro de produto tiraria o acesso dele.
-      { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { screen: 'stock/products', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
-      { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { screen: 'stock/movements', roles: ['ADMIN', 'ALMOXARIFADO'] } },
+      { path: 'stock/products', loadComponent: () => import('./components/auth/stock/products/products.component').then(m => m.ProductsComponent), data: { screen: 'stock/products' } },
+      { path: 'stock/movements', loadComponent: () => import('./components/auth/stock/movements/movements.component').then(m => m.MovementsComponent), data: { screen: 'stock/movements' } },
       // Máquina virou produto marcado: o cadastro é o de produtos. O redirect
       // fica porque a rota antiga está em link salvo e no menu de quem já usava.
       { path: 'stock/machines', redirectTo: 'stock/products', pathMatch: 'full' },
-      { path: 'stock/alerts', loadComponent: () => import('./components/auth/stock/alerts/machine-alerts.component').then(m => m.MachineAlertsComponent), data: { screen: 'stock/alerts', roles: ['ADMIN', 'ALMOXARIFADO', 'CONTRATOS'] } },
+      { path: 'stock/alerts', loadComponent: () => import('./components/auth/stock/alerts/machine-alerts.component').then(m => m.MachineAlertsComponent), data: { screen: 'stock/alerts' } },
 
       // ── Ferramentas ──────────────────────────────────────────────────────
       // Cada ferramenta é uma rota própria para abrir na sua aba, como as
@@ -103,38 +102,38 @@ export const routes: Routes = [
       { path: 'tools/pdf', loadComponent: () => import('./components/auth/tools/pdf/pdf-hub/pdf-hub.component').then(m => m.PdfHubComponent), data: { screen: 'tools/pdf' } },
       { path: 'tools/pdf/unlock', loadComponent: () => import('./components/auth/tools/pdf/pdf-unlock/pdf-unlock.component').then(m => m.PdfUnlockComponent), data: { screen: 'tools/pdf/unlock' } },
       { path: 'tools/pdf/nfse-rename', loadComponent: () => import('./components/auth/tools/pdf/pdf-nfse-rename/pdf-nfse-rename.component').then(m => m.PdfNfseRenameComponent), data: { screen: 'tools/pdf/nfse-rename' } },
-      { path: 'tools/certificados', loadComponent: () => import('./components/auth/tools/certificates/certificate-batch/certificate-batch.component').then(m => m.CertificateBatchComponent), data: { screen: 'tools/certificados', roles: ['ADMIN'] } },
+      { path: 'tools/certificados', loadComponent: () => import('./components/auth/tools/certificates/certificate-batch/certificate-batch.component').then(m => m.CertificateBatchComponent), data: { screen: 'tools/certificados' } },
 
       // ── Empresa ──────────────────────────────────────────────────────────
-      { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { screen: 'company/nfe-collector', roles: ['ADMIN', 'RH', 'FINANCEIRO', 'COMPRADOR'] } },
+      { path: 'company/nfe-collector', loadComponent: () => import('./components/auth/documents/nfe-data-collector/nfe-data-collector.component').then(m => m.NfeDataCollectorComponent), data: { screen: 'company/nfe-collector' } },
       { path: 'company/excel', loadComponent: () => import('./components/auth/documents/excel-credentials/excel-credentials.component').then(m => m.ExcelCredentialsComponent), data: { screen: 'company/excel' } },
       // As telas de estoque moram em `stock/*`. Estas duas rotas ficaram para
       // trás porque já estavam publicadas (e quebradas) — redirecionam.
       { path: 'company/products', redirectTo: 'stock/products', pathMatch: 'full' },
       { path: 'company/inventory', redirectTo: 'stock/movements', pathMatch: 'full' },
-      { path: 'company/customers', loadComponent: () => import('./components/auth/partners/customer/customer.component').then(m => m.CustomerComponent), data: { screen: 'company/customers', roles: ['ADMIN', 'RH', 'MARKETING'] } },
-      { path: 'company/fuel-hub', loadComponent: () => import('./components/auth/company/vehicle/fuel-hub/fuel-hub.component').then(m => m.FuelHubComponent), data: { screen: 'company/fuel-hub', roles: ['ADMIN', 'COMPRADOR'] } },
-      { path: 'company/fuel-supply', loadComponent: () => import('./components/auth/company/vehicle/fuel-supply/fuel-supply.component').then(m => m.FuelSupplyComponent), data: { screen: 'company/fuel-supply', roles: ['ADMIN', 'COMPRADOR'] } },
-      { path: 'company/guide', loadComponent: () => import('./components/auth/guide/guide.component').then(m => m.GuideComponent), data: { screen: 'company/guide', roles: ['ADMIN', 'CONTRATOS'] } },
-      { path: 'company/equipments', loadComponent: () => import('./components/auth/company/equipments/equipments.component').then(m => m.EquipmentsComponent), data: { screen: 'company/equipments', roles: ['ADMIN', 'CONTRATOS', 'DESIGN'] } },
+      { path: 'company/customers', loadComponent: () => import('./components/auth/partners/customer/customer.component').then(m => m.CustomerComponent), data: { screen: 'company/customers' } },
+      { path: 'company/fuel-hub', loadComponent: () => import('./components/auth/company/vehicle/fuel-hub/fuel-hub.component').then(m => m.FuelHubComponent), data: { screen: 'company/fuel-hub' } },
+      { path: 'company/fuel-supply', loadComponent: () => import('./components/auth/company/vehicle/fuel-supply/fuel-supply.component').then(m => m.FuelSupplyComponent), data: { screen: 'company/fuel-supply' } },
+      { path: 'company/guide', loadComponent: () => import('./components/auth/guide/guide.component').then(m => m.GuideComponent), data: { screen: 'company/guide' } },
+      { path: 'company/equipments', loadComponent: () => import('./components/auth/company/equipments/equipments.component').then(m => m.EquipmentsComponent), data: { screen: 'company/equipments' } },
 
       // ── Comunicação ──────────────────────────────────────────────────────
-      { path: 'communication/newsletter', loadComponent: () => import('./components/auth/communication/newsletter/newsletter.component').then(m => m.NewsletterComponent), data: { screen: 'communication/newsletter', roles: ['ADMIN', 'MARKETING'] } },
-      { path: 'communication/email', loadComponent: () => import('./components/auth/communication/email/email.component').then(m => m.EmailComponent), data: { screen: 'communication/email', roles: ['ADMIN', 'MARKETING', 'RH', 'SUPPORT', 'DESIGN'] } },
-      { path: 'communication/secrets', loadComponent: () => import('./components/auth/communication/secrets/secrets.component').then(m => m.SecretsComponent), data: { screen: 'communication/secrets', roles: ['ADMIN', 'MARKETING', 'RH', 'VENDEDOR'] } },
-      { path: 'communication/email-signature', loadComponent: () => import('./components/auth/documents/email-signature/email-signature.component').then(m => m.EmailSignatureComponent), data: { screen: 'communication/email-signature', roles: ['ADMIN', 'RH', 'MARKETING', 'DESIGN'] } },
-      { path: 'communication/contact', loadComponent: () => import('./components/auth/support/contacts/contacts.component').then(m => m.ContactsComponent), data: { screen: 'communication/contact', roles: ['ADMIN', 'SUPPORT'] } },
+      { path: 'communication/newsletter', loadComponent: () => import('./components/auth/communication/newsletter/newsletter.component').then(m => m.NewsletterComponent), data: { screen: 'communication/newsletter' } },
+      { path: 'communication/email', loadComponent: () => import('./components/auth/communication/email/email.component').then(m => m.EmailComponent), data: { screen: 'communication/email' } },
+      { path: 'communication/secrets', loadComponent: () => import('./components/auth/communication/secrets/secrets.component').then(m => m.SecretsComponent), data: { screen: 'communication/secrets' } },
+      { path: 'communication/email-signature', loadComponent: () => import('./components/auth/documents/email-signature/email-signature.component').then(m => m.EmailSignatureComponent), data: { screen: 'communication/email-signature' } },
+      { path: 'communication/contact', loadComponent: () => import('./components/auth/support/contacts/contacts.component').then(m => m.ContactsComponent), data: { screen: 'communication/contact' } },
 
       // ── Configurações ────────────────────────────────────────────────────
-      { path: 'settings/products/website', loadComponent: () => import('./components/auth/company/products/website/website.component').then(m => m.WebsiteComponent), data: { screen: 'settings/products/website', roles: ['ADMIN', 'DESIGN'] } },
-      { path: 'settings/admin', loadComponent: () => import('./components/auth/admin-center/admin-center.component').then(m => m.AdminCenterComponent), data: { screen: 'settings/admin', roles: ['ADMIN'] } },
-      { path: 'settings/permissions/templates', loadComponent: () => import('./components/auth/settings/permissions/templates/permission-templates.component').then(m => m.PermissionTemplatesComponent), data: { screen: 'settings/permissions/templates', roles: ['ADMIN'] } },
-      { path: 'settings/permissions/users', loadComponent: () => import('./components/auth/settings/permissions/users/permission-users.component').then(m => m.PermissionUsersComponent), data: { screen: 'settings/permissions/users', roles: ['ADMIN'] } },
-      { path: 'faq/manager', loadComponent: () => import('./components/auth/faq-manager/faq-manager.component').then(m => m.FaqManagerComponent), data: { screen: 'faq/manager', roles: ['ADMIN'] } },
-      { path: 'profile-manager', loadComponent: () => import('./components/auth/profile/profile-manager/profile-manager.component').then(m => m.ProfileManagerComponent), data: { screen: 'profile-manager', roles: ['ADMIN'] } },
+      { path: 'settings/products/website', loadComponent: () => import('./components/auth/company/products/website/website.component').then(m => m.WebsiteComponent), data: { screen: 'settings/products/website' } },
+      { path: 'settings/admin', loadComponent: () => import('./components/auth/admin-center/admin-center.component').then(m => m.AdminCenterComponent), data: { screen: 'settings/admin' } },
+      { path: 'settings/permissions/templates', loadComponent: () => import('./components/auth/settings/permissions/templates/permission-templates.component').then(m => m.PermissionTemplatesComponent), data: { screen: 'settings/permissions/templates' } },
+      { path: 'settings/permissions/users', loadComponent: () => import('./components/auth/settings/permissions/users/permission-users.component').then(m => m.PermissionUsersComponent), data: { screen: 'settings/permissions/users' } },
+      { path: 'faq/manager', loadComponent: () => import('./components/auth/faq-manager/faq-manager.component').then(m => m.FaqManagerComponent), data: { screen: 'faq/manager' } },
+      { path: 'profile-manager', loadComponent: () => import('./components/auth/profile/profile-manager/profile-manager.component').then(m => m.ProfileManagerComponent), data: { screen: 'profile-manager' } },
 
       // ── Financeiro ───────────────────────────────────────────────────────
-      { path: 'finance/rent-receipt-generator', loadComponent: () => import('./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component').then(m => m.RentReceiptGeneratorComponent), data: { screen: 'finance/rent-receipt-generator', roles: ['ADMIN', 'FINANCEIRO'] } },
+      { path: 'finance/rent-receipt-generator', loadComponent: () => import('./components/auth/finance/rent-receipt-generator/rent-receipt-generator.component').then(m => m.RentReceiptGeneratorComponent), data: { screen: 'finance/rent-receipt-generator' } },
 
       // ── Documentos (área pessoal) ────────────────────────────────────────
       { path: 'documentos', loadComponent: () => import('./components/auth/documentos/documentos.component').then(m => m.DocumentosComponent), data: { screen: 'documentos' } },

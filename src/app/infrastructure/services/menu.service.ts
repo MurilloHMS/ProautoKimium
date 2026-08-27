@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { PermissionStore } from '../state/permission.store';
 import { APP_MENU, AppMenuItem, MOBILE_NAV } from '../../layouts/auth-layout/menu.config';
-import { AuthService } from './auth.service';
 
 /** Item de menu achatado — usado pela busca e pelo breadcrumb da topbar. */
 export interface FlatMenuItem {
@@ -29,7 +28,6 @@ export class MenuService {
 
   private readonly permissions = inject(PermissionStore);
 
-  private readonly auth = inject(AuthService);
 
   private cacheKey: string | null = null;
   private cachedMenu: AppMenuItem[] = [];
@@ -76,15 +74,15 @@ export class MenuService {
   // ── Interno ───────────────────────────────────────────────────────────────
 
   /**
-   * A chave do cache passou a incluir as telas.
+   * A chave do cache são as telas que a pessoa enxerga.
    *
-   * Antes eram só as roles, que não mudam enquanto a sessão vive. As permissões
-   * chegam **depois** do login, por HTTP: sem elas na chave, o menu ficaria
-   * congelado no que foi calculado antes da resposta chegar — vazio.
+   * As permissões chegam **depois** do login, por HTTP: sem elas na chave, o
+   * menu ficaria congelado no que foi calculado antes da resposta chegar —
+   * vazio. As roles saíram da chave no passo 6, junto com o resto: elas não
+   * decidem mais nada de menu.
    */
   private refreshIfNeeded(): void {
-    const key = this.auth.getUserRoles().slice().sort().join('|')
-      + '::' + Object.keys(this.permissions.permissions()).sort().join('|');
+    const key = Object.keys(this.permissions.permissions()).sort().join('|');
 
     if (key === this.cacheKey) return;
 
