@@ -127,7 +127,7 @@
 <!-- ─── Aplicar modelo ──────────────────────────────────────────────────── -->
 <pk-dialog header="Aplicar modelo" [visible]="applyOpen()" width="580px"
            (visibleChange)="applyOpen.set($event)">
-  <div class="pform">
+  <div class="pform" pkDialogContent>
 
     <div class="pform__row">
       <span class="pform__label">Modelo</span>
@@ -182,13 +182,13 @@
         </div>
       </button>
     </div>
+  </div>
 
-    <div class="pform__foot">
-      <pk-button pkType="cancel" pkSize="sm" (clicked)="applyOpen.set(false)" />
-      <pk-button pkType="save" pkSize="sm"
-                 [pkLabel]="'Aplicar a ' + applyTargets().length"
-                 (clicked)="confirmApply()" />
-    </div>
+  <div class="pform__foot" pkDialogFooter>
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="applyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="'Aplicar a ' + applyTargets().length"
+               (clicked)="confirmApply()" />
   </div>
 </pk-dialog>
 
@@ -196,7 +196,7 @@
 <pk-dialog [header]="'Copiar permissões para ' + (selected()?.name ?? '')"
            [visible]="copyOpen()" width="480px"
            (visibleChange)="copyOpen.set($event)">
-  <div class="pform">
+  <div class="pform" pkDialogContent>
     <div class="pform__row">
       <span class="pform__label">Copiar de quem</span>
       <div class="pform__people">
@@ -216,10 +216,10 @@
       A grade inteira de <b>{{ selected()?.name }}</b> é substituída, e os
       carimbos dela passam a ser os da pessoa de origem.
     </p>
+  </div>
 
-    <div class="pform__foot">
-      <pk-button pkType="cancel" pkSize="sm" (clicked)="copyOpen.set(false)" />
-      <pk-button pkType="save" pkSize="sm" pkLabel="Copiar" (clicked)="confirmCopy()" />
-    </div>
+  <div class="pform__foot" pkDialogFooter>
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="copyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Copiar" (clicked)="confirmCopy()" />
   </div>
 </pk-dialog>

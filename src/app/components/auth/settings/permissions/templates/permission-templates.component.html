@@ -127,7 +127,7 @@
 <!-- ─── Criar, duplicar, renomear ───────────────────────────────────────── -->
 <pk-dialog [header]="formTitle()" [visible]="formOpen()" width="480px"
            (visibleChange)="formOpen.set($event)">
-  <div class="pform">
+  <div class="pform" pkDialogContent>
     <div class="pform__row">
       <label class="pform__label" for="tpl-name">Nome</label>
       <input id="tpl-name" class="pshell__field" type="text"
@@ -151,18 +151,18 @@
     @if (formKind() === 'new') {
       <p class="pform__hint">Nasce com <b>tudo fechado</b>. Libere o que ele deve dar.</p>
     }
+  </div>
 
-    <div class="pform__foot">
-      <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
-      <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
-    </div>
+  <div class="pform__foot" pkDialogFooter>
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
   </div>
 </pk-dialog>
 
 <!-- ─── Reaplicar ───────────────────────────────────────────────────────── -->
 <pk-dialog header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
            (visibleChange)="reapplyOpen.set($event)">
-  <div class="pform">
+  <div class="pform" pkDialogContent>
     <p class="pform__hint">
       As <b>{{ stampedUsers().length }}</b> pessoas abaixo ficam <b>idênticas</b>
       a este modelo:
@@ -182,12 +182,12 @@
       Todo <b>ajuste individual</b> dessas pessoas se perde — inclusive uma
       permissão que alguém tirou de propósito.
     </p>
+  </div>
 
-    <div class="pform__foot">
-      <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
-      <pk-button pkType="save" pkSize="sm"
-                 [pkLabel]="'Reaplicar a ' + stampedUsers().length"
-                 (clicked)="confirmReapply()" />
-    </div>
+  <div class="pform__foot" pkDialogFooter>
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="'Reaplicar a ' + stampedUsers().length"
+               (clicked)="confirmReapply()" />
   </div>
 </pk-dialog>
