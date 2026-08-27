@@ -163,6 +163,8 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Faq', icon: 'pi pi-fw pi-question-circle', routerLink: ['faq/manager'], screen: 'faq/manager', roles: ['ADMIN'] },
       { label: 'Perfil', icon: 'pi pi-fw pi-id-card', routerLink: ['profile-manager'], screen: 'profile-manager', roles: ['ADMIN'] },
       { label: 'Admin', icon: 'pi pi-fw pi-shield', routerLink: ['settings/admin'], screen: 'settings/admin', roles: ['ADMIN'] },
+      { label: 'Modelos de permissão', icon: 'pi pi-fw pi-bookmark', routerLink: ['settings/permissions/templates'], screen: 'settings/permissions/templates', roles: ['ADMIN'] },
+      { label: 'Permissões por usuário', icon: 'pi pi-fw pi-lock', routerLink: ['settings/permissions/users'], screen: 'settings/permissions/users', roles: ['ADMIN'] },
     ],
   },
   {

@@ -128,6 +128,8 @@ export const routes: Routes = [
       // ── Configurações ────────────────────────────────────────────────────
       { path: 'settings/products/website', loadComponent: () => import('./components/auth/company/products/website/website.component').then(m => m.WebsiteComponent), data: { screen: 'settings/products/website', roles: ['ADMIN', 'DESIGN'] } },
       { path: 'settings/admin', loadComponent: () => import('./components/auth/admin-center/admin-center.component').then(m => m.AdminCenterComponent), data: { screen: 'settings/admin', roles: ['ADMIN'] } },
+      { path: 'settings/permissions/templates', loadComponent: () => import('./components/auth/settings/permissions/templates/permission-templates.component').then(m => m.PermissionTemplatesComponent), data: { screen: 'settings/permissions/templates', roles: ['ADMIN'] } },
+      { path: 'settings/permissions/users', loadComponent: () => import('./components/auth/settings/permissions/users/permission-users.component').then(m => m.PermissionUsersComponent), data: { screen: 'settings/permissions/users', roles: ['ADMIN'] } },
       { path: 'faq/manager', loadComponent: () => import('./components/auth/faq-manager/faq-manager.component').then(m => m.FaqManagerComponent), data: { screen: 'faq/manager', roles: ['ADMIN'] } },
       { path: 'profile-manager', loadComponent: () => import('./components/auth/profile/profile-manager/profile-manager.component').then(m => m.ProfileManagerComponent), data: { screen: 'profile-manager', roles: ['ADMIN'] } },
 

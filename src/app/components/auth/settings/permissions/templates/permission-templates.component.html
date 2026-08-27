@@ -1,0 +1,193 @@
+<p-toast></p-toast>
+
+<div class="pshell">
+
+  <!-- ─── Os modelos ─────────────────────────────────────────────────────── -->
+  <aside class="pshell__rail">
+    <div class="pshell__rail-head">
+      <div class="pshell__rail-title">
+        Modelos <span>{{ templates().length }}</span>
+      </div>
+      <input type="search"
+             class="pshell__field"
+             placeholder="Buscar modelo…"
+             aria-label="Buscar modelo"
+             [value]="search()"
+             (input)="search.set($any($event.target).value)" />
+    </div>
+
+    <div class="pshell__list">
+      @for (t of visibleTemplates(); track t.id) {
+        <button type="button"
+                class="pshell__item"
+                [class.pshell__item--off]="!t.active"
+                [attr.aria-current]="t.id === selected()?.id"
+                (click)="select(t)">
+          <b>{{ t.name }}</b>
+          <span>{{ t.allowedCells }} permissões · {{ t.stampedUsers }} carimbados</span>
+        </button>
+      } @empty {
+        <p class="pshell__empty-list">Nenhum modelo com esse nome.</p>
+      }
+    </div>
+
+    @if (canCreate()) {
+      <div class="pshell__rail-foot">
+        <pk-button pkType="new" pkSize="sm" pkLabel="Novo modelo" (clicked)="openNew()" />
+      </div>
+    }
+  </aside>
+
+  <!-- ─── O modelo aberto ────────────────────────────────────────────────── -->
+  <div class="pshell__main">
+
+    @if (selected(); as modelo) {
+
+      <div class="pshell__subject">
+        <div class="pshell__subject-id">
+          <h2>{{ modelo.name }}</h2>
+          <p>
+            {{ modelo.description || 'Sem descrição' }}
+            @if (!modelo.active) { · <b>desativado</b> }
+          </p>
+        </div>
+
+        <div class="pshell__subject-acts">
+          @if (canCreate()) {
+            <pk-button pkType="new" pkSize="sm" pkLabel="Duplicar"
+                       pkIcon="pi pi-copy" (clicked)="openDuplicate()" />
+          }
+          @if (canEdit()) {
+            <pk-button pkType="edit" pkSize="sm" pkLabel="Renomear" (clicked)="openRename()" />
+            <pk-button pkType="cancel" pkSize="sm"
+                       [pkLabel]="modelo.active ? 'Desativar' : 'Reativar'"
+                       (clicked)="toggleActive()" />
+          }
+        </div>
+      </div>
+
+      <!--
+        O aviso que impede a correção silenciosa: mexer aqui NÃO alcança quem
+        já foi carimbado, e sem isto dito na cara ninguém descobre.
+      -->
+      @if (stampedUsers().length) {
+        <div class="pshell__note">
+          <span>
+            <b>{{ stampedUsers().length }}</b>
+            {{ stampedUsers().length === 1 ? 'pessoa usou' : 'pessoas usaram' }} este carimbo.
+            Mudar a grade aqui <b>não altera nenhuma delas</b>.
+          </span>
+          @if (canApply()) {
+            <span class="pshell__note-act">
+              <pk-button pkType="refresh" pkSize="sm"
+                         [pkLabel]="'Reaplicar a ' + stampedUsers().length"
+                         (clicked)="reapplyOpen.set(true)" />
+            </span>
+          }
+        </div>
+      }
+
+      <app-permission-grid
+        [screens]="screens()"
+        [saved]="modelo.cells"
+        [disabled]="!canEdit()"
+        (changedCount)="changed.set($event)" />
+
+      <div class="pshell__save" [attr.data-dirty]="changed() > 0">
+        <div class="pshell__legend">
+          <i><span class="sw sw--on"></span> permitido</i>
+          <i><span class="sw"></span> negado</i>
+        </div>
+
+        <div class="pshell__save-msg">
+          @if (changed() > 0) {
+            <b>{{ changed() }}</b> {{ changed() === 1 ? 'célula' : 'células' }} sem gravar
+          } @else {
+            Nada para gravar
+          }
+        </div>
+
+        @if (canEdit()) {
+          <div class="pshell__save-acts">
+            <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar" (clicked)="discard()" />
+            <pk-button pkType="save" pkSize="sm" pkLabel="Salvar modelo"
+                       [pkLoading]="saving()" (clicked)="save()" />
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="pshell__blank">
+        {{ loading() ? 'Carregando…' : 'Escolha um modelo à esquerda.' }}
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ─── Criar, duplicar, renomear ───────────────────────────────────────── -->
+<pk-dialog [header]="formTitle()" [visible]="formOpen()" width="480px"
+           (visibleChange)="formOpen.set($event)">
+  <div class="pform">
+    <div class="pform__row">
+      <label class="pform__label" for="tpl-name">Nome</label>
+      <input id="tpl-name" class="pshell__field" type="text"
+             [value]="formName()" (input)="formName.set($any($event.target).value)" />
+    </div>
+
+    <div class="pform__row">
+      <label class="pform__label" for="tpl-desc">Descrição</label>
+      <input id="tpl-desc" class="pshell__field" type="text"
+             placeholder="Para que serve este modelo"
+             [value]="formDescription()"
+             (input)="formDescription.set($any($event.target).value)" />
+    </div>
+
+    @if (formKind() === 'duplicate') {
+      <p class="pform__hint">
+        Nasce com as mesmas permissões de <b>{{ current()?.name }}</b>. Do zero
+        seriam 385 cliques.
+      </p>
+    }
+    @if (formKind() === 'new') {
+      <p class="pform__hint">Nasce com <b>tudo fechado</b>. Libere o que ele deve dar.</p>
+    }
+
+    <div class="pform__foot">
+      <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
+    </div>
+  </div>
+</pk-dialog>
+
+<!-- ─── Reaplicar ───────────────────────────────────────────────────────── -->
+<pk-dialog header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
+           (visibleChange)="reapplyOpen.set($event)">
+  <div class="pform">
+    <p class="pform__hint">
+      As <b>{{ stampedUsers().length }}</b> pessoas abaixo ficam <b>idênticas</b>
+      a este modelo:
+    </p>
+
+    <ul class="pform__people">
+      @for (p of stampedUsers(); track p.id) {
+        <li>{{ p.name }} <span>{{ p.login }}</span></li>
+      }
+    </ul>
+
+    <!--
+      Reaplicar é sempre SUBSTITUIR. Somar não reaplicaria nada: deixaria
+      ligado o que o modelo passou a negar. O preço é este aviso.
+    -->
+    <p class="pform__danger">
+      Todo <b>ajuste individual</b> dessas pessoas se perde — inclusive uma
+      permissão que alguém tirou de propósito.
+    </p>
+
+    <div class="pform__foot">
+      <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
+      <pk-button pkType="save" pkSize="sm"
+                 [pkLabel]="'Reaplicar a ' + stampedUsers().length"
+                 (clicked)="confirmReapply()" />
+    </div>
+  </div>
+</pk-dialog>
