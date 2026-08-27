@@ -35,13 +35,13 @@ export class PermissionAdminService {
   }
 
   /**
-   * Quem já foi carimbado com este modelo.
+   * A quem este modelo já foi aplicado.
    *
-   * A tela precisa dos ids, e não só do total: o aviso "3 usuários usaram este
-   * carimbo" só vale acompanhado de um botão que sabe em quem mexer.
+   * A tela precisa dos ids, e não só do total: o aviso "aplicado a 3 pessoas"
+   * só vale acompanhado de um botão que sabe em quem mexer.
    */
-  stampedWith(templateId: string): Observable<UserSummary[]> {
-    return this.http.get<UserSummary[]>(`${this.url}/templates/${templateId}/stamped-users`);
+  appliedTo(templateId: string): Observable<UserSummary[]> {
+    return this.http.get<UserSummary[]>(`${this.url}/templates/${templateId}/applied-to`);
   }
 
   templateGrid(templateId: string): Observable<TemplateGrid> {
@@ -88,6 +88,17 @@ export class PermissionAdminService {
   apply(templateId: string, userIds: string[], mode: ApplyMode): Observable<ApplyResult> {
     return this.http.post<ApplyResult>(`${this.url}/templates/${templateId}/apply`,
       { userIds, mode });
+  }
+
+  /**
+   * Desfaz a aplicação de um modelo numa pessoa.
+   *
+   * Desliga o que **aquele** modelo deu, menos o que outro modelo aplicado
+   * também dá — apagar só o registro não tiraria permissão nenhuma, porque ele
+   * é anotação e não fonte.
+   */
+  undoApply(userId: string, templateId: string): Observable<ApplyResult> {
+    return this.http.delete<ApplyResult>(`${this.url}/users/${userId}/templates/${templateId}`);
   }
 
   copyFrom(userId: string, sourceUserId: string): Observable<ApplyResult> {

@@ -23,7 +23,7 @@
                 [attr.aria-current]="u.id === selected()?.id"
                 (click)="select(u)">
           <b>{{ u.name }}</b>
-          <span>{{ u.templates.length ? u.templates.join(' · ') : 'sem carimbo' }}</span>
+          <span>{{ u.templates.length ? u.templates.join(' · ') : 'nenhum modelo aplicado' }}</span>
         </button>
       } @empty {
         <p class="pshell__empty-list">Ninguém com esse nome.</p>
@@ -46,17 +46,33 @@
       <div class="pshell__subject">
         <div class="pshell__subject-id">
           <h2>{{ pessoa.name }}</h2>
-          <p>
-            {{ pessoa.login }}
-            @if (pessoa.appliedTemplates.length) {
-              · carimbado com
+          <p>{{ pessoa.login }}</p>
+
+          <!--
+            Os modelos aplicados, com o desfazer em cada um.
+            Antes eram texto corrido: "carimbado com A, B" — que dizia o que
+            aconteceu e não oferecia saída nenhuma, e foi de onde veio a
+            pergunta "como eu removo um carimbo?".
+          -->
+          @if (pessoa.appliedTemplates.length) {
+            <div class="pshell__applied">
+              <span class="pshell__applied-label">Modelos aplicados</span>
+
               @for (t of pessoa.appliedTemplates; track t.id) {
-                <b>{{ t.name }}</b>{{ $last ? '' : ', ' }}
+                <span class="pshell__applied-chip">
+                  {{ t.name }}
+                  @if (canConfigure()) {
+                    <button type="button"
+                            [attr.aria-label]="'Desfazer ' + t.name"
+                            [title]="'Desfazer ' + t.name"
+                            (click)="openUndo(t)">×</button>
+                  }
+                </span>
               }
-            } @else {
-              · <b>sem carimbo nenhum</b>
-            }
-          </p>
+            </div>
+          } @else {
+            <p class="pshell__applied-none">Nenhum modelo aplicado.</p>
+          }
         </div>
 
         <div class="pshell__subject-acts">
@@ -78,7 +94,7 @@
           <span>
             <b>{{ divergences() }}</b>
             {{ divergences() === 1 ? 'célula difere' : 'células diferem' }}
-            dos carimbos aplicados — marcadas com o ponto âmbar.
+            dos modelos aplicados — marcadas com o ponto âmbar.
             Reaplicar um modelo por cima devolveria esses valores.
           </span>
         </div>
@@ -87,7 +103,7 @@
       <app-permission-grid
         [screens]="screens()"
         [saved]="pessoa.cells"
-        [stamped]="pessoa.stamped"
+        [applied]="pessoa.appliedCells"
         [disabled]="!canEdit()"
         (changedCount)="changed.set($event)" />
 
@@ -95,7 +111,7 @@
         <div class="pshell__legend">
           <i><span class="sw sw--on"></span> permitido</i>
           <i><span class="sw"></span> negado</i>
-          <i><span class="sw sw--diverges"></span> difere do carimbo</i>
+          <i><span class="sw sw--diverges"></span> difere do modelo aplicado</i>
         </div>
 
         <div class="pshell__save-msg">
@@ -181,7 +197,7 @@
           <div>
             <b>Somar — liga o que o modelo permite</b>
             <span>Nada é desligado. É o que faz “Vendas + Estoque” funcionar:
-              o segundo carimbo não apaga o primeiro.</span>
+              a segunda aplicação não apaga a primeira.</span>
           </div>
         </button>
 
@@ -203,6 +219,47 @@
     <pk-button pkType="save" pkSize="sm"
                [pkLabel]="'Aplicar a ' + applyTargets().length"
                (clicked)="confirmApply()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Desfazer a aplicação de um modelo ───────────────────────────────── -->
+<pk-dialog [header]="'Desfazer ' + (undoTemplate()?.name ?? '')"
+           [visible]="undoOpen()" width="480px"
+           (visibleChange)="undoOpen.set($event)">
+
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <p class="pform__hint">
+        Desliga em <b>{{ selected()?.name }}</b> as permissões que
+        <b>{{ undoTemplate()?.name }}</b> deu.
+      </p>
+
+      <!--
+        O que fica de pé é a informação que faz alguém usar o botão. Sem ela,
+        "desfazer" parece que derruba tudo.
+      -->
+      @if (undoKeeps() > 0) {
+        <p class="pform__hint">
+          O que os outros <b>{{ undoKeeps() }}</b>
+          {{ undoKeeps() === 1 ? 'modelo aplicado também dá' : 'modelos aplicados também dão' }}
+          <b>fica de pé</b>.
+        </p>
+      } @else {
+        <p class="pform__hint">
+          É o único modelo aplicado nesta pessoa — depois disto ela fica só com
+          o que você tiver ligado à mão.
+        </p>
+      }
+
+      <p class="pform__hint">
+        O modelo continua existindo, e quem mais o recebeu não é afetado.
+      </p>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="undoOpen.set(false)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Desfazer" (clicked)="confirmUndo()" />
   </div>
 </pk-dialog>
 
@@ -233,7 +290,7 @@
     <div class="pk-form-section">
       <p class="pform__danger">
         A grade inteira de <b>{{ selected()?.name }}</b> é substituída, e os
-        carimbos dela passam a ser os da pessoa de origem.
+        modelos aplicados nela passam a ser os da pessoa de origem.
       </p>
     </div>
   </div>

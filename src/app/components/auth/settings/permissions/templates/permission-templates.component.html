@@ -23,7 +23,7 @@
                 [attr.aria-current]="t.id === selected()?.id"
                 (click)="select(t)">
           <b>{{ t.name }}</b>
-          <span>{{ t.allowedCells }} permissões · {{ t.stampedUsers }} carimbados</span>
+          <span>{{ t.allowedCells }} permissões · aplicado a {{ t.appliedToUsers }}</span>
         </button>
       } @empty {
         <p class="pshell__empty-list">Nenhum modelo com esse nome.</p>
@@ -66,20 +66,21 @@
       </div>
 
       <!--
-        O aviso que impede a correção silenciosa: mexer aqui NÃO alcança quem
-        já foi carimbado, e sem isto dito na cara ninguém descobre.
+        O aviso que impede a correção silenciosa: mexer aqui NÃO alcança quem já
+        recebeu o modelo, e sem isto dito na cara ninguém descobre.
       -->
-      @if (stampedUsers().length) {
+      @if (appliedToUsers().length) {
         <div class="pshell__note">
           <span>
-            <b>{{ stampedUsers().length }}</b>
-            {{ stampedUsers().length === 1 ? 'pessoa usou' : 'pessoas usaram' }} este carimbo.
-            Mudar a grade aqui <b>não altera nenhuma delas</b>.
+            Este modelo já foi aplicado a <b>{{ appliedToUsers().length }}</b>
+            {{ appliedToUsers().length === 1 ? 'pessoa' : 'pessoas' }}.
+            Alterá-lo aqui <b>não muda o que elas podem hoje</b> — a aplicação
+            copiou as permissões para dentro delas.
           </span>
           @if (canApply()) {
             <span class="pshell__note-act">
               <pk-button pkType="refresh" pkSize="sm"
-                         [pkLabel]="'Reaplicar a ' + stampedUsers().length"
+                         [pkLabel]="'Reaplicar a ' + appliedToUsers().length"
                          (clicked)="reapplyOpen.set(true)" />
             </span>
           }
@@ -177,7 +178,7 @@
       </h3>
 
       <ul class="pform__people">
-        @for (p of stampedUsers(); track p.id) {
+        @for (p of appliedToUsers(); track p.id) {
           <li>{{ p.name }} <span>{{ p.login }}</span></li>
         }
       </ul>
@@ -198,7 +199,7 @@
   <div pkDialogFooter class="pk-dialog-footer">
     <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
     <pk-button pkType="save" pkSize="sm"
-               [pkLabel]="'Reaplicar a ' + stampedUsers().length"
+               [pkLabel]="'Reaplicar a ' + appliedToUsers().length"
                (clicked)="confirmReapply()" />
   </div>
 </pk-dialog>

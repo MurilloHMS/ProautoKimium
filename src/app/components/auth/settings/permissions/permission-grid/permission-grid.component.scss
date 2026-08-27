@@ -259,7 +259,7 @@ tbody td {
     }
   }
 
-  // Difere dos carimbos aplicados. É o que impede o "reaplicar" cego: sem esta
+  // Difere dos modelos aplicados. É o que impede o "reaplicar" cego: sem esta
   // marca, devolver uma permissão que alguém tirou de propósito é invisível.
   &[data-diverges]::before {
     content: '';

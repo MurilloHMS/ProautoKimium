@@ -29,7 +29,14 @@
       </div>
     </section>
 
-    <!-- SEÇÃO 2 — Cartão Digital (só VENDEDOR) -->
+    <!--
+      SEÇÃO 2 — Cartão Digital.
+
+      `canCreate` vem da API, e desde a V88 ela responde `perfil:INCLUIR` em
+      vez da role VENDEDOR — dá para liberar pela tela de permissões, sem
+      mexer em código. Continua vindo do servidor de propósito: o front
+      esconder e a API aceitar seria pior que os dois recusarem.
+    -->
     @if (canCreate) {
       <section class="vcard-section">
 

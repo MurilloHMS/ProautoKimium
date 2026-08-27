@@ -82,6 +82,13 @@ export class PerfilComponent implements OnInit {
     return !!this.data?.profile;
   }
 
+  /**
+   * Pode criar o cartão digital?
+   *
+   * Quem decide é a API, por `perfil:INCLUIR`. A tela de perfil em si é de
+   * todo mundo — o que se controla aqui é a seção de dentro, e é o primeiro
+   * lugar do sistema onde "abrir a tela" e "fazer algo nela" se separam.
+   */
   get canCreate(): boolean {
     return !!this.data?.canCreateProfile;
   }

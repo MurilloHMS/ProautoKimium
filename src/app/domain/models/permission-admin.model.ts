@@ -45,7 +45,7 @@ export interface TemplateSummary {
   description: string | null;
   active: boolean;
   allowedCells: number;
-  stampedUsers: number;
+  appliedToUsers: number;
 }
 
 export interface TemplateGrid {
@@ -78,14 +78,14 @@ export interface UserGrid {
   login: string;
   cells: PermissionCells;
   /**
-   * O que os carimbos aplicados nesta pessoa permitem.
+   * O que os modelos aplicados nesta pessoa permitem.
    *
    * A diferença para `cells` é o ponto âmbar da tela. É derivado no servidor a
    * partir de `user_templates`, e por isso **não distingue** a célula que
    * alguém ajustou da célula que divergiu porque o modelo mudou depois — daí o
-   * rótulo ser "difere dos carimbos aplicados".
+   * rótulo ser "difere dos modelos aplicados".
    */
-  stamped: PermissionCells;
+  appliedCells: PermissionCells;
   appliedTemplates: AppliedTemplate[];
 }
 

@@ -17,12 +17,13 @@ import {
 const SCREEN = 'settings/permissions/templates';
 
 /**
- * O que o carimbo contém.
+ * O que um modelo contém.
  *
  * A tela existe para configurar **modelos**, não pessoas — e a diferença é a
- * coisa mais importante que ela precisa comunicar. Mexer aqui não muda o acesso
- * de ninguém que já foi carimbado; por isso o aviso do topo diz quantas pessoas
- * usaram o modelo e é o único lugar de onde parte um "reaplicar".
+ * coisa mais importante que ela precisa comunicar. Aplicar um modelo **copia**
+ * as permissões para dentro da pessoa; mexer aqui depois não alcança ninguém
+ * que já recebeu. Por isso o aviso do topo diz a quantas pessoas ele já foi
+ * aplicado, e é o único lugar de onde parte um "reaplicar".
  *
  * Sem esse aviso o risco é silencioso: alguém corrige o modelo, sai satisfeito,
  * e ninguém no sistema foi corrigido.
@@ -49,7 +50,7 @@ export class PermissionTemplatesComponent implements OnInit, TabDirtyCheck {
   readonly screens = signal<ScreenRow[]>([]);
   readonly templates = signal<TemplateSummary[]>([]);
   readonly selected = signal<TemplateGrid | null>(null);
-  readonly stampedUsers = signal<UserSummary[]>([]);
+  readonly appliedToUsers = signal<UserSummary[]>([]);
 
   readonly search = signal('');
   readonly changed = signal(0);
@@ -119,16 +120,16 @@ export class PermissionTemplatesComponent implements OnInit, TabDirtyCheck {
     if (this.changed() > 0 && !confirm(
       'Há alterações não gravadas neste modelo. Trocar de modelo descarta.')) return;
 
-    this.stampedUsers.set([]);
+    this.appliedToUsers.set([]);
     this.api.templateGrid(template.id).subscribe({
       next: grade => this.selected.set(grade),
       error: () => this.falhou('Não foi possível abrir o modelo.'),
     });
-    this.api.stampedWith(template.id).subscribe({
-      next: pessoas => this.stampedUsers.set(pessoas),
+    this.api.appliedTo(template.id).subscribe({
+      next: pessoas => this.appliedToUsers.set(pessoas),
       // Sem a lista o aviso perde o botão, mas a grade continua editável — não
       // vale interromper o trabalho por causa disso.
-      error: () => this.stampedUsers.set([]),
+      error: () => this.appliedToUsers.set([]),
     });
   }
 
@@ -150,7 +151,7 @@ export class PermissionTemplatesComponent implements OnInit, TabDirtyCheck {
           summary: 'Modelo gravado',
           detail: resultado.cellsChanged === 0
             ? 'Nada mudou.'
-            : `${resultado.cellsChanged} células alteradas. Quem já foi carimbado não mudou.`,
+            : `${resultado.cellsChanged} células alteradas. Quem já recebeu este modelo não mudou.`,
         });
       },
       error: () => {
@@ -245,7 +246,7 @@ export class PermissionTemplatesComponent implements OnInit, TabDirtyCheck {
         this.toast.add({
           severity: 'success',
           summary: modelo.active ? 'Modelo desativado' : 'Modelo reativado',
-          detail: 'Quem já foi carimbado com ele não perdeu nada.',
+          detail: 'Quem já recebeu este modelo não perdeu nada.',
         });
       },
       error: () => this.falhou('Não foi possível alterar o modelo.'),
@@ -263,7 +264,7 @@ export class PermissionTemplatesComponent implements OnInit, TabDirtyCheck {
    */
   confirmReapply(): void {
     const modelo = this.current();
-    const pessoas = this.stampedUsers();
+    const pessoas = this.appliedToUsers();
     if (!modelo || !pessoas.length) return;
 
     this.api.apply(modelo.id, pessoas.map(p => p.id), 'SUBSTITUIR').subscribe({

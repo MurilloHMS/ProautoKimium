@@ -12,7 +12,7 @@ export interface GridCell {
   permission: PermissionName;
   key: string;
   on: boolean;
-  /** Difere do que os carimbos aplicados permitem — o ponto âmbar. */
+  /** Difere do que os modelos aplicados permitem — o ponto âmbar. */
   diverges: boolean;
 }
 
@@ -64,8 +64,8 @@ export class PermissionGridComponent {
   /** O que está gravado. Trocar de modelo ou de pessoa reinicia a edição. */
   readonly saved = input<PermissionCells>({});
 
-  /** O que os carimbos permitem. Vazio na tela de modelos — lá não há carimbo. */
-  readonly stamped = input<PermissionCells>({});
+  /** O que os modelos aplicados permitem. Vazio na tela de modelos. */
+  readonly applied = input<PermissionCells>({});
 
   /** Sem `ALTERAR`, a grade é só leitura. */
   readonly disabled = input<boolean>(false);
@@ -94,7 +94,7 @@ export class PermissionGridComponent {
   });
 
   private readonly savedKeys = computed(() => keysOf(this.saved()));
-  private readonly stampedKeys = computed(() => keysOf(this.stamped()));
+  private readonly appliedKeys = computed(() => keysOf(this.applied()));
 
   readonly changed = computed(() => {
     const agora = this.working();
@@ -120,7 +120,7 @@ export class PermissionGridComponent {
 
   readonly blocks = computed<GridBlock[]>(() => {
     const ligadas = this.working();
-    const carimbadas = this.stampedKeys();
+    const peloModelo = this.appliedKeys();
     const fechados = this.closed();
     const telas = this.visible();
 
@@ -152,9 +152,9 @@ export class PermissionGridComponent {
           permission,
           key: chave,
           on,
-          // Sem carimbo nenhum não há divergência — é a tela de modelos, onde
-          // a coluna do esperado não existe.
-          diverges: carimbadas.size > 0 && on !== carimbadas.has(chave),
+          // Sem modelo aplicado não há divergência — é a tela de modelos, onde
+          // o esperado não existe.
+          diverges: peloModelo.size > 0 && on !== peloModelo.has(chave),
         } satisfies GridCell;
       });
 

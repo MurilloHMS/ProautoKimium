@@ -173,12 +173,12 @@ describe('PermissionGridComponent', () => {
   /**
    * A marca que impede o reaplicar cego.
    *
-   * Ela aparece nos dois sentidos: a permissão que o carimbo deu e alguém
-   * tirou, e a que ninguém carimbou e alguém ligou à mão.
+   * Ela aparece nos dois sentidos: a permissão que o modelo deu e alguém
+   * tirou, e a que nenhum modelo dava e alguém ligou à mão.
    */
-  it('marca as células que diferem dos carimbos, nos dois sentidos', () => {
+  it('marca as células que diferem dos modelos aplicados, nos dois sentidos', () => {
     fixture.componentRef.setInput('saved', { 'stock/movements': ['ALTERAR'] });
-    fixture.componentRef.setInput('stamped', { 'stock/movements': ['EXCLUIR'] });
+    fixture.componentRef.setInput('applied', { 'stock/movements': ['EXCLUIR'] });
     fixture.detectChanges();
 
     const linha = component.blocks().find(
@@ -186,20 +186,20 @@ describe('PermissionGridComponent', () => {
     const cells = linha?.kind === 'screen' ? linha.cells : [];
 
     expect(cells.find(c => c.permission === 'ALTERAR')?.diverges)
-      .withContext('ligada à mão, o carimbo não dava').toBeTrue();
+      .withContext('ligada à mão, nenhum modelo dava').toBeTrue();
     expect(cells.find(c => c.permission === 'EXCLUIR')?.diverges)
-      .withContext('o carimbo dava, alguém tirou').toBeTrue();
+      .withContext('o modelo dava, alguém tirou').toBeTrue();
     expect(cells.find(c => c.permission === 'CONSULTAR')?.diverges)
-      .withContext('nem carimbo nem ajuste').toBeFalse();
+      .withContext('nem modelo nem ajuste').toBeFalse();
   });
 
   /**
-   * Sem carimbo nenhum não há divergência — é a tela de modelos, onde o
+   * Sem modelo aplicado não há divergência — é a tela de modelos, onde o
    * conceito não existe. Marcar tudo lá seria ruído em 385 células.
    */
-  it('sem carimbo, nenhuma célula diverge', () => {
+  it('sem modelo aplicado, nenhuma célula diverge', () => {
     fixture.componentRef.setInput('saved', { 'stock/movements': ['ALTERAR'] });
-    fixture.componentRef.setInput('stamped', {});
+    fixture.componentRef.setInput('applied', {});
     fixture.detectChanges();
 
     const linha = component.blocks().find(

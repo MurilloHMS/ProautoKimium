@@ -11,7 +11,7 @@ import { PermissionAdminService } from '../../../../../infrastructure/services/p
 import { PermissionStore } from '../../../../../infrastructure/state/permission.store';
 import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
 import {
-  ApplyMode, PermissionCells, ScreenRow, TemplateSummary, UserGrid, UserSummary,
+  AppliedTemplate, ApplyMode, PermissionCells, ScreenRow, TemplateSummary, UserGrid, UserSummary,
 } from '../../../../../domain/models/permission-admin.model';
 
 const SCREEN = 'settings/permissions/users';
@@ -19,12 +19,13 @@ const SCREEN = 'settings/permissions/users';
 /**
  * O que uma pessoa pode — e **aqui é a verdade**.
  *
- * Nada nesta tela é herdado: toda célula é editável e nenhuma vem de um pai. O
- * modelo já carimbou; o que ficou escrito na pessoa é o que vale, e é por isso
- * que "o que o João pode?" se responde olhando o João.
+ * Nada nesta tela é herdado: toda célula é editável e nenhuma vem de um pai.
+ * Aplicar um modelo copiou as permissões para dentro da pessoa; o que ficou
+ * escrito nela é o que vale, e é por isso que "o que o João pode?" se responde
+ * olhando o João.
  *
  * O ponto âmbar é a única concessão ao histórico: ele marca a célula que difere
- * dos carimbos aplicados. Sem ele, reaplicar um modelo é um clique cego que
+ * dos modelos aplicados. Sem ele, reaplicar um modelo é um clique cego que
  * devolve permissões que alguém tirou de propósito.
  */
 @Component({
@@ -67,7 +68,7 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
   });
 
   /**
-   * Quantas células diferem dos carimbos aplicados.
+   * Quantas células diferem dos modelos aplicados.
    *
    * É o que o aviso do topo conta. Calculado no front a partir do que a API já
    * mandou — uma segunda requisição para descobrir um número que está na tela
@@ -86,12 +87,12 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
     };
 
     const agora = chaves(pessoa.cells);
-    const carimbado = chaves(pessoa.stamped);
-    if (!carimbado.size) return 0;
+    const peloModelo = chaves(pessoa.appliedCells);
+    if (!peloModelo.size) return 0;
 
     let total = 0;
-    for (const chave of agora) if (!carimbado.has(chave)) total++;
-    for (const chave of carimbado) if (!agora.has(chave)) total++;
+    for (const chave of agora) if (!peloModelo.has(chave)) total++;
+    for (const chave of peloModelo) if (!agora.has(chave)) total++;
     return total;
   });
 
@@ -104,6 +105,26 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
 
   readonly applyTemplateName = computed(() =>
     this.templates().find(t => t.id === this.applyTemplateId())?.name ?? '');
+
+  // ─── Diálogo: desfazer a aplicação de um modelo ────────────────────────────
+
+  readonly undoOpen = signal(false);
+  readonly undoTemplate = signal<AppliedTemplate | null>(null);
+
+  /**
+   * O que **sobra** se este modelo for desfeito.
+   *
+   * Calculado aqui para o diálogo poder dizer, antes do clique, que as telas
+   * dos outros modelos ficam de pé. Sem esse número, "desfazer" parece que
+   * derruba tudo — que é justamente o medo que impede alguém de usar o botão.
+   */
+  readonly undoKeeps = computed(() => {
+    const alvo = this.undoTemplate();
+    const pessoa = this.selected();
+    if (!alvo || !pessoa) return 0;
+
+    return pessoa.appliedTemplates.filter(t => t.id !== alvo.id).length;
+  });
 
   // ─── Diálogo: copiar de outra pessoa ───────────────────────────────────────
 
@@ -240,6 +261,42 @@ export class PermissionUsersComponent implements OnInit, TabDirtyCheck {
         });
       },
       error: () => this.falhou('Não foi possível aplicar o modelo.'),
+    });
+  }
+
+  // ─── Desfazer a aplicação de um modelo ─────────────────────────────────────
+
+  openUndo(template: AppliedTemplate): void {
+    this.undoTemplate.set(template);
+    this.undoOpen.set(true);
+  }
+
+  /**
+   * Desfazer desliga o que **aquele** modelo deu, e nada mais.
+   *
+   * O que outro modelo aplicado também dá fica de pé — é o que separa
+   * "desfazer" de "bloquear tudo". Quem faz a conta é a API, que conhece a
+   * grade dos outros modelos.
+   */
+  confirmUndo(): void {
+    const pessoa = this.selected();
+    const modelo = this.undoTemplate();
+    if (!pessoa || !modelo) return;
+
+    this.api.undoApply(pessoa.id, modelo.id).subscribe({
+      next: resultado => {
+        this.undoOpen.set(false);
+        this.reloadUsers();
+        this.reloadSelected();
+        this.toast.add({
+          severity: 'success',
+          summary: `${modelo.name} desfeito`,
+          detail: resultado.cellsChanged === 0
+            ? 'Nenhuma permissão saiu — outros modelos já davam tudo o que ele dava.'
+            : `${resultado.cellsChanged} permissões desligadas.`,
+        });
+      },
+      error: () => this.falhou('Não foi possível desfazer a aplicação.'),
     });
   }
 
