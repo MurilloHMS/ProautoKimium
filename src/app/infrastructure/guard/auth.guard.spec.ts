@@ -150,6 +150,11 @@ describe('AuthGuard', () => {
     (resultado as Observable<boolean>).subscribe();
 
     // Se o guard tivesse voltado antes, não haveria requisição para casar.
-    http.expectOne(url).flush({ 'rh/hub': ['CONSULTAR'] });
+    // Afirmado no método e não só no `expectOne`: este é o teste de um bug que
+    // já aconteceu, e ele não pode passar por acidente.
+    const requisicao = http.expectOne(url);
+    expect(requisicao.request.method).toBe('GET');
+
+    requisicao.flush({ 'rh/hub': ['CONSULTAR'] });
   });
 });

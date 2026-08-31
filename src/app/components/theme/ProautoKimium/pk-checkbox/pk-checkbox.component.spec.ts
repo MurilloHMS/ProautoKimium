@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { PkCheckboxComponent } from './pk-checkbox.component';
 
@@ -8,6 +9,7 @@ describe('PkCheckboxComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection()],
       imports: [PkCheckboxComponent]
     })
     .compileComponents();

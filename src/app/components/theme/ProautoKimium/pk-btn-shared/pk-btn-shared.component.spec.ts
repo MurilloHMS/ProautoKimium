@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { PkBtnSharedComponent } from './pk-btn-shared.component';
 
@@ -8,6 +9,7 @@ describe('PkBtnSharedComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection()],
       imports: [PkBtnSharedComponent]
     })
     .compileComponents();

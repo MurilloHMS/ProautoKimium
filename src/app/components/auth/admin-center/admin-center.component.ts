@@ -12,7 +12,6 @@ import { UserRole, RegisterDTO, UserResponseDTO } from '../../../domain/models/u
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkPasswordComponent } from '../../theme/ProautoKimium/pk-password/pk-password.component';
-import { PkMultiselectComponent } from '../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { FormScreenComponent } from '../shared/form-screen/form-screen.component';
 import { PkTableComponent } from '../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
@@ -26,7 +25,6 @@ import { ToolbarComponent } from '../shared/toolbar/toolbar.component';
     PkButtonComponent,
     PkInputComponent,
     PkPasswordComponent,
-    PkMultiselectComponent,
     FormScreenComponent,
     PkTableComponent,
     ToolbarComponent

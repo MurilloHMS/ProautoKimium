@@ -1,0 +1,207 @@
+// A splash de atualização.
+//
+// Não usa os tokens de tema, e é a única tela do app que faz isso. Ela cobre a
+// aplicação inteira num momento em que o app está sendo trocado por baixo:
+// aqui quem manda é a marca, não o claro/escuro que a pessoa escolheu.
+
+$navy-topo:   #26326b;
+$navy-fundo:  #161f45;
+$navy-brilho: #33417f;
+$verde:       #57c1ab;
+
+.splash {
+  position: fixed;
+  inset: 0;
+  // Acima de tudo, diálogo do PrimeNG incluído: durante a troca de versão não
+  // há nada com que interagir por baixo.
+  z-index: 10000;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 4vh, 30px);
+  padding: 32px;
+  text-align: center;
+
+  background:
+    radial-gradient(85% 65% at 50% 40%, $navy-brilho 0%, transparent 68%),
+    linear-gradient(165deg, $navy-topo 0%, $navy-fundo 72%);
+  color: #ffffff;
+}
+
+// ─── A marca ────────────────────────────────────────────────────────────────
+
+.splash__marca {
+  position: relative;
+  width: clamp(96px, 13vw, 132px);
+  aspect-ratio: 1;
+  flex: none;
+
+  img {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+
+    // O logo é azul-escuro sobre transparente e sumiria no fundo. Invertido, o
+    // "P" fica branco e a gota clara, e a marca continua legível.
+    filter: brightness(0) invert(1);
+  }
+}
+
+// O halo que respira, atrás de tudo. É ele que dá a sensação de "trabalhando"
+// sem mexer no símbolo em si.
+.splash__halo {
+  position: absolute;
+  inset: -24%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(87, 193, 171, 0.34) 0%, transparent 66%);
+  animation: splash-respira 2.4s ease-in-out infinite;
+}
+
+// A varredura: um clarão que atravessa o símbolo, recortado pela FORMA do logo.
+//
+// O `mask-image` é o que faz a diferença entre uma animação da marca e um
+// brilho retangular jogado por cima dela: o clarão só existe onde o desenho
+// existe, então a marca parece estar sendo percorrida, e não coberta.
+.splash__varredura {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+
+  background: linear-gradient(115deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.92) 50%,
+    transparent 62%);
+  background-size: 260% 100%;
+
+  -webkit-mask-image: url('/icons/logo.png');
+  mask-image: url('/icons/logo.png');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+
+  animation: splash-varre 2s linear infinite;
+}
+
+@keyframes splash-respira {
+  0%, 100% { opacity: 0.4; transform: scale(0.94); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+
+@keyframes splash-varre {
+  0%   { background-position: 190% 0; }
+  100% { background-position: -90% 0; }
+}
+
+// ─── Texto ──────────────────────────────────────────────────────────────────
+
+.splash__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.splash__nome {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: $verde;
+}
+
+.splash__titulo {
+  margin: 0;
+  font-size: clamp(19px, 3vw, 25px);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.splash__sub {
+  margin: 0;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 36ch;
+}
+
+// ─── O indicador ────────────────────────────────────────────────────────────
+//
+// As barras do próprio símbolo. Indeterminado por necessidade: o SwUpdate avisa
+// quando o download começa e quando termina, e nada entre as duas coisas — não
+// existe porcentagem honesta a mostrar.
+
+.splash__linhas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: min(210px, 58%);
+
+  i {
+    display: block;
+    height: 3px;
+    border-radius: 999px;
+    background: $verde;
+    opacity: 0.26;
+    animation: splash-pulsa 1.6s ease-in-out infinite;
+  }
+
+  // Comprimentos diferentes, como no logo. O atraso em cascata é o que faz a
+  // pilha parecer uma onda em vez de cinco barras piscando juntas.
+  i:nth-child(1) { width: 44%;  animation-delay: 0s; }
+  i:nth-child(2) { width: 70%;  animation-delay: 0.12s; }
+  i:nth-child(3) { width: 100%; animation-delay: 0.24s; }
+  i:nth-child(4) { width: 78%;  animation-delay: 0.36s; }
+  i:nth-child(5) { width: 50%;  animation-delay: 0.48s; }
+}
+
+@keyframes splash-pulsa {
+  0%, 100% { opacity: 0.2; transform: scaleX(0.9); }
+  50%      { opacity: 1;   transform: scaleX(1); }
+}
+
+// ─── Movimento reduzido ─────────────────────────────────────────────────────
+//
+// **Não congela tudo**, e a diferença importa mais aqui do que em qualquer
+// outra tela: um indicador de carregamento parado deixa de indicar, que é a
+// única função dele. O que a preferência pede é remover deslocamento e escala,
+// que são o que desencadeia enjoo — não remover sinal de vida. Sobra opacidade.
+//
+// Vale lembrar que isto não é caso raro: o Windows liga esta preferência quando
+// as animações do sistema estão desativadas, e muita gente as desativa.
+@media (prefers-reduced-motion: reduce) {
+  .splash__halo {
+    animation: none;
+    opacity: 0.55;
+    transform: none;
+  }
+
+  // A varredura vira uma pulsação sobre o símbolo: mesmo recorte, sem travessia.
+  .splash__varredura {
+    background: none;
+    background-color: rgba(255, 255, 255, 0.6);
+    animation: splash-pisca 2s ease-in-out infinite;
+  }
+
+  .splash__linhas i {
+    transform: none;
+    animation: splash-so-opacidade 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes splash-pisca {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 0.42; }
+}
+
+@keyframes splash-so-opacidade {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 1; }
+}

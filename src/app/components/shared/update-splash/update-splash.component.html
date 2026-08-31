@@ -1,0 +1,45 @@
+<!--
+  Fora de uma atualização não existe nada aqui: nem elemento, nem overlay
+  transparente por cima do app.
+-->
+@if (fase(); as fase) {
+  <!--
+    `aria-live="assertive"` e não `polite`: a página vai recarregar em seguida,
+    e um anúncio educado que espera a leitura terminar chegaria depois do
+    reload — ou seja, nunca.
+  -->
+  <div class="splash" role="status" aria-live="assertive">
+    <div class="splash__marca">
+      <!--
+        As três camadas são decorativas e ficam fora da árvore de acessibilidade:
+        o texto abaixo já diz o que está acontecendo, e "imagem, imagem, imagem"
+        antes dele só atrapalharia quem usa leitor de tela.
+      -->
+      <div class="splash__halo" aria-hidden="true"></div>
+      <img src="/icons/logo.png" alt="" aria-hidden="true" />
+      <div class="splash__varredura" aria-hidden="true"></div>
+    </div>
+
+    <div class="splash__texto">
+      <span class="splash__nome">Proauto Kimium</span>
+
+      <p class="splash__titulo">
+        {{ fase === 'baixando' ? 'Baixando atualização' : 'Instalando atualização' }}
+      </p>
+
+      <p class="splash__sub">
+        {{ fase === 'baixando'
+            ? 'Alguns segundos. Não feche a página.'
+            : 'A página vai recarregar sozinha.' }}
+      </p>
+    </div>
+
+    <!--
+      Indicador indeterminado: as barras do símbolo. O SwUpdate não informa
+      bytes, então não há porcentagem honesta a mostrar.
+    -->
+    <div class="splash__linhas" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i>
+    </div>
+  </div>
+}
