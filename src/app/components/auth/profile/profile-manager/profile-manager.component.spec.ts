@@ -2,13 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProfileManagerComponent } from './profile-manager.component';
 
+import { providersDeTeste } from '../../../../../testing/test-setup';
+
 describe('ProfileManagerComponent', () => {
   let component: ProfileManagerComponent;
   let fixture: ComponentFixture<ProfileManagerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProfileManagerComponent]
+      imports: [ProfileManagerComponent],
+      providers: providersDeTeste()
     })
     .compileComponents();
 
