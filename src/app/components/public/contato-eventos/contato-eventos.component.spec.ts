@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { ContatoEventosComponent } from './contato-eventos.component';
 
@@ -8,6 +9,7 @@ describe('ContatoEventosComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection()],
       imports: [ContatoEventosComponent]
     })
     .compileComponents();

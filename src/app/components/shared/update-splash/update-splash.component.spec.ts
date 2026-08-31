@@ -28,6 +28,12 @@ describe('UpdateSplashComponent', () => {
    * registrado, e o componente tem que sair na porta sem assinar nada.
    */
   const montar = (isEnabled = true) => {
+    // Reset explícito porque o `configureTestingModule` acontece dentro do
+    // `it`, e não num `beforeEach`. Sem ele, o componente de um teste anterior
+    // sobrevive no injector e o `fase()` chega aqui já preenchido — os testes
+    // que afirmam `null` falham por causa do vizinho, não de si mesmos.
+    TestBed.resetTestingModule();
+
     versionUpdates = new Subject<VersionEvent>();
     reload = jasmine.createSpy('reload');
 

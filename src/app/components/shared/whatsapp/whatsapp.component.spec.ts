@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { WhatsappComponent } from './whatsapp.component';
 
@@ -8,6 +9,7 @@ describe('WhatsappComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection()],
       imports: [WhatsappComponent]
     })
     .compileComponents();

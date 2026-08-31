@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { PkDialogComponent } from './pk-dialog.component';
 
@@ -8,6 +9,7 @@ describe('PkDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      providers: [provideZonelessChangeDetection()],
       imports: [PkDialogComponent]
     })
     .compileComponents();

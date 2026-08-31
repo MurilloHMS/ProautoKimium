@@ -51,8 +51,15 @@ describe('PermissionStore', () => {
     store.ensureLoaded().subscribe();
     store.ensureLoaded().subscribe();
 
-    responder({ 'rh/hub': ['CONSULTAR'] });
-    // O `http.verify()` do afterEach falha se tiver sobrado requisição.
+    // Contado, e não deduzido do `http.verify()` do afterEach: três chamadas
+    // que virassem três requisições também passariam pelo verify, desde que
+    // todas fossem respondidas. O número é a afirmação.
+    // `match` CONSOME o que casa, então quem responde é o próprio resultado —
+    // chamar `responder` depois disto não acharia mais requisição nenhuma.
+    const requisicoes = http.match(url);
+    expect(requisicoes.length).toBe(1);
+
+    requisicoes[0].flush({ 'rh/hub': ['CONSULTAR'] });
   });
 
   it('depois de carregado, não vai ao servidor de novo', () => {
@@ -61,7 +68,10 @@ describe('PermissionStore', () => {
 
     store.ensureLoaded().subscribe();
 
-    http.expectNone(url);
+    // `expectNone` estoura se houver requisição, mas não conta como
+    // expectativa para o Jasmine — e um spec sem expectativa nenhuma passa por
+    // não fazer nada tão facilmente quanto por estar certo.
+    expect(http.match(url).length).toBe(0);
   });
 
   /**
