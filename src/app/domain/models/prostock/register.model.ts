@@ -89,12 +89,41 @@ export interface ScheduleSlip {
   changedAt: string;
 }
 
-/** Uma alteração de previsão já registrada — espelha `ScheduleChangeDTO`. */
+/**
+ * Uma alteração já registrada — espelha `ScheduleChangeDTO`.
+ *
+ * `campo` diz qual dos oito mudou, e por isso os dois valores são **texto**: é
+ * a mesma linha de tabela guardando data, nome de técnico e chave de status. A
+ * tela é que devolve cada um ao seu formato, e precisa de `campo` para saber
+ * qual aplicar.
+ *
+ * `motivo` é nulo na maioria das linhas desde que deixou de ser obrigatório.
+ */
 export interface ScheduleChange {
   id: string;
-  previsaoAnterior: string;
-  previsaoNova: string | null;
-  motivo: string;
+  campo: string;
+  valorAnterior: string | null;
+  valorNovo: string | null;
+  motivo: string | null;
   changedBy: string | null;
   changedAt: string;
+}
+
+/**
+ * Uma edição inteira: o que mudou de uma vez só.
+ *
+ * A API grava uma linha por campo, e todas as linhas de uma mesma edição saem
+ * com o mesmo `changedAt`, o mesmo autor e o mesmo motivo — o serviço as grava
+ * numa chamada só. Agrupar de volta é o que evita repetir a justificativa uma
+ * vez por campo: quem arruma quatro coisas numa linha geraria quatro cartões
+ * idênticos exceto pelo par de valores.
+ *
+ * Só existe na tela. A API não conhece esta forma.
+ */
+export interface ScheduleEdit {
+  id: string;
+  changedBy: string | null;
+  changedAt: string;
+  motivo: string | null;
+  campos: ScheduleChange[];
 }

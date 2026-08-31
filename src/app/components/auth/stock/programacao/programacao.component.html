@@ -326,7 +326,7 @@
 
   <div pkDialogContent class="pk-form-section">
     <div class="form-field field-full">
-      <label for="motivoAdiamento">Motivo <span class="required">*</span></label>
+      <label for="motivoAdiamento">Motivo</label>
       <textarea
         id="motivoAdiamento"
         pTextarea
@@ -336,8 +336,9 @@
         [ngModel]="motivoTexto()"
         (ngModelChange)="motivoTexto.set($event)"></textarea>
       <small class="label-hint">
-        Fica no histórico da programação. É o que responde, daqui a três meses,
-        por que essa máquina atrasou.
+        Opcional, e vale para a edição inteira. Fica no histórico da
+        programação: é o que responde, daqui a três meses, por que essa máquina
+        atrasou.
       </small>
     </div>
   </div>
@@ -348,19 +349,22 @@
       pkType="save"
       pkSize="sm"
       pkLabel="Salvar alteração"
-      [pkDisabled]="!motivoValido()"
       (clicked)="confirmarMotivo()" />
   </div>
 </pk-dialog>
 
 <!--
-  Histórico de adiamentos.
+  Histórico de alterações.
 
   Carregado no clique, não junto da grade: seria um GET por linha numa tela de
   centenas, para uma informação que se consulta raramente.
+
+  Uma entrada por EDIÇÃO, não por campo. A API grava uma linha por campo que
+  mudou, e quem arruma quatro coisas de uma vez geraria quatro cartões iguais
+  exceto pelo par de valores — com a mesma justificativa repetida em todos.
 -->
 <pk-dialog
-  [header]="'Adiamentos · ' + historicoDe()"
+  [header]="'Histórico · ' + historicoDe()"
   [visible]="historicoAberto()"
   width="560px"
   (visibleChange)="historicoAberto.set(false)">
@@ -368,32 +372,60 @@
   <div pkDialogContent class="pk-form-section">
     @if (historicoCarregando()) {
       <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
-    } @else if (historico().length > 0) {
+    } @else if (historicoAgrupado().length > 0) {
       <!--
-        Do mais recente para o mais antigo. Quem abre quer saber a justificativa
-        da última mudança; o resto é contexto.
+        Do mais recente para o mais antigo, como a API devolve. Quem abre quer a
+        última mudança; o resto é contexto.
       -->
       <div class="hist">
-        @for (item of historico(); track item.id) {
-          <div class="hist__item">
-            <div class="hist__datas">
-              <span class="hist__de">{{ item.previsaoAnterior | date: 'dd/MM/yyyy' }}</span>
-              <i class="pi pi-arrow-right"></i>
-              <span class="hist__para">
-                {{ item.previsaoNova ? (item.previsaoNova | date: 'dd/MM/yyyy') : 'sem previsão' }}
+        @for (edicao of historicoAgrupado(); track edicao.id) {
+          <div class="hist__edicao">
+            <div class="hist__quando">
+              <span>
+                <span class="hist__autor">{{ edicao.changedBy || 'Autor não registrado' }}</span>
+                · {{ edicao.changedAt | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+              <span class="hist__quantos">
+                {{ edicao.campos.length }} {{ edicao.campos.length === 1 ? 'campo' : 'campos' }}
               </span>
             </div>
-            <p class="hist__motivo">{{ item.motivo }}</p>
-            <span class="hist__quem">
-              {{ item.changedBy || 'Autor não registrado' }} · {{ item.changedAt | date: 'dd/MM/yyyy HH:mm' }}
-            </span>
+
+            <div class="hist__campos">
+              @for (mudanca of edicao.campos; track mudanca.id) {
+                <span class="hist__rotulo">{{ rotuloDoCampo(mudanca.campo) }}</span>
+                <div class="hist__valores">
+                  <!--
+                    Ausência aparece como "sem valor" apagado, nunca como célula
+                    vazia — vazio se lê como falha de carregamento, e não como o
+                    campo estando em branco antes.
+                  -->
+                  @if (valorDoCampo(mudanca.campo, mudanca.valorAnterior); as anterior) {
+                    <span class="hist__de">{{ anterior }}</span>
+                  } @else {
+                    <span class="hist__de hist__sem">sem valor</span>
+                  }
+                  <i class="pi pi-arrow-right"></i>
+                  @if (valorDoCampo(mudanca.campo, mudanca.valorNovo); as novo) {
+                    <span class="hist__para">{{ novo }}</span>
+                  } @else {
+                    <span class="hist__para hist__sem">sem valor</span>
+                  }
+                </div>
+              }
+            </div>
+
+            @if (edicao.motivo) {
+              <p class="hist__motivo">{{ edicao.motivo }}</p>
+            } @else {
+              <p class="hist__motivo hist__sem">Sem motivo informado.</p>
+            }
           </div>
         }
       </div>
     } @else {
       <p class="hist-vazio">
         <i class="pi pi-check-circle"></i>
-        Esta programação nunca foi adiada.
+        Esta programação nunca foi alterada.
       </p>
     }
   </div>

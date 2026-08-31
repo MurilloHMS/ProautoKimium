@@ -249,7 +249,7 @@
 
 .audit__none { color: var(--app-text-subtle); }
 
-// ─── Histórico de adiamentos ────────────────────────────────────────────────
+// ─── Histórico de alterações ────────────────────────────────────────────────
 
 .hist {
   display: flex;
@@ -257,45 +257,95 @@
   gap: 12px;
 }
 
-// Cada adiamento é um bloco. A barra à esquerda liga visualmente os itens numa
-// linha do tempo — sem ela, três blocos parecem três coisas soltas.
-.hist__item {
-  padding: 10px 14px;
+// Cada EDIÇÃO é um bloco, com os campos que mudaram juntos dentro dele. A barra
+// à esquerda liga visualmente os blocos numa linha do tempo — sem ela, três
+// deles parecem três coisas soltas.
+.hist__edicao {
+  padding: 12px 14px;
   border-left: 2px solid var(--app-warning);
   background: var(--app-surface-2);
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.hist__datas {
+.hist__quando {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
+
+.hist__autor {
+  color: var(--app-text-muted);
+  font-weight: 500;
+}
+
+.hist__quantos {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Grade de duas colunas, e não flex por linha: assim os rótulos de campos
+// diferentes alinham entre si, e o par "de → para" começa sempre na mesma
+// coluna. Com flex, "Tag" e "Previsão" empurrariam os valores para lugares
+// diferentes e a leitura vertical se perderia.
+.hist__campos {
+  display: grid;
+  grid-template-columns: minmax(84px, auto) 1fr;
+  gap: 6px 14px;
+  align-items: baseline;
+}
+
+.hist__rotulo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.hist__valores {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: var(--text-ui-sm);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
 
-  i { font-size: .7rem; color: var(--app-text-subtle); }
+  i { font-size: 11px; color: var(--app-text-subtle); }
 }
 
-// A data que saiu fica riscada: o "de → para" já diz a direção, e o risco
-// deixa claro qual das duas não vale mais.
 .hist__de {
   color: var(--app-text-subtle);
   text-decoration: line-through;
 }
 
-.hist__para { color: var(--app-text); }
+.hist__para {
+  color: var(--app-text);
+  font-weight: 500;
+}
+
+// Ausência: apagada e sem o risco do valor antigo. Riscar "sem valor" diria
+// que algo foi removido, quando não havia nada ali.
+.hist__sem {
+  color: var(--app-text-subtle);
+  font-style: italic;
+  text-decoration: none;
+  font-weight: 400;
+}
 
 .hist__motivo {
-  margin: 6px 0 4px;
+  margin: 0;
+  padding-top: 9px;
+  border-top: 1px dashed var(--app-border);
   font-size: var(--text-ui-sm);
   line-height: 1.45;
   color: var(--app-text);
-}
-
-.hist__quem {
-  font-size: var(--text-ui-sm);
-  color: var(--app-text-subtle);
 }
 
 .hist-vazio {

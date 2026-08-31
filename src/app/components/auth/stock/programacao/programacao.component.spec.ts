@@ -400,4 +400,148 @@ describe('ProgramacaoComponent · estoque', () => {
 
     expect(component.rows().map(r => r.id)).toEqual(['b', 'c', 'a']);
   });
+
+  // ─── Histórico agrupado por edição ─────────────────────────────────────────
+
+  const alteracao = (
+    id: string,
+    campo: string,
+    anterior: string | null,
+    novo: string | null,
+    changedAt: string,
+    motivo: string | null = null,
+    changedBy: string | null = 'Murillo',
+  ) => ({ id, campo, valorAnterior: anterior, valorNovo: novo, motivo, changedBy, changedAt });
+
+  const abrirHistoricoCom = (linhas: ReturnType<typeof alteracao>[]) => {
+    registerService.scheduleChanges.and.returnValue(of(linhas));
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    component.abrirHistorico(component.rows()[0]);
+  };
+
+  /**
+   * **O teste que justifica a Opção B.**
+   *
+   * A API grava uma linha por campo. Sem agrupar, quem arrumou o cliente, o
+   * técnico e a previsão de uma vez vê três cartões com a MESMA justificativa e
+   * o MESMO horário repetidos — e o diálogo fica ilegível justamente na edição
+   * que mais interessa consultar.
+   */
+  it('linhas da mesma edição viram uma entrada só', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'previsao', '2026-09-15T00:00', '2026-09-22T00:00', '2026-08-31T14:32:00', 'Cliente pediu'),
+      alteracao('2', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00', 'Cliente pediu'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(1);
+    expect(component.historicoAgrupado()[0].campos.length).toBe(2);
+    expect(component.historicoAgrupado()[0].motivo).toBe('Cliente pediu');
+  });
+
+  /**
+   * O par do de cima. Sozinho, o teste anterior passaria com um agrupamento que
+   * junta tudo numa entrada só — e o histórico inteiro viraria um bloco.
+   */
+  it('edições em instantes diferentes ficam separadas', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'previsao', '2026-09-15T00:00', '2026-09-22T00:00', '2026-08-31T14:32:00'),
+      alteracao('2', 'tecnico', 'Marcos', 'Joana', '2026-08-25T09:10:00'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(2);
+  });
+
+  /**
+   * Mesmo instante, autores diferentes. Improvável, mas a chave é autor +
+   * instante justamente para isso: juntar duas pessoas numa entrada atribuiria
+   * a alteração de uma à outra.
+   */
+  it('mesmo instante com autores diferentes não agrupa', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00', null, 'Murillo'),
+      alteracao('2', 'regiao', 'Sul', 'Norte', '2026-08-31T14:32:00', null, 'Ricardo'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(2);
+  });
+
+  /** A ordem que a API manda é a que se lê: mais recente primeiro. */
+  it('o agrupamento preserva a ordem de chegada', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00'),
+      alteracao('2', 'regiao', 'Sul', 'Norte', '2026-08-25T09:10:00'),
+    ]);
+
+    expect(component.historicoAgrupado().map(e => e.changedAt))
+      .toEqual(['2026-08-31T14:32:00', '2026-08-25T09:10:00']);
+  });
+
+  // ─── Cada campo no seu formato ─────────────────────────────────────────────
+
+  /**
+   * A API guarda tudo como texto numa coluna só, então a previsão chega em ISO.
+   * Sem converter, o histórico mostraria `2026-09-22T00:00` — o banco falando,
+   * não a tela.
+   */
+  it('previsão volta a ser data', () => {
+    expect(component.valorDoCampo('previsao', '2026-09-22T00:00')).toBe('22/09/2026');
+  });
+
+  /**
+   * O status é gravado pela CHAVE do enum de propósito, para o histórico não
+   * mudar de conteúdo quando alguém corrige uma tradução. A tradução acontece
+   * aqui, na leitura.
+   */
+  it('status volta a ser rótulo em português', () => {
+    expect(component.valorDoCampo('status', 'AGUARDANDO_AQUISICAO')).toBe('Aguardando aquisição');
+  });
+
+  /** Campo de texto passa direto: não há formato a devolver. */
+  it('texto passa sem tradução', () => {
+    expect(component.valorDoCampo('tecnico', 'Joana Prado')).toBe('Joana Prado');
+  });
+
+  /**
+   * Nulo continua nulo, e não vira "—".
+   *
+   * Quem desenha ausência é o template, que mostra "sem valor" apagado. Devolver
+   * o traço daqui tiraria dele a chance de distinguir ausência de conteúdo, e a
+   * célula em branco se lê como falha de carregamento.
+   */
+  it('ausência continua ausência', () => {
+    expect(component.valorDoCampo('previsao', null)).toBeNull();
+    expect(component.valorDoCampo('status', null)).toBeNull();
+  });
+
+  /**
+   * Um campo que a API passe a gravar e a tela ainda não conheça aparece com a
+   * chave crua, não some. Some seria pior: o histórico mentiria por omissão.
+   */
+  it('campo desconhecido aparece com a chave crua', () => {
+    expect(component.rotuloDoCampo('observacao')).toBe('observacao');
+    expect(component.valorDoCampo('observacao', 'qualquer coisa')).toBe('qualquer coisa');
+  });
+
+  // ─── O motivo deixou de ser obrigatório ────────────────────────────────────
+
+  /**
+   * **A regra que saiu.**
+   *
+   * Obrigar justificativa ensinava a digitar "ok" para passar da tela. A
+   * pergunta continua aparecendo quando a previsão muda; só a exigência caiu.
+   */
+  it('confirmar sem motivo grava, com motivo nulo', () => {
+    const stored = { ...register(MachineStatus.DISPONIVEL), previsaoEntrega: '2026-09-01T00:00' };
+    registerStore.upsert(stored);
+
+    const row = { ...component.rows()[0], previsao: new Date('2026-09-20T00:00') } as never;
+    component.onCellEdited(row);
+
+    expect(component.motivoAberto()).toBeTrue();
+
+    component.confirmarMotivo();
+
+    expect(registerService.update).toHaveBeenCalled();
+    expect(lastPayload().motivoAlteracaoPrevisao).toBeNull();
+  });
 });

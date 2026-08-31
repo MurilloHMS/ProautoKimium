@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
@@ -26,6 +26,7 @@ import {
   CreateMachineRegister,
   MachineRegister,
   ScheduleChange,
+  ScheduleEdit,
   UpdateMachineRegister,
 } from '../../../../domain/models/prostock/register.model';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
@@ -131,7 +132,13 @@ export class ProgramacaoComponent implements OnInit {
   /** O que fica esperando o motivo para poder ser gravado. */
   private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
 
-  readonly motivoValido = computed(() => this.motivoTexto().trim().length > 0);
+  /**
+   * O motivo não trava mais o botão.
+   *
+   * Era obrigatório, e obrigar ensinava a digitar "ok" para passar da tela — o
+   * campo perdia justamente para quem adia de verdade. A pergunta continua
+   * aparecendo quando a previsão muda; só a exigência saiu, aqui e na API.
+   */
 
   // ─── Confirmação de estoque ──────────────────────────────────────────────
   //
@@ -169,6 +176,14 @@ export class ProgramacaoComponent implements OnInit {
   // trazer a contagem junto da grade, e aí seria um GET por linha numa tela que
   // costuma ter centenas — caro para uma informação que se consulta raramente.
 
+  /**
+   * O mesmo locale que o `| date` do template usa.
+   *
+   * Fixar "pt-BR" aqui faria esta data divergir de todas as outras da tela no
+   * dia em que o app rodar em outro locale — e divergir em silêncio.
+   */
+  private readonly locale = inject(LOCALE_ID);
+
   readonly historicoAberto = signal(false);
   readonly historicoCarregando = signal(false);
   readonly historico = signal<ScheduleChange[]>([]);
@@ -193,6 +208,92 @@ export class ProgramacaoComponent implements OnInit {
         this.showError(err);
       },
     });
+  }
+
+  /**
+   * As linhas soltas da API viram uma entrada por **edição**.
+   *
+   * Chave: autor + instante. As linhas de uma mesma edição saem do serviço numa
+   * transação só, com o mesmo `changedAt` até o milissegundo — não é
+   * coincidência que dá para explorar, é como elas são gravadas.
+   *
+   * `Map` e não `reduce` num objeto: preserva a ordem de chegada, que já vem do
+   * mais recente para o mais antigo, e é a ordem em que se lê.
+   */
+  readonly historicoAgrupado = computed<ScheduleEdit[]>(() => {
+    const edicoes = new Map<string, ScheduleEdit>();
+
+    for (const linha of this.historico()) {
+      const chave = `${linha.changedAt}|${linha.changedBy ?? ''}`;
+      const existente = edicoes.get(chave);
+
+      if (existente) {
+        existente.campos.push(linha);
+        // O motivo é o mesmo nas linhas da edição, mas só se sabe disso pela
+        // API. Pegar o primeiro que não for nulo sobrevive a ela mudar de
+        // ideia e gravar a justificativa em uma linha só.
+        existente.motivo ??= linha.motivo;
+        continue;
+      }
+
+      edicoes.set(chave, {
+        id: chave,
+        changedBy: linha.changedBy,
+        changedAt: linha.changedAt,
+        motivo: linha.motivo,
+        campos: [linha],
+      });
+    }
+
+    return [...edicoes.values()];
+  });
+
+  /**
+   * O rótulo de cada campo, como a coluna da grade se chama.
+   *
+   * Quem abre o histórico acabou de olhar a tabela. Um campo que aparece aqui
+   * com outro nome custa uma tradução mental a cada linha.
+   */
+  private static readonly ROTULO_DO_CAMPO: Record<string, string> = {
+    nomeCliente: 'Cliente',
+    regiao: 'Região',
+    solicitante: 'Solicitante',
+    previsao: 'Previsão',
+    consultor: 'Consultor',
+    tecnico: 'Técnico',
+    tag: 'Tag',
+    status: 'Status',
+  };
+
+  rotuloDoCampo(campo: string): string {
+    return ProgramacaoComponent.ROTULO_DO_CAMPO[campo] ?? campo;
+  }
+
+  /**
+   * Devolve cada valor ao formato em que ele vive na tela.
+   *
+   * A API guarda tudo como texto, porque é uma coluna só para oito campos —
+   * data em ISO, status pela chave do enum. Sem isto o histórico mostraria
+   * `2026-09-22T00:00` e `AGUARDANDO_AQUISICAO`, que é o banco falando, não a
+   * tela.
+   *
+   * Nulo devolve nulo, e não "—": quem decide como desenhar ausência é o
+   * template, que a mostra apagada em vez de deixar um espaço em branco — um
+   * branco seria lido como falha de carregamento.
+   */
+  valorDoCampo(campo: string, valor: string | null): string | null {
+    if (valor === null) return null;
+
+    if (campo === 'previsao') {
+      const data = new Date(valor);
+      return isNaN(data.getTime()) ? valor : formatDate(data, 'dd/MM/yyyy', this.locale);
+    }
+
+    if (campo === 'status') {
+      return MACHINE_STATUS_LABEL[valor as MachineStatus] ?? valor;
+    }
+
+    return valor;
   }
 
   readonly hasFilters = computed(() =>
@@ -666,7 +767,7 @@ export class ProgramacaoComponent implements OnInit {
 
   /** Confirma o motivo e solta o PUT que estava esperando. */
   confirmarMotivo(): void {
-    if (!this.motivoValido() || !this.pendente) return;
+    if (!this.pendente) return;
 
     const { row, payload } = this.pendente;
     this.pendente = null;
@@ -675,7 +776,7 @@ export class ProgramacaoComponent implements OnInit {
     // Os dois diálogos podem cair na mesma edição — mudar a data E o status de
     // uma vez. Em fila, nunca ao mesmo tempo: um por cima do outro esconderia
     // metade da pergunta.
-    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() });
+    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() || null });
   }
 
   /**
