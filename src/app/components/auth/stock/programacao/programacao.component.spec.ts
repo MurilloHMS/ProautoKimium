@@ -544,4 +544,79 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(registerService.update).toHaveBeenCalled();
     expect(lastPayload().motivoAlteracaoPrevisao).toBeNull();
   });
+
+  // ─── Quando o diálogo de motivo aparece ────────────────────────────────────
+
+  /** Edita uma célula da linha gravada e devolve o que a tela fez. */
+  const editar = (stored: MachineRegister, mudanca: Partial<MachineRegister & { previsao: Date | null }>) => {
+    registerStore.upsert(stored);
+    component.onCellEdited({ ...component.rows()[0], ...mudanca } as never);
+  };
+
+  /**
+   * **A mudança que este pedido trouxe.**
+   *
+   * O diálogo só aparecia no adiamento. Agora o motivo vale para a edição
+   * inteira, e a API o repete em cada campo que mudou — então qualquer um dos
+   * sete pergunta.
+   */
+  it('mudar um campo de texto abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { tecnico: 'Joana Prado' });
+
+    expect(component.motivoAberto()).toBeTrue();
+    expect(registerService.update).not.toHaveBeenCalled();
+  });
+
+  /**
+   * **A regra do campo vazio.**
+   *
+   * Preencher é completar cadastro, não alterar: não há nada de onde ter saído,
+   * e não há decisão a justificar. Era a regra do adiamento e generalizou para
+   * os sete campos junto com o histórico.
+   */
+  it('preencher um campo que estava vazio não pergunta nada', () => {
+    const semConsultor = { ...register(MachineStatus.DISPONIVEL), consultor: '' };
+
+    editar(semConsultor, { consultor: 'Marcos Vinícius' });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
+
+  /**
+   * Apagar CONTA. É o oposto do de cima e o par que o protege: sozinho, aquele
+   * passa com uma regra que ignora tudo que envolve vazio, e aí limpar o
+   * técnico de uma linha sumiria do histórico sem deixar rastro.
+   */
+  it('apagar um campo que tinha valor pergunta o motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { tecnico: '' });
+
+    expect(component.motivoAberto()).toBeTrue();
+  });
+
+  /**
+   * **O teste que preserva a decisão antiga.**
+   *
+   * Reservar não é entregar, e a grade se edita o dia todo: um diálogo de
+   * motivo a cada troca de status apareceria dezenas de vezes por dia sem nada
+   * a dizer. O status continua entrando no histórico — ele só não pergunta.
+   */
+  it('mudar só o status não abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { status: MachineStatus.RESERVADA });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
+
+  /**
+   * A Observação está fora do histórico por escolha do time. Perguntar o motivo
+   * ali seria pedir uma justificativa que a API descarta em silêncio — ela só
+   * grava motivo junto de um campo alterado.
+   */
+  it('mexer só na observação não abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { Observacao: 'Entregar pela manhã' });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
 });

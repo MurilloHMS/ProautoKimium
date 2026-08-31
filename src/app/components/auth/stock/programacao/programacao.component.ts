@@ -752,10 +752,9 @@ export class ProgramacaoComponent implements OnInit {
     const stored = this.store.items().find(item => item.id === row.id);
     if (stored && !hasChanges(stored, payload)) return;
 
-    // Adiar exige motivo; preencher pela primeira vez, não. A regra é a mesma
-    // da API, e está repetida aqui só para perguntar antes de falhar — quem
-    // decide continua sendo o servidor.
-    if (stored && adiouPrevisao(stored, payload)) {
+    // O motivo vale para a edição inteira, e a API o repete em cada campo que
+    // mudou — então a pergunta não é mais só sobre a previsão.
+    if (stored && pedeMotivo(stored, payload)) {
       this.pendente = { row, payload };
       this.motivoTexto.set('');
       this.motivoAberto.set(true);
@@ -780,10 +779,14 @@ export class ProgramacaoComponent implements OnInit {
   }
 
   /**
-   * Desistir do motivo desfaz a edição.
+   * Desistir **desfaz a edição** — não é só recusar o motivo.
    *
-   * Deixar a data nova na tela sem gravar seria pior que o erro: a pessoa sai
+   * Deixar o valor novo na tela sem gravar seria pior que o erro: a pessoa sai
    * achando que salvou. O `refresh` traz de volta o que está no banco.
+   *
+   * O botão diz "Descartar alteração" por isso. Enquanto o diálogo só aparecia
+   * no adiamento dava para chamar de "Cancelar"; abrindo em toda edição, a
+   * palavra tem que dizer o que se perde.
    */
   cancelarMotivo(): void {
     this.pendente = null;
@@ -917,15 +920,48 @@ function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): bo
 }
 
 /**
- * Mudou a previsão de um registro que **já tinha** data.
+ * Vale perguntar o motivo desta edição?
  *
- * Preencher pela primeira vez não entra: é completar cadastro, não adiar.
- * Apagar entra — e é o caso mais grave, porque a máquina some das próximas
- * saídas sem ninguém perceber.
+ * Três exclusões, e cada uma tem dono:
+ *
+ * **Observação** não entra no histórico — decisão do time. Perguntar ali seria
+ * pedir uma justificativa que a API descarta em silêncio, porque ela só grava
+ * motivo junto de um campo alterado.
+ *
+ * **Status** não pergunta, embora seja registrado. Reservar uma máquina não é
+ * assunto, e a grade se edita o dia todo: um diálogo aí apareceria dezenas de
+ * vezes sem nada a dizer. Quando o status mexe no estoque, quem pergunta é o
+ * diálogo de estoque, que tem algo concreto a mostrar.
+ *
+ * **Campo que estava vazio** não entra. Preencher é completar cadastro, não
+ * alterar — não há nada de onde ter saído, e não há decisão a justificar. Vale
+ * para os sete, e não só para a previsão: era a regra do adiamento, e ela
+ * generalizou junto com o histórico.
  */
-function adiouPrevisao(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
-  if (!stored.previsaoEntrega) return false;
-  return dayPart(stored.previsaoEntrega) !== dayPart(payload.previsaoEntrega);
+function pedeMotivo(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
+  return alterou(stored.nomeCliente, payload.nomeCliente)
+    || alterou(stored.tag, payload.tag)
+    || alterou(stored.regiao, payload.regiao)
+    || alterou(stored.solicitante, payload.solicitante)
+    || alterou(stored.consultor, payload.consultor)
+    || alterou(stored.tecnico, payload.tecnico)
+    || alterou(dayPart(stored.previsaoEntrega), dayPart(payload.previsaoEntrega));
+}
+
+/**
+ * Mudou **tendo valor antes**.
+ *
+ * Vazio e nulo são a mesma ausência, aqui como na API: um input limpo devolve
+ * `""` onde o banco tem `null`, e tratá-los como coisas diferentes faria toda
+ * visita a uma célula em branco parecer alteração.
+ *
+ * Apagar CONTA — é alteração, e a mais grave no caso da previsão, porque a
+ * máquina some das próximas saídas sem ninguém perceber.
+ */
+function alterou(antes: string | null | undefined, depois: string | null | undefined): boolean {
+  const anterior = antes?.trim() || null;
+  if (anterior === null) return false;
+  return anterior !== (depois?.trim() || null);
 }
 
 function dayPart(value: string | null | undefined): string {
