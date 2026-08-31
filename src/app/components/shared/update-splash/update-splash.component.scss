@@ -1,0 +1,121 @@
+// A splash de atualização — "marca em escala".
+//
+// Não usa os tokens de tema de propósito, e é a única tela do app que faz isso.
+// Ela cobre a aplicação inteira num momento em que o app está sendo trocado por
+// baixo: aqui quem manda é a marca, não o tema claro/escuro que a pessoa
+// escolheu. Por isso as cores estão fixas, e são as duas do logo.
+
+$navy: #1a2450;
+$navy-topo: #232e61;
+$verde: #57c1ab;
+
+.splash {
+  position: fixed;
+  inset: 0;
+  // Acima de tudo, diálogo do PrimeNG incluído: durante a troca de versão não
+  // há nada com que interagir por baixo.
+  z-index: 10000;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(24px, 6vw, 56px);
+  overflow: hidden;
+
+  background: linear-gradient(160deg, $navy-topo 0%, $navy 58%);
+  color: #ffffff;
+}
+
+// O símbolo grande, recortado pela borda. Inteiro e centralizado é o que todo
+// splash de todo aplicativo já faz; sangrando, a marca vira composição.
+.splash__marca {
+  position: absolute;
+  width: 68%;
+  max-width: 520px;
+  right: -14%;
+  top: -12%;
+  opacity: 0.14;
+
+  // O logo é azul e verde sobre transparente. Sobre o azul do fundo ele
+  // sumiria; dessaturado e clareado vira uma marca-d'água que não briga com o
+  // texto.
+  filter: grayscale(1) brightness(3);
+  pointer-events: none;
+  user-select: none;
+}
+
+.splash__conteudo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 42ch;
+}
+
+.splash__nome {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: $verde;
+}
+
+.splash__titulo {
+  margin: 0;
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.splash__sub {
+  margin: 0;
+  font-size: clamp(13px, 2.4vw, 15px);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+// ─── O indicador ────────────────────────────────────────────────────────────
+//
+// As barras do próprio símbolo. Indeterminado por necessidade: o SwUpdate avisa
+// quando o download começa e quando termina, e nada entre as duas coisas — não
+// existe porcentagem honesta a mostrar.
+
+.splash__linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: min(240px, 70%);
+  margin-top: 8px;
+
+  i {
+    display: block;
+    height: 3px;
+    border-radius: 999px;
+    background: $verde;
+    opacity: 0.28;
+    transform-origin: left center;
+    animation: splash-pulsa 1.6s ease-in-out infinite;
+  }
+
+  // Comprimentos diferentes, como no logo. O atraso em cascata é o que faz a
+  // pilha parecer uma onda em vez de cinco barras piscando juntas.
+  i:nth-child(1) { width: 42%;  animation-delay: 0s; }
+  i:nth-child(2) { width: 68%;  animation-delay: 0.12s; }
+  i:nth-child(3) { width: 100%; animation-delay: 0.24s; }
+  i:nth-child(4) { width: 78%;  animation-delay: 0.36s; }
+  i:nth-child(5) { width: 50%;  animation-delay: 0.48s; }
+}
+
+@keyframes splash-pulsa {
+  0%, 100% { opacity: 0.22; transform: scaleX(0.92); }
+  50%      { opacity: 1;    transform: scaleX(1); }
+}
+
+// Sem animação, as barras viram um gráfico estático da marca — continuam
+// dizendo "a marca está aqui", só param de se mexer.
+@media (prefers-reduced-motion: reduce) {
+  .splash__linhas i {
+    animation: none;
+    opacity: 0.6;
+  }
+}
