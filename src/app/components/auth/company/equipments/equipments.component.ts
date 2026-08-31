@@ -8,9 +8,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
+
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
@@ -22,6 +24,7 @@ import {
 } from '../../../../domain/models/equipment.model';
 import { EquipmentService } from '../../../../infrastructure/services/company/equipment/equipment.service';
 import {ButtonDirective} from "primeng/button";
+import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 
 @Component({
   selector: 'app-equipments',
@@ -282,14 +285,6 @@ export class EquipmentsComponent implements OnInit, TabDirtyCheck {
   }
 
   resolverImagem(path: string | null): string {
-    if (!path) {
-      return 'images/products/placeholder.png';
-    }
-
-    if (path.startsWith('http')) {
-      return path;
-    }
-
-    return path.startsWith('/') ? path : `/${path}`;
+    return urlDeMidia(path);
   }
 }

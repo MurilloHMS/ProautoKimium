@@ -8,6 +8,7 @@ import {ProfileResponseDto} from "../../../../domain/models/profile.model";
 import {VcardService} from "../../../../infrastructure/services/profile/vcard/vcard.service";
 import {PkBtnSharedComponent} from "../../../theme/ProautoKimium/pk-btn-shared/pk-btn-shared.component";
 import {PkQrcodeComponent} from "../../../theme/ProautoKimium/pk-qrcode/pk-qrcode.component";
+import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 
 interface ContactItem {
   label: string;
@@ -167,5 +168,17 @@ export class VcardComponent implements OnInit {
       return `(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6)}`;
     }
     return value;
+  }
+
+  /**
+   * A foto do funcionário vem da API como caminho relativo — em produção o site
+   * e a API são hosts diferentes, e o navegador procuraria no domínio errado.
+   *
+   * O `(error)` do `<img>` já esconde a falha trocando pelas iniciais, e é por
+   * isso que este defeito passou tanto tempo despercebido aqui: a tela nunca
+   * pareceu quebrada, só nunca mostrou a foto.
+   */
+  urlDaFoto(caminho: string | null | undefined): string {
+    return urlDeMidia(caminho, '');
   }
 }

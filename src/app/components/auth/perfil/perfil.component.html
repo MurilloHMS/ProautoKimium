@@ -11,7 +11,7 @@
     <section class="profile-header">
       <div class="avatar-area">
         @if (data.profile?.imagem && !avatarBroken) {
-          <img [src]="data.profile!.imagem" [alt]="data.employeeName" class="avatar-img"
+          <img [src]="urlDaFoto(data.profile!.imagem)" [alt]="data.employeeName" class="avatar-img"
                (error)="avatarBroken = true" />
         } @else {
           <div class="avatar-fallback">{{ initials(data.employeeName) }}</div>

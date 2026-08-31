@@ -28,7 +28,7 @@
     <div class="hero">
       <div class="hero-logo-ring">
         @if (profile.imagem && !imageBroken) {
-          <img [src]="profile.imagem" [alt]="profile.nome" class="hero-logo"
+          <img [src]="urlDaFoto(profile.imagem)" [alt]="profile.nome" class="hero-logo"
                (error)="imageBroken = true" />
         } @else {
           <div class="hero-logo-fallback">

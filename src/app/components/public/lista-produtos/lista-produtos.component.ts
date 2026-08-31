@@ -8,6 +8,7 @@ import {OrcamentoService} from "../../../infrastructure/services/company/product
 import {OrcamentoDrawerComponent} from "./components/orcamento-drawer/orcamento-drawer.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ProductWebSitePublicResponseDTO} from "../../../domain/models/products.model";
+import { urlDeMidia } from '../../../infrastructure/config/media-url';
 
 export interface ProdutoPorDepartamento {
   nome: string;
@@ -98,15 +99,7 @@ export class ListaProdutosComponent implements OnInit {
   }
 
   resolverImagem(produto: ProductWebSitePublicResponseDTO): string {
-    if (!produto.imagem) {
-      return 'images/products/placeholder.png';
-    }
-
-    if (produto.imagem.startsWith('http')) {
-      return produto.imagem;
-    }
-
-    return produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
+    return urlDeMidia(produto.imagem);
   }
 
   slugDepartamento(nome: string): string {
