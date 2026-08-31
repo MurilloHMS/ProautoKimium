@@ -59,6 +59,15 @@ interface Row extends Omit<MachineRegister, 'status'> {
   status: MachineStatus | null;
 }
 
+/**
+ * As colunas que ordenam.
+ *
+ * `machine` e não `machineId`: o nome já diz em voz alta que a ordem é pelo
+ * nome exibido, não pelo id guardado.
+ */
+type SortField = 'machine' | 'nomeCliente' | 'regiao' | 'solicitante' | 'status'
+               | 'previsao' | 'consultor' | 'tecnico' | 'tag' | 'updatedAt';
+
 /** Um rascunho que já pode ser gravado: o `canSaveDraft` é quem prova isso. */
 type SavableDraft = Row & { status: MachineStatus };
 
@@ -228,6 +237,108 @@ export class ProgramacaoComponent implements OnInit {
     });
   }
 
+  // ─── Ordenação ────────────────────────────────────────────────────────────
+
+  /**
+   * A ordem da grade.
+   *
+   * `null` é a ordem que a API devolve — o estado inicial, e para onde o
+   * terceiro clique volta. Modelar isso como ausência, e não como um
+   * `field: ''` mágico, é o que faz "voltar ao começo" ser um estado de
+   * verdade.
+   *
+   * A ordenação vive aqui e **não** no `pSortableColumn` por duas razões: o
+   * rascunho tem que continuar no topo, e a coluna Máquina mostra o nome
+   * enquanto guarda o id — o sort do PrimeNG ordenaria por UUID.
+   */
+  readonly sortBy = signal<{ field: SortField; asc: boolean } | null>(null);
+
+  /** Crescente → decrescente → a ordem de origem. */
+  toggleSort(field: SortField): void {
+    this.sortBy.update(current => {
+      if (current?.field !== field) return { field, asc: true };
+      return current.asc ? { field, asc: false } : null;
+    });
+  }
+
+  sortIcon(field: SortField): string {
+    const current = this.sortBy();
+    if (current?.field !== field) return 'pi-sort-alt';
+    return current.asc ? 'pi-sort-amount-up-alt' : 'pi-sort-amount-down';
+  }
+
+  ariaSort(field: SortField): 'ascending' | 'descending' | 'none' {
+    const current = this.sortBy();
+    if (current?.field !== field) return 'none';
+    return current.asc ? 'ascending' : 'descending';
+  }
+
+  /**
+   * O valor pelo qual a coluna ordena — sempre o **exibido**, nunca o cru.
+   *
+   * Máquina guarda um UUID e mostra o nome; Status guarda a chave do enum e
+   * mostra o rótulo. Ordenar pelo campo daria uma ordem que não corresponde a
+   * nada do que está na tela.
+   */
+  private sortKey(row: Row, field: SortField): string | number | null {
+    switch (field) {
+      case 'machine':   return this.machineName(row.machineId) || null;
+      case 'status':    return row.status ? this.statusLabel(row.status) : null;
+      case 'previsao':  return row.previsao?.getTime() ?? null;
+      case 'updatedAt': return row.updatedAt ? new Date(row.updatedAt).getTime() : null;
+      case 'tag':       return Number(row.tag) || null;
+      default:          return (row[field] as string)?.trim() || null;
+    }
+  }
+
+  /**
+   * Ordena a lista já filtrada.
+   *
+   * Três decisões dentro do comparador:
+   *
+   * **Vazio sempre no fim, nas duas direções.** Célula "—" é ausência de dado,
+   * não valor baixo — inverter a direção para caçar os vazios é pior do que
+   * deixá-los parados. É o contrário do que o PrimeNG faz, e mais uma razão
+   * para a ordenação morar aqui.
+   *
+   * **Texto compara com `localeCompare` em pt-BR.** Acento importa em Região,
+   * Técnico e nome de cliente, e `numeric` faz "Cliente 2" vir antes de
+   * "Cliente 10".
+   *
+   * **Desempate por previsão.** Ordenar por Status cria seis baldes sobre
+   * duzentas linhas; sem chave secundária, o miolo de cada balde parece
+   * aleatório.
+   */
+  private aplicarOrdem(linhas: Row[]): Row[] {
+    const ordem = this.sortBy();
+    if (!ordem) return linhas;
+
+    const direcao = ordem.asc ? 1 : -1;
+
+    return linhas.sort((a, b) => {
+      const comparado = this.compararPor(a, b, ordem.field, direcao);
+      if (comparado !== 0) return comparado;
+      return ordem.field === 'previsao' ? 0 : this.compararPor(a, b, 'previsao', 1);
+    });
+  }
+
+  private compararPor(a: Row, b: Row, field: SortField, direcao: number): number {
+    const esquerda = this.sortKey(a, field);
+    const direita = this.sortKey(b, field);
+
+    // Antes de multiplicar pela direção: vazio não participa da escala.
+    if (esquerda === null && direita === null) return 0;
+    if (esquerda === null) return 1;
+    if (direita === null) return -1;
+
+    if (typeof esquerda === 'number' && typeof direita === 'number') {
+      return (esquerda - direita) * direcao;
+    }
+
+    return String(esquerda).localeCompare(String(direita), 'pt-BR',
+      { sensitivity: 'base', numeric: true }) * direcao;
+  }
+
   readonly rows = computed<Row[]>(() => {
     this.searchTrigger();
     const term = this.search.toLowerCase().trim();
@@ -253,9 +364,13 @@ export class ProgramacaoComponent implements OnInit {
           || this.machineName(row.machineId).toLowerCase().includes(term);
       });
 
-    // Rascunho sempre no topo, sem passar pelo filtro: some da tela ao filtrar
-    // seria confuso logo depois de clicar em "Nova linha".
-    return [...this.drafts(), ...filtered];
+    // Rascunho sempre no topo, sem passar pelo filtro nem pela ordenação: some
+    // da tela ao filtrar seria confuso logo depois de clicar em "Nova linha",
+    // e escorregar para a posição 140 ao ordenar, pior ainda.
+    //
+    // `filtered` já é array novo, saído do `.filter()` — ordenar in-place nele
+    // é seguro. Ordenar `store.items()` seria mutar estado que o Hub também lê.
+    return [...this.drafts(), ...this.aplicarOrdem(filtered)];
   });
 
   readonly lateCount = computed(() =>

@@ -303,4 +303,95 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.stockDialogOpen()).toBeFalse();
     expect(registerService.create).toHaveBeenCalled();
   });
+
+  // ─── Ordenação ────────────────────────────────────────────────────────────
+
+  /**
+   * **O fixture tem a ordem dos nomes INVERTIDA em relação à dos ids.**
+   *
+   * Sem isso, este teste passa dos dois jeitos: a ordem por UUID é
+   * determinística, e nem quem revisa o PR nem quem usa a tela distingue
+   * "ordenado por nome" de "ordenado por uuid" sem saber os nomes de cor.
+   */
+  const comTresMaquinas = () => {
+    machineStore.upsert({ ...machine, id: 'a-1', systemCode: 'A1', name: 'Zebra' });
+    machineStore.upsert({ ...machine, id: 'm-2', systemCode: 'M2', name: 'Mesa' });
+    machineStore.upsert({ ...machine, id: 'z-3', systemCode: 'Z3', name: 'Alfa' });
+
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r1', machineId: 'a-1' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r2', machineId: 'm-2' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r3', machineId: 'z-3' });
+  };
+
+  it('ordenar por Máquina usa o NOME, não o id', () => {
+    comTresMaquinas();
+
+    component.toggleSort('machine');
+
+    expect(component.rows().map(r => component.machineName(r.machineId)))
+      .toEqual(['Alfa', 'Mesa', 'Zebra']);
+  });
+
+  it('sem ordenação, mantém a ordem que veio do store', () => {
+    comTresMaquinas();
+
+    expect(component.rows().map(r => r.id)).toEqual(['r1', 'r2', 'r3']);
+  });
+
+  /** Crescente → decrescente → a ordem de origem. */
+  it('o terceiro clique volta à ordem original', () => {
+    comTresMaquinas();
+
+    component.toggleSort('machine');
+    component.toggleSort('machine');
+    component.toggleSort('machine');
+
+    expect(component.sortBy()).toBeNull();
+    expect(component.rows().map(r => r.id)).toEqual(['r1', 'r2', 'r3']);
+  });
+
+  /**
+   * **O rascunho não participa da ordenação.**
+   *
+   * Era o que a ordenação nativa do PrimeNG quebraria: a linha que a pessoa
+   * acabou de criar escorregaria para a posição 140, e ela acharia que sumiu.
+   */
+  it('o rascunho continua no topo com a lista ordenada', () => {
+    comTresMaquinas();
+    component.addRow();
+
+    component.toggleSort('machine');
+
+    expect(component.rows()[0].id).toContain('draft-');
+  });
+
+  /**
+   * **Vazio no fim nas DUAS direções.**
+   *
+   * Célula "—" é ausência de dado, não valor baixo. Afirmar só o crescente
+   * passaria com um comparador ingênuo, que joga o nulo para o topo ao inverter.
+   */
+  it('linha sem previsão fica no fim, crescente e decrescente', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'sem',
+      previsaoEntrega: null });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'com',
+      previsaoEntrega: '2026-09-10T00:00:00' });
+
+    component.toggleSort('previsao');
+    expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
+
+    component.toggleSort('previsao');
+    expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
+  });
+
+  /** O clássico silencioso: sem comparar como número, 10 vem antes de 9. */
+  it('tag ordena como número', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 10 });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 2 });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 9 });
+
+    component.toggleSort('tag');
+
+    expect(component.rows().map(r => r.id)).toEqual(['b', 'c', 'a']);
+  });
 });

@@ -55,17 +55,77 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th style="width: 190px">Máquina</th>
-          <th style="width: 230px">Cliente</th>
-          <th style="width: 110px">Região</th>
-          <th style="width: 140px">Solicitante</th>
-          <th style="width: 150px">Status</th>
+          <th style="width: 190px" [attr.aria-sort]="ariaSort('machine')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'machine'"
+                    (click)="toggleSort('machine')">
+              Máquina <i class="pi" [ngClass]="sortIcon('machine')"></i>
+            </button>
+          </th>
+          <th style="width: 230px" [attr.aria-sort]="ariaSort('nomeCliente')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'nomeCliente'"
+                    (click)="toggleSort('nomeCliente')">
+              Cliente <i class="pi" [ngClass]="sortIcon('nomeCliente')"></i>
+            </button>
+          </th>
+          <th style="width: 110px" [attr.aria-sort]="ariaSort('regiao')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'regiao'"
+                    (click)="toggleSort('regiao')">
+              Região <i class="pi" [ngClass]="sortIcon('regiao')"></i>
+            </button>
+          </th>
+          <th style="width: 140px" [attr.aria-sort]="ariaSort('solicitante')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'solicitante'"
+                    (click)="toggleSort('solicitante')">
+              Solicitante <i class="pi" [ngClass]="sortIcon('solicitante')"></i>
+            </button>
+          </th>
+          <th style="width: 150px" [attr.aria-sort]="ariaSort('status')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'status'"
+                    (click)="toggleSort('status')">
+              Status <i class="pi" [ngClass]="sortIcon('status')"></i>
+            </button>
+          </th>
           <th style="width: 220px">Observação</th>
-          <th style="width: 140px">Previsão saída</th>
-          <th style="width: 140px">Consultor</th>
-          <th style="width: 150px">Técnico</th>
-          <th style="width: 80px">Tag</th>
-          <th style="width: 165px">Última alteração</th>
+          <th style="width: 140px" [attr.aria-sort]="ariaSort('previsao')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'previsao'"
+                    (click)="toggleSort('previsao')">
+              Previsão saída <i class="pi" [ngClass]="sortIcon('previsao')"></i>
+            </button>
+          </th>
+          <th style="width: 140px" [attr.aria-sort]="ariaSort('consultor')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'consultor'"
+                    (click)="toggleSort('consultor')">
+              Consultor <i class="pi" [ngClass]="sortIcon('consultor')"></i>
+            </button>
+          </th>
+          <th style="width: 150px" [attr.aria-sort]="ariaSort('tecnico')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'tecnico'"
+                    (click)="toggleSort('tecnico')">
+              Técnico <i class="pi" [ngClass]="sortIcon('tecnico')"></i>
+            </button>
+          </th>
+          <th style="width: 80px" [attr.aria-sort]="ariaSort('tag')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'tag'"
+                    (click)="toggleSort('tag')">
+              Tag <i class="pi" [ngClass]="sortIcon('tag')"></i>
+            </button>
+          </th>
+          <th style="width: 165px" [attr.aria-sort]="ariaSort('updatedAt')">
+            <button type="button" class="th-sort"
+                    [class.th-sort--on]="sortBy()?.field === 'updatedAt'"
+                    (click)="toggleSort('updatedAt')">
+              Última alteração <i class="pi" [ngClass]="sortIcon('updatedAt')"></i>
+            </button>
+          </th>
           <th style="width: 70px" class="col-center">—</th>
         </tr>
       </ng-template>
