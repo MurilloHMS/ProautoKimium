@@ -30,6 +30,7 @@ import {
   CalendarTone,
   PkCalendarComponent,
 } from '../../../theme/ProautoKimium/pk-calendar/pk-calendar.component';
+import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 
 interface Slice {
   label: string;
@@ -102,7 +103,7 @@ interface Parada {
   standalone: true,
   imports: [
     CommonModule, RouterLink, PageHeaderComponent, PkDialogComponent, PkCalendarComponent,
-    ConfirmDialogModule, Toast,
+    PkButtonComponent, ConfirmDialogModule, Toast,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './machine-hub.component.html',

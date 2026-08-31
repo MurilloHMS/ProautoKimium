@@ -479,4 +479,34 @@ describe('MachineHubComponent · carga por consultor', () => {
     expect(component.isAligning(lavadora)).toBeFalse();
     expect(component.isAligning(capo)).toBeFalse();
   });
+
+  // ─── O botão de atualizar ─────────────────────────────────────────────────
+
+  /**
+   * **O Hub não recarrega sozinho.**
+   *
+   * Ele lê os stores uma vez, no `ngOnInit`. Quem deixa a tela aberta enquanto
+   * outra pessoa mexe na Programação fica olhando um número velho — e nada na
+   * tela diz isso.
+   */
+  it('o botão de atualizar recarrega as duas listas', () => {
+    spyOn(registerStore, 'refresh');
+
+    component.refresh();
+
+    expect(registerStore.refresh).toHaveBeenCalled();
+  });
+
+  /**
+   * E ele existe na tela.
+   *
+   * O método `refresh()` já estava escrito antes deste botão, e não era
+   * chamado de lugar nenhum: código vivo sem caminho até ele. Este teste é o
+   * que impede a ligação de se perder de novo.
+   */
+  it('o botão está no cabeçalho da tela', () => {
+    const botao = fixture.nativeElement.querySelector('[actions] pk-button');
+
+    expect(botao).not.toBeNull();
+  });
 });
