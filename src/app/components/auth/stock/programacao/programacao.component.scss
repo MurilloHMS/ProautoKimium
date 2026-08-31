@@ -300,3 +300,19 @@
 
   i { margin-top: 2px; }
 }
+
+// ─── A escolha que falta ────────────────────────────────────────────────────
+//
+// O rascunho nasce sem status, e este rótulo ocupa o lugar do chip. Precisa
+// NÃO parecer um status: contorno tracejado e texto apagado dizem "falta você
+// preencher", enquanto um chip cinza diria "está preenchido com algo neutro" —
+// que é exatamente o engano que a escolha obrigatória existe para impedir.
+.status-pick {
+  display: inline-block;
+  padding: 2px 10px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--app-text-subtle);
+  font-size: var(--text-ui-sm);
+  font-style: italic;
+}

@@ -227,4 +227,80 @@ describe('ProgramacaoComponent · estoque', () => {
 
     expect(component.canSaveDraft(draft)).toBeFalse();
   });
+
+  // ─── O status na criação ──────────────────────────────────────────────────
+
+  /**
+   * **A linha nova nasce sem status.**
+   *
+   * Ela nascia em `DISPONIVEL`, e quem não reparasse na célula criava máquina
+   * em estoque e confirmava o `+1` sem querer. O caso que o padrão atrapalhava
+   * é `AGUARDANDO_AQUISICAO` — máquina que ainda não foi comprada.
+   */
+  it('a linha nova nasce sem status', () => {
+    component.addRow();
+
+    expect(component.drafts()[0].status).toBeNull();
+  });
+
+  it('sem status escolhido, não salva', () => {
+    const draft = { machineId: 'm1', status: null } as never;
+
+    expect(component.canSaveDraft(draft)).toBeFalse();
+  });
+
+  /**
+   * **O botão desabilitado não é a trava.**
+   *
+   * Sem esta guarda, `stockDeltaFor(null, null)` dá 0 — o status nulo não está
+   * em `IN_STOCK_STATUSES` — e a linha cairia direto no POST com `status: null`,
+   * deixando a API decidir. O botão "impede" até alguém chamar por atalho de
+   * teclado.
+   */
+  it('salvar um rascunho sem status não chama a API nem abre o diálogo', () => {
+    component.addRow();
+
+    component.saveDraft(component.drafts()[0]);
+
+    expect(registerService.create).not.toHaveBeenCalled();
+    expect(component.stockDialogOpen()).toBeFalse();
+  });
+
+  /**
+   * O par do de cima, e ele existe por um motivo específico: sozinho, o
+   * anterior passaria se alguém "consertasse" o erro de tipo com
+   * `row.status ?? DISPONIVEL` — e aí toda linha nova voltaria a somar estoque.
+   */
+  it('criar em DISPONIVEL continua perguntando pelo estoque', () => {
+    component.addRow();
+    const draft = component.drafts()[0];
+    draft.machineId = MACHINE_ID;
+    draft.status = MachineStatus.DISPONIVEL;
+
+    component.saveDraft(draft);
+
+    expect(component.stockDialogOpen()).toBeTrue();
+    expect(component.stockDelta()).toBe(1);
+  });
+
+  /**
+   * **O teste que dá sentido ao pedido dele.**
+   *
+   * `AGUARDANDO_AQUISICAO` é máquina que ainda não foi comprada: criar a linha
+   * não pode lançar entrada. Hoje isso funciona por consequência do
+   * `stockDeltaFor`, e nada afirmava. Se alguém "simplificar" a regra, máquina
+   * não comprada passa a somar no estoque — e o erro só aparece na
+   * conciliação, dias depois.
+   */
+  it('criar em AGUARDANDO_AQUISICAO grava direto, sem tocar no estoque', () => {
+    component.addRow();
+    const draft = component.drafts()[0];
+    draft.machineId = MACHINE_ID;
+    draft.status = MachineStatus.AGUARDANDO_AQUISICAO;
+
+    component.saveDraft(draft);
+
+    expect(component.stockDialogOpen()).toBeFalse();
+    expect(registerService.create).toHaveBeenCalled();
+  });
 });

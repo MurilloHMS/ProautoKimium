@@ -120,7 +120,18 @@
                              (changed)="onCellEdited(row)" />
               </ng-template>
               <ng-template pTemplate="output">
-                <span [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+                <!--
+                  O `@if` é obrigatório aqui, e não é estilo: o contexto do
+                  `pTemplate` é `any`, então o compilador NÃO pega
+                  `statusLabel(null)`. Em runtime isso renderizaria um chip
+                  cinza vazio — que parece um status válido, e é justamente o
+                  engano que a escolha obrigatória existe para impedir.
+                -->
+                @if (row.status) {
+                  <span [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+                } @else {
+                  <span class="status-pick">Escolher status</span>
+                }
               </ng-template>
             </p-cellEditor>
           </td>
@@ -192,7 +203,8 @@
               <i class="pi pi-check sheet-row__state sheet-row__state--ok" title="Salvo"></i>
             } @else if (isDraft(row)) {
               <button pButton type="button" icon="pi pi-check" class="row-btn row-btn--ok"
-                      [disabled]="!canSaveDraft(row)" pTooltip="Salvar linha" tooltipPosition="left"
+                      [disabled]="!canSaveDraft(row)"
+                      [pTooltip]="saveDraftHint(row)" tooltipPosition="left"
                       (click)="saveDraft(row)"></button>
             }
             @if (!isDraft(row)) {
