@@ -187,7 +187,9 @@ export class ProgramacaoImportComponent {
       const payload: CreateMachineRegister = {
         machineId,
         nomeCliente: row.nomeCliente,
-        tag: 0,
+        // A planilha não traz tag; nulo é o "sem tag" honesto agora que a
+        // coluna aceita.
+        tag: null,
         regiao: row.regiao,
         solicitante: row.solicitante,
         status: row.status,

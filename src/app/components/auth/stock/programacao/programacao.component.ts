@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule, formatDate } from '@angular/common';
+import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
@@ -26,6 +26,7 @@ import {
   CreateMachineRegister,
   MachineRegister,
   ScheduleChange,
+  ScheduleEdit,
   UpdateMachineRegister,
 } from '../../../../domain/models/prostock/register.model';
 import { MachineRegisterStore } from '../../../../infrastructure/state/machine-register.store';
@@ -131,7 +132,13 @@ export class ProgramacaoComponent implements OnInit {
   /** O que fica esperando o motivo para poder ser gravado. */
   private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
 
-  readonly motivoValido = computed(() => this.motivoTexto().trim().length > 0);
+  /**
+   * O motivo não trava mais o botão.
+   *
+   * Era obrigatório, e obrigar ensinava a digitar "ok" para passar da tela — o
+   * campo perdia justamente para quem adia de verdade. A pergunta continua
+   * aparecendo quando a previsão muda; só a exigência saiu, aqui e na API.
+   */
 
   // ─── Confirmação de estoque ──────────────────────────────────────────────
   //
@@ -169,6 +176,14 @@ export class ProgramacaoComponent implements OnInit {
   // trazer a contagem junto da grade, e aí seria um GET por linha numa tela que
   // costuma ter centenas — caro para uma informação que se consulta raramente.
 
+  /**
+   * O mesmo locale que o `| date` do template usa.
+   *
+   * Fixar "pt-BR" aqui faria esta data divergir de todas as outras da tela no
+   * dia em que o app rodar em outro locale — e divergir em silêncio.
+   */
+  private readonly locale = inject(LOCALE_ID);
+
   readonly historicoAberto = signal(false);
   readonly historicoCarregando = signal(false);
   readonly historico = signal<ScheduleChange[]>([]);
@@ -193,6 +208,92 @@ export class ProgramacaoComponent implements OnInit {
         this.showError(err);
       },
     });
+  }
+
+  /**
+   * As linhas soltas da API viram uma entrada por **edição**.
+   *
+   * Chave: autor + instante. As linhas de uma mesma edição saem do serviço numa
+   * transação só, com o mesmo `changedAt` até o milissegundo — não é
+   * coincidência que dá para explorar, é como elas são gravadas.
+   *
+   * `Map` e não `reduce` num objeto: preserva a ordem de chegada, que já vem do
+   * mais recente para o mais antigo, e é a ordem em que se lê.
+   */
+  readonly historicoAgrupado = computed<ScheduleEdit[]>(() => {
+    const edicoes = new Map<string, ScheduleEdit>();
+
+    for (const linha of this.historico()) {
+      const chave = `${linha.changedAt}|${linha.changedBy ?? ''}`;
+      const existente = edicoes.get(chave);
+
+      if (existente) {
+        existente.campos.push(linha);
+        // O motivo é o mesmo nas linhas da edição, mas só se sabe disso pela
+        // API. Pegar o primeiro que não for nulo sobrevive a ela mudar de
+        // ideia e gravar a justificativa em uma linha só.
+        existente.motivo ??= linha.motivo;
+        continue;
+      }
+
+      edicoes.set(chave, {
+        id: chave,
+        changedBy: linha.changedBy,
+        changedAt: linha.changedAt,
+        motivo: linha.motivo,
+        campos: [linha],
+      });
+    }
+
+    return [...edicoes.values()];
+  });
+
+  /**
+   * O rótulo de cada campo, como a coluna da grade se chama.
+   *
+   * Quem abre o histórico acabou de olhar a tabela. Um campo que aparece aqui
+   * com outro nome custa uma tradução mental a cada linha.
+   */
+  private static readonly ROTULO_DO_CAMPO: Record<string, string> = {
+    nomeCliente: 'Cliente',
+    regiao: 'Região',
+    solicitante: 'Solicitante',
+    previsao: 'Previsão',
+    consultor: 'Consultor',
+    tecnico: 'Técnico',
+    tag: 'Tag',
+    status: 'Status',
+  };
+
+  rotuloDoCampo(campo: string): string {
+    return ProgramacaoComponent.ROTULO_DO_CAMPO[campo] ?? campo;
+  }
+
+  /**
+   * Devolve cada valor ao formato em que ele vive na tela.
+   *
+   * A API guarda tudo como texto, porque é uma coluna só para oito campos —
+   * data em ISO, status pela chave do enum. Sem isto o histórico mostraria
+   * `2026-09-22T00:00` e `AGUARDANDO_AQUISICAO`, que é o banco falando, não a
+   * tela.
+   *
+   * Nulo devolve nulo, e não "—": quem decide como desenhar ausência é o
+   * template, que a mostra apagada em vez de deixar um espaço em branco — um
+   * branco seria lido como falha de carregamento.
+   */
+  valorDoCampo(campo: string, valor: string | null): string | null {
+    if (valor === null) return null;
+
+    if (campo === 'previsao') {
+      const data = new Date(valor);
+      return isNaN(data.getTime()) ? valor : formatDate(data, 'dd/MM/yyyy', this.locale);
+    }
+
+    if (campo === 'status') {
+      return MACHINE_STATUS_LABEL[valor as MachineStatus] ?? valor;
+    }
+
+    return valor;
   }
 
   readonly hasFilters = computed(() =>
@@ -286,7 +387,6 @@ export class ProgramacaoComponent implements OnInit {
       case 'status':    return row.status ? this.statusLabel(row.status) : null;
       case 'previsao':  return row.previsao?.getTime() ?? null;
       case 'updatedAt': return row.updatedAt ? new Date(row.updatedAt).getTime() : null;
-      case 'tag':       return Number(row.tag) || null;
       default:          return (row[field] as string)?.trim() || null;
     }
   }
@@ -435,7 +535,7 @@ export class ProgramacaoComponent implements OnInit {
       id: `draft-${Date.now()}`,
       machineId: this.machineOptions()[0]?.value ?? '',
       nomeCliente: '',
-      tag: 0,
+      tag: '',
       regiao: '',
       solicitante: '',
       status: null,
@@ -487,7 +587,7 @@ export class ProgramacaoComponent implements OnInit {
     const payload: CreateMachineRegister = {
       machineId: row.machineId,
       nomeCliente: row.nomeCliente.trim(),
-      tag: Number(row.tag) || 0,
+      tag: row.tag?.trim() || null,
       regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
@@ -637,7 +737,7 @@ export class ProgramacaoComponent implements OnInit {
 
     const payload: UpdateMachineRegister = {
       nomeCliente: row.nomeCliente ?? '',
-      tag: Number(row.tag) || 0,
+      tag: row.tag?.trim() || null,
       regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
@@ -652,10 +752,9 @@ export class ProgramacaoComponent implements OnInit {
     const stored = this.store.items().find(item => item.id === row.id);
     if (stored && !hasChanges(stored, payload)) return;
 
-    // Adiar exige motivo; preencher pela primeira vez, não. A regra é a mesma
-    // da API, e está repetida aqui só para perguntar antes de falhar — quem
-    // decide continua sendo o servidor.
-    if (stored && adiouPrevisao(stored, payload)) {
+    // O motivo vale para a edição inteira, e a API o repete em cada campo que
+    // mudou — então a pergunta não é mais só sobre a previsão.
+    if (stored && pedeMotivo(stored, payload)) {
       this.pendente = { row, payload };
       this.motivoTexto.set('');
       this.motivoAberto.set(true);
@@ -667,7 +766,7 @@ export class ProgramacaoComponent implements OnInit {
 
   /** Confirma o motivo e solta o PUT que estava esperando. */
   confirmarMotivo(): void {
-    if (!this.motivoValido() || !this.pendente) return;
+    if (!this.pendente) return;
 
     const { row, payload } = this.pendente;
     this.pendente = null;
@@ -676,14 +775,18 @@ export class ProgramacaoComponent implements OnInit {
     // Os dois diálogos podem cair na mesma edição — mudar a data E o status de
     // uma vez. Em fila, nunca ao mesmo tempo: um por cima do outro esconderia
     // metade da pergunta.
-    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() });
+    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() || null });
   }
 
   /**
-   * Desistir do motivo desfaz a edição.
+   * Desistir **desfaz a edição** — não é só recusar o motivo.
    *
-   * Deixar a data nova na tela sem gravar seria pior que o erro: a pessoa sai
+   * Deixar o valor novo na tela sem gravar seria pior que o erro: a pessoa sai
    * achando que salvou. O `refresh` traz de volta o que está no banco.
+   *
+   * O botão diz "Descartar alteração" por isso. Enquanto o diálogo só aparecia
+   * no adiamento dava para chamar de "Cancelar"; abrindo em toda edição, a
+   * palavra tem que dizer o que se perde.
    */
   cancelarMotivo(): void {
     this.pendente = null;
@@ -806,7 +909,7 @@ function startOfToday(): Date {
  */
 function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
   return (stored.nomeCliente ?? '') !== payload.nomeCliente
-    || (Number(stored.tag) || 0) !== payload.tag
+    || (stored.tag ?? null) !== payload.tag
     || (stored.regiao ?? '') !== payload.regiao
     || (stored.solicitante ?? '') !== payload.solicitante
     || stored.status !== payload.status
@@ -817,15 +920,48 @@ function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): bo
 }
 
 /**
- * Mudou a previsão de um registro que **já tinha** data.
+ * Vale perguntar o motivo desta edição?
  *
- * Preencher pela primeira vez não entra: é completar cadastro, não adiar.
- * Apagar entra — e é o caso mais grave, porque a máquina some das próximas
- * saídas sem ninguém perceber.
+ * Três exclusões, e cada uma tem dono:
+ *
+ * **Observação** não entra no histórico — decisão do time. Perguntar ali seria
+ * pedir uma justificativa que a API descarta em silêncio, porque ela só grava
+ * motivo junto de um campo alterado.
+ *
+ * **Status** não pergunta, embora seja registrado. Reservar uma máquina não é
+ * assunto, e a grade se edita o dia todo: um diálogo aí apareceria dezenas de
+ * vezes sem nada a dizer. Quando o status mexe no estoque, quem pergunta é o
+ * diálogo de estoque, que tem algo concreto a mostrar.
+ *
+ * **Campo que estava vazio** não entra. Preencher é completar cadastro, não
+ * alterar — não há nada de onde ter saído, e não há decisão a justificar. Vale
+ * para os sete, e não só para a previsão: era a regra do adiamento, e ela
+ * generalizou junto com o histórico.
  */
-function adiouPrevisao(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
-  if (!stored.previsaoEntrega) return false;
-  return dayPart(stored.previsaoEntrega) !== dayPart(payload.previsaoEntrega);
+function pedeMotivo(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
+  return alterou(stored.nomeCliente, payload.nomeCliente)
+    || alterou(stored.tag, payload.tag)
+    || alterou(stored.regiao, payload.regiao)
+    || alterou(stored.solicitante, payload.solicitante)
+    || alterou(stored.consultor, payload.consultor)
+    || alterou(stored.tecnico, payload.tecnico)
+    || alterou(dayPart(stored.previsaoEntrega), dayPart(payload.previsaoEntrega));
+}
+
+/**
+ * Mudou **tendo valor antes**.
+ *
+ * Vazio e nulo são a mesma ausência, aqui como na API: um input limpo devolve
+ * `""` onde o banco tem `null`, e tratá-los como coisas diferentes faria toda
+ * visita a uma célula em branco parecer alteração.
+ *
+ * Apagar CONTA — é alteração, e a mais grave no caso da previsão, porque a
+ * máquina some das próximas saídas sem ninguém perceber.
+ */
+function alterou(antes: string | null | undefined, depois: string | null | undefined): boolean {
+  const anterior = antes?.trim() || null;
+  if (anterior === null) return false;
+  return anterior !== (depois?.trim() || null);
 }
 
 function dayPart(value: string | null | undefined): string {

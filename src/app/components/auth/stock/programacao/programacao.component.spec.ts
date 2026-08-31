@@ -46,7 +46,7 @@ describe('ProgramacaoComponent · estoque', () => {
     id: REGISTER_ID,
     machineId: MACHINE_ID,
     nomeCliente: 'Cliente',
-    tag: 1,
+    tag: '1',
     regiao: 'Sul',
     solicitante: 'Solicitante',
     status,
@@ -384,14 +384,239 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
   });
 
-  /** O clássico silencioso: sem comparar como número, 10 vem antes de 9. */
-  it('tag ordena como número', () => {
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 10 });
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 2 });
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 9 });
+  /**
+   * O clássico silencioso: sem comparar como número, 10 vem antes de 9.
+   *
+   * O prefixo é de propósito. A tag virou texto justamente para aceitar letra,
+   * e comparar com `Number()` — o que o código fazia antes — devolveria `NaN`
+   * para as três, empatando tudo e mandando a coluna inteira para o fim.
+   */
+  it('tag ordena como número, mesmo com letra', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 'T-10' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 'T-2' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 'T-9' });
 
     component.toggleSort('tag');
 
     expect(component.rows().map(r => r.id)).toEqual(['b', 'c', 'a']);
+  });
+
+  // ─── Histórico agrupado por edição ─────────────────────────────────────────
+
+  const alteracao = (
+    id: string,
+    campo: string,
+    anterior: string | null,
+    novo: string | null,
+    changedAt: string,
+    motivo: string | null = null,
+    changedBy: string | null = 'Murillo',
+  ) => ({ id, campo, valorAnterior: anterior, valorNovo: novo, motivo, changedBy, changedAt });
+
+  const abrirHistoricoCom = (linhas: ReturnType<typeof alteracao>[]) => {
+    registerService.scheduleChanges.and.returnValue(of(linhas));
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    component.abrirHistorico(component.rows()[0]);
+  };
+
+  /**
+   * **O teste que justifica a Opção B.**
+   *
+   * A API grava uma linha por campo. Sem agrupar, quem arrumou o cliente, o
+   * técnico e a previsão de uma vez vê três cartões com a MESMA justificativa e
+   * o MESMO horário repetidos — e o diálogo fica ilegível justamente na edição
+   * que mais interessa consultar.
+   */
+  it('linhas da mesma edição viram uma entrada só', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'previsao', '2026-09-15T00:00', '2026-09-22T00:00', '2026-08-31T14:32:00', 'Cliente pediu'),
+      alteracao('2', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00', 'Cliente pediu'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(1);
+    expect(component.historicoAgrupado()[0].campos.length).toBe(2);
+    expect(component.historicoAgrupado()[0].motivo).toBe('Cliente pediu');
+  });
+
+  /**
+   * O par do de cima. Sozinho, o teste anterior passaria com um agrupamento que
+   * junta tudo numa entrada só — e o histórico inteiro viraria um bloco.
+   */
+  it('edições em instantes diferentes ficam separadas', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'previsao', '2026-09-15T00:00', '2026-09-22T00:00', '2026-08-31T14:32:00'),
+      alteracao('2', 'tecnico', 'Marcos', 'Joana', '2026-08-25T09:10:00'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(2);
+  });
+
+  /**
+   * Mesmo instante, autores diferentes. Improvável, mas a chave é autor +
+   * instante justamente para isso: juntar duas pessoas numa entrada atribuiria
+   * a alteração de uma à outra.
+   */
+  it('mesmo instante com autores diferentes não agrupa', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00', null, 'Murillo'),
+      alteracao('2', 'regiao', 'Sul', 'Norte', '2026-08-31T14:32:00', null, 'Ricardo'),
+    ]);
+
+    expect(component.historicoAgrupado().length).toBe(2);
+  });
+
+  /** A ordem que a API manda é a que se lê: mais recente primeiro. */
+  it('o agrupamento preserva a ordem de chegada', () => {
+    abrirHistoricoCom([
+      alteracao('1', 'tecnico', 'Marcos', 'Joana', '2026-08-31T14:32:00'),
+      alteracao('2', 'regiao', 'Sul', 'Norte', '2026-08-25T09:10:00'),
+    ]);
+
+    expect(component.historicoAgrupado().map(e => e.changedAt))
+      .toEqual(['2026-08-31T14:32:00', '2026-08-25T09:10:00']);
+  });
+
+  // ─── Cada campo no seu formato ─────────────────────────────────────────────
+
+  /**
+   * A API guarda tudo como texto numa coluna só, então a previsão chega em ISO.
+   * Sem converter, o histórico mostraria `2026-09-22T00:00` — o banco falando,
+   * não a tela.
+   */
+  it('previsão volta a ser data', () => {
+    expect(component.valorDoCampo('previsao', '2026-09-22T00:00')).toBe('22/09/2026');
+  });
+
+  /**
+   * O status é gravado pela CHAVE do enum de propósito, para o histórico não
+   * mudar de conteúdo quando alguém corrige uma tradução. A tradução acontece
+   * aqui, na leitura.
+   */
+  it('status volta a ser rótulo em português', () => {
+    expect(component.valorDoCampo('status', 'AGUARDANDO_AQUISICAO')).toBe('Aguardando aquisição');
+  });
+
+  /** Campo de texto passa direto: não há formato a devolver. */
+  it('texto passa sem tradução', () => {
+    expect(component.valorDoCampo('tecnico', 'Joana Prado')).toBe('Joana Prado');
+  });
+
+  /**
+   * Nulo continua nulo, e não vira "—".
+   *
+   * Quem desenha ausência é o template, que mostra "sem valor" apagado. Devolver
+   * o traço daqui tiraria dele a chance de distinguir ausência de conteúdo, e a
+   * célula em branco se lê como falha de carregamento.
+   */
+  it('ausência continua ausência', () => {
+    expect(component.valorDoCampo('previsao', null)).toBeNull();
+    expect(component.valorDoCampo('status', null)).toBeNull();
+  });
+
+  /**
+   * Um campo que a API passe a gravar e a tela ainda não conheça aparece com a
+   * chave crua, não some. Some seria pior: o histórico mentiria por omissão.
+   */
+  it('campo desconhecido aparece com a chave crua', () => {
+    expect(component.rotuloDoCampo('observacao')).toBe('observacao');
+    expect(component.valorDoCampo('observacao', 'qualquer coisa')).toBe('qualquer coisa');
+  });
+
+  // ─── O motivo deixou de ser obrigatório ────────────────────────────────────
+
+  /**
+   * **A regra que saiu.**
+   *
+   * Obrigar justificativa ensinava a digitar "ok" para passar da tela. A
+   * pergunta continua aparecendo quando a previsão muda; só a exigência caiu.
+   */
+  it('confirmar sem motivo grava, com motivo nulo', () => {
+    const stored = { ...register(MachineStatus.DISPONIVEL), previsaoEntrega: '2026-09-01T00:00' };
+    registerStore.upsert(stored);
+
+    const row = { ...component.rows()[0], previsao: new Date('2026-09-20T00:00') } as never;
+    component.onCellEdited(row);
+
+    expect(component.motivoAberto()).toBeTrue();
+
+    component.confirmarMotivo();
+
+    expect(registerService.update).toHaveBeenCalled();
+    expect(lastPayload().motivoAlteracaoPrevisao).toBeNull();
+  });
+
+  // ─── Quando o diálogo de motivo aparece ────────────────────────────────────
+
+  /** Edita uma célula da linha gravada e devolve o que a tela fez. */
+  const editar = (stored: MachineRegister, mudanca: Partial<MachineRegister & { previsao: Date | null }>) => {
+    registerStore.upsert(stored);
+    component.onCellEdited({ ...component.rows()[0], ...mudanca } as never);
+  };
+
+  /**
+   * **A mudança que este pedido trouxe.**
+   *
+   * O diálogo só aparecia no adiamento. Agora o motivo vale para a edição
+   * inteira, e a API o repete em cada campo que mudou — então qualquer um dos
+   * sete pergunta.
+   */
+  it('mudar um campo de texto abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { tecnico: 'Joana Prado' });
+
+    expect(component.motivoAberto()).toBeTrue();
+    expect(registerService.update).not.toHaveBeenCalled();
+  });
+
+  /**
+   * **A regra do campo vazio.**
+   *
+   * Preencher é completar cadastro, não alterar: não há nada de onde ter saído,
+   * e não há decisão a justificar. Era a regra do adiamento e generalizou para
+   * os sete campos junto com o histórico.
+   */
+  it('preencher um campo que estava vazio não pergunta nada', () => {
+    const semConsultor = { ...register(MachineStatus.DISPONIVEL), consultor: '' };
+
+    editar(semConsultor, { consultor: 'Marcos Vinícius' });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
+
+  /**
+   * Apagar CONTA. É o oposto do de cima e o par que o protege: sozinho, aquele
+   * passa com uma regra que ignora tudo que envolve vazio, e aí limpar o
+   * técnico de uma linha sumiria do histórico sem deixar rastro.
+   */
+  it('apagar um campo que tinha valor pergunta o motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { tecnico: '' });
+
+    expect(component.motivoAberto()).toBeTrue();
+  });
+
+  /**
+   * **O teste que preserva a decisão antiga.**
+   *
+   * Reservar não é entregar, e a grade se edita o dia todo: um diálogo de
+   * motivo a cada troca de status apareceria dezenas de vezes por dia sem nada
+   * a dizer. O status continua entrando no histórico — ele só não pergunta.
+   */
+  it('mudar só o status não abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { status: MachineStatus.RESERVADA });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
+  });
+
+  /**
+   * A Observação está fora do histórico por escolha do time. Perguntar o motivo
+   * ali seria pedir uma justificativa que a API descarta em silêncio — ela só
+   * grava motivo junto de um campo alterado.
+   */
+  it('mexer só na observação não abre o diálogo de motivo', () => {
+    editar(register(MachineStatus.DISPONIVEL), { Observacao: 'Entregar pela manhã' });
+
+    expect(component.motivoAberto()).toBeFalse();
+    expect(registerService.update).toHaveBeenCalled();
   });
 });
