@@ -238,7 +238,12 @@
           <td [pEditableColumn]="row" pEditableColumnField="tag">
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input pInputText type="number" [(ngModel)]="row.tag" />
+                <!--
+                  `maxlength` e a unica trava real do tamanho: a API
+                  aceita qualquer texto e quem recusa acima de dez e o
+                  Postgres, como erro de banco.
+                -->
+                <input pInputText type="text" maxlength="10" [(ngModel)]="row.tag" />
               </ng-template>
               <ng-template pTemplate="output">{{ row.tag || '—' }}</ng-template>
             </p-cellEditor>

@@ -43,7 +43,7 @@ describe('MovementsComponent · conciliação', () => {
     id,
     machineId,
     nomeCliente: 'Cliente',
-    tag: 1,
+    tag: '1',
     regiao: '',
     solicitante: '',
     status,

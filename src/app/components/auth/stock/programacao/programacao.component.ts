@@ -286,7 +286,6 @@ export class ProgramacaoComponent implements OnInit {
       case 'status':    return row.status ? this.statusLabel(row.status) : null;
       case 'previsao':  return row.previsao?.getTime() ?? null;
       case 'updatedAt': return row.updatedAt ? new Date(row.updatedAt).getTime() : null;
-      case 'tag':       return Number(row.tag) || null;
       default:          return (row[field] as string)?.trim() || null;
     }
   }
@@ -435,7 +434,7 @@ export class ProgramacaoComponent implements OnInit {
       id: `draft-${Date.now()}`,
       machineId: this.machineOptions()[0]?.value ?? '',
       nomeCliente: '',
-      tag: 0,
+      tag: '',
       regiao: '',
       solicitante: '',
       status: null,
@@ -487,7 +486,7 @@ export class ProgramacaoComponent implements OnInit {
     const payload: CreateMachineRegister = {
       machineId: row.machineId,
       nomeCliente: row.nomeCliente.trim(),
-      tag: Number(row.tag) || 0,
+      tag: row.tag?.trim() || null,
       regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
@@ -637,7 +636,7 @@ export class ProgramacaoComponent implements OnInit {
 
     const payload: UpdateMachineRegister = {
       nomeCliente: row.nomeCliente ?? '',
-      tag: Number(row.tag) || 0,
+      tag: row.tag?.trim() || null,
       regiao: row.regiao ?? '',
       solicitante: row.solicitante ?? '',
       status: row.status,
@@ -806,7 +805,7 @@ function startOfToday(): Date {
  */
 function hasChanges(stored: MachineRegister, payload: UpdateMachineRegister): boolean {
   return (stored.nomeCliente ?? '') !== payload.nomeCliente
-    || (Number(stored.tag) || 0) !== payload.tag
+    || (stored.tag ?? null) !== payload.tag
     || (stored.regiao ?? '') !== payload.regiao
     || (stored.solicitante ?? '') !== payload.solicitante
     || stored.status !== payload.status

@@ -42,7 +42,7 @@ describe('MachineHubComponent · carga por consultor', () => {
     id: `r${seq++}`,
     machineId: 'm1',
     nomeCliente: 'Cliente',
-    tag: 1,
+    tag: '1',
     regiao: '',
     solicitante: '',
     status,

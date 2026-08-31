@@ -46,7 +46,7 @@ describe('ProgramacaoComponent · estoque', () => {
     id: REGISTER_ID,
     machineId: MACHINE_ID,
     nomeCliente: 'Cliente',
-    tag: 1,
+    tag: '1',
     regiao: 'Sul',
     solicitante: 'Solicitante',
     status,
@@ -384,11 +384,17 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
   });
 
-  /** O clássico silencioso: sem comparar como número, 10 vem antes de 9. */
-  it('tag ordena como número', () => {
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 10 });
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 2 });
-    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 9 });
+  /**
+   * O clássico silencioso: sem comparar como número, 10 vem antes de 9.
+   *
+   * O prefixo é de propósito. A tag virou texto justamente para aceitar letra,
+   * e comparar com `Number()` — o que o código fazia antes — devolveria `NaN`
+   * para as três, empatando tudo e mandando a coluna inteira para o fim.
+   */
+  it('tag ordena como número, mesmo com letra', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 'T-10' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 'T-2' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 'T-9' });
 
     component.toggleSort('tag');
 

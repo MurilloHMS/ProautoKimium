@@ -14,7 +14,7 @@ export interface MachineRegister {
   id: string;
   machineId: string;
   nomeCliente: string;
-  tag: number;
+  tag: string | null;
   regiao: string;
   solicitante: string;
   status: MachineStatus;
@@ -40,7 +40,7 @@ export interface MachineRegister {
 export interface CreateMachineRegister {
   machineId: string;
   nomeCliente: string;
-  tag: number;
+  tag: string | null;
   regiao: string;
   solicitante: string;
   status: MachineStatus;
