@@ -2,13 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PublicLayoutComponent } from './public-layout.component';
 
+import { providersDeTeste } from '../../../testing/test-setup';
+
 describe('PublicLayoutComponent', () => {
   let component: PublicLayoutComponent;
   let fixture: ComponentFixture<PublicLayoutComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PublicLayoutComponent]
+      imports: [PublicLayoutComponent],
+      providers: providersDeTeste()
     })
     .compileComponents();
     

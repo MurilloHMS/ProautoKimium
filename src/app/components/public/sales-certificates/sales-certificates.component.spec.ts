@@ -2,13 +2,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SalesCertificatesComponent } from './sales-certificates.component';
 
+import { providersDeTeste } from '../../../../testing/test-setup';
+
 describe('SalesCertificatesComponent', () => {
   let component: SalesCertificatesComponent;
   let fixture: ComponentFixture<SalesCertificatesComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SalesCertificatesComponent]
+      imports: [SalesCertificatesComponent],
+      providers: providersDeTeste()
     })
     .compileComponents();
     
