@@ -9,14 +9,18 @@
     reload — ou seja, nunca.
   -->
   <div class="splash" role="status" aria-live="assertive">
-    <!--
-      O símbolo sangra pela borda de propósito, e é decorativo: o texto ao lado
-      já diz tudo, então `alt` vazio evita que o leitor de tela anuncie a marca
-      duas vezes.
-    -->
-    <img class="splash__marca" src="/icons/logo.png" alt="" aria-hidden="true" />
+    <div class="splash__marca">
+      <!--
+        As três camadas são decorativas e ficam fora da árvore de acessibilidade:
+        o texto abaixo já diz o que está acontecendo, e "imagem, imagem, imagem"
+        antes dele só atrapalharia quem usa leitor de tela.
+      -->
+      <div class="splash__halo" aria-hidden="true"></div>
+      <img src="/icons/logo.png" alt="" aria-hidden="true" />
+      <div class="splash__varredura" aria-hidden="true"></div>
+    </div>
 
-    <div class="splash__conteudo">
+    <div class="splash__texto">
       <span class="splash__nome">Proauto Kimium</span>
 
       <p class="splash__titulo">
@@ -28,14 +32,14 @@
             ? 'Alguns segundos. Não feche a página.'
             : 'A página vai recarregar sozinha.' }}
       </p>
+    </div>
 
-      <!--
-        Indicador indeterminado: as barras do símbolo. O SwUpdate não informa
-        bytes, então não há porcentagem honesta a mostrar.
-      -->
-      <div class="splash__linhas" aria-hidden="true">
-        <i></i><i></i><i></i><i></i><i></i>
-      </div>
+    <!--
+      Indicador indeterminado: as barras do símbolo. O SwUpdate não informa
+      bytes, então não há porcentagem honesta a mostrar.
+    -->
+    <div class="splash__linhas" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i>
     </div>
   </div>
 }
