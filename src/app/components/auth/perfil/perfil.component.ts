@@ -16,6 +16,7 @@ import { MessageService } from 'primeng/api';
 
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { urlDeMidia } from '../../../infrastructure/config/media-url';
 import {
   MyProfileResponseDto,
   ProfileCreateDto,
@@ -345,5 +346,17 @@ export class PerfilComponent implements OnInit {
     a.download = `qrcode-${this.data?.profile?.slug ?? 'perfil'}.png`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * A foto do funcionário vem da API como caminho relativo — em produção o site
+   * e a API são hosts diferentes, e o navegador procuraria no domínio errado.
+   *
+   * O `(error)` do `<img>` já esconde a falha trocando pelas iniciais, e é por
+   * isso que este defeito passou tanto tempo despercebido aqui: a tela nunca
+   * pareceu quebrada, só nunca mostrou a foto.
+   */
+  urlDaFoto(caminho: string | null | undefined): string {
+    return urlDeMidia(caminho, '');
   }
 }

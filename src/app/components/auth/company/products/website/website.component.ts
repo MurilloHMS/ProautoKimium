@@ -33,6 +33,7 @@ import {
 } from '../../../../../domain/models/products.model';
 
 import { WebsiteProductStore } from '../../../../../infrastructure/state/website-product.store';
+import { urlDeMidia } from '../../../../../infrastructure/config/media-url';
 
 /**
  * Os três recortes da mesma lista.
@@ -523,16 +524,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   }
 
   resolverImagem(produto: ProductWebSiteResponseDTO): string {
-    if (!produto.imagem) {
-      return 'images/products/placeholder.png';
-    }
-
-    if (produto.imagem.startsWith('http')) {
-      return produto.imagem;
-    }
-
-    const caminho = produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
-    return caminho;
+    return urlDeMidia(produto.imagem);
   }
 
   get totalProdutos(): number {

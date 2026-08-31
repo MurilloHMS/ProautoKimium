@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrcamentoService } from '../../../../../infrastructure/services/company/products/website/orcamento/orcamento.service';
 import { ProductWebSitePublicResponseDTO } from '../../../../../domain/models/products.model';
+import { urlDeMidia } from '../../../../../infrastructure/config/media-url';
 
 @Component({
   selector: 'app-orcamento-drawer',
@@ -30,12 +31,6 @@ export class OrcamentoDrawerComponent {
   }
 
   resolverImagem(produto: ProductWebSitePublicResponseDTO): string {
-    if (!produto.imagem) {
-      return 'images/products/placeholder.png';
-    }
-    if (produto.imagem.startsWith('http')) {
-      return produto.imagem;
-    }
-    return produto.imagem.startsWith('/') ? produto.imagem : `/${produto.imagem}`;
+    return urlDeMidia(produto.imagem);
   }
 }
