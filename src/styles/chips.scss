@@ -43,6 +43,19 @@
     color: var(--app-danger);
   }
 
+  // Reservado, prometido, em andamento — resolvido, mas não encerrado.
+  &--info {
+    background: var(--app-info-soft);
+    color: var(--app-info);
+  }
+
+  // Espera ação NOSSA. Diferente de `warning`, que é algo já em andamento, e de
+  // `danger`, que é bloqueio de terceiro.
+  &--work {
+    background: var(--app-work-soft);
+    color: var(--app-work);
+  }
+
   &--neutral {
     background: var(--app-surface-3);
     color: var(--app-text-muted);

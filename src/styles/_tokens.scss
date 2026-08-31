@@ -57,6 +57,22 @@
   --app-success-soft: rgba(87, 193, 171, 0.16);
   --app-warning:      #b7791f;
   --app-warning-soft: rgba(246, 173, 85, 0.20);
+
+  // `info` e `work` nasceram da programação de máquinas, onde seis status
+  // dividiam quatro papéis e três pares saíam com a mesma cor — Entregue igual
+  // a Reservada, Reforma igual a Liberar equipamentos.
+  //
+  // São PAPÉIS e não cores: `info` é o que está resolvido mas ainda não é
+  // conclusão (uma máquina reservada não é problema nem fim de assunto);
+  // `work` é o que espera ação NOSSA, distinto de `warning`, que é algo em
+  // andamento, e de `danger`, que é bloqueio de terceiro.
+  //
+  // O azul é deliberadamente diferente de `--app-action`: ação é o que se
+  // clica, e um chip de status não se clica.
+  --app-info:         #2c6fb5;
+  --app-info-soft:    rgba(44, 111, 181, 0.13);
+  --app-work:         #7a5bbd;
+  --app-work-soft:    rgba(122, 91, 189, 0.14);
   --app-danger:       #{v.$danger};
   --app-danger-soft:  rgba(229, 62, 62, 0.12);
 
@@ -129,6 +145,13 @@
   --app-success-soft: rgba(87, 193, 171, 0.18);
   --app-warning:      #e0a44a;
   --app-warning-soft: rgba(224, 164, 74, 0.18);
+
+  // Azul e violeta escurecem mal sobre fundo azul-noite: no escuro entram mais
+  // claros que no claro, para manter contraste com a superfície.
+  --app-info:         #6ba7e8;
+  --app-info-soft:    rgba(107, 167, 232, 0.16);
+  --app-work:         #a98ce0;
+  --app-work-soft:    rgba(169, 140, 224, 0.16);
   --app-danger:       #f87171;
   --app-danger-soft:  rgba(248, 113, 113, 0.16);
 

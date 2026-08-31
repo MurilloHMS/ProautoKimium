@@ -48,17 +48,55 @@ export const MACHINE_STATUS_LABEL: Record<MachineStatus, string> = {
   [MachineStatus.REFORMA]: 'Reforma',
 };
 
+export type StatusSeverity = 'success' | 'info' | 'warning' | 'work' | 'danger' | 'neutral';
+
 /**
- * Cor por PAPEL: disponível é bom, entregue é assunto encerrado, aguardando
- * aquisição está travado esperando terceiro, o resto pede ação nossa.
+ * Cor por PAPEL — **um papel por status, sem repetição**.
+ *
+ * Eram quatro papéis para seis status, e três pares saíam idênticos na tela:
+ * Entregue igual a Reservada, Reforma igual a Liberar equipamentos. Quem lia a
+ * grade não distinguia uma máquina que já foi de uma que está prometida.
+ *
+ * O critério é o que o status pede de quem olha:
+ *
+ * - `success` — está aqui e pode ser vendida. A única assim.
+ * - `info` — está aqui, mas com dono. Não é problema nem conclusão.
+ * - `warning` — está aqui e alguém trabalha nela agora.
+ * - `work` — trava interna, esperando ação NOSSA para liberar.
+ * - `danger` — nem foi comprada. É a única que promete o que não existe.
+ * - `neutral` — assunto encerrado; o que não pede nada recua na tela.
+ *
+ * Repetir papel aqui é o defeito de origem, e ele volta em silêncio: o
+ * compilador aceita, a tela desenha, e só quem usa percebe — meses depois.
  */
-export const MACHINE_STATUS_SEVERITY: Record<MachineStatus, 'success' | 'warning' | 'danger' | 'neutral'> = {
+export const MACHINE_STATUS_SEVERITY: Record<MachineStatus, StatusSeverity> = {
   [MachineStatus.DISPONIVEL]: 'success',
-  [MachineStatus.ENTREGUE]: 'neutral',
-  [MachineStatus.RESERVADA]: 'neutral',
-  [MachineStatus.AGUARDANDO_AQUISICAO]: 'danger',
-  [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'warning',
+  [MachineStatus.RESERVADA]: 'info',
   [MachineStatus.REFORMA]: 'warning',
+  [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'work',
+  [MachineStatus.AGUARDANDO_AQUISICAO]: 'danger',
+  [MachineStatus.ENTREGUE]: 'neutral',
+};
+
+/**
+ * O ícone que acompanha a cor.
+ *
+ * **Não é enfeite: é o que faz o status sobreviver sem cor.** Seis cores viram
+ * três tons em escala de cinza, que é o que acontece com daltonismo
+ * vermelho-verde — cerca de 8% dos homens — e em qualquer impressão em preto e
+ * branco. Com o ícone, a informação não depende de enxergar a diferença entre
+ * âmbar e violeta.
+ *
+ * A classe `.status-chip` já reservava espaço para ele em `chips.scss`; nenhuma
+ * tela usava.
+ */
+export const MACHINE_STATUS_ICON: Record<MachineStatus, string> = {
+  [MachineStatus.DISPONIVEL]: 'pi pi-check-circle',
+  [MachineStatus.RESERVADA]: 'pi pi-bookmark-fill',
+  [MachineStatus.REFORMA]: 'pi pi-wrench',
+  [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'pi pi-flag',
+  [MachineStatus.AGUARDANDO_AQUISICAO]: 'pi pi-shopping-cart',
+  [MachineStatus.ENTREGUE]: 'pi pi-truck',
 };
 
 /**

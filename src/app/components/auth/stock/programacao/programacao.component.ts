@@ -16,6 +16,7 @@ import { Tooltip } from 'primeng/tooltip';
 
 import {
   MACHINE_STATUS_LABEL,
+  MACHINE_STATUS_ICON,
   MACHINE_STATUS_SEVERITY,
   MachineStatus,
   IN_STOCK_STATUSES,
@@ -504,6 +505,18 @@ export class ProgramacaoComponent implements OnInit {
 
   statusClass(status: MachineStatus): string {
     return `status-chip status-chip--${MACHINE_STATUS_SEVERITY[status] ?? 'neutral'}`;
+  }
+
+  /**
+   * O ícone do chip.
+   *
+   * Existe para o status não depender só da cor: em escala de cinza, ou para
+   * quem não distingue vermelho de verde, os seis chips ficariam parecidos
+   * demais. O `?? ''` cobre um status que a API passe a mandar antes de a tela
+   * conhecer — sem ícone é melhor que com o ícone errado.
+   */
+  statusIcon(status: MachineStatus): string {
+    return MACHINE_STATUS_ICON[status] ?? '';
   }
 
   stamp(value: string | null | undefined): string {
