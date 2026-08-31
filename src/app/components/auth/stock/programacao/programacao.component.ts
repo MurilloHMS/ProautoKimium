@@ -45,9 +45,31 @@ import { ProgramacaoImportComponent } from './programacao-import.component';
  * que o `computed` roda, então uma flag no objeto se perderia no primeiro
  * recálculo — fica em signals por id.
  */
-interface Row extends MachineRegister {
+interface Row extends Omit<MachineRegister, 'status'> {
   previsao: Date | null;
+
+  /**
+   * Nulo **só** no rascunho.
+   *
+   * A linha nova nasce sem status para obrigar a escolha: antes ela nascia em
+   * `DISPONIVEL`, e quem não reparasse na célula criava máquina em estoque e
+   * confirmava o `+1` sem querer. `AGUARDANDO_AQUISICAO` — máquina que ainda
+   * não foi comprada — era justamente o caso que o padrão atrapalhava.
+   */
+  status: MachineStatus | null;
 }
+
+/**
+ * As colunas que ordenam.
+ *
+ * `machine` e não `machineId`: o nome já diz em voz alta que a ordem é pelo
+ * nome exibido, não pelo id guardado.
+ */
+type SortField = 'machine' | 'nomeCliente' | 'regiao' | 'solicitante' | 'status'
+               | 'previsao' | 'consultor' | 'tecnico' | 'tag' | 'updatedAt';
+
+/** Um rascunho que já pode ser gravado: o `canSaveDraft` é quem prova isso. */
+type SavableDraft = Row & { status: MachineStatus };
 
 /**
  * Programação de máquinas — a planilha.
@@ -215,6 +237,108 @@ export class ProgramacaoComponent implements OnInit {
     });
   }
 
+  // ─── Ordenação ────────────────────────────────────────────────────────────
+
+  /**
+   * A ordem da grade.
+   *
+   * `null` é a ordem que a API devolve — o estado inicial, e para onde o
+   * terceiro clique volta. Modelar isso como ausência, e não como um
+   * `field: ''` mágico, é o que faz "voltar ao começo" ser um estado de
+   * verdade.
+   *
+   * A ordenação vive aqui e **não** no `pSortableColumn` por duas razões: o
+   * rascunho tem que continuar no topo, e a coluna Máquina mostra o nome
+   * enquanto guarda o id — o sort do PrimeNG ordenaria por UUID.
+   */
+  readonly sortBy = signal<{ field: SortField; asc: boolean } | null>(null);
+
+  /** Crescente → decrescente → a ordem de origem. */
+  toggleSort(field: SortField): void {
+    this.sortBy.update(current => {
+      if (current?.field !== field) return { field, asc: true };
+      return current.asc ? { field, asc: false } : null;
+    });
+  }
+
+  sortIcon(field: SortField): string {
+    const current = this.sortBy();
+    if (current?.field !== field) return 'pi-sort-alt';
+    return current.asc ? 'pi-sort-amount-up-alt' : 'pi-sort-amount-down';
+  }
+
+  ariaSort(field: SortField): 'ascending' | 'descending' | 'none' {
+    const current = this.sortBy();
+    if (current?.field !== field) return 'none';
+    return current.asc ? 'ascending' : 'descending';
+  }
+
+  /**
+   * O valor pelo qual a coluna ordena — sempre o **exibido**, nunca o cru.
+   *
+   * Máquina guarda um UUID e mostra o nome; Status guarda a chave do enum e
+   * mostra o rótulo. Ordenar pelo campo daria uma ordem que não corresponde a
+   * nada do que está na tela.
+   */
+  private sortKey(row: Row, field: SortField): string | number | null {
+    switch (field) {
+      case 'machine':   return this.machineName(row.machineId) || null;
+      case 'status':    return row.status ? this.statusLabel(row.status) : null;
+      case 'previsao':  return row.previsao?.getTime() ?? null;
+      case 'updatedAt': return row.updatedAt ? new Date(row.updatedAt).getTime() : null;
+      case 'tag':       return Number(row.tag) || null;
+      default:          return (row[field] as string)?.trim() || null;
+    }
+  }
+
+  /**
+   * Ordena a lista já filtrada.
+   *
+   * Três decisões dentro do comparador:
+   *
+   * **Vazio sempre no fim, nas duas direções.** Célula "—" é ausência de dado,
+   * não valor baixo — inverter a direção para caçar os vazios é pior do que
+   * deixá-los parados. É o contrário do que o PrimeNG faz, e mais uma razão
+   * para a ordenação morar aqui.
+   *
+   * **Texto compara com `localeCompare` em pt-BR.** Acento importa em Região,
+   * Técnico e nome de cliente, e `numeric` faz "Cliente 2" vir antes de
+   * "Cliente 10".
+   *
+   * **Desempate por previsão.** Ordenar por Status cria seis baldes sobre
+   * duzentas linhas; sem chave secundária, o miolo de cada balde parece
+   * aleatório.
+   */
+  private aplicarOrdem(linhas: Row[]): Row[] {
+    const ordem = this.sortBy();
+    if (!ordem) return linhas;
+
+    const direcao = ordem.asc ? 1 : -1;
+
+    return linhas.sort((a, b) => {
+      const comparado = this.compararPor(a, b, ordem.field, direcao);
+      if (comparado !== 0) return comparado;
+      return ordem.field === 'previsao' ? 0 : this.compararPor(a, b, 'previsao', 1);
+    });
+  }
+
+  private compararPor(a: Row, b: Row, field: SortField, direcao: number): number {
+    const esquerda = this.sortKey(a, field);
+    const direita = this.sortKey(b, field);
+
+    // Antes de multiplicar pela direção: vazio não participa da escala.
+    if (esquerda === null && direita === null) return 0;
+    if (esquerda === null) return 1;
+    if (direita === null) return -1;
+
+    if (typeof esquerda === 'number' && typeof direita === 'number') {
+      return (esquerda - direita) * direcao;
+    }
+
+    return String(esquerda).localeCompare(String(direita), 'pt-BR',
+      { sensitivity: 'base', numeric: true }) * direcao;
+  }
+
   readonly rows = computed<Row[]>(() => {
     this.searchTrigger();
     const term = this.search.toLowerCase().trim();
@@ -225,7 +349,9 @@ export class ProgramacaoComponent implements OnInit {
     const filtered = this.store.items()
       .map(register => this.toRow(register))
       .filter(row => {
-        if (statuses.length && !statuses.includes(row.status)) return false;
+        // `row.status` é nulo só em rascunho, e rascunho não passa por aqui —
+        // ele entra na lista depois do filtro. A guarda existe para o tipo.
+        if (statuses.length && (!row.status || !statuses.includes(row.status))) return false;
         if (machine && row.machineId !== machine) return false;
         if (late && !this.isLate(row)) return false;
 
@@ -238,9 +364,13 @@ export class ProgramacaoComponent implements OnInit {
           || this.machineName(row.machineId).toLowerCase().includes(term);
       });
 
-    // Rascunho sempre no topo, sem passar pelo filtro: some da tela ao filtrar
-    // seria confuso logo depois de clicar em "Nova linha".
-    return [...this.drafts(), ...filtered];
+    // Rascunho sempre no topo, sem passar pelo filtro nem pela ordenação: some
+    // da tela ao filtrar seria confuso logo depois de clicar em "Nova linha",
+    // e escorregar para a posição 140 ao ordenar, pior ainda.
+    //
+    // `filtered` já é array novo, saído do `.filter()` — ordenar in-place nele
+    // é seguro. Ordenar `store.items()` seria mutar estado que o Hub também lê.
+    return [...this.drafts(), ...this.aplicarOrdem(filtered)];
   });
 
   readonly lateCount = computed(() =>
@@ -308,7 +438,7 @@ export class ProgramacaoComponent implements OnInit {
       tag: 0,
       regiao: '',
       solicitante: '',
-      status: MachineStatus.DISPONIVEL,
+      status: null,
       Observacao: '',
       previsaoEntrega: null,
       consultor: '',
@@ -323,18 +453,31 @@ export class ProgramacaoComponent implements OnInit {
   }
 
   /**
-   * Só a máquina é obrigatória.
+   * A máquina e o status, e mais nada.
    *
    * O cliente era exigido também, e isso ficou errado quando o modelo se
    * fechou: uma linha **é** uma máquina física, então linha sem cliente é
    * legítima — é máquina no galpão que ninguém prometeu ainda, e ela cai em
    * "Sem previsão" esperando destino.
    *
-   * O acerto de divergência já cria linhas assim. Manter a trava aqui deixava
-   * o sistema fazer o que a pessoa não podia.
+   * O status entrou porque o padrão anterior mentia: a linha nascia
+   * `DISPONIVEL`, e criar uma máquina ainda não comprada exigia lembrar de
+   * trocar a célula. Agora a escolha é um ato.
+   *
+   * **É um type predicate**, e isso não é enfeite: o `if (!canSaveDraft(row))`
+   * de `saveDraft` passa a estreitar o tipo no resto do método, então o status
+   * nulo some dali sem um único `!`. O tipo diz o que a tela diz — o botão
+   * habilitado É a prova de que há status.
    */
-  canSaveDraft(row: Row): boolean {
-    return !!row.machineId;
+  canSaveDraft(row: Row): row is SavableDraft {
+    return !!row.machineId && !!row.status;
+  }
+
+  /** Por que o botão de salvar está desabilitado — o botão sozinho não conta. */
+  saveDraftHint(row: Row): string {
+    if (!row.machineId) return 'Escolha a máquina para salvar';
+    if (!row.status) return 'Escolha o status para salvar';
+    return 'Salvar linha';
   }
 
   saveDraft(row: Row): void {
@@ -487,6 +630,11 @@ export class ProgramacaoComponent implements OnInit {
   onCellEdited(row: Row): void {
     if (!row || this.isDraft(row) || this.isSaving(row.id)) return;
 
+    // Linha gravada sempre tem status — a API o exige. A guarda é a invariante
+    // virando código, e vira rede de verdade no dia em que o combo ganhar um
+    // botão de limpar.
+    if (!row.status) return;
+
     const payload: UpdateMachineRegister = {
       nomeCliente: row.nomeCliente ?? '',
       tag: Number(row.tag) || 0,
@@ -598,7 +746,7 @@ export class ProgramacaoComponent implements OnInit {
     // Apagar não baixa o estoque de propósito: apagar é "essa linha nunca
     // deveria ter existido". Se a máquina está no galpão, o certo é mudar o
     // status. Mas quem clica precisa saber disso antes, não depois.
-    const contaNoEstoque = IN_STOCK_STATUSES.includes(row.status)
+    const contaNoEstoque = row.status && IN_STOCK_STATUSES.includes(row.status)
       ? '<br><br>Esta máquina conta no estoque. Apagar a linha <strong>não</strong> '
         + 'baixa o estoque — para isso, mude o status para Entregue.'
       : '';

@@ -227,4 +227,171 @@ describe('ProgramacaoComponent · estoque', () => {
 
     expect(component.canSaveDraft(draft)).toBeFalse();
   });
+
+  // ─── O status na criação ──────────────────────────────────────────────────
+
+  /**
+   * **A linha nova nasce sem status.**
+   *
+   * Ela nascia em `DISPONIVEL`, e quem não reparasse na célula criava máquina
+   * em estoque e confirmava o `+1` sem querer. O caso que o padrão atrapalhava
+   * é `AGUARDANDO_AQUISICAO` — máquina que ainda não foi comprada.
+   */
+  it('a linha nova nasce sem status', () => {
+    component.addRow();
+
+    expect(component.drafts()[0].status).toBeNull();
+  });
+
+  it('sem status escolhido, não salva', () => {
+    const draft = { machineId: 'm1', status: null } as never;
+
+    expect(component.canSaveDraft(draft)).toBeFalse();
+  });
+
+  /**
+   * **O botão desabilitado não é a trava.**
+   *
+   * Sem esta guarda, `stockDeltaFor(null, null)` dá 0 — o status nulo não está
+   * em `IN_STOCK_STATUSES` — e a linha cairia direto no POST com `status: null`,
+   * deixando a API decidir. O botão "impede" até alguém chamar por atalho de
+   * teclado.
+   */
+  it('salvar um rascunho sem status não chama a API nem abre o diálogo', () => {
+    component.addRow();
+
+    component.saveDraft(component.drafts()[0]);
+
+    expect(registerService.create).not.toHaveBeenCalled();
+    expect(component.stockDialogOpen()).toBeFalse();
+  });
+
+  /**
+   * O par do de cima, e ele existe por um motivo específico: sozinho, o
+   * anterior passaria se alguém "consertasse" o erro de tipo com
+   * `row.status ?? DISPONIVEL` — e aí toda linha nova voltaria a somar estoque.
+   */
+  it('criar em DISPONIVEL continua perguntando pelo estoque', () => {
+    component.addRow();
+    const draft = component.drafts()[0];
+    draft.machineId = MACHINE_ID;
+    draft.status = MachineStatus.DISPONIVEL;
+
+    component.saveDraft(draft);
+
+    expect(component.stockDialogOpen()).toBeTrue();
+    expect(component.stockDelta()).toBe(1);
+  });
+
+  /**
+   * **O teste que dá sentido ao pedido dele.**
+   *
+   * `AGUARDANDO_AQUISICAO` é máquina que ainda não foi comprada: criar a linha
+   * não pode lançar entrada. Hoje isso funciona por consequência do
+   * `stockDeltaFor`, e nada afirmava. Se alguém "simplificar" a regra, máquina
+   * não comprada passa a somar no estoque — e o erro só aparece na
+   * conciliação, dias depois.
+   */
+  it('criar em AGUARDANDO_AQUISICAO grava direto, sem tocar no estoque', () => {
+    component.addRow();
+    const draft = component.drafts()[0];
+    draft.machineId = MACHINE_ID;
+    draft.status = MachineStatus.AGUARDANDO_AQUISICAO;
+
+    component.saveDraft(draft);
+
+    expect(component.stockDialogOpen()).toBeFalse();
+    expect(registerService.create).toHaveBeenCalled();
+  });
+
+  // ─── Ordenação ────────────────────────────────────────────────────────────
+
+  /**
+   * **O fixture tem a ordem dos nomes INVERTIDA em relação à dos ids.**
+   *
+   * Sem isso, este teste passa dos dois jeitos: a ordem por UUID é
+   * determinística, e nem quem revisa o PR nem quem usa a tela distingue
+   * "ordenado por nome" de "ordenado por uuid" sem saber os nomes de cor.
+   */
+  const comTresMaquinas = () => {
+    machineStore.upsert({ ...machine, id: 'a-1', systemCode: 'A1', name: 'Zebra' });
+    machineStore.upsert({ ...machine, id: 'm-2', systemCode: 'M2', name: 'Mesa' });
+    machineStore.upsert({ ...machine, id: 'z-3', systemCode: 'Z3', name: 'Alfa' });
+
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r1', machineId: 'a-1' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r2', machineId: 'm-2' });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'r3', machineId: 'z-3' });
+  };
+
+  it('ordenar por Máquina usa o NOME, não o id', () => {
+    comTresMaquinas();
+
+    component.toggleSort('machine');
+
+    expect(component.rows().map(r => component.machineName(r.machineId)))
+      .toEqual(['Alfa', 'Mesa', 'Zebra']);
+  });
+
+  it('sem ordenação, mantém a ordem que veio do store', () => {
+    comTresMaquinas();
+
+    expect(component.rows().map(r => r.id)).toEqual(['r1', 'r2', 'r3']);
+  });
+
+  /** Crescente → decrescente → a ordem de origem. */
+  it('o terceiro clique volta à ordem original', () => {
+    comTresMaquinas();
+
+    component.toggleSort('machine');
+    component.toggleSort('machine');
+    component.toggleSort('machine');
+
+    expect(component.sortBy()).toBeNull();
+    expect(component.rows().map(r => r.id)).toEqual(['r1', 'r2', 'r3']);
+  });
+
+  /**
+   * **O rascunho não participa da ordenação.**
+   *
+   * Era o que a ordenação nativa do PrimeNG quebraria: a linha que a pessoa
+   * acabou de criar escorregaria para a posição 140, e ela acharia que sumiu.
+   */
+  it('o rascunho continua no topo com a lista ordenada', () => {
+    comTresMaquinas();
+    component.addRow();
+
+    component.toggleSort('machine');
+
+    expect(component.rows()[0].id).toContain('draft-');
+  });
+
+  /**
+   * **Vazio no fim nas DUAS direções.**
+   *
+   * Célula "—" é ausência de dado, não valor baixo. Afirmar só o crescente
+   * passaria com um comparador ingênuo, que joga o nulo para o topo ao inverter.
+   */
+  it('linha sem previsão fica no fim, crescente e decrescente', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'sem',
+      previsaoEntrega: null });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'com',
+      previsaoEntrega: '2026-09-10T00:00:00' });
+
+    component.toggleSort('previsao');
+    expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
+
+    component.toggleSort('previsao');
+    expect(component.rows().map(r => r.id)).toEqual(['com', 'sem']);
+  });
+
+  /** O clássico silencioso: sem comparar como número, 10 vem antes de 9. */
+  it('tag ordena como número', () => {
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'a', tag: 10 });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'b', tag: 2 });
+    registerStore.upsert({ ...register(MachineStatus.DISPONIVEL), id: 'c', tag: 9 });
+
+    component.toggleSort('tag');
+
+    expect(component.rows().map(r => r.id)).toEqual(['b', 'c', 'a']);
+  });
 });
