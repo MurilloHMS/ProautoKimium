@@ -170,6 +170,11 @@
     &--warning { background: var(--app-warning); }
     &--danger  { background: var(--app-danger); }
     &--action  { background: var(--app-action); }
+    // Os dois papéis novos do vocabulário de status. Sem eles, a barra de
+    // Reservada e a de Liberar equipamentos cairiam no `background` padrão e
+    // ficariam cinza — a colisão de cor voltaria por outra porta.
+    &--info    { background: var(--app-info); }
+    &--work    { background: var(--app-work); }
     &--neutral { background: var(--app-text-subtle); }
   }
 

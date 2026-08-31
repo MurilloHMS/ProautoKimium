@@ -176,7 +176,11 @@
   &--success { background: var(--app-success); }
   &--warning { background: var(--app-warning); }
   &--danger  { background: var(--app-danger); }
-  &--info    { background: var(--app-action); }
+  // Passou a apontar para `--app-info` quando o papel virou token próprio: o
+  // ponto e o chip do mesmo status precisam ser da mesma cor, senão o Hub
+  // contradiz a grade. Antes usava `--app-action`, que é a cor de clicar.
+  &--info    { background: var(--app-info); }
+  &--work    { background: var(--app-work); }
   &--neutral { background: var(--app-text-muted); }
   &--muted   { background: var(--app-text-subtle); }
 

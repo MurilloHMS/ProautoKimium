@@ -188,7 +188,7 @@
                   engano que a escolha obrigatória existe para impedir.
                 -->
                 @if (row.status) {
-                  <span [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+                  <span [class]="statusClass(row.status)"><i [class]="statusIcon(row.status)" aria-hidden="true"></i>{{ statusLabel(row.status) }}</span>
                 } @else {
                   <span class="status-pick">Escolher status</span>
                 }
