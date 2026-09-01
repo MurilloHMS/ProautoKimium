@@ -232,4 +232,59 @@ describe('UpdateSplashComponent', () => {
     expect(documentoFake.addEventListener).not.toHaveBeenCalled();
     expect(checkForUpdate).not.toHaveBeenCalled();
   });
+
+  /**
+   * **O teto que torna o `visibilitychange` seguro.**
+   *
+   * Cada volta para o app é um evento, e num celular isso acontece dezenas de
+   * vezes por dia. Cada checagem baixa 8,8 KB — o servidor manda `no-store`,
+   * então não existe `304` e o download é sempre inteiro. Sem o teto, alternar
+   * entre o app e o WhatsApp viraria uma conta de dados.
+   */
+  it('voltas seguidas ao app fazem uma pergunta só', () => {
+    montar();
+
+    voltarParaOApp();
+    voltarParaOApp();
+    voltarParaOApp();
+
+    expect(checkForUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('depois do intervalo, pergunta de novo', () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 8, 1, 9, 0, 0));
+
+    try {
+      montar();
+      voltarParaOApp();
+
+      jasmine.clock().tick(31 * 60 * 1000);
+      voltarParaOApp();
+
+      expect(checkForUpdate).toHaveBeenCalledTimes(2);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  /**
+   * O teto conta os dois gatilhos juntos. Uma volta ao app logo depois de um
+   * disparo do timer não pode render uma segunda requisição.
+   */
+  it('o timer e a volta ao app dividem o mesmo teto', () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 8, 1, 9, 0, 0));
+
+    try {
+      montar();
+
+      jasmine.clock().tick(30 * 60 * 1000 + 1000);   // o timer dispara
+      voltarParaOApp();                               // e a pessoa volta logo depois
+
+      expect(checkForUpdate).toHaveBeenCalledTimes(1);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
 });

@@ -2,11 +2,18 @@ import { Component, DestroyRef, DOCUMENT, inject, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
 
 /**
- * De quanto em quanto tempo a aba aberta pergunta se saiu versão nova.
+ * O intervalo MÍNIMO entre duas checagens, valendo para os dois gatilhos.
  *
- * Meia hora é o meio-termo: um deploy chega no mesmo turno de trabalho, e uma
- * pessoa com o app aberto o dia inteiro faz dezesseis requisições — que o
- * service worker responde com um `304` quando não há nada novo.
+ * Cada checagem baixa o `ngsw.json` inteiro: 21 KB, ~8,8 KB comprimidos na
+ * rede. E baixa mesmo quando nada mudou — o servidor manda
+ * `Cache-Control: no-store`, então não existe `304` aqui. O ETag está lá e é
+ * inútil enquanto essa diretiva estiver.
+ *
+ * Por isso o intervalo é um TETO e não só um timer: sem ele, quem alterna entre
+ * o app e o WhatsApp cinquenta vezes num dia dispararia cinquenta downloads,
+ * porque cada volta é um `visibilitychange`. Com o teto, o pior caso do dia
+ * inteiro são 48 checagens — cerca de 420 KB, ou ~13 MB por mês para quem
+ * deixa o app aberto o tempo todo.
  */
 const INTERVALO_DE_CHECAGEM_MS = 30 * 60 * 1000;
 
@@ -100,12 +107,20 @@ export class UpdateSplashComponent {
     });
   }
 
+  /** Quando foi a última pergunta ao servidor. Zero = nunca. */
+  private ultimaChecagem = 0;
+
   /**
-   * Uma checagem, sem barulho nenhum.
+   * Uma checagem, sem barulho nenhum e no máximo uma a cada meia hora.
    *
    * Não pergunta com a aba escondida: o timer continua correndo em segundo
    * plano, e checar ali gasta rede para um resultado que ninguém vai ver — se
    * houver versão nova, a volta para o app pergunta de novo em seguida.
+   *
+   * O teto vale para os DOIS gatilhos somados, e é o que torna o
+   * `visibilitychange` seguro: cada alternância entre o app e outro aplicativo
+   * é uma volta, e num celular isso acontece dezenas de vezes por dia. Sem o
+   * teto, cada uma delas baixaria 8,8 KB.
    *
    * A promessa é engolida de propósito. `checkForUpdate` rejeita quando o
    * aparelho está sem rede, que é situação normal num celular, e uma falha
@@ -115,6 +130,13 @@ export class UpdateSplashComponent {
   checkNow(): void {
     if (this.document.visibilityState === 'hidden') return;
 
+    const agora = Date.now();
+    if (agora - this.ultimaChecagem < INTERVALO_DE_CHECAGEM_MS) return;
+
+    // Marcado antes de perguntar, e não depois: marcar no retorno deixaria duas
+    // voltas rápidas dispararem duas requisições, porque a segunda chegaria
+    // antes de a primeira responder.
+    this.ultimaChecagem = agora;
     this.swUpdate.checkForUpdate().catch(() => undefined);
   }
 
