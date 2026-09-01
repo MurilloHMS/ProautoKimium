@@ -45,6 +45,35 @@ export class ListaProdutosComponent implements OnInit {
   snackbarMessage = '';
   showSnackbar    = false;
 
+  // ─── Ficha técnica ────────────────────────────────────────────────────────
+  //
+  // O card corta a descrição em duas linhas (`-webkit-line-clamp: 2`), então uma
+  // descrição de 500 caracteres aparece com uns 90. O corte é proposital — sem
+  // ele um produto falante empurraria os outros cards para fora do alinhamento.
+  // O texto inteiro passa a viver aqui.
+
+  /** Nulo com o diálogo fechado, que é quase sempre. */
+  readonly fichaDe = signal<ProductWebSitePublicResponseDTO | null>(null);
+
+  abrirFicha(produto: ProductWebSitePublicResponseDTO): void {
+    this.fichaDe.set(produto);
+  }
+
+  fecharFicha(): void {
+    this.fichaDe.set(null);
+  }
+
+  /**
+   * Pede o orçamento e fecha a ficha.
+   *
+   * Deixar o diálogo aberto depois de adicionar esconderia o snackbar de
+   * confirmação atrás dele — a pessoa clicaria de novo achando que não pegou.
+   */
+  orcarDaFicha(produto: ProductWebSitePublicResponseDTO): void {
+    this.fecharFicha();
+    this.adicionarAoOrcamento(produto);
+  }
+
   // Agrupamento — quando a API trouxer departamento, troque o campo aqui
   departamentos = computed<ProdutoPorDepartamento[]>(() => {
     const lista = this.produtos();
