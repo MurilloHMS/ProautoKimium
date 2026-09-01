@@ -1614,7 +1614,23 @@
     grid-template-columns: 1fr;
   }
 
+  /* Altura DEFINIDA, e não `aspect-ratio`.
+   *
+   * `aspect-ratio` dimensiona o elemento, não a LINHA do grid. Com
+   * `align-self: start` a altura da caixa fica indefinida, então o
+   * `height: 100%` da imagem vira `auto` e quem contribui para a linha é a
+   * altura NATURAL da foto. Numa foto larga essa contribuição é pequena: a
+   * linha saiu com 106px, o `aspect-ratio` esticou a caixa para 180px, e os
+   * 74px restantes ficaram por cima do texto abaixo.
+   *
+   * O `overflow: hidden` não segurava porque não era a caixa que transbordava —
+   * era a linha.
+   *
+   * Com uma altura em pixels, a linha, a caixa e o `height: 100%` da imagem
+   * concordam no mesmo número. 180px é o que o 16/9 dava na largura de um
+   * celular, então o desenho não muda; só passa a ser previsível. */
   .ficha__visual {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: auto;
+    height: 180px;
   }
 }
