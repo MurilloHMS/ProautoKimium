@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ClientAuthLayoutComponent } from '../../../layouts/client-auth-layout/client-auth-layout.component';
 import { ClientAuthService } from '../../../infrastructure/services/client/client-auth.service';
+import { PARAM_SESSAO_EXPIRADA } from '../../../infrastructure/interceptors/auth-interceptor';
 
 /**
  * Entrada da Área do Cliente — frame `Login · Acesso` do Figma.
@@ -23,6 +24,7 @@ export class ClientLoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(ClientAuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   form: FormGroup;
   errorMessage = '';
@@ -36,6 +38,17 @@ export class ClientLoginComponent {
       password: ['', [Validators.required]],
       remember: [true],
     });
+
+    /**
+     * A sessão do portal caiu sozinha e o interceptor trouxe a pessoa para cá.
+     *
+     * A explicação mora aqui e não numa notificação porque a navegação destrói
+     * a tela onde o erro aconteceu — qualquer aviso disparado de lá sumiria
+     * junto.
+     */
+    if (this.route.snapshot.queryParamMap.has(PARAM_SESSAO_EXPIRADA)) {
+      this.errorMessage = 'Sua sessão expirou. Entre novamente para continuar.';
+    }
   }
 
   login(): void {
