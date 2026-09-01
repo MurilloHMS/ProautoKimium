@@ -9,6 +9,7 @@ import {OrcamentoDrawerComponent} from "./components/orcamento-drawer/orcamento-
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {ProductWebSitePublicResponseDTO} from "../../../domain/models/products.model";
 import { urlDeMidia } from '../../../infrastructure/config/media-url';
+import { apenasDigitos, formatarDocumento } from '../../../infrastructure/validators/documento-br';
 
 export interface ProdutoPorDepartamento {
   nome: string;
@@ -158,5 +159,24 @@ export class ListaProdutosComponent implements OnInit {
 
     input.value = masked;
     this.orcamento.form.get('telefone')?.setValue(digits, { emitEvent: false });
+  }
+
+  /**
+   * Máscara de CPF/CNPJ, no mesmo desenho da do telefone.
+   *
+   * O visível é formatado e o guardado são só os dígitos: o formulário nunca vê
+   * ponto nem barra, então o validador não precisa limpar nada e a mensagem
+   * decide o formato na hora de escrever.
+   *
+   * `setValue` com `emitEvent: false` para a máscara não disparar a validação a
+   * cada tecla — quem digita um CPF veria "documento inválido" nos dez
+   * primeiros dígitos, e o erro certo só aparece quando o campo perde o foco.
+   */
+  onDocumentoInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const digits = apenasDigitos(input.value);
+
+    input.value = formatarDocumento(digits);
+    this.orcamento.form.get('documento')?.setValue(digits, { emitEvent: false });
   }
 }
