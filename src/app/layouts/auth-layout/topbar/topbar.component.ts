@@ -116,9 +116,15 @@ export class TopbarComponent {
     return roles.length ? roles.join(', ') : 'Sem papéis';
   }
 
+  /**
+   * Espera o servidor encerrar a sessão antes de sair da tela.
+   *
+   * A navegação vai no `subscribe` e não em seguida: `window.location.href`
+   * descarrega a página, e uma requisição em voo no momento do descarregamento é
+   * cancelada pelo navegador — a sessão continuaria viva do lado de lá.
+   */
   logout(): void {
-    this.auth.logout();
-    window.location.href = '/';
+    this.auth.logoutRemoto().subscribe(() => (window.location.href = '/'));
   }
 
   // ── Fechar dropdowns ao clicar fora ──────────────────────────────────────

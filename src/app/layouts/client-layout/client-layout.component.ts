@@ -66,8 +66,9 @@ export class ClientLayoutComponent implements OnInit {
   }
 
   logout(): void {
-    this.auth.logout();
-    this.session.clear();
-    this.router.navigate(['/cliente/login']);
+    this.auth.logoutRemoto().subscribe(() => {
+      this.session.clear();
+      this.router.navigate(['/cliente/login']);
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, finalize, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { PermissionStore } from '../state/permission.store';
 import { environment } from '../../../environments/environment';
@@ -58,6 +58,35 @@ export class AuthService {
 
   getRefreshToken(): string | null {
     return localStorage.getItem(REFRESH_KEY);
+  }
+
+  /**
+   * Sair de verdade: avisa o servidor e só então limpa o navegador.
+   *
+   * O `logout()` sozinho apaga o que está nesta máquina, e o refresh token
+   * continua valendo sete dias do outro lado. Isso não é encerrar sessão — é
+   * esconder a chave.
+   *
+   * A limpeza local acontece de qualquer jeito, mesmo se a chamada falhar: quem
+   * apertou "Sair" tem que sair, e ficar preso numa tela por causa de rede é
+   * pior do que um refresh token sobrevivendo até vencer sozinho.
+   *
+   * Quem garante isso é o `catchError`, que transforma a falha numa conclusão
+   * normal — o `finalize` depois dele cobre um caso a mais: quem se desinscreve
+   * antes da resposta, como uma tela que navega no meio do caminho.
+   */
+  logoutRemoto(): Observable<void> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      this.logout();
+      return of(void 0);
+    }
+
+    return this.http.post<void>(`${environment.apiUrl}/auth/logout`, { refreshToken }).pipe(
+      catchError(() => of(void 0)),
+      finalize(() => this.logout()),
+    );
   }
 
   /**

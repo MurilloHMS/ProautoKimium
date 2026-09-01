@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, finalize, of, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { LoginResponseDTO } from '../../../domain/models/auth.model';
@@ -54,6 +54,26 @@ export class ClientAuthService {
 
   getRefreshToken(): string | null {
     return localStorage.getItem(CLIENT_REFRESH_KEY) ?? sessionStorage.getItem(CLIENT_REFRESH_KEY);
+  }
+
+  /**
+   * Sair de verdade: avisa o servidor e só então limpa o navegador.
+   *
+   * Vale mais aqui do que no ERP: o portal é usado em computador de recepção,
+   * onde a sessão que sobra é de um cliente que já foi embora.
+   */
+  logoutRemoto(): Observable<void> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      this.logout();
+      return of(void 0);
+    }
+
+    return this.http.post<void>(`${environment.apiUrl}/auth/logout`, { refreshToken }).pipe(
+      catchError(() => of(void 0)),
+      finalize(() => this.logout()),
+    );
   }
 
   /** Onde a sessão de agora mora — é para lá que a renovação grava. */
