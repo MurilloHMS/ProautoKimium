@@ -1002,8 +1002,16 @@
   position: fixed;
   inset: 0;
   z-index: 1400;
-  background: rgba(15, 23, 42, 0.52);
-  backdrop-filter: blur(4px);
+
+  /* Mais escuro para compensar o desfoque que saiu: o que o blur fazia era
+     separar o modal da página atrás, e opacidade faz o mesmo sem envolver o
+     compositor. */
+  background: rgba(15, 23, 42, 0.66);
+  /* Sem desfoque, pelo mesmo motivo da ficha: este overlay é `fixed` e o
+     `.modal-box` dentro dele rola (`max-height: 88vh; overflow-y: auto`). No
+     Safari do iOS, `backdrop-filter` numa camada fixa que contém área rolando
+     deixa o conteúdo pintado em posições velhas — texto por cima de texto.
+     Aqui daria no formulário de orçamento, que é mais alto que a tela. */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1384,12 +1392,25 @@
   z-index: 1;
 }
 
+/* Sem `backdrop-filter`, e a razão é um defeito do Safari do iOS.
+ *
+ * Um elemento `position: fixed` com `backdrop-filter` que contém uma área
+ * rolando não é repintado direito pelo compositor do WebKit: o texto do miolo
+ * fica desenhado em posições velhas, por cima do que já estava na tela. Na
+ * ficha isso aparecia como o nome do produto e o começo da descrição pintados
+ * em cima da foto.
+ *
+ * Nunca deu no computador — o bug é do iOS, e nem do build de produção era. Foi
+ * confundido com "só acontece em produção" porque é lá que o celular entra.
+ *
+ * O fundo ficou mais escuro para compensar o desfoque que saiu: o que o blur
+ * fazia era separar o diálogo da grade atrás, e opacidade faz o mesmo sem
+ * envolver o compositor. */
 .ficha-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1200;
-  background: rgba(23, 29, 48, 0.55);
-  backdrop-filter: blur(3px);
+  background: rgba(23, 29, 48, 0.68);
   display: grid;
   place-items: center;
   padding: 20px;
