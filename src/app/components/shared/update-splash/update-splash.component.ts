@@ -1,5 +1,14 @@
-import { Component, DOCUMENT, inject, signal } from '@angular/core';
+import { Component, DestroyRef, DOCUMENT, inject, signal } from '@angular/core';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
+
+/**
+ * De quanto em quanto tempo a aba aberta pergunta se saiu versão nova.
+ *
+ * Meia hora é o meio-termo: um deploy chega no mesmo turno de trabalho, e uma
+ * pessoa com o app aberto o dia inteiro faz dezesseis requisições — que o
+ * service worker responde com um `304` quando não há nada novo.
+ */
+const INTERVALO_DE_CHECAGEM_MS = 30 * 60 * 1000;
 
 /** Os dois momentos que a tela mostra. Fora deles, ela não existe. */
 export type UpdatePhase = 'baixando' | 'instalando';
@@ -47,12 +56,66 @@ export class UpdateSplashComponent {
   /** Nulo enquanto não há atualização — e é assim quase o tempo todo. */
   readonly fase = signal<UpdatePhase | null>(null);
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor() {
     // Em desenvolvimento o service worker não é registrado
     // (`app.config.ts`), então nada disto roda e a tela nunca aparece.
     if (!this.swUpdate.isEnabled) return;
 
     this.swUpdate.versionUpdates.subscribe(evento => this.reagir(evento));
+    this.agendarChecagens();
+  }
+
+  /**
+   * Pergunta ao servidor se existe versão nova — de tempos em tempos e ao
+   * voltar para o app.
+   *
+   * **Por que não basta o registro.** O service worker do Angular só procura
+   * versão nova quando a página carrega e a cada navegação. Numa SPA que fica
+   * aberta o dia todo não existe nem uma coisa nem outra, então a sessão nunca
+   * pergunta e fica na versão que pegou ao abrir.
+   *
+   * O caso pior é o app instalado na tela de início: ele abre uma vez e vive
+   * meses sem recarregar. Foi assim que uma correção de 24/08 continuou
+   * invisível no iPhone em 01/09 — o Safari já tinha pego a versão nova, e o
+   * ícone da tela de início ainda servia a antiga.
+   *
+   * Dois gatilhos, e o segundo é o que resolve o app instalado: meia em meia
+   * hora, e toda vez que a aba volta a ficar visível. Voltar para o app é
+   * exatamente o momento em que se quer a versão de hoje.
+   */
+  private agendarChecagens(): void {
+    const timer = setInterval(() => this.checkNow(), INTERVALO_DE_CHECAGEM_MS);
+
+    // `visibilitychange` e não `focus`: o `focus` dispara ao clicar de volta na
+    // janela mesmo sem ela ter saído de vista, e faria uma requisição a cada
+    // ida e volta entre o app e outra janela na mesma tela.
+    const aoVoltar = () => this.checkNow();
+    this.document.addEventListener('visibilitychange', aoVoltar);
+
+    this.destroyRef.onDestroy(() => {
+      clearInterval(timer);
+      this.document.removeEventListener('visibilitychange', aoVoltar);
+    });
+  }
+
+  /**
+   * Uma checagem, sem barulho nenhum.
+   *
+   * Não pergunta com a aba escondida: o timer continua correndo em segundo
+   * plano, e checar ali gasta rede para um resultado que ninguém vai ver — se
+   * houver versão nova, a volta para o app pergunta de novo em seguida.
+   *
+   * A promessa é engolida de propósito. `checkForUpdate` rejeita quando o
+   * aparelho está sem rede, que é situação normal num celular, e uma falha
+   * dessas não é assunto de quem está usando o sistema. O `versionUpdates`
+   * continua sendo o único caminho por onde uma atualização aparece na tela.
+   */
+  checkNow(): void {
+    if (this.document.visibilityState === 'hidden') return;
+
+    this.swUpdate.checkForUpdate().catch(() => undefined);
   }
 
   /**
