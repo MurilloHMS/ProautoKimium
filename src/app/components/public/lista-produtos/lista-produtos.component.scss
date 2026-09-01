@@ -1565,7 +1565,28 @@
     grid-template-columns: 1fr;
   }
 
+  /* A imagem ganha altura, mas com teto.
+
+     16/9 era largo e baixo: uma embalagem em pé, que é o formato de quase todo
+     produto, ficava minúscula com faixas vazias dos dois lados — `contain`
+     encolhe até caber na menor dimensão, e a menor era a altura.
+
+     4/5 dá a ela a forma da própria embalagem. O `max-height` existe porque
+     4/5 num celular de 390px são 487px de imagem: com o cabeçalho, a descrição
+     começaria abaixo da dobra, e ela é a razão de esta ficha existir. Com o
+     teto, a foto ocupa metade da tela e o texto continua aparecendo logo
+     abaixo.
+
+     `svh` e não `vh`: `vh` no iOS mede a tela SEM a barra do navegador, então
+     a imagem passaria da conta enquanto a barra estivesse visível. O `vh`
+     antes fica de reserva para quem não conhece a unidade nova. */
   .ficha__visual {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 5;
+    max-height: 46vh;
+    max-height: 46svh;
+
+    /* Menos respiro em volta: no celular cada pixel de moldura é pixel a menos
+       de produto, e a borda da caixa já separa a foto do resto. */
+    img { padding: 8px; }
   }
 }
