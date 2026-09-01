@@ -26,6 +26,7 @@ describe('AuthInterceptor', () => {
   let http: HttpClient;
   let mock: HttpTestingController;
   let router: jasmine.SpyObj<Router>;
+  let guardarSessao: jasmine.Spy;
   let auth: AuthService;
   let clientAuth: ClientAuthService;
 
@@ -53,7 +54,14 @@ describe('AuthInterceptor', () => {
 
     spyOn(auth, 'logout');
     spyOn(clientAuth, 'logout');
+    guardarSessao = spyOn(auth, 'guardarSessao');
   });
+
+  const URL_REFRESH = `${environment.apiUrl}/auth/refresh`;
+
+  /** Responde a renovação que estiver em andamento. */
+  const responderRefresh = (token = 'token-novo') =>
+    mock.expectOne(URL_REFRESH).flush({ token, refreshToken: 'refresh-novo' });
 
   afterEach(() => mock.verify());
 
@@ -80,8 +88,13 @@ describe('AuthInterceptor', () => {
 
   // ─── Sessão expirada ───────────────────────────────────────────────────────
 
-  it('401 desloga e leva para o login, avisando que expirou', () => {
+  /**
+   * Sem refresh token guardado não há o que renovar — é o caminho de quem
+   * entrou antes desta feature existir, e o de quem já teve a sessão revogada.
+   */
+  it('401 sem refresh token desloga e leva para o login', () => {
     spyOn(auth, 'getToken').and.returnValue('token-velho');
+    spyOn(auth, 'getRefreshToken').and.returnValue(null);
 
     http.get(URL_ERP).subscribe();
     responder401(URL_ERP);
@@ -91,6 +104,91 @@ describe('AuthInterceptor', () => {
       ['/login'], { queryParams: { [PARAM_SESSAO_EXPIRADA]: 1 } });
   });
 
+  // ─── Renovação ─────────────────────────────────────────────────────────────
+
+  /**
+   * **O ganho da feature inteira.**
+   *
+   * Para quem está usando, o vencimento do token vira meio segundo a mais numa
+   * requisição, em vez de uma tela de login. Sem a repetição, a renovação
+   * funcionaria e a tela ficaria sem o dado que foi buscar.
+   */
+  it('401 renova e repete a requisição com o token novo', () => {
+    // Duas leituras: a primeira monta a requisição original, a segunda monta a
+    // repetida — depois de a renovação ter gravado o token novo. `flush` é
+    // síncrono, então trocar o valor entre as duas chamadas só funciona assim.
+    spyOn(auth, 'getToken').and.returnValues('token-velho', 'token-novo');
+    spyOn(auth, 'getRefreshToken').and.returnValue('refresh-bom');
+    let recebeu: unknown = null;
+
+    http.get(URL_ERP).subscribe(r => (recebeu = r));
+    responder401(URL_ERP);
+    responderRefresh('token-novo');
+
+    const repetida = mock.expectOne(URL_ERP);
+    expect(repetida.request.headers.get('Authorization')).toBe('Bearer token-novo');
+    repetida.flush({ ok: true });
+
+    expect(recebeu).toEqual({ ok: true });
+    expect(guardarSessao).toHaveBeenCalled();
+    expect(auth.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  /**
+   * **O teste que impede o sistema de se auto-sabotar.**
+   *
+   * A rotação queima o refresh token a cada uso. Se cinco requisições que
+   * falharam juntas chamassem `/auth/refresh` cada uma, a primeira invalidaria o
+   * token que as outras quatro estão mandando — e a API leria isso como REUSO,
+   * que derruba todas as sessões da pessoa.
+   *
+   * Ou seja: sem a fila, a proteção do servidor dispararia contra o usuário
+   * legítimo toda vez que o token vencesse.
+   */
+  it('cinco 401 simultâneos renovam UMA vez só', () => {
+    spyOn(auth, 'getToken').and.returnValue('token-velho');
+    spyOn(auth, 'getRefreshToken').and.returnValue('refresh-bom');
+
+    for (let i = 0; i < 5; i++) http.get(URL_ERP).subscribe();
+    mock.match(URL_ERP).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
+
+    // Uma renovação para as cinco — `expectOne` falha se houver mais de uma.
+    responderRefresh();
+
+    expect(mock.match(URL_ERP).length).toBe(5);   // as cinco repetidas
+    expect(auth.logout).not.toHaveBeenCalled();
+  });
+
+  /**
+   * Renovação recusada é a palavra final: o refresh venceu, foi revogado, ou a
+   * API detectou reuso. Tentar de novo seria laço.
+   */
+  it('renovação recusada cai no login', () => {
+    spyOn(auth, 'getToken').and.returnValue('token-velho');
+    spyOn(auth, 'getRefreshToken').and.returnValue('refresh-velho');
+
+    http.get(URL_ERP).subscribe();
+    responder401(URL_ERP);
+    mock.expectOne(URL_REFRESH).flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    expect(auth.logout).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith(
+      ['/login'], { queryParams: { [PARAM_SESSAO_EXPIRADA]: 1 } });
+  });
+
+  /**
+   * O `/auth/refresh` não pode se renovar a si mesmo: o `401` dele é resposta
+   * final, e tratá-lo como sessão caída chamaria renovação de novo, sem fim.
+   */
+  it('401 do próprio refresh não dispara outra renovação', () => {
+    http.post(URL_REFRESH, { refreshToken: 'x' }).subscribe({ error: () => undefined });
+    mock.expectOne(URL_REFRESH).flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    mock.verify();   // nenhuma segunda chamada pendente
+    expect(auth.logout).not.toHaveBeenCalled();
+  });
+
   /**
    * **O teste do defeito relatado.**
    *
@@ -98,8 +196,9 @@ describe('AuthInterceptor', () => {
    * instante. Sem a trava seriam cinco logouts, cinco navegações e cinco
    * mensagens — que é literalmente o que ele descreveu.
    */
-  it('vários 401 ao mesmo tempo produzem UMA reação só', () => {
+  it('vários 401 sem refresh produzem UMA reação só', () => {
     spyOn(auth, 'getToken').and.returnValue('token-velho');
+    spyOn(auth, 'getRefreshToken').and.returnValue(null);
 
     for (let i = 0; i < 5; i++) http.get(URL_ERP).subscribe();
     mock.match(URL_ERP).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
@@ -114,6 +213,7 @@ describe('AuthInterceptor', () => {
    */
   it('401 no portal não derruba a sessão do ERP', () => {
     spyOn(clientAuth, 'getToken').and.returnValue('token-cliente');
+    spyOn(clientAuth, 'getRefreshToken').and.returnValue(null);
 
     http.get(URL_CLIENTE).subscribe();
     responder401(URL_CLIENTE);
@@ -133,6 +233,7 @@ describe('AuthInterceptor', () => {
    */
   it('o erro não chega na tela', () => {
     spyOn(auth, 'getToken').and.returnValue('token-velho');
+    spyOn(auth, 'getRefreshToken').and.returnValue(null);
     let recebeuErro = false;
 
     http.get(URL_ERP).subscribe({ error: () => (recebeuErro = true) });

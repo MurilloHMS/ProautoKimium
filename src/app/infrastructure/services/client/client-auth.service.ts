@@ -7,6 +7,7 @@ import { LoginResponseDTO } from '../../../domain/models/auth.model';
 
 /** Chave própria: cliente e funcionário podem estar logados no mesmo navegador. */
 const CLIENT_TOKEN_KEY = 'client_token';
+const CLIENT_REFRESH_KEY = 'client_refresh_token';
 
 /**
  * Sessão do cliente, separada da do funcionário.
@@ -32,15 +33,39 @@ export class ClientAuthService {
     this.logout();
 
     return this.http.post<LoginResponseDTO>(`${environment.apiUrl}/auth/login`, { login, password })
-      .pipe(tap(response => {
-        const store = remember ? localStorage : sessionStorage;
-        store.setItem(CLIENT_TOKEN_KEY, response.token);
-      }));
+      .pipe(tap(response => this.guardarSessao(response, remember ? localStorage : sessionStorage)));
+  }
+
+  /**
+   * Guarda os dois tokens no mesmo lugar.
+   *
+   * A renovação não sabe se a pessoa marcou "lembrar de mim", então ela grava
+   * onde o token atual já está — senão uma sessão de recepção, que deveria
+   * morrer com a aba, migraria para o `localStorage` na primeira renovação e
+   * passaria a sobreviver ao fechamento.
+   */
+  guardarSessao(res: LoginResponseDTO, store: Storage = this.storeAtual()): void {
+    store.setItem(CLIENT_TOKEN_KEY, res.token);
+
+    if (res.refreshToken) {
+      store.setItem(CLIENT_REFRESH_KEY, res.refreshToken);
+    }
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(CLIENT_REFRESH_KEY) ?? sessionStorage.getItem(CLIENT_REFRESH_KEY);
+  }
+
+  /** Onde a sessão de agora mora — é para lá que a renovação grava. */
+  private storeAtual(): Storage {
+    return localStorage.getItem(CLIENT_TOKEN_KEY) !== null ? localStorage : sessionStorage;
   }
 
   logout(): void {
     localStorage.removeItem(CLIENT_TOKEN_KEY);
     sessionStorage.removeItem(CLIENT_TOKEN_KEY);
+    localStorage.removeItem(CLIENT_REFRESH_KEY);
+    sessionStorage.removeItem(CLIENT_REFRESH_KEY);
   }
 
   getToken(): string | null {

@@ -19,6 +19,9 @@ import {
   User,
 } from '../../domain/models/user.model';
 
+/** Onde o refresh token do ERP fica. */
+const REFRESH_KEY = 'refresh_token';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
@@ -32,8 +35,29 @@ export class AuthService {
       `${environment.apiUrl}/auth/login`,
       { login, password }
     ).pipe(
-      tap(res => localStorage.setItem('token', res.token))
+      tap(res => this.guardarSessao(res))
     );
+  }
+
+  /**
+   * Guarda os dois tokens de uma vez.
+   *
+   * Usado pelo login e pela renovação — os dois recebem a mesma resposta, e ter
+   * um lugar só evita que a renovação esqueça de gravar o refresh novo, que é o
+   * jeito silencioso de quebrar a rotação.
+   */
+  guardarSessao(res: LoginResponseDTO): void {
+    localStorage.setItem('token', res.token);
+
+    // API antiga não manda o refresh. Gravar `undefined` viraria a string
+    // "undefined" e a renovação tentaria trocá-la por um token de verdade.
+    if (res.refreshToken) {
+      localStorage.setItem(REFRESH_KEY, res.refreshToken);
+    }
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_KEY);
   }
 
   /**
@@ -45,6 +69,7 @@ export class AuthService {
    */
   logout(): void {
     localStorage.removeItem('token');
+    localStorage.removeItem(REFRESH_KEY);
     this.permissions.clear();
   }
 
