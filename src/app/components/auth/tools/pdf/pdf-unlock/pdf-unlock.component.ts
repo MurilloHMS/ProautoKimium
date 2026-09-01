@@ -95,7 +95,6 @@ export class PdfUnlockComponent {
     switch (err.status) {
       case 0:   return 'Sem conexão com o servidor.';
       case 400: return 'Senha incorreta, ou o arquivo não é um PDF válido.';
-      case 401:
       case 403: return 'Você não tem permissão para usar esta ferramenta.';
       case 413: return 'Arquivo grande demais.';
       case 500: return 'O servidor não conseguiu abrir este PDF. Confira a senha.';

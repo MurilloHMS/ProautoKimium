@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout.component';
+import { PARAM_SESSAO_EXPIRADA } from '../../../infrastructure/interceptors/auth-interceptor';
 
 @Component({
   selector: 'app-login',
@@ -22,12 +23,24 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.form = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$')]]
     });
+
+  /**
+   * A sessão caiu sozinha e o interceptor trouxe a pessoa para cá.
+   *
+   * A explicação mora aqui e não numa notificação porque a navegação destrói a
+   * tela onde o erro aconteceu — qualquer aviso disparado de lá sumiria junto,
+   * ou nem chegaria a aparecer.
+   */
+    if (this.route.snapshot.queryParamMap.has(PARAM_SESSAO_EXPIRADA)) {
+      this.errorMessage = 'Sua sessão expirou. Entre novamente para continuar.';
+    }
   }
 
   onIdentifierInput(event: Event): void {

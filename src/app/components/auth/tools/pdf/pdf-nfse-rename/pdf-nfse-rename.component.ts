@@ -75,7 +75,6 @@ export class PdfNfseRenameComponent {
     switch (err.status) {
       case 0:   return 'Sem conexão com o servidor.';
       case 400: return 'Algum arquivo não é uma NFS-e válida.';
-      case 401:
       case 403: return 'Você não tem permissão para usar esta ferramenta.';
       case 413: return 'O lote ficou grande demais. Tente em partes menores.';
       default:  return 'Falha inesperada ao processar os arquivos.';

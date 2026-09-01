@@ -174,7 +174,6 @@ export class CertificateBatchComponent {
     switch (err.status) {
       case 0:   return 'Sem conexão com o servidor.';
       case 400: return 'A lista foi recusada pelo servidor.';
-      case 401:
       case 403: return 'Só um administrador pode gerar certificados em lote.';
       case 413: return 'O lote ficou grande demais. Tente em partes menores.';
       case 503: return 'O gerador de certificados está indisponível. Tente em alguns minutos.';

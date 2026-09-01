@@ -87,7 +87,6 @@ export class MedicalCertificatesManagerComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
-      case 401: return 'Nao autorizado. Faca login novamente';
       case 403: return 'Voce nao tem permissao para esta acao';
       case 404: return 'Recurso nao encontrado';
       case 500: return 'Erro interno do servidor';

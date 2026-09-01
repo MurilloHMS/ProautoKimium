@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 import { PermissionStore } from '../state/permission.store';
+import { SessionRefreshService } from '../services/session-refresh.service';
 
 /** Papel do portal do cliente. Nunca entra na área interna. */
 const CLIENT_ROLE = 'CLIENTE';
@@ -12,6 +13,7 @@ const CLIENT_ROLE = 'CLIENTE';
 export class AuthGuard implements CanActivate {
 
   private readonly permissions = inject(PermissionStore);
+  private readonly sessionRefresh = inject(SessionRefreshService);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -24,10 +26,39 @@ export class AuthGuard implements CanActivate {
    * decisão acontecer com o dado na mão.
    */
   canActivate(route: ActivatedRouteSnapshot): Observable<boolean> | boolean {
+    // **Token vencido não é sessão perdida — é sessão para renovar.**
+    //
+    // O `isLoggedIn` só lê a data do JWT, sem falar com ninguém. Antes disto, o
+    // guard mandava para o login assim que as duas horas passavam: quem clicava
+    // num item de menu caía na tela de senha, e o interceptor nunca via nada,
+    // porque navegação não é requisição.
+    //
+    // Renovar aqui é o que faz a renovação valer para o caminho MAIS comum de
+    // todos num ERP, que é navegar.
     if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return false;
+      return this.sessionRefresh.tentarRenovar('erp').pipe(
+        switchMap(renovou => {
+          if (!renovou) {
+            this.router.navigate(['/login']);
+            return of(false);
+          }
+          return this.decidir(route);
+        }),
+      );
     }
+
+    return this.decidir(route);
+  }
+
+  /**
+   * A decisão em si, depois de a sessão estar garantida.
+   *
+   * Separado porque agora há dois caminhos até aqui — quem já estava logado e
+   * quem acabou de renovar — e os dois precisam passar exatamente pelas mesmas
+   * checagens. Duplicar seria a forma óbvia de a renovação virar um desvio das
+   * regras de acesso.
+   */
+  private decidir(route: ActivatedRouteSnapshot): Observable<boolean> {
 
     // Cliente não entra na área interna em hipótese nenhuma — e a checagem vem
     // ANTES de qualquer permissão porque ele não participa deste sistema: o
@@ -37,7 +68,7 @@ export class AuthGuard implements CanActivate {
     if (this.auth.getUserRoles().includes(CLIENT_ROLE)) {
       this.auth.logout();
       this.router.navigate(['/cliente']);
-      return false;
+      return of(false);
     }
 
     const screen = route.data?.['screen'] as string | undefined;
