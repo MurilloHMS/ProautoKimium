@@ -172,6 +172,10 @@
                 (error)="$any($event.target).src = 'images/products/placeholder.png'"
               />
 
+              <!--
+                `z-index` acima do botão que cobre o card: sem isso, o clique no
+                "+" abriria a ficha em vez de adicionar ao orçamento.
+              -->
               <button
                 class="card-quickadd"
                 type="button"
@@ -187,7 +191,22 @@
 
             <div class="card-body">
               <span class="card-line">Linha profissional</span>
-              <h3 class="card-name">{{ produto.name }}</h3>
+
+              <!--
+                O card inteiro abre a ficha, e quem faz isso é ESTE botão: o
+                `::after` dele se estica por cima do card todo.
+
+                É o padrão do "link esticado", e a alternativa seria pôr
+                `role="button"` no `<article>` — que deixaria dois botões de
+                verdade dentro de um terceiro, e um leitor de tela anunciaria a
+                bagunça. Aqui existe um botão só, o nome do produto é o rótulo
+                dele, e o Tab chega nele sozinho.
+              -->
+              <h3 class="card-name">
+                <button class="card-ficha" type="button" (click)="abrirFicha(produto)">
+                  {{ produto.name }}
+                </button>
+              </h3>
 
               @if (produto.descricao || produto.finalidade) {
                 <p class="card-desc">{{ produto.descricao || produto.finalidade }}</p>
@@ -234,6 +253,7 @@
                 </div>
               }
 
+              <!-- Também acima da área que abre a ficha. Ver o `+` lá em cima. -->
               <button class="card-cta" type="button" (click)="adicionarAoOrcamento(produto)">
                 <span>Solicitar orçamento</span>
                 <svg class="card-arrow" viewBox="0 0 24 24" fill="currentColor">
@@ -246,6 +266,109 @@
       </div>
     }
   </section>
+
+  <!--
+    Ficha técnica.
+
+    Fora da `<section>` dos cards de propósito: ela cobre a página inteira, e
+    aninhada na grade herdaria o `overflow` e o empilhamento dela.
+
+    `@if` e não `[hidden]`: com o diálogo fechado não existe elemento nenhum, e
+    nenhum foco pode cair dentro dele por engano.
+  -->
+  @if (fichaDe(); as produto) {
+    <div
+      class="ficha-backdrop"
+      (click)="fecharFicha()"
+      (keydown.escape)="fecharFicha()"
+      tabindex="-1"
+    >
+      <!--
+        `stopPropagation` no painel: sem ele, qualquer clique dentro da ficha
+        borbulha até o fundo e fecha o diálogo — inclusive selecionar o texto da
+        descrição, que é justamente o que a pessoa veio ler.
+      -->
+      <div
+        class="ficha"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'Ficha técnica de ' + produto.name"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="ficha__topo">
+          <span class="ficha__codigo">{{ produto.systemCode }}</span>
+          <button class="ficha__fechar" type="button" (click)="fecharFicha()" aria-label="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="ficha__corpo">
+          <div class="ficha__visual">
+            <img
+              [src]="resolverImagem(produto)"
+              [alt]="produto.name"
+              (error)="$any($event.target).src = 'images/products/placeholder.png'"
+            />
+          </div>
+
+          <div class="ficha__dados">
+            <span class="ficha__linha">Linha profissional</span>
+            <h2 class="ficha__nome">{{ produto.name }}</h2>
+
+            @if (produto.descricao) {
+              <div class="ficha__secao">
+                <p class="ficha__rotulo">Descrição</p>
+                <p class="ficha__texto">{{ produto.descricao }}</p>
+              </div>
+            }
+
+            <!--
+              Seção vazia não aparece — nem aqui nem abaixo. Rótulo com nada
+              embaixo parece defeito de carregamento, não parece "não tem".
+            -->
+            @if (produto.finalidade || produto.diluicao) {
+              <div class="ficha__secao">
+                <div class="ficha__grade">
+                  @if (produto.finalidade) {
+                    <div>
+                      <p class="ficha__rotulo">Finalidade</p>
+                      <p class="ficha__texto">{{ produto.finalidade }}</p>
+                    </div>
+                  }
+                  @if (produto.diluicao) {
+                    <div>
+                      <p class="ficha__rotulo">Diluição e rendimento</p>
+                      <p class="ficha__texto">{{ produto.diluicao }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (produto.cores && produto.cores.length) {
+              <div class="ficha__secao">
+                <p class="ficha__rotulo">Cores disponíveis</p>
+                <div class="ficha__cores">
+                  @for (cor of produto.cores; track cor) {
+                    <span class="ficha__cor" [style.background-color]="cor" [title]="cor"></span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="ficha__rodape">
+          <button class="ficha__voltar" type="button" (click)="fecharFicha()">Voltar</button>
+          <button class="ficha__cta" type="button" (click)="orcarDaFicha(produto)">
+            Solicitar orçamento
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
 <!--  <div class="footer-strip">-->
 <!--    <div class="fs-inner">-->
