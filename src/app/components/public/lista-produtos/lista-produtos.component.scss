@@ -1396,13 +1396,29 @@
   overscroll-behavior: contain;
 }
 
+/* A ficha inteira não rola: cabeçalho e rodapé ficam parados e só o miolo anda.
+   Com a página rolando por baixo do rodapé, uma descrição de 500 caracteres
+   empurrava o botão de orçamento para fora da tela — e quem abre a ficha e não
+   vê botão conclui que não existe botão. */
 .ficha {
   background: #ffffff;
   border-radius: 16px;
   width: min(780px, 100%);
   max-height: 100%;
-  overflow: auto;
   box-shadow: 0 26px 70px rgba(15, 21, 40, 0.34);
+
+  display: flex;
+  flex-direction: column;
+
+  /* `hidden` e não `auto`: quem rola agora é o miolo. Deixado em `auto`, a
+     ficha ganharia uma segunda barra de rolagem por fora da primeira. */
+  overflow: hidden;
+}
+
+/* Não encolhem nem rolam: são as duas âncoras da tela. */
+.ficha__topo,
+.ficha__rodape {
+  flex: none;
 }
 
 .ficha__topo {
@@ -1442,6 +1458,19 @@
   grid-template-columns: minmax(190px, 34%) 1fr;
   gap: 22px;
   padding: 14px 20px 20px;
+
+  flex: 1 1 auto;
+  overflow-y: auto;
+
+  /* **O detalhe que faz a rolagem existir.** O tamanho mínimo de um item flex é
+     o do conteúdo dele, então sem isto o miolo cresceria com o texto, empurraria
+     o rodapé para fora da ficha e nunca rolaria — a barra simplesmente não
+     apareceria, e pareceria que o `overflow` foi ignorado. */
+  min-height: 0;
+
+  /* A rolagem para dentro da ficha: sem isto, chegar ao fim do texto passa a
+     rolar a página de produtos atrás do diálogo. */
+  overscroll-behavior: contain;
 }
 
 .ficha__visual {
@@ -1520,9 +1549,10 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* `sticky` porque a ficha rola por dentro: com 500 caracteres de descrição num
-   celular, um rodapé estático ficaria abaixo da dobra e o botão de orçamento
-   sumiria — que é a ação que a página inteira existe para provocar. */
+/* Sem `sticky`: o rodapé agora está fora da área que rola, então ele está
+   sempre onde deveria e não depende de a rolagem se comportar. O botão de
+   orçamento é a ação que a página inteira existe para provocar, e ele fica
+   visível desde o primeiro instante em que a ficha abre. */
 .ficha__rodape {
   display: flex;
   gap: 10px;
@@ -1531,8 +1561,6 @@
   border-top: 1px solid #e4e7ed;
   padding: 14px 20px;
   background: #fbfcfe;
-  position: sticky;
-  bottom: 0;
 }
 
 .ficha__voltar,
