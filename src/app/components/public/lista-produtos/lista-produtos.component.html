@@ -325,6 +325,30 @@
               }
             </div>
 
+            <div class="form-group" [class.is-invalid]="orcamento.isInvalid('documento')">
+              <label for="documento">CPF ou CNPJ</label>
+              <!--
+                Sem `formControlName`: o valor visível é a máscara e o guardado
+                são só os dígitos, como já acontece no telefone logo acima.
+
+                `inputmode="numeric"` abre o teclado de números no celular sem
+                virar `type="number"` — que traria setinhas de incremento e
+                comeria o zero à esquerda.
+              -->
+              <input
+                id="documento"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="18"
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                (input)="onDocumentoInput($event)"
+              />
+              @if (orcamento.isInvalid('documento')) {
+                <span class="field-error">Informe um CPF ou CNPJ válido.</span>
+              }
+            </div>
+
             <div class="form-group" [class.is-invalid]="orcamento.isInvalid('segmento')">
               <label for="segmento">Segmento</label>
               <input id="segmento" type="text" formControlName="segmento" placeholder="Seu segmento, ex: Alimentos, Restaurantes, Automotivo..." />
