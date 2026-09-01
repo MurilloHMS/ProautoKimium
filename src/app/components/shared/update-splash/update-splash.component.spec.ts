@@ -21,7 +21,28 @@ import { UpdateSplashComponent } from './update-splash.component';
 describe('UpdateSplashComponent', () => {
   let versionUpdates: Subject<VersionEvent>;
   let reload: jasmine.Spy;
+  let checkForUpdate: jasmine.Spy;
   let component: UpdateSplashComponent;
+
+  /**
+   * O dublê do `document`, com o ouvinte capturado.
+   *
+   * Guardar o listener é o que permite disparar `visibilitychange` à mão: sem
+   * isso, o gatilho que resolve o app instalado — o mais importante dos dois —
+   * ficaria sem teste, porque ele não é um método que se chame.
+   */
+  let documentoFake: {
+    location: { reload: jasmine.Spy };
+    visibilityState: string;
+    addEventListener: jasmine.Spy;
+    removeEventListener: jasmine.Spy;
+  };
+
+  const voltarParaOApp = () => {
+    const [evento, ouvinte] = documentoFake.addEventListener.calls.mostRecent().args;
+    expect(evento).toBe('visibilitychange');
+    ouvinte();
+  };
 
   /**
    * `isEnabled` é o interruptor real: em desenvolvimento o service worker não é
@@ -36,13 +57,21 @@ describe('UpdateSplashComponent', () => {
 
     versionUpdates = new Subject<VersionEvent>();
     reload = jasmine.createSpy('reload');
+    checkForUpdate = jasmine.createSpy('checkForUpdate').and.resolveTo(false);
+
+    documentoFake = {
+      location: { reload },
+      visibilityState: 'visible',
+      addEventListener: jasmine.createSpy('addEventListener'),
+      removeEventListener: jasmine.createSpy('removeEventListener'),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         provideZonelessChangeDetection(),
         UpdateSplashComponent,
-        { provide: SwUpdate, useValue: { isEnabled, versionUpdates } },
-        { provide: DOCUMENT, useValue: { location: { reload } } },
+        { provide: SwUpdate, useValue: { isEnabled, versionUpdates, checkForUpdate } },
+        { provide: DOCUMENT, useValue: documentoFake },
       ],
     });
 
@@ -130,5 +159,132 @@ describe('UpdateSplashComponent', () => {
 
     expect(component.fase()).toBeNull();
     expect(reload).not.toHaveBeenCalled();
+  });
+
+  // ─── A checagem periódica ──────────────────────────────────────────────────
+  //
+  // O service worker do Angular só procura versão nova ao carregar a página e a
+  // cada navegação. Numa SPA aberta o dia todo não acontece nem uma coisa nem
+  // outra, e no app instalado na tela de início menos ainda — ele abre uma vez e
+  // vive meses. Foi assim que uma correção de 24/08 continuou invisível no
+  // iPhone em 01/09.
+
+  it('pergunta ao servidor quando mandam checar', () => {
+    montar();
+
+    component.checkNow();
+
+    expect(checkForUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * **O gatilho que resolve o app instalado.**
+   *
+   * Voltar para o app é exatamente o momento em que se quer a versão de hoje —
+   * e num app que nunca navega, é a única coisa que acontece com frequência.
+   */
+  it('pergunta de novo quando a pessoa volta para o app', () => {
+    montar();
+
+    voltarParaOApp();
+
+    expect(checkForUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * Com a aba escondida o timer continua correndo em segundo plano. Checar ali
+   * gasta rede para um resultado que ninguém vê — e se houver versão nova, a
+   * volta para o app pergunta em seguida.
+   */
+  it('não pergunta com a aba escondida', () => {
+    montar();
+    documentoFake.visibilityState = 'hidden';
+
+    component.checkNow();
+    voltarParaOApp();
+
+    expect(checkForUpdate).not.toHaveBeenCalled();
+  });
+
+  /**
+   * **Sem rede, a promessa rejeita — e isso é normal num celular.**
+   *
+   * Sem o `catch`, cada checagem fora de área viraria um unhandled rejection no
+   * console de quem está usando o sistema, por uma falha que não é assunto
+   * dele. O teste falha com um erro de verdade se alguém tirar o `catch`.
+   */
+  it('falha de rede na checagem não vaza', async () => {
+    montar();
+    checkForUpdate.and.rejectWith(new Error('offline'));
+
+    expect(() => component.checkNow()).not.toThrow();
+    await Promise.resolve();
+  });
+
+  /**
+   * Em desenvolvimento o service worker não é registrado, e `checkForUpdate`
+   * estouraria. O componente tem que sair antes de agendar qualquer coisa —
+   * inclusive antes de pendurar o ouvinte no `document`.
+   */
+  it('não agenda nada com o service worker desligado', () => {
+    montar(false);
+
+    expect(documentoFake.addEventListener).not.toHaveBeenCalled();
+    expect(checkForUpdate).not.toHaveBeenCalled();
+  });
+
+  /**
+   * **O teto que torna o `visibilitychange` seguro.**
+   *
+   * Cada volta para o app é um evento, e num celular isso acontece dezenas de
+   * vezes por dia. Cada checagem baixa 8,8 KB — o servidor manda `no-store`,
+   * então não existe `304` e o download é sempre inteiro. Sem o teto, alternar
+   * entre o app e o WhatsApp viraria uma conta de dados.
+   */
+  it('voltas seguidas ao app fazem uma pergunta só', () => {
+    montar();
+
+    voltarParaOApp();
+    voltarParaOApp();
+    voltarParaOApp();
+
+    expect(checkForUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('depois do intervalo, pergunta de novo', () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 8, 1, 9, 0, 0));
+
+    try {
+      montar();
+      voltarParaOApp();
+
+      jasmine.clock().tick(31 * 60 * 1000);
+      voltarParaOApp();
+
+      expect(checkForUpdate).toHaveBeenCalledTimes(2);
+    } finally {
+      jasmine.clock().uninstall();
+    }
+  });
+
+  /**
+   * O teto conta os dois gatilhos juntos. Uma volta ao app logo depois de um
+   * disparo do timer não pode render uma segunda requisição.
+   */
+  it('o timer e a volta ao app dividem o mesmo teto', () => {
+    jasmine.clock().install();
+    jasmine.clock().mockDate(new Date(2026, 8, 1, 9, 0, 0));
+
+    try {
+      montar();
+
+      jasmine.clock().tick(30 * 60 * 1000 + 1000);   // o timer dispara
+      voltarParaOApp();                               // e a pessoa volta logo depois
+
+      expect(checkForUpdate).toHaveBeenCalledTimes(1);
+    } finally {
+      jasmine.clock().uninstall();
+    }
   });
 });
