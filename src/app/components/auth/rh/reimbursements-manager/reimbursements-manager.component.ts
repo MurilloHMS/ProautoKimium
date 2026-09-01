@@ -194,7 +194,6 @@ export class ReimbursementsManagerComponent implements OnInit {
   private getErrorMessage(err: any): string {
     switch (err.status) {
       case 400: return 'Requisição inválida';
-      case 401: return 'Não autorizado. Faça login novamente';
       case 403: return 'Você não tem permissão para esta ação';
       case 404: return err.error?.message ?? 'Funcionário ou reembolso não encontrado. Verifique se seu usuário está vinculado a um funcionário.';
       case 409: return err.error?.message ?? 'Conflito ao processar a solicitação';

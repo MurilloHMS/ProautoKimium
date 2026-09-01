@@ -80,7 +80,6 @@ export class HrAnnouncementsManagerComponent implements OnInit {
   private getErrorMessage(err: any): string {
     switch (err.status) {
       case 400: return 'Requisição inválida';
-      case 401: return 'Não autorizado. Faça login novamente';
       case 403: return 'Você não tem permissão para esta ação';
       case 404: return err.error?.message ?? 'Seu usuário não está vinculado a um funcionário. Solicite ao administrador.';
       case 500: return 'Erro interno do servidor';
