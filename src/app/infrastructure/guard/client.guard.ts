@@ -1,7 +1,9 @@
 import { inject } from '@angular/core';
+import { map } from 'rxjs';
 import { CanActivateFn, Router } from '@angular/router';
 
 import { ClientAuthService } from '../services/client/client-auth.service';
+import { SessionRefreshService } from '../services/session-refresh.service';
 
 /**
  * Protege `/cliente/**`.
@@ -13,8 +15,16 @@ import { ClientAuthService } from '../services/client/client-auth.service';
 export const clientGuard: CanActivateFn = () => {
   const auth = inject(ClientAuthService);
   const router = inject(Router);
+  const sessionRefresh = inject(SessionRefreshService);
 
-  return auth.isLoggedIn() ? true : router.createUrlTree(['/cliente/login']);
+  if (auth.isLoggedIn()) return true;
+
+  // Token vencido não é sessão perdida. O `isLoggedIn` só lê a data do JWT, e
+  // navegar não dispara requisição — sem isto, o portal mandava para o login
+  // assim que as duas horas passavam, mesmo com a renovação disponível.
+  return sessionRefresh.tentarRenovar('cliente').pipe(
+    map(renovou => renovou ? true : router.createUrlTree(['/cliente/login'])),
+  );
 };
 
 /** Impede a tela de login de aparecer para quem já entrou. */

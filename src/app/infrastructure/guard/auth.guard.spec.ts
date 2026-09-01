@@ -32,9 +32,11 @@ describe('AuthGuard', () => {
 
   beforeEach(() => {
     auth = jasmine.createSpyObj<AuthService>('AuthService', [
-      'isLoggedIn', 'getUserRoles', 'logout',
+      'isLoggedIn', 'getUserRoles', 'logout', 'getRefreshToken', 'guardarSessao',
     ]);
     auth.isLoggedIn.and.returnValue(true);
+    // Sem refresh guardado por padrão: cada teste que quer renovação diz isso.
+    auth.getRefreshToken.and.returnValue(null);
     auth.getUserRoles.and.returnValue(['USER']);
 
     TestBed.configureTestingModule({
@@ -156,5 +158,70 @@ describe('AuthGuard', () => {
     expect(requisicao.request.method).toBe('GET');
 
     requisicao.flush({ 'rh/hub': ['CONSULTAR'] });
+  });
+
+  // ─── Token vencido não é sessão perdida ────────────────────────────────────
+  //
+  // O `isLoggedIn` só lê a data do JWT, sem falar com ninguém, e navegar não
+  // dispara requisição — então o interceptor nunca vê este caminho. Antes disto,
+  // clicar num item de menu depois de duas horas caía direto na tela de senha,
+  // que é o caminho mais comum de todos num ERP.
+
+  /**
+   * **O buraco que este conserto fecha.**
+   *
+   * Renovar aqui é o que faz a sessão de sete dias valer para quem navega, e não
+   * só para quem dispara requisições.
+   */
+  it('token vencido com refresh guardado renova e deixa entrar', async () => {
+    auth.isLoggedIn.and.returnValue(false);
+    auth.getRefreshToken.and.returnValue('refresh-bom');
+
+    const resultado = guard.canActivate(rota('rh/hub'));
+    const promessa = firstValueFrom(resultado as Observable<boolean>);
+
+    http.expectOne(`${environment.apiUrl}/auth/refresh`)
+        .flush({ token: 'token-novo', refreshToken: 'refresh-novo' });
+    http.expectOne(url).flush({ 'rh/hub': ['CONSULTAR'] });
+
+    expect(await promessa).toBeTrue();
+    expect(router.navigate).not.toHaveBeenCalledWith(['/login']);
+  });
+
+  /**
+   * Renovação recusada é a palavra final — o refresh venceu, foi revogado, ou a
+   * API detectou reuso. Aí sim a pessoa precisa entrar de novo.
+   */
+  it('renovação recusada manda para o login', async () => {
+    auth.isLoggedIn.and.returnValue(false);
+    auth.getRefreshToken.and.returnValue('refresh-velho');
+
+    const resultado = guard.canActivate(rota('rh/hub'));
+    const promessa = firstValueFrom(resultado as Observable<boolean>);
+
+    http.expectOne(`${environment.apiUrl}/auth/refresh`)
+        .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    expect(await promessa).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  /**
+   * Depois de renovar, as MESMAS checagens de acesso valem. Sem isto, renovar
+   * seria um desvio das regras — a pessoa entraria em tela que não pode.
+   */
+  it('renovar não pula a checagem de permissão', async () => {
+    auth.isLoggedIn.and.returnValue(false);
+    auth.getRefreshToken.and.returnValue('refresh-bom');
+
+    const resultado = guard.canActivate(rota('rh/hub'));
+    const promessa = firstValueFrom(resultado as Observable<boolean>);
+
+    http.expectOne(`${environment.apiUrl}/auth/refresh`)
+        .flush({ token: 'token-novo', refreshToken: 'refresh-novo' });
+    http.expectOne(url).flush({});   // sem a tela no mapa
+
+    expect(await promessa).toBeFalse();
+    expect(router.navigate).toHaveBeenCalledWith(['/unauthorized']);
   });
 });

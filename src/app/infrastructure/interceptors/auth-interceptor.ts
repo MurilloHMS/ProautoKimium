@@ -1,37 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { EMPTY, Observable, catchError, map, shareReplay, switchMap, throwError } from 'rxjs';
+import { EMPTY, Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ClientAuthService } from '../services/client/client-auth.service';
-import { LoginResponseDTO } from '../../domain/models/auth.model';
-import { environment } from '../../../environments/environment';
+import { Sessao, SessionRefreshService } from '../services/session-refresh.service';
 
 /** O que a tela de login mostra quando a sessão caiu sozinha. */
 export const PARAM_SESSAO_EXPIRADA = 'expirou';
 
-/** Qual das duas sessões do navegador está em jogo. */
-type Sessao = 'erp' | 'cliente';
-
 @Injectable({ providedIn: 'root' })
 export class AuthInterceptor implements HttpInterceptor {
-
-  /**
-   * A renovação em andamento de cada sessão.
-   *
-   * **É o que impede uma tempestade de renovações.** O token dura duas horas, e
-   * uma tela que carrega cinco requisições recebe cinco `401` no mesmo instante.
-   * Sem isto, as cinco chamariam `/auth/refresh` — e como a rotação queima o
-   * token a cada uso, a primeira renovação invalidaria o token que as outras
-   * quatro estão mandando. As quatro seriam lidas pela API como REUSO, que
-   * derruba todas as sessões da pessoa.
-   *
-   * Ou seja: sem a fila, o mecanismo de segurança do servidor dispararia contra
-   * o próprio usuário legítimo, toda vez que o token vencesse.
-   *
-   * Uma por sessão, porque as duas coexistem no mesmo navegador.
-   */
-  private renovando: Record<Sessao, Observable<string> | null> = { erp: null, cliente: null };
 
   /** Trava do redirecionamento, para vários `401` produzirem uma ida só ao login. */
   private redirecionando = false;
@@ -40,7 +19,7 @@ export class AuthInterceptor implements HttpInterceptor {
     private authService: AuthService,
     private clientAuthService: ClientAuthService,
     private router: Router,
-    private http: HttpClient,
+    private sessionRefresh: SessionRefreshService,
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -87,7 +66,7 @@ export class AuthInterceptor implements HttpInterceptor {
    * o dado que foi buscar.
    */
   private renovarERepetir(req: HttpRequest<any>, next: HttpHandler, sessao: Sessao): Observable<HttpEvent<any>> {
-    return this.renovacao(sessao).pipe(
+    return this.sessionRefresh.renovar(sessao).pipe(
       switchMap(() => next.handle(this.comToken(req, sessao))),
       catchError(() => {
         // A renovação também falhou: o refresh venceu, foi revogado, ou nunca
@@ -96,49 +75,6 @@ export class AuthInterceptor implements HttpInterceptor {
         return EMPTY;
       }),
     );
-  }
-
-  /**
-   * A renovação da sessão, compartilhada por quem chegar enquanto ela acontece.
-   *
-   * `shareReplay(1)` faz a segunda, terceira e quinta requisição aguardarem a
-   * MESMA chamada em vez de dispararem a sua — e quem chegar depois de ela
-   * terminar recebe o resultado guardado sem ir à rede.
-   *
-   * O campo volta a `null` no fim para a próxima expiração poder renovar de
-   * novo; sem isso, a sessão renovaria uma vez só e nunca mais.
-   */
-  private renovacao(sessao: Sessao): Observable<string> {
-    const emAndamento = this.renovando[sessao];
-    if (emAndamento) return emAndamento;
-
-    const refreshToken = sessao === 'cliente'
-      ? this.clientAuthService.getRefreshToken()
-      : this.authService.getRefreshToken();
-
-    if (!refreshToken) return throwError(() => new Error('sem refresh token'));
-
-    const chamada = this.http
-      .post<LoginResponseDTO>(`${environment.apiUrl}/auth/refresh`, { refreshToken })
-      .pipe(
-        map(res => {
-          if (sessao === 'cliente') {
-            this.clientAuthService.guardarSessao(res);
-          } else {
-            this.authService.guardarSessao(res);
-          }
-          this.renovando[sessao] = null;
-          return res.token;
-        }),
-        catchError(erro => {
-          this.renovando[sessao] = null;
-          return throwError(() => erro);
-        }),
-        shareReplay(1),
-      );
-
-    this.renovando[sessao] = chamada;
-    return chamada;
   }
 
   /**
