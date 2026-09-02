@@ -27,46 +27,191 @@
 
       <!-- ═══ A prévia, que É o arquivo ═══════════════════════════════ -->
       <section class="assinatura__prancheta">
-        <canvas #tela class="assinatura__canvas" role="img"
-                aria-label="Prévia da assinatura de e-mail"></canvas>
+
+        <div class="assinatura__palco">
+          <canvas #tela class="assinatura__canvas" role="img"
+                  aria-label="Prévia da assinatura de e-mail"></canvas>
+
+          <!-- As alças só existem no Layout, e nunca desenham conteúdo:
+               é isso que impede o editor de divergir do PNG. -->
+          @if (modo() === 'layout') {
+            @for (campo of campos(); track campo.id) {
+              <button
+                type="button"
+                class="assinatura__alca"
+                [class.assinatura__alca--ativa]="selecionado() === campo.id"
+                [style.left.px]="campo.x * escala()"
+                [style.top.px]="campo.y * escala()"
+                [style.width.px]="campo.largura * escala()"
+                [style.height.px]="campo.altura * escala()"
+                [attr.aria-label]="'Mover ' + campo.rotulo"
+                (pointerdown)="aoPegar($event, campo)"
+                (pointermove)="aoArrastar($event)"
+                (pointerup)="aoSoltar($event)"
+                (pointercancel)="aoSoltar($event)"
+                (keydown)="aoTeclar($event, campo)">
+                <span class="assinatura__alca-nome">{{ campo.rotulo }}</span>
+              </button>
+            }
+          }
+        </div>
 
         @if (modo() === 'layout') {
           <p class="assinatura__nota">
             <i class="pi pi-info-circle"></i>
-            Campo em branco aparece com o texto de exemplo, só aqui.
+            Campo em branco aparece com o texto de exemplo, só aqui. Arraste as
+            caixas, ou use as setas do teclado — com Shift elas andam 10 pixels.
           </p>
         }
       </section>
 
-      <!-- ═══ O formulário, montado a partir do template ══════════════ -->
-      <section class="assinatura__painel">
+      <!-- ═══ Gerar ═══════════════════════════════════════════════════ -->
+      @if (modo() === 'gerar') {
+        <section class="assinatura__painel">
 
-        @for (campo of campos(); track campo.id) {
-          <pk-input
-            [label]="campo.rotulo"
-            [placeholder]="campo.exemplo"
-            [pkRequired]="campo.obrigatorio"
-            [type]="campo.tipo === 'EMAIL' ? 'email' : campo.tipo === 'TELEFONE' ? 'tel' : 'text'"
-            [ngModel]="valorDe(campo)"
-            (ngModelChange)="aoDigitar(campo.chave, $event)"
-            [name]="campo.chave" />
-        }
+          @for (campo of campos(); track campo.id) {
+            <pk-input
+              [label]="campo.rotulo"
+              [placeholder]="campo.exemplo"
+              [pkRequired]="campo.obrigatorio"
+              [type]="campo.tipo === 'EMAIL' ? 'email' : campo.tipo === 'TELEFONE' ? 'tel' : 'text'"
+              [ngModel]="valorDe(campo)"
+              (ngModelChange)="aoDigitar(campo.chave, $event)"
+              [name]="campo.chave" />
+          }
 
-        @if (aviso()) {
-          <p class="assinatura__aviso">{{ aviso() }}</p>
-        }
+          @if (aviso()) {
+            <p class="assinatura__aviso">{{ aviso() }}</p>
+          }
 
-        <div class="assinatura__acoes">
-          <pk-button
-            pkType="save" pkIcon="pi pi-copy" pkLabel="Copiar imagem"
-            [pkDisabled]="incompleto()" (clicked)="copiar()" />
-          <pk-button
-            pkType="download" pkLabel="Baixar PNG"
-            [pkDisabled]="incompleto()" (clicked)="baixar()" />
-          <button type="button" class="assinatura__limpar" (click)="limpar()">Limpar</button>
-        </div>
+          <div class="assinatura__acoes">
+            <pk-button
+              pkType="save" pkIcon="pi pi-copy" pkLabel="Copiar imagem"
+              [pkDisabled]="incompleto()" (clicked)="copiar()" />
+            <pk-button
+              pkType="download" pkLabel="Baixar PNG"
+              [pkDisabled]="incompleto()" (clicked)="baixar()" />
+            <button type="button" class="assinatura__limpar" (click)="limpar()">Limpar</button>
+          </div>
 
-      </section>
+        </section>
+      }
+
+      <!-- ═══ Layout ══════════════════════════════════════════════════ -->
+      @if (modo() === 'layout') {
+        <section class="assinatura__painel">
+
+          <div class="assinatura__lista">
+            <span class="assinatura__rotulo">Campos</span>
+            @for (campo of campos(); track campo.id) {
+              <button
+                type="button"
+                class="assinatura__item"
+                [class.assinatura__item--ativo]="selecionado() === campo.id"
+                (click)="selecionado.set(campo.id)">
+                <span>{{ campo.rotulo }}</span>
+                <code>{{ campo.chave }}</code>
+              </button>
+            }
+            <button type="button" class="assinatura__adicionar" (click)="adicionarCampo()">
+              <i class="pi pi-plus"></i> Adicionar campo
+            </button>
+          </div>
+
+          @if (campoSelecionado(); as campo) {
+            <div class="assinatura__props">
+
+              <span class="assinatura__rotulo">Propriedades</span>
+
+              <pk-input label="Rótulo" [ngModel]="campo.rotulo" name="rotulo"
+                        (ngModelChange)="ajustar('rotulo', $event)" />
+              <pk-input label="Chave" hint="É o nome do campo no formulário de gerar"
+                        [ngModel]="campo.chave" name="chave"
+                        (ngModelChange)="renomearChave($event)" />
+              <pk-input label="Texto de exemplo" [ngModel]="campo.exemplo" name="exemplo"
+                        (ngModelChange)="ajustar('exemplo', $event)" />
+
+              <pk-combobox label="Tipo" [options]="tipos" optionLabel="label" optionValue="value"
+                           [ngModel]="campo.tipo" name="tipo"
+                           (ngModelChange)="ajustar('tipo', $event)" />
+
+              <div class="assinatura__par">
+                <pk-input label="X" type="number" [ngModel]="campo.x" name="x"
+                          (ngModelChange)="ajustarNumero('x', $event)" />
+                <pk-input label="Y" type="number" [ngModel]="campo.y" name="y"
+                          (ngModelChange)="ajustarNumero('y', $event)" />
+              </div>
+
+              <div class="assinatura__par">
+                <pk-input label="Largura" type="number" [ngModel]="campo.largura" name="largura"
+                          (ngModelChange)="ajustarNumero('largura', $event)" />
+                <pk-input label="Altura" type="number" [ngModel]="campo.altura" name="altura"
+                          (ngModelChange)="ajustarNumero('altura', $event)" />
+              </div>
+
+              <pk-combobox label="Fonte" [options]="fontes" optionLabel="label" optionValue="value"
+                           [ngModel]="campo.fonte" name="fonte"
+                           (ngModelChange)="ajustar('fonte', $event)" />
+
+              <div class="assinatura__par">
+                <pk-input label="Tamanho" type="number" [ngModel]="campo.tamanho" name="tamanho"
+                          (ngModelChange)="ajustarNumero('tamanho', $event)" />
+                <pk-combobox label="Peso" [options]="pesos" optionLabel="label" optionValue="value"
+                             [ngModel]="campo.peso" name="peso"
+                             (ngModelChange)="ajustar('peso', $event)" />
+              </div>
+
+              <label class="assinatura__cor">
+                <span>Cor</span>
+                <input type="color" [value]="campo.cor"
+                       (input)="ajustar('cor', $any($event.target).value)" />
+                <code>{{ campo.cor }}</code>
+              </label>
+
+              <pk-combobox label="Alinhamento" [options]="alinhamentos"
+                           optionLabel="label" optionValue="value"
+                           [ngModel]="campo.alinhamento" name="alinhamento"
+                           (ngModelChange)="ajustar('alinhamento', $event)" />
+              <pk-combobox label="Alinhamento vertical" [options]="verticais"
+                           optionLabel="label" optionValue="value"
+                           [ngModel]="campo.alinhamentoVertical" name="vertical"
+                           (ngModelChange)="ajustar('alinhamentoVertical', $event)" />
+              <pk-combobox label="Quando não couber" [options]="estouros"
+                           optionLabel="label" optionValue="value"
+                           [ngModel]="campo.estouro" name="estouro"
+                           (ngModelChange)="ajustar('estouro', $event)" />
+
+              <button type="button" class="assinatura__remover" (click)="removerCampo()">
+                <i class="pi pi-trash"></i> Remover este campo
+              </button>
+
+            </div>
+          } @else {
+            <p class="assinatura__vazio">Escolha um campo para editar as propriedades.</p>
+          }
+
+          <div class="assinatura__fundo">
+            <span class="assinatura__rotulo">Arte de fundo</span>
+            <pk-fileUpload
+              mode="button"
+              accept="image/*"
+              chooseLabel="Enviar arte"
+              chooseSize="sm"
+              [loading]="enviandoFundo()"
+              (filesSelected)="trocarFundo($event)" />
+          </div>
+
+          @if (aviso()) {
+            <p class="assinatura__aviso">{{ aviso() }}</p>
+          }
+
+          <div class="assinatura__acoes">
+            <pk-button pkType="save" pkLabel="Salvar layout"
+                       [pkLoading]="salvando()" (clicked)="salvar()" />
+          </div>
+
+        </section>
+      }
 
     </div>
   }

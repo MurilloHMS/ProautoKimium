@@ -115,3 +115,164 @@
   background: var(--app-danger-soft);
   color: var(--app-danger);
 }
+
+// ── O editor de layout ──────────────────────────────────────────────────────
+//
+// O palco só existe para dar posição às alças: elas são absolutas em relação
+// a ele, e ele tem exatamente o tamanho do canvas exibido.
+.assinatura__palco {
+  position: relative;
+  line-height: 0;
+}
+
+.assinatura__alca {
+  position: absolute;
+  padding: 0;
+  border: 1px dashed var(--app-action);
+  border-radius: 2px;
+  // Transparente de propósito: o texto que aparece dentro da caixa é o que o
+  // CANVAS desenhou. Pintar aqui criaria um segundo desenho por cima do único.
+  background: transparent;
+  cursor: move;
+  touch-action: none;
+
+  &:hover { background: rgba(35, 46, 97, .06); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+.assinatura__alca--ativa {
+  border-style: solid;
+  border-width: 2px;
+  background: rgba(35, 46, 97, .10);
+}
+
+.assinatura__alca-nome {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  padding: 1px 5px;
+  border-radius: 3px 3px 0 0;
+  background: var(--app-action);
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.assinatura__alca:hover .assinatura__alca-nome,
+.assinatura__alca--ativa .assinatura__alca-nome,
+.assinatura__alca:focus-visible .assinatura__alca-nome { opacity: 1; }
+
+// ── Lista de campos e propriedades ──────────────────────────────────────────
+.assinatura__rotulo {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.assinatura__lista,
+.assinatura__props,
+.assinatura__fundo {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.assinatura__props,
+.assinatura__fundo {
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+}
+
+.assinatura__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-3;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  text-align: left;
+  cursor: pointer;
+
+  code {
+    font-size: var(--text-micro);
+    color: var(--app-text-subtle);
+  }
+
+  &:hover { border-color: var(--app-action); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.assinatura__item--ativo {
+  border-color: var(--app-action);
+  background: var(--app-surface-2);
+  font-weight: 600;
+}
+
+.assinatura__par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-3;
+}
+
+.assinatura__cor {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  input {
+    width: 44px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: none;
+    cursor: pointer;
+  }
+
+  code { color: var(--app-text); font-variant-numeric: tabular-nums; }
+}
+
+.assinatura__adicionar,
+.assinatura__remover {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}
+
+.assinatura__adicionar { color: var(--app-action); }
+.assinatura__remover   { color: var(--app-danger); }
+
+.assinatura__vazio {
+  margin: 0;
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+  font-size: var(--text-ui);
+  color: var(--app-text-subtle);
+}
