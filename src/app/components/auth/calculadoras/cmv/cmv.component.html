@@ -1,0 +1,88 @@
+<div class="tool-screen">
+
+  <app-page-header
+    [icon]="calc.icon"
+    [title]="calc.label"
+    [subtitle]="calc.description" />
+
+  <div class="tool-screen__panel">
+
+    <div class="calc__campos">
+      <div class="calc__campo" [class.calc__campo--calculado]="campoCalculado() === 'custo'">
+        <pk-input
+          label="Custo"
+          [pkDecimals]="casasDinheiro"
+          placeholder="0,00"
+          [hint]="campoCalculado() === 'custo' ? 'Calculado' : ''"
+          [ngModel]="valorDe('custo')"
+          (ngModelChange)="aoDigitar('custo', $event)"
+          name="custo" />
+      </div>
+
+      <div class="calc__campo" [class.calc__campo--calculado]="campoCalculado() === 'venda'">
+        <pk-input
+          label="Preço de venda"
+          [pkDecimals]="casasDinheiro"
+          placeholder="0,00"
+          [hint]="campoCalculado() === 'venda' ? 'Calculado' : ''"
+          [ngModel]="valorDe('venda')"
+          (ngModelChange)="aoDigitar('venda', $event)"
+          name="venda" />
+      </div>
+
+      <div class="calc__campo calc__campo--largo"
+           [class.calc__campo--calculado]="campoCalculado() === 'cmv'">
+        <pk-input
+          label="CMV (%)"
+          [pkDecimals]="casasCmv"
+          placeholder="0,00"
+          [hint]="campoCalculado() === 'cmv' ? 'Calculado — custo sobre a venda' : 'Custo sobre a venda'"
+          [ngModel]="valorDe('cmv')"
+          (ngModelChange)="aoDigitar('cmv', $event)"
+          name="cmv" />
+      </div>
+    </div>
+
+    @if (resultado(); as r) {
+      <div class="calc__resultado">
+        <p class="calc__veredito">
+          <span class="calc__veredito-rotulo">CMV</span>
+          <strong class="calc__veredito-valor">{{ percentual(r.cmvPercentual, casasCmv) }}</strong>
+        </p>
+
+        <dl class="calc__linhas">
+          <div class="calc__linha">
+            <dt>Margem por unidade</dt>
+            <dd [class.calc__negativo]="r.margem < 0">{{ reais(r.margem) }}</dd>
+          </div>
+          <div class="calc__linha calc__linha--forte">
+            <dt>Markup sobre o custo</dt>
+            <dd>{{ percentual(r.markupPercentual) }}</dd>
+          </div>
+        </dl>
+
+        @if (r.margem < 0) {
+          <p class="calc__alerta">
+            <i class="pi pi-exclamation-triangle"></i>
+            CMV acima de 100%: a venda está abaixo do custo.
+          </p>
+        }
+      </div>
+    } @else {
+      <p class="calc__vazio">Preencha dois dos três campos.</p>
+    }
+
+    <button type="button" class="calc__limpar" (click)="limpar()">
+      Limpar tudo
+    </button>
+
+  </div>
+
+  <p class="tool-screen__note">
+    <i class="pi pi-info-circle"></i>
+    CMV é o custo sobre a venda; markup é o quanto se acrescenta ao custo. Os
+    mesmos 2,25 e 4,50 são 50% de um e 100% do outro — por isso os dois aparecem
+    juntos.
+  </p>
+
+</div>

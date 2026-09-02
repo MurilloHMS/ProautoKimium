@@ -1,0 +1,107 @@
+@use 'variables' as v;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// O miolo das telas de calculadora
+//
+// A casca (`.tool-screen`) vem do tema; daqui para dentro é o que as duas
+// calculadoras têm em comum: a grade de campos, o veredito e as linhas de
+// resultado. Fica ao lado dos componentes, e não em `src/styles`, porque não
+// serve a nenhuma tela fora desta pasta.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.calc__campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-4;
+
+  // Dois campos por linha ficam estreitos demais no celular para um rótulo
+  // como "Preço de venda" caber sem quebrar.
+  @media (max-width: v.$bp-md) { grid-template-columns: 1fr; }
+}
+
+.calc__campo { min-width: 0; }
+.calc__campo--largo { grid-column: 1 / -1; }
+
+.calc__resultado {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+}
+
+.calc__veredito {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.calc__veredito-rotulo {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.calc__veredito-valor {
+  font-family: v.$font-heading;
+  font-size: v.$font-size-xl;
+  font-weight: 700;
+  color: var(--app-action);
+}
+
+.calc__veredito-valor--alcool { color: var(--app-success); }
+.calc__veredito-valor--empate { color: var(--app-text-muted); }
+
+.calc__linhas { margin: 0; display: flex; flex-direction: column; }
+
+.calc__linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: v.$space-3;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--app-border-soft);
+  font-size: var(--text-ui);
+
+  &:last-child { border-bottom: none; }
+
+  dt { color: var(--app-text-muted); }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.calc__linha--forte dd { color: var(--app-success); }
+.calc__negativo { color: var(--app-danger); }
+
+.calc__vazio {
+  margin: 0;
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+  font-size: var(--text-ui);
+  color: var(--app-text-subtle);
+}
+
+.calc__limpar {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}

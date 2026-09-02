@@ -45,6 +45,7 @@ export class DocumentosComponent {
     { titulo: 'Logos',       descricao: 'Identidade visual e arquivos da marca',    icon: 'pi pi-palette',   accent: '#e07b4c', rota: 'documentos/logos' },
     { titulo: 'Holerites',   descricao: 'Seus demonstrativos de pagamento',         icon: 'pi pi-receipt',   accent: '#d92d20', rota: 'documentos/holerites' },
     { titulo: 'Pessoal',     descricao: 'Suas férias, reembolsos, atestados e documentos', icon: 'pi pi-id-card', accent: '#232e61', rota: 'documentos/rh' },
+    { titulo: 'Calculadoras', descricao: 'Combustível e CMV, sem planilha', icon: 'pi pi-calculator', accent: '#3e9e8e', rota: 'documentos/calculadoras' },
     { titulo: 'Ferramentas', descricao: 'Desbloquear PDF, renomear NFS-e e outras ferramentas de arquivo', icon: 'pi pi-wrench', accent: 'var(--app-action)', rota: 'tools/pdf' },
   ];
 

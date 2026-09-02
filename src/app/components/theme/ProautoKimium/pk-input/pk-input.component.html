@@ -12,8 +12,10 @@
     <i *ngIf="hasIcon() && iconPos() === 'left'" [class]="icon() + ' pk-icon pk-icon--left'"></i>
 
     <input
+      #campo
       pInputText
-      [type]="type()"
+      [type]="tipoEfetivo()"
+      [attr.inputmode]="modoDeEntrada()"
       [placeholder]="placeholder()"
       [readOnly]="pkReadonly()"
       [disabled]="isDisabled"
