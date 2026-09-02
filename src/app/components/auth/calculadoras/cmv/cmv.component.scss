@@ -1,0 +1,34 @@
+@use 'variables' as v;
+@use 'tool-screen';
+@use '../calculadora';
+
+// O campo que a tela preencheu. Sem esta marca ninguém sabe qual dos três é
+// resultado — e digita por cima achando que está corrigindo o próprio número.
+.calc__campo--calculado {
+  ::ng-deep .pk-input {
+    border-color: var(--app-success);
+    background: var(--app-success-soft);
+    font-weight: 700;
+    color: var(--app-success);
+  }
+
+  ::ng-deep .pk-hint {
+    color: var(--app-success);
+    font-weight: 600;
+  }
+}
+
+.calc__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { margin-top: 2px; flex-shrink: 0; }
+}

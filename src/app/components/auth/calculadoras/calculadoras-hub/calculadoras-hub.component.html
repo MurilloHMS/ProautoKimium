@@ -1,0 +1,24 @@
+<div class="calc-hub">
+
+  <app-page-header
+    icon="pi pi-calculator"
+    title="Calculadoras"
+    subtitle="Contas do dia a dia. Todas rodam no navegador — nada é enviado nem gravado."
+    size="lg" />
+
+  <div class="calc-grid">
+    @for (calc of calculadoras(); track calc.key) {
+      <a class="calc-card" [class]="'calc-card--' + calc.accent" [routerLink]="calc.routerLink">
+        <span class="calc-card__icon"><i [class]="calc.icon"></i></span>
+        <span class="calc-card__body">
+          <span class="calc-card__label">{{ calc.label }}</span>
+          <span class="calc-card__desc">{{ calc.description }}</span>
+        </span>
+        <i class="pi pi-arrow-right calc-card__arrow"></i>
+      </a>
+    } @empty {
+      <p class="calc-hub__vazio">Você não tem acesso a nenhuma calculadora.</p>
+    }
+  </div>
+
+</div>

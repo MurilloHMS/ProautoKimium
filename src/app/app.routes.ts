@@ -137,7 +137,9 @@ export const routes: Routes = [
 
       // ── Documentos (área pessoal) ────────────────────────────────────────
       { path: 'documentos', loadComponent: () => import('./components/auth/documentos/documentos.component').then(m => m.DocumentosComponent), data: { screen: 'documentos' } },
-      { path: 'documentos/calculadoras', loadComponent: () => import('./components/auth/calculadoras/calculadoras.component').then(m => m.CalculadorasComponent), data: { screen: 'documentos/calculadoras' } },
+      { path: 'documentos/calculadoras', loadComponent: () => import('./components/auth/calculadoras/calculadoras-hub/calculadoras-hub.component').then(m => m.CalculadorasHubComponent), data: { screen: 'documentos/calculadoras' } },
+      { path: 'documentos/calculadoras/combustivel', loadComponent: () => import('./components/auth/calculadoras/combustivel/combustivel.component').then(m => m.CombustivelComponent), data: { screen: 'documentos/calculadoras/combustivel' } },
+      { path: 'documentos/calculadoras/cmv', loadComponent: () => import('./components/auth/calculadoras/cmv/cmv.component').then(m => m.CmvComponent), data: { screen: 'documentos/calculadoras/cmv' } },
       { path: 'documentos/galeria', loadComponent: () => import('./components/auth/gallery/gallery.component').then(m => m.GalleryComponent), data: { screen: 'documentos/galeria' } },
       { path: 'documentos/logos', loadComponent: () => import('./components/public/branding/branding.component').then(m => m.BrandingComponent), data: { screen: 'documentos/logos' } },
       { path: 'documentos/holerites', loadComponent: () => import('./components/auth/holerites/holerites.component').then(m => m.HoleritesComponent), data: { screen: 'documentos/holerites' } },
