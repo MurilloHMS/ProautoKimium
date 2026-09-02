@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { calculadora } from '../calculadoras.catalog';
-import { numeroDigitado, reais, percentual } from '../formato';
+import { lerDecimal, reais, percentual, CASAS_DINHEIRO, CASAS_CONSUMO } from '../formato';
 import {
   compararCombustiveis,
   RENDIMENTO_RELATIVO_DO_ALCOOL,
@@ -39,10 +39,10 @@ export class CombustivelComponent {
 
   readonly resultado = computed<ResultadoCombustivel | null>(() =>
     compararCombustiveis({
-      precoAlcool: numeroDigitado(this.precoAlcool()),
-      precoGasolina: numeroDigitado(this.precoGasolina()),
-      kmPorLitroAlcool: numeroDigitado(this.kmAlcool()),
-      kmPorLitroGasolina: numeroDigitado(this.kmGasolina()),
+      precoAlcool: lerDecimal(this.precoAlcool()),
+      precoGasolina: lerDecimal(this.precoGasolina()),
+      kmPorLitroAlcool: lerDecimal(this.kmAlcool()),
+      kmPorLitroGasolina: lerDecimal(this.kmGasolina()),
     }),
   );
 
@@ -59,6 +59,9 @@ export class CombustivelComponent {
     this.kmAlcool.set('');
     this.kmGasolina.set('');
   }
+
+  readonly casasDinheiro = CASAS_DINHEIRO;
+  readonly casasConsumo = CASAS_CONSUMO;
 
   readonly reais = reais;
   readonly percentual = percentual;

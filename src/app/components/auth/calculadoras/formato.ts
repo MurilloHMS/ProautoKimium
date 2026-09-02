@@ -1,28 +1,22 @@
 /**
- * Entrada e saída de número das calculadoras.
+ * Formatação das calculadoras.
  *
- * Fica fora dos componentes porque as duas telas formatam igual — e porque a
- * terceira calculadora, quando vier, vai formatar igual também.
+ * A leitura e a máscara moram em `domain/utils/decimal-br`, junto com os
+ * testes; aqui ficam só as casas decimais de cada campo e o dinheiro.
  */
+import { formatarDecimal } from '../../../domain/utils/decimal-br';
 
-/**
- * Aceita a vírgula: o teclado do celular oferece uma, e um campo que recusa
- * `3,79` obriga a pessoa a descobrir sozinha que ali só entra ponto.
- */
-export function numeroDigitado(texto: string): number | null {
-  const limpo = texto.trim().replace(',', '.');
-  if (!limpo) return null;
-  const valor = Number(limpo);
-  return Number.isFinite(valor) ? valor : null;
-}
+export { lerDecimal } from '../../../domain/utils/decimal-br';
+
+/** Dinheiro tem centavo; km/l e porcentagem se resolvem numa casa. */
+export const CASAS_DINHEIRO = 2;
+export const CASAS_CONSUMO = 1;
+export const CASAS_PERCENTUAL = 1;
 
 export function reais(valor: number): string {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return `R$ ${formatarDecimal(valor, CASAS_DINHEIRO)}`;
 }
 
-export function percentual(valor: number, casas = 1): string {
-  return `${valor.toLocaleString('pt-BR', {
-    minimumFractionDigits: casas,
-    maximumFractionDigits: casas,
-  })}%`;
+export function percentual(valor: number, casas = CASAS_PERCENTUAL): string {
+  return `${formatarDecimal(valor, casas)}%`;
 }

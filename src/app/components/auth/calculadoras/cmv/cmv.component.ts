@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { calculadora } from '../calculadoras.catalog';
-import { numeroDigitado, reais, percentual } from '../formato';
+import { lerDecimal, reais, percentual, CASAS_DINHEIRO, CASAS_PERCENTUAL } from '../formato';
 import { calcularCmv, type CampoCalculado, type ResultadoCmv } from '../../../../domain/utils/cmv';
+import { formatarDecimal } from '../../../../domain/utils/decimal-br';
 
 /**
  * CMV — custo da mercadoria vendida.
@@ -39,9 +40,9 @@ export class CmvComponent {
   readonly resultado = computed<ResultadoCmv | null>(() =>
     calcularCmv(
       {
-        custo: numeroDigitado(this.custo()),
-        venda: numeroDigitado(this.venda()),
-        cmvPercentual: numeroDigitado(this.cmv()),
+        custo: lerDecimal(this.custo()),
+        venda: lerDecimal(this.venda()),
+        cmvPercentual: lerDecimal(this.cmv()),
       },
       this.campoCalculado(),
     ),
@@ -68,7 +69,9 @@ export class CmvComponent {
 
     const r = this.resultado();
     if (!r) return '';
-    return campo === 'cmv' ? r.cmvPercentual.toFixed(1) : r[campo].toFixed(2);
+    return campo === 'cmv'
+      ? formatarDecimal(r.cmvPercentual, CASAS_PERCENTUAL)
+      : formatarDecimal(r[campo], CASAS_DINHEIRO);
   }
 
   limpar(): void {
@@ -77,6 +80,9 @@ export class CmvComponent {
     this.cmv.set('');
     this.campoCalculado.set('cmv');
   }
+
+  readonly casasDinheiro = CASAS_DINHEIRO;
+  readonly casasPercentual = CASAS_PERCENTUAL;
 
   readonly reais = reais;
   readonly percentual = percentual;

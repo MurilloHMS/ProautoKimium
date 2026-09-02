@@ -10,7 +10,7 @@
     <div class="calc__campos">
       <pk-input
         label="Preço do álcool"
-        type="number"
+        [pkDecimals]="casasDinheiro"
         placeholder="0,00"
         [ngModel]="precoAlcool()"
         (ngModelChange)="precoAlcool.set($event)"
@@ -18,7 +18,7 @@
 
       <pk-input
         label="Preço da gasolina"
-        type="number"
+        [pkDecimals]="casasDinheiro"
         placeholder="0,00"
         [ngModel]="precoGasolina()"
         (ngModelChange)="precoGasolina.set($event)"
@@ -27,7 +27,7 @@
       <pk-input
         label="km/l no álcool"
         hint="Opcional"
-        type="number"
+        [pkDecimals]="casasConsumo"
         placeholder="ex.: 8,5"
         [ngModel]="kmAlcool()"
         (ngModelChange)="kmAlcool.set($event)"
@@ -36,7 +36,7 @@
       <pk-input
         label="km/l na gasolina"
         hint="Opcional"
-        type="number"
+        [pkDecimals]="casasConsumo"
         placeholder="ex.: 12,0"
         [ngModel]="kmGasolina()"
         (ngModelChange)="kmGasolina.set($event)"

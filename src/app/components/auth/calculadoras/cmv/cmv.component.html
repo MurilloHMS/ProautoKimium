@@ -11,7 +11,7 @@
       <div class="calc__campo" [class.calc__campo--calculado]="campoCalculado() === 'custo'">
         <pk-input
           label="Custo"
-          type="number"
+          [pkDecimals]="casasDinheiro"
           placeholder="0,00"
           [hint]="campoCalculado() === 'custo' ? 'Calculado' : ''"
           [ngModel]="valorDe('custo')"
@@ -22,7 +22,7 @@
       <div class="calc__campo" [class.calc__campo--calculado]="campoCalculado() === 'venda'">
         <pk-input
           label="Preço de venda"
-          type="number"
+          [pkDecimals]="casasDinheiro"
           placeholder="0,00"
           [hint]="campoCalculado() === 'venda' ? 'Calculado' : ''"
           [ngModel]="valorDe('venda')"
@@ -34,7 +34,7 @@
            [class.calc__campo--calculado]="campoCalculado() === 'cmv'">
         <pk-input
           label="CMV (%)"
-          type="number"
+          [pkDecimals]="casasPercentual"
           placeholder="0,0"
           [hint]="campoCalculado() === 'cmv' ? 'Calculado — custo sobre a venda' : 'Custo sobre a venda'"
           [ngModel]="valorDe('cmv')"

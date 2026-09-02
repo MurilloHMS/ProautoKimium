@@ -1,5 +1,5 @@
 import {
-  Component, input, computed,
+  Component, input, computed, viewChild, ElementRef,
   Optional, Self, ChangeDetectorRef, inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,6 +13,8 @@ import {
   NG_VALIDATORS
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+
+import { mascararDecimal } from '../../../../domain/utils/decimal-br';
 
 export type PkInputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'search';
 
@@ -37,6 +39,19 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
   pkReadonly  = input<boolean>(false);
   errorMsg    = input<string>('');
 
+  /**
+   * Liga a máscara decimal em português, com este número de casas.
+   *
+   * Com ela o campo vai preenchendo os decimais da direita para a esquerda
+   * enquanto se digita — 3, 37, 379 viram 0,03, 0,37, 3,79 — e a vírgula
+   * aparece sozinha, que é como se escreve número no Brasil.
+   *
+   * `null` (o padrão) deixa o campo exatamente como sempre foi.
+   */
+  pkDecimals  = input<number | null>(null);
+
+  private readonly campo = viewChild<ElementRef<HTMLInputElement>>('campo');
+
   // ── Estado interno ────────────────────────────────────────
   innerValue  = '';
   isDisabled  = false;
@@ -51,6 +66,13 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
 
   // ── ControlValueAccessor ──────────────────────────────────
   writeValue(val: any): void {
+    const casas = this.pkDecimals();
+    if (casas !== null) {
+      this.innerValue = mascararDecimal(String(val ?? ''), casas);
+      this.cdr.markForCheck();
+      return;
+    }
+
     let value = val ?? '';
     const max = this.pkMaxLength();
     if (max && value.length > max) {
@@ -68,6 +90,21 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
   }
 
   onInput(val: string): void {
+    const casas = this.pkDecimals();
+    if (casas !== null) {
+      const mascarado = mascararDecimal(val, casas);
+      this.innerValue = mascarado;
+
+      // O `[value]` sozinho não basta: quando a máscara descarta o que foi
+      // digitado — uma letra, uma vírgula a mais — o valor ligado não muda, o
+      // Angular não reescreve o DOM, e o caractere recusado fica na tela.
+      const elemento = this.campo()?.nativeElement;
+      if (elemento && elemento.value !== mascarado) elemento.value = mascarado;
+
+      this.onChange(mascarado);
+      return;
+    }
+
     const max = this.pkMaxLength();
 
     if (max !== null && val.length > max) {
@@ -104,6 +141,19 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
 
   // ── Computed ──────────────────────────────────────────────
   hasIcon = computed(() => !!this.icon());
+
+  /**
+   * `number` recusa a vírgula — é justamente o que obrigava a digitar ponto.
+   * Com a máscara ligada o campo vira `text`, e o `inputmode` abaixo é o que
+   * mantém o teclado numérico no celular.
+   */
+  tipoEfetivo = computed(() => (this.pkDecimals() !== null ? 'text' : this.type()));
+
+  /**
+   * `decimal` em vez de `numeric`: os dois abrem o teclado de números, mas o
+   * `decimal` traz a vírgula junto — e sem ela não há como digitar centavo.
+   */
+  modoDeEntrada = computed(() => (this.pkDecimals() !== null ? 'decimal' : null));
 
   get showError(): boolean {
     const ctrl = this.ngControl?.control;
