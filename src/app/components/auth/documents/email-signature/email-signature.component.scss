@@ -1,269 +1,278 @@
 @use 'variables' as v;
 
+.assinatura {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: v.$space-8;
 
-.page-wrapper {
-    min-height: 100vh;
-    background: var(--app-bg);
-    padding: 2rem;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: var(--app-text);
+  @media (max-width: v.$bp-md) { padding: v.$space-5; }
 }
 
-.page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-
-    .header-icon {
-        font-size: 1.8rem;
-        background: linear-gradient(135deg, var(--app-action), var(--app-success));
-        width: 54px;
-        height: 54px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        color: white;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-
-    p {
-        color: var(--app-text-muted);
-        font-size: 0.875rem;
-        margin-top: 2px;
-    }
-}
-
-.content-grid {
+.assinatura__conteudo {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  // A prancheta manda na largura: o canvas tem tamanho fixo em pixels e
+  // encolhê-lo abaixo disso é o que faz a prévia deixar de ser o arquivo.
+  grid-template-columns: minmax(0, 740px) minmax(280px, 1fr);
+  gap: v.$space-6;
   align-items: start;
+  margin-top: v.$space-6;
 
-  @media (max-width: 880px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: v.$bp-lg) { grid-template-columns: 1fr; }
 }
 
-.card {
-    background: var(--app-surface);
-    border-radius: 16px;
-    padding: 1.75rem;
-    box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.08),
-    0 4px 16px rgba(0, 0, 0, 0.06);
+// ── A prévia ────────────────────────────────────────────────────────────────
+.assinatura__prancheta {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface-2);
+  min-width: 0;
 }
 
-.card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--app-text);
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--app-border);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-label {
+.assinatura__canvas {
+  // O atributo width/height é o tamanho do ARQUIVO; isto aqui é só a exibição.
+  // Nunca multiplicar por devicePixelRatio: o PNG sairia com outro tamanho.
   display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--app-text);
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.01em;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-control);
+  background: #ffffff;
+  box-shadow: var(--app-shadow-sm);
 }
 
-input {
-  width: 100%;
-  padding: 0.58rem 0.85rem;
-  border: 1.5px solid var(--app-border);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  color: var(--app-text);
+// ── O formulário ────────────────────────────────────────────────────────────
+.assinatura__painel {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  padding: v.$space-6;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   background: var(--app-surface);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
+  min-width: 0;
+}
 
-  &::placeholder {
+.assinatura__acoes {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  flex-wrap: wrap;
+  padding-top: v.$space-2;
+}
+
+.assinatura__limpar {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}
+
+// ── Recados ─────────────────────────────────────────────────────────────────
+.assinatura__estado {
+  margin: v.$space-6 0 0;
+  font-size: var(--text-ui);
+  color: var(--app-text-muted);
+}
+
+.assinatura__nota,
+.assinatura__aviso,
+.assinatura__erro {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { margin-top: 2px; flex-shrink: 0; }
+}
+
+.assinatura__nota {
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+}
+
+.assinatura__aviso {
+  background: var(--app-success-soft);
+  color: var(--app-success);
+}
+
+.assinatura__erro {
+  margin-top: v.$space-6;
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+}
+
+// ── O editor de layout ──────────────────────────────────────────────────────
+//
+// O palco só existe para dar posição às alças: elas são absolutas em relação
+// a ele, e ele tem exatamente o tamanho do canvas exibido.
+.assinatura__palco {
+  position: relative;
+  line-height: 0;
+}
+
+.assinatura__alca {
+  position: absolute;
+  padding: 0;
+  border: 1px dashed var(--app-action);
+  border-radius: 2px;
+  // Transparente de propósito: o texto que aparece dentro da caixa é o que o
+  // CANVAS desenhou. Pintar aqui criaria um segundo desenho por cima do único.
+  background: transparent;
+  cursor: move;
+  touch-action: none;
+
+  &:hover { background: rgba(35, 46, 97, .06); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+.assinatura__alca--ativa {
+  border-style: solid;
+  border-width: 2px;
+  background: rgba(35, 46, 97, .10);
+}
+
+.assinatura__alca-nome {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  padding: 1px 5px;
+  border-radius: 3px 3px 0 0;
+  background: var(--app-action);
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.assinatura__alca:hover .assinatura__alca-nome,
+.assinatura__alca--ativa .assinatura__alca-nome,
+.assinatura__alca:focus-visible .assinatura__alca-nome { opacity: 1; }
+
+// ── Lista de campos e propriedades ──────────────────────────────────────────
+.assinatura__rotulo {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.assinatura__lista,
+.assinatura__props,
+.assinatura__fundo {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.assinatura__props,
+.assinatura__fundo {
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+}
+
+.assinatura__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-3;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  text-align: left;
+  cursor: pointer;
+
+  code {
+    font-size: var(--text-micro);
     color: var(--app-text-subtle);
   }
 
-  &:focus {
-    border-color: var(--app-action);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-action) 15%, transparent);
-  }
-
-  &.invalid {
-    border-color: var(--app-danger);
-
-    &:focus {
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-danger) 15%, transparent);
-    }
-  }
+  &:hover { border-color: var(--app-action); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
 }
 
-.error {
-  font-size: 0.74rem;
-  color: var(--app-danger);
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.btn-group {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.btn {
-  flex: 1;
-  padding: 0.65rem 1rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+.assinatura__item--ativo {
+  border-color: var(--app-action);
+  background: var(--app-surface-2);
   font-weight: 600;
-  cursor: pointer;
+}
+
+.assinatura__par {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-3;
+}
+
+.assinatura__cor {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  input {
+    width: 44px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: none;
+    cursor: pointer;
+  }
+
+  code { color: var(--app-text); font-variant-numeric: tabular-nums; }
+}
+
+.assinatura__adicionar,
+.assinatura__remover {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
   border: none;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  background: none;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  &.btn-primary {
-    background: linear-gradient(135deg, var(--app-success), var(--app-action));
-    color: #fff;
-
-    &:hover:not(:disabled) {
-      opacity: 0.88;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--app-action) 35%, transparent);
-    }
-  }
-
-  &.btn-outline {
-    background: transparent;
-    color: var(--app-action);
-    border: 1.5px solid var(--app-action);
-
-    &:hover:not(:disabled) {
-      background: var(--app-action-soft);
-    }
-  }
-
-  &.btn-sm {
-    flex: initial;
-    padding: 0.42rem 0.9rem;
-    font-size: 0.8rem;
-  }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
 }
 
-.spinner {
-  width: 15px;
-  height: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
+.assinatura__adicionar { color: var(--app-action); }
+.assinatura__remover   { color: var(--app-danger); }
 
-.spinner {
-  width: 15px;
-  height: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-.preview-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.preview-area {
-  flex: 1;
-  min-height: 260px;
-  background: var(--app-surface-3);
-  border: 2px dashed var(--app-border);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.preview-placeholder {
-  text-align: center;
+.assinatura__vazio {
+  margin: 0;
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border);
+  font-size: var(--text-ui);
   color: var(--app-text-subtle);
-  padding: 2rem;
-  font-size: 0.9rem;
-  line-height: 1.6;
-
-  .placeholder-icon {
-    font-size: 2.4rem;
-    margin-bottom: 0.75rem;
-  }
-}
-
-.loading-overlay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  color: var(--app-action);
-  font-size: 0.9rem;
-}
-
-
-.loader {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--app-border);
-  border-top-color: var(--app-action);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
-
-.preview-img {
-  max-width: 100%;
-  max-height: 420px;
-  display: block;
-}
-
-.preview-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  justify-content: flex-end;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
