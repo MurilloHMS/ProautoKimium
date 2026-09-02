@@ -34,8 +34,8 @@
            [class.calc__campo--calculado]="campoCalculado() === 'cmv'">
         <pk-input
           label="CMV (%)"
-          [pkDecimals]="casasPercentual"
-          placeholder="0,0"
+          [pkDecimals]="casasCmv"
+          placeholder="0,00"
           [hint]="campoCalculado() === 'cmv' ? 'Calculado — custo sobre a venda' : 'Custo sobre a venda'"
           [ngModel]="valorDe('cmv')"
           (ngModelChange)="aoDigitar('cmv', $event)"
@@ -47,7 +47,7 @@
       <div class="calc__resultado">
         <p class="calc__veredito">
           <span class="calc__veredito-rotulo">CMV</span>
-          <strong class="calc__veredito-valor">{{ percentual(r.cmvPercentual) }}</strong>
+          <strong class="calc__veredito-valor">{{ percentual(r.cmvPercentual, casasCmv) }}</strong>
         </p>
 
         <dl class="calc__linhas">

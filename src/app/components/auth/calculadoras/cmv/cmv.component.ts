@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { calculadora } from '../calculadoras.catalog';
-import { lerDecimal, reais, percentual, CASAS_DINHEIRO, CASAS_PERCENTUAL } from '../formato';
+import { lerDecimal, reais, percentual, CASAS_DINHEIRO, CASAS_CMV } from '../formato';
 import { calcularCmv, type CampoCalculado, type ResultadoCmv } from '../../../../domain/utils/cmv';
 import { formatarDecimal } from '../../../../domain/utils/decimal-br';
 
@@ -70,7 +70,7 @@ export class CmvComponent {
     const r = this.resultado();
     if (!r) return '';
     return campo === 'cmv'
-      ? formatarDecimal(r.cmvPercentual, CASAS_PERCENTUAL)
+      ? formatarDecimal(r.cmvPercentual, CASAS_CMV)
       : formatarDecimal(r[campo], CASAS_DINHEIRO);
   }
 
@@ -82,7 +82,7 @@ export class CmvComponent {
   }
 
   readonly casasDinheiro = CASAS_DINHEIRO;
-  readonly casasPercentual = CASAS_PERCENTUAL;
+  readonly casasCmv = CASAS_CMV;
 
   readonly reais = reais;
   readonly percentual = percentual;
