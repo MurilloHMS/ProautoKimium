@@ -14,7 +14,7 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 
-import { mascararDecimal } from '../../../../domain/utils/decimal-br';
+import { mascararDecimal, formatarDecimal } from '../../../../domain/utils/decimal-br';
 
 export type PkInputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'search';
 
@@ -68,7 +68,13 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
   writeValue(val: any): void {
     const casas = this.pkDecimals();
     if (casas !== null) {
-      this.innerValue = mascararDecimal(String(val ?? ''), casas);
+      // Número e texto entram por caminhos diferentes, e tratar os dois igual
+      // é errado por uma ordem de grandeza: a máscara só olha os dígitos, então
+      // o número 10 viraria '0,10' e 3,5 viraria '0,35'. Passa despercebido
+      // porque um preço de duas casas — 3,79 — acerta por coincidência.
+      this.innerValue = typeof val === 'number'
+        ? formatarDecimal(val, casas)
+        : mascararDecimal(String(val ?? ''), casas);
       this.cdr.markForCheck();
       return;
     }
