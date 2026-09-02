@@ -15,6 +15,7 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 
 import { mascararDecimal, formatarDecimal } from '../../../../domain/utils/decimal-br';
+import { mascararTelefone } from '../../../../domain/utils/telefone-br';
 
 export type PkInputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'search';
 
@@ -50,6 +51,13 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
    */
   pkDecimals  = input<number | null>(null);
 
+  /**
+   * Liga a mascara de telefone brasileiro: `(11) 95778-2766`, montada
+   * enquanto se digita. Nao combina com `pkDecimals` — os dois disputariam o
+   * mesmo texto, e a decimal ganha por vir antes.
+   */
+  pkTelefone  = input<boolean>(false);
+
   private readonly campo = viewChild<ElementRef<HTMLInputElement>>('campo');
 
   // ── Estado interno ────────────────────────────────────────
@@ -79,6 +87,12 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
       return;
     }
 
+    if (this.pkTelefone()) {
+      this.innerValue = mascararTelefone(String(val ?? ''));
+      this.cdr.markForCheck();
+      return;
+    }
+
     let value = val ?? '';
     const max = this.pkMaxLength();
     if (max && value.length > max) {
@@ -98,16 +112,12 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
   onInput(val: string): void {
     const casas = this.pkDecimals();
     if (casas !== null) {
-      const mascarado = mascararDecimal(val, casas);
-      this.innerValue = mascarado;
+      this.aplicarMascara(mascararDecimal(val, casas));
+      return;
+    }
 
-      // O `[value]` sozinho não basta: quando a máscara descarta o que foi
-      // digitado — uma letra, uma vírgula a mais — o valor ligado não muda, o
-      // Angular não reescreve o DOM, e o caractere recusado fica na tela.
-      const elemento = this.campo()?.nativeElement;
-      if (elemento && elemento.value !== mascarado) elemento.value = mascarado;
-
-      this.onChange(mascarado);
+    if (this.pkTelefone()) {
+      this.aplicarMascara(mascararTelefone(val));
       return;
     }
 
@@ -122,6 +132,22 @@ export class PkInputComponent implements ControlValueAccessor, Validator {
 
     this.innerValue = val;
     this.onChange(val);
+  }
+
+  /**
+   * Escreve o texto mascarado, no estado e no elemento.
+   *
+   * O `[value]` sozinho nao basta: quando a mascara descarta o que foi
+   * digitado — uma letra, um parentese a mais — o valor ligado nao muda, o
+   * Angular nao reescreve o DOM, e o caractere recusado fica na tela.
+   */
+  private aplicarMascara(mascarado: string): void {
+    this.innerValue = mascarado;
+
+    const elemento = this.campo()?.nativeElement;
+    if (elemento && elemento.value !== mascarado) elemento.value = mascarado;
+
+    this.onChange(mascarado);
   }
 
   onBlur(): void {

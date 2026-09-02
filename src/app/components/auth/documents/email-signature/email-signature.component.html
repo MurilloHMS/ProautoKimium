@@ -75,6 +75,7 @@
               [placeholder]="campo.exemplo"
               [pkRequired]="campo.obrigatorio"
               [type]="campo.tipo === 'EMAIL' ? 'email' : campo.tipo === 'TELEFONE' ? 'tel' : 'text'"
+              [pkTelefone]="campo.tipo === 'TELEFONE'"
               [ngModel]="valorDe(campo)"
               (ngModelChange)="aoDigitar(campo.chave, $event)"
               [name]="campo.chave" />
