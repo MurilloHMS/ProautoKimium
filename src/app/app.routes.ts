@@ -137,6 +137,7 @@ export const routes: Routes = [
 
       // ── Documentos (área pessoal) ────────────────────────────────────────
       { path: 'documentos', loadComponent: () => import('./components/auth/documentos/documentos.component').then(m => m.DocumentosComponent), data: { screen: 'documentos' } },
+      { path: 'documentos/calculadoras', loadComponent: () => import('./components/auth/calculadoras/calculadoras.component').then(m => m.CalculadorasComponent), data: { screen: 'documentos/calculadoras' } },
       { path: 'documentos/galeria', loadComponent: () => import('./components/auth/gallery/gallery.component').then(m => m.GalleryComponent), data: { screen: 'documentos/galeria' } },
       { path: 'documentos/logos', loadComponent: () => import('./components/public/branding/branding.component').then(m => m.BrandingComponent), data: { screen: 'documentos/logos' } },
       { path: 'documentos/holerites', loadComponent: () => import('./components/auth/holerites/holerites.component').then(m => m.HoleritesComponent), data: { screen: 'documentos/holerites' } },
