@@ -13,6 +13,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" as="style">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
+  <!-- Montserrat e a fonte da assinatura de e-mail, e so ela usa. Fica aqui,
+       e nao num @import do styles.scss, porque o @import bloqueia a renderizacao
+       da pagina inteira. O canvas ainda espera `document.fonts` antes de
+       desenhar: sem isso o PNG sai na fonte substituta, calado. -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <link crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
           integrity="sha512-..." referrerpolicy="no-referrer" rel="stylesheet"/>
 
