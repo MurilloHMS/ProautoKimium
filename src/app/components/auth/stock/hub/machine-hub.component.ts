@@ -10,7 +10,9 @@ import {
   AlignResult,
   MachineDivergence,
   divergenceOf,
+  MACHINE_STATUS_ICON,
   MACHINE_STATUS_LABEL,
+  StatusSeverity,
   MACHINE_STATUS_SEVERITY,
   MACHINE_TYPE_LABEL,
   MachineStatus,
@@ -57,6 +59,51 @@ interface DayEntry {
  * silêncio faz a pessoa acreditar que viu tudo.
  */
 const HUB_LIST_LIMIT = 5;
+
+/**
+ * A cor de cada severidade na rosca.
+ *
+ * **Existe porque montar o nome do token por concatenação quebrou.** A primeira
+ * versão fazia `var(--app-${severidade})`, e `--app-neutral` **não existe** — o
+ * tema chama de `--app-text-muted`. Uma parada de cor inválida invalida o
+ * `conic-gradient` INTEIRO, então a rosca não aparecia: sem erro no console,
+ * sem falha de build, sem teste vermelho. Só um círculo em branco.
+ *
+ * Escrito à mão, um token errado não compila: o TypeScript exige as seis
+ * chaves de `StatusSeverity`.
+ */
+const COR_DA_SEVERIDADE: Record<StatusSeverity, string> = {
+  success: 'var(--app-success)',
+  info:    'var(--app-info)',
+  warning: 'var(--app-warning)',
+  work:    'var(--app-work)',
+  danger:  'var(--app-danger)',
+  neutral: 'var(--app-text-muted)',
+};
+
+/** Uma fatia da rosca: leva a chave do enum, para virar link, e o ícone. */
+interface RoscaFatia {
+  status: MachineStatus;
+  label: string;
+  icon: string;
+  count: number;
+  percent: number;
+  severity: StatusSeverity;
+}
+
+/** Uma máquina e a quebra das programações dela por status. */
+interface MaquinaResumo {
+  machineId: string;
+  nome: string;
+  total: number;
+  partes: {
+    status: MachineStatus;
+    label: string;
+    icon: string;
+    severity: StatusSeverity;
+    count: number;
+  }[];
+}
 
 /**
  * Depois de trinta dias vencida, a máquina para de ser "próxima saída".
@@ -149,6 +196,139 @@ export class MachineHubComponent implements OnInit {
         severity: MACHINE_STATUS_SEVERITY[status] ?? 'neutral',
       }))
       .sort((a, b) => b.count - a.count);
+  });
+
+  // ─── A rosca por status ───────────────────────────────────────────────────
+
+  /**
+   * As fatias da rosca, já com a chave do enum e o ícone.
+   *
+   * O `statusSlices` acima leva só o rótulo, que serve para a barra mas não
+   * para cá: a fatia precisa do status para virar link, e do ícone porque a cor
+   * sozinha não sustenta seis categorias — em escala de cinza, ou para quem não
+   * separa vermelho de verde, as seis viram o mesmo tom.
+   */
+  readonly roscaFatias = computed<RoscaFatia[]>(() => {
+    const total = this.totalRegisters() || 1;
+
+    return [...this.byStatus().entries()]
+      .map(([status, count]) => ({
+        status,
+        label: MACHINE_STATUS_LABEL[status] ?? status,
+        icon: MACHINE_STATUS_ICON[status] ?? '',
+        count,
+        percent: Math.round((count / total) * 100),
+        severity: MACHINE_STATUS_SEVERITY[status] ?? 'neutral',
+      }))
+      .sort((a, b) => b.count - a.count);
+  });
+
+  /**
+   * O `conic-gradient` da rosca, montado a partir das fatias.
+   *
+   * Usa **graus acumulados e não porcentagem arredondada**: seis fatias
+   * arredondadas somam 99% ou 101%, e a rosca fecharia com uma fresta ou com
+   * uma fatia comendo a vizinha.
+   */
+  readonly roscaGradiente = computed(() => {
+    const fatias = this.roscaFatias();
+    if (!fatias.length) return 'var(--app-surface-2)';
+
+    const total = this.totalRegisters() || 1;
+    let grau = 0;
+
+    const paradas = fatias.map(fatia => {
+      const inicio = grau;
+      grau += (fatia.count / total) * 360;
+      return `${COR_DA_SEVERIDADE[fatia.severity]} ${inicio}deg ${grau}deg`;
+    });
+
+    return `conic-gradient(${paradas.join(', ')})`;
+  });
+
+  // ─── Programações por máquina ─────────────────────────────────────────────
+
+  /**
+   * Quantas programações cada máquina tem, e em que status.
+   *
+   * Uma linha da programação **é uma unidade da máquina** — então "NET300: 12"
+   * é a contagem de linhas com aquele `machineId`.
+   *
+   * Só máquinas **com** programação: quem tem zero não ocupa espaço, porque a
+   * lista acompanha o trabalho e não o cadastro.
+   *
+   * O mapa de nomes é montado **uma vez**. O `machineStore.nameOf()` faz um
+   * `find` linear a cada chamada, e chamá-lo por registro custaria
+   * registros × máquinas — o Hub já paga esse preço em três lugares.
+   */
+  readonly porMaquina = computed<MaquinaResumo[]>(() => {
+    const nomes = new Map(this.machineStore.items().map(m => [m.id, m.name]));
+    const agrupado = new Map<string, Map<MachineStatus, number>>();
+
+    for (const registro of this.registerStore.items()) {
+      const porStatus = agrupado.get(registro.machineId) ?? new Map<MachineStatus, number>();
+      porStatus.set(registro.status, (porStatus.get(registro.status) ?? 0) + 1);
+      agrupado.set(registro.machineId, porStatus);
+    }
+
+    return [...agrupado.entries()]
+      .map(([machineId, porStatus]) => ({
+        machineId,
+        nome: nomes.get(machineId) ?? machineId,
+        total: [...porStatus.values()].reduce((soma, n) => soma + n, 0),
+        partes: [...porStatus.entries()]
+          .map(([status, count]) => ({
+            status,
+            label: MACHINE_STATUS_LABEL[status] ?? status,
+            icon: MACHINE_STATUS_ICON[status] ?? '',
+            severity: MACHINE_STATUS_SEVERITY[status] ?? 'neutral',
+            count,
+          }))
+          .sort((a, b) => b.count - a.count),
+      }))
+      .sort((a, b) => b.total - a.total || a.nome.localeCompare(b.nome));
+  });
+
+  /** Corta em 5 e anuncia, como as listas de saídas e paradas já fazem. */
+  readonly visibleMaquinas = computed(() => this.porMaquina().slice(0, HUB_LIST_LIMIT));
+  readonly hiddenMaquinas = computed(() => this.porMaquina().length - this.visibleMaquinas().length);
+
+  // ─── O que vence ──────────────────────────────────────────────────────────
+
+  /**
+   * Três números: atrasadas, esta semana, próxima.
+   *
+   * **Não é gráfico de propósito.** O Hub já tem calendário e "Próximas
+   * saídas", que respondem *quando* — estes três respondem *quanto aperta*, que
+   * é a pergunta que os outros dois não respondem. Um terceiro desenho do mesmo
+   * dado dividiria a atenção sem acrescentar.
+   */
+  readonly prazos = computed(() => {
+    const hoje = startOfToday();
+
+    // Domingo fecha a semana, como no calendário do Hub.
+    const fimDaSemana = new Date(hoje);
+    fimDaSemana.setDate(hoje.getDate() + (7 - hoje.getDay()) % 7);
+
+    const fimDaProxima = new Date(fimDaSemana);
+    fimDaProxima.setDate(fimDaSemana.getDate() + 7);
+
+    let atrasadas = 0;
+    let estaSemana = 0;
+    let proxima = 0;
+
+    for (const registro of this.registerStore.items()) {
+      if (registro.status === MachineStatus.ENTREGUE || !registro.previsaoEntrega) continue;
+
+      const data = parseDateOnly(registro.previsaoEntrega);
+      if (!data) continue;
+
+      if (data < hoje) atrasadas++;
+      else if (data <= fimDaSemana) estaSemana++;
+      else if (data <= fimDaProxima) proxima++;
+    }
+
+    return { atrasadas, estaSemana, proxima, fimDaProxima };
   });
 
   /** Distribuição do catálogo por tipo de máquina. */
