@@ -88,6 +88,86 @@
       (dayClick)="openDay($event)">
       <span calTitle class="cal__count">{{ monthCount() }} implantação(ões)</span>
     </pk-calendar>
+
+      <!-- ═══ Insights novos ═════════════════════════════════════════════════ -->
+      <div class="hub-row">
+
+        <!--
+          Programações por máquina.
+
+          Uma linha da programação é uma UNIDADE da máquina, então "NET300: 12" é a
+          contagem de linhas daquele modelo. Números e não barra: a barra escondia a
+          quantidade dentro de um pedaço colorido, e é a quantidade que se lê aqui.
+
+          Cada número é link para a Programação já filtrada por máquina + status.
+        -->
+        <section class="card">
+          <h2 class="card__title">Programações por máquina</h2>
+
+          @for (maquina of visibleMaquinas(); track maquina.machineId) {
+            <div class="mq">
+              <a class="mq__nome"
+                 [routerLink]="['/stock/programacao']"
+                 [queryParams]="{ maquina: maquina.machineId }">{{ maquina.nome }}</a>
+              <span class="mq__total">{{ maquina.total }}</span>
+
+              <div class="mq__partes">
+                @for (parte of maquina.partes; track parte.status) {
+                  <a class="mq__chip" [class]="'mq__chip--' + parte.severity"
+                     [routerLink]="['/stock/programacao']"
+                     [queryParams]="{ maquina: maquina.machineId, status: parte.status }"
+                     [attr.title]="maquina.nome + ' · ' + parte.count + ' ' + parte.label">
+                    <i [class]="parte.icon"></i>
+                    <b>{{ parte.count }}</b> {{ parte.label.toLowerCase() }}
+                  </a>
+                }
+              </div>
+          </div>
+        } @empty {
+          <p class="card__empty">Nenhuma máquina com programação.</p>
+        }
+
+        @if (hiddenMaquinas() > 0) {
+          <p class="card__more">
+            <span>Mostrando as {{ visibleMaquinas().length }} com mais programações, de {{ porMaquina().length }}</span>
+            <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+          </p>
+        }
+      </section>
+
+      <!--
+        O que vence.
+
+        Três números, e NÃO um gráfico: o calendário ao lado já responde *quando*,
+        e "Próximas saídas" lista as mesmas máquinas. Estes respondem *quanto
+        aperta*, que é a pergunta que os outros dois não respondem.
+      -->
+      <section class="card">
+        <h2 class="card__title">O que vence</h2>
+
+        <div class="prazos">
+          <a class="pz" [class.pz--alerta]="prazos().vencidas > 0"
+             [routerLink]="['/stock/programacao']"
+             [queryParams]="{ atrasadas: 1 }">
+            <span class="pz__n">{{ prazos().vencidas }}</span>
+            <span class="pz__rot">Vencidas</span>
+            <span class="pz__sub">sem entrega</span>
+          </a>
+
+          <div class="pz">
+            <span class="pz__n">{{ prazos().estaSemana }}</span>
+            <span class="pz__rot">Esta semana</span>
+            <span class="pz__sub">até domingo</span>
+          </div>
+
+          <div class="pz">
+            <span class="pz__n">{{ prazos().proxima }}</span>
+            <span class="pz__rot">Próxima</span>
+            <span class="pz__sub">até {{ prazos().fimDaProxima | date: 'dd/MM' }}</span>
+          </div>
+        </div>
+      </section>
+      </div>
     </div>
 
     <aside class="hub-side">
@@ -397,86 +477,6 @@
           <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
-    </section>
-  </div>
-
-  <!-- ═══ Insights novos ═════════════════════════════════════════════════ -->
-  <div class="hub-row">
-
-    <!--
-      Programações por máquina.
-
-      Uma linha da programação é uma UNIDADE da máquina, então "NET300: 12" é a
-      contagem de linhas daquele modelo. Números e não barra: a barra escondia a
-      quantidade dentro de um pedaço colorido, e é a quantidade que se lê aqui.
-
-      Cada número é link para a Programação já filtrada por máquina + status.
-    -->
-    <section class="card">
-      <h2 class="card__title">Programações por máquina</h2>
-
-      @for (maquina of visibleMaquinas(); track maquina.machineId) {
-        <div class="mq">
-          <a class="mq__nome"
-             [routerLink]="['/stock/programacao']"
-             [queryParams]="{ maquina: maquina.machineId }">{{ maquina.nome }}</a>
-          <span class="mq__total">{{ maquina.total }}</span>
-
-          <div class="mq__partes">
-            @for (parte of maquina.partes; track parte.status) {
-              <a class="mq__chip" [class]="'mq__chip--' + parte.severity"
-                 [routerLink]="['/stock/programacao']"
-                 [queryParams]="{ maquina: maquina.machineId, status: parte.status }"
-                 [attr.title]="maquina.nome + ' · ' + parte.count + ' ' + parte.label">
-                <i [class]="parte.icon"></i>
-                <b>{{ parte.count }}</b> {{ parte.label.toLowerCase() }}
-              </a>
-            }
-          </div>
-        </div>
-      } @empty {
-        <p class="card__empty">Nenhuma máquina com programação.</p>
-      }
-
-      @if (hiddenMaquinas() > 0) {
-        <p class="card__more">
-          <span>Mostrando as {{ visibleMaquinas().length }} com mais programações, de {{ porMaquina().length }}</span>
-          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
-        </p>
-      }
-    </section>
-
-    <!--
-      O que vence.
-
-      Três números, e NÃO um gráfico: o calendário ao lado já responde *quando*,
-      e "Próximas saídas" lista as mesmas máquinas. Estes respondem *quanto
-      aperta*, que é a pergunta que os outros dois não respondem.
-    -->
-    <section class="card">
-      <h2 class="card__title">O que vence</h2>
-
-      <div class="prazos">
-        <a class="pz" [class.pz--alerta]="prazos().vencidas > 0"
-           [routerLink]="['/stock/programacao']"
-           [queryParams]="{ atrasadas: 1 }">
-          <span class="pz__n">{{ prazos().vencidas }}</span>
-          <span class="pz__rot">Vencidas</span>
-          <span class="pz__sub">sem entrega</span>
-        </a>
-
-        <div class="pz">
-          <span class="pz__n">{{ prazos().estaSemana }}</span>
-          <span class="pz__rot">Esta semana</span>
-          <span class="pz__sub">até domingo</span>
-        </div>
-
-        <div class="pz">
-          <span class="pz__n">{{ prazos().proxima }}</span>
-          <span class="pz__rot">Próxima</span>
-          <span class="pz__sub">até {{ prazos().fimDaProxima | date: 'dd/MM' }}</span>
-        </div>
-      </div>
     </section>
   </div>
 
