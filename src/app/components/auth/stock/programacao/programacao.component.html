@@ -329,6 +329,18 @@
                 </span>
               }
 
+              <!-- Histórico direto do cartão: uma leitura frequente não deve
+                   custar abrir o formulário antes. Rascunho não tem, porque a
+                   linha ainda não existe na API. -->
+              @if (!isDraft(row)) {
+                <button type="button"
+                        class="cartao__historico"
+                        aria-label="Histórico de alterações"
+                        (click)="abrirHistorico(row)">
+                  <i class="pi pi-history"></i>
+                </button>
+              }
+
               <!-- O atalho: é o que ele faz quase sempre, então é botão, e
                    não um campo escondido atrás do formulário. -->
               <button type="button"

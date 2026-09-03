@@ -550,10 +550,43 @@
   flex-wrap: wrap;
 }
 
+// O histórico no cartão. Só ícone, e é a única coisa sem rótulo aqui: o cartão
+// não tem largura para "Histórico" ao lado da data sem empurrá-la para outra
+// linha. O mesmo ícone aparece com rótulo dentro da folha do formulário, então
+// ele se aprende num lugar e se reconhece no outro.
+.cartao__historico {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  i { font-size: .8rem; }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+}
+
 // O atalho da previsão. Tracejado enquanto está parado para dizer "isto se
 // preenche", e alvo de 34px porque é o gesto mais repetido da tela.
+//
+// O `margin-left: auto` sai quando o histórico está presente — ele já empurrou
+// os dois para a direita, e dois empurrões deixariam um buraco entre eles.
 .cartao__previsao {
   margin-left: auto;
+
+  .cartao__historico + & { margin-left: 0; }
 
   display: inline-flex;
   align-items: center;
