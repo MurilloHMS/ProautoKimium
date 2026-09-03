@@ -52,13 +52,20 @@ export class MenuService {
     return this.cachedMobile;
   }
 
-  /** Busca por rótulo ou caminho — alimenta o campo de busca da topbar. */
+  /**
+   * Busca por rótulo ou caminho — alimenta o campo de busca da topbar e o do
+   * menu do celular.
+   *
+   * **Dobra o acento dos dois lados.** Antes disso, digitar `ferias` não achava
+   * `Férias`: quem escreve sem acento no teclado do celular — que é quase todo
+   * mundo com pressa — simplesmente não encontrava a tela.
+   */
   search(query: string): FlatMenuItem[] {
-    const q = query.trim().toLowerCase();
+    const q = dobrarAcento(query.trim());
     if (!q) return [];
 
     return this.flatItems().filter(item =>
-      item.label.toLowerCase().includes(q) || item.breadcrumb.toLowerCase().includes(q)
+      dobrarAcento(item.label).includes(q) || dobrarAcento(item.breadcrumb).includes(q)
     );
   }
 
@@ -138,4 +145,18 @@ export class MenuService {
 
     return result;
   }
+}
+
+/**
+ * Minúsculas e sem acento, para comparar texto digitado com texto do menu.
+ *
+ * `NFD` separa a letra do sinal ("é" vira "e" + agudo) e a faixa `U+0300–U+036F`
+ * remove só os sinais soltos — nenhuma letra é perdida no caminho. Fica de fora
+ * do serviço porque é função pura, e assim o teste a alcança sem TestBed.
+ */
+export function dobrarAcento(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 }
