@@ -60,6 +60,27 @@ interface DayEntry {
  */
 const HUB_LIST_LIMIT = 5;
 
+/**
+ * A cor de cada severidade na rosca.
+ *
+ * **Existe porque montar o nome do token por concatenação quebrou.** A primeira
+ * versão fazia `var(--app-${severidade})`, e `--app-neutral` **não existe** — o
+ * tema chama de `--app-text-muted`. Uma parada de cor inválida invalida o
+ * `conic-gradient` INTEIRO, então a rosca não aparecia: sem erro no console,
+ * sem falha de build, sem teste vermelho. Só um círculo em branco.
+ *
+ * Escrito à mão, um token errado não compila: o TypeScript exige as seis
+ * chaves de `StatusSeverity`.
+ */
+const COR_DA_SEVERIDADE: Record<StatusSeverity, string> = {
+  success: 'var(--app-success)',
+  info:    'var(--app-info)',
+  warning: 'var(--app-warning)',
+  work:    'var(--app-work)',
+  danger:  'var(--app-danger)',
+  neutral: 'var(--app-text-muted)',
+};
+
 /** Uma fatia da rosca: leva a chave do enum, para virar link, e o ícone. */
 interface RoscaFatia {
   status: MachineStatus;
@@ -219,7 +240,7 @@ export class MachineHubComponent implements OnInit {
     const paradas = fatias.map(fatia => {
       const inicio = grau;
       grau += (fatia.count / total) * 360;
-      return `var(--app-${fatia.severity}) ${inicio}deg ${grau}deg`;
+      return `${COR_DA_SEVERIDADE[fatia.severity]} ${inicio}deg ${grau}deg`;
     });
 
     return `conic-gradient(${paradas.join(', ')})`;
