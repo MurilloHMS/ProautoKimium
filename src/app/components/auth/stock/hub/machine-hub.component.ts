@@ -14,6 +14,7 @@ import {
   MACHINE_STATUS_LABEL,
   StatusSeverity,
   MACHINE_STATUS_SEVERITY,
+  OPEN_STATUSES,
   MACHINE_TYPE_LABEL,
   MachineStatus,
   MachineType,
@@ -254,8 +255,16 @@ export class MachineHubComponent implements OnInit {
    * Uma linha da programação **é uma unidade da máquina** — então "NET300: 12"
    * é a contagem de linhas com aquele `machineId`.
    *
-   * Só máquinas **com** programação: quem tem zero não ocupa espaço, porque a
-   * lista acompanha o trabalho e não o cadastro.
+   * **Entregue fica de fora.** Máquina entregue saiu do galpão: contá-la no
+   * total inflaria o número com trabalho que já terminou, e o cartão responde
+   * "quanto ainda tenho nessa máquina". É o `OPEN_STATUSES` do modelo, cujo
+   * comentário já dizia "usado no Hub" — e até agora não era.
+   *
+   * Sai do total **e dos chips**: chip com número fora da soma faria as partes
+   * não fecharem com o total, e ninguém confia num cartão que não bate.
+   *
+   * Só máquinas **com** programação aberta: quem tem zero não ocupa espaço,
+   * porque a lista acompanha o trabalho e não o cadastro.
    *
    * O mapa de nomes é montado **uma vez**. O `machineStore.nameOf()` faz um
    * `find` linear a cada chamada, e chamá-lo por registro custaria
@@ -266,6 +275,8 @@ export class MachineHubComponent implements OnInit {
     const agrupado = new Map<string, Map<MachineStatus, number>>();
 
     for (const registro of this.registerStore.items()) {
+      if (!OPEN_STATUSES.includes(registro.status)) continue;
+
       const porStatus = agrupado.get(registro.machineId) ?? new Map<MachineStatus, number>();
       porStatus.set(registro.status, (porStatus.get(registro.status) ?? 0) + 1);
       agrupado.set(registro.machineId, porStatus);
@@ -357,10 +368,41 @@ export class MachineHubComponent implements OnInit {
    * Próximas saídas — o insight que a planilha não dá sem ler linha a linha.
    * Entra o que vence nos próximos 7 dias, mais o que já venceu e não saiu.
    */
+  /**
+   * Até onde "próximas saídas" enxerga.
+   *
+   * Extraído porque o "Ver todas" do cartão manda esta mesma data para a
+   * Programação: com o `+7` escrito nos dois lugares, mudar a janela aqui
+   * deixaria o link apontando para outra janela em silêncio, e o número da
+   * Programação não bateria com o do cartão.
+   */
+  private readonly limiteDasProximas = computed(() => {
+    const limite = startOfToday();
+    limite.setDate(limite.getDate() + 7);
+    return limite;
+  });
+
+  /**
+   * A mesma data em `YYYY-MM-DD`, para viajar na URL.
+   *
+   * Mandar o `Date` direto deixaria o Angular chamar `toString()` nele, e sai
+   * "Wed Sep 10 2026 00:00:00 GMT-0300" — que o `parseDateOnly` do outro lado
+   * teria que adivinhar. Data em URL é texto, e texto de data é ISO.
+   *
+   * Montado pelas partes **locais**, e não com `toISOString()`: aquele converte
+   * para UTC, e às 21h de Brasília a data já virou a de amanhã. O link
+   * apontaria para um dia a mais que o cartão.
+   */
+  readonly limiteDasProximasIso = computed(() => {
+    const data = this.limiteDasProximas();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${data.getFullYear()}-${mes}-${dia}`;
+  });
+
   readonly upcoming = computed<UpcomingExit[]>(() => {
     const today = startOfToday();
-    const limit = new Date(today);
-    limit.setDate(limit.getDate() + 7);
+    const limit = this.limiteDasProximas();
 
     return this.registerStore.items()
       .filter(register => register.status !== MachineStatus.ENTREGUE && register.previsaoEntrega)
@@ -447,6 +489,9 @@ export class MachineHubComponent implements OnInit {
           .join(' · '),
         cta: 'Ver na programação',
         link: '/stock/programacao',
+        // Sem o filtro o botão abria a grade inteira, e a pessoa tinha que
+        // caçar quais eram as três — o aviso dizia o número e escondia a lista.
+        params: { atrasadas: 1 },
       });
     }
 
@@ -461,6 +506,7 @@ export class MachineHubComponent implements OnInit {
           : 'sem data de saída marcada',
         cta: 'Programar',
         link: '/stock/programacao',
+        params: { semPrevisao: 1 },
       });
     }
 
@@ -864,6 +910,8 @@ interface AttentionItem {
   detail: string;
   cta: string;
   link: string;
+  /** O recorte que o destino deve abrir. Sem ele o botão leva à lista inteira. */
+  params?: Record<string, string | number>;
 }
 
 /** "1 máquina" e "2 máquinas" — o `(s)` no meio do texto lê mal. */

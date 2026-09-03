@@ -102,7 +102,7 @@
           Cada número é link para a Programação já filtrada por máquina + status.
         -->
         <section class="card">
-          <h2 class="card__title">Programações por máquina</h2>
+          <h2 class="card__title">Programações abertas por máquina</h2>
 
           @for (maquina of visibleMaquinas(); track maquina.machineId) {
             <div class="mq">
@@ -124,12 +124,12 @@
               </div>
           </div>
         } @empty {
-          <p class="card__empty">Nenhuma máquina com programação.</p>
+          <p class="card__empty">Nenhuma máquina com programação aberta.</p>
         }
 
         @if (hiddenMaquinas() > 0) {
           <p class="card__more">
-            <span>Mostrando as {{ visibleMaquinas().length }} com mais programações, de {{ porMaquina().length }}</span>
+            <span>Mostrando as {{ visibleMaquinas().length }} com mais abertas, de {{ porMaquina().length }}</span>
             <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
           </p>
         }
@@ -183,7 +183,7 @@
         </h2>
 
         @for (item of attention(); track item.lead) {
-          <a class="needs__item" [routerLink]="item.link">
+          <a class="needs__item" [routerLink]="item.link" [queryParams]="item.params ?? {}">
             <i class="needs__bar" [class]="'needs__bar needs__bar--' + item.tone"></i>
             <span class="needs__what">
               <span class="needs__lead">{{ item.lead }}</span>
@@ -439,7 +439,8 @@
       @if (hiddenUpcoming() > 0) {
         <p class="card__more">
           <span>Mostrando as {{ visibleUpcoming().length }} mais próximas, de {{ upcoming().length }}</span>
-          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+          <a [routerLink]="['/stock/programacao']"
+             [queryParams]="{ ate: limiteDasProximasIso() }">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
     </section>
@@ -474,7 +475,8 @@
       @if (hiddenParadas() > 0) {
         <p class="card__more">
           <span>Mostrando as {{ visibleParadas().length }} mais antigas, de {{ paradas().length }}</span>
-          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+          <a [routerLink]="['/stock/programacao']"
+             [queryParams]="{ semPrevisao: 1 }">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
     </section>

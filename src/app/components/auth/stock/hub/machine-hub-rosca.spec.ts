@@ -140,4 +140,59 @@ describe('MachineHubComponent · rosca por status', () => {
     expect(component.roscaGradiente()).toBe('var(--app-surface-2)');
     expect(component.roscaFatias()).toEqual([]);
   });
+
+  // ─── Programações por máquina ───────────────────────────────────────────
+
+  describe('programações abertas por máquina', () => {
+
+    /**
+     * **O erro que ele achou depois do merge.**
+     *
+     * Máquina entregue saiu do galpão: contá-la inflaria o total com trabalho
+     * que já terminou, e o cartão responde "quanto ainda tenho nessa máquina".
+     */
+    it('não conta entregues no total', () => {
+      comRegistros(
+        registro(MachineStatus.DISPONIVEL, 'r1'),
+        registro(MachineStatus.REFORMA, 'r2'),
+        registro(MachineStatus.ENTREGUE, 'r3'),
+        registro(MachineStatus.ENTREGUE, 'r4'));
+
+      const maquina = component.porMaquina()[0];
+
+      expect(maquina.total)
+        .withContext('duas abertas, e as duas entregues fora')
+        .toBe(2);
+    });
+
+    /**
+     * Entregue sai do total **e** dos chips: chip com número fora da soma faria
+     * as partes não fecharem com o total, e ninguém confia num cartão que não
+     * bate.
+     */
+    it('as partes somam exatamente o total', () => {
+      comRegistros(
+        registro(MachineStatus.DISPONIVEL, 'r1'),
+        registro(MachineStatus.DISPONIVEL, 'r2'),
+        registro(MachineStatus.RESERVADA, 'r3'),
+        registro(MachineStatus.ENTREGUE, 'r4'));
+
+      const maquina = component.porMaquina()[0];
+      const soma = maquina.partes.reduce((total, parte) => total + parte.count, 0);
+
+      expect(soma).toBe(maquina.total);
+      expect(maquina.partes.map(p => p.status))
+        .withContext('nenhum chip de entregue')
+        .not.toContain(MachineStatus.ENTREGUE);
+    });
+
+    /** Máquina que só tem entrega já não é trabalho: sai da lista. */
+    it('máquina só com entregues não aparece', () => {
+      comRegistros(
+        registro(MachineStatus.ENTREGUE, 'r1'),
+        registro(MachineStatus.ENTREGUE, 'r2'));
+
+      expect(component.porMaquina()).toEqual([]);
+    });
+  });
 });

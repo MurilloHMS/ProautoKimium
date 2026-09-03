@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap, ParamMap } from '@angular/router';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { ProgramacaoComponent } from './programacao.component';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
@@ -23,6 +23,9 @@ import { MachineStatus } from '../../../../domain/models/prostock/machine.model'
 describe('ProgramacaoComponent · filtro vindo da URL', () => {
   let component: ProgramacaoComponent;
   let fixture: ComponentFixture<ProgramacaoComponent>;
+
+  /** A URL viva: empurrar um valor aqui é navegar de novo para a mesma tela. */
+  let urlAtual: BehaviorSubject<ParamMap>;
 
   /** Monta a tela como se ela tivesse sido aberta com estes query params. */
   async function abrirCom(params: Record<string, string>): Promise<void> {
@@ -48,7 +51,10 @@ describe('ProgramacaoComponent · filtro vindo da URL', () => {
         { provide: InventoryProductService, useValue: inventoryService },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { queryParamMap: convertToParamMap(params) } },
+          useValue: {
+            queryParamMap: (urlAtual = new BehaviorSubject(convertToParamMap(params))),
+            snapshot: { queryParamMap: convertToParamMap(params) },
+          },
         },
       ],
     }).compileComponents();
@@ -145,5 +151,140 @@ describe('ProgramacaoComponent · filtro vindo da URL', () => {
     expect(component.machineFilter()).toBeNull();
     expect(component.onlyLate()).toBeFalse();
     expect(component.hasFilters()).toBeFalse();
+  });
+
+  // ─── Navegar de novo para a mesma tela ──────────────────────────────────
+
+  describe('segundo clique no Hub, com a tela já aberta', () => {
+
+    /**
+     * **O bug que ele encontrou em produção.**
+     *
+     * O Angular reaproveita o componente quando só os query params mudam, então
+     * o `ngOnInit` não roda de novo. Lendo o `snapshot` uma vez, o primeiro link
+     * do Hub funcionava e todos os seguintes não faziam nada: a tela ficava com
+     * o filtro anterior e o clique parecia quebrado.
+     */
+    it('troca o filtro quando a URL muda com a tela aberta', async () => {
+      await abrirCom({ status: 'DISPONIVEL' });
+      expect(component.statusFilter()).toEqual([MachineStatus.DISPONIVEL]);
+
+      urlAtual.next(convertToParamMap({ status: 'REFORMA' }));
+
+      expect(component.statusFilter())
+        .withContext('a segunda navegação tem que valer como a primeira')
+        .toEqual([MachineStatus.REFORMA]);
+    });
+
+    /**
+     * A URL é a fonte da verdade a cada navegação: o que não vem nela é limpo.
+     * Sem isso, ir de `?status=X` para `?maquina=Y` deixaria o status antigo
+     * por cima do recorte novo — e o número na tela não bateria com o do Hub.
+     */
+    it('limpa o que não veio na URL nova', async () => {
+      await abrirCom({ status: 'DISPONIVEL', atrasadas: '1' });
+
+      urlAtual.next(convertToParamMap({ maquina: 'm-0002' }));
+
+      expect(component.statusFilter()).toEqual([]);
+      expect(component.onlyLate()).toBeFalse();
+      expect(component.machineFilter()).toBe('m-0002');
+    });
+
+    it('sair para a tela sem filtro nenhum limpa tudo', async () => {
+      await abrirCom({ maquina: 'm-0001', status: 'REFORMA' });
+
+      urlAtual.next(convertToParamMap({}));
+
+      expect(component.hasFilters()).toBeFalse();
+    });
+  });
+
+  // ─── Sem previsão ───────────────────────────────────────────────────────
+
+  describe('filtro "sem previsão"', () => {
+
+    /**
+     * Nasceu do Hub: a faixa "Precisa de você" avisa "N máquinas sem previsão"
+     * e o botão dizia "Programar", mas abria a grade inteira — a pessoa via o
+     * número e tinha que caçar quais eram. Aviso que não leva ao recorte é meio
+     * aviso.
+     */
+    it('liga com semPrevisao=1', async () => {
+      await abrirCom({ semPrevisao: '1' });
+
+      expect(component.semPrevisao()).toBeTrue();
+      expect(component.hasFilters())
+        .withContext('tem que se declarar filtrada, senão a grade curta não se explica')
+        .toBeTrue();
+    });
+
+    it('não liga com outro valor', async () => {
+      await abrirCom({ semPrevisao: '0' });
+
+      expect(component.semPrevisao()).toBeFalse();
+    });
+
+    it('limpar filtros também desliga', async () => {
+      await abrirCom({ semPrevisao: '1' });
+      component.clearFilters();
+
+      expect(component.semPrevisao()).toBeFalse();
+      expect(component.hasFilters()).toBeFalse();
+    });
+
+    it('a URL nova sem o parâmetro desliga o filtro', async () => {
+      await abrirCom({ semPrevisao: '1' });
+
+      urlAtual.next(convertToParamMap({ atrasadas: '1' }));
+
+      expect(component.semPrevisao()).toBeFalse();
+      expect(component.onlyLate()).toBeTrue();
+    });
+  });
+
+  // ─── Saídas até uma data ────────────────────────────────────────────────
+
+  describe('filtro "saídas até"', () => {
+
+    /** Vem do "Ver todas" de "Próximas saídas", que abria a grade inteira. */
+    it('aceita a data em ISO', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+
+      const ate = component.saidaAte();
+      expect(ate).toBeTruthy();
+      expect(ate!.getFullYear()).toBe(2026);
+      expect(ate!.getMonth()).withContext('setembro é 8').toBe(8);
+      expect(ate!.getDate()).toBe(10);
+      expect(component.hasFilters()).toBeTrue();
+    });
+
+    /**
+     * Data inválida cai em "sem filtro", como o status inventado. Uma
+     * `Invalid Date` comparada com qualquer coisa devolve `false`, então a
+     * grade viria **vazia** sem nada na tela explicando por quê.
+     */
+    it('ignora data que não dá para ler', async () => {
+      await abrirCom({ ate: 'amanha' });
+
+      expect(component.saidaAte()).toBeNull();
+      expect(component.hasFilters()).toBeFalse();
+    });
+
+    it('limpar filtros também tira a data', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+      component.clearFilters();
+
+      expect(component.saidaAte()).toBeNull();
+    });
+
+    it('a URL nova sem o parâmetro tira a data', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+
+      urlAtual.next(convertToParamMap({ semPrevisao: '1' }));
+
+      expect(component.saidaAte()).toBeNull();
+      expect(component.semPrevisao()).toBeTrue();
+    });
   });
 });

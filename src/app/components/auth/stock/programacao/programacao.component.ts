@@ -2,7 +2,7 @@ import { CommonModule, formatDate } from '@angular/common';
 import { Component, DestroyRef, HostListener, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
@@ -122,6 +122,25 @@ export class ProgramacaoComponent implements OnInit {
   readonly statusFilter = signal<MachineStatus[]>([]);
   readonly machineFilter = signal<string | null>(null);
   readonly onlyLate = signal(false);
+
+  /**
+   * Só as linhas sem data de saída.
+   *
+   * Nasceu do Hub: a faixa "Precisa de você" avisa "N máquinas sem previsão" e
+   * o botão dizia "Programar" — mas abria a grade inteira, e a pessoa tinha que
+   * caçar quais eram. Aviso que não leva ao recorte é meio aviso.
+   */
+  readonly semPrevisao = signal(false);
+
+  /**
+   * Só o que sai até esta data, entre as **abertas**.
+   *
+   * Nasceu do cartão "Próximas saídas" do Hub, cujo "Ver todas" abria a grade
+   * inteira. Exclui ENTREGUE junto porque o cartão de lá também exclui — se o
+   * filtro trouxesse entregues, o número da tela não bateria com o do aviso, e
+   * um número que não bate com a origem destrói a confiança nos dois.
+   */
+  readonly saidaAte = signal<Date | null>(null);
 
   // ─── Motivo do adiamento ─────────────────────────────────────────────────
   //
@@ -301,7 +320,8 @@ export class ProgramacaoComponent implements OnInit {
   }
 
   readonly hasFilters = computed(() =>
-    this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
+    this.statusFilter().length > 0 || !!this.machineFilter()
+    || this.onlyLate() || this.semPrevisao() || !!this.saidaAte());
 
   /**
    * Grade ou importação. A importação ocupa a tela inteira, como os cadastros:
@@ -432,6 +452,8 @@ export class ProgramacaoComponent implements OnInit {
     this.statusFilter.set([]);
     this.machineFilter.set(null);
     this.onlyLate.set(false);
+    this.semPrevisao.set(false);
+    this.saidaAte.set(null);
     this.search = '';
     this.onSearch();
   }
@@ -568,6 +590,8 @@ export class ProgramacaoComponent implements OnInit {
     const statuses = this.statusFilter();
     const machine = this.machineFilter();
     const late = this.onlyLate();
+    const semData = this.semPrevisao();
+    const ate = this.saidaAte();
 
     const filtered = this.store.items()
       .map(register => this.toRow(register))
@@ -577,6 +601,13 @@ export class ProgramacaoComponent implements OnInit {
         if (statuses.length && (!row.status || !statuses.includes(row.status))) return false;
         if (machine && row.machineId !== machine) return false;
         if (late && !this.isLate(row)) return false;
+        if (semData && row.previsao) return false;
+
+        if (ate) {
+          if (row.status === MachineStatus.ENTREGUE) return false;
+          if (!row.previsao) return false;
+          if (new Date(row.previsao) > ate) return false;
+        }
 
         if (!term) return true;
         return row.nomeCliente?.toLowerCase().includes(term)
@@ -628,7 +659,20 @@ export class ProgramacaoComponent implements OnInit {
    * na tela, e sabe o que limpar.
    */
   private aplicarFiltrosDaUrl(): void {
-    const params = this.route.snapshot.queryParamMap;
+    // **Observable, e não `snapshot`.** O Angular reaproveita o componente
+    // quando só os query params mudam: com o snapshot lido uma vez no
+    // `ngOnInit`, o primeiro link do Hub funcionava e o segundo não fazia nada.
+    // A tela ficava com o filtro antigo, e o clique parecia quebrado.
+    const inscricao = this.route.queryParamMap.subscribe(params => this.aplicar(params));
+    this.destroyRef.onDestroy(() => inscricao.unsubscribe());
+  }
+
+  /**
+   * A URL é a fonte da verdade a cada navegação: o que não vem nela é
+   * **limpo**, não mantido. Sem isso, ir de `?status=X` para `?maquina=Y`
+   * deixaria o status antigo aplicado por cima do recorte novo.
+   */
+  private aplicar(params: ParamMap): void {
 
     const status = (params.get('status') ?? '')
       .split(',')
@@ -636,12 +680,14 @@ export class ProgramacaoComponent implements OnInit {
       .filter((valor): valor is MachineStatus =>
         Object.values(MachineStatus).includes(valor as MachineStatus));
 
-    if (status.length) this.statusFilter.set(status);
+    this.statusFilter.set(status);
+    this.machineFilter.set(params.get('maquina') || null);
+    this.onlyLate.set(params.get('atrasadas') === '1');
+    this.semPrevisao.set(params.get('semPrevisao') === '1');
 
-    const maquina = params.get('maquina');
-    if (maquina) this.machineFilter.set(maquina);
-
-    if (params.get('atrasadas') === '1') this.onlyLate.set(true);
+    // Data inválida vira "sem filtro", pelo mesmo motivo do status inventado —
+    // e o `parseDateOnly` já devolve `null` nesse caso.
+    this.saidaAte.set(parseDateOnly(params.get('ate')));
   }
 
   refresh(): void {
