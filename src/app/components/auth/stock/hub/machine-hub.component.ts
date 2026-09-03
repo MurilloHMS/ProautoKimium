@@ -296,7 +296,7 @@ export class MachineHubComponent implements OnInit {
   // ─── O que vence ──────────────────────────────────────────────────────────
 
   /**
-   * Três números: vencidas, esta semana, próxima.
+   * Três números: atrasadas, esta semana, próxima.
    *
    * **Não é gráfico de propósito.** O Hub já tem calendário e "Próximas
    * saídas", que respondem *quando* — estes três respondem *quanto aperta*, que
@@ -313,7 +313,7 @@ export class MachineHubComponent implements OnInit {
     const fimDaProxima = new Date(fimDaSemana);
     fimDaProxima.setDate(fimDaSemana.getDate() + 7);
 
-    let vencidas = 0;
+    let atrasadas = 0;
     let estaSemana = 0;
     let proxima = 0;
 
@@ -323,12 +323,12 @@ export class MachineHubComponent implements OnInit {
       const data = parseDateOnly(registro.previsaoEntrega);
       if (!data) continue;
 
-      if (data < hoje) vencidas++;
+      if (data < hoje) atrasadas++;
       else if (data <= fimDaSemana) estaSemana++;
       else if (data <= fimDaProxima) proxima++;
     }
 
-    return { vencidas, estaSemana, proxima, fimDaProxima };
+    return { atrasadas, estaSemana, proxima, fimDaProxima };
   });
 
   /** Distribuição do catálogo por tipo de máquina. */

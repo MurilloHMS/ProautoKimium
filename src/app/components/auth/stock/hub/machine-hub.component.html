@@ -146,11 +146,11 @@
         <h2 class="card__title">O que atrasa</h2>
 
         <div class="prazos">
-          <a class="pz" [class.pz--alerta]="prazos().vencidas > 0"
+          <a class="pz" [class.pz--alerta]="prazos().atrasadas > 0"
              [routerLink]="['/stock/programacao']"
              [queryParams]="{ atrasadas: 1 }">
-            <span class="pz__n">{{ prazos().vencidas }}</span>
-            <span class="pz__rot">Vencidas</span>
+            <span class="pz__n">{{ prazos().atrasadas }}</span>
+            <span class="pz__rot">Atrasadas</span>
             <span class="pz__sub">sem entrega</span>
           </a>
 
