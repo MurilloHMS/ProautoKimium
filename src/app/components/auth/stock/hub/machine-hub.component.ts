@@ -368,10 +368,41 @@ export class MachineHubComponent implements OnInit {
    * Próximas saídas — o insight que a planilha não dá sem ler linha a linha.
    * Entra o que vence nos próximos 7 dias, mais o que já venceu e não saiu.
    */
+  /**
+   * Até onde "próximas saídas" enxerga.
+   *
+   * Extraído porque o "Ver todas" do cartão manda esta mesma data para a
+   * Programação: com o `+7` escrito nos dois lugares, mudar a janela aqui
+   * deixaria o link apontando para outra janela em silêncio, e o número da
+   * Programação não bateria com o do cartão.
+   */
+  private readonly limiteDasProximas = computed(() => {
+    const limite = startOfToday();
+    limite.setDate(limite.getDate() + 7);
+    return limite;
+  });
+
+  /**
+   * A mesma data em `YYYY-MM-DD`, para viajar na URL.
+   *
+   * Mandar o `Date` direto deixaria o Angular chamar `toString()` nele, e sai
+   * "Wed Sep 10 2026 00:00:00 GMT-0300" — que o `parseDateOnly` do outro lado
+   * teria que adivinhar. Data em URL é texto, e texto de data é ISO.
+   *
+   * Montado pelas partes **locais**, e não com `toISOString()`: aquele converte
+   * para UTC, e às 21h de Brasília a data já virou a de amanhã. O link
+   * apontaria para um dia a mais que o cartão.
+   */
+  readonly limiteDasProximasIso = computed(() => {
+    const data = this.limiteDasProximas();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${data.getFullYear()}-${mes}-${dia}`;
+  });
+
   readonly upcoming = computed<UpcomingExit[]>(() => {
     const today = startOfToday();
-    const limit = new Date(today);
-    limit.setDate(limit.getDate() + 7);
+    const limit = this.limiteDasProximas();
 
     return this.registerStore.items()
       .filter(register => register.status !== MachineStatus.ENTREGUE && register.previsaoEntrega)

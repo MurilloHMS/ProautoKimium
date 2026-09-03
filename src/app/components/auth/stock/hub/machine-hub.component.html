@@ -439,7 +439,8 @@
       @if (hiddenUpcoming() > 0) {
         <p class="card__more">
           <span>Mostrando as {{ visibleUpcoming().length }} mais próximas, de {{ upcoming().length }}</span>
-          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+          <a [routerLink]="['/stock/programacao']"
+             [queryParams]="{ ate: limiteDasProximasIso() }">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
     </section>
@@ -474,7 +475,8 @@
       @if (hiddenParadas() > 0) {
         <p class="card__more">
           <span>Mostrando as {{ visibleParadas().length }} mais antigas, de {{ paradas().length }}</span>
-          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+          <a [routerLink]="['/stock/programacao']"
+             [queryParams]="{ semPrevisao: 1 }">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
     </section>

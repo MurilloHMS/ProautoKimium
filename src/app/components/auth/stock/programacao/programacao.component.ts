@@ -132,6 +132,16 @@ export class ProgramacaoComponent implements OnInit {
    */
   readonly semPrevisao = signal(false);
 
+  /**
+   * Só o que sai até esta data, entre as **abertas**.
+   *
+   * Nasceu do cartão "Próximas saídas" do Hub, cujo "Ver todas" abria a grade
+   * inteira. Exclui ENTREGUE junto porque o cartão de lá também exclui — se o
+   * filtro trouxesse entregues, o número da tela não bateria com o do aviso, e
+   * um número que não bate com a origem destrói a confiança nos dois.
+   */
+  readonly saidaAte = signal<Date | null>(null);
+
   // ─── Motivo do adiamento ─────────────────────────────────────────────────
   //
   // A API recusa com 400 quando a previsão muda e já havia data. Em vez de
@@ -311,7 +321,7 @@ export class ProgramacaoComponent implements OnInit {
 
   readonly hasFilters = computed(() =>
     this.statusFilter().length > 0 || !!this.machineFilter()
-    || this.onlyLate() || this.semPrevisao());
+    || this.onlyLate() || this.semPrevisao() || !!this.saidaAte());
 
   /**
    * Grade ou importação. A importação ocupa a tela inteira, como os cadastros:
@@ -443,6 +453,7 @@ export class ProgramacaoComponent implements OnInit {
     this.machineFilter.set(null);
     this.onlyLate.set(false);
     this.semPrevisao.set(false);
+    this.saidaAte.set(null);
     this.search = '';
     this.onSearch();
   }
@@ -580,6 +591,7 @@ export class ProgramacaoComponent implements OnInit {
     const machine = this.machineFilter();
     const late = this.onlyLate();
     const semData = this.semPrevisao();
+    const ate = this.saidaAte();
 
     const filtered = this.store.items()
       .map(register => this.toRow(register))
@@ -590,6 +602,12 @@ export class ProgramacaoComponent implements OnInit {
         if (machine && row.machineId !== machine) return false;
         if (late && !this.isLate(row)) return false;
         if (semData && row.previsao) return false;
+
+        if (ate) {
+          if (row.status === MachineStatus.ENTREGUE) return false;
+          if (!row.previsao) return false;
+          if (new Date(row.previsao) > ate) return false;
+        }
 
         if (!term) return true;
         return row.nomeCliente?.toLowerCase().includes(term)
@@ -666,6 +684,10 @@ export class ProgramacaoComponent implements OnInit {
     this.machineFilter.set(params.get('maquina') || null);
     this.onlyLate.set(params.get('atrasadas') === '1');
     this.semPrevisao.set(params.get('semPrevisao') === '1');
+
+    // Data inválida vira "sem filtro", pelo mesmo motivo do status inventado —
+    // e o `parseDateOnly` já devolve `null` nesse caso.
+    this.saidaAte.set(parseDateOnly(params.get('ate')));
   }
 
   refresh(): void {

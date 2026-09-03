@@ -242,4 +242,49 @@ describe('ProgramacaoComponent · filtro vindo da URL', () => {
       expect(component.onlyLate()).toBeTrue();
     });
   });
+
+  // ─── Saídas até uma data ────────────────────────────────────────────────
+
+  describe('filtro "saídas até"', () => {
+
+    /** Vem do "Ver todas" de "Próximas saídas", que abria a grade inteira. */
+    it('aceita a data em ISO', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+
+      const ate = component.saidaAte();
+      expect(ate).toBeTruthy();
+      expect(ate!.getFullYear()).toBe(2026);
+      expect(ate!.getMonth()).withContext('setembro é 8').toBe(8);
+      expect(ate!.getDate()).toBe(10);
+      expect(component.hasFilters()).toBeTrue();
+    });
+
+    /**
+     * Data inválida cai em "sem filtro", como o status inventado. Uma
+     * `Invalid Date` comparada com qualquer coisa devolve `false`, então a
+     * grade viria **vazia** sem nada na tela explicando por quê.
+     */
+    it('ignora data que não dá para ler', async () => {
+      await abrirCom({ ate: 'amanha' });
+
+      expect(component.saidaAte()).toBeNull();
+      expect(component.hasFilters()).toBeFalse();
+    });
+
+    it('limpar filtros também tira a data', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+      component.clearFilters();
+
+      expect(component.saidaAte()).toBeNull();
+    });
+
+    it('a URL nova sem o parâmetro tira a data', async () => {
+      await abrirCom({ ate: '2026-09-10' });
+
+      urlAtual.next(convertToParamMap({ semPrevisao: '1' }));
+
+      expect(component.saidaAte()).toBeNull();
+      expect(component.semPrevisao()).toBeTrue();
+    });
+  });
 });

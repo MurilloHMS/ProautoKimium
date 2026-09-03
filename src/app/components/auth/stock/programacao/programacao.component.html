@@ -28,6 +28,16 @@
       [pkLabel]="semPrevisao() ? 'Ver todos' : 'Sem previsão'"
       (clicked)="semPrevisao.set(!semPrevisao())"/>
 
+    <!-- Só aparece quando veio pela URL: é filtro de link, não de uso diário,
+         mas precisa ser visível e removível como os outros. -->
+    @if (saidaAte(); as ate) {
+      <pk-button
+        pkType="cancel"
+        pkSize="sm"
+        [pkLabel]="'Saídas até ' + (ate | date: 'dd/MM')"
+        (clicked)="saidaAte.set(null)"/>
+    }
+
     @if (hasFilters()) {
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters()"/>
     }
