@@ -384,7 +384,7 @@
   diálogo de motivo pode abrir logo em seguida, e isso está certo.
 -->
 @if (previsaoAberta(); as row) {
-  <div class="folha" (click)="cancelarPrevisao()">
+  <div class="folha folha--sobreposta" (click)="cancelarPrevisao()">
 
     <!-- O clique de dentro não fecha: só o de fora, no véu. -->
     <div class="folha__painel"
@@ -439,9 +439,23 @@
 
       <div class="folha__cabeca">
         <span class="folha__puxador" aria-hidden="true"></span>
-        <p class="folha__titulo" id="folha-form-titulo">
-          {{ isDraft(f) ? 'Nova linha' : 'Editar programação' }}
-        </p>
+        <div class="folha__titulo-linha">
+          <p class="folha__titulo" id="folha-form-titulo">
+            {{ isDraft(f) ? 'Nova linha' : 'Editar programação' }}
+          </p>
+
+          <!-- Rascunho não tem histórico: a linha ainda não existe na API.
+               O histórico é leitura, então mora na cabeça — longe dos botões
+               que gravam, e sem competir com eles pelo polegar. -->
+          @if (!isDraft(f)) {
+            <button type="button" class="folha__historico"
+                    aria-label="Histórico de alterações"
+                    (click)="abrirHistorico(f)">
+              <i class="pi pi-history"></i>
+              Histórico
+            </button>
+          }
+        </div>
       </div>
 
       <!-- Só o miolo rola. São nove campos: em qualquer altura o formulário
@@ -594,77 +608,123 @@
   mudou, e quem arruma quatro coisas de uma vez geraria quatro cartões iguais
   exceto pelo par de valores — com a mesma justificativa repetida em todos.
 -->
-<pk-dialog
-  [header]="'Histórico · ' + historicoDe()"
-  [visible]="historicoAberto()"
-  width="560px"
-  (visibleChange)="historicoAberto.set(false)">
+<!--
+  Histórico de alterações.
 
-  <div pkDialogContent class="pk-form-section">
-    @if (historicoCarregando()) {
-      <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
-    } @else if (historicoAgrupado().length > 0) {
-      <!--
-        Do mais recente para o mais antigo, como a API devolve. Quem abre quer a
-        última mudança; o resto é contexto.
-      -->
-      <div class="hist">
-        @for (edicao of historicoAgrupado(); track edicao.id) {
-          <div class="hist__edicao">
-            <div class="hist__quando">
-              <span>
-                <span class="hist__autor">{{ edicao.changedBy || 'Autor não registrado' }}</span>
-                · {{ edicao.changedAt | date: 'dd/MM/yyyy HH:mm' }}
-              </span>
-              <span class="hist__quantos">
-                {{ edicao.campos.length }} {{ edicao.campos.length === 1 ? 'campo' : 'campos' }}
-              </span>
-            </div>
+  **Folha no celular, diálogo no desktop, e o conteúdo escrito uma vez só.**
+  Esta tela abre o histórico de dois lugares: a coluna de ações da planilha (só
+  desktop) e a folha do formulário (só celular). Duplicar o corpo daria duas
+  versões para manter, e a segunda envelheceria calada.
 
-            <div class="hist__campos">
-              @for (mudanca of edicao.campos; track mudanca.id) {
-                <span class="hist__rotulo">{{ rotuloDoCampo(mudanca.campo) }}</span>
-                <div class="hist__valores">
-                  <!--
-                    Ausência aparece como "sem valor" apagado, nunca como célula
-                    vazia — vazio se lê como falha de carregamento, e não como o
-                    campo estando em branco antes.
-                  -->
-                  @if (valorDoCampo(mudanca.campo, mudanca.valorAnterior); as anterior) {
-                    <span class="hist__de">{{ anterior }}</span>
-                  } @else {
-                    <span class="hist__de hist__sem">sem valor</span>
-                  }
-                  <i class="pi pi-arrow-right"></i>
-                  @if (valorDoCampo(mudanca.campo, mudanca.valorNovo); as novo) {
-                    <span class="hist__para">{{ novo }}</span>
-                  } @else {
-                    <span class="hist__para hist__sem">sem valor</span>
-                  }
-                </div>
-              }
-            </div>
+  Quando a segunda tela precisar disto, vale virar um `pk-sheet` de verdade no
+  tema; até lá o molde está aqui e na skill.
+-->
+<ng-template #historicoCorpo>
+  @if (historicoCarregando()) {
+    <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+  } @else if (historicoAgrupado().length > 0) {
+    <!--
+      Do mais recente para o mais antigo, como a API devolve. Quem abre quer a
+      última mudança; o resto é contexto.
+    -->
+    <div class="hist">
+      @for (edicao of historicoAgrupado(); track edicao.id) {
+        <div class="hist__edicao">
+          <div class="hist__quando">
+            <span>
+              <span class="hist__autor">{{ edicao.changedBy || 'Autor não registrado' }}</span>
+              · {{ edicao.changedAt | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span class="hist__quantos">
+              {{ edicao.campos.length }} {{ edicao.campos.length === 1 ? 'campo' : 'campos' }}
+            </span>
+          </div>
 
-            @if (edicao.motivo) {
-              <p class="hist__motivo">{{ edicao.motivo }}</p>
-            } @else {
-              <p class="hist__motivo hist__sem">Sem motivo informado.</p>
+          <div class="hist__campos">
+            @for (mudanca of edicao.campos; track mudanca.id) {
+              <span class="hist__rotulo">{{ rotuloDoCampo(mudanca.campo) }}</span>
+              <div class="hist__valores">
+                <!--
+                  Ausência aparece como "sem valor" apagado, nunca como célula
+                  vazia — vazio se lê como falha de carregamento, e não como o
+                  campo estando em branco antes.
+                -->
+                @if (valorDoCampo(mudanca.campo, mudanca.valorAnterior); as anterior) {
+                  <span class="hist__de">{{ anterior }}</span>
+                } @else {
+                  <span class="hist__de hist__sem">sem valor</span>
+                }
+                <i class="pi pi-arrow-right"></i>
+                @if (valorDoCampo(mudanca.campo, mudanca.valorNovo); as novo) {
+                  <span class="hist__para">{{ novo }}</span>
+                } @else {
+                  <span class="hist__para hist__sem">sem valor</span>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
-    } @else {
-      <p class="hist-vazio">
-        <i class="pi pi-check-circle"></i>
-        Esta programação nunca foi alterada.
-      </p>
-    }
-  </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
-  </div>
-</pk-dialog>
+          @if (edicao.motivo) {
+            <p class="hist__motivo">{{ edicao.motivo }}</p>
+          } @else {
+            <p class="hist__motivo hist__sem">Sem motivo informado.</p>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="hist-vazio">
+      <i class="pi pi-check-circle"></i>
+      Esta programação nunca foi alterada.
+    </p>
+  }
+</ng-template>
+
+@if (ehCelular()) {
+  @if (historicoAberto()) {
+    <div class="folha folha--sobreposta" (click)="historicoAberto.set(false)">
+      <div class="folha__painel folha__painel--alta"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="folha-hist-titulo"
+           (click)="$event.stopPropagation()">
+
+        <div class="folha__cabeca">
+          <span class="folha__puxador" aria-hidden="true"></span>
+          <div class="folha__titulo-linha">
+            <p class="folha__titulo" id="folha-hist-titulo">
+              Histórico · {{ historicoDe() }}
+            </p>
+          </div>
+        </div>
+
+        <div class="folha__miolo">
+          <ng-container *ngTemplateOutlet="historicoCorpo" />
+        </div>
+
+        <div class="folha__pe">
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar"
+                     (clicked)="historicoAberto.set(false)" />
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  <pk-dialog
+    [header]="'Histórico · ' + historicoDe()"
+    [visible]="historicoAberto()"
+    width="560px"
+    (visibleChange)="historicoAberto.set(false)">
+
+    <div pkDialogContent class="pk-form-section">
+      <ng-container *ngTemplateOutlet="historicoCorpo" />
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
+    </div>
+  </pk-dialog>
+}
 
 <!--
   Confirmação de estoque.

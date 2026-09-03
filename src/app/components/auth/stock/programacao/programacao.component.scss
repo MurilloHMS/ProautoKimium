@@ -619,15 +619,27 @@
 .folha {
   position: fixed;
   inset: 0;
-  z-index: 1200;
 
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 
+  // Faixa própria, entre o overlay (1000) e o drawer (1100).
+  //
+  // Estava em 1200, empatada com `$z-modal`, e o PrimeNG numera o diálogo
+  // dinamicamente a partir da faixa de modal: o histórico abriria ATRÁS da
+  // folha. Abaixo de 1100 os diálogos do tema ficam sempre por cima, que é a
+  // ordem certa — quem abre por último manda.
+  z-index: 1050;
+
   background: var(--app-overlay);
   animation: folha-vela .2s ease;
 }
+
+// Calendário e histórico abrem SOBRE a folha do formulário, então precisam
+// vencê-la — e por número, não por ordem no template, que muda quando alguém
+// reorganiza o HTML.
+.folha--sobreposta { z-index: 1060; }
 
 .folha__painel {
   background: var(--app-surface);
@@ -671,6 +683,43 @@
 // Cabeça e pé ficam parados; só o miolo rola. São nove campos: em qualquer
 // altura o formulário passa da folha, e um rolamento único levaria o botão de
 // salvar para fora da vista.
+// Título à esquerda, histórico à direita. O histórico é leitura, então fica
+// longe dos botões que gravam: na cabeça, e não no pé disputando o polegar.
+.folha__titulo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  width: 100%;
+}
+
+.folha__historico {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  // 40px de alvo: menor que os 48px dos itens de lista porque é ação
+  // secundária, e ainda assim confortável.
+  height: 40px;
+  padding: 0 .7rem;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+}
+
 .folha__cabeca {
   flex: 0 0 auto;
   display: flex;
