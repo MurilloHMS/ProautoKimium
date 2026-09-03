@@ -20,6 +20,14 @@
       [pkLabel]="onlyLate() ? 'Ver todos' : 'Atrasados (' + lateCount() + ')'"
       (clicked)="onlyLate.set(!onlyLate())"/>
 
+    <!-- O par do de cima: o Hub avisa "N sem previsão" e manda para cá. Sem
+         controle visível, quem chega pelo link não sabe o que está vendo. -->
+    <pk-button
+      [pkType]="semPrevisao() ? 'cancel' : 'filter'"
+      pkSize="sm"
+      [pkLabel]="semPrevisao() ? 'Ver todos' : 'Sem previsão'"
+      (clicked)="semPrevisao.set(!semPrevisao())"/>
+
     @if (hasFilters()) {
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters()"/>
     }

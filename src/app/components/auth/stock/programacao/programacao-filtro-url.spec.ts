@@ -199,4 +199,47 @@ describe('ProgramacaoComponent · filtro vindo da URL', () => {
       expect(component.hasFilters()).toBeFalse();
     });
   });
+
+  // ─── Sem previsão ───────────────────────────────────────────────────────
+
+  describe('filtro "sem previsão"', () => {
+
+    /**
+     * Nasceu do Hub: a faixa "Precisa de você" avisa "N máquinas sem previsão"
+     * e o botão dizia "Programar", mas abria a grade inteira — a pessoa via o
+     * número e tinha que caçar quais eram. Aviso que não leva ao recorte é meio
+     * aviso.
+     */
+    it('liga com semPrevisao=1', async () => {
+      await abrirCom({ semPrevisao: '1' });
+
+      expect(component.semPrevisao()).toBeTrue();
+      expect(component.hasFilters())
+        .withContext('tem que se declarar filtrada, senão a grade curta não se explica')
+        .toBeTrue();
+    });
+
+    it('não liga com outro valor', async () => {
+      await abrirCom({ semPrevisao: '0' });
+
+      expect(component.semPrevisao()).toBeFalse();
+    });
+
+    it('limpar filtros também desliga', async () => {
+      await abrirCom({ semPrevisao: '1' });
+      component.clearFilters();
+
+      expect(component.semPrevisao()).toBeFalse();
+      expect(component.hasFilters()).toBeFalse();
+    });
+
+    it('a URL nova sem o parâmetro desliga o filtro', async () => {
+      await abrirCom({ semPrevisao: '1' });
+
+      urlAtual.next(convertToParamMap({ atrasadas: '1' }));
+
+      expect(component.semPrevisao()).toBeFalse();
+      expect(component.onlyLate()).toBeTrue();
+    });
+  });
 });

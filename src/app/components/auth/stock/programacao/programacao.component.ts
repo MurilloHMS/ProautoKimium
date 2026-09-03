@@ -123,6 +123,15 @@ export class ProgramacaoComponent implements OnInit {
   readonly machineFilter = signal<string | null>(null);
   readonly onlyLate = signal(false);
 
+  /**
+   * Só as linhas sem data de saída.
+   *
+   * Nasceu do Hub: a faixa "Precisa de você" avisa "N máquinas sem previsão" e
+   * o botão dizia "Programar" — mas abria a grade inteira, e a pessoa tinha que
+   * caçar quais eram. Aviso que não leva ao recorte é meio aviso.
+   */
+  readonly semPrevisao = signal(false);
+
   // ─── Motivo do adiamento ─────────────────────────────────────────────────
   //
   // A API recusa com 400 quando a previsão muda e já havia data. Em vez de
@@ -301,7 +310,8 @@ export class ProgramacaoComponent implements OnInit {
   }
 
   readonly hasFilters = computed(() =>
-    this.statusFilter().length > 0 || !!this.machineFilter() || this.onlyLate());
+    this.statusFilter().length > 0 || !!this.machineFilter()
+    || this.onlyLate() || this.semPrevisao());
 
   /**
    * Grade ou importação. A importação ocupa a tela inteira, como os cadastros:
@@ -432,6 +442,7 @@ export class ProgramacaoComponent implements OnInit {
     this.statusFilter.set([]);
     this.machineFilter.set(null);
     this.onlyLate.set(false);
+    this.semPrevisao.set(false);
     this.search = '';
     this.onSearch();
   }
@@ -568,6 +579,7 @@ export class ProgramacaoComponent implements OnInit {
     const statuses = this.statusFilter();
     const machine = this.machineFilter();
     const late = this.onlyLate();
+    const semData = this.semPrevisao();
 
     const filtered = this.store.items()
       .map(register => this.toRow(register))
@@ -577,6 +589,7 @@ export class ProgramacaoComponent implements OnInit {
         if (statuses.length && (!row.status || !statuses.includes(row.status))) return false;
         if (machine && row.machineId !== machine) return false;
         if (late && !this.isLate(row)) return false;
+        if (semData && row.previsao) return false;
 
         if (!term) return true;
         return row.nomeCliente?.toLowerCase().includes(term)
@@ -652,6 +665,7 @@ export class ProgramacaoComponent implements OnInit {
     this.statusFilter.set(status);
     this.machineFilter.set(params.get('maquina') || null);
     this.onlyLate.set(params.get('atrasadas') === '1');
+    this.semPrevisao.set(params.get('semPrevisao') === '1');
   }
 
   refresh(): void {

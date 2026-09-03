@@ -458,6 +458,9 @@ export class MachineHubComponent implements OnInit {
           .join(' · '),
         cta: 'Ver na programação',
         link: '/stock/programacao',
+        // Sem o filtro o botão abria a grade inteira, e a pessoa tinha que
+        // caçar quais eram as três — o aviso dizia o número e escondia a lista.
+        params: { atrasadas: 1 },
       });
     }
 
@@ -472,6 +475,7 @@ export class MachineHubComponent implements OnInit {
           : 'sem data de saída marcada',
         cta: 'Programar',
         link: '/stock/programacao',
+        params: { semPrevisao: 1 },
       });
     }
 
@@ -875,6 +879,8 @@ interface AttentionItem {
   detail: string;
   cta: string;
   link: string;
+  /** O recorte que o destino deve abrir. Sem ele o botão leva à lista inteira. */
+  params?: Record<string, string | number>;
 }
 
 /** "1 máquina" e "2 máquinas" — o `(s)` no meio do texto lê mal. */

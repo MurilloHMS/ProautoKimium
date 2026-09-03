@@ -183,7 +183,7 @@
         </h2>
 
         @for (item of attention(); track item.lead) {
-          <a class="needs__item" [routerLink]="item.link">
+          <a class="needs__item" [routerLink]="item.link" [queryParams]="item.params ?? {}">
             <i class="needs__bar" [class]="'needs__bar needs__bar--' + item.tone"></i>
             <span class="needs__what">
               <span class="needs__lead">{{ item.lead }}</span>
