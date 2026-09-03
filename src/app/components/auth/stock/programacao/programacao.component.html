@@ -5,9 +5,13 @@
 <div class="painel-wrapper">
 
   <app-toolbar>
-    <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+    @if (!ehCelular()) {
+      <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+    }
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
-    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
+    @if (!ehCelular()) {
+      <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
+    }
 
     <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
     <pk-button
@@ -43,6 +47,7 @@
   </app-toolbar>
 
   <div class="sheet">
+    @if (!ehCelular()) {
     <p-table [value]="rows()"
              dataKey="id"
              [scrollable]="true"
@@ -293,6 +298,76 @@
         </tr>
       </ng-template>
     </p-table>
+    }
+
+    <!-- ═══ Celular: uma linha é um cartão ═══════════════════════════════
+         O cartão responde sem abrir nada — máquina, cliente, status e
+         previsão. Região, solicitante, consultor, técnico e observação ficam
+         no formulário: no cartão virariam ruído em volta do que se consulta.
+    -->
+    @if (ehCelular()) {
+      <div class="cartoes">
+        @for (row of rows(); track row.id) {
+          <article class="cartao"
+                   [class.cartao--vencida]="isLate(row)"
+                   [class.cartao--rascunho]="isDraft(row)">
+
+            <button type="button" class="cartao__corpo" (click)="abrirForm(row)">
+              <span class="cartao__maquina">{{ machineName(row.machineId) || 'Sem máquina' }}</span>
+              <span class="cartao__cliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
+            </button>
+
+            @if (row.tag) {
+              <span class="cartao__tag">{{ row.tag }}</span>
+            }
+
+            <div class="cartao__rodape">
+              @if (row.status) {
+                <span [class]="statusClass(row.status)">
+                  <i [class]="statusIcon(row.status)"></i>
+                  {{ statusLabel(row.status) }}
+                </span>
+              }
+
+              <!-- Histórico direto do cartão: uma leitura frequente não deve
+                   custar abrir o formulário antes. Rascunho não tem, porque a
+                   linha ainda não existe na API. -->
+              @if (!isDraft(row)) {
+                <button type="button"
+                        class="cartao__historico"
+                        aria-label="Histórico de alterações"
+                        (click)="abrirHistorico(row)">
+                  <i class="pi pi-history"></i>
+                </button>
+              }
+
+              <!-- O atalho: é o que ele faz quase sempre, então é botão, e
+                   não um campo escondido atrás do formulário. -->
+              <button type="button"
+                      class="cartao__previsao"
+                      [class.is-vencida]="isLate(row)"
+                      [class.is-vazia]="!row.previsao"
+                      [disabled]="isDraft(row) || isSaving(row.id)"
+                      (click)="abrirPrevisao(row)">
+                <i class="pi pi-calendar"></i>
+                {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : 'Sem previsão' }}
+              </button>
+
+              @if (isSaving(row.id)) {
+                <i class="pi pi-spin pi-spinner cartao__estado" title="Salvando"></i>
+              } @else if (isSaved(row.id)) {
+                <i class="pi pi-check cartao__estado cartao__estado--ok" title="Salvo"></i>
+              }
+            </div>
+          </article>
+        } @empty {
+          <div class="sheet-empty">
+            <i class="pi pi-table"></i>
+            <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <p class="sheet-note">
@@ -308,6 +383,182 @@
   <app-programacao-import
     (closed)="mode.set('grid')"
     (finished)="refresh()" />
+}
+
+<!--
+  O atalho da previsão — uma folha que sobe de baixo.
+
+  Não é `pk-dialog` de propósito. O diálogo do tema nasce centralizado, e no
+  celular isso põe o calendário longe do polegar, que está na base da tela: o
+  gesto mais repetido da tela merece nascer onde a mão já está.
+
+  Confirmar cai no `salvarLinha`, o MESMO caminho da célula da planilha — o
+  diálogo de motivo pode abrir logo em seguida, e isso está certo.
+-->
+@if (previsaoAberta(); as row) {
+  <div class="folha folha--sobreposta" (click)="cancelarPrevisao()">
+
+    <!-- O clique de dentro não fecha: só o de fora, no véu. -->
+    <div class="folha__painel"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="folha-titulo"
+         (click)="$event.stopPropagation()">
+
+      <span class="folha__puxador" aria-hidden="true"></span>
+
+      <p class="folha__titulo" id="folha-titulo">Previsão de entrega</p>
+      <p class="folha__linha">
+        {{ machineName(row.machineId) }}
+        @if (row.tag) { <span>· {{ row.tag }}</span> }
+      </p>
+
+      <p-datepicker
+        [ngModel]="previsaoRascunho()"
+        (ngModelChange)="previsaoRascunho.set($event)"
+        [inline]="true"
+        dateFormat="dd/mm/yy" />
+
+      <div class="folha__acoes">
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
+        <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+      </div>
+    </div>
+  </div>
+}
+
+<!--
+  O formulário completo — o caso raro.
+
+  Também é folha, e não `pk-dialog`: ele só é alcançável pelo cartão, que só
+  existe no celular. Um diálogo centralizado nunca chegaria a aparecer no
+  desktop, e no celular deixaria os campos longe do polegar.
+
+  Para em 82% da altura de propósito. O pedaço de lista que sobra em cima é o
+  que diz "você abriu uma gaveta, não trocou de tela" — em tela cheia isso se
+  perde, e aí não haveria motivo para não ser uma página.
+
+  Edita uma cópia: fechar sem salvar não pode deixar valor novo na tela, senão
+  a pessoa sai achando que salvou.
+-->
+@if (formAberto() && formRascunho(); as f) {
+  <div class="folha" (click)="fecharForm()">
+    <div class="folha__painel folha__painel--alta"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="folha-form-titulo"
+         (click)="$event.stopPropagation()">
+
+      <div class="folha__cabeca">
+        <span class="folha__puxador" aria-hidden="true"></span>
+        <div class="folha__titulo-linha">
+          <p class="folha__titulo" id="folha-form-titulo">
+            {{ isDraft(f) ? 'Nova linha' : 'Editar programação' }}
+          </p>
+
+          <!-- Rascunho não tem histórico: a linha ainda não existe na API.
+               O histórico é leitura, então mora na cabeça — longe dos botões
+               que gravam, e sem competir com eles pelo polegar. -->
+          @if (!isDraft(f)) {
+            <button type="button" class="folha__historico"
+                    aria-label="Histórico de alterações"
+                    (click)="abrirHistorico(f)">
+              <i class="pi pi-history"></i>
+              Histórico
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Só o miolo rola. São nove campos: em qualquer altura o formulário
+           passa da folha, e o botão de salvar não pode fugir para baixo. -->
+      <div class="folha__miolo form-programacao">
+      <div class="form-field field-full">
+        <label for="f-maquina">Máquina</label>
+        <pk-combobox inputId="f-maquina"
+                     [ngModel]="f.machineId"
+                     (ngModelChange)="editarCampo('machineId', $event)"
+                     [options]="machineOptions()"
+                     placeholder="Selecione" />
+      </div>
+
+      <div class="form-field field-full">
+        <label for="f-cliente">Cliente</label>
+        <input pInputText id="f-cliente" type="text"
+               [ngModel]="f.nomeCliente"
+               (ngModelChange)="editarCampo('nomeCliente', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-status">Status</label>
+        <pk-combobox inputId="f-status"
+                     [ngModel]="f.status"
+                     (ngModelChange)="editarCampo('status', $event)"
+                     [options]="statusOptions"
+                     placeholder="Selecione" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-previsao">Previsão</label>
+        <p-datepicker inputId="f-previsao"
+                      [ngModel]="f.previsao"
+                      (ngModelChange)="editarCampo('previsao', $event)"
+                      dateFormat="dd/mm/yy"
+                      appendTo="body" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-regiao">Região</label>
+        <input pInputText id="f-regiao" type="text"
+               [ngModel]="f.regiao"
+               (ngModelChange)="editarCampo('regiao', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-tag">Tag</label>
+        <!-- Dez é o limite do Postgres; sem `maxlength` o erro vira 500. -->
+        <input pInputText id="f-tag" type="text" maxlength="10"
+               [ngModel]="f.tag"
+               (ngModelChange)="editarCampo('tag', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-solicitante">Solicitante</label>
+        <input pInputText id="f-solicitante" type="text"
+               [ngModel]="f.solicitante"
+               (ngModelChange)="editarCampo('solicitante', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-consultor">Consultor</label>
+        <input pInputText id="f-consultor" type="text"
+               [ngModel]="f.consultor"
+               (ngModelChange)="editarCampo('consultor', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-tecnico">Técnico</label>
+        <input pInputText id="f-tecnico" type="text"
+               [ngModel]="f.tecnico"
+               (ngModelChange)="editarCampo('tecnico', $event)" />
+      </div>
+
+      <div class="form-field field-full">
+        <label for="f-obs">Observação</label>
+        <textarea id="f-obs" pTextarea rows="3" style="width:100%;resize:vertical"
+                  [ngModel]="f.Observacao"
+                  (ngModelChange)="editarCampo('Observacao', $event)"></textarea>
+      </div>
+      </div>
+
+      <div class="folha__pe">
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
+        <pk-button pkType="save" pkSize="sm"
+                   [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
+                   (clicked)="salvarForm()" />
+      </div>
+    </div>
+  </div>
 }
 
 <!--
@@ -369,77 +620,123 @@
   mudou, e quem arruma quatro coisas de uma vez geraria quatro cartões iguais
   exceto pelo par de valores — com a mesma justificativa repetida em todos.
 -->
-<pk-dialog
-  [header]="'Histórico · ' + historicoDe()"
-  [visible]="historicoAberto()"
-  width="560px"
-  (visibleChange)="historicoAberto.set(false)">
+<!--
+  Histórico de alterações.
 
-  <div pkDialogContent class="pk-form-section">
-    @if (historicoCarregando()) {
-      <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
-    } @else if (historicoAgrupado().length > 0) {
-      <!--
-        Do mais recente para o mais antigo, como a API devolve. Quem abre quer a
-        última mudança; o resto é contexto.
-      -->
-      <div class="hist">
-        @for (edicao of historicoAgrupado(); track edicao.id) {
-          <div class="hist__edicao">
-            <div class="hist__quando">
-              <span>
-                <span class="hist__autor">{{ edicao.changedBy || 'Autor não registrado' }}</span>
-                · {{ edicao.changedAt | date: 'dd/MM/yyyy HH:mm' }}
-              </span>
-              <span class="hist__quantos">
-                {{ edicao.campos.length }} {{ edicao.campos.length === 1 ? 'campo' : 'campos' }}
-              </span>
-            </div>
+  **Folha no celular, diálogo no desktop, e o conteúdo escrito uma vez só.**
+  Esta tela abre o histórico de dois lugares: a coluna de ações da planilha (só
+  desktop) e a folha do formulário (só celular). Duplicar o corpo daria duas
+  versões para manter, e a segunda envelheceria calada.
 
-            <div class="hist__campos">
-              @for (mudanca of edicao.campos; track mudanca.id) {
-                <span class="hist__rotulo">{{ rotuloDoCampo(mudanca.campo) }}</span>
-                <div class="hist__valores">
-                  <!--
-                    Ausência aparece como "sem valor" apagado, nunca como célula
-                    vazia — vazio se lê como falha de carregamento, e não como o
-                    campo estando em branco antes.
-                  -->
-                  @if (valorDoCampo(mudanca.campo, mudanca.valorAnterior); as anterior) {
-                    <span class="hist__de">{{ anterior }}</span>
-                  } @else {
-                    <span class="hist__de hist__sem">sem valor</span>
-                  }
-                  <i class="pi pi-arrow-right"></i>
-                  @if (valorDoCampo(mudanca.campo, mudanca.valorNovo); as novo) {
-                    <span class="hist__para">{{ novo }}</span>
-                  } @else {
-                    <span class="hist__para hist__sem">sem valor</span>
-                  }
-                </div>
-              }
-            </div>
+  Quando a segunda tela precisar disto, vale virar um `pk-sheet` de verdade no
+  tema; até lá o molde está aqui e na skill.
+-->
+<ng-template #historicoCorpo>
+  @if (historicoCarregando()) {
+    <p class="hist-vazio"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+  } @else if (historicoAgrupado().length > 0) {
+    <!--
+      Do mais recente para o mais antigo, como a API devolve. Quem abre quer a
+      última mudança; o resto é contexto.
+    -->
+    <div class="hist">
+      @for (edicao of historicoAgrupado(); track edicao.id) {
+        <div class="hist__edicao">
+          <div class="hist__quando">
+            <span>
+              <span class="hist__autor">{{ edicao.changedBy || 'Autor não registrado' }}</span>
+              · {{ edicao.changedAt | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+            <span class="hist__quantos">
+              {{ edicao.campos.length }} {{ edicao.campos.length === 1 ? 'campo' : 'campos' }}
+            </span>
+          </div>
 
-            @if (edicao.motivo) {
-              <p class="hist__motivo">{{ edicao.motivo }}</p>
-            } @else {
-              <p class="hist__motivo hist__sem">Sem motivo informado.</p>
+          <div class="hist__campos">
+            @for (mudanca of edicao.campos; track mudanca.id) {
+              <span class="hist__rotulo">{{ rotuloDoCampo(mudanca.campo) }}</span>
+              <div class="hist__valores">
+                <!--
+                  Ausência aparece como "sem valor" apagado, nunca como célula
+                  vazia — vazio se lê como falha de carregamento, e não como o
+                  campo estando em branco antes.
+                -->
+                @if (valorDoCampo(mudanca.campo, mudanca.valorAnterior); as anterior) {
+                  <span class="hist__de">{{ anterior }}</span>
+                } @else {
+                  <span class="hist__de hist__sem">sem valor</span>
+                }
+                <i class="pi pi-arrow-right"></i>
+                @if (valorDoCampo(mudanca.campo, mudanca.valorNovo); as novo) {
+                  <span class="hist__para">{{ novo }}</span>
+                } @else {
+                  <span class="hist__para hist__sem">sem valor</span>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
-    } @else {
-      <p class="hist-vazio">
-        <i class="pi pi-check-circle"></i>
-        Esta programação nunca foi alterada.
-      </p>
-    }
-  </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
-  </div>
-</pk-dialog>
+          @if (edicao.motivo) {
+            <p class="hist__motivo">{{ edicao.motivo }}</p>
+          } @else {
+            <p class="hist__motivo hist__sem">Sem motivo informado.</p>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="hist-vazio">
+      <i class="pi pi-check-circle"></i>
+      Esta programação nunca foi alterada.
+    </p>
+  }
+</ng-template>
+
+@if (ehCelular()) {
+  @if (historicoAberto()) {
+    <div class="folha folha--sobreposta" (click)="historicoAberto.set(false)">
+      <div class="folha__painel folha__painel--alta"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="folha-hist-titulo"
+           (click)="$event.stopPropagation()">
+
+        <div class="folha__cabeca">
+          <span class="folha__puxador" aria-hidden="true"></span>
+          <div class="folha__titulo-linha">
+            <p class="folha__titulo" id="folha-hist-titulo">
+              Histórico · {{ historicoDe() }}
+            </p>
+          </div>
+        </div>
+
+        <div class="folha__miolo">
+          <ng-container *ngTemplateOutlet="historicoCorpo" />
+        </div>
+
+        <div class="folha__pe">
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar"
+                     (clicked)="historicoAberto.set(false)" />
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  <pk-dialog
+    [header]="'Histórico · ' + historicoDe()"
+    [visible]="historicoAberto()"
+    width="560px"
+    (visibleChange)="historicoAberto.set(false)">
+
+    <div pkDialogContent class="pk-form-section">
+      <ng-container *ngTemplateOutlet="historicoCorpo" />
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="historicoAberto.set(false)" />
+    </div>
+  </pk-dialog>
+}
 
 <!--
   Confirmação de estoque.

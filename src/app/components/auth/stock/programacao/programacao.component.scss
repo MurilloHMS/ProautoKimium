@@ -431,3 +431,470 @@
   font-size: var(--text-ui-sm);
   font-style: italic;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELULAR — a planilha vira lista de cartões
+//
+// Onze colunas somam ~1785px; a tela de um iPhone tem ~390px. Rolar de lado
+// não é uma versão pior da planilha, é outra tarefa. Aqui cada linha responde
+// sozinha, e o campo que mais muda tem botão próprio.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// **A lista rola por conta própria, e isto não é detalhe.**
+//
+// O `.sheet` usa `grid-screen-body`, que é `overflow: visible`: quem rolava era
+// a tabela do PrimeNG, com `scrollHeight="flex"`. Uma lista comum no lugar dela
+// não rola nada — ela transborda, e o `overflow: hidden` do `grid-screen` lá em
+// cima corta no quinto cartão. O `min-height: 0` é o par obrigatório do
+// `flex: 1 1 auto`: sem ele o item flex se recusa a encolher abaixo do próprio
+// conteúdo e o `overflow-y` nunca chega a valer.
+.cartoes {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+
+  // A grade encostava nas bordas porque é a superfície da tela; o cartão não é,
+  // e precisa de margem para se ler como objeto solto.
+  padding: .5rem .75rem 1rem;
+}
+
+.cartao {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .45rem .6rem;
+
+  padding: .7rem .75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+// Previsão vencida sem entrega: na planilha isso se descobre lendo linha a
+// linha. A marca é faixa na borda, e não fundo tingido — o cartão inteiro
+// vermelho gritaria mais alto que o status, que é a informação principal.
+.cartao--vencida {
+  border-color: var(--app-danger);
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.cartao--rascunho {
+  border-style: dashed;
+  background: var(--app-warning-soft);
+}
+
+.cartao__corpo {
+  grid-column: 1;
+  grid-row: 1;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-control);
+  }
+}
+
+.cartao__maquina {
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao__cliente {
+  font-size: .72rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A tag é como a máquina é chamada em voz alta no galpão.
+.cartao__tag {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+
+  font-size: .66rem;
+  font-weight: 700;
+  color: var(--app-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao__rodape {
+  grid-column: 1 / -1;
+  grid-row: 2;
+
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+// O histórico no cartão. Só ícone, e é a única coisa sem rótulo aqui: o cartão
+// não tem largura para "Histórico" ao lado da data sem empurrá-la para outra
+// linha. O mesmo ícone aparece com rótulo dentro da folha do formulário, então
+// ele se aprende num lugar e se reconhece no outro.
+.cartao__historico {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  i { font-size: .8rem; }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+}
+
+// O atalho da previsão. Tracejado enquanto está parado para dizer "isto se
+// preenche", e alvo de 34px porque é o gesto mais repetido da tela.
+//
+// O `margin-left: auto` sai quando o histórico está presente — ele já empurrou
+// os dois para a direita, e dois empurrões deixariam um buraco entre eles.
+.cartao__previsao {
+  margin-left: auto;
+
+  .cartao__historico + & { margin-left: 0; }
+
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  height: 34px;
+  padding: 0 .7rem;
+
+  border: 1px dashed var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  i { font-size: .8rem; color: var(--app-text-muted); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+
+  &.is-vencida {
+    color: var(--app-danger);
+    border-color: var(--app-danger);
+    border-style: solid;
+
+    i { color: var(--app-danger); }
+  }
+
+  &.is-vazia {
+    color: var(--app-subtle);
+    font-weight: 500;
+  }
+
+  // Rascunho ainda não existe na API: a data vai junto na criação.
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.cartao__estado {
+  font-size: .8rem;
+  color: var(--app-text-muted);
+
+  &--ok { color: var(--app-success); }
+}
+
+// ─── Os dois diálogos do celular ───────────────────────────────────────────
+
+// ─── A folha da previsão ───────────────────────────────────────────────────
+//
+// Sobe de baixo, e não do centro: no celular o polegar mora na base da tela, e
+// este é o gesto mais repetido aqui. Nasce local em vez de no `pk-dialog`
+// porque o diálogo do tema é centralizado por contrato — e contrato não se
+// dobra por uma tela.
+
+.folha {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  // Faixa própria, entre o overlay (1000) e o drawer (1100).
+  //
+  // Estava em 1200, empatada com `$z-modal`, e o PrimeNG numera o diálogo
+  // dinamicamente a partir da faixa de modal: o histórico abriria ATRÁS da
+  // folha. Abaixo de 1100 os diálogos do tema ficam sempre por cima, que é a
+  // ordem certa — quem abre por último manda.
+  z-index: 1050;
+
+  background: var(--app-overlay);
+  animation: folha-vela .2s ease;
+}
+
+// Calendário e histórico abrem SOBRE a folha do formulário, então precisam
+// vencê-la — e por número, não por ordem no template, que muda quando alguém
+// reorganiza o HTML.
+.folha--sobreposta { z-index: 1060; }
+
+.folha__painel {
+  background: var(--app-surface);
+  // 16px, escolhido no aparelho. Fica acima do `--radius-surface` (12px) de
+  // propósito: a folha é maior que um cartão, e o mesmo raio nela lê como
+  // canto quase reto.
+  border-radius: 16px 16px 0 0;
+
+  padding: .6rem 1rem 1rem;
+  // O respiro de baixo é o do aparelho: sem ele os botões ficam por baixo da
+  // barra de gestos do iPhone.
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+
+  max-height: 90dvh;
+  overflow-y: auto;
+
+  animation: folha-sobe .26s cubic-bezier(.32, .72, 0, 1);
+}
+
+// ─── A folha alta: o formulário ────────────────────────────────────────────
+//
+// Para em 82% e deixa a lista aparecendo em cima. É `dvh` e não `vh`: no
+// celular o `vh` mede a tela cheia ignorando a barra do navegador que aparece e
+// some, e o pé da folha acaba escondido embaixo dela.
+.folha__painel--alta {
+  height: 82dvh;
+  max-height: 82dvh;
+
+  padding: 0;
+  padding-bottom: 0;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+}
+
+// Cabeça e pé ficam parados; só o miolo rola. São nove campos: em qualquer
+// altura o formulário passa da folha, e um rolamento único levaria o botão de
+// salvar para fora da vista.
+// Título à esquerda, histórico à direita. O histórico é leitura, então fica
+// longe dos botões que gravam: na cabeça, e não no pé disputando o polegar.
+.folha__titulo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  width: 100%;
+}
+
+.folha__historico {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  // 40px de alvo: menor que os 48px dos itens de lista porque é ação
+  // secundária, e ainda assim confortável.
+  height: 40px;
+  padding: 0 .7rem;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+}
+
+.folha__cabeca {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+
+  padding: .6rem 1rem .7rem;
+  border-bottom: 1px solid var(--app-border);
+
+  .folha__titulo { align-self: flex-start; }
+}
+
+.folha__miolo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  padding: .85rem 1rem;
+}
+
+.folha__pe {
+  flex: 0 0 auto;
+  display: flex;
+  gap: .5rem;
+
+  padding: .7rem 1rem;
+  padding-bottom: calc(.7rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+
+  > * { flex: 1; }
+}
+
+::ng-deep .folha__pe .pk-btn { width: 100%; }
+
+// A alça não é enfeite: é o que diz que a folha veio de baixo e volta para lá.
+.folha__puxador {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--app-border);
+  margin-bottom: .2rem;
+}
+
+.folha__titulo {
+  margin: 0;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.folha__linha {
+  margin: 0 0 .2rem;
+  font-size: .76rem;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  span { color: var(--app-subtle); }
+}
+
+.folha__acoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+  margin-top: .4rem;
+
+  // Os dois botões dividem a largura: alvo grande, e nenhum dos dois é o
+  // "pequeno" que se erra com o polegar.
+  //
+  // Estica o host E o botão de dentro: o `:host` do `pk-button` não declara
+  // display, então ele aceita o `flex: 1`, mas o `.pk-btn` lá dentro é
+  // `inline-flex` e continuaria do tamanho do texto, encostado à esquerda de
+  // uma metade vazia.
+  > * { flex: 1; }
+}
+
+::ng-deep .folha__acoes .pk-btn { width: 100%; }
+
+@keyframes folha-vela {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes folha-sobe {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folha,
+  .folha__painel {
+    animation: none;
+  }
+}
+
+.form-programacao {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+
+  // No celular a coluna dupla espreme rótulo e campo; uma só respira.
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
+  .field-full { grid-column: 1 / -1; }
+}
+
+// O calendário ocupa a folha inteira.
+//
+// O `forms.scss` trava o painel em `262px !important` — certo para o menu que
+// abre ancorado numa célula da planilha, e estreito demais aqui, onde o
+// calendário É o conteúdo. Por isso o `!important` de volta: é a única forma
+// de vencer o global sem afrouxá-lo para as outras telas.
+//
+// **A tabela continua tabela.** Um comentário no `forms.scss` já registra que
+// transformá-la em grade empilha os dias um embaixo do outro — a estrutura
+// interna do PrimeNG não é a que parece. Aqui só as medidas mudam.
+::ng-deep .folha__painel {
+  .p-datepicker { width: 100%; }
+
+  .p-datepicker-panel {
+    width: 100% !important;
+    max-width: none;
+    padding: 0 !important;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .p-datepicker-calendar {
+    th { height: 28px; }
+
+    // O dia deixa de ser um quadrado de 30px e passa a preencher a coluna: com
+    // `table-layout: fixed`, cada célula já é 1/7 da folha.
+    td > span {
+      width: 100%;
+      height: 40px;
+      font-size: var(--text-ui);
+    }
+  }
+}
