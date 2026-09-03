@@ -1,5 +1,13 @@
 @use 'variables' as v;
 
+// Dentro do `.app-content`, o `_shell.scss` da `flex: 1 1 auto` a todo filho
+// que nao seja o router-outlet - e a faixa cresceria para metade da tela. O
+// seletor de la usa `:where()`, com especificidade zero, justamente para o
+// componente poder recusar.
+:host {
+  flex: 0 0 auto;
+}
+
 .instalar {
   display: flex;
   flex-direction: column;
