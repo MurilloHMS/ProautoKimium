@@ -2,6 +2,7 @@ import { CommonModule, formatDate } from '@angular/common';
 import { Component, DestroyRef, HostListener, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
@@ -100,6 +101,7 @@ type SavableDraft = Row & { status: MachineStatus };
 export class ProgramacaoComponent implements OnInit {
 
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
   private readonly store = inject(MachineRegisterStore);
   private readonly machineStore = inject(MachineStore);
   private readonly registerService = inject(RegisterService);
@@ -600,6 +602,7 @@ export class ProgramacaoComponent implements OnInit {
   ngOnInit(): void {
     this.store.load();
     this.machineStore.load();
+    this.aplicarFiltrosDaUrl();
 
     // 768px é o `$bp-md` do SCSS. Repetido aqui porque media query não
     // atravessa para o TypeScript — se um mudar, o outro tem que mudar junto,
@@ -610,6 +613,35 @@ export class ProgramacaoComponent implements OnInit {
     celular.addEventListener('change', aplicar);
     this.destroyRef.onDestroy(() => celular.removeEventListener('change', aplicar));
     aplicar();
+  }
+
+  /**
+   * Lê os filtros da URL, para o Hub poder mandar a pessoa direto ao recorte.
+   *
+   * **Só entende o que existe.** Um status inventado na URL é ignorado, e não
+   * vira lista vazia: lista vazia desenha a tela exatamente como "sem filtro
+   * nenhum", então a pessoa veria a grade inteira achando que estava filtrada,
+   * ou uma grade vazia sem saber por quê.
+   *
+   * Os filtros são os mesmos signals dos controles da toolbar, então aplicar
+   * aqui já os deixa **visíveis** — quem chegou pelo link vê o recorte escrito
+   * na tela, e sabe o que limpar.
+   */
+  private aplicarFiltrosDaUrl(): void {
+    const params = this.route.snapshot.queryParamMap;
+
+    const status = (params.get('status') ?? '')
+      .split(',')
+      .map(valor => valor.trim().toUpperCase())
+      .filter((valor): valor is MachineStatus =>
+        Object.values(MachineStatus).includes(valor as MachineStatus));
+
+    if (status.length) this.statusFilter.set(status);
+
+    const maquina = params.get('maquina');
+    if (maquina) this.machineFilter.set(maquina);
+
+    if (params.get('atrasadas') === '1') this.onlyLate.set(true);
   }
 
   refresh(): void {

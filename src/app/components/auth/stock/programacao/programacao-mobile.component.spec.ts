@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { of } from 'rxjs';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 import { ProgramacaoComponent } from './programacao.component';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
@@ -95,6 +96,12 @@ describe('ProgramacaoComponent · celular', () => {
         { provide: RegisterService, useValue: registerService },
         { provide: MachineService, useValue: machineService },
         { provide: InventoryProductService, useValue: inventoryService },
+        // A tela lê filtros da URL desde que o Hub passou a mandar recorte por
+        // link. Sem rota nenhuma, o componente nem constrói.
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } },
+        },
       ],
     }).compileComponents();
 

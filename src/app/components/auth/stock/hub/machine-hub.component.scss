@@ -787,3 +787,256 @@ pk-calendar {
   .hub-side .dv__fix { font-size: 0; padding: 5px 7px; }
   .hub-side .dv__fix i { font-size: 0.75rem; }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A ROSCA POR STATUS
+//
+// `conic-gradient` e um furo por pseudo-elemento — sem SVG, sem canvas e sem
+// biblioteca, que é a decisão já registrada neste arquivo e no `pk-bar`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.rosca-bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.rosca {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  flex: none;
+
+  // O furo. `inset` em vez de um filho posicionado: um elemento a menos, e o
+  // fundo acompanha a superfície do cartão nos dois temas.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 24px;
+    border-radius: 50%;
+    background: var(--app-surface);
+  }
+}
+
+.rosca__centro {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  // O centro é rótulo, não alvo: deixar passar o clique evita um buraco morto
+  // no meio de um gráfico que é todo clicável.
+  pointer-events: none;
+}
+
+.rosca__total {
+  font-family: v.$font-heading;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.rosca__rotulo {
+  font-size: var(--text-micro);
+  color: var(--app-text-muted);
+}
+
+.rosca-legenda {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+}
+
+// Uma linha da legenda. É `a` porque leva para a Programação filtrada.
+.rlg {
+  display: grid;
+  grid-template-columns: 20px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+
+  min-height: 32px;
+  padding: 0 6px;
+  border-radius: var(--radius-control);
+
+  color: var(--app-text);
+  text-decoration: none;
+  font-size: var(--text-ui-sm);
+
+  &:hover { background: var(--app-surface-2); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: -2px;
+  }
+}
+
+// O ícone é o que sobrevive à escala de cinza: sem ele, as seis fatias viram o
+// mesmo tom para quem não separa vermelho de verde.
+.rlg__marca {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-control);
+
+  i { font-size: 0.65rem; }
+
+  &--success { background: var(--app-success-soft); color: var(--app-success); }
+  &--info    { background: var(--app-info-soft);    color: var(--app-info); }
+  &--warning { background: var(--app-warning-soft); color: var(--app-warning); }
+  &--work    { background: var(--app-work-soft);    color: var(--app-work); }
+  &--danger  { background: var(--app-danger-soft);  color: var(--app-danger); }
+  &--neutral { background: var(--app-surface-3);    color: var(--app-text-muted); }
+}
+
+.rlg__nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rlg__n { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.rlg__pct {
+  min-width: 34px;
+  text-align: right;
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROGRAMAÇÕES POR MÁQUINA
+//
+// Números, e não barra. A barra escondia a quantidade dentro de um pedaço
+// colorido de vinte pixels — e a quantidade é o que se lê aqui.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.mq {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+
+  padding: 9px 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-of-type { border-bottom: 0; }
+}
+
+.mq__nome {
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--app-text);
+  text-decoration: none;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover { color: var(--app-action); text-decoration: underline; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.mq__total {
+  font-size: var(--text-ui);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-muted);
+}
+
+.mq__partes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.mq__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 2px 9px 2px 7px;
+  border-radius: var(--radius-pill);
+
+  font-size: var(--text-micro);
+  font-weight: 600;
+  text-decoration: none;
+
+  i { font-size: 0.6rem; }
+  b { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  &:hover { filter: brightness(0.96); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 1px;
+  }
+
+  &--success { background: var(--app-success-soft); color: var(--app-success); }
+  &--info    { background: var(--app-info-soft);    color: var(--app-info); }
+  &--warning { background: var(--app-warning-soft); color: var(--app-warning); }
+  &--work    { background: var(--app-work-soft);    color: var(--app-work); }
+  &--danger  { background: var(--app-danger-soft);  color: var(--app-danger); }
+  &--neutral { background: var(--app-surface-3);    color: var(--app-text-muted); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// O QUE VENCE — três números, e não um gráfico
+// ═══════════════════════════════════════════════════════════════════════════
+
+.prazos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.pz {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  padding: 12px 13px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+
+  color: var(--app-text);
+  text-decoration: none;
+}
+
+// Só "Vencidas" é link: as outras duas não têm filtro correspondente na
+// Programação, e um alvo que não leva a lugar nenhum é pior que texto.
+a.pz:hover { border-color: var(--app-action); }
+a.pz:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+
+.pz--alerta {
+  border-color: var(--app-danger);
+
+  .pz__n { color: var(--app-danger); }
+}
+
+.pz__n {
+  font-family: v.$font-heading;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.pz__rot { font-size: var(--text-ui-sm); font-weight: 600; }
+.pz__sub { font-size: var(--text-micro); color: var(--app-text-subtle); }
+
+@media (max-width: 600px) {
+  // Três colunas em 320px dariam ~90px por bloco, e o número de duas casas já
+  // encosta na borda.
+  .prazos { grid-template-columns: 1fr; }
+}

@@ -46,25 +46,33 @@
         <span class="kpi__value">{{ totalRegisters() }}</span>
       </a>
 
-      <div class="kpi">
+      <!-- Os quatro contam um recorte da programação, então levam até ele. Eram
+           `div` inertes: o número dizia "tem 5 prontas" e deixava a pessoa
+           refazer o filtro na mão para descobrir quais. -->
+      <a class="kpi" [routerLink]="['/stock/programacao']"
+         [queryParams]="{ status: 'DISPONIVEL' }">
         <span class="kpi__label">Prontas</span>
         <span class="kpi__value kpi__value--ok">{{ available() }}</span>
-      </div>
+      </a>
 
-      <div class="kpi">
+      <a class="kpi" [routerLink]="['/stock/programacao']"
+         [queryParams]="{ status: 'ENTREGUE' }">
         <span class="kpi__label">Entregues</span>
         <span class="kpi__value">{{ delivered() }}</span>
-      </div>
+      </a>
 
-      <div class="kpi" [class.kpi--hero]="inRepair() > 0">
+      <a class="kpi" [class.kpi--hero]="inRepair() > 0"
+         [routerLink]="['/stock/programacao']"
+         [queryParams]="{ status: 'REFORMA' }">
         <span class="kpi__label">Em reforma</span>
         <span class="kpi__value kpi__value--warn">{{ inRepair() }}</span>
-      </div>
+      </a>
 
-      <div class="kpi">
+      <a class="kpi" [routerLink]="['/stock/programacao']"
+         [queryParams]="{ status: 'AGUARDANDO_AQUISICAO' }">
         <span class="kpi__label">Aguardando aquisição</span>
         <span class="kpi__value kpi__value--bad">{{ waitingPurchase() }}</span>
-      </div>
+      </a>
     </div>
 
     <!-- ─── Calendário de implantações ────────────────────────────────────── -->
@@ -112,18 +120,44 @@
       </p>
     }
 
+      <!--
+        A rosca substitui as barras que havia aqui: é o mesmo número, e dois
+        desenhos dele competiriam em vez de informar.
+
+        Cada fatia leva para a Programação filtrada, e a legenda carrega o
+        ÍCONE junto da cor — seis fatias em escala de cinza ficam iguais.
+      -->
       <section class="card">
         <h2 class="card__title">Por status</h2>
 
-        @for (slice of statusSlices(); track slice.label) {
-          <div class="dist">
-            <span class="dist__label">{{ slice.label }}</span>
-            <span class="dist__track">
-              <span class="dist__bar" [class]="'dist__bar--' + slice.severity" [style.width.%]="slice.percent"></span>
-            </span>
-            <span class="dist__value">{{ slice.count }}</span>
+        @if (roscaFatias().length) {
+          <div class="rosca-bloco">
+            <div class="rosca"
+                 [style.background]="roscaGradiente()"
+                 role="img"
+                 [attr.aria-label]="'Programações por status, ' + totalRegisters() + ' no total'">
+              <span class="rosca__centro">
+                <span class="rosca__total">{{ totalRegisters() }}</span>
+                <span class="rosca__rotulo">programações</span>
+              </span>
+            </div>
+
+            <div class="rosca-legenda">
+              @for (fatia of roscaFatias(); track fatia.status) {
+                <a class="rlg"
+                   [routerLink]="['/stock/programacao']"
+                   [queryParams]="{ status: fatia.status }">
+                  <span class="rlg__marca" [class]="'rlg__marca--' + fatia.severity">
+                    <i [class]="fatia.icon"></i>
+                  </span>
+                  <span class="rlg__nome">{{ fatia.label }}</span>
+                  <span class="rlg__n">{{ fatia.count }}</span>
+                  <span class="rlg__pct">{{ fatia.percent }}%</span>
+                </a>
+              }
+            </div>
           </div>
-        } @empty {
+        } @else {
           <p class="card__empty">Nenhum registro na programação ainda.</p>
         }
       </section>
@@ -363,6 +397,86 @@
           <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
         </p>
       }
+    </section>
+  </div>
+
+  <!-- ═══ Insights novos ═════════════════════════════════════════════════ -->
+  <div class="hub-row">
+
+    <!--
+      Programações por máquina.
+
+      Uma linha da programação é uma UNIDADE da máquina, então "NET300: 12" é a
+      contagem de linhas daquele modelo. Números e não barra: a barra escondia a
+      quantidade dentro de um pedaço colorido, e é a quantidade que se lê aqui.
+
+      Cada número é link para a Programação já filtrada por máquina + status.
+    -->
+    <section class="card">
+      <h2 class="card__title">Programações por máquina</h2>
+
+      @for (maquina of visibleMaquinas(); track maquina.machineId) {
+        <div class="mq">
+          <a class="mq__nome"
+             [routerLink]="['/stock/programacao']"
+             [queryParams]="{ maquina: maquina.machineId }">{{ maquina.nome }}</a>
+          <span class="mq__total">{{ maquina.total }}</span>
+
+          <div class="mq__partes">
+            @for (parte of maquina.partes; track parte.status) {
+              <a class="mq__chip" [class]="'mq__chip--' + parte.severity"
+                 [routerLink]="['/stock/programacao']"
+                 [queryParams]="{ maquina: maquina.machineId, status: parte.status }"
+                 [attr.title]="maquina.nome + ' · ' + parte.count + ' ' + parte.label">
+                <i [class]="parte.icon"></i>
+                <b>{{ parte.count }}</b> {{ parte.label.toLowerCase() }}
+              </a>
+            }
+          </div>
+        </div>
+      } @empty {
+        <p class="card__empty">Nenhuma máquina com programação.</p>
+      }
+
+      @if (hiddenMaquinas() > 0) {
+        <p class="card__more">
+          <span>Mostrando as {{ visibleMaquinas().length }} com mais programações, de {{ porMaquina().length }}</span>
+          <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
+        </p>
+      }
+    </section>
+
+    <!--
+      O que vence.
+
+      Três números, e NÃO um gráfico: o calendário ao lado já responde *quando*,
+      e "Próximas saídas" lista as mesmas máquinas. Estes respondem *quanto
+      aperta*, que é a pergunta que os outros dois não respondem.
+    -->
+    <section class="card">
+      <h2 class="card__title">O que vence</h2>
+
+      <div class="prazos">
+        <a class="pz" [class.pz--alerta]="prazos().vencidas > 0"
+           [routerLink]="['/stock/programacao']"
+           [queryParams]="{ atrasadas: 1 }">
+          <span class="pz__n">{{ prazos().vencidas }}</span>
+          <span class="pz__rot">Vencidas</span>
+          <span class="pz__sub">sem entrega</span>
+        </a>
+
+        <div class="pz">
+          <span class="pz__n">{{ prazos().estaSemana }}</span>
+          <span class="pz__rot">Esta semana</span>
+          <span class="pz__sub">até domingo</span>
+        </div>
+
+        <div class="pz">
+          <span class="pz__n">{{ prazos().proxima }}</span>
+          <span class="pz__rot">Próxima</span>
+          <span class="pz__sub">até {{ prazos().fimDaProxima | date: 'dd/MM' }}</span>
+        </div>
+      </div>
     </section>
   </div>
 
