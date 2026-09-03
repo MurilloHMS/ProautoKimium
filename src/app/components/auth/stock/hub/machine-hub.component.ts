@@ -14,6 +14,7 @@ import {
   MACHINE_STATUS_LABEL,
   StatusSeverity,
   MACHINE_STATUS_SEVERITY,
+  OPEN_STATUSES,
   MACHINE_TYPE_LABEL,
   MachineStatus,
   MachineType,
@@ -254,8 +255,16 @@ export class MachineHubComponent implements OnInit {
    * Uma linha da programação **é uma unidade da máquina** — então "NET300: 12"
    * é a contagem de linhas com aquele `machineId`.
    *
-   * Só máquinas **com** programação: quem tem zero não ocupa espaço, porque a
-   * lista acompanha o trabalho e não o cadastro.
+   * **Entregue fica de fora.** Máquina entregue saiu do galpão: contá-la no
+   * total inflaria o número com trabalho que já terminou, e o cartão responde
+   * "quanto ainda tenho nessa máquina". É o `OPEN_STATUSES` do modelo, cujo
+   * comentário já dizia "usado no Hub" — e até agora não era.
+   *
+   * Sai do total **e dos chips**: chip com número fora da soma faria as partes
+   * não fecharem com o total, e ninguém confia num cartão que não bate.
+   *
+   * Só máquinas **com** programação aberta: quem tem zero não ocupa espaço,
+   * porque a lista acompanha o trabalho e não o cadastro.
    *
    * O mapa de nomes é montado **uma vez**. O `machineStore.nameOf()` faz um
    * `find` linear a cada chamada, e chamá-lo por registro custaria
@@ -266,6 +275,8 @@ export class MachineHubComponent implements OnInit {
     const agrupado = new Map<string, Map<MachineStatus, number>>();
 
     for (const registro of this.registerStore.items()) {
+      if (!OPEN_STATUSES.includes(registro.status)) continue;
+
       const porStatus = agrupado.get(registro.machineId) ?? new Map<MachineStatus, number>();
       porStatus.set(registro.status, (porStatus.get(registro.status) ?? 0) + 1);
       agrupado.set(registro.machineId, porStatus);

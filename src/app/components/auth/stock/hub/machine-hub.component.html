@@ -102,7 +102,7 @@
           Cada número é link para a Programação já filtrada por máquina + status.
         -->
         <section class="card">
-          <h2 class="card__title">Programações por máquina</h2>
+          <h2 class="card__title">Programações abertas por máquina</h2>
 
           @for (maquina of visibleMaquinas(); track maquina.machineId) {
             <div class="mq">
@@ -124,12 +124,12 @@
               </div>
           </div>
         } @empty {
-          <p class="card__empty">Nenhuma máquina com programação.</p>
+          <p class="card__empty">Nenhuma máquina com programação aberta.</p>
         }
 
         @if (hiddenMaquinas() > 0) {
           <p class="card__more">
-            <span>Mostrando as {{ visibleMaquinas().length }} com mais programações, de {{ porMaquina().length }}</span>
+            <span>Mostrando as {{ visibleMaquinas().length }} com mais abertas, de {{ porMaquina().length }}</span>
             <a routerLink="/stock/programacao">Ver todas <i class="pi pi-arrow-right"></i></a>
           </p>
         }

@@ -2,7 +2,7 @@ import { CommonModule, formatDate } from '@angular/common';
 import { Component, DestroyRef, HostListener, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
@@ -628,7 +628,20 @@ export class ProgramacaoComponent implements OnInit {
    * na tela, e sabe o que limpar.
    */
   private aplicarFiltrosDaUrl(): void {
-    const params = this.route.snapshot.queryParamMap;
+    // **Observable, e não `snapshot`.** O Angular reaproveita o componente
+    // quando só os query params mudam: com o snapshot lido uma vez no
+    // `ngOnInit`, o primeiro link do Hub funcionava e o segundo não fazia nada.
+    // A tela ficava com o filtro antigo, e o clique parecia quebrado.
+    const inscricao = this.route.queryParamMap.subscribe(params => this.aplicar(params));
+    this.destroyRef.onDestroy(() => inscricao.unsubscribe());
+  }
+
+  /**
+   * A URL é a fonte da verdade a cada navegação: o que não vem nela é
+   * **limpo**, não mantido. Sem isso, ir de `?status=X` para `?maquina=Y`
+   * deixaria o status antigo aplicado por cima do recorte novo.
+   */
+  private aplicar(params: ParamMap): void {
 
     const status = (params.get('status') ?? '')
       .split(',')
@@ -636,12 +649,9 @@ export class ProgramacaoComponent implements OnInit {
       .filter((valor): valor is MachineStatus =>
         Object.values(MachineStatus).includes(valor as MachineStatus));
 
-    if (status.length) this.statusFilter.set(status);
-
-    const maquina = params.get('maquina');
-    if (maquina) this.machineFilter.set(maquina);
-
-    if (params.get('atrasadas') === '1') this.onlyLate.set(true);
+    this.statusFilter.set(status);
+    this.machineFilter.set(params.get('maquina') || null);
+    this.onlyLate.set(params.get('atrasadas') === '1');
   }
 
   refresh(): void {
