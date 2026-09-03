@@ -721,3 +721,38 @@
 
   .field-full { grid-column: 1 / -1; }
 }
+
+// O calendário ocupa a folha inteira.
+//
+// O `forms.scss` trava o painel em `262px !important` — certo para o menu que
+// abre ancorado numa célula da planilha, e estreito demais aqui, onde o
+// calendário É o conteúdo. Por isso o `!important` de volta: é a única forma
+// de vencer o global sem afrouxá-lo para as outras telas.
+//
+// **A tabela continua tabela.** Um comentário no `forms.scss` já registra que
+// transformá-la em grade empilha os dias um embaixo do outro — a estrutura
+// interna do PrimeNG não é a que parece. Aqui só as medidas mudam.
+::ng-deep .folha__painel {
+  .p-datepicker { width: 100%; }
+
+  .p-datepicker-panel {
+    width: 100% !important;
+    max-width: none;
+    padding: 0 !important;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .p-datepicker-calendar {
+    th { height: 28px; }
+
+    // O dia deixa de ser um quadrado de 30px e passa a preencher a coluna: com
+    // `table-layout: fixed`, cada célula já é 1/7 da folha.
+    td > span {
+      width: 100%;
+      height: 40px;
+      font-size: var(--text-ui);
+    }
+  }
+}
