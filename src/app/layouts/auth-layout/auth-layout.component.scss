@@ -36,7 +36,7 @@
 // nunca casaria com ela. Está em `styles/_shell.scss`.
 
 // No desktop entra a barra de abas entre a topbar e o conteúdo.
-@media (min-width: v.$bp-md) {
+@media (min-width: #{v.$bp-md + 1}) {
   .app-content {
     padding-top: calc(var(--topbar-h) + var(--tab-bar-h) + env(safe-area-inset-top));
   }
@@ -46,6 +46,8 @@
 // para o conteúdo não ficar atrás dele.
 @media (max-width: v.$bp-md) {
   .app-content {
-    padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+    padding-bottom: calc(
+      var(--bottom-nav-h) + var(--bottom-nav-gap) * 2 + env(safe-area-inset-bottom)
+    );
   }
 }

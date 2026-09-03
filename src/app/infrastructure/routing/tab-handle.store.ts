@@ -21,7 +21,7 @@ export class TabHandleStore {
     // Precisa valer já na primeira navegação: este store nasce junto com o
     // roteador, antes de qualquer tela. Se dependesse do TabsService (que só
     // nasce com a barra de abas), a primeira tela aberta não seria preservada.
-    const query = window.matchMedia('(min-width: 768px)');
+    const query = window.matchMedia('(min-width: 769px)');
 
     const apply = () => {
       this.enabled.set(query.matches);

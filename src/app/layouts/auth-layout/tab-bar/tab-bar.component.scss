@@ -5,7 +5,7 @@
 }
 
 // A barra de abas é do desktop; no mobile a navegação continua uma tela por vez.
-@media (min-width: v.$bp-md) {
+@media (min-width: #{v.$bp-md + 1}) {
   :host {
     display: block;
   }

@@ -116,6 +116,8 @@
   --topbar-h:     56px;
   --tab-bar-h:    38px;
   --bottom-nav-h: #{v.$bottom-nav-h};
+  --bottom-nav-gap: 12px;
+  --bottom-nav-radius: #{v.$radius-xl};
   --drawer-w:     290px;
 }
 
