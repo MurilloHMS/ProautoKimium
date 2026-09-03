@@ -5,6 +5,9 @@
 // seletor de la usa `:where()`, com especificidade zero, justamente para o
 // componente poder recusar.
 :host {
+  // Sem `display`, o host e inline - e margem vertical nao aplica em inline.
+  // Quem usa o bloco espaca por fora, e precisava disto para conseguir.
+  display: block;
   flex: 0 0 auto;
 }
 

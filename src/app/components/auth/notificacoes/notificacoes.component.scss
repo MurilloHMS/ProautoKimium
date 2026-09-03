@@ -70,6 +70,14 @@
   &:disabled { opacity: 0.6; cursor: default; }
 }
 
+// O mesmo respiro dos outros cartoes desta tela. Mora aqui, e nao no
+// componente, porque 18px e o ritmo DESTA tela - a faixa do topo, que e o
+// mesmo componente, nao quer margem nenhuma.
+app-instalar {
+  display: block;
+  margin-bottom: 18px;
+}
+
 .nt-push-ok {
   display: flex;
   align-items: center;
