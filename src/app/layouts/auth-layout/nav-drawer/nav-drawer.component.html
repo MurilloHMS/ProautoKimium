@@ -14,15 +14,73 @@
   </div>
 
   <div class="drawer__body">
-    <p class="drawer__section">Navegação</p>
 
-    <ul class="drawer__list">
-      @for (node of nodes(); track node.id) {
-        <li>
-          <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, siblings: nodes(), depth: 0 }" />
-        </li>
+    <!-- A busca é o caminho mais curto que existe para as 70 telas do menu, e
+         no celular ela é o primeiro elemento por isso. No desktop some: a
+         topbar já tem a dela, e duas buscas na mesma tela confundem. -->
+    <label class="drawer__busca">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input #campoBusca
+             type="search"
+             inputmode="search"
+             autocomplete="off"
+             placeholder="Buscar tela…"
+             aria-label="Buscar tela"
+             [value]="termo()"
+             (input)="aoDigitar($event)" />
+      @if (buscando()) {
+        <button type="button" class="drawer__busca-limpar"
+                aria-label="Limpar busca" (click)="limparBusca()">
+          <i class="pi pi-times"></i>
+        </button>
       }
-    </ul>
+    </label>
+
+    @if (buscando()) {
+      <p class="drawer__section">
+        {{ resultados().length }}
+        {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
+      </p>
+
+      <ul class="drawer__list">
+        @for (item of resultados(); track item.breadcrumb) {
+          <li>
+            <ng-container
+              *ngTemplateOutlet="atalhoTpl; context: { $implicit: item }" />
+          </li>
+        } @empty {
+          <p class="drawer__vazio">
+            Nada com “{{ termo() }}”. Tente parte do nome, como “féri”.
+          </p>
+        }
+      </ul>
+
+    } @else {
+
+      @if (recentes().length) {
+        <div class="drawer__recentes">
+        <p class="drawer__section">Usados recentemente</p>
+        <ul class="drawer__list">
+          @for (item of recentes(); track item.path) {
+            <li>
+              <ng-container
+                *ngTemplateOutlet="atalhoTpl; context: { $implicit: item }" />
+            </li>
+          }
+        </ul>
+        </div>
+      }
+
+      <p class="drawer__section">Navegação</p>
+
+      <ul class="drawer__list">
+        @for (node of nodes(); track node.id) {
+          <li>
+            <ng-container *ngTemplateOutlet="nodeTpl; context: { $implicit: node, siblings: nodes(), depth: 0 }" />
+          </li>
+        }
+      </ul>
+    }
   </div>
 
   <div class="drawer__footer">
@@ -33,6 +91,18 @@
     </span>
   </div>
 </nav>
+
+<!-- Um destino direto, de busca ou de recentes. Mostra o caminho embaixo do
+     nome porque "Férias" sozinho não diz se é o pedido ou a aprovação. -->
+<ng-template #atalhoTpl let-item>
+  <button type="button" class="drawer__atalho" (click)="irPara(item)">
+    <span class="drawer__atalho-icone"><i [class]="item.icon"></i></span>
+    <span class="drawer__atalho-texto">
+      <span class="drawer__atalho-rotulo">{{ item.label }}</span>
+      <span class="drawer__atalho-caminho">{{ item.breadcrumb }}</span>
+    </span>
+  </button>
+</ng-template>
 
 <!-- Template recursivo: um nó de qualquer nível -->
 <ng-template #nodeTpl let-node let-siblings="siblings" let-depth="depth">

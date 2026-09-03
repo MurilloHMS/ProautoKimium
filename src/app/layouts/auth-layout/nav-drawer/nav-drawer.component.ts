@@ -14,6 +14,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { MenuService } from '../../../infrastructure/services/menu.service';
+import { TelasRecentesService } from '../../../infrastructure/services/telas-recentes.service';
 import { AppMenuItem } from '../menu.config';
 
 /**
@@ -64,7 +65,20 @@ export class NavDrawerComponent {
 
   readonly expanded = signal<ReadonlySet<string>>(new Set<string>());
 
+  private readonly telasRecentes = inject(TelasRecentesService);
+
+  /** O que foi digitado na busca do menu. */
+  readonly termo = signal('');
+
+  readonly buscando = computed(() => this.termo().trim().length > 0);
+
+  /** Reusa a busca do MenuService, que já dobra acento e casa o caminho. */
+  readonly resultados = computed(() => this.menuService.search(this.termo()));
+
+  readonly recentes = this.telasRecentes.recentes;
+
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly campoBusca = viewChild<ElementRef<HTMLInputElement>>('campoBusca');
   private everOpened = false;
 
   constructor() {
@@ -105,7 +119,33 @@ export class NavDrawerComponent {
   }
 
   close(): void {
+    // A busca não sobrevive ao fechamento: reabrir o menu com o termo antigo
+    // mostraria resultados de uma procura que a pessoa já terminou.
+    this.limparBusca();
     this.closed.emit();
+  }
+
+  aoDigitar(evento: Event): void {
+    this.termo.set((evento.target as HTMLInputElement).value);
+  }
+
+  limparBusca(): void {
+    this.termo.set('');
+  }
+
+  /**
+   * Vai para um destino de busca ou de recentes. Aceita os dois formatos
+   * porque ambos carregam `path`; o `url` só existe nos externos, que vêm
+   * apenas da busca.
+   */
+  irPara(item: { path: string; url?: string; target?: string }): void {
+    if (item.url) {
+      window.open(item.url, item.target ?? '_self');
+    } else {
+      this.router.navigateByUrl(item.path);
+    }
+
+    this.close();
   }
 
   @HostListener('document:keydown.escape')
@@ -151,7 +191,19 @@ export class NavDrawerComponent {
     ).filter(el => el.offsetParent !== null);
   }
 
+  /**
+   * Foca a busca quando ela está visível — no celular ela é o primeiro
+   * elemento, e era o botão de fechar que recebia o foco por ser o primeiro no
+   * DOM. Foco programático não levanta o teclado do iOS, então a lista de
+   * recentes continua à vista.
+   */
   private focusFirst(): void {
+    const campo = this.campoBusca()?.nativeElement;
+    if (campo && campo.offsetParent !== null) {
+      campo.focus();
+      return;
+    }
+
     this.focusableElements()[0]?.focus();
   }
 
