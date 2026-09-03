@@ -120,4 +120,9 @@ $icon-lg: 32px;
 $icon-xlg: 64px;
 
 // ─── Layout ─────────────────────────────────────────────────────────────────────
-$bottom-nav-h: 62px;   // altura da barra de navegação inferior (mobile)
+$bottom-nav-h: 52px;   // altura da barra de navegação inferior (mobile, só no app)
+
+// O site público não tem barra de baixo — ele usava a altura dela só como
+// distância para o botão flutuante e o respiro do rodapé. Separado para a
+// barra do app poder mudar de tamanho sem mexer no site.
+$fab-offset:   62px;

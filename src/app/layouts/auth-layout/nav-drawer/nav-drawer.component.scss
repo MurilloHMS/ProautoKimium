@@ -237,3 +237,175 @@
     transition: none;
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// BUSCA E ATALHOS — só no celular.
+//
+// No desktop a topbar já tem busca, e duas na mesma tela confundem; o menu de
+// lá também funciona bem como está. Aqui eles nascem escondidos e o breakpoint
+// os liga, em vez do contrário: assim o desktop não depende de nenhuma regra
+// nova para continuar igual.
+// ─────────────────────────────────────────────────────────────────────────
+
+.drawer__busca,
+.drawer__recentes {
+  display: none;
+}
+
+.drawer__busca {
+  align-items: center;
+  gap: 0.5rem;
+
+  margin: 0 0 0.75rem;
+  padding: 0 0.75rem;
+  height: 44px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-bg);
+  color: var(--app-text-muted);
+
+  &:focus-within {
+    border-color: var(--app-primary);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--app-text);
+
+    // O X nativo do `type=search` some: temos um botão próprio, que fica no
+    // mesmo lugar nos dois navegadores.
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+  }
+}
+
+.drawer__busca-limpar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+}
+
+// Alvo de 48px: é o mínimo confortável, e o público do app é 40+.
+.drawer__atalho {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 0.75rem;
+
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--app-surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: -2px;
+  }
+}
+
+.drawer__atalho-icone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-control);
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+}
+
+.drawer__atalho-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.drawer__atalho-rotulo {
+  font-size: 0.88rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// O caminho é o que desfaz a ambiguidade: "Férias" sozinho não diz se é o
+// pedido ou a aprovação, e são duas telas diferentes.
+.drawer__atalho-caminho {
+  font-size: 0.7rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer__vazio {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+// ─── O menu de tela cheia ────────────────────────────────────────────────
+@media (max-width: v.$bp-md) {
+
+  // Sem overlay: não há tela por trás para revelar.
+  .drawer__overlay {
+    display: none;
+  }
+
+  // 290px não têm largura para o caminho embaixo do nome, e é justamente o
+  // caminho que resolve o problema de achar a tela entre 70.
+  .drawer {
+    right: 0;
+    width: 100%;
+    max-width: none;
+
+    transform: translateY(100%);
+
+    &.is-open {
+      transform: translateY(0);
+    }
+  }
+
+  .drawer__busca {
+    display: flex;
+  }
+
+  .drawer__recentes {
+    display: block;
+  }
+
+  // A árvore foi desenhada para o mouse; no dedo os alvos sobem para 48px.
+  .drawer__item {
+    min-height: 48px;
+  }
+}

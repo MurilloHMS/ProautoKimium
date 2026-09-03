@@ -174,13 +174,16 @@ export const APP_MENU: AppMenuItem[] = [
 ];
 
 /**
- * Bottom nav do mobile — lista própria porque dois destinos ("Avisos" e "Perfil")
- * são páginas pessoais que não aparecem na árvore do drawer. Passa pelo mesmo
- * filtro de papéis do menu principal.
+ * Bottom nav do mobile — lista própria porque os destinos são páginas pessoais
+ * que não aparecem na árvore do drawer. O quinto atalho é preenchido em tempo
+ * de execução pela tela mais usada da pessoa (ver TelasRecentesService).
+ *
+ * "Notificações" está aqui, e não "Avisos", porque só notificação tem estado de
+ * lido — é a única que pode acender um ponto honesto. Avisos continua no menu.
  */
 export const MOBILE_NAV: AppMenuItem[] = [
   { label: 'Início', icon: 'pi pi-home', routerLink: ['home'] },
   { label: 'Documentos', icon: 'pi pi-folder', routerLink: ['documentos'], screen: 'documentos' },
-  { label: 'Avisos', icon: 'pi pi-megaphone', routerLink: ['documentos/rh/announcements'], screen: 'documentos/rh/announcements' },
+  { label: 'Notificações', icon: 'pi pi-bell', routerLink: ['notificacoes'] },
   { label: 'Perfil', icon: 'pi pi-user', routerLink: ['perfil'], screen: 'perfil' },
 ];

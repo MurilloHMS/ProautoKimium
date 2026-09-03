@@ -116,6 +116,8 @@
   --topbar-h:     56px;
   --tab-bar-h:    38px;
   --bottom-nav-h: #{v.$bottom-nav-h};
+  --bottom-nav-gap: 15px;
+  --bottom-nav-radius: var(--radius-pill);  // 26px numa barra de 52px é cápsula
   --drawer-w:     290px;
 }
 
