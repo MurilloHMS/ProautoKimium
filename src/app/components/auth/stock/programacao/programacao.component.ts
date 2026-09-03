@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, DestroyRef, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, HostListener, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
@@ -354,6 +354,17 @@ export class ProgramacaoComponent implements OnInit {
 
   cancelarPrevisao(): void {
     this.previsaoAberta.set(null);
+  }
+
+  /**
+   * `Esc` fecha a folha.
+   *
+   * O `pk-dialog` dava isto de graça; a folha é nossa, então o atalho vem
+   * junto — sair de um painel modal pelo teclado não é opcional.
+   */
+  @HostListener('document:keydown.escape')
+  onEscapeFolha(): void {
+    if (this.previsaoAberta()) this.cancelarPrevisao();
   }
 
   // ─── O formulário completo ────────────────────────────────────────────────

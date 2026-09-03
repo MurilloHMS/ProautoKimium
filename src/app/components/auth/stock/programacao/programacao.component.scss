@@ -609,21 +609,104 @@
 
 // ─── Os dois diálogos do celular ───────────────────────────────────────────
 
-.previsao-dialogo {
+// ─── A folha da previsão ───────────────────────────────────────────────────
+//
+// Sobe de baixo, e não do centro: no celular o polegar mora na base da tela, e
+// este é o gesto mais repetido aqui. Nasce local em vez de no `pk-dialog`
+// porque o diálogo do tema é centralizado por contrato — e contrato não se
+// dobra por uma tela.
+
+.folha {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
   display: flex;
   flex-direction: column;
-  gap: .6rem;
-  align-items: center;
+  justify-content: flex-end;
+
+  background: var(--app-overlay);
+  animation: folha-vela .2s ease;
 }
 
-.previsao-dialogo__linha {
+.folha__painel {
+  background: var(--app-surface);
+  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
+
+  padding: .6rem 1rem 1rem;
+  // O respiro de baixo é o do aparelho: sem ele os botões ficam por baixo da
+  // barra de gestos do iPhone.
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+
+  max-height: 90vh;
+  overflow-y: auto;
+
+  animation: folha-sobe .26s cubic-bezier(.32, .72, 0, 1);
+}
+
+// A alça não é enfeite: é o que diz que a folha veio de baixo e volta para lá.
+.folha__puxador {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--app-border);
+  margin-bottom: .2rem;
+}
+
+.folha__titulo {
   margin: 0;
-  align-self: stretch;
-  font-size: .78rem;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.folha__linha {
+  margin: 0 0 .2rem;
+  font-size: .76rem;
   color: var(--app-text-muted);
   text-align: center;
 
   span { color: var(--app-subtle); }
+}
+
+.folha__acoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+  margin-top: .4rem;
+
+  // Os dois botões dividem a largura: alvo grande, e nenhum dos dois é o
+  // "pequeno" que se erra com o polegar.
+  //
+  // Estica o host E o botão de dentro: o `:host` do `pk-button` não declara
+  // display, então ele aceita o `flex: 1`, mas o `.pk-btn` lá dentro é
+  // `inline-flex` e continuaria do tamanho do texto, encostado à esquerda de
+  // uma metade vazia.
+  > * { flex: 1; }
+}
+
+::ng-deep .folha__acoes .pk-btn { width: 100%; }
+
+@keyframes folha-vela {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes folha-sobe {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folha,
+  .folha__painel {
+    animation: none;
+  }
 }
 
 .form-programacao {

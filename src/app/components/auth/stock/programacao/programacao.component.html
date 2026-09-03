@@ -374,38 +374,46 @@
 }
 
 <!--
-  O atalho da previsão.
+  O atalho da previsão — uma folha que sobe de baixo.
 
-  Só a data, porque é o campo que ele muda quase sempre no celular. Confirmar
-  cai no `salvarLinha`, o MESMO caminho da célula da planilha: o diálogo de
-  motivo pode abrir logo em seguida, e isso está certo — é a mesma pergunta.
+  Não é `pk-dialog` de propósito. O diálogo do tema nasce centralizado, e no
+  celular isso põe o calendário longe do polegar, que está na base da tela: o
+  gesto mais repetido da tela merece nascer onde a mão já está.
+
+  Confirmar cai no `salvarLinha`, o MESMO caminho da célula da planilha — o
+  diálogo de motivo pode abrir logo em seguida, e isso está certo.
 -->
-<pk-dialog
-  header="Previsão de entrega"
-  [visible]="previsaoAberta() !== null"
-  width="360px"
-  (visibleChange)="cancelarPrevisao()">
+@if (previsaoAberta(); as row) {
+  <div class="folha" (click)="cancelarPrevisao()">
 
-  <div pkDialogContent class="previsao-dialogo">
-    @if (previsaoAberta(); as row) {
-      <p class="previsao-dialogo__linha">
+    <!-- O clique de dentro não fecha: só o de fora, no véu. -->
+    <div class="folha__painel"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="folha-titulo"
+         (click)="$event.stopPropagation()">
+
+      <span class="folha__puxador" aria-hidden="true"></span>
+
+      <p class="folha__titulo" id="folha-titulo">Previsão de entrega</p>
+      <p class="folha__linha">
         {{ machineName(row.machineId) }}
         @if (row.tag) { <span>· {{ row.tag }}</span> }
       </p>
-    }
 
-    <p-datepicker
-      [ngModel]="previsaoRascunho()"
-      (ngModelChange)="previsaoRascunho.set($event)"
-      [inline]="true"
-      dateFormat="dd/mm/yy" />
-  </div>
+      <p-datepicker
+        [ngModel]="previsaoRascunho()"
+        (ngModelChange)="previsaoRascunho.set($event)"
+        [inline]="true"
+        dateFormat="dd/mm/yy" />
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
-    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+      <div class="folha__acoes">
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
+        <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+      </div>
+    </div>
   </div>
-</pk-dialog>
+}
 
 <!--
   O formulário completo — o caso raro.
