@@ -34,7 +34,14 @@ export class InstalarComponent {
   /** Explica POR QUE instalar, quando quem chama tem um motivo melhor. */
   readonly motivo = input<string>('');
 
-  readonly aparecer = this.instalacao.deveConvidar;
+  /**
+   * A faixa do topo some por 14 dias quando dispensada; o bloco dentro de uma
+   * tela, não. Quem navegou até a tela foi atrás disso — esconder ali seria
+   * punir a pessoa por um toque que ela deu em outro lugar.
+   */
+  readonly aparecer = computed(() =>
+    this.instalacao.podeConvidar()
+    && (this.formato() === 'bloco' || !this.instalacao.dispensadoRecentemente()));
   readonly plataforma = this.instalacao.plataforma;
   readonly podeInstalarDireto = this.instalacao.podeInstalarDireto;
 

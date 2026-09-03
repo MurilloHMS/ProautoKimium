@@ -58,10 +58,13 @@ export class InstalacaoService {
     this.plataforma() === 'android' && this.temEventoGuardado());
 
   /**
-   * Quando mostrar o convite. `instalado` nunca; iOS fora do Safari nunca,
-   * porque lá não existe caminho; e nada durante a quarentena da dispensa.
+   * Se instalar é possível AQUI — plataforma, navegador, e ainda não instalado.
+   *
+   * Não olha a dispensa de propósito. Dispensar a faixa do topo é dizer "agora
+   * não", e não "nunca mais me mostre isso em lugar nenhum": quem depois abre
+   * a tela de notificações atrás do convite tem que encontrá-lo lá.
    */
-  readonly deveConvidar = computed(() => {
+  readonly podeConvidar = computed(() => {
     if (this.instalouAgora()) return false;
 
     const plataforma = this.plataforma();
@@ -69,8 +72,21 @@ export class InstalacaoService {
     if (plataforma === 'ios' && !this.ehSafari()) return false;
     if (plataforma === 'android' && !this.temEventoGuardado()) return false;
 
-    return !this.estaNaQuarentena();
+    return true;
   });
+
+  /** Só a faixa do topo respeita isto. */
+  readonly dispensadoRecentemente = computed(() => this.estaNaQuarentena());
+
+  /** Traz a faixa de volta — para quem fechou sem querer. */
+  reativar(): void {
+    this.dispensadoEm.set(null);
+    try {
+      this.janela?.localStorage.removeItem(CHAVE_DISPENSA);
+    } catch {
+      // Sem armazenamento, a dispensa nem chegou a ser gravada.
+    }
+  }
 
   constructor() {
     if (!this.janela) return;
