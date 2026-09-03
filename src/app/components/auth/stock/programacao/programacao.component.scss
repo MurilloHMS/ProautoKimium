@@ -440,11 +440,28 @@
 // sozinha, e o campo que mais muda tem botão próprio.
 // ═══════════════════════════════════════════════════════════════════════════
 
+// **A lista rola por conta própria, e isto não é detalhe.**
+//
+// O `.sheet` usa `grid-screen-body`, que é `overflow: visible`: quem rolava era
+// a tabela do PrimeNG, com `scrollHeight="flex"`. Uma lista comum no lugar dela
+// não rola nada — ela transborda, e o `overflow: hidden` do `grid-screen` lá em
+// cima corta no quinto cartão. O `min-height: 0` é o par obrigatório do
+// `flex: 1 1 auto`: sem ele o item flex se recusa a encolher abaixo do próprio
+// conteúdo e o `overflow-y` nunca chega a valer.
 .cartoes {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
   display: flex;
   flex-direction: column;
   gap: .5rem;
-  padding: .5rem 0 1rem;
+
+  // A grade encostava nas bordas porque é a superfície da tela; o cartão não é,
+  // e precisa de margem para se ler como objeto solto.
+  padding: .5rem .75rem 1rem;
 }
 
 .cartao {
