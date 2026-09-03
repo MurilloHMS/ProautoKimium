@@ -7,7 +7,7 @@ $spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 .cart-fab {
   position: fixed;
   right: 16px;
-  bottom: calc(#{v.$bottom-nav-h} + 92px + env(safe-area-inset-bottom));
+  bottom: calc(#{v.$fab-offset} + 92px + env(safe-area-inset-bottom));
   z-index: 1000;
   width: 56px;
   height: 56px;

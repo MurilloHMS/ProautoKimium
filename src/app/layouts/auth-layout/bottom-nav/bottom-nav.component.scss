@@ -1,5 +1,8 @@
 @use 'variables' as v;
 
+// O respiro interno da barra: a pílula não pode encostar na cápsula.
+$folga: 10px;
+
 :host {
   display: none;
 }
@@ -26,12 +29,15 @@
   grid-auto-columns: 1fr;
 
   height: var(--bottom-nav-h);
+  padding: 0 $folga;
 
   background: var(--app-surface);
   border: 1px solid var(--app-border);
+  // Numa barra de 52px, o raio escolhido (26px) é exatamente a metade: cápsula.
+  // Então o token do tema já diz tudo, sem número solto no componente.
   border-radius: var(--bottom-nav-radius);
-  // O token existe para isto: o comentário dele em `_tokens.scss` diz "só para
-  // o que flutua de verdade sobre o conteúdo".
+  // O comentário deste token em `_tokens.scss` diz "só para o que flutua de
+  // verdade sobre o conteúdo" — que é o caso.
   box-shadow: var(--app-shadow-overlay);
   font-family: v.$font-body;
 }
@@ -39,15 +45,17 @@
 // A pílula marca o item ativo. Como a grade é de colunas iguais, a posição é
 // aritmética — `1/total` de largura, deslocada `índice` vezes a própria
 // largura. Anima só `transform`, que o compositor resolve sem reflow.
+//
+// Ela é cápsula também: canto reto por dentro de barra redonda denuncia na hora.
 .bottom-nav__pilula {
   position: absolute;
-  top: 6px;
-  left: 4px;
-  bottom: 6px;
+  top: 5px;
+  left: $folga;
+  bottom: 5px;
 
-  width: calc((100% - 8px) / var(--total));
+  width: calc((100% - #{$folga * 2}) / var(--total));
 
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-pill);
   background: var(--app-primary-soft);
 
   transform: translateX(calc(var(--indice) * 100%));
@@ -60,25 +68,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
 
   color: var(--app-text-muted);
   text-decoration: none;
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 600;
   transition: color v.$transition-base;
-
-  i {
-    font-size: v.$font-size-md;
-  }
-
-  span {
-    max-width: 100%;
-    padding: 0 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 
   &.is-active {
     color: var(--app-primary);
@@ -87,10 +83,10 @@
   &:focus-visible {
     outline: 2px solid var(--app-primary);
     outline-offset: -3px;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-pill);
   }
 
-  &:active i {
+  &:active .bottom-nav__icone {
     transform: scale(0.92);
   }
 }
@@ -99,6 +95,24 @@
   position: relative;
   display: grid;
   place-items: center;
+
+  i {
+    font-size: v.$font-size-md;
+  }
+}
+
+// Todos os rótulos ficam à mostra.
+//
+// Chegou a existir aqui a versão que mostrava o nome só no item ativo — bonita,
+// e errada para este app: o público é 40+, e quatro ícones sem legenda viram
+// adivinhação para quem não abre o sistema todo dia. O ativo se distingue pela
+// pílula e pela cor, que não custam legibilidade a ninguém.
+.bottom-nav__rotulo {
+  max-width: 100%;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // O ponto só existe quando há não lidas, então ele já é a notícia: pulsa
@@ -125,18 +139,21 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bottom-nav__item,
-  .bottom-nav__item:active i,
   .bottom-nav__pilula {
     transition: none;
-    transform: none;
   }
 
-  // A pílula ainda precisa POUSAR no item certo — só não anima até lá.
-  .bottom-nav__pilula {
-    transform: translateX(calc(var(--indice) * 100%));
+  .bottom-nav__item:active .bottom-nav__icone {
+    transform: none;
   }
 
   .bottom-nav__ponto {
     animation: none;
+  }
+
+  // Sem animação, mas o estado final continua valendo: a pílula pousa no item
+  // certo, sem correr até lá.
+  .bottom-nav__pilula {
+    transform: translateX(calc(var(--indice) * 100%));
   }
 }

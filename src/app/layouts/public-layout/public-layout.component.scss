@@ -3,7 +3,7 @@
 :host {
   display: block;
   // Respiro para o conteúdo/footer não ficarem atrás da pílula flutuante (mobile).
-  padding-bottom: calc(#{v.$bottom-nav-h} + 26px + env(safe-area-inset-bottom));
+  padding-bottom: calc(#{v.$fab-offset} + 26px + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 1024px) {

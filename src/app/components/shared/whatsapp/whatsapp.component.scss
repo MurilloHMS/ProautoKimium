@@ -7,7 +7,7 @@
     align-items: center;
     position: fixed;
     // Acima da pílula flutuante do bottom nav no mobile.
-    bottom: calc(#{v.$bottom-nav-h} + 26px + env(safe-area-inset-bottom));
+    bottom: calc(#{v.$fab-offset} + 26px + env(safe-area-inset-bottom));
     right: 16px;
     z-index: 1000;
     cursor: pointer;
