@@ -1,5 +1,5 @@
 import { CommonModule, formatDate } from '@angular/common';
-import { Component, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, LOCALE_ID, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
@@ -99,6 +99,7 @@ type SavableDraft = Row & { status: MachineStatus };
 })
 export class ProgramacaoComponent implements OnInit {
 
+  private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(MachineRegisterStore);
   private readonly machineStore = inject(MachineStore);
   private readonly registerService = inject(RegisterService);
@@ -306,6 +307,106 @@ export class ProgramacaoComponent implements OnInit {
    */
   readonly mode = signal<'grid' | 'import'>('grid');
 
+  // ─── Celular: a planilha vira lista de cartões ────────────────────────────
+
+  /**
+   * Abaixo de `$bp-md` (768px) a planilha some e entram os cartões.
+   *
+   * É `@if` e não `display: none` porque a tabela do PrimeNG monta onze colunas
+   * por linha: escondê-la por CSS deixaria todo esse DOM vivo num aparelho que
+   * nunca vai mostrá-lo.
+   *
+   * Sinal próprio, e não o `TabHandleStore.enabled` que já existe com a média
+   * inversa: aquele significa "as abas estão ligadas", e amarrar o layout desta
+   * tela a ele faria os cartões aparecerem no desktop no dia em que alguém
+   * desligasse as abas.
+   */
+  readonly ehCelular = signal(false);
+
+  // ─── O atalho da previsão ─────────────────────────────────────────────────
+
+  /**
+   * A linha cuja data está sendo trocada, e a data escolhida antes de gravar.
+   *
+   * A data vai para um rascunho e não direto na linha: desistir tem que deixar
+   * a tela como estava. Escrever na linha e depois desfazer é o caminho em que
+   * a pessoa sai achando que salvou — o mesmo motivo do `cancelarMotivo`.
+   */
+  readonly previsaoAberta = signal<Row | null>(null);
+  readonly previsaoRascunho = signal<Date | string | null>(null);
+
+  abrirPrevisao(row: Row): void {
+    this.previsaoRascunho.set(row.previsao ?? null);
+    this.previsaoAberta.set(row);
+  }
+
+  confirmarPrevisao(): void {
+    const row = this.previsaoAberta();
+    if (!row) return;
+
+    row.previsao = this.previsaoRascunho() as Row['previsao'];
+    this.previsaoAberta.set(null);
+
+    // O mesmo caminho da célula: `hasChanges`, motivo e estoque continuam
+    // valendo. Chamar o service daqui perderia os três em silêncio.
+    this.salvarLinha(row);
+  }
+
+  cancelarPrevisao(): void {
+    this.previsaoAberta.set(null);
+  }
+
+  // ─── O formulário completo ────────────────────────────────────────────────
+
+  /**
+   * O caso raro: mexer em técnico, consultor, região, observação.
+   *
+   * Edita uma **cópia**. Só no salvar os valores voltam para a linha, então
+   * fechar sem salvar não deixa nada pela metade — e o `hasChanges` continua
+   * barrando o PUT de quem abriu e fechou sem mexer.
+   */
+  readonly formAberto = signal(false);
+  readonly formRascunho = signal<Row | null>(null);
+  private formAlvo: Row | null = null;
+
+  abrirForm(row: Row): void {
+    this.formAlvo = row;
+    this.formRascunho.set({ ...row });
+    this.formAberto.set(true);
+  }
+
+  fecharForm(): void {
+    this.formAberto.set(false);
+    this.formRascunho.set(null);
+    this.formAlvo = null;
+  }
+
+  salvarForm(): void {
+    const editado = this.formRascunho();
+    const alvo = this.formAlvo;
+    if (!editado || !alvo) return;
+
+    Object.assign(alvo, editado);
+    const eraRascunho = this.isDraft(alvo);
+    this.fecharForm();
+
+    // Linha nova ainda não existe na API: ela tem porta própria, que valida o
+    // mínimo antes de criar.
+    if (eraRascunho) {
+      this.saveDraft(alvo);
+      return;
+    }
+
+    this.salvarLinha(alvo);
+  }
+
+  /** Atualiza um campo do rascunho do formulário. */
+  editarCampo<K extends keyof Row>(campo: K, valor: Row[K]): void {
+    this.formRascunho.update(atual => atual ? { ...atual, [campo]: valor } : atual);
+  }
+
+
+
   clearFilters(): void {
     this.statusFilter.set([]);
     this.machineFilter.set(null);
@@ -480,6 +581,16 @@ export class ProgramacaoComponent implements OnInit {
   ngOnInit(): void {
     this.store.load();
     this.machineStore.load();
+
+    // 768px é o `$bp-md` do SCSS. Repetido aqui porque media query não
+    // atravessa para o TypeScript — se um mudar, o outro tem que mudar junto,
+    // senão a tabela e os cartões aparecem ao mesmo tempo.
+    const celular = window.matchMedia('(max-width: 768px)');
+    const aplicar = () => this.ehCelular.set(celular.matches);
+
+    celular.addEventListener('change', aplicar);
+    this.destroyRef.onDestroy(() => celular.removeEventListener('change', aplicar));
+    aplicar();
   }
 
   refresh(): void {
@@ -741,14 +852,20 @@ export class ProgramacaoComponent implements OnInit {
    * usuário estivesse digitando em outra célula.
    */
   onCellEdited(row: Row): void {
-    if (!row || this.isDraft(row) || this.isSaving(row.id)) return;
+    this.salvarLinha(row);
+  }
 
-    // Linha gravada sempre tem status — a API o exige. A guarda é a invariante
-    // virando código, e vira rede de verdade no dia em que o combo ganhar um
-    // botão de limpar.
-    if (!row.status) return;
-
-    const payload: UpdateMachineRegister = {
+  /**
+   * Monta o corpo do PUT a partir da linha.
+   *
+   * **Um construtor só, e é de propósito.** A API não tem PATCH — todo
+   * salvamento manda os nove campos —, e a tela tem duas portas de edição: a
+   * célula da planilha no desktop e o cartão no celular. Dois construtores
+   * divergiriam no dia em que a API ganhasse um campo, e o caminho menos usado
+   * passaria meses mandando o campo faltando sem ninguém notar.
+   */
+  private montarPayload(row: Row & { status: MachineStatus }): UpdateMachineRegister {
+    return {
       nomeCliente: row.nomeCliente ?? '',
       tag: row.tag?.trim() || null,
       regiao: row.regiao ?? '',
@@ -759,6 +876,29 @@ export class ProgramacaoComponent implements OnInit {
       consultor: row.consultor ?? '',
       tecnico: row.tecnico ?? '',
     };
+  }
+
+  /**
+   * O caminho único de gravação de uma linha existente.
+   *
+   * São quatro portões, e **nenhum é decorativo** — quem chamar o service por
+   * fora pula os quatro em silêncio, e a perda só aparece semanas depois, no
+   * Hub, como máquina que adiou sem justificativa:
+   *
+   * 1. `hasChanges` — sem ele, todo Tab por célula intocada vira um PUT;
+   * 2. `pedeMotivo` — a justificativa vale para a edição inteira;
+   * 3. `checkStockBeforeUpdate` — concilia as duas contagens de estoque;
+   * 4. os dois diálogos entram **em fila**, nunca sobrepostos.
+   */
+  salvarLinha(row: Row): void {
+    if (!row || this.isDraft(row) || this.isSaving(row.id)) return;
+
+    // Linha gravada sempre tem status — a API o exige. A guarda é a invariante
+    // virando código, e vira rede de verdade no dia em que o combo ganhar um
+    // botão de limpar.
+    if (!row.status) return;
+
+    const payload = this.montarPayload(row as Row & { status: MachineStatus });
 
     // O combo já salva na seleção e o `onEditComplete` chega logo depois; sem
     // isto, todo Tab por uma célula intocada viraria um PUT.

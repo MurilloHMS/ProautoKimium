@@ -431,3 +431,193 @@
   font-size: var(--text-ui-sm);
   font-style: italic;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELULAR — a planilha vira lista de cartões
+//
+// Onze colunas somam ~1785px; a tela de um iPhone tem ~390px. Rolar de lado
+// não é uma versão pior da planilha, é outra tarefa. Aqui cada linha responde
+// sozinha, e o campo que mais muda tem botão próprio.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .5rem 0 1rem;
+}
+
+.cartao {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .45rem .6rem;
+
+  padding: .7rem .75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+// Previsão vencida sem entrega: na planilha isso se descobre lendo linha a
+// linha. A marca é faixa na borda, e não fundo tingido — o cartão inteiro
+// vermelho gritaria mais alto que o status, que é a informação principal.
+.cartao--vencida {
+  border-color: var(--app-danger);
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.cartao--rascunho {
+  border-style: dashed;
+  background: var(--app-warning-soft);
+}
+
+.cartao__corpo {
+  grid-column: 1;
+  grid-row: 1;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-control);
+  }
+}
+
+.cartao__maquina {
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao__cliente {
+  font-size: .72rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A tag é como a máquina é chamada em voz alta no galpão.
+.cartao__tag {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+
+  font-size: .66rem;
+  font-weight: 700;
+  color: var(--app-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao__rodape {
+  grid-column: 1 / -1;
+  grid-row: 2;
+
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+// O atalho da previsão. Tracejado enquanto está parado para dizer "isto se
+// preenche", e alvo de 34px porque é o gesto mais repetido da tela.
+.cartao__previsao {
+  margin-left: auto;
+
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+
+  height: 34px;
+  padding: 0 .7rem;
+
+  border: 1px dashed var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  i { font-size: .8rem; color: var(--app-text-muted); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 1px;
+  }
+
+  &.is-vencida {
+    color: var(--app-danger);
+    border-color: var(--app-danger);
+    border-style: solid;
+
+    i { color: var(--app-danger); }
+  }
+
+  &.is-vazia {
+    color: var(--app-subtle);
+    font-weight: 500;
+  }
+
+  // Rascunho ainda não existe na API: a data vai junto na criação.
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.cartao__estado {
+  font-size: .8rem;
+  color: var(--app-text-muted);
+
+  &--ok { color: var(--app-success); }
+}
+
+// ─── Os dois diálogos do celular ───────────────────────────────────────────
+
+.previsao-dialogo {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  align-items: center;
+}
+
+.previsao-dialogo__linha {
+  margin: 0;
+  align-self: stretch;
+  font-size: .78rem;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  span { color: var(--app-subtle); }
+}
+
+.form-programacao {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+
+  // No celular a coluna dupla espreme rótulo e campo; uma só respira.
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+
+  .field-full { grid-column: 1 / -1; }
+}

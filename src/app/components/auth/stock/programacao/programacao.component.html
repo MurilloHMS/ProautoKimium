@@ -5,9 +5,13 @@
 <div class="painel-wrapper">
 
   <app-toolbar>
-    <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+    @if (!ehCelular()) {
+      <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+    }
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
-    <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
+    @if (!ehCelular()) {
+      <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
+    }
 
     <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
     <pk-button
@@ -43,6 +47,7 @@
   </app-toolbar>
 
   <div class="sheet">
+    @if (!ehCelular()) {
     <p-table [value]="rows()"
              dataKey="id"
              [scrollable]="true"
@@ -293,6 +298,64 @@
         </tr>
       </ng-template>
     </p-table>
+    }
+
+    <!-- ═══ Celular: uma linha é um cartão ═══════════════════════════════
+         O cartão responde sem abrir nada — máquina, cliente, status e
+         previsão. Região, solicitante, consultor, técnico e observação ficam
+         no formulário: no cartão virariam ruído em volta do que se consulta.
+    -->
+    @if (ehCelular()) {
+      <div class="cartoes">
+        @for (row of rows(); track row.id) {
+          <article class="cartao"
+                   [class.cartao--vencida]="isLate(row)"
+                   [class.cartao--rascunho]="isDraft(row)">
+
+            <button type="button" class="cartao__corpo" (click)="abrirForm(row)">
+              <span class="cartao__maquina">{{ machineName(row.machineId) || 'Sem máquina' }}</span>
+              <span class="cartao__cliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
+            </button>
+
+            @if (row.tag) {
+              <span class="cartao__tag">{{ row.tag }}</span>
+            }
+
+            <div class="cartao__rodape">
+              @if (row.status) {
+                <span [class]="statusClass(row.status)">
+                  <i [class]="statusIcon(row.status)"></i>
+                  {{ statusLabel(row.status) }}
+                </span>
+              }
+
+              <!-- O atalho: é o que ele faz quase sempre, então é botão, e
+                   não um campo escondido atrás do formulário. -->
+              <button type="button"
+                      class="cartao__previsao"
+                      [class.is-vencida]="isLate(row)"
+                      [class.is-vazia]="!row.previsao"
+                      [disabled]="isDraft(row) || isSaving(row.id)"
+                      (click)="abrirPrevisao(row)">
+                <i class="pi pi-calendar"></i>
+                {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : 'Sem previsão' }}
+              </button>
+
+              @if (isSaving(row.id)) {
+                <i class="pi pi-spin pi-spinner cartao__estado" title="Salvando"></i>
+              } @else if (isSaved(row.id)) {
+                <i class="pi pi-check cartao__estado cartao__estado--ok" title="Salvo"></i>
+              }
+            </div>
+          </article>
+        } @empty {
+          <div class="sheet-empty">
+            <i class="pi pi-table"></i>
+            <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <p class="sheet-note">
@@ -309,6 +372,145 @@
     (closed)="mode.set('grid')"
     (finished)="refresh()" />
 }
+
+<!--
+  O atalho da previsão.
+
+  Só a data, porque é o campo que ele muda quase sempre no celular. Confirmar
+  cai no `salvarLinha`, o MESMO caminho da célula da planilha: o diálogo de
+  motivo pode abrir logo em seguida, e isso está certo — é a mesma pergunta.
+-->
+<pk-dialog
+  header="Previsão de entrega"
+  [visible]="previsaoAberta() !== null"
+  width="360px"
+  (visibleChange)="cancelarPrevisao()">
+
+  <div pkDialogContent class="previsao-dialogo">
+    @if (previsaoAberta(); as row) {
+      <p class="previsao-dialogo__linha">
+        {{ machineName(row.machineId) }}
+        @if (row.tag) { <span>· {{ row.tag }}</span> }
+      </p>
+    }
+
+    <p-datepicker
+      [ngModel]="previsaoRascunho()"
+      (ngModelChange)="previsaoRascunho.set($event)"
+      [inline]="true"
+      dateFormat="dd/mm/yy" />
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+  </div>
+</pk-dialog>
+
+<!--
+  O formulário completo — o caso raro.
+
+  Edita uma cópia: fechar sem salvar não pode deixar valor novo na tela, senão
+  a pessoa sai achando que salvou. Salvar aplica na linha e chama o mesmo
+  `salvarLinha`, com o `hasChanges` barrando quem abriu e fechou sem mexer.
+-->
+<pk-dialog
+  [header]="formRascunho() && isDraft(formRascunho()!) ? 'Nova linha' : 'Editar programação'"
+  [visible]="formAberto()"
+  width="520px"
+  (visibleChange)="fecharForm()">
+
+  <div pkDialogContent class="pk-form-section form-programacao">
+    @if (formRascunho(); as f) {
+
+      <div class="form-field field-full">
+        <label for="f-maquina">Máquina</label>
+        <pk-combobox inputId="f-maquina"
+                     [ngModel]="f.machineId"
+                     (ngModelChange)="editarCampo('machineId', $event)"
+                     [options]="machineOptions()"
+                     placeholder="Selecione" />
+      </div>
+
+      <div class="form-field field-full">
+        <label for="f-cliente">Cliente</label>
+        <input pInputText id="f-cliente" type="text"
+               [ngModel]="f.nomeCliente"
+               (ngModelChange)="editarCampo('nomeCliente', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-status">Status</label>
+        <pk-combobox inputId="f-status"
+                     [ngModel]="f.status"
+                     (ngModelChange)="editarCampo('status', $event)"
+                     [options]="statusOptions"
+                     placeholder="Selecione" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-previsao">Previsão</label>
+        <p-datepicker inputId="f-previsao"
+                      [ngModel]="f.previsao"
+                      (ngModelChange)="editarCampo('previsao', $event)"
+                      dateFormat="dd/mm/yy"
+                      appendTo="body" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-regiao">Região</label>
+        <input pInputText id="f-regiao" type="text"
+               [ngModel]="f.regiao"
+               (ngModelChange)="editarCampo('regiao', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-tag">Tag</label>
+        <!-- Dez é o limite do Postgres; sem `maxlength` o erro vira 500. -->
+        <input pInputText id="f-tag" type="text" maxlength="10"
+               [ngModel]="f.tag"
+               (ngModelChange)="editarCampo('tag', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-solicitante">Solicitante</label>
+        <input pInputText id="f-solicitante" type="text"
+               [ngModel]="f.solicitante"
+               (ngModelChange)="editarCampo('solicitante', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-consultor">Consultor</label>
+        <input pInputText id="f-consultor" type="text"
+               [ngModel]="f.consultor"
+               (ngModelChange)="editarCampo('consultor', $event)" />
+      </div>
+
+      <div class="form-field">
+        <label for="f-tecnico">Técnico</label>
+        <input pInputText id="f-tecnico" type="text"
+               [ngModel]="f.tecnico"
+               (ngModelChange)="editarCampo('tecnico', $event)" />
+      </div>
+
+      <div class="form-field field-full">
+        <label for="f-obs">Observação</label>
+        <textarea id="f-obs" pTextarea rows="3" style="width:100%;resize:vertical"
+                  [ngModel]="f.Observacao"
+                  (ngModelChange)="editarCampo('Observacao', $event)"></textarea>
+      </div>
+    }
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    @if (formRascunho(); as f) {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
+      <pk-button pkType="save" pkSize="sm"
+                 [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
+                 (clicked)="salvarForm()" />
+    }
+  </div>
+</pk-dialog>
 
 <!--
   Motivo da alteração.
