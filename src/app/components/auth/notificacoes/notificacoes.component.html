@@ -28,6 +28,14 @@
       </button>
     </div>
   }
+  <!-- iPhone em aba: aqui a explicacao tem motivo, porque a pessoa veio
+       justamente atras de aviso. -->
+  @if (precisaInstalarParaReceber) {
+    <app-instalar
+      formato="bloco"
+      motivo="No iPhone, os avisos so chegam com o app na tela de inicio. Leva um minuto." />
+  }
+
   @if (pushAtivado) {
     <div class="nt-push-ok">
       <i class="pi pi-check-circle"></i> Notificações ativadas neste dispositivo.

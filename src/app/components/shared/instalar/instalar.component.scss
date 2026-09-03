@@ -1,0 +1,165 @@
+@use 'variables' as v;
+
+// Dentro do `.app-content`, o `_shell.scss` da `flex: 1 1 auto` a todo filho
+// que nao seja o router-outlet - e a faixa cresceria para metade da tela. O
+// seletor de la usa `:where()`, com especificidade zero, justamente para o
+// componente poder recusar.
+:host {
+  // Sem `display`, o host e inline - e margem vertical nao aplica em inline.
+  // Quem usa o bloco espaca por fora, e precisava disto para conseguir.
+  display: block;
+  flex: 0 0 auto;
+}
+
+.instalar {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+}
+
+// Dentro de uma tela vira cartão, e não faixa: ali a pessoa foi de propósito.
+.instalar--bloco {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  padding: v.$space-4;
+}
+
+.instalar__chamada {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+
+  // No celular a linha não cabe: o botão desce inteiro em vez de espremer o
+  // texto até virar duas letras por linha.
+  @media (max-width: v.$bp-md) {
+    flex-wrap: wrap;
+  }
+}
+
+.instalar__icone {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-3);
+
+  i { font-size: 1.1rem; color: var(--app-action); }
+}
+
+.instalar__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+
+  strong { font-size: var(--text-ui); font-weight: 600; }
+
+  span {
+    font-size: var(--text-ui-sm);
+    line-height: 1.4;
+    color: var(--app-text-muted);
+  }
+}
+
+.instalar__botao {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  // 44px é o alvo mínimo de toque da Apple, e este botão existe justamente
+  // para quem tem dificuldade em acertar controle pequeno.
+  min-height: 44px;
+  padding: 0 v.$space-4;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled { opacity: .7; cursor: default; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+
+  @media (max-width: v.$bp-md) {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+.instalar__fechar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-subtle);
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); background: var(--app-surface-3); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+// ── O passo a passo do iPhone ───────────────────────────────────────────────
+.instalar__passos {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  margin: 0;
+  padding: v.$space-4 0 v.$space-2;
+  border-top: 1px solid var(--app-border);
+  list-style: none;
+  counter-reset: passo;
+}
+
+.instalar__passo {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-3;
+  font-size: var(--text-ui);
+  line-height: 1.5;
+  color: var(--app-text-muted);
+
+  strong { color: var(--app-text); }
+
+  // O número vem do CSS e não do markup: <ol> já numera semanticamente, e
+  // repetir no texto faria o leitor de tela dizer o número duas vezes.
+  &::before {
+    counter-increment: passo;
+    content: counter(passo);
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 3px;
+    border-radius: 999px;
+    background: var(--app-action);
+    color: #fff;
+    font-size: var(--text-micro);
+    font-weight: 700;
+  }
+}
+
+.instalar__desenho {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-action);
+}

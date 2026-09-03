@@ -1,0 +1,98 @@
+@if (aparecer()) {
+  <section class="instalar" [class.instalar--bloco]="formato() === 'bloco'">
+
+    <div class="instalar__chamada">
+      <span class="instalar__icone" aria-hidden="true"><i class="pi pi-mobile"></i></span>
+
+      <div class="instalar__texto">
+        <strong>Deixe o KimiumHub na tela do celular</strong>
+        <span>
+          {{ motivo() || 'Abre direto, sem digitar endereço, e sem a barra do navegador.' }}
+        </span>
+      </div>
+
+      <!-- Android: um toque. O botão só existe quando o Chrome já disse que
+           dá para instalar — senão ele não faria nada. -->
+      @if (podeInstalarDireto()) {
+        <button type="button" class="instalar__botao"
+                [disabled]="instalando()" (click)="instalar()">
+          <i class="pi" [class.pi-download]="!instalando()"
+             [class.pi-spin]="instalando()" [class.pi-spinner]="instalando()"></i>
+          {{ instalando() ? 'Instalando…' : 'Instalar' }}
+        </button>
+      }
+
+      <!-- iPhone: não há botão possível, só o gesto. -->
+      @if (ehIos()) {
+        <button type="button" class="instalar__botao" (click)="alternarPassos()"
+                [attr.aria-expanded]="passosAbertos()">
+          <i class="pi" [class.pi-chevron-down]="!passosAbertos()"
+             [class.pi-chevron-up]="passosAbertos()"></i>
+          Como instalar
+        </button>
+      }
+
+      @if (formato() === 'faixa') {
+        <button type="button" class="instalar__fechar"
+                aria-label="Dispensar por enquanto" (click)="dispensar()">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+
+    <!-- Os três passos do iPhone. Cada um desenha o ícone que a pessoa procura,
+         porque reconhecer a forma é mais fácil que decorar o nome. -->
+    @if (ehIos() && passosAbertos()) {
+      <ol class="instalar__passos">
+
+        <li class="instalar__passo">
+          <span class="instalar__desenho" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 15V3" />
+              <path d="M8 7l4-4 4 4" />
+              <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+            </svg>
+          </span>
+          <span>
+            Toque em <strong>Compartilhar</strong> — o quadrado com a seta para
+            cima, na barra de baixo do Safari.
+          </span>
+        </li>
+
+        <li class="instalar__passo">
+          <span class="instalar__desenho" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="4" />
+              <path d="M12 8v8" />
+              <path d="M8 12h8" />
+            </svg>
+          </span>
+          <span>
+            Deslize a lista para baixo e toque em
+            <strong>Adicionar à Tela de Início</strong>.
+          </span>
+        </li>
+
+        <li class="instalar__passo">
+          <span class="instalar__desenho" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </span>
+          <span>
+            Confirme em <strong>Adicionar</strong>. O ícone aparece junto dos
+            seus outros aplicativos.
+          </span>
+        </li>
+
+      </ol>
+    }
+
+  </section>
+}

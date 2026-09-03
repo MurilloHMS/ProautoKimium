@@ -8,9 +8,16 @@
   <link rel="icon" href="/icons/favicon.ico">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-  <!-- iOS: barra de status translúcida + safe areas (notch/Dynamic Island/home indicator) -->
+  <!-- iOS instalado na tela de inicio. As safe areas (notch, Dynamic Island,
+       barra de gesto) sao tratadas no SCSS com env(safe-area-inset-*).
+
+       `default` = barra opaca. O comentario antigo dizia "translucida", que
+       seria `black-translucent` - e ai o conteudo passa POR BAIXO da barra.
+       Nao trocar sem ver num iPhone de verdade. -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <!-- Sem isto o iOS usa o <title> inteiro embaixo do icone, e ele nao cabe. -->
+  <meta name="apple-mobile-web-app-title" content="Proauto">
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" as="style">
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
   <!-- Montserrat e a fonte da assinatura de e-mail, e so ela usa. Fica aqui,
@@ -36,7 +43,10 @@
           name="keywords"/>
 
     <!-- Meta Tags Identidade Visual-->
-    <meta content="#5ec4af" name="theme-color">
+    <!-- Tem que ser a MESMA do manifest: aqui pinta a barra do navegador, la
+       pinta a splash do app instalado. Diferentes, o app troca de cor ao
+       ser instalado. -->
+  <meta content="#232e61" name="theme-color">
 
     <!-- Meta Tags Mobile apple web app capable -->
     <meta content="yes" name="mobile-web-app-capable">
