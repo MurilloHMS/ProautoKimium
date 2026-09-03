@@ -418,19 +418,35 @@
 <!--
   O formulário completo — o caso raro.
 
+  Também é folha, e não `pk-dialog`: ele só é alcançável pelo cartão, que só
+  existe no celular. Um diálogo centralizado nunca chegaria a aparecer no
+  desktop, e no celular deixaria os campos longe do polegar.
+
+  Para em 82% da altura de propósito. O pedaço de lista que sobra em cima é o
+  que diz "você abriu uma gaveta, não trocou de tela" — em tela cheia isso se
+  perde, e aí não haveria motivo para não ser uma página.
+
   Edita uma cópia: fechar sem salvar não pode deixar valor novo na tela, senão
-  a pessoa sai achando que salvou. Salvar aplica na linha e chama o mesmo
-  `salvarLinha`, com o `hasChanges` barrando quem abriu e fechou sem mexer.
+  a pessoa sai achando que salvou.
 -->
-<pk-dialog
-  [header]="formRascunho() && isDraft(formRascunho()!) ? 'Nova linha' : 'Editar programação'"
-  [visible]="formAberto()"
-  width="520px"
-  (visibleChange)="fecharForm()">
+@if (formAberto() && formRascunho(); as f) {
+  <div class="folha" (click)="fecharForm()">
+    <div class="folha__painel folha__painel--alta"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="folha-form-titulo"
+         (click)="$event.stopPropagation()">
 
-  <div pkDialogContent class="pk-form-section form-programacao">
-    @if (formRascunho(); as f) {
+      <div class="folha__cabeca">
+        <span class="folha__puxador" aria-hidden="true"></span>
+        <p class="folha__titulo" id="folha-form-titulo">
+          {{ isDraft(f) ? 'Nova linha' : 'Editar programação' }}
+        </p>
+      </div>
 
+      <!-- Só o miolo rola. São nove campos: em qualquer altura o formulário
+           passa da folha, e o botão de salvar não pode fugir para baixo. -->
+      <div class="folha__miolo form-programacao">
       <div class="form-field field-full">
         <label for="f-maquina">Máquina</label>
         <pk-combobox inputId="f-maquina"
@@ -507,18 +523,17 @@
                   [ngModel]="f.Observacao"
                   (ngModelChange)="editarCampo('Observacao', $event)"></textarea>
       </div>
-    }
-  </div>
+      </div>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    @if (formRascunho(); as f) {
-      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
-      <pk-button pkType="save" pkSize="sm"
-                 [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
-                 (clicked)="salvarForm()" />
-    }
+      <div class="folha__pe">
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
+        <pk-button pkType="save" pkSize="sm"
+                   [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
+                   (clicked)="salvarForm()" />
+      </div>
+    </div>
   </div>
-</pk-dialog>
+}
 
 <!--
   Motivo da alteração.

@@ -364,7 +364,15 @@ export class ProgramacaoComponent implements OnInit {
    */
   @HostListener('document:keydown.escape')
   onEscapeFolha(): void {
-    if (this.previsaoAberta()) this.cancelarPrevisao();
+    // O calendário vem por cima do formulário quando os dois estão abertos:
+    // fecha o de cima primeiro, senão o Esc engoliria a folha inteira e a
+    // pessoa perderia o que já tinha digitado.
+    if (this.previsaoAberta()) {
+      this.cancelarPrevisao();
+      return;
+    }
+
+    if (this.formAberto()) this.fecharForm();
   }
 
   // ─── O formulário completo ────────────────────────────────────────────────

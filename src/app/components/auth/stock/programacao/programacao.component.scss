@@ -631,7 +631,10 @@
 
 .folha__painel {
   background: var(--app-surface);
-  border-radius: var(--radius-surface) var(--radius-surface) 0 0;
+  // 16px, escolhido no aparelho. Fica acima do `--radius-surface` (12px) de
+  // propósito: a folha é maior que um cartão, e o mesmo raio nela lê como
+  // canto quase reto.
+  border-radius: 16px 16px 0 0;
 
   padding: .6rem 1rem 1rem;
   // O respiro de baixo é o do aparelho: sem ele os botões ficam por baixo da
@@ -643,11 +646,68 @@
   align-items: center;
   gap: .5rem;
 
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
 
   animation: folha-sobe .26s cubic-bezier(.32, .72, 0, 1);
 }
+
+// ─── A folha alta: o formulário ────────────────────────────────────────────
+//
+// Para em 82% e deixa a lista aparecendo em cima. É `dvh` e não `vh`: no
+// celular o `vh` mede a tela cheia ignorando a barra do navegador que aparece e
+// some, e o pé da folha acaba escondido embaixo dela.
+.folha__painel--alta {
+  height: 82dvh;
+  max-height: 82dvh;
+
+  padding: 0;
+  padding-bottom: 0;
+  align-items: stretch;
+  gap: 0;
+  overflow: hidden;
+}
+
+// Cabeça e pé ficam parados; só o miolo rola. São nove campos: em qualquer
+// altura o formulário passa da folha, e um rolamento único levaria o botão de
+// salvar para fora da vista.
+.folha__cabeca {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+
+  padding: .6rem 1rem .7rem;
+  border-bottom: 1px solid var(--app-border);
+
+  .folha__titulo { align-self: flex-start; }
+}
+
+.folha__miolo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  padding: .85rem 1rem;
+}
+
+.folha__pe {
+  flex: 0 0 auto;
+  display: flex;
+  gap: .5rem;
+
+  padding: .7rem 1rem;
+  padding-bottom: calc(.7rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+
+  > * { flex: 1; }
+}
+
+::ng-deep .folha__pe .pk-btn { width: 100%; }
 
 // A alça não é enfeite: é o que diz que a folha veio de baixo e volta para lá.
 .folha__puxador {
