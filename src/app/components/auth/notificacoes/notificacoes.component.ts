@@ -5,11 +5,13 @@ import { NotificationService } from '../../../infrastructure/services/notificati
 import { PushNotificationService } from '../../../infrastructure/services/push-notification.service';
 import { AppNotification } from '../../../domain/models/notification.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
+import { InstalarComponent } from '../../shared/instalar/instalar.component';
+import { InstalacaoService } from '../../../infrastructure/services/instalacao.service';
 
 @Component({
   selector: 'app-notificacoes',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent],
+  imports: [CommonModule, PageHeaderComponent, InstalarComponent],
   templateUrl: './notificacoes.component.html',
   styleUrl: './notificacoes.component.scss',
 })
@@ -20,11 +22,24 @@ export class NotificacoesComponent implements OnInit {
   constructor(
     public notifications: NotificationService,
     private push: PushNotificationService,
-    private router: Router
+    private router: Router,
+    private instalacao: InstalacaoService
   ) {}
 
   get pushSuportado(): boolean {
     return this.push.isEnabled;
+  }
+
+  /**
+   * O iPhone em aba normal, que e o caso que ficava mudo.
+   *
+   * No iOS, push so funciona com o PWA instalado na tela de inicio (16.4+), e
+   * nao ha como contornar. Antes disto, `pushSuportado` era falso e o convite
+   * inteiro sumia: o usuario de iPhone nao recebia aviso, nao via explicacao, e
+   * nao tinha como descobrir que existia um caminho.
+   */
+  get precisaInstalarParaReceber(): boolean {
+    return !this.pushSuportado && this.instalacao.plataforma() === 'ios';
   }
 
   ngOnInit(): void {
