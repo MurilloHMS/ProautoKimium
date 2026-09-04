@@ -57,9 +57,17 @@ export class BottomNavComponent {
     { initialValue: this.router.url });
 
   /**
-   * Os atalhos fixos mais o de hábito. O quinto entra só quando a pessoa já
-   * tem histórico e ele não repete um dos fixos — barra com item repetido
-   * desperdiça o espaço mais valioso da tela.
+   * Os atalhos fixos mais o de hábito.
+   *
+   * O quinto é a tela mais visitada **que ainda não está na barra** — repetir
+   * um fixo desperdiçaria o espaço mais valioso da tela.
+   *
+   * **Procurar a seguinte, e não desistir na primeira, é o ponto.** Antes isto
+   * olhava só a campeã de visitas e devolvia os quatro fixos quando ela já
+   * estava ali. Como a Início está no menu, cada visita a ela conta — e é onde
+   * o app abre e onde o login cai, então num celular ela é quase sempre a
+   * campeã. O quinto lugar simplesmente nunca aparecia; e quando aparecia,
+   * piscava, porque duas voltas à Início bastavam para retomar a liderança.
    */
   readonly items = computed<ItemDaBarra[]>(() => {
     const fixos = this.menuService.mobileItems().map(item => this.paraItem(
@@ -68,11 +76,10 @@ export class BottomNavComponent {
       item.routerLink ?? [],
       item.routerLink?.[0] === 'notificacoes'));
 
-    const habito = this.telasRecentes.maisUsada();
-    if (!habito) return fixos;
+    const habito = this.telasRecentes.porHabito()
+      .find(tela => !fixos.some(fixo => fixo.path === tela.path));
 
-    const jaEstaNaBarra = fixos.some(fixo => fixo.path === habito.path);
-    if (jaEstaNaBarra) return fixos;
+    if (!habito) return fixos;
 
     return [...fixos, this.paraItem(
       habito.label,
