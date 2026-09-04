@@ -90,15 +90,36 @@ pipeline {
 
     stage('Compilar') {
       steps {
-        // Container descartável, com o código montado.
+        // **Antes de compilar, provar que o container esta vendo o codigo.**
         //
-        // O `-v "$PWD":/app` funciona porque o `JENKINS_HOME_PATH` do host e o
-        // caminho dentro do container são o mesmo (`/var/jenkins_home`). Se um
-        // dia divergirem, o container Node monta uma pasta VAZIA e a build
-        // falha com "package.json not found" — sem nada apontando a causa.
+        // O `-v "$PWD":/app` e resolvido pelo daemon do HOST, nao pelo Jenkins.
+        // Se o caminho nao existir la, o Docker **cria uma pasta vazia** e monta
+        // ela — sem erro, sem aviso.
         //
-        // `npm ci` e não `npm install`: instala exatamente o que está no
-        // lockfile. Build de produção não é hora de resolver versão nova.
+        // E o sintoma engana: `npm ci` procura o lockfile ANTES do package.json,
+        // entao uma pasta vazia da o mesmo `EUSAGE` de um projeto sem lockfile.
+        // A mensagem fala de npm quando o problema e de montagem.
+        sh '''
+          if ! docker run --rm -v "$PWD":/app -w /app alpine \
+               sh -c 'test -f package.json && test -f package-lock.json'; then
+            echo "ERRO: o container nao esta enxergando o codigo em $PWD."
+            echo ""
+            echo "O daemon monta o caminho do HOST. Se ele nao existir la, o"
+            echo "Docker cria uma pasta vazia e monta ela, calado."
+            echo ""
+            echo "Confira se os dois listam a mesma coisa:"
+            echo "  docker exec <jenkins> ls $PWD"
+            echo "  ls $PWD            # no host"
+            echo ""
+            echo "O que o Jenkins ve aqui dentro:"
+            ls -1 | head -10
+            exit 1
+          fi
+        '''
+
+        // `npm ci` e nao `npm install`: instala exatamente o lockfile, e falha
+        // se ele estiver fora de sincronia com o package.json. Build de
+        // producao nao e hora de resolver versao nova.
         sh """
           docker run --rm \
             -v "\$PWD":/app -w /app \
