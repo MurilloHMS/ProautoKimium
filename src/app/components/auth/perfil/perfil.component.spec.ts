@@ -49,7 +49,17 @@ describe('PerfilComponent · quando não abre', () => {
         provideZonelessChangeDetection(),
         provideNoopAnimations(),
         { provide: VcardService, useValue: vcard },
-        { provide: AuthService, useValue: {} },
+        // Não é mais `{}`: a seção "Conta" lê estes três na construção do
+        // componente, e um stub vazio quebra antes de qualquer expectativa.
+        {
+          provide: AuthService,
+          useValue: {
+            getUsername: () => 'murillo',
+            getUserRoles: () => ['DEVELOPER'],
+            getExpirationDate: () => new Date(Date.now() + 90 * 60_000),
+            logoutRemoto: () => of(void 0),
+          },
+        },
         { provide: MessageService, useValue: toast },
       ],
     })

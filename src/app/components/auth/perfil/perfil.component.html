@@ -258,6 +258,75 @@
         }
       </section>
     }
+
+    <!--
+      SEÇÃO 3 — Conta e acesso.
+
+      Fica FORA do `@if (canCreate)`: cartão digital nem todo mundo tem, conta
+      todo mundo tem. Nada aqui pede requisição nova — login e papéis saem do
+      token, e o mapa de permissões já foi carregado para o menu.
+    -->
+    <section class="conta-section">
+
+      <div class="conta-card">
+        <h2 class="conta-card__title"><i class="pi pi-user"></i> Conta</h2>
+
+        <dl class="dados">
+          @if (login) {
+            <div class="dado">
+              <dt>Login</dt>
+              <dd>{{ login }}</dd>
+            </div>
+          }
+          @if (data.employeeEmail) {
+            <div class="dado">
+              <dt>E-mail</dt>
+              <dd>{{ data.employeeEmail }}</dd>
+            </div>
+          }
+          @if (data.employeeCargo) {
+            <div class="dado">
+              <dt>Cargo</dt>
+              <dd>{{ data.employeeCargo }}</dd>
+            </div>
+          }
+        </dl>
+
+        @if (roles.length) {
+          <div class="papeis">
+            @for (papel of roles; track papel) {
+              <span class="papel">{{ papel }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="conta-card">
+        <h2 class="conta-card__title"><i class="pi pi-clock"></i> Sessão</h2>
+
+        <p class="sessao">
+          <span class="sessao__num">{{ sessionLabel() }}</span>
+          <span class="sessao__unit">{{ minutosRestantes() !== null && minutosRestantes()! > 0 ? 'até expirar' : '' }}</span>
+        </p>
+
+        <div class="barra" role="presentation">
+          <div class="barra__cheio" [style.width.%]="sessionFraction() * 100"></div>
+        </div>
+
+        @if (sessionExpiresAt) {
+          <p class="sessao__nota">
+            Expira em {{ sessionExpiresAt | date: 'dd/MM HH:mm' }}. Continuar usando renova sozinho.
+          </p>
+        }
+      </div>
+
+      <div class="conta-card">
+        <button pButton label="Sair da conta" icon="pi pi-sign-out"
+                class="p-button-sm p-button-outlined p-button-danger sair-btn"
+                (click)="logout()"></button>
+      </div>
+
+    </section>
   </div>
 } @else {
 

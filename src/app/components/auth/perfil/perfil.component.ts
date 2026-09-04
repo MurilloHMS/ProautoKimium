@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -44,7 +44,7 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
   templateUrl: './perfil.component.html',
   styleUrl: './perfil.component.scss',
 })
-export class PerfilComponent implements OnInit {
+export class PerfilComponent implements OnInit, OnDestroy {
   private vcardService = inject(VcardService);
   private authService = inject(AuthService);
   private toast = inject(MessageService);
@@ -74,6 +74,49 @@ export class PerfilComponent implements OnInit {
   uploadingImage = false;
 
   qrVisible = false;
+
+  // ── Conta e sessão ────────────────────────────────────────────────────────
+  //
+  // Nada aqui custa uma requisição nova: login, papéis e validade saem do
+  // token que já está no navegador. A tela só estava sem mostrar o que o
+  // cliente já sabia.
+
+  /** Reavaliado de minuto em minuto — é o que faz a contagem andar sozinha. */
+  private readonly agora = signal(Date.now());
+  private relogio?: ReturnType<typeof setInterval>;
+
+  readonly login = this.authService.getUsername();
+  readonly roles = this.authService.getUserRoles();
+  readonly sessionExpiresAt = this.authService.getExpirationDate();
+
+  /** Quanto falta para a sessão vencer, em minutos; negativo = já venceu. */
+  readonly minutosRestantes = computed(() => {
+    if (!this.sessionExpiresAt) return null;
+    return Math.round((this.sessionExpiresAt.getTime() - this.agora()) / 60000);
+  });
+
+  /**
+   * "1h 42min", "8min", "expirada".
+   *
+   * O acesso dura 2h e é renovado por um refresh de 7 dias, então este número
+   * quase sempre volta a encher sozinho. Ele responde "quanto tempo esta aba
+   * aguenta parada", que é a pergunta de quem deixa o sistema aberto.
+   */
+  readonly sessionLabel = computed(() => {
+    const min = this.minutosRestantes();
+    if (min === null) return 'desconhecida';
+    if (min <= 0) return 'expirada';
+    const horas = Math.floor(min / 60);
+    const resto = min % 60;
+    return horas ? `${horas}h ${resto.toString().padStart(2, '0')}min` : `${resto}min`;
+  });
+
+  /** Fração já consumida das 2h, para a barrinha. */
+  readonly sessionFraction = computed(() => {
+    const min = this.minutosRestantes();
+    if (min === null) return 0;
+    return Math.max(0, Math.min(1, min / 120));
+  });
 
   readonly phoneTypes = [
     { label: 'WhatsApp', value: 'WHATSAPP' },
@@ -113,6 +156,17 @@ export class PerfilComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+
+    this.relogio = setInterval(() => this.agora.set(Date.now()), 60_000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.relogio);
+  }
+
+  /** Sai da conta encerrando a sessão do lado do servidor também. */
+  logout(): void {
+    this.authService.logoutRemoto().subscribe(() => (window.location.href = '/'));
   }
 
   load(): void {

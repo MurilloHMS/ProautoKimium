@@ -565,3 +565,130 @@
   line-height: 1.6;
   color: var(--app-text-muted);
 }
+
+// ── Seção 3: Conta e sessão ─────────────────────────────────────────────────
+
+.conta-section {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  margin-top: v.$space-6;
+}
+
+.conta-card {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  padding: v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface);
+}
+
+.conta-card__title {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+
+  i { color: var(--app-primary); }
+}
+
+// ── Pares rótulo/valor ──────────────────────────────────────────────────────
+
+.dados {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.dado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: v.$space-3;
+  padding: v.$space-2 0;
+  border-bottom: 1px solid var(--app-border);
+
+  &:last-child { border-bottom: 0; padding-bottom: 0; }
+  &:first-child { padding-top: 0; }
+
+  dt {
+    flex: 0 0 auto;
+    font-size: v.$font-size-sm;
+    color: var(--app-text-muted);
+  }
+
+  // `anywhere` porque e-mail longo em tela estreita não tem onde quebrar:
+  // sem isto ele empurra a coluna e estoura o cartão.
+  dd {
+    margin: 0;
+    min-width: 0;
+    text-align: right;
+    font-size: v.$font-size-sm;
+    color: var(--app-text);
+    overflow-wrap: anywhere;
+  }
+}
+
+.papeis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$space-2;
+}
+
+.papel {
+  padding: 2px v.$space-3;
+  border-radius: v.$radius-full;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+}
+
+// ── Sessão ──────────────────────────────────────────────────────────────────
+
+.sessao {
+  display: flex;
+  align-items: baseline;
+  gap: v.$space-2;
+  margin: 0;
+}
+
+.sessao__num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sessao__unit {
+  font-size: v.$font-size-sm;
+  color: var(--app-text-muted);
+}
+
+.sessao__nota {
+  margin: 0;
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+}
+
+.barra {
+  height: 5px;
+  border-radius: v.$radius-full;
+  background: var(--app-border);
+  overflow: hidden;
+}
+
+.barra__cheio {
+  height: 100%;
+  border-radius: v.$radius-full;
+  background: var(--app-primary);
+}
+
+.sair-btn { width: 100%; }
