@@ -90,18 +90,24 @@ pipeline {
 
     stage('Compilar') {
       steps {
-        // **O `:z` no volume nao e detalhe — e o que faz isto funcionar aqui.**
+        // **`--volumes-from`, e nao `-v`. Aqui esta o conserto.**
         //
-        // Esta VPS tem SELinux ativo, e o log do Jenkins avisa isso duas vezes.
-        // Arquivo criado por um container ganha uma categoria propria; outro
-        // container le a mesma pasta como se estivesse VAZIA, porque o kernel
-        // nega o acesso sem erro visivel.
+        // Duas execucoes falharam com `npm ci` sem lockfile, e o lockfile esta
+        // commitado. A causa: `-v "$PWD":/app` e resolvido pelo daemon do HOST,
+        // e o `/var/jenkins_home` do host **nao e** o do container. O Docker,
+        // ao nao achar o caminho, **cria uma pasta vazia e monta ela** — sem
+        // erro, sem aviso.
         //
-        // O Jenkins nao sofre disso porque roda `privileged: true`, que ignora
-        // SELinux — mas isso vale so para ele, nao para os containers que ele
-        // manda criar.
+        // Medido: `ls /var/jenkins_home/workspace/WebSite` no host devolve
+        // vazio, enquanto o mesmo caminho dentro do Jenkins tem o projeto.
         //
-        // `:z` religa o rotulo como compartilhado entre containers.
+        // `--volumes-from "$(hostname)"` herda **todas as montagens do proprio
+        // Jenkins**, nos mesmos caminhos. Assim o container de build enxerga o
+        // workspace sem ninguem precisar saber onde ele fica no host — e
+        // continua valendo se amanha o volume mudar de lugar.
+        //
+        // `$(hostname)` dentro de um container e o id dele, entao isto nao
+        // depende do nome `jenkins_sandbox` estar escrito em lugar nenhum.
         //
         // **Antes de compilar, provar que o container esta vendo o codigo.**
         //
@@ -113,7 +119,7 @@ pipeline {
         // entao uma pasta vazia da o mesmo `EUSAGE` de um projeto sem lockfile.
         // A mensagem fala de npm quando o problema e de montagem.
         sh '''
-          if ! docker run --rm -v "$PWD":/app:z -w /app alpine \
+          if ! docker run --rm --volumes-from "$(hostname)" -w "$PWD" alpine \
                sh -c 'test -f package.json && test -f package-lock.json'; then
             echo "ERRO: o container nao esta enxergando o codigo em $PWD."
             echo ""
@@ -135,7 +141,7 @@ pipeline {
         // producao nao e hora de resolver versao nova.
         sh """
           docker run --rm \
-            -v "\$PWD":/app:z -w /app \
+            --volumes-from "\$(hostname)" -w "\$PWD" \
             ${NODE} sh -c "npm ci && npm run build -- --configuration production"
         """
       }
