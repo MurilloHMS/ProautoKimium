@@ -112,7 +112,43 @@
 // ─── Busca ──────────────────────────────────────────────────────────────────
 .search {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
   width: 260px;
+}
+
+// A lupa e o × se ancoram no CAMPO, não no `.search` — que no celular deixa de
+// ser do tamanho do campo e vira a faixa inteira da topbar.
+.search__field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+// Aparece só no celular: é o que ocupa o lugar do campo quando ele está fechado.
+.search-trigger {
+  display: none;
+}
+
+// Idem — só existe com a busca aberta por cima da topbar.
+.search__cancel {
+  display: none;
+  flex: 0 0 auto;
+  padding: 0 v.$space-1;
+  border: 0;
+  background: transparent;
+  color: var(--app-primary);
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 2px;
+    border-radius: v.$radius-sm;
+  }
 }
 
 .search__icon {
@@ -356,13 +392,50 @@
   .topbar { padding-left: v.$space-2; padding-right: v.$space-2; }
   .user__name { display: none; }
   .user__chevron { display: none; }
-  .search { width: 150px; }
-  .search__dropdown { width: min(340px, calc(100vw - #{v.$space-6})); }
+
+  .search-trigger { display: inline-flex; }
+
+  // Fechada, a busca não ocupa lugar nenhum: quem fica na barra é a lupa.
+  .search { display: none; }
+
+  // Aberta, ela cobre a topbar inteira — a única largura que existe em
+  // qualquer aparelho. Alargar o campo no lugar dele não resolveria: num
+  // celular de 320px não há espaço para dar.
+  .search.is-open {
+    display: flex;
+    position: absolute;
+    top: env(safe-area-inset-top);
+    left: 0;
+    right: 0;
+    width: auto;
+    height: var(--topbar-h);
+    padding: 0 v.$space-2;
+    background: var(--app-surface);
+    z-index: 2;
+    animation: search-abre v.$transition-base ease-out;
+  }
+
+  .search__cancel { display: block; }
+
+  // **Os resultados cortavam pelo mesmo motivo do campo.** A lista é ancorada
+  // pela direita (`right: 0`) e tem 340px; presa a um `.search` de 130px no
+  // meio da barra, a borda esquerda dela caía fora da tela. Agora ela acompanha
+  // a faixa aberta, e as duas pontas ficam à vista.
+  .search__dropdown {
+    left: v.$space-2;
+    right: v.$space-2;
+    width: auto;
+    max-height: 60vh;
+  }
 }
 
 @media (max-width: v.$bp-xs) {
   .topbar__brand { display: none; }
-  .search { width: 130px; }
+}
+
+@keyframes search-abre {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -371,4 +444,8 @@
     transition: none;
   }
   .icon-btn:active { transform: none; }
+
+  // A busca abre igual, só sem o deslize. A animação é enfeite; o que importa
+  // é o campo estar lá, e ele está.
+  .search.is-open { animation: none; }
 }

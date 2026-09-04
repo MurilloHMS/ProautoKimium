@@ -22,26 +22,40 @@
   <!-- Direita: busca + ações -->
   <div class="topbar__right">
 
-    <div class="search">
-      <i class="pi pi-search search__icon" aria-hidden="true"></i>
-      <input type="text"
-             class="search__input"
-             placeholder="Buscar página..."
-             role="combobox"
-             aria-label="Buscar página"
-             [attr.aria-expanded]="showResults()"
-             aria-controls="topbar-search-results"
-             autocomplete="off"
-             [ngModel]="searchQuery()"
-             (ngModelChange)="onSearchInput($event)"
-             (focus)="onSearchFocus()"
-             (keydown)="onSearchKeydown($event)" />
+    <!-- Só no celular: abre a busca por cima da topbar (ver .search.is-open) -->
+    <button type="button"
+            class="icon-btn search-trigger"
+            aria-label="Buscar página"
+            [attr.aria-expanded]="searchOpen()"
+            (click)="openSearch()">
+      <i class="pi pi-search"></i>
+    </button>
 
-      @if (searchQuery()) {
-        <button type="button" class="search__clear" aria-label="Limpar busca" tabindex="-1" (click)="clearSearch()">
-          <i class="pi pi-times"></i>
-        </button>
-      }
+    <div class="search" [class.is-open]="searchOpen()">
+      <div class="search__field">
+        <i class="pi pi-search search__icon" aria-hidden="true"></i>
+        <input type="text"
+               #searchInput
+               class="search__input"
+               placeholder="Buscar página..."
+               role="combobox"
+               aria-label="Buscar página"
+               [attr.aria-expanded]="showResults()"
+               aria-controls="topbar-search-results"
+               autocomplete="off"
+               [ngModel]="searchQuery()"
+               (ngModelChange)="onSearchInput($event)"
+               (focus)="onSearchFocus()"
+               (keydown)="onSearchKeydown($event)" />
+
+        @if (searchQuery()) {
+          <button type="button" class="search__clear" aria-label="Limpar busca" tabindex="-1" (click)="clearSearch()">
+            <i class="pi pi-times"></i>
+          </button>
+        }
+      </div>
+
+      <button type="button" class="search__cancel" (click)="closeSearch()">Cancelar</button>
 
       @if (showResults()) {
         <div class="search__dropdown" id="topbar-search-results" role="listbox">

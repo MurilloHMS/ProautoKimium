@@ -1,4 +1,4 @@
-import { Component, HostListener, ElementRef, inject, output, signal } from '@angular/core';
+import { Component, HostListener, ElementRef, inject, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +38,21 @@ export class TopbarComponent {
   /** Item destacado pelas setas do teclado; -1 = nenhum. */
   readonly activeIndex = signal(-1);
 
+  /**
+   * **Só o celular liga isto.** No desktop o campo está sempre visível e este
+   * sinal não muda nada — quem decide é o `@media` do SCSS, não o TypeScript.
+   *
+   * O campo encolhia junto com a tela mas o respiro interno continuava o do
+   * desktop (32px de cada lado), então sobravam 64px para um texto que precisa
+   * de 95px: o placeholder cortava. Alargar o campo não resolvia em toda tela —
+   * num celular de 320px não há espaço para dar. Aqui a busca vira uma lupa e,
+   * ao tocar, ocupa a topbar inteira, que é largura que existe em qualquer
+   * aparelho.
+   */
+  readonly searchOpen = signal(false);
+
+  private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
   readonly userMenuOpen = signal(false);
 
   constructor() {
@@ -49,6 +64,23 @@ export class TopbarComponent {
   }
 
   // ── Busca ─────────────────────────────────────────────────────────────────
+
+  /**
+   * O foco vai num `setTimeout` porque o campo ainda está `display: none`
+   * quando este método roda: o sinal só vira CSS depois que o Angular
+   * renderiza, e `focus()` em elemento não exibido não faz nada — sem erro
+   * nenhum, o teclado simplesmente não sobe.
+   */
+  openSearch(): void {
+    this.searchOpen.set(true);
+    setTimeout(() => this.searchInput()?.nativeElement.focus());
+  }
+
+  /** Fecha a busca do celular e apaga o que estava escrito. */
+  closeSearch(): void {
+    this.clearSearch();
+    this.searchOpen.set(false);
+  }
 
   onSearchInput(value: string): void {
     this.searchQuery.set(value);
@@ -88,7 +120,7 @@ export class TopbarComponent {
       }
 
       case 'Escape':
-        this.clearSearch();
+        this.closeSearch();
         break;
     }
   }
@@ -99,7 +131,7 @@ export class TopbarComponent {
     } else if (item.url) {
       window.open(item.url, item.target ?? '_self');
     }
-    this.clearSearch();
+    this.closeSearch();
   }
 
   clearSearch(): void {
@@ -134,6 +166,7 @@ export class TopbarComponent {
     if (this.elRef.nativeElement.contains(event.target)) return;
     this.showResults.set(false);
     this.userMenuOpen.set(false);
+    this.searchOpen.set(false);
   }
 
   private updateBreadcrumb(): void {
