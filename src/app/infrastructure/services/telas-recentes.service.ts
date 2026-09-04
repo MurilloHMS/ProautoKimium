@@ -56,12 +56,17 @@ export class TelasRecentesService {
       .slice(0, QUANTAS_RECENTES));
 
   /**
-   * A tela de hábito, para o atalho da barra de baixo. Empate de visitas
+   * As telas em ordem de hábito — mais visitadas primeiro. Empate de visitas
    * desempata pelo acesso mais recente.
+   *
+   * **É a lista inteira, e não só a primeira, de propósito.** A barra de baixo
+   * precisa da mais usada *que ainda não esteja nela*: entregar só o topo
+   * fazia a Início — onde o app abre, e por isso quase sempre a campeã de
+   * visitas num celular — esconder o atalho que a barra existe para mostrar.
    */
-  readonly maisUsada = computed<TelaRecente | undefined>(() =>
+  readonly porHabito = computed<TelaRecente[]>(() =>
     [...this.registro()]
-      .sort((a, b) => b.visitas - a.visitas || b.ultimoAcesso - a.ultimoAcesso)[0]);
+      .sort((a, b) => b.visitas - a.visitas || b.ultimoAcesso - a.ultimoAcesso));
 
   constructor() {
     this.restaurar();
