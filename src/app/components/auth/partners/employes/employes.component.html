@@ -243,38 +243,37 @@
         </h3>
         <div class="form-grid">
           <div class="form-field">
-            <label for="hierarchy">Hierarquia <span class="required">*</span></label>
+            <label for="hierarchyId">Hierarquia <span class="required">*</span></label>
             <p-select
-              id="hierarchy"
-              [options]="hierarchyList"
-              formControlName="hierarchy"
+              id="hierarchyId"
+              [options]="hierarchyOptions()"
+              formControlName="hierarchyId"
               optionLabel="label"
               optionValue="value"
               appendTo="body"
+              [filter]="true"
               placeholder="Selecione…"
               styleClass="select-field">
             </p-select>
             <small class="field-error"
-                   *ngIf="form.get('hierarchy')?.invalid && form.get('hierarchy')?.touched">
+                   *ngIf="form.get('hierarchyId')?.invalid && form.get('hierarchyId')?.touched">
               Campo obrigatório
             </small>
           </div>
           <div class="form-field">
-            <label for="department">Departamento <span class="required">*</span></label>
-            <p-select
-              id="department"
-              [options]="departmentList"
-              formControlName="department"
-              optionLabel="label"
-              optionValue="value"
-              appendTo="body"
-              placeholder="Selecione…"
-              styleClass="select-field">
-            </p-select>
-            <small class="field-error"
-                   *ngIf="form.get('department')?.invalid && form.get('department')?.touched">
-              Campo obrigatório
-            </small>
+            <!--
+              Departamento nao se escolhe mais: ele vem do Setor, la embaixo em
+              Vinculo Organizacional. Fica visivel para quem preenche conferir
+              que escolheu o setor certo.
+            -->
+            <label id="departamento-derivado-label">Departamento</label>
+            <p class="valor-derivado" aria-labelledby="departamento-derivado-label">
+              @if (departamentoDoSetor(); as departamento) {
+                <i class="pi pi-sitemap"></i> {{ departamento }}
+              } @else {
+                <span class="valor-derivado--vazio">Escolha o setor para definir</span>
+              }
+            </p>
           </div>
           <div class="form-field">
             <pk-input

@@ -1,9 +1,9 @@
 import {Component, OnInit, computed, inject, signal} from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ContractType, Department, Employee, Hierarchy, TransportType } from '../../../../domain/models/employee.model';
+import { ContractType, Employee, TransportType } from '../../../../domain/models/employee.model';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
-import { CompanyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
+import { CompanyStore, HierarchyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
@@ -69,12 +69,19 @@ export class EmployesComponent implements TabDirtyCheck {
   careerForm: FormGroup;
   dialogTitle: string = 'Adicionar Funcionário';
   employeToEdit: Employee | null = null;
-  hierarchyList: {label: string, value: Hierarchy} [] = []
-  departmentList: {label: string, value: Department} [] = []
 
   // Vínculo organizacional / cargo inicial (Estrutura Organizacional + Cargos & Níveis)
   private readonly companyStore = inject(CompanyStore);
   private readonly teamStore = inject(TeamStore);
+  private readonly hierarchyStore = inject(HierarchyStore);
+
+  /**
+   * Espelha o `teamId` do formulario num signal.
+   *
+   * `computed` so reage a signals, e um `FormControl` nao e um. Sem este
+   * espelho o departamento derivado ficaria congelado no primeiro valor.
+   */
+  private readonly teamIdSelecionado = signal<string | null>(null);
   private readonly positionStore = inject(PositionStore);
 
   /**
@@ -102,6 +109,34 @@ export class EmployesComponent implements TabDirtyCheck {
     })));
   readonly positionOptions = computed(() =>
     this.positionStore.items().map(position => ({ label: position.name, value: position.id })));
+
+  /**
+   * **A hierarquia vem do cadastro, nao de um enum no codigo.**
+   *
+   * Eram sete valores escritos em `employee.model.ts` — cadastrar uma
+   * hierarquia em Estrutura Organizacional nao a fazia aparecer aqui, porque
+   * esta lista nunca olhou para o cadastro.
+   *
+   * Ordenada por `levelOrder`: hierarquia tem ordem natural (Diretor acima de
+   * Analista), e listar em ordem alfabetica esconderia isso.
+   */
+  readonly hierarchyOptions = computed(() =>
+    [...this.hierarchyStore.items()]
+      .sort((a, b) => a.levelOrder - b.levelOrder)
+      .map(hierarchy => ({ label: hierarchy.name, value: hierarchy.id })));
+
+  /**
+   * O departamento do setor escolhido — **exibicao, nao campo**.
+   *
+   * O funcionario nao guarda mais departamento proprio: quem decide e o setor,
+   * e mostrar isso na hora evita que a pessoa escolha um setor achando que o
+   * departamento e outro. Vazio ate escolherem o setor.
+   */
+  readonly departamentoDoSetor = computed(() => {
+    const teamId = this.teamIdSelecionado();
+    if (!teamId) return null;
+    return this.teamStore.items().find(team => team.id === teamId)?.department?.name ?? null;
+  });
 
   positionLevelOptions: {label: string, value: string}[] = [];
   contractTypeOptions: {label: string, value: ContractType}[] = [
@@ -143,9 +178,8 @@ export class EmployesComponent implements TabDirtyCheck {
       email: ['', [Validators.required, Validators.email]],
       ativo: [true, Validators.required],
       managerCode: [''],
-      hierarchy: [Hierarchy.ASSISTENTE, Validators.required],
+      hierarchyId: [null, Validators.required],
       birthday: [null],
-      department: [Department.ALIMENTOS, Validators.required],
       companyId: [null, Validators.required],
       teamId: [null, Validators.required],
       positionId: [null, Validators.required],
@@ -160,6 +194,7 @@ export class EmployesComponent implements TabDirtyCheck {
       dailyDistanceKm: [null],
     });
 
+    this.form.get('teamId')?.valueChanges.subscribe((teamId) => this.teamIdSelecionado.set(teamId ?? null));
     this.form.get('positionId')?.valueChanges.subscribe((positionId) => this.onPositionChange(positionId));
     this.form.get('transportType')?.valueChanges.subscribe((type) => this.onTransportTypeChange(type));
 
@@ -174,8 +209,6 @@ export class EmployesComponent implements TabDirtyCheck {
   }
 
   ngOnInit(){
-    this.loadHierarchyList();
-    this.loadDepartmentList();
     this.loadUsers();
     this.loadOrgOptions();
   }
@@ -295,24 +328,6 @@ export class EmployesComponent implements TabDirtyCheck {
     return typeof err?.error === 'string' && err.error ? err.error : this.getErrorMessage(err);
   }
 
-  loadHierarchyList(){
-    this.hierarchyList = Object.keys(Hierarchy)
-      .filter(key => isNaN(Number(key)))
-      .map(key => ({
-        label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
-        value: Hierarchy[key as keyof typeof Hierarchy]
-      }));
-  }
-
-  loadDepartmentList(){
-    this.departmentList = Object.keys(Department)
-      .filter(key => isNaN(Number(key)))
-      .map(key => ({
-        label: key.charAt(0).toUpperCase() + key.slice(1).toLowerCase(),
-        value: Department[key as keyof typeof Department]
-      }));
-  }
-
   loadEmployes(){
     this.employeeStore.refresh();
   }
@@ -334,11 +349,10 @@ export class EmployesComponent implements TabDirtyCheck {
       email: employee.email,
       ativo: employee.ativo,
       managerCode: employee.managerCode,
-      hierarchy: employee.hierarchy,
+      hierarchyId: employee.hierarchyId ?? null,
       // A API manda "1990-05-20"; o datepicker precisa de Date, senão o campo
       // abre vazio mesmo com o dado salvo.
       birthday: parseDateOnly(employee.birthday),
-      department: employee.department,
       companyId: employee.companyId ?? null,
       teamId: employee.teamId ?? null,
       positionId: null,
