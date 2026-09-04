@@ -6,9 +6,27 @@ export interface Employee{
   email: string,
   ativo: boolean,
   managerCode: string,
-  hierarchy: Hierarchy,
   birthday: Date,
-  department: Department,
+
+  /**
+   * Hierarquia, agora vinda do cadastro de Estrutura Organizacional em vez de
+   * um enum no codigo. `hierarchyName` acompanha na resposta, como
+   * `positionName` ja fazia.
+   */
+  hierarchyId?: string | null,
+  hierarchyName?: string | null,
+
+  /**
+   * **Nao existe mais `department` no funcionario.**
+   *
+   * O departamento vem do Setor: um `Team` pertence a um `Department`, entao
+   * escolher o setor ja decide o departamento. Guardar os dois deixava o mesmo
+   * fato escrito em dois vocabularios que podiam se contradizer — o enum
+   * misturava linha de negocio (`RESTAURANTES`, `AUTOMOTIVO`) com departamento
+   * de verdade (`PRODUCAO`), e nada mantinha os dois de acordo.
+   *
+   * O `HrDashboardService` da API ja lia por esse caminho antes desta mudanca.
+   */
   companyId?: string | null,
   teamId?: string | null,
   positionId?: string | null,
@@ -32,32 +50,8 @@ export enum ContractType {
   PJ = 'PJ'
 }
 
-export enum Hierarchy {
-  DIRETOR = 'DIRETOR',
-  CEO = 'CEO',
-  SUPERVISOR = 'SUPERVISOR',
-  GERENTE = 'GERENTE',
-  COORDENADOR = 'COORDENADOR',
-  ANALISTA = 'ANALISTA',
-  ASSISTENTE = 'ASSISTENTE'
-}
-
 export enum TransportType {
   MUNICIPAL_BUS = 'MUNICIPAL_BUS',
   INTERMUNICIPAL_BUS = 'INTERMUNICIPAL_BUS',
   VEHICLE = 'VEHICLE',
-}
-
-export enum Department {
-  RESTAURANTES = 'RESTAURANTES',
-  AUTOMOTIVO = 'AUTOMOTIVO',
-  ALIMENTOS = 'ALIMENTOS',
-  SUL = 'SUL',
-  EQUIPAMENTOS = 'EQUIPAMENTOS',
-  LAVANDERIA = 'LAVANDERIA',
-  MOTORISTA = 'MOTORISTA',
-  MANUTENCAO = 'MANUTENCAO',
-  DISTRIBUIDORES = 'DISTRIBUIDORES',
-  ADMINISTRATIVO = 'ADMINISTRATIVO',
-  PRODUCAO = 'PRODUCAO'
 }
