@@ -11,7 +11,7 @@
 //
 // A saída é montar a versão nova numa pasta própria e **virar um link** no fim:
 //
-//   /var/www/proautokimium-app/
+//   /var/www/proautokimium/
 //   ├── releases/2.42.6/browser/
 //   ├── releases/2.42.7/browser/   ← recém-montada
 //   └── current -> releases/2.42.7
@@ -35,9 +35,9 @@ pipeline {
   }
 
   environment {
-    BASE     = '/var/www/proautokimium-app'
-    RELEASES = '/var/www/proautokimium-app/releases'
-    ATUAL    = '/var/www/proautokimium-app/current'
+    BASE     = '/var/www/proautokimium'
+    RELEASES = '/var/www/proautokimium/releases'
+    ATUAL    = '/var/www/proautokimium/current'
 
     // Quantas versões ficam no disco. Cinco, escolhido por ele: com hard link
     // cada uma extra custa ~8 MB, e a anterior fica a um comando de distância.
@@ -68,7 +68,7 @@ pipeline {
             echo "ERRO: nao consigo escrever em $BASE."
             echo "      O Jenkins esta em container e precisa da pasta montada."
             echo "      No compose do Jenkins:"
-            echo "        - /var/www/proautokimium-app:/var/www/proautokimium-app"
+            echo "        - /var/www/proautokimium:/var/www/proautokimium"
             exit 1
           }
 
