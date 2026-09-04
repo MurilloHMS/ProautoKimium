@@ -54,7 +54,7 @@ jobs:
       - name: Avisar o Jenkins que a tag esta liberada
         env:
           JENKINS_URL: ${{ secrets.JENKINS_URL }}
-          JENKINS_JOB: ${{ secrets.JENKINS_JOB_FRONT }}
+          JENKINS_JOB: ${{ secrets.JENKINS_JOB }}
           JENKINS_USER: ${{ secrets.JENKINS_USER }}
           JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
         run: |
