@@ -72,6 +72,27 @@ pipeline {
             exit 1
           }
 
+          # **Escrever nao basta: e preciso ser a pasta CERTA.**
+          #
+          # Se a montagem apontar para um caminho que nao existe no host, o
+          # Docker cria uma pasta vazia e monta ela. O teste de escrita acima
+          # passa, o deploy escreve com sucesso, e o nginx continua servindo
+          # outro lugar — deploy verde que nao muda nada no site.
+          #
+          # A pasta do site ja foi renomeada uma vez, e foi esse o risco.
+          if [ -z "$(ls -A "$BASE" 2>/dev/null)" ]; then
+            echo "ERRO: $BASE existe mas esta VAZIA."
+            echo ""
+            echo "      Provavelmente o Docker criou essa pasta porque a"
+            echo "      montagem no compose do Jenkins aponta para um caminho"
+            echo "      que nao existe no host."
+            echo ""
+            echo "      Confira que os dois listam a mesma coisa:"
+            echo "        docker exec <jenkins> ls $BASE"
+            echo "        ls $BASE            # no host"
+            exit 1
+          fi
+
           mkdir -p "$RELEASES"
         '''
       }
