@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -28,7 +29,7 @@ import { FormScreenComponent } from '../../shared/form-screen/form-screen.compon
   selector: 'app-career-structure',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule, TableModule, SelectModule, DatePickerModule, Toast,
+    CommonModule, ReactiveFormsModule, ButtonModule, TableModule, SelectModule, DatePickerModule, Toast,
     PkButtonComponent, PkDialogComponent, PkTableComponent, PkInputComponent,
     ToolbarComponent, FormScreenComponent,
   ],
@@ -168,8 +169,31 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
     return this.levelForm.get('adjustmentType')?.value === 'FIXED';
   }
 
+  /**
+   * A proxima ordem livre da escala do cargo — 1 quando ainda nao ha nenhum.
+   *
+   * Vem da MAIOR ordem, e nao da quantidade de niveis: escala com buracos
+   * (1, 3, 7) e comum, e contar quantos existem sugeriria uma ordem que ja
+   * esta ocupada.
+   */
+  readonly proximaOrdem = computed(() => {
+    const ordens = this.levels()
+      .map(nivel => nivel.levelOrder)
+      .filter((ordem): ordem is number => typeof ordem === 'number');
+
+    return ordens.length ? Math.max(...ordens) + 1 : 1;
+  });
+
+  /**
+   * A ordem ja vem preenchida — **sugestao, nao trava.**
+   *
+   * O campo abria vazio e quem cadastrava digitava 1 de novo, entao Junior e
+   * Pleno terminavam os dois na ordem 1 e a lista deixava de ter ordem. O
+   * campo continua editavel porque encaixar um nivel no meio da escala e uma
+   * coisa legitima de se querer fazer.
+   */
   openLevelForm(): void {
-    this.levelForm.reset({ adjustmentType: 'FIXED' });
+    this.levelForm.reset({ adjustmentType: 'FIXED', levelOrder: this.proximaOrdem() });
     this.mode.set('level');
   }
 
