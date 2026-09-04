@@ -18,4 +18,17 @@ export class HierarchyService {
   create(request: CreateHierarchyRequest): Observable<Hierarchy> {
     return this.http.post<Hierarchy>(`${environment.apiUrl}/hr/hierarchies`, request);
   }
+
+  update(id: string, request: CreateHierarchyRequest): Observable<Hierarchy> {
+    return this.http.put<Hierarchy>(`${environment.apiUrl}/hr/hierarchies/${id}`, request);
+  }
+
+  /**
+   * A API recusa com **409** quando o cadastro esta em uso, e a mensagem dela
+   * diz por quem. Quem chama repassa essa frase — inventar um texto generico
+   * aqui esconderia justamente o que a pessoa precisa saber para resolver.
+   */
+  remove(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/hr/hierarchies/${id}`);
+  }
 }

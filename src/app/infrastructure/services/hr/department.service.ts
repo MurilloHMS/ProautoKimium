@@ -18,4 +18,17 @@ export class DepartmentService {
   create(request: CreateDepartmentRequest): Observable<Department> {
     return this.http.post<Department>(`${environment.apiUrl}/hr/departments`, request);
   }
+
+  update(id: string, request: CreateDepartmentRequest): Observable<Department> {
+    return this.http.put<Department>(`${environment.apiUrl}/hr/departments/${id}`, request);
+  }
+
+  /**
+   * A API recusa com **409** quando o cadastro esta em uso, e a mensagem dela
+   * diz por quem. Quem chama repassa essa frase — inventar um texto generico
+   * aqui esconderia justamente o que a pessoa precisa saber para resolver.
+   */
+  remove(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/hr/departments/${id}`);
+  }
 }

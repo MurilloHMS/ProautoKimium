@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import {
   Company,
@@ -44,6 +45,15 @@ export class DepartmentStore extends ReferenceStore<Department> {
   create(request: CreateDepartmentRequest): Observable<Department> {
     return this.withUpsert(this.service.create(request));
   }
+
+  update(id: string, request: CreateDepartmentRequest): Observable<Department> {
+    return this.withUpsert(this.service.update(id, request));
+  }
+
+  /** So tira da lista local depois que a API confirmou. */
+  delete(id: string): Observable<void> {
+    return this.service.remove(id).pipe(tap(() => this.remove(id)));
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -56,6 +66,15 @@ export class TeamStore extends ReferenceStore<Team> {
   create(request: CreateTeamRequest): Observable<Team> {
     return this.withUpsert(this.service.create(request));
   }
+
+  update(id: string, request: CreateTeamRequest): Observable<Team> {
+    return this.withUpsert(this.service.update(id, request));
+  }
+
+  /** So tira da lista local depois que a API confirmou. */
+  delete(id: string): Observable<void> {
+    return this.service.remove(id).pipe(tap(() => this.remove(id)));
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -67,5 +86,14 @@ export class HierarchyStore extends ReferenceStore<Hierarchy> {
 
   create(request: CreateHierarchyRequest): Observable<Hierarchy> {
     return this.withUpsert(this.service.create(request));
+  }
+
+  update(id: string, request: CreateHierarchyRequest): Observable<Hierarchy> {
+    return this.withUpsert(this.service.update(id, request));
+  }
+
+  /** So tira da lista local depois que a API confirmou. */
+  delete(id: string): Observable<void> {
+    return this.service.remove(id).pipe(tap(() => this.remove(id)));
   }
 }

@@ -1,4 +1,5 @@
 <p-toast position="top-right"></p-toast>
+<p-confirmDialog />
 
 @if (mode() === 'grid') {
 
@@ -30,6 +31,7 @@
         <tr>
           <th>Nível</th>
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
+          <th class="col-actions">Ações</th>
         </tr>
       </ng-template>
 
@@ -37,6 +39,14 @@
         <tr class="table-row">
           <td><span class="code-badge">{{ h.levelOrder }}</span></td>
           <td>{{ h.name }}</td>
+          <td class="col-actions">
+            <div class="row-actions">
+              <pk-button pkType="edit" [pkIconOnly]="true" pkSize="sm"
+                         pkTooltip="Editar" (clicked)="openEdit(h)"/>
+              <pk-button pkType="delete" [pkIconOnly]="true" pkSize="sm"
+                         pkTooltip="Excluir" (clicked)="confirmDelete(h)"/>
+            </div>
+          </td>
         </tr>
       </ng-template>
 
@@ -45,7 +55,7 @@
 
 } @else {
 
-  <app-form-screen title="Nova Hierarquia" subtitle="Quanto menor o nível, mais alto na hierarquia" (back)="closeForm()">
+  <app-form-screen [title]="editing() ? 'Editar Hierarquia' : 'Nova Hierarquia'" subtitle="Quanto menor o nível, mais alto na hierarquia" (back)="closeForm()">
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-grid">
         <div class="form-field form-field--full">

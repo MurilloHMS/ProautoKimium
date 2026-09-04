@@ -1,4 +1,5 @@
 <p-toast position="top-right"></p-toast>
+<p-confirmDialog />
 
 @if (mode() === 'grid') {
 
@@ -30,6 +31,7 @@
         <tr>
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
           <th>Departamento</th>
+          <th class="col-actions">Ações</th>
         </tr>
       </ng-template>
 
@@ -37,6 +39,14 @@
         <tr class="table-row">
           <td>{{ t.name }}</td>
           <td>{{ t.department?.name }}</td>
+          <td class="col-actions">
+            <div class="row-actions">
+              <pk-button pkType="edit" [pkIconOnly]="true" pkSize="sm"
+                         pkTooltip="Editar" (clicked)="openEdit(t)"/>
+              <pk-button pkType="delete" [pkIconOnly]="true" pkSize="sm"
+                         pkTooltip="Excluir" (clicked)="confirmDelete(t)"/>
+            </div>
+          </td>
         </tr>
       </ng-template>
 
@@ -45,7 +55,7 @@
 
 } @else {
 
-  <app-form-screen title="Novo Setor" subtitle="Cadastro de setor vinculado a um departamento" (back)="closeForm()">
+  <app-form-screen [title]="editing() ? 'Editar Setor' : 'Novo Setor'" subtitle="Cadastro de setor vinculado a um departamento" (back)="closeForm()">
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-grid">
         <div class="form-field form-field--full">
