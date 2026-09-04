@@ -1,37 +1,84 @@
-name: deploy angular web app
+name: CI e deploy
 
 on:
   push:
-    tags:
-      - '*.*.*'
+  pull_request:
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Os testes.
+  #
+  # **Não existiam neste repositório.** O workflow ia de `checkout` direto para
+  # `build` e `rsync`, então uma tag colocava em produção código que os 466
+  # testes nunca tinham visto. O mesmo buraco que a API tinha até 2026-09-03.
+  # ═══════════════════════════════════════════════════════════════════════════
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      # `ci` e não `install`: instala exatamente o lockfile, e falha se ele
+      # estiver fora de sincronia com o package.json.
+      - run: npm ci
+
+      - run: npx ng test --watch=false --browsers=ChromeHeadless
+
+      # O build entra aqui como teste, e não como entrega: se ele quebrar, é
+      # melhor descobrir agora que depois de o Jenkins já ter sido chamado.
+      - run: npm run build -- --configuration production
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # O deploy.
+  #
+  # Antes, este workflow compilava e mandava os arquivos por rsync, usando uma
+  # **chave SSH com acesso de escrita à VPS guardada no GitHub**. Agora quem
+  # compila e publica é o Jenkins, que já está na máquina — a chave deixa de
+  # existir, como o Docker Hub deixou de existir para a API.
+  #
+  # O `needs: test` é o ponto: sem verde, este job nem existe.
+  # ═══════════════════════════════════════════════════════════════════════════
   deploy:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
     environment:
       name: production
       url: https://proautokimium.com.br
-    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Avisar o Jenkins que a tag esta liberada
+        env:
+          JENKINS_URL: ${{ secrets.JENKINS_URL }}
+          JENKINS_JOB: ${{ secrets.JENKINS_JOB }}
+          JENKINS_USER: ${{ secrets.JENKINS_USER }}
+          JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+        run: |
+          # Secret que nao existe chega como string vazia, e o Jenkins responde
+          # 403 — um erro que fala de permissao quando o problema e
+          # configuracao, mandando quem le procurar no lugar errado.
+          for nome in JENKINS_URL JENKINS_JOB JENKINS_USER JENKINS_TOKEN; do
+            if [ -z "${!nome}" ]; then
+              echo "::error::O secret $nome nao esta definido no repositorio."
+              echo "Settings > Secrets and variables > Actions > New repository secret"
+              exit 1
+            fi
+          done
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+          # Token de API do usuario, e nao o token de build do job: o token de
+          # build dispara sem login, mas o Jenkins continua perguntando se o
+          # ANONIMO pode construir — e por padrao ele nao pode.
+          #
+          # `-f` faz o passo falhar em 4xx/5xx. Sem ele o curl sai com sucesso
+          # mesmo quando o Jenkins recusa, e o workflow ficaria verde
+          # anunciando um deploy que nunca comecou.
+          curl -fsS -X POST \
+            --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
+            --data-urlencode "TAG=${GITHUB_REF_NAME}" \
+            "${JENKINS_URL}/job/${JENKINS_JOB}/buildWithParameters"
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Angular (produção)
-        run: npm run build -- --configuration production
-
-      - name: Deploy para a VPS (rsync over SSH)
-        uses: burnett01/rsync-deployments@7.0.2
-        with:
-          switches: -avzr --delete
-          path: dist/proauto-kimium/browser/
-          remote_path: /var/www/proautokimium-app/browser/
-          remote_host: ${{ secrets.VPS_HOST }}
-          remote_user: ${{ secrets.VPS_USER }}
-          remote_key: ${{ secrets.VPS_SSH_KEY }}
+          echo "Deploy da ${GITHUB_REF_NAME} pedido ao Jenkins."
