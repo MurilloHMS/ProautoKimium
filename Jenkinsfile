@@ -90,6 +90,19 @@ pipeline {
 
     stage('Compilar') {
       steps {
+        // **O `:z` no volume nao e detalhe — e o que faz isto funcionar aqui.**
+        //
+        // Esta VPS tem SELinux ativo, e o log do Jenkins avisa isso duas vezes.
+        // Arquivo criado por um container ganha uma categoria propria; outro
+        // container le a mesma pasta como se estivesse VAZIA, porque o kernel
+        // nega o acesso sem erro visivel.
+        //
+        // O Jenkins nao sofre disso porque roda `privileged: true`, que ignora
+        // SELinux — mas isso vale so para ele, nao para os containers que ele
+        // manda criar.
+        //
+        // `:z` religa o rotulo como compartilhado entre containers.
+        //
         // **Antes de compilar, provar que o container esta vendo o codigo.**
         //
         // O `-v "$PWD":/app` e resolvido pelo daemon do HOST, nao pelo Jenkins.
@@ -100,7 +113,7 @@ pipeline {
         // entao uma pasta vazia da o mesmo `EUSAGE` de um projeto sem lockfile.
         // A mensagem fala de npm quando o problema e de montagem.
         sh '''
-          if ! docker run --rm -v "$PWD":/app -w /app alpine \
+          if ! docker run --rm -v "$PWD":/app:z -w /app alpine \
                sh -c 'test -f package.json && test -f package-lock.json'; then
             echo "ERRO: o container nao esta enxergando o codigo em $PWD."
             echo ""
@@ -122,7 +135,7 @@ pipeline {
         // producao nao e hora de resolver versao nova.
         sh """
           docker run --rm \
-            -v "\$PWD":/app -w /app \
+            -v "\$PWD":/app:z -w /app \
             ${NODE} sh -c "npm ci && npm run build -- --configuration production"
         """
       }
