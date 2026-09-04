@@ -84,8 +84,22 @@ export class EmployesComponent implements TabDirtyCheck {
    */
   readonly companyOptions = computed(() =>
     this.companyStore.items().map(company => ({ label: company.name, value: company.id })));
+  /**
+   * **O setor vem acompanhado do departamento.**
+   *
+   * Nome de setor se repete entre departamentos — "Administrativo" e
+   * "Produção" existem em mais de um —, e sozinho ele não diz qual é qual.
+   * Quem preenche a ficha escolhia entre duas linhas idênticas.
+   *
+   * O departamento já vem no `Team` que a API devolve; a lista é que não
+   * usava. Quando faltar, mostra só o setor: `undefined` no rótulo seria pior
+   * que a ambiguidade.
+   */
   readonly teamOptions = computed(() =>
-    this.teamStore.items().map(team => ({ label: team.name, value: team.id })));
+    this.teamStore.items().map(team => ({
+      label: team.department?.name ? `${team.name} - ${team.department.name}` : team.name,
+      value: team.id,
+    })));
   readonly positionOptions = computed(() =>
     this.positionStore.items().map(position => ({ label: position.name, value: position.id })));
 
