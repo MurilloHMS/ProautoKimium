@@ -566,7 +566,7 @@
   color: var(--app-text-muted);
 }
 
-// ── Seção 3: Conta e acesso ─────────────────────────────────────────────────
+// ── Seção 3: Conta e sessão ─────────────────────────────────────────────────
 
 .conta-section {
   display: flex;
@@ -596,14 +596,6 @@
   color: var(--app-text);
 
   i { color: var(--app-primary); }
-}
-
-// Empurrado para a direita: é contagem, não parte do título.
-.conta-card__contagem {
-  margin-left: auto;
-  font-size: v.$font-size-xs;
-  font-weight: 600;
-  color: var(--app-text-muted);
 }
 
 // ── Pares rótulo/valor ──────────────────────────────────────────────────────
@@ -697,78 +689,6 @@
   height: 100%;
   border-radius: v.$radius-full;
   background: var(--app-primary);
-}
-
-// ── Grade de acesso ─────────────────────────────────────────────────────────
-//
-// Quatro colunas fixas de 26px para os verbos; a primeira leva o que sobra.
-// `minmax(0, 1fr)` e não `1fr`: o padrão de uma coluna de grid é `auto`, que
-// NÃO encolhe abaixo do conteúdo — nome de tela longo estouraria a linha em
-// vez de reticenciar.
-
-.grade { display: flex; flex-direction: column; }
-
-.grade__cab,
-.grade__linha {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(4, 26px);
-  gap: v.$space-1;
-  align-items: center;
-}
-
-.grade__cab {
-  padding-bottom: v.$space-2;
-  border-bottom: 1px solid var(--app-border);
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-  color: var(--app-text-subtle);
-
-  span:not(:first-child) { text-align: center; }
-}
-
-.grade__linha {
-  padding: v.$space-2 0;
-  border-bottom: 1px solid var(--app-border);
-  font-size: v.$font-size-sm;
-
-  &:last-child { border-bottom: 0; }
-}
-
-.grade__tela {
-  min-width: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--app-text);
-}
-
-.marca {
-  width: 16px;
-  height: 16px;
-  margin: 0 auto;
-  border-radius: v.$radius-sm;
-  background: var(--app-border);
-
-  &--on {
-    background: var(--app-primary);
-  }
-}
-
-.ver-mais {
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--app-primary);
-  font-family: v.$font-body;
-  font-size: v.$font-size-sm;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid var(--app-primary);
-    outline-offset: 2px;
-  }
 }
 
 .sair-btn { width: 100%; }

@@ -320,51 +320,6 @@
         }
       </div>
 
-      <!--
-        A grade de acesso. Quatro verbos por tela, na ordem do catálogo de
-        permissões: CONSULTAR, INCLUIR, ALTERAR, EXCLUIR.
-      -->
-      <div class="conta-card">
-        <h2 class="conta-card__title">
-          <i class="pi pi-shield"></i>
-          Acesso
-          @if (acessos().length) {
-            <span class="conta-card__contagem">{{ acessos().length }} telas</span>
-          }
-        </h2>
-
-        @if (acessos().length) {
-          <div class="grade">
-            <div class="grade__cab" aria-hidden="true">
-              <span>TELA</span>
-              <span>VER</span><span>INC</span><span>EDT</span><span>EXC</span>
-            </div>
-
-            @for (acesso of acessosVisiveis(); track acesso.screen) {
-              <div class="grade__linha">
-                <span class="grade__tela" [title]="acesso.label">{{ acesso.label }}</span>
-                <span class="marca" [class.marca--on]="acesso.consultar"
-                      [attr.aria-label]="acesso.label + (acesso.consultar ? ': pode consultar' : ': não pode consultar')"></span>
-                <span class="marca" [class.marca--on]="acesso.incluir"
-                      [attr.aria-label]="acesso.incluir ? 'pode incluir' : 'não pode incluir'"></span>
-                <span class="marca" [class.marca--on]="acesso.alterar"
-                      [attr.aria-label]="acesso.alterar ? 'pode alterar' : 'não pode alterar'"></span>
-                <span class="marca" [class.marca--on]="acesso.excluir"
-                      [attr.aria-label]="acesso.excluir ? 'pode excluir' : 'não pode excluir'"></span>
-              </div>
-            }
-          </div>
-
-          @if (acessos().length > 3) {
-            <button type="button" class="ver-mais" (click)="showAllScreens.set(!showAllScreens())">
-              {{ showAllScreens() ? 'Mostrar menos' : 'Ver as ' + acessos().length + ' telas' }}
-            </button>
-          }
-        } @else {
-          <p class="sessao__nota">Nenhuma permissão de tela carregada.</p>
-        }
-      </div>
-
       <div class="conta-card">
         <button pButton label="Sair da conta" icon="pi pi-sign-out"
                 class="p-button-sm p-button-outlined p-button-danger sair-btn"

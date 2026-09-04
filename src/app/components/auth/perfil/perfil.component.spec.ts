@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 
@@ -50,9 +48,6 @@ describe('PerfilComponent · quando não abre', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideNoopAnimations(),
-        // O `PermissionStore` da seção "Acesso" busca o mapa por HTTP.
-        provideHttpClient(),
-        provideHttpClientTesting(),
         { provide: VcardService, useValue: vcard },
         // Não é mais `{}`: a seção "Conta" lê estes três na construção do
         // componente, e um stub vazio quebra antes de qualquer expectativa.

@@ -16,8 +16,6 @@ import { MessageService } from 'primeng/api';
 
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
-import { PermissionStore } from '../../../infrastructure/state/permission.store';
-import { APP_MENU, MOBILE_NAV, AppMenuItem } from '../../../layouts/auth-layout/menu.config';
 import { urlDeMidia } from '../../../infrastructure/config/media-url';
 import {
   MyProfileResponseDto,
@@ -32,16 +30,6 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
   regioesAtendimento: [], segmentosAtendimento: [],
   ativo: true,
 });
-
-/** Uma tela que a pessoa alcança, com o que ela pode fazer lá dentro. */
-export interface AcessoDaTela {
-  screen: string;
-  label: string;
-  consultar: boolean;
-  incluir: boolean;
-  alterar: boolean;
-  excluir: boolean;
-}
 
 @Component({
   selector: 'app-perfil',
@@ -59,7 +47,6 @@ export interface AcessoDaTela {
 export class PerfilComponent implements OnInit, OnDestroy {
   private vcardService = inject(VcardService);
   private authService = inject(AuthService);
-  private permissions = inject(PermissionStore);
   private toast = inject(MessageService);
 
   data: MyProfileResponseDto | null = null;
@@ -88,11 +75,11 @@ export class PerfilComponent implements OnInit, OnDestroy {
 
   qrVisible = false;
 
-  // ── Conta e acesso ────────────────────────────────────────────────────────
+  // ── Conta e sessão ────────────────────────────────────────────────────────
   //
-  // Nada aqui custa uma requisição nova: o login e os papéis saem do token, e o
-  // mapa de permissões já está no `PermissionStore`, carregado para o menu e os
-  // guards. A tela só estava sem mostrar o que o cliente já sabia.
+  // Nada aqui custa uma requisição nova: login, papéis e validade saem do
+  // token que já está no navegador. A tela só estava sem mostrar o que o
+  // cliente já sabia.
 
   /** Reavaliado de minuto em minuto — é o que faz a contagem andar sozinha. */
   private readonly agora = signal(Date.now());
@@ -130,37 +117,6 @@ export class PerfilComponent implements OnInit, OnDestroy {
     if (min === null) return 0;
     return Math.max(0, Math.min(1, min / 120));
   });
-
-  /** Mostra as três primeiras telas até a pessoa pedir a lista inteira. */
-  readonly showAllScreens = signal(false);
-
-  /**
-   * As telas que a pessoa alcança, com os quatro verbos por linha.
-   *
-   * A chave do mapa é o código da tela (`stock/movements`); o rótulo humano
-   * vive no `APP_MENU`. Quando não houver rótulo — tela nova, ou item que saiu
-   * do menu — mostra o próprio código, que é feio mas verdadeiro. Esconder a
-   * linha seria pior: a pessoa TEM a permissão, e ela não apareceria em lugar
-   * nenhum.
-   */
-  readonly acessos = computed<AcessoDaTela[]>(() => {
-    const mapa = this.permissions.permissions();
-    const rotulos = ROTULO_POR_TELA();
-
-    return Object.entries(mapa)
-      .map(([screen, verbos]) => ({
-        screen,
-        label: rotulos.get(screen) ?? screen,
-        consultar: verbos.includes('CONSULTAR'),
-        incluir:   verbos.includes('INCLUIR'),
-        alterar:   verbos.includes('ALTERAR'),
-        excluir:   verbos.includes('EXCLUIR'),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
-  });
-
-  readonly acessosVisiveis = computed(() =>
-    this.showAllScreens() ? this.acessos() : this.acessos().slice(0, 3));
 
   readonly phoneTypes = [
     { label: 'WhatsApp', value: 'WHATSAPP' },
@@ -200,9 +156,6 @@ export class PerfilComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.load();
-
-    // Idempotente: se o menu já carregou o mapa, isto não vai à rede.
-    this.permissions.ensureLoaded().subscribe();
 
     this.relogio = setInterval(() => this.agora.set(Date.now()), 60_000);
   }
@@ -461,39 +414,3 @@ export class PerfilComponent implements OnInit, OnDestroy {
     return urlDeMidia(caminho, '');
   }
 }
-
-/**
- * `screen` → rótulo, achatado a partir dos menus uma vez só.
- *
- * **Os dois menus, e não só o `APP_MENU`.** `perfil` — a própria tela onde
- * este mapa é usado — só existe no `MOBILE_NAV`; com uma fonte só, ela caía
- * na regra do "sem rótulo" e se listava como `perfil`, em minúscula, no meio
- * de nomes de gente. O `APP_MENU` vem primeiro porque a trilha dele é mais
- * completa ("RH › Férias" em vez de "Férias"), e `set` só preenche o que
- * ainda não existe.
- *
- * Os menus são constantes de módulo, então o mapa não muda em tempo de
- * execução; montar a cada `computed` seria varrer as árvores a cada render.
- */
-const ROTULO_POR_TELA = (() => {
-  let cache: Map<string, string> | null = null;
-
-  return (): Map<string, string> => {
-    if (cache) return cache;
-
-    const mapa = new Map<string, string>();
-    const visitar = (itens: AppMenuItem[], caminho: string[]): void => {
-      for (const item of itens) {
-        const trilha = [...caminho, item.label];
-        if (item.screen && !mapa.has(item.screen)) mapa.set(item.screen, trilha.join(' › '));
-        if (item.items?.length) visitar(item.items, trilha);
-      }
-    };
-
-    visitar(APP_MENU, []);
-    visitar(MOBILE_NAV, []);
-
-    cache = mapa;
-    return cache;
-  };
-})();
