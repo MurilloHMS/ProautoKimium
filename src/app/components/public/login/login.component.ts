@@ -26,9 +26,24 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute,
   ) {
+    // **O login nao julga o formato da senha, so exige que exista.**
+    //
+    // Havia aqui a mesma regra de complexidade do primeiro acesso, e ela
+    // trancava gente do lado de fora sem recurso: com o botao desabilitado, a
+    // pessoa nao consegue nem TENTAR, e o servidor — que e quem sabe se a senha
+    // esta certa — nunca e consultado. A saida era pedir a um admin para
+    // redefinir.
+    //
+    // Ficam de fora dessa regra mais pessoas do que parece: quem definiu a
+    // senha antes de a regra existir, quem teve a senha definida por um admin,
+    // e quem veio pelo portal do cliente, cujas telas nao validam formato.
+    //
+    // Complexidade se exige na hora de CRIAR a senha — primeiro acesso e
+    // redefinicao —, onde a pessoa ainda pode escolher outra. No login, a unica
+    // pergunta e se a senha confere, e quem responde e a API.
     this.form = this.fb.group({
       username: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$')]]
+      password: ['', [Validators.required]]
     });
 
   /**

@@ -7,6 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { passwordStrengthValidator } from '../../../domain/utils/password-rules';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MessageService } from 'primeng/api';
@@ -71,9 +72,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
           '',
           [
             Validators.required,
-            Validators.pattern(
-              '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#])[A-Za-z\\d@$!%*?&#]{8,}$'
-            ),
+            passwordStrengthValidator(),
           ],
         ],
         confirmPassword: ['', Validators.required],
