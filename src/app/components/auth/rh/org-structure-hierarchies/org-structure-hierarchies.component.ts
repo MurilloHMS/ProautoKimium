@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -50,8 +50,31 @@ export class OrgStructureHierarchiesComponent implements OnInit, TabDirtyCheck {
     this.store.refresh();
   }
 
+  /**
+   * A proxima ordem livre da escala — 1 quando ainda nao ha hierarquia.
+   *
+   * Vem da MAIOR ordem, e nao da quantidade: escala com buracos (1, 3, 7) e
+   * comum, e contar quantas existem sugeriria uma posicao ja ocupada.
+   */
+  readonly proximaOrdem = computed(() => {
+    const ordens = this.hierarchies()
+      .map(hierarquia => hierarquia.levelOrder)
+      .filter((ordem): ordem is number => typeof ordem === 'number');
+
+    return ordens.length ? Math.max(...ordens) + 1 : 1;
+  });
+
+  /**
+   * A ordem ja vem preenchida — **sugestao, nao trava.**
+   *
+   * O campo abria vazio e quem cadastrava repetia o 1, entao duas hierarquias
+   * ficavam na mesma posicao. Pesa mais aqui do que nos niveis: o combo de
+   * hierarquia do cadastro de funcionario e ordenado por `levelOrder`, e
+   * empate vira ordem arbitraria numa lista que as pessoas leem esperando
+   * Diretor acima de Analista.
+   */
   openForm(): void {
-    this.form.reset();
+    this.form.reset({ levelOrder: this.proximaOrdem() });
     this.mode.set('form');
   }
 
