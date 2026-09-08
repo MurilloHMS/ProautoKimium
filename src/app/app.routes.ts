@@ -119,6 +119,7 @@ export const routes: Routes = [
 
       // ── Comunicação ──────────────────────────────────────────────────────
       { path: 'communication/newsletter', loadComponent: () => import('./components/auth/communication/newsletter/newsletter.component').then(m => m.NewsletterComponent), data: { screen: 'communication/newsletter' } },
+      { path: 'communication/newsletter-revisao', loadComponent: () => import('./components/auth/communication/newsletter-revisao/newsletter-revisao.component').then(m => m.NewsletterRevisaoComponent), data: { screen: 'communication/newsletter-revisao' } },
       { path: 'communication/email', loadComponent: () => import('./components/auth/communication/email/email.component').then(m => m.EmailComponent), data: { screen: 'communication/email' } },
       { path: 'communication/secrets', loadComponent: () => import('./components/auth/communication/secrets/secrets.component').then(m => m.SecretsComponent), data: { screen: 'communication/secrets' } },
       { path: 'communication/email-signature', loadComponent: () => import('./components/auth/documents/email-signature/email-signature.component').then(m => m.EmailSignatureComponent), data: { screen: 'communication/email-signature' } },
