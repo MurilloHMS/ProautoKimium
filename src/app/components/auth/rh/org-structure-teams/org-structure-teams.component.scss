@@ -1,4 +1,5 @@
 @use 'mixins' as m;
+@use 'variables' as v;
 
 // Tela de grade dentro da Estrutura Organizacional.
 :host { @include m.grid-screen; }
@@ -19,3 +20,6 @@ app-form-screen {
   gap: 10px;
   margin-bottom: 16px;
 }
+
+.col-actions { width: 1%; white-space: nowrap; text-align: right; }
+.row-actions { display: flex; gap: v.$space-2; justify-content: flex-end; }
