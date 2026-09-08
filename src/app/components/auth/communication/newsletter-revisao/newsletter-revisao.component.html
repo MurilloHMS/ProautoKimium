@@ -276,6 +276,13 @@
                     @if (semEmail(cliente)) {
                       <span class="etiqueta" title="Sem e-mail cadastrado">sem e-mail</span>
                     }
+                    <!-- Quem pediu para não receber fica na lista com os
+                         números e fora do envio. Sem a marca, o total de
+                         confirmados sairia menor que o de clientes e ninguém
+                         saberia por quê. -->
+                    @if (!cliente.recebeEmail) {
+                      <span class="etiqueta etiqueta--fora" title="Pediu para não receber">não recebe</span>
+                    }
                   </td>
                   <td class="num">{{ cliente.quantidadeNotasEmitidas }}</td>
                   <td class="num">{{ cliente.quantidadeDeLitros }}</td>
@@ -317,6 +324,11 @@
               @if (semEmail(cliente)) {
                 <p class="cartao__sem-email">
                   <i class="pi pi-envelope"></i> Sem e-mail cadastrado
+                </p>
+              }
+              @if (!cliente.recebeEmail) {
+                <p class="cartao__sem-email">
+                  <i class="pi pi-ban"></i> Pediu para não receber
                 </p>
               }
             </article>

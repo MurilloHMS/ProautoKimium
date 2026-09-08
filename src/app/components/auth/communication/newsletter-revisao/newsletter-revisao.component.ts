@@ -118,7 +118,7 @@ export class NewsletterRevisaoComponent {
   readonly painelDeEmails = signal(false);
 
   /** O que foi digitado no painel, por código de cliente, ainda não enviado. */
-  readonly emailsDigitados = signal<Record<number, string>>({});
+  readonly emailsDigitados = signal<Record<string, string>>({});
 
   // ── Listas derivadas ──────────────────────────────────────────────────────
 
@@ -139,7 +139,7 @@ export class NewsletterRevisaoComponent {
     const filtrados = termo
       ? this.clientes().filter(c =>
           c.nomeDoCliente.toLowerCase().includes(termo) ||
-          String(c.codigoCliente).includes(termo))
+          c.codigoCliente.includes(termo))
       : this.clientes();
 
     return [...filtrados].sort((a, b) => b.faturamentoTotal - a.faturamentoTotal);
@@ -159,7 +159,7 @@ export class NewsletterRevisaoComponent {
     this.clientes().filter(c => (c.faturamentoTotal ?? 0) > 0).length);
 
   /** O que ja foi digitado para um cliente no painel, para o campo nao esquecer. */
-  emailDigitado(codigoCliente: number): string {
+  emailDigitado(codigoCliente: string): string {
     return this.emailsDigitados()[codigoCliente] ?? '';
   }
 
@@ -214,7 +214,7 @@ export class NewsletterRevisaoComponent {
     });
   }
 
-  anotarEmail(codigoCliente: number, email: string): void {
+  anotarEmail(codigoCliente: string, email: string): void {
     this.emailsDigitados.update(atual => ({ ...atual, [codigoCliente]: email }));
   }
 
@@ -224,7 +224,7 @@ export class NewsletterRevisaoComponent {
     if (!previa) return;
 
     const emails = Object.entries(this.emailsDigitados())
-      .map(([codigo, email]) => ({ codigoCliente: Number(codigo), email: email.trim() }))
+      .map(([codigo, email]) => ({ codigoCliente: codigo, email: email.trim() }))
       .filter(e => e.email.length > 0);
 
     if (!emails.length) return;

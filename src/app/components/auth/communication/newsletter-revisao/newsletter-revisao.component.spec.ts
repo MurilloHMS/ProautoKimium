@@ -24,25 +24,26 @@ import type {
  */
 describe('NewsletterRevisaoComponent', () => {
 
-  const cliente = (codigo: number, nome: string, faturamento: number, email: string | null = 'x@y.com') =>
+  const cliente = (codigo: string, nome: string, faturamento: number, email: string | null = 'x@y.com') =>
     ({
       codigoCliente: codigo, nomeDoCliente: nome, emailCliente: email,
-      codigoMatriz: null, nomeMatriz: null,
+      recebeEmail: true, codigoMatriz: null, nomeMatriz: null,
       quantidadeNotasEmitidas: 1, quantidadeDeProdutos: 1, quantidadeDeLitros: 10,
       quantidadeDeVisitas: 1, mediaDiasAtendimento: 2, produtoEmDestaque: 'PRO GRUN',
       faturamentoTotal: faturamento, valorDePecasTrocadas: 0,
       valorTotalDeHoras: 0, valorTotalCobradoHoras: 0, mauUso: false,
+      valorTotalDeHorasMauUso: 0, valorTotalCobradoHorasMauUso: 0,
     }) as ClienteDaNewsletter;
 
   const PREVIA: PreviaNewsletter = {
     id: 'p1', mes: 6, ano: 2026, nomeDoMes: 'Junho',
     clientes: [
-      cliente(8805, 'EXAL VESUVIUS CAMPO GRANDE RJ', 844.39),
-      cliente(8781, 'TEMPERO CERTO - PRESMAK', 4861.07),
-      cliente(8632, 'SECTOR FERRAZ DE VASCONCELOS', 612.00, null),
+      cliente('8805', 'EXAL VESUVIUS CAMPO GRANDE RJ', 844.39),
+      cliente('8781', 'TEMPERO CERTO - PRESMAK', 4861.07),
+      cliente('8632', 'SECTOR FERRAZ DE VASCONCELOS', 612.00, null),
     ],
     pendencias: [
-      { numeroOs: 20044, codigoCliente: 8805, nomeDoCliente: 'EXAL VESUVIUS', horaInicio: '1603', horaFim: null },
+      { numeroOs: 20044, codigoCliente: '8805', nomeDoCliente: 'EXAL VESUVIUS', horaInicio: '1603', horaFim: null },
     ],
   };
 
@@ -177,7 +178,7 @@ describe('NewsletterRevisaoComponent', () => {
     await montar();
     tela.buscar();
 
-    expect(tela.clientesVisiveis().map(c => c.codigoCliente)).toEqual([8781, 8805, 8632]);
+    expect(tela.clientesVisiveis().map(c => c.codigoCliente)).toEqual(['8781', '8805', '8632']);
   });
 
   it('busca por nome e por código', async () => {
@@ -195,7 +196,7 @@ describe('NewsletterRevisaoComponent', () => {
     await montar();
     tela.buscar();
 
-    expect(tela.semEmailCadastrado().map(c => c.codigoCliente)).toEqual([8632]);
+    expect(tela.semEmailCadastrado().map(c => c.codigoCliente)).toEqual(['8632']);
   });
 
   /** 913 clientes no mês, 855 com nota: o número que se manda é o segundo. */
@@ -218,14 +219,14 @@ describe('NewsletterRevisaoComponent', () => {
     await montar();
     tela.buscar();
 
-    const recalculado = { ...cliente(8805, 'EXAL VESUVIUS CAMPO GRANDE RJ', 844.39), valorTotalCobradoHoras: 450 };
+    const recalculado = { ...cliente('8805', 'EXAL VESUVIUS CAMPO GRANDE RJ', 844.39), valorTotalCobradoHoras: 450 };
     service.corrigirHora.and.returnValue(of(recalculado as ClienteDaNewsletter));
 
     tela.corrigirHora(tela.pendencias()[0], '16:03', '17:00');
 
     expect(service.corrigirHora).toHaveBeenCalledWith('p1', 20044, { horaInicio: '16:03', horaFim: '17:00' });
     expect(tela.pendencias().length).toBe(0);
-    expect(tela.clientes().find(c => c.codigoCliente === 8805)!.valorTotalCobradoHoras).toBe(450);
+    expect(tela.clientes().find(c => c.codigoCliente === '8805')!.valorTotalCobradoHoras).toBe(450);
   });
 
   it('não manda correção pela metade', async () => {
@@ -244,14 +245,14 @@ describe('NewsletterRevisaoComponent', () => {
     await montar();
     tela.buscar();
     service.preencherEmails.and.returnValue(of([
-      cliente(8632, 'SECTOR FERRAZ DE VASCONCELOS', 612.00, 'contato@sector.com.br'),
+      cliente('8632', 'SECTOR FERRAZ DE VASCONCELOS', 612.00, 'contato@sector.com.br'),
     ]));
 
-    tela.anotarEmail(8632, ' contato@sector.com.br ');
+    tela.anotarEmail('8632', ' contato@sector.com.br ');
     tela.salvarEmails();
 
     expect(service.preencherEmails).toHaveBeenCalledWith('p1', [
-      { codigoCliente: 8632, email: 'contato@sector.com.br' },
+      { codigoCliente: '8632', email: 'contato@sector.com.br' },
     ]);
     expect(tela.semEmailCadastrado().length)
       .withContext('depois de gravar, ele sai da lista dos sem e-mail')
@@ -262,7 +263,7 @@ describe('NewsletterRevisaoComponent', () => {
     await montar();
     tela.buscar();
 
-    tela.anotarEmail(8632, '   ');
+    tela.anotarEmail('8632', '   ');
     tela.salvarEmails();
 
     expect(service.preencherEmails).not.toHaveBeenCalled();

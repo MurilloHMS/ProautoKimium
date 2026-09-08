@@ -16,7 +16,12 @@ export interface PreviaNewsletter {
 }
 
 export interface ClienteDaNewsletter {
-  codigoCliente: number;
+  /**
+   * Texto, e não número: é assim que a coluna existe no banco (`VARCHAR(50)`),
+   * e é assim que a API responde. Declarar `number` aqui faria o `===` de
+   * `substituirCliente` comparar tipos diferentes e nunca casar.
+   */
+  codigoCliente: string;
   nomeDoCliente: string;
   /**
    * Pode vir vazio: 31 dos 913 clientes de junho não têm e-mail no cadastro do
@@ -24,7 +29,10 @@ export interface ClienteDaNewsletter {
    * guardar na própria newsletter em vez de numa tabela de complementos.
    */
   emailCliente: string | null;
-  codigoMatriz: number | null;
+  /** Quem pediu para não receber fica na lista, marcado, e fora do envio. */
+  recebeEmail: boolean;
+
+  codigoMatriz: string | null;
   nomeMatriz: string | null;
 
   quantidadeNotasEmitidas: number;
@@ -39,6 +47,8 @@ export interface ClienteDaNewsletter {
   valorTotalDeHoras: number;
   valorTotalCobradoHoras: number;
   mauUso: boolean;
+  valorTotalDeHorasMauUso: number;
+  valorTotalCobradoHorasMauUso: number;
 }
 
 /**
@@ -53,7 +63,7 @@ export interface ClienteDaNewsletter {
  */
 export interface PendenciaDeHora {
   numeroOs: number;
-  codigoCliente: number;
+  codigoCliente: string;
   nomeDoCliente: string;
   /** Como está no ERP; `null` quando o campo veio vazio. */
   horaInicio: string | null;
@@ -68,7 +78,7 @@ export interface CorrecaoDeHora {
 
 /** Um e-mail preenchido à mão para um cliente que não tem no cadastro. */
 export interface EmailPreenchido {
-  codigoCliente: number;
+  codigoCliente: string;
   email: string;
 }
 

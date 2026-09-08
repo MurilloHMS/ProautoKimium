@@ -464,6 +464,11 @@
 
 // ── Cartões (celular) ──────────────────────────────────────────────────────
 
+.etiqueta--fora {
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+}
+
 .cartoes {
   display: flex;
   flex-direction: column;
