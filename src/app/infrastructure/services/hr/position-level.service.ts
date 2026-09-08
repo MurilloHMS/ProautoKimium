@@ -20,4 +20,8 @@ export class PositionLevelService {
   create(request: CreatePositionLevelRequest): Observable<PositionLevel> {
     return this.http.post<PositionLevel>(`${environment.apiUrl}/hr/position-levels`, request);
   }
+
+  update(id: string, request: CreatePositionLevelRequest): Observable<PositionLevel> {
+    return this.http.put<PositionLevel>(`${environment.apiUrl}/hr/position-levels/${id}`, request);
+  }
 }

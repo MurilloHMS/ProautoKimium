@@ -66,6 +66,18 @@ export class PositionLevelStore {
     return this.service.create(request).pipe(tap(level => this.upsert(level)));
   }
 
+  /**
+   * **So faz upsert do nivel editado — quem recarrega a lista e a tela.**
+   *
+   * Nivel percentual resolve o salario sobre o nivel imediatamente anterior,
+   * entao mexer no valor base de um muda o salario calculado de todos os que
+   * vem depois. O upsert daqui atualiza uma linha so; a tela pede `load(id,
+   * true)` para trazer a cascata inteira.
+   */
+  update(id: string, request: CreatePositionLevelRequest): Observable<PositionLevel> {
+    return this.service.update(id, request).pipe(tap(level => this.upsert(level)));
+  }
+
   upsert(level: PositionLevel): void {
     this.byPosition.update(map => {
       const current = map[level.positionId] ?? [];

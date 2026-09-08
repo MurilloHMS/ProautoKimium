@@ -66,6 +66,15 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
   });
   levelForm: FormGroup;
 
+  /**
+   * O nivel em edicao — `null` quando o formulario e de cadastro.
+   *
+   * Decide entre criar e atualizar no `saveLevel()`, e por isso
+   * `openLevelForm()` limpa ele: sem isso, cadastrar logo depois de editar
+   * atualizaria o nivel anterior.
+   */
+  readonly editingLevel = signal<PositionLevel | null>(null);
+
   // Dissídio
   adjustmentDialogVisible = false;
   adjustmentForm: FormGroup;
@@ -193,7 +202,20 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
    * coisa legitima de se querer fazer.
    */
   openLevelForm(): void {
+    this.editingLevel.set(null);
     this.levelForm.reset({ adjustmentType: 'FIXED', levelOrder: this.proximaOrdem() });
+    this.mode.set('level');
+  }
+
+  openEditLevel(level: PositionLevel): void {
+    this.editingLevel.set(level);
+    this.levelForm.reset({
+      name: level.name,
+      levelOrder: level.levelOrder,
+      adjustmentType: level.adjustmentType,
+      fixedAmount: level.fixedAmount,
+      percentageIncrease: level.percentageIncrease,
+    });
     this.mode.set('level');
   }
 
@@ -203,17 +225,37 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
 
     const { name, levelOrder, adjustmentType, fixedAmount, percentageIncrease } = this.levelForm.value;
 
-    this.levelStore.create({
+    const requisicao = {
       name,
       levelOrder,
       positionId: position.id,
       adjustmentType,
       fixedAmount: adjustmentType === 'FIXED' ? fixedAmount : null,
       percentageIncrease: adjustmentType === 'PERCENTAGE' ? percentageIncrease : null,
-    }).subscribe({
+    };
+
+    const emEdicao = this.editingLevel();
+
+    (emEdicao
+      ? this.levelStore.update(emEdicao.id, requisicao)
+      : this.levelStore.create(requisicao)
+    ).subscribe({
       next: () => {
         this.closeForm();
-        this.msgService.add({ severity: 'success', summary: 'Sucesso', detail: 'Nível cadastrado com sucesso!' });
+
+        // **Recarrega o cargo inteiro, e nao so a linha que voltou.**
+        //
+        // Nivel percentual resolve o salario sobre o anterior, entao mudar o
+        // valor base do Junior muda o salario calculado de Pleno e Senior
+        // junto. Atualizar so a linha editada deixaria as outras mostrando
+        // salario velho — numa tela de salario.
+        this.levelStore.load(position.id, true);
+
+        this.msgService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: emEdicao ? 'Nível atualizado com sucesso!' : 'Nível cadastrado com sucesso!',
+        });
       },
       error: (err) => {
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
