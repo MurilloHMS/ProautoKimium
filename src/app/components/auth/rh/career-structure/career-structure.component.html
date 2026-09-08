@@ -88,6 +88,7 @@
             <th>Tipo</th>
             <th>Valor</th>
             <th>Salário calculado</th>
+            <th class="col-actions">Ações</th>
           </tr>
         </ng-template>
 
@@ -114,6 +115,10 @@
               }
             </td>
             <td><strong>{{ l.resolvedSalary | currency:'BRL' }}</strong></td>
+            <td class="col-actions">
+              <pk-button pkType="edit" [pkIconOnly]="true" pkSize="sm"
+                         pkTooltip="Editar nível" (clicked)="openEditLevel(l)"/>
+            </td>
           </tr>
         </ng-template>
 
@@ -142,7 +147,7 @@
 } @else {
 
   <app-form-screen
-    title="Novo Nível"
+    [title]="editingLevel() ? 'Editar Nível' : 'Novo Nível'"
     [subtitle]="'Cargo: ' + (selectedPosition()?.name ?? '')"
     (back)="closeForm()">
     <form [formGroup]="levelForm" (ngSubmit)="saveLevel()">
