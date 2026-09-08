@@ -5,6 +5,20 @@
     [title]="calc.label"
     [subtitle]="calc.description" />
 
+  <!--
+    As duas contas moram aqui, uma de cada vez. Empilhadas, a de baixo
+    empurrava a de cima para fora da tela e as duas competiam pela atenção.
+  -->
+  <pk-segmented
+    class="calc__modos"
+    [options]="modos"
+    [value]="modo()"
+    (valueChange)="modo.set($event)"
+    [fill]="true"
+    ariaLabel="Modo de cálculo" />
+
+  @if (modo() === 'simples') {
+
   <div class="tool-screen__panel">
 
     <div class="calc__campos">
@@ -77,6 +91,233 @@
     </button>
 
   </div>
+
+  }
+
+
+  <!--
+    Segundo bloco: vários produtos, com o custo vindo do ERP.
+
+    O bloco de cima responde "que venda me dá o CMV que eu quero"; este responde
+    "qual o CMV destes produtos que eu já tenho". São perguntas diferentes, e é
+    por isso que os dois convivem.
+  -->
+  @if (modo() === 'produtos') {
+
+  <section class="lista">
+
+    <header class="lista__cab">
+      <div>
+        <h2 class="lista__titulo">Por produto</h2>
+        <p class="lista__sub">O custo vem do Sankhya; você informa a venda.</p>
+      </div>
+
+      @if (!produtos().length && !carregando()) {
+        <button type="button" class="lista__buscar" (click)="carregarProdutos()">
+          <i class="pi pi-download"></i> Buscar produtos
+        </button>
+      }
+    </header>
+
+    @if (carregando()) {
+      <p class="lista__aviso"><i class="pi pi-spin pi-spinner"></i> Buscando no Sankhya…</p>
+    }
+
+    @if (erroAoCarregar(); as erro) {
+      <p class="lista__aviso lista__aviso--erro">
+        <i class="pi pi-exclamation-triangle"></i> {{ erro }}
+      </p>
+    }
+
+    @if (produtos().length) {
+      <div class="seletor">
+        <div class="seletor__campo">
+          <i class="pi pi-search"></i>
+          <input type="text"
+                 class="seletor__input"
+                 placeholder="Buscar produto por código ou nome…"
+                 aria-label="Buscar produto"
+                 [ngModel]="busca()"
+                 (ngModelChange)="busca.set($event)"
+                 (focus)="seletorAberto.set(true)"
+                 name="buscaProduto" />
+        </div>
+
+        @if (seletorAberto() && sugestoes().length) {
+          <ul class="seletor__lista" role="listbox">
+            @for (p of sugestoes(); track p.codigo) {
+              <!--
+                Sem custo calculado a linha aparece, mas não deixa escolher:
+                sumir esconderia que o produto existe e só falta calcular.
+              -->
+              <li class="seletor__item"
+                  [class.seletor__item--sem-custo]="!temCusto(p)"
+                  role="option"
+                  [attr.aria-disabled]="!temCusto(p)"
+                  (click)="adicionar(p)">
+                <span class="seletor__cod">{{ p.codigo }}</span>
+                <span class="seletor__nome">{{ p.nome }}</span>
+                @if (temCusto(p)) {
+                  <span class="seletor__custo">{{ reais(p.custo) }}</span>
+                } @else {
+                  <span class="seletor__sem">sem custo calculado</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      @if (semCustoCalculado() > 0) {
+        <p class="lista__nota">
+          {{ semCustoCalculado() }} de {{ produtos().length }} produtos ainda não têm
+          custo calculado no ERP — eles aparecem na busca, mas não entram na conta.
+        </p>
+      }
+    }
+
+    @if (linhas().length) {
+
+      <!--
+        Tabela no desktop, cartões no celular — `@if` e não `display: none`,
+        porque cada linha tem um campo: escondido por CSS ele continua vivo no
+        DOM, e foco, tab e leitor de tela passariam por ele.
+      -->
+      @if (!ehCelular()) {
+      <div class="lista__rolagem">
+        <table class="lista__tabela">
+          <thead>
+            <tr>
+              <th>Cód</th><th>Produto</th><th>Un</th>
+              <th class="num">Custo</th><th class="num">Venda</th>
+              <th class="num">CMV</th><th class="num">Margem</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linha of linhas(); track linha.produto.codigo) {
+              <tr>
+                <td class="cod">{{ linha.produto.codigo }}</td>
+                <td>{{ linha.produto.nome }}</td>
+                <td class="un">{{ linha.produto.unidade }}</td>
+                <td class="num">{{ reais(linha.produto.custo) }}</td>
+                <td class="num">
+                  <pk-input
+                    [pkDecimals]="casasDinheiro"
+                    placeholder="0,00"
+                    [ngModel]="linha.venda"
+                    (ngModelChange)="aoDigitarVenda(linha.produto.codigo, $event)"
+                    [name]="'venda-' + linha.produto.codigo" />
+                </td>
+
+                <!-- Sem venda digitada a linha fica com traços: é o estado
+                     normal de quem monta a lista aos poucos, não um erro. -->
+                @if (resultadoDa(linha); as r) {
+                  <td class="num forte" [class.negativo]="r.margem < 0">
+                    {{ percentual(r.cmvPercentual, casasCmv) }}
+                  </td>
+                  <td class="num" [class.negativo]="r.margem < 0">{{ reais(r.margem) }}</td>
+                } @else {
+                  <td class="num vazio">—</td>
+                  <td class="num vazio">—</td>
+                }
+
+                <td>
+                  <button type="button" class="lista__remover"
+                          [attr.aria-label]="'Remover ' + linha.produto.nome"
+                          (click)="remover(linha.produto.codigo)">
+                    <i class="pi pi-times"></i>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+
+      @if (ehCelular()) {
+        <div class="cartoes">
+          @for (linha of linhas(); track linha.produto.codigo) {
+            <article class="cartao">
+
+              <header class="cartao__topo">
+                <span class="cartao__cod">{{ linha.produto.codigo }}</span>
+                <span class="cartao__nome">{{ linha.produto.nome }}</span>
+                <button type="button"
+                        class="cartao__remover"
+                        [attr.aria-label]="'Remover ' + linha.produto.nome"
+                        (click)="remover(linha.produto.codigo)">
+                  <i class="pi pi-times"></i>
+                </button>
+              </header>
+
+              <div class="cartao__entradas">
+                <div class="cartao__campo">
+                  <span class="cartao__rot">Custo · {{ linha.produto.unidade }}</span>
+                  <span class="cartao__custo">{{ reais(linha.produto.custo) }}</span>
+                </div>
+
+                <div class="cartao__campo">
+                  <span class="cartao__rot">Venda</span>
+                  <pk-input
+                    [pkDecimals]="casasDinheiro"
+                    placeholder="0,00"
+                    [ngModel]="linha.venda"
+                    (ngModelChange)="aoDigitarVenda(linha.produto.codigo, $event)"
+                    [name]="'venda-cartao-' + linha.produto.codigo" />
+                </div>
+              </div>
+
+              <!-- Sem venda digitada o rodapé não aparece: linha pela metade é
+                   o estado normal de quem monta a lista aos poucos, e um
+                   resultado zerado ali pareceria resposta. -->
+              @if (resultadoDa(linha); as r) {
+                <footer class="cartao__rodape" [class.is-negativa]="r.margem < 0">
+                  <span class="cartao__cmv">
+                    <span class="cartao__rot">CMV</span>
+                    <strong>{{ percentual(r.cmvPercentual, casasCmv) }}</strong>
+                  </span>
+                  <span class="cartao__margem">
+                    <span class="cartao__rot">Margem</span>
+                    <strong>{{ reais(r.margem) }}</strong>
+                  </span>
+                </footer>
+              }
+
+            </article>
+          }
+        </div>
+      }
+
+      @if (totais(); as t) {
+        <div class="lista__rodape">
+          <div class="lista__totais">
+            <div class="lista__total">
+              <span class="lista__total-rot">Custo total</span>
+              <span class="lista__total-val">{{ reais(t.custo) }}</span>
+            </div>
+            <div class="lista__total">
+              <span class="lista__total-rot">Venda total</span>
+              <span class="lista__total-val">{{ reais(t.venda) }}</span>
+            </div>
+            <div class="lista__total">
+              <!-- Ponderado pelo valor, não média dos percentuais: média
+                   trataria um produto de R$ 10 igual a um de R$ 10.000. -->
+              <span class="lista__total-rot">CMV do total</span>
+              <span class="lista__total-val">{{ percentual(t.cmvPercentual, casasCmv) }}</span>
+            </div>
+          </div>
+
+          <button type="button" class="calc__limpar" (click)="limparLista()">
+            Limpar lista
+          </button>
+        </div>
+      }
+    }
+
+  </section>
+
+  }
 
   <p class="tool-screen__note">
     <i class="pi pi-info-circle"></i>

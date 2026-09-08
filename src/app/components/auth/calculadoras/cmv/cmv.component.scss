@@ -32,3 +32,355 @@
 
   i { margin-top: 2px; flex-shrink: 0; }
 }
+
+// O seletor de modo respira do cabecalho e do painel que vem depois.
+.calc__modos {
+  display: block;
+  margin-bottom: v.$space-4;
+}
+
+// A lista deixa de ser "segundo bloco": agora ela e uma aba, entao nao leva
+// mais a borda de separacao que existia para dividir as duas.
+.lista {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+// ── Lista de produtos ───────────────────────────────────────────────────────
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  margin-top: v.$space-6;
+  padding-top: v.$space-6;
+  border-top: 1px solid var(--app-border);
+}
+
+.lista__cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$space-4;
+  flex-wrap: wrap;
+}
+
+.lista__titulo {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.lista__sub {
+  margin: 2px 0 0;
+  font-size: v.$font-size-sm;
+  color: var(--app-text-muted);
+}
+
+.lista__buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: v.$space-2;
+  height: 34px;
+  padding: 0 v.$space-4;
+  border: 1px solid var(--app-primary);
+  border-radius: v.$radius-full;
+  background: transparent;
+  color: var(--app-primary);
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: var(--app-primary-soft); }
+}
+
+.lista__aviso {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  margin: 0;
+  font-size: v.$font-size-sm;
+  color: var(--app-text-muted);
+
+  &--erro { color: var(--app-danger); }
+}
+
+.lista__nota {
+  margin: 0;
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+}
+
+// ── Seletor ─────────────────────────────────────────────────────────────────
+
+.seletor { position: relative; }
+
+.seletor__campo {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  height: 38px;
+  padding: 0 v.$space-3;
+  border: 1px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface-2);
+
+  i { color: var(--app-text-subtle); font-size: v.$font-size-sm; }
+}
+
+.seletor__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font-family: v.$font-body;
+  font-size: v.$font-size-sm;
+
+  &:focus { outline: none; }
+}
+
+.seletor__lista {
+  position: absolute;
+  top: calc(100% + #{v.$space-1});
+  left: 0;
+  right: 0;
+  z-index: v.$z-dropdown;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  padding: v.$space-1;
+  list-style: none;
+  border: 1px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-lg);
+}
+
+.seletor__item {
+  display: flex;
+  align-items: baseline;
+  gap: v.$space-3;
+  padding: v.$space-2 v.$space-3;
+  border-radius: v.$radius-sm;
+  font-size: v.$font-size-sm;
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); }
+
+  // Sem custo calculado: aparece, mas nao se escolhe. Sumir esconderia que o
+  // produto existe e so falta calcular.
+  &--sem-custo {
+    cursor: not-allowed;
+    opacity: 0.55;
+
+    &:hover { background: transparent; }
+  }
+}
+
+.seletor__cod {
+  flex: 0 0 52px;
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.seletor__nome {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--app-text);
+}
+
+.seletor__custo {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.seletor__sem {
+  flex: 0 0 auto;
+  font-size: v.$font-size-xs;
+  font-style: italic;
+  color: var(--app-text-subtle);
+}
+
+// ── Tabela ──────────────────────────────────────────────────────────────────
+
+.lista__rolagem { overflow-x: auto; }
+
+.lista__tabela {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: v.$font-size-sm;
+
+  th, td {
+    padding: v.$space-2 v.$space-3;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+  }
+
+  th {
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: var(--app-text-subtle);
+    white-space: nowrap;
+  }
+
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .cod, .un { color: var(--app-text-muted); font-variant-numeric: tabular-nums; }
+  .forte { font-weight: 700; }
+  .vazio { color: var(--app-text-subtle); }
+  .negativo { color: var(--app-danger); }
+}
+
+.lista__remover {
+  border: 0;
+  background: transparent;
+  color: var(--app-text-subtle);
+  cursor: pointer;
+  padding: v.$space-1;
+
+  &:hover { color: var(--app-danger); }
+}
+
+.lista__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  flex-wrap: wrap;
+  padding-top: v.$space-3;
+}
+
+.lista__totais { display: flex; gap: v.$space-6; flex-wrap: wrap; }
+
+.lista__total { display: flex; flex-direction: column; }
+
+.lista__total-rot {
+  font-size: v.$font-size-xs;
+  color: var(--app-text-subtle);
+}
+
+.lista__total-val {
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Cartões, no celular ─────────────────────────────────────────────────────
+//
+// A tabela tem oito colunas e um campo digitável. No celular ela vira rolagem
+// horizontal com o campo escondido fora da tela — que é justamente onde a
+// pessoa precisa escrever.
+
+.cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  padding: v.$space-3;
+  border: 1px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface);
+}
+
+.cartao__topo {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-2;
+}
+
+.cartao__cod {
+  flex: 0 0 auto;
+  padding: 1px v.$space-2;
+  border-radius: v.$radius-sm;
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: v.$font-size-xs;
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao__nome {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: v.$font-size-sm;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.cartao__remover {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-subtle);
+  padding: 0 v.$space-1;
+  cursor: pointer;
+
+  &:hover { color: var(--app-danger); }
+}
+
+// Custo e venda lado a lado: são o par que a pessoa compara enquanto digita.
+.cartao__entradas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$space-3;
+  align-items: end;
+}
+
+.cartao__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cartao__rot {
+  font-size: v.$font-size-xs;
+  color: var(--app-text-subtle);
+}
+
+.cartao__custo {
+  font-size: v.$font-size-sm;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+  // Alinha com o campo de venda ao lado, que tem altura de input.
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.cartao__rodape {
+  display: flex;
+  gap: v.$space-6;
+  padding-top: v.$space-3;
+  border-top: 1px solid var(--app-border);
+
+  &.is-negativa strong { color: var(--app-danger); }
+}
+
+.cartao__cmv,
+.cartao__margem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  strong {
+    font-size: v.$font-size-md;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
