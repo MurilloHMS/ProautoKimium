@@ -67,6 +67,37 @@
     </section>
 
     <!--
+      A conta e o botão ficam no TOPO, e grudados ali enquanto a lista rola.
+      São até 2008 linhas: no rodapé, aplicar exigia rolar a página inteira, e a
+      conta do que está marcado só aparecia depois de passar por tudo.
+    -->
+    <div class="acoes">
+      <p class="conta">
+        @if (selectedCount()) {
+          Vão ser aplicados:
+          <strong>{{ tally().created }}</strong> novos,
+          <strong>{{ tally().updated }}</strong> atualizações,
+          <strong>{{ tally().deactivated }}</strong> desativações.
+        } @else {
+          Nenhuma linha marcada.
+        }
+        @if (blockedCount()) {
+          <span class="conta__imped">{{ blockedCount() }} impedidos ficam de fora.</span>
+        }
+      </p>
+
+      <button type="button" class="acoes__aplicar"
+              [disabled]="!selectedCount() || state() === 'applying'"
+              (click)="apply()">
+        @if (state() === 'applying') {
+          <i class="pi pi-spin pi-spinner"></i> Aplicando…
+        } @else {
+          <i class="pi pi-check"></i> Aplicar {{ selectedCount() }} mudança(s)
+        }
+      </button>
+    </div>
+
+    <!--
       Uma seção por vez. Três baldes empilhados viram uma página longa, e
       "impedidos" é justamente a lista que se abre para ir consertar no ERP —
       atravessada nas outras, ela não serve para isso.
@@ -249,31 +280,6 @@
                 subtitle="O cadastro está igual ao que o Sankhya tem." />
     }
 
-    <footer class="rodape">
-      <p class="conta">
-        @if (selectedCount()) {
-          Vão ser aplicados:
-          <strong>{{ tally().created }}</strong> novos,
-          <strong>{{ tally().updated }}</strong> atualizações,
-          <strong>{{ tally().deactivated }}</strong> desativações.
-        } @else {
-          Nenhuma linha marcada.
-        }
-        @if (blockedCount()) {
-          <span class="conta__imped">{{ blockedCount() }} impedidos ficam de fora.</span>
-        }
-      </p>
-
-      <button type="button" class="rodape__aplicar"
-              [disabled]="!selectedCount() || state() === 'applying'"
-              (click)="apply()">
-        @if (state() === 'applying') {
-          <i class="pi pi-spin pi-spinner"></i> Aplicando…
-        } @else {
-          <i class="pi pi-check"></i> Aplicar {{ selectedCount() }} mudança(s)
-        }
-      </button>
-    </footer>
   }
 </div>
 

@@ -17,10 +17,13 @@
   padding: 16px 20px 24px;
 }
 
+// São cinco blocos antes da primeira linha de dados — período, resumo, filtro,
+// ação e cabeçalho da seção. Com 20px entre cada um, só o respiro comia 100px da
+// dobra. 12px continua separando sem empurrar a lista para fora da tela.
 .conc {
   display: flex;
   flex-direction: column;
-  gap: v.$space-5;
+  gap: v.$space-3;
   padding-bottom: v.$space-6;
 }
 
@@ -31,7 +34,7 @@
   align-items: flex-end;
   flex-wrap: wrap;
   gap: v.$space-3;
-  padding: v.$space-4 v.$space-5;
+  padding: 10px 14px;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-surface);
   background: var(--app-surface);
@@ -137,10 +140,25 @@
 
 .conc__filtros { align-self: flex-start; max-width: 100%; }
 
+// Os quatro números são resumo, não o assunto da tela — o assunto é a lista.
+// Em tamanho cheio eles empurravam a primeira linha de dados para fora da
+// dobra, junto com o filtro e a barra de ação.
+//
+// Os mesmos números aparecem nos rótulos do filtro logo abaixo; estes cartões
+// existem para a leitura de relance, e para isso não precisam de 1.75rem.
 .resumo {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: v.$space-4;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: v.$space-3;
+
+  ::ng-deep .pk-kpi {
+    padding: 8px 12px;
+    gap: 0;
+  }
+
+  ::ng-deep .pk-kpi__value { font-size: 1.15rem; line-height: 1.2; }
+  ::ng-deep .pk-kpi__label { font-size: .7rem; }
+  ::ng-deep .pk-kpi__sub   { display: none; }
 }
 
 // ── Seções ─────────────────────────────────────────────────────────────────
@@ -337,13 +355,19 @@ tr.imped .nome { color: var(--app-text-muted); }
   strong { color: var(--app-text); }
 }
 
-.rodape {
+// A barra de ação fica grudada no topo enquanto a lista rola: com 2008 linhas,
+// a conta do que está marcado precisa estar à vista no momento em que se marca,
+// e não no fim da página.
+.acoes {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: v.$space-4;
+  gap: v.$space-3;
   flex-wrap: wrap;
-  padding: v.$space-4 v.$space-5;
+  padding: 8px 14px;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-surface);
   background: var(--app-surface);
@@ -359,17 +383,17 @@ tr.imped .nome { color: var(--app-text-muted); }
 
 .conta__imped { margin-left: 8px; color: var(--app-danger); }
 
-.rodape__aplicar {
+.acoes__aplicar {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px v.$space-5;
+  gap: 7px;
+  padding: 7px v.$space-4;
   border: none;
   border-radius: var(--radius-control);
   background: var(--app-success);
   color: #fff;
   font: inherit;
-  font-size: var(--text-ui);
+  font-size: var(--text-ui-sm);
   font-weight: 600;
   cursor: pointer;
 

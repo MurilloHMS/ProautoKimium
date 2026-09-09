@@ -413,6 +413,42 @@ describe('CustomerReconciliationComponent', () => {
       .toBe(1);
   });
 
+  /**
+   * <b>A barra de ação vem antes das listas, e fica grudada no topo.</b>
+   *
+   * São até 2008 linhas: no rodapé, aplicar exigia rolar a página inteira, e a
+   * conta do que está marcado só aparecia depois de passar por tudo.
+   */
+  it('a barra de aplicar fica no topo, antes das seções', async () => {
+    await mount(DATA, DESKTOP);
+    screen.load();
+    fixture.detectChanges();
+
+    const bar = (fixture.nativeElement as HTMLElement).querySelector('.acoes')!;
+    const firstSection = (fixture.nativeElement as HTMLElement).querySelector('.secao')!;
+
+    expect(bar).not.toBeNull();
+    expect(bar.compareDocumentPosition(firstSection) & Node.DOCUMENT_POSITION_FOLLOWING)
+      .withContext('a barra tem que vir ANTES da primeira seção')
+      .toBeTruthy();
+
+    expect(getComputedStyle(bar).position)
+      .withContext('sem sticky ela sai de vista assim que a lista rola')
+      .toBe('sticky');
+  });
+
+  it('a conta aparece junto do botão, no topo', async () => {
+    await mount(DATA, DESKTOP);
+    screen.load();
+    screen.toggle(DATA.toCreate[0]);
+    fixture.detectChanges();
+
+    const bar = (fixture.nativeElement as HTMLElement).querySelector('.acoes')!;
+
+    expect(bar.textContent).toContain('Vão ser aplicados');
+    expect(bar.querySelector('.acoes__aplicar')?.textContent).toContain('1');
+  });
+
   // ── Celular ───────────────────────────────────────────────────────────────
 
   /**
