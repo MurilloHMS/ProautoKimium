@@ -1,189 +1,179 @@
-<div class="newsletter-container p-4">
-  <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
+<p-toast position="bottom-right" />
 
-  <p-card class="mb-4">
-    <ng-template pTemplate="header">
-      <div class="p-3 border-bottom-1 surface-border">
-        <h2 class="text-2xl font-semibold m-0">
-          <i class="pi pi-cloud-upload mr-2">
-            Upload de Arquivos Excel
-          </i>
-        </h2>
-      </div>
-    </ng-template>
+<div class="envio">
 
-    <div class="upload-section">
-      <div class="d-flex align-items-center ms-4 mb-3">
-        <span class="me-2">Criar Informativo com código matriz?</span>
-        <p-toggleswitch [(ngModel)]="checked" >
-          <ng-template #handle let-checked="checked">
-            <i [ngClass]="['pi', checked ? 'pi-check' : 'pi-times']"></i>
-          </ng-template>
-        </p-toggleswitch>
-      </div>
-      <div class="grid">
+  @if (carregando()) {
+    <p class="envio__aviso"><i class="pi pi-spin pi-spinner"></i> Carregando a fila…</p>
+  }
 
-        <div class="col-12 md:col-6 lg:col-12">
-          <div class="upload-box p-3 border-round surface-border border-1">
-            <div class="flex align-items-center justify-content-between mb-3">
-              <h3 class="text-lg font-semibold m-0">
-                <i class="pi pi-box text-blue-500 mr-2">
-                  Notas Fiscais
-                </i>
-              </h3>
-            </div>
+  @if (!carregando() && !meses().length) {
+    <pk-empty
+      icon="pi pi-send"
+      title="Nenhuma newsletter na fila"
+      subtitle="Confira o mês na aba de revisão e confirme: os clientes entram aqui prontos para o disparo." />
+  }
 
-            <p-fileUpload
-              #upload
-              name="arquivoNotas"
-              [multiple]="false"
-              [customUpload]="true"
-              (uploadHandler)="onUpload($event)"
-              fileLimit="1"
-              accept=".xlsx,.csv"
-              maxFileSize="5000000"
-              mode="advanced"
-              chooseLabel="Selecionar Arquivo"
-              uploadLabel="Enviar"
-              cancelLabel="Cancelar"
-              >
-              <ng-template #empty>
-                <div class="p-d-flex p-ai-center p-jc-center p-4" style="height: 150px; border: 2px dashed #ccc; border-radius: 8px;">
-                  <div class="p-text-center">
-                    <i class="pi pi-upload" style="font-size: 2em; color: #888;"></i>
-                    <p class="p-mt-2" style="color: #888;">Arraste e solte os arquivos aqui ou clique para selecionar</p>
-                    <p style="color: #888; font-size: 0.9em;">(1 arquivo .xlsx ou .csv)</p>
-                  </div>
-                </div>
-              </ng-template>
-            </p-fileUpload>
+  <!--
+    Um cartão por mês. É assim que se fala da newsletter — "a de junho já saiu?"
+    — e era a única pergunta que a lista de 913 linhas não respondia.
+  -->
+  <div class="meses">
+    @for (mes of meses(); track chave(mes)) {
+      <article class="mes" [class.mes--aberto]="mesAberto() === chave(mes)">
+
+        <header class="mes__topo">
+          <div>
+            <h3 class="mes__nome">{{ mes.nomeDoMes }} de {{ mes.ano }}</h3>
+            <p class="mes__quando">
+              @if (mes.confirmadoEm) {
+                Confirmada em {{ data(mes.confirmadoEm) }}, com {{ mes.total }} clientes
+              } @else {
+                {{ mes.total }} clientes — veio por planilha
+              }
+            </p>
           </div>
+
+          @if (pendentes(mes) > 0) {
+            <button type="button"
+                    class="mes__enviar"
+                    [disabled]="enviando()"
+                    (click)="enviarPendentes()">
+              @if (enviando()) {
+                <i class="pi pi-spin pi-spinner"></i> Disparando…
+              } @else {
+                <i class="pi pi-send"></i> Enviar pendentes
+              }
+            </button>
+          }
+        </header>
+
+        <!--
+          A barra em ordem fixa de ciclo de vida, e não na ordem que o mapa
+          devolveu: é o que permite comparar o mês passado com este de relance.
+        -->
+        <div class="barra" role="img"
+             [attr.aria-label]="mes.total + ' newsletters de ' + mes.nomeDoMes">
+          @for (fatia of fatias(mes); track fatia.status) {
+            <span [class]="'barra__fatia barra__fatia--' + fatia.papel"
+                  [style.flex]="fatia.quantidade"
+                  [title]="fatia.label + ': ' + fatia.quantidade"></span>
+          }
         </div>
-      </div>
-      <div *ngIf="processing" class="mt-4 text-center">
-        <p-progressSpinner
-          [style]="{width: '50px', height: '50px'}"
-          strokeWidth="4">
-        </p-progressSpinner>
-        <p class="mt-2 text-lg font-medium text-primary">
-          Processando arquivos... Por favor, aguarde.
-        </p>
-      </div>
-    </div>
-  </p-card>
 
-  <p-card>
-    <ng-template pTemplate="header">
-      <p-toolbar styleClass="border-none p-3">
-        <ng-template pTemplate="left">
-          <h2 class="text-2xl font-semibold m-0">
-            <i class="pi pi-list mr-2"></i>
-            Newsletters Geradas
-          </h2>
-        </ng-template>
+        <div class="mes__rodape">
+          <div class="chips">
+            @for (fatia of fatias(mes); track fatia.status) {
+              <!-- O ícone não é enfeite: seis cores viram três tons em escala
+                   de cinza, e é isso que acontece com daltonismo. -->
+              <span [class]="'status-chip status-chip--' + fatia.papel">
+                <i [class]="fatia.icone"></i>
+                {{ fatia.quantidade }} {{ fatia.label | lowercase }}
+              </span>
+            }
+          </div>
 
-        <ng-template pTemplate="right">
-          <button
-            pButton
-            type="button"
-            label="Atualizar"
-            icon="pi pi-refresh"
-            class="p-button-outlined mr-2"
-            (click)="loadNewsletters()"
-            [loading]="loading">
+          <button type="button" class="mes__abrir" (click)="alternar(mes)">
+            {{ mesAberto() === chave(mes) ? 'Fechar' : 'Abrir a lista' }}
+            <i class="pi" [class.pi-chevron-down]="mesAberto() !== chave(mes)"
+                          [class.pi-chevron-up]="mesAberto() === chave(mes)"></i>
           </button>
-          <button
-            pButton
-            type="button"
-            label="Enviar Pendentes"
-            icon="pi pi-send"
-            class="p-button-outlined p-button-success"
-            (click)="sendPendingNewsletters()">
-          </button>
-        </ng-template>
-      </p-toolbar>
-    </ng-template>
+        </div>
 
-    <p-table
-      [value]="newsletters"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-      [globalFilterFields]="['codigoCliente', 'nomeCliente', 'email', 'mes', 'status']"
-      responsiveLayout="scroll"
-      styleClass="p-datatable-sm">
+        <!--
+          Só o mês aberto carrega as linhas. São 913 por mês, e trazer o
+          histórico inteiro para mostrar um mês é o que a tela antiga fazia.
+        -->
+        @if (mesAberto() === chave(mes)) {
+          <div class="lista">
+            @if (carregandoLinhas()) {
+              <p class="envio__aviso"><i class="pi pi-spin pi-spinner"></i> Abrindo…</p>
+            }
 
-      <ng-template pTemplate="header">
-        <tr>
-          <th pSortableColumn="codigoCliente">
-            Código <p-sortIcon field="codigoCliente"></p-sortIcon>
-          </th>
-          <th pSortableColumn="nomeCliente">
-            Cliente <p-sortIcon field="nomeCliente"></p-sortIcon>
-          </th>
-          <th pSortableColumn="email">
-            Email <p-sortIcon field="email"></p-sortIcon>
-          </th>
-          <th pSortableColumn="data">
-            Data <p-sortIcon field="data"></p-sortIcon>
-          </th>
-          <th pSortableColumn="mes">
-            Mês <p-sortIcon field="mes"></p-sortIcon>
-          </th>
-          <th class="text-right">Produtos</th>
-          <th class="text-right">Litros</th>
-          <th class="text-right">Visitas</th>
-          <th class="text-right">Notas</th>
-          <th class="text-right">Faturamento</th>
-          <th>Produto Destaque</th>
-          <th pSortableColumn="status">
-            Status <p-sortIcon field="status"></p-sortIcon>
-          </th>
-        </tr>
-      </ng-template>
+            @if (!carregandoLinhas() && linhas().length) {
+              <div class="lista__rolagem">
+                <table class="lista__tabela">
+                  <thead>
+                    <tr>
+                      <th>Cliente</th>
+                      <th class="num">Notas</th>
+                      <th class="num">Faturamento</th>
+                      <th>Status</th>
+                      <th class="num">Cód</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (linha of linhas(); track linha.codigoCliente) {
+                      <tr>
+                        <td>
+                          <span class="lista__cliente">{{ linha.nomeDoCliente }}</span>
+                          <span class="lista__email">{{ linha.email }}</span>
+                        </td>
+                        <td class="num">{{ linha.quantidadeNotasEmitidas }}</td>
+                        <td class="num forte">{{ dinheiro(linha.faturamentoTotal) }}</td>
+                        <td>
+                          <span [class]="'status-chip status-chip--' + descrever(linha.status).papel">
+                            <i [class]="descrever(linha.status).icone"></i>
+                            {{ descrever(linha.status).label }}
+                          </span>
+                        </td>
+                        <td class="num cod">{{ linha.codigoCliente }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
 
-      <ng-template pTemplate="body" let-newsletter>
-        <tr>
-          <td>
-            <span class="font-semibold">{{ newsletter.codigoCliente }}</span>
-          </td>
-          <td>{{ newsletter.nomeCliente }}</td>
-          <td>
-            <i class="pi pi-envelope mr-1 text-sm"></i>
-            {{ newsletter.email }}
-          </td>
-          <td>{{ formatarData(newsletter.data) }}</td>
-          <td>
-            <span class="font-medium">{{ newsletter.mes }}</span>
-          </td>
-          <td class="text-right">{{ newsletter.quantidadeProdutos }}</td>
-          <td class="text-right">{{ newsletter.quantidadeLitros | number:'1.2-2' }}</td>
-          <td class="text-right">{{ newsletter.quantidadeVisitas }}</td>
-          <td class="text-right">{{ newsletter.quantidadeNotasEmitidas }}</td>
-          <td class="text-right">{{ formatarMoeda(newsletter.faturamentoTotal) }}</td>
-          <td>{{ newsletter.produtoDestaque || '-' }}</td>
-          <td>
-            <p-tag
-              [value]="newsletter.status"
-              [severity]="getStatusSeverity(newsletter.status)">
-            </p-tag>
-          </td>
-        </tr>
-      </ng-template>
+      </article>
+    }
+  </div>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="12" class="text-center p-5">
-            <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
-            <p class="text-lg text-600">Nenhuma newsletter encontrada</p>
-            <p class="text-sm text-500">Faça o upload dos arquivos Excel para processar newsletters</p>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
+  <!--
+    O upload perdeu a função com a aba de revisão: os dados vêm do Sankhya.
+    Fica atrás de um clique, e não apagado, porque a revisão ainda não fechou um
+    mês inteiro em produção — até lá, o caminho antigo é a saída de emergência.
+  -->
+  <section class="planilha">
+    <button type="button"
+            class="planilha__abrir"
+            [attr.aria-expanded]="planilhaAberta()"
+            (click)="planilhaAberta.set(!planilhaAberta())">
+      <i class="pi" [class.pi-chevron-right]="!planilhaAberta()"
+                    [class.pi-chevron-down]="planilhaAberta()"></i>
+      Subir por planilha
+      <small>o caminho antigo, antes da revisão pelo Sankhya</small>
+    </button>
 
+    @if (planilhaAberta()) {
+      <div class="planilha__corpo">
+        <label class="planilha__opcao">
+          <input type="checkbox"
+                 [ngModel]="comCodigoMatriz()"
+                 (ngModelChange)="comCodigoMatriz.set($event)"
+                 name="comCodigoMatriz" />
+          Criar informativo com código matriz
+        </label>
+
+        <p-fileUpload
+          name="arquivoNotas"
+          [multiple]="false"
+          [customUpload]="true"
+          (uploadHandler)="aoSubirPlanilha($event)"
+          [fileLimit]="1"
+          accept=".xlsx,.csv"
+          [maxFileSize]="5000000"
+          mode="advanced"
+          chooseLabel="Selecionar arquivo"
+          uploadLabel="Enviar"
+          cancelLabel="Cancelar" />
+
+        @if (processando()) {
+          <p class="envio__aviso"><i class="pi pi-spin pi-spinner"></i> Lendo a planilha…</p>
+        }
+      </div>
+    }
+  </section>
+
+</div>

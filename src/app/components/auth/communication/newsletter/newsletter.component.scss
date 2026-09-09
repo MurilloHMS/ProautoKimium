@@ -1,116 +1,285 @@
 @use 'variables' as v;
 
-.newsletter-container {
-  max-width: 1400px;
-  margin: 0 auto;
+// ═══════════════════════════════════════════════════════════════════════════
+// Envio da newsletter, um mês por vez
+//
+// Era uma lista de 913 linhas com doze colunas. A pergunta que se faz da
+// newsletter — "a de junho já saiu?" — só se respondia lendo linha por linha,
+// e o mês, que é a unidade da decisão, nem aparecia.
+// ═══════════════════════════════════════════════════════════════════════════
 
-  .header-section{
-    background: linear-gradient(135deg, var(--app-action) 0%, var(--app-success) 100%);
-    padding: 2rem;
-    border-radius: 12px;
-    color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
+.envio {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-5;
+  padding-bottom: v.$space-6;
+}
 
-  .upload-section{
-    .upload-box {
-      // background: var(--app-bg);
-      transition: all .3s ease;
-      height: 100%;
+.envio__aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: v.$space-4;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
 
-      &:hover{
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-      }
+// ── O mês ──────────────────────────────────────────────────────────────────
 
-      h3 {
-        color: var(--app-action);;
-      }
+.meses {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
 
-      ::ng-deep {
-        .p-fileupload-choose{
-          width: 100%;
-        }
+.mes {
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
 
-        .p-button{
-          width: 100%;
-          justify-content: center;
-        }
-      }
-    }
-  }
-
-  ::ng-deep {
-    .p-card {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 12px;
-      overflow: hidden;
-
-      .p-card-header {
-        background: var(--app-bg);
-        border-bottom: 1px solid var(--surface-border);
-      }
-
-      .p-card-body {
-        padding: 1.5rem;
-      }
-    }
-
-    .p-datatable {
-      .p-datatable-thead > tr > th {
-        background: var(--surface-100);
-        font-weight: 600;
-        padding: 1rem;
-      }
-
-      .p-datatable-tbody > tr {
-        transition: background-color 0.2s;
-
-        &:hover {
-          background: var(--surface-50);
-        }
-
-        > td {
-          padding: 0.75rem 1rem;
-        }
-      }
-    }
-
-     .p-tag {
-      font-weight: 600;
-      padding: 0.25rem 0.75rem;
-    }
-
-    .p-toolbar {
-      background: transparent;
-      border: none;
-      padding: 0;
-    }
-
-    .p-progressspinner {
-      margin: 0 auto;
-    }
+  // O mês aberto ganha o anel de foco da ação, e não uma cor de estado: aberto
+  // não é um status da fila, é onde a pessoa está.
+  &--aberto {
+    border-color: var(--app-action);
+    box-shadow: 0 0 0 3px var(--app-action-soft);
   }
 }
 
-@media (max-width: 768px) {
-  .newsletter-container {
-    padding: 1rem;
+.mes__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: v.$space-4;
+  flex-wrap: wrap;
+}
 
-    .header-section {
-      padding: 1.5rem;
+.mes__nome {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+}
 
-      h1 {
-        font-size: 1.75rem;
-      }
+.mes__quando {
+  margin: 3px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
 
-      p {
-        font-size: 0.95rem;
-      }
-    }
+.mes__enviar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px v.$space-5;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
 
-    .upload-box {
-      margin-bottom: 1rem;
-    }
+  &:hover:not(:disabled) { background: var(--app-action-hover); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}
+
+// ── A barra ────────────────────────────────────────────────────────────────
+//
+// Proporcional, em ordem fixa de ciclo de vida. A ordem é o que permite
+// comparar o mês passado com este de relance — na ordem que o mapa devolvesse,
+// as cores trocariam de lugar a cada mês e a comparação sumiria.
+
+.barra {
+  display: flex;
+  height: 8px;
+  margin: v.$space-4 0 v.$space-3;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--app-surface-2);
+}
+
+.barra__fatia {
+  display: block;
+  // Uma fatia de 4 em 913 desapareceria; 3px é o mínimo para ela existir.
+  min-width: 3px;
+}
+
+.barra__fatia--success { background: var(--app-success); }
+.barra__fatia--info    { background: var(--app-info); }
+.barra__fatia--warning { background: var(--app-warning); }
+.barra__fatia--work    { background: var(--app-work); }
+.barra__fatia--danger  { background: var(--app-danger); }
+.barra__fatia--neutral { background: var(--app-text-subtle); }
+
+.mes__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-4;
+  flex-wrap: wrap;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mes__abrir {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+
+  i { font-size: .7rem; }
+}
+
+// ── A lista de dentro ──────────────────────────────────────────────────────
+
+.lista {
+  margin-top: v.$space-4;
+  padding-top: v.$space-4;
+  border-top: 1px solid var(--app-border-soft);
+}
+
+.lista__rolagem {
+  overflow-x: auto;
+  // 913 linhas não cabem na tela, e o cartão do mês seguinte ficaria a uma
+  // rolagem de distância. A lista rola por dentro, o cartão fica onde está.
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.lista__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-ui-sm);
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text-subtle);
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
   }
+
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--app-border-soft);
+    color: var(--app-text);
+    vertical-align: top;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--app-surface-2); }
+
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cod { color: var(--app-text-subtle); }
+  .forte { font-weight: 700; }
+}
+
+.lista__cliente {
+  display: block;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.lista__email {
+  display: block;
+  margin-top: 2px;
+  font-size: v.$font-size-xs;
+  color: var(--app-text-muted);
+  overflow-wrap: anywhere;
+}
+
+// No celular a tabela vira lista empilhada. Cinco colunas ali já dão rolagem
+// lateral, e quem confere perde de vista de quem é a linha.
+@media (max-width: v.$bp-md) {
+  .lista__tabela {
+    thead { display: none; }
+
+    tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2px 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--app-border-soft);
+    }
+
+    td {
+      padding: 0;
+      border: none;
+    }
+
+    td:first-child { grid-column: 1 / -1; }
+    .num { text-align: left; }
+  }
+}
+
+// ── A planilha, guardada ───────────────────────────────────────────────────
+
+.planilha {
+  border: 1px dashed var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.planilha__abrir {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: v.$space-4 v.$space-5;
+  border: none;
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: -2px; }
+
+  small {
+    font-weight: 400;
+    color: var(--app-text-subtle);
+  }
+}
+
+.planilha__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  padding: 0 v.$space-5 v.$space-5;
+}
+
+.planilha__opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  cursor: pointer;
 }
