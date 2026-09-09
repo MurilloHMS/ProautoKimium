@@ -1,0 +1,609 @@
+@use 'variables' as v;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Revisão da newsletter
+//
+// Tela de conferência: 913 linhas para olhar antes de disparar e-mail. O peso
+// visual segue essa ordem — pendências e o botão de confirmar têm cor; a lista,
+// que é a maior parte da tela, fica neutra para os números lerem-se sozinhos.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.revisao {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-6;
+  padding: v.$space-8;
+
+  @media (max-width: v.$bp-md) { padding: v.$space-5; gap: v.$space-5; }
+}
+
+// ── Período ────────────────────────────────────────────────────────────────
+
+.periodo {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: v.$space-3;
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.periodo__campo { flex: 0 1 180px; min-width: 140px; }
+.periodo__campo--ano { flex: 0 1 120px; min-width: 110px; }
+
+.periodo__buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  // Alinha com a base dos comboboxes, que carregam rótulo em cima.
+  margin-bottom: 2px;
+  padding: 10px v.$space-5;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: var(--app-action-hover); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}
+
+.periodo__aviso {
+  flex: 1 0 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+// ── Estados ────────────────────────────────────────────────────────────────
+
+.estado {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-3;
+  margin: 0;
+  padding: v.$space-5;
+  border-radius: var(--radius-surface);
+  font-size: var(--text-ui);
+  line-height: 1.5;
+
+  i { margin-top: 2px; flex-shrink: 0; font-size: 1.05rem; }
+  p { margin: 4px 0 0; }
+}
+
+.estado--neutro  { background: var(--app-surface-2);   color: var(--app-text-muted); }
+.estado--fechado { background: var(--app-info-soft);   color: var(--app-info); }
+.estado--erro    { background: var(--app-danger-soft); color: var(--app-danger); }
+
+// ── Resumo ─────────────────────────────────────────────────────────────────
+
+.resumo {
+  display: grid;
+  // `auto-fit` com um mínimo: quatro números cabem lado a lado no monitor dele
+  // e viram dois por linha no celular, sem breakpoint escrito à mão.
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: v.$space-4;
+}
+
+// ── Pendências ─────────────────────────────────────────────────────────────
+//
+// A única parte da tela com cor de aviso. São seis linhas em junho contra 913
+// de lista: sem destaque, passariam batidas — que é exatamente o defeito que
+// esta tela veio corrigir.
+
+.pendencias {
+  padding: v.$space-5;
+  border: 1px solid var(--app-warning);
+  border-radius: var(--radius-surface);
+  background: var(--app-warning-soft);
+}
+
+.pendencias__cab { margin-bottom: v.$space-4; }
+
+.pendencias__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.pendencias__sub {
+  margin: 6px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.5;
+}
+
+.pendencias__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.pendencia {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: v.$space-2 v.$space-4;
+  padding: v.$space-3 v.$space-4;
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+
+  @media (max-width: v.$bp-md) { grid-template-columns: 1fr; }
+}
+
+.pendencia__quem {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pendencia__os {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.pendencia__cliente {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.pendencia__original {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+
+  // O texto cru do ERP em monoespaçada: é literal, e a fonte diz isso sem
+  // precisar de rótulo. `1603` e `9:40 8/5` têm que aparecer como foram
+  // digitados, espaço por espaço.
+  code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--app-surface-2);
+    color: var(--app-text);
+    font-family: ui-monospace, 'SFMono-Regular', 'Consolas', monospace;
+    font-size: .95em;
+    white-space: pre-wrap;
+  }
+}
+
+.pendencia__correcao {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  display: flex;
+  align-items: flex-end;
+  gap: v.$space-2;
+
+  @media (max-width: v.$bp-md) {
+    grid-row: auto;
+    grid-column: 1;
+    flex-wrap: wrap;
+  }
+}
+
+.pendencia__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  span {
+    font-size: v.$font-size-xs;
+    font-weight: 600;
+    color: var(--app-text-subtle);
+  }
+
+  input {
+    padding: 7px 10px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: var(--text-ui-sm);
+    font-variant-numeric: tabular-nums;
+
+    &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 1px; }
+  }
+}
+
+.pendencia__gravar {
+  padding: 8px v.$space-4;
+  border: 1px solid var(--app-action);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: var(--app-action-soft); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+// ── E-mails que faltam ─────────────────────────────────────────────────────
+
+.emails {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.emails__abrir {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: v.$space-4 v.$space-5;
+  border: none;
+  background: none;
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: -2px; }
+
+  i { color: var(--app-text-subtle); }
+}
+
+.emails__painel {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-4;
+  padding: 0 v.$space-5 v.$space-5;
+  border-top: 1px solid var(--app-border-soft);
+}
+
+.emails__nota {
+  margin: v.$space-4 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  line-height: 1.5;
+}
+
+.emails__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  // 31 linhas não cabem na tela, e empurrariam o botão de gravar para longe do
+  // último campo digitado.
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.emails__item {
+  display: grid;
+  grid-template-columns: 64px 1fr 260px;
+  align-items: center;
+  gap: v.$space-3;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--app-border-soft);
+
+  &:last-child { border-bottom: none; }
+
+  @media (max-width: v.$bp-md) {
+    grid-template-columns: 64px 1fr;
+  }
+}
+
+.emails__cod {
+  font-size: var(--text-ui-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-subtle);
+}
+
+.emails__nome {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.emails__campo {
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 1px; }
+
+  @media (max-width: v.$bp-md) { grid-column: 1 / -1; }
+}
+
+.emails__salvar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px v.$space-5;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: var(--app-action-hover); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; }
+}
+
+// ── A lista ────────────────────────────────────────────────────────────────
+
+.lista {
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.lista__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: v.$space-3;
+  margin-bottom: v.$space-4;
+}
+
+.lista__titulo {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: v.$font-size-md;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.lista__busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 320px;
+
+  i {
+    position: absolute;
+    left: 12px;
+    color: var(--app-text-subtle);
+    font-size: .85rem;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    padding: 9px 12px 9px 34px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: var(--text-ui-sm);
+
+    &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 1px; }
+  }
+}
+
+// Tabela larga rola dentro do próprio container; a página nunca rola de lado.
+.lista__rolagem { overflow-x: auto; }
+
+.lista__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-ui-sm);
+
+  th {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--app-border);
+    color: var(--app-text-subtle);
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--app-border-soft);
+    color: var(--app-text);
+  }
+
+  tbody tr:hover td { background: var(--app-surface-2); }
+
+  // Números alinhados à direita e com largura fixa de dígito: é o que permite
+  // varrer a coluna de cima a baixo e ver a ordem de grandeza mudar.
+  .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cod { color: var(--app-text-subtle); font-variant-numeric: tabular-nums; }
+  .forte { font-weight: 700; }
+}
+
+// Sem e-mail não é erro: os números estão certos, só não têm para onde ir. Uma
+// faixa na borda diz isso sem tingir a linha inteira de vermelho.
+.sem-email td:first-child { box-shadow: inset 3px 0 0 var(--app-warning); }
+
+.etiqueta {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--app-warning-soft);
+  color: var(--app-warning);
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+// ── Cartões (celular) ──────────────────────────────────────────────────────
+
+.etiqueta--fora {
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+}
+
+.cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+}
+
+.cartao {
+  padding: v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+
+  &.sem-email { border-left: 3px solid var(--app-warning); }
+}
+
+.cartao__topo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: v.$space-3;
+}
+
+.cartao__cod {
+  font-size: var(--text-ui-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-subtle);
+  flex-shrink: 0;
+}
+
+.cartao__nome {
+  font-weight: 600;
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.cartao__faturamento {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: v.$space-3;
+  margin: 0 0 v.$space-3;
+  padding-bottom: v.$space-3;
+  border-bottom: 1px solid var(--app-border-soft);
+
+  strong {
+    font-family: v.$font-heading;
+    font-size: v.$font-size-lg;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.cartao__rot {
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.cartao__linhas {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: v.$space-2 v.$space-4;
+  margin: 0;
+
+  div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  dt { font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+
+  dd {
+    margin: 0;
+    font-size: var(--text-ui-sm);
+    font-weight: 600;
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.cartao__sem-email {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: v.$space-3 0 0;
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  color: var(--app-warning);
+}
+
+// ── Confirmar ──────────────────────────────────────────────────────────────
+
+.confirmar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: v.$space-4;
+  padding: v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.confirmar__aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  margin-right: auto;
+  font-size: var(--text-ui-sm);
+  color: var(--app-warning);
+}
+
+.confirmar__botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px v.$space-6;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-success);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { filter: brightness(1.06); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--app-success); outline-offset: 3px; }
+
+  @media (max-width: v.$bp-md) { width: 100%; justify-content: center; }
+}

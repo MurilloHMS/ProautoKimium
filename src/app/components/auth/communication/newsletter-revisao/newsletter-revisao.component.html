@@ -1,0 +1,367 @@
+<div class="revisao">
+
+  <app-page-header
+    icon="pi pi-verified"
+    title="Revisão da newsletter"
+    subtitle="Busca os números direto no Sankhya e confere antes de liberar o envio." />
+
+  <!--
+    O período é a única entrada da tela. Mês e ano, e não intervalo de datas: a
+    newsletter é mensal, e assim somem sozinhas as perguntas de início depois do
+    fim e de mês pela metade. Quem deriva os dias é a API.
+  -->
+  <section class="periodo" aria-label="Período">
+    <pk-combobox
+      class="periodo__campo"
+      label="Mês"
+      [options]="meses"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="mes()"
+      (ngModelChange)="mes.set($event)"
+      name="mes" />
+
+    <pk-combobox
+      class="periodo__campo periodo__campo--ano"
+      label="Ano"
+      [options]="anos"
+      [ngModel]="ano()"
+      (ngModelChange)="ano.set($event)"
+      name="ano" />
+
+    <button type="button"
+            class="periodo__buscar"
+            [disabled]="periodoNoFuturo() || estado() === 'carregando'"
+            (click)="buscar()">
+      @if (estado() === 'carregando') {
+        <i class="pi pi-spin pi-spinner"></i> Buscando…
+      } @else {
+        <i class="pi pi-search"></i> Buscar no Sankhya
+      }
+    </button>
+
+    <!-- Mês no futuro devolveria tudo zerado, e zero parece resultado. -->
+    @if (periodoNoFuturo()) {
+      <p class="periodo__aviso">
+        <i class="pi pi-info-circle"></i>
+        Esse mês ainda não fechou. A newsletter sai depois do mês inteiro.
+      </p>
+    }
+  </section>
+
+
+  @switch (estado()) {
+
+    @case ('vazio') {
+      <pk-empty
+        icon="pi pi-envelope"
+        title="Nenhuma prévia aberta"
+        subtitle="Escolha o mês e busque: os dados vêm do ERP e ficam aqui até você confirmar." />
+    }
+
+    @case ('carregando') {
+      <p class="estado estado--neutro">
+        <i class="pi pi-spin pi-spinner"></i>
+        Consultando o Sankhya — são seis consultas, leva alguns segundos.
+      </p>
+    }
+
+    <!--
+      Mês já confirmado não é falha, é estado: a API recusa refazer porque a
+      newsletter dispara e-mail. A mensagem dela diz quando foi e com quantos
+      clientes, e trocá-la por um texto genérico apagaria justamente isso.
+    -->
+    @case ('jaConfirmado') {
+      <div class="estado estado--fechado">
+        <i class="pi pi-lock"></i>
+        <div>
+          <strong>Este mês já foi confirmado.</strong>
+          <p>{{ mensagemDeErro() }}</p>
+        </div>
+      </div>
+    }
+
+    @case ('erro') {
+      <div class="estado estado--erro">
+        <i class="pi pi-exclamation-triangle"></i>
+        <div>
+          <strong>Não deu para buscar a prévia.</strong>
+          <p>{{ mensagemDeErro() }}</p>
+        </div>
+      </div>
+    }
+  }
+
+
+  @if (estado() === 'revisando' && previa(); as p) {
+
+    <section class="resumo" aria-label="Resumo do período">
+      <pk-kpi label="Clientes no mês" [value]="clientes().length" icon="pi pi-users" />
+      <pk-kpi label="Com faturamento" [value]="comFaturamento()" icon="pi pi-file" />
+      <pk-kpi label="Faturamento total" [value]="dinheiro(totalFaturamento())" icon="pi pi-dollar" />
+      <pk-kpi
+        label="Sem e-mail"
+        [value]="semEmailCadastrado().length"
+        icon="pi pi-envelope"
+        [tone]="semEmailCadastrado().length ? 'warning' : 'default'"
+        sub="Não recebem enquanto estiverem assim" />
+    </section>
+
+
+    <!--
+      As pendências são o motivo desta tela existir.
+
+      A hora da OS é texto livre no ERP e vem em duas convenções — 13:00 e
+      14h20. O que não cai em nenhuma delas era descartado em silêncio pelo
+      TRY_CAST do SQL: 82 das 350 OS de junho, e o valor de horas saía
+      subestimado sem nada indicar. Agora aparece, com o texto original ao lado,
+      que é o que permite decidir: "5:00 horas" tanto pode ser cinco da manhã
+      quanto cinco horas de trabalho, e só quem escreveu sabe.
+    -->
+    @if (pendencias().length) {
+      <section class="pendencias" aria-label="Horas que não deu para ler">
+        <header class="pendencias__cab">
+          <h2 class="pendencias__titulo">
+            <i class="pi pi-clock"></i>
+            {{ pendencias().length }} ordem(ns) de serviço com hora ilegível
+          </h2>
+          <p class="pendencias__sub">
+            O ERP guarda a hora como texto. Estas não deram para interpretar —
+            digite a hora certa, ou deixe em branco e elas ficam fora da conta.
+          </p>
+        </header>
+
+        <ul class="pendencias__lista">
+          @for (pendencia of pendencias(); track pendencia.numeroOs) {
+            <li class="pendencia">
+              <div class="pendencia__quem">
+                <span class="pendencia__os">OS {{ pendencia.numeroOs }}</span>
+                <span class="pendencia__cliente">{{ pendencia.nomeDoCliente }}</span>
+              </div>
+
+              <!-- O texto original fica visível o tempo todo: é a única prova
+                   do que foi anotado, e some assim que a correção for gravada. -->
+              <p class="pendencia__original">
+                No ERP:
+                <code>{{ pendencia.horaInicio || '—' }}</code>
+                até
+                <code>{{ pendencia.horaFim || '—' }}</code>
+              </p>
+
+              <div class="pendencia__correcao">
+                <label class="pendencia__campo">
+                  <span>Início</span>
+                  <input type="time" #inicio [attr.aria-label]="'Início da OS ' + pendencia.numeroOs" />
+                </label>
+
+                <label class="pendencia__campo">
+                  <span>Fim</span>
+                  <input type="time" #fim [attr.aria-label]="'Fim da OS ' + pendencia.numeroOs" />
+                </label>
+
+                <button type="button"
+                        class="pendencia__gravar"
+                        [disabled]="!inicio.value || !fim.value"
+                        (click)="corrigirHora(pendencia, inicio.value, fim.value)">
+                  Gravar
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+
+    <!--
+      31 clientes sem e-mail em junho. O painel abre sob demanda: empurrado na
+      cara, competiria com a conferência dos números, que é o trabalho principal.
+    -->
+    @if (semEmailCadastrado().length) {
+      <section class="emails" aria-label="Clientes sem e-mail">
+        <button type="button"
+                class="emails__abrir"
+                [attr.aria-expanded]="painelDeEmails()"
+                (click)="painelDeEmails.set(!painelDeEmails())">
+          <i class="pi" [class.pi-chevron-right]="!painelDeEmails()" [class.pi-chevron-down]="painelDeEmails()"></i>
+          {{ semEmailCadastrado().length }} cliente(s) têm os números, mas não têm para onde enviar
+        </button>
+
+        @if (painelDeEmails()) {
+          <div class="emails__painel">
+            <p class="emails__nota">
+              O e-mail digitado aqui vale para esta newsletter. Preencha os que
+              souber e grave todos de uma vez.
+            </p>
+
+            <ul class="emails__lista">
+              @for (cliente of semEmailCadastrado(); track cliente.codigoCliente) {
+                <li class="emails__item">
+                  <span class="emails__cod">{{ cliente.codigoCliente }}</span>
+                  <span class="emails__nome">{{ cliente.nomeDoCliente }}</span>
+                  <input type="email"
+                         class="emails__campo"
+                         placeholder="e-mail@cliente.com.br"
+                         [attr.aria-label]="'E-mail de ' + cliente.nomeDoCliente"
+                         [ngModel]="emailDigitado(cliente.codigoCliente)"
+                         (ngModelChange)="anotarEmail(cliente.codigoCliente, $event)"
+                         [name]="'email-' + cliente.codigoCliente" />
+                </li>
+              }
+            </ul>
+
+            <button type="button"
+                    class="emails__salvar"
+                    [disabled]="!emailsPreenchidos() || salvando()"
+                    (click)="salvarEmails()">
+              @if (salvando()) {
+                <i class="pi pi-spin pi-spinner"></i> Gravando…
+              } @else {
+                Gravar {{ emailsPreenchidos() }} e-mail(s)
+              }
+            </button>
+          </div>
+        }
+      </section>
+    }
+
+
+    <section class="lista" aria-label="Clientes da newsletter">
+
+      <header class="lista__cab">
+        <h2 class="lista__titulo">{{ p.nomeDoMes }} de {{ p.ano }}</h2>
+
+        <div class="lista__busca">
+          <i class="pi pi-search"></i>
+          <input type="text"
+                 placeholder="Buscar por nome ou código…"
+                 aria-label="Buscar cliente"
+                 [ngModel]="busca()"
+                 (ngModelChange)="busca.set($event)"
+                 name="buscaCliente" />
+        </div>
+      </header>
+
+      <!--
+        Do maior faturamento para o menor. São 913 linhas, e ninguém confere
+        913: os maiores são onde um número errado custa caro, então é por eles
+        que a lista começa.
+      -->
+      @if (!clientesVisiveis().length) {
+        <pk-empty [compact]="true" icon="pi pi-search" title="Nenhum cliente com esse termo"
+                  subtitle="A busca olha o nome e o código do cliente." />
+      }
+
+      @if (clientesVisiveis().length && !ehCelular()) {
+        <div class="lista__rolagem">
+          <table class="lista__tabela">
+            <thead>
+              <tr>
+                <th>Cód</th>
+                <th>Cliente</th>
+                <th class="num">Notas</th>
+                <th class="num">Litros</th>
+                <th class="num">Visitas</th>
+                <th class="num">Peças</th>
+                <th class="num">Horas</th>
+                <th class="num">Faturamento</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cliente of clientesVisiveis(); track cliente.codigoCliente) {
+                <tr [class.sem-email]="semEmail(cliente)">
+                  <td class="cod">{{ cliente.codigoCliente }}</td>
+                  <td>
+                    {{ cliente.nomeDoCliente }}
+                    @if (semEmail(cliente)) {
+                      <span class="etiqueta" title="Sem e-mail cadastrado">sem e-mail</span>
+                    }
+                    <!-- Quem pediu para não receber fica na lista com os
+                         números e fora do envio. Sem a marca, o total de
+                         confirmados sairia menor que o de clientes e ninguém
+                         saberia por quê. -->
+                    @if (!cliente.recebeEmail) {
+                      <span class="etiqueta etiqueta--fora" title="Pediu para não receber">não recebe</span>
+                    }
+                  </td>
+                  <td class="num">{{ cliente.quantidadeNotasEmitidas }}</td>
+                  <td class="num">{{ cliente.quantidadeDeLitros }}</td>
+                  <td class="num">{{ cliente.quantidadeDeVisitas }}</td>
+                  <td class="num">{{ dinheiro(cliente.valorDePecasTrocadas) }}</td>
+                  <td class="num">{{ dinheiro(cliente.valorTotalCobradoHoras) }}</td>
+                  <td class="num forte">{{ dinheiro(cliente.faturamentoTotal) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <!-- Cartões no celular: uma tabela de oito colunas ali vira rolagem
+           lateral, e quem confere perde de vista de quem é a linha. -->
+      @if (clientesVisiveis().length && ehCelular()) {
+        <div class="cartoes">
+          @for (cliente of clientesVisiveis(); track cliente.codigoCliente) {
+            <article class="cartao" [class.sem-email]="semEmail(cliente)">
+              <header class="cartao__topo">
+                <span class="cartao__cod">{{ cliente.codigoCliente }}</span>
+                <span class="cartao__nome">{{ cliente.nomeDoCliente }}</span>
+              </header>
+
+              <p class="cartao__faturamento">
+                <span class="cartao__rot">Faturamento</span>
+                <strong>{{ dinheiro(cliente.faturamentoTotal) }}</strong>
+              </p>
+
+              <dl class="cartao__linhas">
+                <div><dt>Notas</dt><dd>{{ cliente.quantidadeNotasEmitidas }}</dd></div>
+                <div><dt>Litros</dt><dd>{{ cliente.quantidadeDeLitros }}</dd></div>
+                <div><dt>Visitas</dt><dd>{{ cliente.quantidadeDeVisitas }}</dd></div>
+                <div><dt>Peças</dt><dd>{{ dinheiro(cliente.valorDePecasTrocadas) }}</dd></div>
+                <div><dt>Horas</dt><dd>{{ dinheiro(cliente.valorTotalCobradoHoras) }}</dd></div>
+              </dl>
+
+              @if (semEmail(cliente)) {
+                <p class="cartao__sem-email">
+                  <i class="pi pi-envelope"></i> Sem e-mail cadastrado
+                </p>
+              }
+              @if (!cliente.recebeEmail) {
+                <p class="cartao__sem-email">
+                  <i class="pi pi-ban"></i> Pediu para não receber
+                </p>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+
+    <!--
+      Dá para confirmar com pendência aberta, por decisão dele: as OS ilegíveis
+      ficam de fora do cálculo, que é o que já acontece hoje — a diferença é que
+      agora aparece, e o aviso é o que separa uma escolha de um descuido.
+    -->
+    <footer class="confirmar">
+      @if (pendencias().length) {
+        <p class="confirmar__aviso">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ pendencias().length }} OS ficam de fora do valor de horas.
+        </p>
+      }
+
+      <button type="button"
+              class="confirmar__botao"
+              [disabled]="salvando()"
+              (click)="confirmar()">
+        @if (salvando()) {
+          <i class="pi pi-spin pi-spinner"></i> Confirmando…
+        } @else {
+          <i class="pi pi-check"></i> Confirmar e liberar para envio
+        }
+      </button>
+    </footer>
+  }
+
+</div>

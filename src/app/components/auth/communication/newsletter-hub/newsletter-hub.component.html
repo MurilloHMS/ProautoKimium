@@ -1,0 +1,36 @@
+<app-page-header
+  icon="pi pi-envelope"
+  title="Newsletter"
+  subtitle="Conferir os números do mês e liberar o disparo" />
+
+<div class="hub">
+
+  <!-- Menu de ferramentas: fica parado, não rola com o conteúdo. -->
+  <nav class="rail" aria-label="Etapas da newsletter">
+    @for (item of ferramentas(); track item.key) {
+      <button type="button"
+              class="rail__item"
+              [class.rail__item--ativo]="ativa() === item.key"
+              [attr.aria-current]="ativa() === item.key ? 'page' : null"
+              (click)="selecionar(item.key)">
+        <i [class]="item.icon"></i>
+        <span class="rail__texto">
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.hint }}</small>
+        </span>
+      </button>
+    }
+  </nav>
+
+  <!--
+    `@switch` e não as duas montadas com uma escondida: a revisão dispara seis
+    consultas ao Sankhya quando alguém busca, e a de envio carrega a fila. Cada
+    uma só existe quando é a da vez.
+  -->
+  <section class="conteudo">
+    @switch (ativa()) {
+      @case ('revisao') { <app-newsletter-revisao /> }
+      @case ('envio')   { <app-newsletter /> }
+    }
+  </section>
+</div>

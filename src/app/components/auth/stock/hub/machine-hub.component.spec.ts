@@ -10,6 +10,7 @@ import { MachineRegisterStore } from '../../../../infrastructure/state/machine-r
 import { MachineRegister } from '../../../../domain/models/prostock/register.model';
 import { MachineDivergence, MachineStatus } from '../../../../domain/models/prostock/machine.model';
 import { ScheduleSlip } from '../../../../domain/models/prostock/register.model';
+import { formatDateOnly } from '../../../../domain/utils/date-only';
 
 /**
  * A carga por consultor.
@@ -27,10 +28,18 @@ describe('MachineHubComponent · carga por consultor', () => {
   let registerService: jasmine.SpyObj<RegisterService>;
 
   /** Ontem e semana que vem, relativos ao dia em que o teste roda. */
+  /**
+   * **`formatDateOnly` e não `toISOString()`.**
+   *
+   * A conta dos dias é feita em data local, e o ISO é UTC: depois das 21h em
+   * UTC-3 o ISO já está no dia seguinte, e `diasDaqui(-3)` produzia a data de
+   * dois dias atrás. O teste passava o dia inteiro e quebrava toda noite, sem
+   * nada ter mudado no código — e o produto usa exatamente este formatador.
+   */
   const diasDaqui = (dias: number) => {
     const date = new Date();
     date.setDate(date.getDate() + dias);
-    return date.toISOString().slice(0, 10);
+    return formatDateOnly(date)!;
   };
 
   let seq = 0;
