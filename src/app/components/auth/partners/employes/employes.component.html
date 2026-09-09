@@ -174,15 +174,29 @@
         </h3>
         <div class="form-grid">
           <div class="form-field">
-            <pk-input
-              label="Cód Parceiro"
-              [pkReadonly]="employeToEdit !== null"
-              placeholder="Ex: 001234"
-              [pkRequired]="true"
-              [pkMaxLength]="9"
-              type="number"
-              formControlName="partnerCode"
-            />
+            <div class="erp-busca">
+              <pk-input
+                label="Cód Parceiro"
+                [pkReadonly]="employeToEdit !== null"
+                placeholder="Ex: 001234"
+                [pkRequired]="true"
+                [pkMaxLength]="9"
+                type="number"
+                formControlName="partnerCode"
+              />
+              @if (employeToEdit === null) {
+                <pk-button
+                  pkType="filter"
+                  pkIcon="pi pi-cloud-download"
+                  pkLabel="Buscar no ERP"
+                  pkSize="sm"
+                  pkTooltip="Preenche nome, CPF e e-mail a partir do cadastro do Sankhya"
+                  [pkLoading]="erpBuscando()"
+                  [pkDisabled]="erpBuscando()"
+                  (clicked)="buscarNoErp()"
+                />
+              }
+            </div>
           </div>
           <div class="form-field">
             <pk-input
@@ -195,6 +209,49 @@
             />
           </div>
         </div>
+
+        @if (erpErro(); as erro) {
+          <p class="erp-aviso erp-aviso--erro">
+            <i class="pi pi-exclamation-circle"></i> {{ erro }}
+          </p>
+        }
+
+        @if (erpParceiro(); as parceiro) {
+          @switch (parceiro.conflict) {
+            @case ('ALREADY_AN_EMPLOYEE') {
+              <p class="erp-aviso erp-aviso--erro">
+                <i class="pi pi-ban"></i>
+                O código {{ parceiro.codParceiro }} já é do funcionário
+                <strong>{{ parceiro.conflictWith }}</strong>. Cada código de
+                parceiro pertence a um cadastro só.
+              </p>
+            }
+            @case ('ALREADY_A_CUSTOMER') {
+              <p class="erp-aviso erp-aviso--atencao">
+                <i class="pi pi-exclamation-triangle"></i>
+                O código {{ parceiro.codParceiro }} já é do cliente
+                <strong>{{ parceiro.conflictWith }}</strong>. Salvar vai falhar
+                enquanto o código for o mesmo.
+              </p>
+            }
+            @default {
+              <p class="erp-aviso erp-aviso--ok">
+                <i class="pi pi-check-circle"></i>
+                Dados de <strong>{{ parceiro.name }}</strong> trazidos do Sankhya.
+                @if (!parceiro.email) {
+                  O ERP não tem e-mail para este parceiro — preencha à mão.
+                }
+              </p>
+            }
+          }
+
+          @if (!parceiro.activeInErp && parceiro.conflict !== 'ALREADY_AN_EMPLOYEE') {
+            <p class="erp-aviso erp-aviso--atencao">
+              <i class="pi pi-exclamation-triangle"></i>
+              Este parceiro está <strong>inativo</strong> no Sankhya.
+            </p>
+          }
+        }
       </div>
 
       <!-- Dados pessoais -->
@@ -538,7 +595,7 @@
 
   <div formActions>
     <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
+    <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid || erpTravado()"/>
   </div>
 
 </app-form-screen>
