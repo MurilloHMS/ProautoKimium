@@ -1,4 +1,5 @@
 @use 'variables' as v;
+@use 'mixins' as m;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Conciliação de clientes com o Sankhya
@@ -6,6 +7,15 @@
 // O peso visual segue a consequência: mudança de grupo e impedimento têm cor;
 // o resto fica neutro para os nomes e os números se lerem sozinhos.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// O `.painel-wrapper` da tela é `height: 100%` com `overflow: hidden`. Sem
+// ocupar o resto da altura e rolar por dentro, o conteúdo é cortado no primeiro
+// balde — e a tela some do meio para baixo sem nada indicar.
+:host {
+  @include m.grid-screen-body;
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+}
 
 .conc {
   display: flex;
@@ -124,6 +134,8 @@
 }
 
 // ── Resumo ─────────────────────────────────────────────────────────────────
+
+.conc__filtros { align-self: flex-start; max-width: 100%; }
 
 .resumo {
   display: grid;
@@ -255,9 +267,12 @@ tr.imped .nome { color: var(--app-text-muted); }
 
 // Mudança de grupo não é um campo como e-mail: ela decide QUEM ENXERGA O QUÊ no
 // portal do cliente, e o caminho de volta tira acesso de alguém.
+// O destaque não pode mudar a ALTURA da linha: medido, ele acrescentava 3px, e
+// duas linhas com uma diferença cada ficavam desiguais só por uma ser de grupo.
+// A faixa marca com borda e fundo, no mesmo espaço vertical das outras.
 .diff--grupo {
-  padding: 6px 10px;
-  margin: 2px 0;
+  padding: 0 10px 0 8px;
+  margin: 0;
   border-left: 3px solid var(--app-warning);
   border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background: var(--app-warning-soft);

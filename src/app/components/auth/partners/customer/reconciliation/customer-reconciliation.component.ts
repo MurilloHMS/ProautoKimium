@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 
 import { PkEmptyComponent } from '../../../../theme/ProautoKimium/pk-empty/pk-empty.component';
+import { PkSegmentedComponent, type PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { PkKpiComponent } from '../../../../theme/ProautoKimium/pk-kpi/pk-kpi.component';
 import { CustomerReconciliationService } from '../../../../../infrastructure/services/partners/customer/customer-reconciliation.service';
 import {
@@ -31,7 +32,7 @@ export type ReconciliationState = 'empty' | 'loading' | 'reviewing' | 'applying'
 @Component({
   selector: 'app-customer-reconciliation',
   standalone: true,
-  imports: [CommonModule, FormsModule, PkEmptyComponent, PkKpiComponent],
+  imports: [CommonModule, FormsModule, PkEmptyComponent, PkKpiComponent, PkSegmentedComponent],
   templateUrl: './customer-reconciliation.component.html',
   styleUrl: './customer-reconciliation.component.scss',
 })
@@ -47,6 +48,18 @@ export class CustomerReconciliationComponent {
 
   readonly months = signal(12);
   readonly options = [12, 24, 36];
+
+  /**
+   * Uma seção por vez.
+   *
+   * Três baldes empilhados viram uma página longa de linhas com alturas
+   * diferentes — e "impedidos" é justamente a lista que alguém abre para ir
+   * consertar no ERP, atravessada nas outras.
+   *
+   * `pk-segmented` e não abas do PrimeNG: isto é estado de tela, e o tema já
+   * tem o componente.
+   */
+  readonly filter = signal<'all' | 'toCreate' | 'toUpdate' | 'toDeactivate' | 'blocked'>('all');
 
   readonly state = signal<ReconciliationState>('empty');
   readonly data = signal<Reconciliation | null>(null);
@@ -80,13 +93,43 @@ export class CustomerReconciliationComponent {
 
   // ── As listas ─────────────────────────────────────────────────────────────
 
-  readonly toCreate = computed(() => this.visible(this.data()?.toCreate ?? []));
-  readonly toUpdate = computed(() => this.visible(this.data()?.toUpdate ?? []));
-  readonly toDeactivate = computed(() => this.visible(this.data()?.toDeactivate ?? []));
+  readonly toCreate = computed(() => this.inFilter('toCreate', this.data()?.toCreate ?? []));
+  readonly toUpdate = computed(() => this.inFilter('toUpdate', this.data()?.toUpdate ?? []));
+  readonly toDeactivate = computed(() => this.inFilter('toDeactivate', this.data()?.toDeactivate ?? []));
+
+  /** Os impedidos dos três baldes juntos — é a lista de "vai consertar no ERP". */
+  readonly blocked = computed(() =>
+    this.visible(this.allRows().filter(row => !canApply(row))));
+
+  readonly filters = computed<PkSegmentedOption[]>(() => {
+    const data = this.data();
+    const impeded = this.allRows().filter(row => !canApply(row)).length;
+
+    return [
+      { label: `Tudo (${(data?.toCreate.length ?? 0) + (data?.toUpdate.length ?? 0) + (data?.toDeactivate.length ?? 0)})`, value: 'all' },
+      { label: `Novos (${data?.toCreate.length ?? 0})`, value: 'toCreate' },
+      { label: `Com diferença (${data?.toUpdate.length ?? 0})`, value: 'toUpdate' },
+      { label: `Inativos no ERP (${data?.toDeactivate.length ?? 0})`, value: 'toDeactivate' },
+      { label: `Impedidos (${impeded})`, value: 'blocked' },
+    ];
+  });
+
+  /**
+   * O filtro esconde a seção inteira; a busca continua valendo dentro dela.
+   *
+   * Em "impedidos" as três seções somem e sobra a lista atravessada — por isso
+   * ela devolve vazio aqui.
+   */
+  private inFilter(bucket: 'toCreate' | 'toUpdate' | 'toDeactivate', rows: ReconciliationRow[]): ReconciliationRow[] {
+    const current = this.filter();
+    if (current === 'blocked') return [];
+    if (current !== 'all' && current !== bucket) return [];
+    return this.visible(rows);
+  }
   readonly unchanged = computed(() => this.data()?.unchanged ?? 0);
 
   /** Quantos estão travados por impedimento, somando os três baldes. */
-  readonly blocked = computed(() =>
+  readonly blockedCount = computed(() =>
     this.allRows().filter(row => !canApply(row)).length);
 
   readonly selectedCount = computed(() => this.selected().size);

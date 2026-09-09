@@ -323,10 +323,14 @@
     </div>
   </app-form-screen>
   }
-</div>
 
-@if (mode() === 'reconciliation') {
-  <app-customer-reconciliation
-    (applied)="loadCustomers()"
-    (closed)="mode.set('grid')" />
-}
+  <!--
+    O quarto modo, dentro do wrapper como os outros: fora dele a tela perde o
+    layout da página e aparece solta no meio.
+  -->
+  @if (mode() === 'reconciliation') {
+    <app-customer-reconciliation
+      (applied)="loadCustomers()"
+      (closed)="mode.set('grid')" />
+  }
+</div>

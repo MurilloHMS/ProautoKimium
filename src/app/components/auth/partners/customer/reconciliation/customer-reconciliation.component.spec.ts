@@ -216,6 +216,66 @@ describe('CustomerReconciliationComponent', () => {
       .toBe(2);
   });
 
+  // ── Os filtros ────────────────────────────────────────────────────────────
+
+  /**
+   * Três baldes empilhados viram uma página longa. O filtro mostra uma seção por
+   * vez — e o de impedidos é a lista que se abre para ir consertar no ERP.
+   */
+  it('o filtro mostra uma seção por vez', async () => {
+    await mount();
+    screen.load();
+    fixture.detectChanges();
+    expect(find('.secao').length).toBe(3);
+
+    screen.filter.set('toUpdate');
+    fixture.detectChanges();
+
+    expect(find('.secao').length).toBe(1);
+    expect(text()).toContain('Com diferença');
+    expect(text()).not.toContain('Inativos no ERP —');
+  });
+
+  /**
+   * Os impedidos dos três baldes juntos. Espalhados nas seções deles, eles não
+   * servem para o trabalho que essa lista existe para apoiar.
+   */
+  it('o filtro de impedidos junta os três baldes', async () => {
+    await mount();
+    screen.load();
+
+    screen.filter.set('blocked');
+    fixture.detectChanges();
+
+    expect(screen.blocked().map(r => r.code)).toEqual(['7712']);
+    expect(find('.secao').length).toBe(1);
+    expect(text()).toContain('compras@');
+  });
+
+  it('sem impedimento, o filtro diz isso em vez de mostrar tabela vazia', async () => {
+    await mount({ ...DATA, toCreate: [DATA.toCreate[0]] });
+    screen.load();
+
+    screen.filter.set('blocked');
+    fixture.detectChanges();
+
+    expect(screen.blocked().length).toBe(0);
+    expect(text()).toContain('Nenhum impedimento');
+  });
+
+  /** A busca continua valendo dentro do filtro. */
+  it('filtro e busca se somam', async () => {
+    await mount();
+    screen.load();
+
+    screen.filter.set('toCreate');
+    screen.search.set('EXAL');
+    fixture.detectChanges();
+
+    expect(screen.toCreate().length).toBe(1);
+    expect(screen.toUpdate().length).toBe(0);
+  });
+
   // ── Aplicar ───────────────────────────────────────────────────────────────
 
   /**

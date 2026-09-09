@@ -62,9 +62,52 @@
       <pk-kpi label="Novos" [value]="toCreate().length" icon="pi pi-plus-circle" />
       <pk-kpi label="Com diferença" [value]="toUpdate().length" icon="pi pi-pencil" />
       <pk-kpi label="Inativos no ERP" [value]="toDeactivate().length" icon="pi pi-ban" />
-      <pk-kpi label="Impedidos" [value]="blocked()" icon="pi pi-lock"
-              [tone]="blocked() ? 'danger' : 'default'" />
+      <pk-kpi label="Impedidos" [value]="blockedCount()" icon="pi pi-lock"
+              [tone]="blockedCount() ? 'danger' : 'default'" />
     </section>
+
+    <!--
+      Uma seção por vez. Três baldes empilhados viram uma página longa, e
+      "impedidos" é justamente a lista que se abre para ir consertar no ERP —
+      atravessada nas outras, ela não serve para isso.
+    -->
+    <pk-segmented
+      class="conc__filtros"
+      [options]="filters()"
+      [value]="filter()"
+      (valueChange)="filter.set($event)"
+      size="sm"
+      ariaLabel="Filtrar a conciliação" />
+
+    @if (filter() === 'blocked') {
+      <section class="secao">
+        <header class="secao__cab">
+          <h3 class="secao__titulo">
+            Impedidos <span class="secao__sub">— nada aqui pode ser aplicado até o ERP ser corrigido</span>
+          </h3>
+        </header>
+
+        @if (!blocked().length) {
+          <p class="conc__aviso"><i class="pi pi-check-circle"></i> Nenhum impedimento.</p>
+        }
+
+        <table class="tab">
+          <tbody>
+            @for (row of blocked(); track row.code) {
+              <tr class="imped">
+                <td class="cx"><i class="pi pi-lock cadeado" aria-hidden="true"></i></td>
+                <td>
+                  <span class="nome">{{ row.name }}</span>
+                  <span class="cod">{{ row.code }}</span>
+                  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+                </td>
+                <td class="email">{{ row.email || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
 
     <!-- ── Novos ── -->
     @if (toCreate().length) {
@@ -206,7 +249,7 @@
       vista as que mudaram.
     </p>
 
-    @if (!toCreate().length && !toUpdate().length && !toDeactivate().length) {
+    @if (filter() !== 'blocked' && !toCreate().length && !toUpdate().length && !toDeactivate().length) {
       <pk-empty [compact]="true" icon="pi pi-check"
                 title="Nada a conciliar neste período"
                 subtitle="O cadastro está igual ao que o Sankhya tem." />
@@ -222,8 +265,8 @@
         } @else {
           Nenhuma linha marcada.
         }
-        @if (blocked()) {
-          <span class="conta__imped">{{ blocked() }} impedidos ficam de fora.</span>
+        @if (blockedCount()) {
+          <span class="conta__imped">{{ blockedCount() }} impedidos ficam de fora.</span>
         }
       </p>
 
