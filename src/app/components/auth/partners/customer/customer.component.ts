@@ -20,10 +20,13 @@ import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-chec
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
 import {PkFileUploadComponent} from "../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component";
+import { CustomerReconciliationComponent } from './reconciliation/customer-reconciliation.component';
+import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 
 @Component({
     selector: 'app-customer',
-  imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
+  imports: [
+    CustomerReconciliationComponent, PkCanDirective, TableModule, CommonModule, ButtonModule, ToolbarModule, ToastModule,
     DialogModule, InputTextModule, ReactiveFormsModule, CheckboxModule, PkButtonComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent, PkCheckboxComponent, PkFileUploadComponent],
     templateUrl: './customer.component.html',
     styleUrl: './customer.component.scss',
@@ -51,7 +54,7 @@ export class CustomerComponent implements OnInit, TabDirtyCheck {
    * Grade, formulário ou acessos — o cadastro de cliente não usa mais diálogo.
    * "Acessos" é quem entra no portal por este cliente.
    */
-  readonly mode = signal<'grid' | 'form' | 'access'>('grid');
+  readonly mode = signal<'grid' | 'form' | 'access' | 'reconciliation'>('grid');
 
   // ─── Acessos ao portal ────────────────────────────────────────────────────
 

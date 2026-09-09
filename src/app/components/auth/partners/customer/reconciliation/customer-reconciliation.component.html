@@ -1,0 +1,362 @@
+<div class="conc">
+
+  <!--
+    O período é a única entrada. A tela oferece meses e quem deriva a data é a
+    API — assim os dois lados não discordam sobre o que é "12 meses".
+  -->
+  <header class="conc__topo">
+    <label class="campo">
+      <span>Com movimento nos últimos</span>
+      <select [ngModel]="months()" (ngModelChange)="months.set(+$event)" name="months">
+        @for (option of options; track option) {
+          <option [value]="option">{{ option }} meses</option>
+        }
+      </select>
+    </label>
+
+    <button type="button" class="conc__buscar"
+            [disabled]="state() === 'loading' || state() === 'applying'"
+            (click)="load()">
+      @if (state() === 'loading') {
+        <i class="pi pi-spin pi-spinner"></i> Consultando…
+      } @else {
+        <i class="pi pi-sync"></i> Buscar no Sankhya
+      }
+    </button>
+
+    @if (state() === 'reviewing') {
+      <div class="conc__busca">
+        <i class="pi pi-search"></i>
+        <input type="text" placeholder="Buscar por nome ou código…"
+               aria-label="Buscar cliente"
+               [ngModel]="search()" (ngModelChange)="search.set($event)" name="search" />
+      </div>
+    }
+
+    <button type="button" class="conc__fechar" (click)="close()">
+      <i class="pi pi-times"></i> Fechar
+    </button>
+  </header>
+
+
+  @switch (state()) {
+    @case ('empty') {
+      <pk-empty icon="pi pi-sync" title="Nada consultado ainda"
+                subtitle="Escolha o período e busque: o Sankhya é lido na hora, e nada é gravado sem você marcar." />
+    }
+    @case ('loading') {
+      <p class="conc__aviso"><i class="pi pi-spin pi-spinner"></i> Lendo o cadastro do ERP…</p>
+    }
+    @case ('error') {
+      <div class="conc__erro">
+        <i class="pi pi-exclamation-triangle"></i>
+        <div><strong>Não deu para consultar.</strong><p>{{ errorMessage() }}</p></div>
+      </div>
+    }
+  }
+
+
+  @if ((state() === 'reviewing' || state() === 'applying') && data()) {
+
+    <!--
+      A conta e o botão ficam no TOPO, e grudados ali enquanto a lista rola.
+      São até 2008 linhas: no rodapé, aplicar exigia rolar a página inteira, e a
+      conta do que está marcado só aparecia depois de passar por tudo.
+    -->
+    <div class="acoes">
+      <p class="conta">
+        @if (selectedCount()) {
+          Vão ser aplicados:
+          <strong>{{ tally().created }}</strong> novos,
+          <strong>{{ tally().updated }}</strong> atualizações,
+          <strong>{{ tally().deactivated }}</strong> desativações.
+        } @else {
+          Nenhuma linha marcada.
+        }
+        @if (blockedCount()) {
+          <span class="conta__imped">{{ blockedCount() }} impedidos ficam de fora.</span>
+        }
+      </p>
+
+      <button type="button" class="acoes__aplicar"
+              [disabled]="!selectedCount() || state() === 'applying'"
+              (click)="apply()">
+        @if (state() === 'applying') {
+          <i class="pi pi-spin pi-spinner"></i> Aplicando…
+        } @else {
+          <i class="pi pi-check"></i> Aplicar {{ selectedCount() }} mudança(s)
+        }
+      </button>
+    </div>
+
+    <!--
+      Uma seção por vez. Três baldes empilhados viram uma página longa, e
+      "impedidos" é justamente a lista que se abre para ir consertar no ERP —
+      atravessada nas outras, ela não serve para isso.
+    -->
+    <pk-segmented
+      class="conc__filtros"
+      [options]="filters()"
+      [value]="filter()"
+      (valueChange)="filter.set($event)"
+      size="sm"
+      ariaLabel="Filtrar a conciliação" />
+
+    @if (filter() === 'blocked') {
+      <section class="secao">
+        <header class="secao__cab">
+          <h3 class="secao__titulo">
+            Impedidos <span class="secao__sub">— nada aqui pode ser aplicado até o ERP ser corrigido</span>
+          </h3>
+        </header>
+
+        @if (!blocked().length) {
+          <p class="conc__aviso"><i class="pi pi-check-circle"></i> Nenhum impedimento.</p>
+        }
+
+        <table class="tab">
+          <thead>
+            <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>E-mail no ERP</th></tr>
+          </thead>
+          <tbody>
+            @for (row of blocked(); track row.code) {
+              <tr class="imped">
+                <td class="cx"><i class="pi pi-lock cadeado" aria-hidden="true"></i></td>
+                <td>
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
+                </td>
+                <td class="email">{{ row.email || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+
+    <!-- ── Novos ── -->
+    @if (toCreate().length) {
+      <section class="secao">
+        <header class="secao__cab">
+          <h3 class="secao__titulo">
+            Novos <span class="secao__sub">— estão no ERP e não aqui</span>
+          </h3>
+          <label class="marcar">
+            <input type="checkbox" [checked]="allSelected('toCreate')" (change)="toggleAll('toCreate')" />
+            marcar os que dá
+          </label>
+        </header>
+
+        @if (!isPhone()) {
+          <table class="tab">
+            <thead>
+              <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th class="col-doc">Documento</th><th>E-mail</th></tr>
+            </thead>
+            <tbody>
+              @for (row of toCreate(); track row.code) {
+                <tr [class.imped]="!canApply(row)">
+                  <td class="cx">
+                    @if (canApply(row)) {
+                      <input type="checkbox" [checked]="isSelected(row)" (change)="toggle(row)"
+                             [attr.aria-label]="'Marcar ' + row.name" />
+                    } @else {
+                      <i class="pi pi-lock cadeado" aria-hidden="true"></i>
+                    }
+                  </td>
+                  <td>
+                    <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
+                  </td>
+                  <td class="cod">{{ row.document || '—' }}</td>
+                  <td class="email">{{ row.email || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <ng-container [ngTemplateOutlet]="cartoes" [ngTemplateOutletContext]="{ rows: toCreate() }" />
+        }
+      </section>
+    }
+
+    <!-- ── Com diferença ── -->
+    @if (toUpdate().length) {
+      <section class="secao">
+        <header class="secao__cab">
+          <h3 class="secao__titulo">
+            Com diferença <span class="secao__sub">— daqui → como está no ERP</span>
+          </h3>
+          <label class="marcar">
+            <input type="checkbox" [checked]="allSelected('toUpdate')" (change)="toggleAll('toUpdate')" />
+            marcar os que dá
+          </label>
+        </header>
+
+        <table class="tab">
+          <thead><tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>O que muda</th></tr></thead>
+          <tbody>
+            @for (row of toUpdate(); track row.code) {
+              <tr [class.imped]="!canApply(row)">
+                <td class="cx">
+                  @if (canApply(row)) {
+                    <input type="checkbox" [checked]="isSelected(row)" (change)="toggle(row)"
+                           [attr.aria-label]="'Marcar ' + row.name" />
+                  } @else {
+                    <i class="pi pi-lock cadeado" aria-hidden="true"></i>
+                  }
+                </td>
+                <td>
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
+                </td>
+                <td>
+                  <ng-container [ngTemplateOutlet]="diferencas" [ngTemplateOutletContext]="{ row }" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+
+    <!-- ── Inativos ── -->
+    @if (toDeactivate().length) {
+      <section class="secao">
+        <header class="secao__cab">
+          <h3 class="secao__titulo">
+            Inativos no ERP <span class="secao__sub">— marcar desativa aqui; nada é apagado</span>
+          </h3>
+          <label class="marcar">
+            <input type="checkbox" [checked]="allSelected('toDeactivate')" (change)="toggleAll('toDeactivate')" />
+            marcar os que dá
+          </label>
+        </header>
+
+        <table class="tab">
+          <thead><tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>O que mais mudou</th></tr></thead>
+          <tbody>
+            @for (row of toDeactivate(); track row.code) {
+              <tr [class.imped]="!canApply(row)">
+                <td class="cx">
+                  @if (canApply(row)) {
+                    <input type="checkbox" [checked]="isSelected(row)" (change)="toggle(row)"
+                           [attr.aria-label]="'Marcar ' + row.name" />
+                  } @else {
+                    <i class="pi pi-lock cadeado" aria-hidden="true"></i>
+                  }
+                </td>
+                <td>
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
+                </td>
+                <td>
+                  <ng-container [ngTemplateOutlet]="diferencas" [ngTemplateOutletContext]="{ row }" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+
+    <!--
+      Os iguais são uma frase, não uma lista: 1734 linhas que não mudaram
+      afogariam as que mudaram.
+    -->
+    <p class="iguais">
+      <i class="pi pi-check-circle"></i>
+      <strong>{{ unchanged() }} clientes já estão iguais.</strong>
+      Não entram na lista — conferir linha que não mudou é o que faz perder de
+      vista as que mudaram.
+    </p>
+
+    @if (filter() !== 'blocked' && !toCreate().length && !toUpdate().length && !toDeactivate().length) {
+      <pk-empty [compact]="true" icon="pi pi-check"
+                title="Nada a conciliar neste período"
+                subtitle="O cadastro está igual ao que o Sankhya tem." />
+    }
+
+  }
+</div>
+
+
+<!-- ─────────────────────────────────────────────────────────────────────── -->
+
+<!--
+  O motivo fica na linha, e não numa aba separada: tirá-la da lista faria a
+  contagem mentir e esconderia de quem pode consertar no ERP qual é o problema.
+-->
+<ng-template #motivos let-row="row">
+  @for (impediment of row.impediments; track impediment.reason) {
+    <span class="motivo">{{ impediment.detail }}</span>
+  }
+</ng-template>
+
+<!--
+  Mudança de grupo tem faixa própria: ela muda quem enxerga o quê no portal do
+  cliente, e o caminho de volta tira acesso de alguém. Não é um campo como
+  e-mail.
+-->
+<ng-template #diferencas let-row="row">
+  <div class="diffs">
+    @for (diff of row.differences; track diff.field) {
+      <div class="diff" [class.diff--grupo]="isGroupChange(diff)">
+        <span class="diff__campo">
+          @if (isGroupChange(diff)) { <i class="pi pi-exclamation-triangle"></i> }
+          {{ fieldLabel[diff.field] || diff.field }}
+        </span>
+        <span class="diff__de">{{ diff.localValue || '—' }}</span>
+        <span class="diff__seta">→</span>
+        <span class="diff__para">{{ diff.erpValue || '—' }}</span>
+      </div>
+    }
+    @if (!row.differences.length) {
+      <span class="diff__nenhuma">só o status mudou</span>
+    }
+  </div>
+</ng-template>
+
+<ng-template #cartoes let-rows="rows">
+  <div class="cartoes">
+    @for (row of rows; track row.code) {
+      <article class="cartao" [class.imped]="!canApply(row)">
+        <header class="cartao__topo">
+          @if (canApply(row)) {
+            <input type="checkbox" [checked]="isSelected(row)" (change)="toggle(row)"
+                   [attr.aria-label]="'Marcar ' + row.name" />
+          } @else {
+            <i class="pi pi-lock cadeado" aria-hidden="true"></i>
+          }
+          <div>
+            <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
+          </div>
+        </header>
+        <p class="email">{{ row.email || 'sem e-mail' }}</p>
+        <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+        <ng-container [ngTemplateOutlet]="diferencas" [ngTemplateOutletContext]="{ row }" />
+      </article>
+    }
+  </div>
+</ng-template>
+
+<!--
+  Nome e códigos na MESMA linha.
+  
+  Antes o código ficava embaixo do nome, e toda linha custava duas alturas de
+  texto — era o que deixava a tabela alta e desigual.
+  
+  Duas etiquetas, lado a lado e rotuladas: sem o rótulo, "8805 1708" não diz
+  qual é o cliente e qual é o grupo. Quando o cliente É a matriz, a etiqueta não
+  repete o número — ela diz o que ele é.
+-->
+<ng-template #identidade let-row="row">
+  <span class="ident">
+    <span class="nome">{{ row.name }}</span>
+    <span class="tag tag--cod" title="Código do cliente no Sankhya">{{ row.code }}</span>
+
+    @if (row.matrizCode === row.code) {
+      <span class="tag tag--matriz" title="Este cliente é a matriz do grupo">matriz</span>
+    } @else if (row.matrizCode) {
+      <span class="tag tag--unidade" [title]="'Unidade do grupo ' + row.matrizCode">
+        unidade de {{ row.matrizCode }}
+      </span>
+    }
+  </span>
+  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+</ng-template>

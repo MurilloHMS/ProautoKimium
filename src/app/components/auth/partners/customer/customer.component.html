@@ -23,6 +23,16 @@
       (filesSelected)="onFileSelect($event)"
       (cleared)="selectedFile = null" />
 
+    <!--
+      A conciliação fica ao lado do Excel de propósito: são os dois caminhos em
+      lote, e o de planilha continua sendo a saída conhecida enquanto a
+      conciliação não rodar um ciclo inteiro.
+    -->
+    <pk-button *pkCan="'company/customers:CONSULTAR'"
+               pkType="refresh" pkSize="sm" pkIcon="pi pi-sync"
+               pkLabel="Conciliar com o Sankhya"
+               (clicked)="mode.set('reconciliation')" />
+
     <div filters>
       <input type="text"
              class="toolbar-search"
@@ -312,5 +322,15 @@
         (clicked)="invite()"/>
     </div>
   </app-form-screen>
+  }
+
+  <!--
+    O quarto modo, dentro do wrapper como os outros: fora dele a tela perde o
+    layout da página e aparece solta no meio.
+  -->
+  @if (mode() === 'reconciliation') {
+    <app-customer-reconciliation
+      (applied)="loadCustomers()"
+      (closed)="mode.set('grid')" />
   }
 </div>

@@ -5,6 +5,17 @@
   flex-direction: column;
   gap: .75rem;
 
+  // O `p-fileUpload` daqui é só o input de arquivo, escondido — quem aparece é
+  // o `pk-button`. Mas o `styleClass` do PrimeNG cai num elemento INTERNO, e o
+  // host `<p-fileupload>` continuava sendo um item flex de altura zero: o `gap`
+  // de 12px se aplicava entre ele e o botão, e a casca ficava 46px para conter
+  // um botão de 34.
+  //
+  // Na toolbar isso é o botão de importar parecendo de outra espécie, mais alto
+  // e desalinhado dos vizinhos. `display: contents` tira a caixa do host sem
+  // tirar o input do DOM — ele continua clicável pelo `triggerUpload()`.
+  > p-fileupload { display: contents; }
+
   &--dropzone {
     width: 100%;
   }
