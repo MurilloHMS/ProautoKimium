@@ -371,6 +371,48 @@ describe('CustomerReconciliationComponent', () => {
     });
   });
 
+  /**
+   * <b>Nome e códigos na mesma linha.</b>
+   *
+   * Com o código embaixo do nome, toda linha custava duas alturas de texto —
+   * medido, 6px a mais em cada uma, e linhas de conteúdo igual saíam desiguais.
+   * Agora só varia o que é conteúdo de verdade: duas diferenças ocupam mais que
+   * uma.
+   */
+  it('linhas com o mesmo conteúdo têm a mesma altura', async () => {
+    const um = (code: string) => row(code, 'PGR CERAMICA', {
+      differences: [{ field: 'email', localValue: 'a@x.com', erpValue: 'b@x.com' }],
+    });
+
+    await mount({ ...DATA, toCreate: [], toDeactivate: [], toUpdate: [um('505'), um('506')] }, DESKTOP);
+    screen.load();
+    fixture.detectChanges();
+
+    const heights = Array.from(find('.tab tbody tr'))
+      .map(tr => Math.round(tr.getBoundingClientRect().height));
+
+    expect(heights.length).toBe(2);
+    expect(heights[0]).toBe(heights[1]);
+  });
+
+  /** O código e a matriz viram etiquetas, e a matriz se identifica como tal. */
+  it('mostra o código e o grupo como etiquetas rotuladas', async () => {
+    const unidade = row('505', 'PGR SINTER', { matrizCode: '1708' });
+    const matriz = row('1708', 'PGR MATRIZ', { matrizCode: '1708' });
+
+    await mount({ ...DATA, toCreate: [unidade, matriz], toUpdate: [], toDeactivate: [] }, DESKTOP);
+    screen.load();
+    fixture.detectChanges();
+
+    expect(find('.tag--cod').length).toBe(2);
+    expect(text())
+      .withContext('sem rótulo, "505 1708" não diz qual é o cliente e qual é o grupo')
+      .toContain('unidade de 1708');
+    expect(find('.tag--matriz').length)
+      .withContext('quem aponta para si mesmo é a matriz, e a etiqueta não repete o número')
+      .toBe(1);
+  });
+
   // ── Celular ───────────────────────────────────────────────────────────────
 
   /**

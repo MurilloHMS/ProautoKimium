@@ -100,9 +100,7 @@
               <tr class="imped">
                 <td class="cx"><i class="pi pi-lock cadeado" aria-hidden="true"></i></td>
                 <td>
-                  <span class="nome">{{ row.name }}</span>
-                  <span class="cod">{{ row.code }}</span>
-                  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
                 </td>
                 <td class="email">{{ row.email || '—' }}</td>
               </tr>
@@ -128,7 +126,7 @@
         @if (!isPhone()) {
           <table class="tab">
             <thead>
-              <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th class="col-doc">Documento</th><th>E-mail</th><th class="col-grupo">Grupo</th></tr>
+              <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th class="col-doc">Documento</th><th>E-mail</th></tr>
             </thead>
             <tbody>
               @for (row of toCreate(); track row.code) {
@@ -142,13 +140,10 @@
                     }
                   </td>
                   <td>
-                    <span class="nome">{{ row.name }}</span>
-                    <span class="cod">{{ row.code }}</span>
-                    <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+                    <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
                   </td>
                   <td class="cod">{{ row.document || '—' }}</td>
                   <td class="email">{{ row.email || '—' }}</td>
-                  <td class="cod">{{ row.matrizCode || '—' }}</td>
                 </tr>
               }
             </tbody>
@@ -186,9 +181,7 @@
                   }
                 </td>
                 <td>
-                  <span class="nome">{{ row.name }}</span>
-                  <span class="cod">{{ row.code }}</span>
-                  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
                 </td>
                 <td>
                   <ng-container [ngTemplateOutlet]="diferencas" [ngTemplateOutletContext]="{ row }" />
@@ -227,9 +220,7 @@
                   }
                 </td>
                 <td>
-                  <span class="nome">{{ row.name }}</span>
-                  <span class="cod">{{ row.code }}</span>
-                  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
+                  <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
                 </td>
                 <td>
                   <ng-container [ngTemplateOutlet]="diferencas" [ngTemplateOutletContext]="{ row }" />
@@ -335,8 +326,7 @@
             <i class="pi pi-lock cadeado" aria-hidden="true"></i>
           }
           <div>
-            <span class="nome">{{ row.name }}</span>
-            <span class="cod">{{ row.code }}</span>
+            <ng-container [ngTemplateOutlet]="identidade" [ngTemplateOutletContext]="{ row }" />
           </div>
         </header>
         <p class="email">{{ row.email || 'sem e-mail' }}</p>
@@ -345,4 +335,30 @@
       </article>
     }
   </div>
+</ng-template>
+
+<!--
+  Nome e códigos na MESMA linha.
+  
+  Antes o código ficava embaixo do nome, e toda linha custava duas alturas de
+  texto — era o que deixava a tabela alta e desigual.
+  
+  Duas etiquetas, lado a lado e rotuladas: sem o rótulo, "8805 1708" não diz
+  qual é o cliente e qual é o grupo. Quando o cliente É a matriz, a etiqueta não
+  repete o número — ela diz o que ele é.
+-->
+<ng-template #identidade let-row="row">
+  <span class="ident">
+    <span class="nome">{{ row.name }}</span>
+    <span class="tag tag--cod" title="Código do cliente no Sankhya">{{ row.code }}</span>
+
+    @if (row.matrizCode === row.code) {
+      <span class="tag tag--matriz" title="Este cliente é a matriz do grupo">matriz</span>
+    } @else if (row.matrizCode) {
+      <span class="tag tag--unidade" [title]="'Unidade do grupo ' + row.matrizCode">
+        unidade de {{ row.matrizCode }}
+      </span>
+    }
+  </span>
+  <ng-container [ngTemplateOutlet]="motivos" [ngTemplateOutletContext]="{ row }" />
 </ng-template>

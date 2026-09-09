@@ -239,9 +239,34 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.nome { display: block; font-weight: 600; overflow-wrap: anywhere; }
-.cod  { display: block; margin-top: 1px; font-size: v.$font-size-xs; color: var(--app-text-subtle); font-variant-numeric: tabular-nums; }
+// Nome e etiquetas na mesma linha. Com o código embaixo do nome, toda linha
+// custava duas alturas de texto — era o que deixava a tabela alta e desigual.
+.ident {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nome { font-weight: 600; overflow-wrap: anywhere; }
+.cod  { color: var(--app-text-subtle); font-variant-numeric: tabular-nums; }
 .email { color: var(--app-text-muted); overflow-wrap: anywhere; }
+
+// Etiquetas rotuladas: "8805 1708" sem rótulo não diz qual é o cliente e qual é
+// o grupo. Tons diferentes para os dois se separarem antes da leitura.
+.tag {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: v.$font-size-xs;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag--cod     { background: var(--app-surface-3); color: var(--app-text-muted); }
+.tag--matriz  { background: var(--app-info-soft); color: var(--app-info); }
+.tag--unidade { background: var(--app-surface-2); color: var(--app-text-subtle); font-weight: 400; }
 
 // Linha impedida recua e mostra o motivo. Não some da lista: tirá-la faria a
 // contagem mentir e esconderia o problema de quem pode consertar no ERP.
