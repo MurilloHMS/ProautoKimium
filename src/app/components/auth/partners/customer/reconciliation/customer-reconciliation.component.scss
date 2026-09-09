@@ -136,30 +136,7 @@
   p { margin: 4px 0 0; }
 }
 
-// ── Resumo ─────────────────────────────────────────────────────────────────
-
 .conc__filtros { align-self: flex-start; max-width: 100%; }
-
-// Os quatro números são resumo, não o assunto da tela — o assunto é a lista.
-// Em tamanho cheio eles empurravam a primeira linha de dados para fora da
-// dobra, junto com o filtro e a barra de ação.
-//
-// Os mesmos números aparecem nos rótulos do filtro logo abaixo; estes cartões
-// existem para a leitura de relance, e para isso não precisam de 1.75rem.
-.resumo {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: v.$space-3;
-
-  ::ng-deep .pk-kpi {
-    padding: 8px 12px;
-    gap: 0;
-  }
-
-  ::ng-deep .pk-kpi__value { font-size: 1.15rem; line-height: 1.2; }
-  ::ng-deep .pk-kpi__label { font-size: .7rem; }
-  ::ng-deep .pk-kpi__sub   { display: none; }
-}
 
 // ── Seções ─────────────────────────────────────────────────────────────────
 

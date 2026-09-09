@@ -5,7 +5,6 @@ import { MessageService } from 'primeng/api';
 
 import { PkEmptyComponent } from '../../../../theme/ProautoKimium/pk-empty/pk-empty.component';
 import { PkSegmentedComponent, type PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
-import { PkKpiComponent } from '../../../../theme/ProautoKimium/pk-kpi/pk-kpi.component';
 import { CustomerReconciliationService } from '../../../../../infrastructure/services/partners/customer/customer-reconciliation.service';
 import {
   FIELD_LABEL,
@@ -32,7 +31,7 @@ export type ReconciliationState = 'empty' | 'loading' | 'reviewing' | 'applying'
 @Component({
   selector: 'app-customer-reconciliation',
   standalone: true,
-  imports: [CommonModule, FormsModule, PkEmptyComponent, PkKpiComponent, PkSegmentedComponent],
+  imports: [CommonModule, FormsModule, PkEmptyComponent, PkSegmentedComponent],
   templateUrl: './customer-reconciliation.component.html',
   styleUrl: './customer-reconciliation.component.scss',
 })

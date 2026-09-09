@@ -58,14 +58,6 @@
 
   @if ((state() === 'reviewing' || state() === 'applying') && data()) {
 
-    <section class="resumo" aria-label="Resumo da conciliação">
-      <pk-kpi label="Novos" [value]="toCreate().length" icon="pi pi-plus-circle" />
-      <pk-kpi label="Com diferença" [value]="toUpdate().length" icon="pi pi-pencil" />
-      <pk-kpi label="Inativos no ERP" [value]="toDeactivate().length" icon="pi pi-ban" />
-      <pk-kpi label="Impedidos" [value]="blockedCount()" icon="pi pi-lock"
-              [tone]="blockedCount() ? 'danger' : 'default'" />
-    </section>
-
     <!--
       A conta e o botão ficam no TOPO, e grudados ali enquanto a lista rola.
       São até 2008 linhas: no rodapé, aplicar exigia rolar a página inteira, e a

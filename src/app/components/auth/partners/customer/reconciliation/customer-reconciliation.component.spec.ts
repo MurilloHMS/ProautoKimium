@@ -135,8 +135,11 @@ describe('CustomerReconciliationComponent', () => {
     screen.load();
     fixture.detectChanges();
 
-    expect(find('pk-kpi').length).toBe(4);
     expect(find('.secao').length).toBe(3);
+    // As contagens moram nos rótulos do filtro: os cartões de resumo diziam o
+    // mesmo e custavam 52px antes da primeira linha de dados.
+    expect(text()).toContain('Com diferença (1)');
+    expect(text()).toContain('Impedidos (1)');
     expect(text()).toContain('1734 clientes já estão iguais');
   });
 
