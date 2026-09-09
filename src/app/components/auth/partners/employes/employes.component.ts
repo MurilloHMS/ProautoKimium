@@ -6,6 +6,8 @@ import { UserResponseDTO } from '../../../../domain/models/user.model';
 import { CompanyStore, HierarchyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
+import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
+import { ErpPartner } from '../../../../domain/models/erp-partner.model';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { formatDateOnly, parseDateOnly } from '../../../../domain/utils/date-only';
 import { PositionLevelService } from '../../../../infrastructure/services/hr/position-level.service';
@@ -157,6 +159,71 @@ export class EmployesComponent implements TabDirtyCheck {
   careerPositionOptions: {label: string, value: string}[] = [];
   careerLevelOptions: {label: string, value: string}[] = [];
 
+  // ─── Buscar no ERP ─────────────────────────────────────────────────────────
+  private readonly employeeService = inject(EmployeeService);
+
+  erpBuscando = signal(false);
+  erpParceiro = signal<ErpPartner | null>(null);
+  erpErro = signal<string | null>(null);
+
+  /**
+   * Código que já é de um funcionário trava o salvar.
+   *
+   * Desde a V101 o `cod_parceiro` é único em `parceiros`: o insert bateria no
+   * índice e voltaria erro depois de a pessoa ter preenchido empresa, setor,
+   * cargo, nível, contrato e data de admissão. Já ser cliente é aviso e segue —
+   * quem decide é ela, e o cadastro do cliente é outro assunto.
+   */
+  erpTravado = computed(() => this.erpParceiro()?.conflict === 'ALREADY_AN_EMPLOYEE');
+
+  private limpaErp(): void {
+    this.erpParceiro.set(null);
+    this.erpErro.set(null);
+  }
+
+  /**
+   * Preenche nome, documento e e-mail a partir do CODPARC.
+   *
+   * Antes disto, cadastrar quem já existe no ERP era redigitar os três — e um
+   * dígito errado no CPF não aparece em lugar nenhum, só no primeiro acesso,
+   * que é por CPF e simplesmente não encontra a pessoa.
+   */
+  buscarNoErp(): void {
+    const codigo = Number(this.form.get('partnerCode')?.value);
+    if (!codigo) {
+      this.erpErro.set('Informe o código do parceiro antes de buscar.');
+      return;
+    }
+
+    this.limpaErp();
+    this.erpBuscando.set(true);
+
+    this.employeeService.lookupInErp(codigo).subscribe({
+      next: (parceiro) => {
+        this.erpBuscando.set(false);
+        this.erpParceiro.set(parceiro);
+
+        // Conflito de funcionário não preenche nada: o cadastro já existe, e
+        // preencher o formulário sugeriria que dá para salvar.
+        if (parceiro.conflict === 'ALREADY_AN_EMPLOYEE') return;
+
+        this.form.patchValue({
+          name: parceiro.name,
+          document: parceiro.document,
+          // E-mail nulo não apaga o que a pessoa já digitou.
+          ...(parceiro.email ? { email: parceiro.email } : {}),
+        });
+        this.form.markAsDirty();
+      },
+      error: (err) => {
+        this.erpBuscando.set(false);
+        this.erpErro.set(err?.status === 404
+          ? `Código ${codigo} não existe no Sankhya.`
+          : this.getErrorMessage(err));
+      }
+    });
+  }
+
   // Vínculo usuário <-> funcionário
   users: UserResponseDTO[] = [];
   linkVisible = false;
@@ -193,6 +260,10 @@ export class EmployesComponent implements TabDirtyCheck {
       vehicleKmPerLiter: [null],
       dailyDistanceKm: [null],
     });
+
+    // Trocar o código descarta o resultado anterior: sem isto o aviso de
+    // "já é funcionário" continuaria travando o salvar de outro código.
+    this.form.get('partnerCode')?.valueChanges.subscribe(() => this.limpaErp());
 
     this.form.get('teamId')?.valueChanges.subscribe((teamId) => this.teamIdSelecionado.set(teamId ?? null));
     this.form.get('positionId')?.valueChanges.subscribe((positionId) => this.onPositionChange(positionId));
@@ -373,6 +444,7 @@ export class EmployesComponent implements TabDirtyCheck {
   showDialog() {
     this.dialogTitle = 'Adicionar Funcionário';
     this.employeToEdit = null;
+    this.limpaErp();
 
     this.form.get('positionId')?.enable();
     this.form.get('contractType')?.enable();

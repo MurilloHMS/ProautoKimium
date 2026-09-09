@@ -461,3 +461,35 @@
   color: var(--app-text-subtle);
   font-style: italic;
 }
+
+// ─── Buscar no ERP ────────────────────────────────────────────────────────────
+// O botão fica na linha de baixo, e não ao lado do campo: o `form-grid` é de
+// colunas de 230px, e um botão com rótulo dentro dessa largura espremeria o
+// input a ponto de o código não caber.
+.erp-busca {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  align-items: flex-start;
+
+  > pk-input { width: 100%; }
+}
+
+.erp-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  margin: .75rem 0 0;
+  padding: .6rem .75rem;
+  border-radius: var(--radius-control);
+  border-left: 3px solid currentColor;
+  font-size: .82rem;
+  line-height: 1.45;
+
+  i { margin-top: .1rem; flex-shrink: 0; }
+  strong { font-weight: 600; }
+
+  &--ok       { color: var(--app-success); background: var(--app-success-soft); }
+  &--atencao  { color: var(--app-warning); background: var(--app-warning-soft); }
+  &--erro     { color: var(--app-danger);  background: var(--app-danger-soft);  }
+}
