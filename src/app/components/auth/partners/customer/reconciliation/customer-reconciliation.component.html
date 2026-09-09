@@ -92,6 +92,9 @@
         }
 
         <table class="tab">
+          <thead>
+            <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>E-mail no ERP</th></tr>
+          </thead>
           <tbody>
             @for (row of blocked(); track row.code) {
               <tr class="imped">
@@ -125,7 +128,7 @@
         @if (!isPhone()) {
           <table class="tab">
             <thead>
-              <tr><th class="cx"></th><th>Cliente</th><th>Documento</th><th>E-mail</th><th>Grupo</th></tr>
+              <tr><th class="cx"></th><th class="col-cliente">Cliente</th><th class="col-doc">Documento</th><th>E-mail</th><th class="col-grupo">Grupo</th></tr>
             </thead>
             <tbody>
               @for (row of toCreate(); track row.code) {
@@ -170,7 +173,7 @@
         </header>
 
         <table class="tab">
-          <thead><tr><th class="cx"></th><th>Cliente</th><th>O que muda</th></tr></thead>
+          <thead><tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>O que muda</th></tr></thead>
           <tbody>
             @for (row of toUpdate(); track row.code) {
               <tr [class.imped]="!canApply(row)">
@@ -211,7 +214,7 @@
         </header>
 
         <table class="tab">
-          <thead><tr><th class="cx"></th><th>Cliente</th><th>O que mais mudou</th></tr></thead>
+          <thead><tr><th class="cx"></th><th class="col-cliente">Cliente</th><th>O que mais mudou</th></tr></thead>
           <tbody>
             @for (row of toDeactivate(); track row.code) {
               <tr [class.imped]="!canApply(row)">

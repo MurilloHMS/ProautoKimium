@@ -24,9 +24,12 @@ import type {
 describe('CustomerReconciliationComponent', () => {
 
   const row = (code: string, name: string, extra: Partial<ReconciliationRow> = {}): ReconciliationRow => ({
-    code, name,
+    code, name: `${name} COMERCIO E INDUSTRIA LTDA`,
     document: '12345678000199',
-    email: `${code}@x.com`,
+    // Nome e e-mail no tamanho dos reais. Com valores curtos o layout automático
+    // acerta por acaso, e o teste de alinhamento não pega o defeito —
+    // "PGR - 7082 CERAMICA - SP" é um nome de cliente de verdade.
+    email: `contato.${code}@empresagrande.com.br`,
     matrizCode: code,
     active: true,
     signature: `sig-${code}`,
@@ -327,6 +330,45 @@ describe('CustomerReconciliationComponent', () => {
 
     expect(screen.state()).toBe('reviewing');
     expect(screen.selectedCount()).toBe(1);
+  });
+
+  // ── O alinhamento das colunas ─────────────────────────────────────────────
+
+  /**
+   * **As seções têm que alinhar entre si.**
+   *
+   * Medido em 2026-09-09: com `table-layout: auto`, duas tabelas de três colunas
+   * na mesma tela ficaram com a coluna do cliente em 225px e 298px — cada uma se
+   * dimensionava pelo próprio conteúdo. Empilhadas, as colunas não batiam, e é o
+   * que se via como "cada linha de um tamanho".
+   *
+   * O teste compara larguras entre tabelas, e não com um número fixo: o valor
+   * depende da janela, mas a igualdade entre seções é o que importa.
+   */
+  it('as colunas alinham entre as seções', async () => {
+    await mount(DATA, DESKTOP);
+    screen.load();
+    fixture.detectChanges();
+
+    const tables = Array.from(find('table.tab'));
+    expect(tables.length).toBeGreaterThan(1);
+
+    const widthsOf = (table: Element) => {
+      const row = table.querySelector('tbody tr');
+      return Array.from(row?.children ?? [])
+        .map(cell => Math.round(cell.getBoundingClientRect().width));
+    };
+
+    const withThreeColumns = tables
+      .map(widthsOf)
+      .filter(widths => widths.length === 3);
+
+    expect(withThreeColumns.length).toBeGreaterThan(1);
+    withThreeColumns.forEach(widths => {
+      expect(widths)
+        .withContext('tabela que se dimensiona pelo próprio conteúdo desalinha das vizinhas')
+        .toEqual(withThreeColumns[0]);
+    });
   });
 
   // ── Celular ───────────────────────────────────────────────────────────────

@@ -190,8 +190,18 @@
 
 // ── Tabela ─────────────────────────────────────────────────────────────────
 
+// `table-layout: fixed` e larguras declaradas.
+//
+// Medido em 2026-09-09: com o layout automático, duas tabelas de três colunas na
+// mesma tela ficaram com a coluna do cliente em 225px e 298px — cada uma se
+// dimensiona pelo próprio conteúdo, e empilhadas as colunas não se alinham. É o
+// que se vê como "cada linha de um tamanho".
+//
+// Fixo, a largura sai da declaração e não do texto: as seções alinham entre si, e
+// nome comprido quebra em vez de empurrar a coluna vizinha.
 .tab {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: var(--text-ui-sm);
 
@@ -214,7 +224,12 @@
 
   tbody tr:last-child td { border-bottom: none; }
 
-  .cx { width: 38px; }
+  .cx  { width: 44px; }
+  // O cliente tem a mesma largura em toda seção — é a coluna que o olho segue
+  // ao descer a página.
+  .col-cliente { width: 38%; }
+  .col-doc     { width: 16%; }
+  .col-grupo   { width: 12%; }
 }
 
 input[type="checkbox"] {
