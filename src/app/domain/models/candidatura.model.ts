@@ -7,6 +7,11 @@ export interface CreateCandidaturaDTO {
   email: string;
   telefone: string;
   urlLinkedin: string;
+  /**
+   * Ficar no banco de talentos para outras vagas. Opcional: candidatar-se a uma
+   * vaga não autoriza guardar os dados para as próximas.
+   */
+  consentimento: boolean;
 }
 
 export interface ResponseCandidaturaDTO {

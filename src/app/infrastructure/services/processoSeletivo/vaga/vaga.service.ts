@@ -10,6 +10,16 @@ export class VagaService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * As áreas de todas as vagas cadastradas, não só das publicadas.
+   *
+   * O combo do banco de talentos precisa dela justamente quando não há vaga
+   * aberta — e montar a lista a partir das publicadas a deixaria vazia nessa hora.
+   */
+  getAreas(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/areas`);
+  }
+
   getVagasPublicadas(): Observable<ResponseVagaDTO[]> {
     return this.http.get<ResponseVagaDTO[]>(`${this.base}/publicadas`);
   }

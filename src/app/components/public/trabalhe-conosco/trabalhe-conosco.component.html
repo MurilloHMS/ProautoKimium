@@ -75,13 +75,32 @@
       </button>
     </div>
 
-    <div *ngIf="!isLoading && !erro && vagasFiltradas.length === 0" class="estado-centro">
+    <div *ngIf="!isLoading && !erro && vagasFiltradas.length === 0 && filtrosAtivos" class="estado-centro">
       <i class="pi pi-search estado-icon"></i>
-      <p *ngIf="filtrosAtivos">Nenhuma vaga encontrada com os filtros aplicados.</p>
-      <p *ngIf="!filtrosAtivos">Não há vagas abertas no momento. Volte em breve!</p>
-      <button *ngIf="filtrosAtivos" class="btn-retry" (click)="limpar()">
+      <p>Nenhuma vaga encontrada com os filtros aplicados.</p>
+      <button class="btn-retry" (click)="limpar()">
         <i class="pi pi-filter-slash"></i> Limpar filtros
       </button>
+    </div>
+
+    <!--
+      Sem vaga aberta é justamente quando o banco de talentos mais importa: a
+      chamada ocupa o lugar do "Volte em breve!".
+    -->
+    <div *ngIf="!isLoading && !erro && vagas.length === 0" class="banco-vazio" data-testid="banco-vazio">
+      <span class="banco-marca banco-marca--grande"><i class="pi pi-folder-open"></i></span>
+      <span class="banco-eyebrow">Nenhuma vaga aberta agora</span>
+      <h2 class="banco-vazio-titulo">Deixe seu currículo no banco de talentos</h2>
+      <p>
+        Quando abrir uma vaga que combine com você, o RH pode entrar em contato.
+        Guardamos por 24 meses, e você pode ver, corrigir ou apagar seus dados quando quiser.
+      </p>
+      <div class="banco-acoes banco-acoes--centro">
+        <button class="btn-primario" (click)="abrirCadastro()">
+          <i class="pi pi-upload"></i> Cadastrar currículo
+        </button>
+        <a class="btn-texto" routerLink="/meu-curriculo">Já enviei · ver o que enviei</a>
+      </div>
     </div>
 
     <div *ngIf="!isLoading && !erro && vagasFiltradas.length > 0" class="cards-grid">
@@ -113,12 +132,33 @@
         </div>
       </article>
     </div>
+
+    <div *ngIf="!isLoading && !erro && vagas.length > 0" class="banco-faixa" data-testid="banco-faixa">
+      <span class="banco-marca"><i class="pi pi-folder-open"></i></span>
+      <div class="banco-faixa-texto">
+        <h2>Não encontrou uma vaga para você?</h2>
+        <p>
+          Cadastre seu currículo no nosso banco de talentos. Guardamos por 24 meses, e
+          você pode ver, corrigir ou apagar seus dados quando quiser.
+        </p>
+      </div>
+      <div class="banco-acoes">
+        <button class="btn-primario" (click)="abrirCadastro()">Cadastrar currículo</button>
+        <a class="btn-texto" routerLink="/meu-curriculo">Já enviei · ver o que enviei</a>
+      </div>
+    </div>
   </section>
 </div>
 
-<div *ngIf="vagaSelecionada" class="modal-overlay" (click)="fecharModal()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
-    <div class="modal-steps">
+<!--
+  Um modal só, para os dois caminhos: candidatura a uma vaga (detalhe → dados →
+  confirmação) e cadastro no banco de talentos (dados → confirmação).
+-->
+<div *ngIf="modalAberto" class="modal-overlay" (click)="fecharModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+    <!-- Passos da candidatura a uma vaga -->
+    <div *ngIf="vagaSelecionada" class="modal-steps">
       <div
         class="step-item"
         [class.step-item--done]="modalStep === 'form' || modalStep === 'sucesso' || modalStep === 'erro'"
@@ -156,9 +196,31 @@
       </div>
     </div>
 
-    <ng-container *ngIf="modalStep === 'detalhe'">
+    <!-- Passos do cadastro no banco de talentos: não há vaga para detalhar -->
+    <div *ngIf="cadastroAberto" class="modal-steps">
+      <div
+        class="step-item"
+        [class.step-item--done]="modalStep === 'sucesso'"
+        [class.step-item--active]="modalStep === 'form' || modalStep === 'erro'"
+      >
+        <span class="step-num">
+          <i *ngIf="modalStep === 'sucesso'" class="pi pi-check"></i>
+          <span *ngIf="modalStep !== 'sucesso'">1</span>
+        </span>
+        <span class="step-label">Seus dados</span>
+      </div>
+
+      <div class="step-line" [class.step-line--done]="modalStep === 'sucesso'"></div>
+
+      <div class="step-item" [class.step-item--active]="modalStep === 'sucesso'">
+        <span class="step-num">2</span>
+        <span class="step-label">Confirmação</span>
+      </div>
+    </div>
+
+    <ng-container *ngIf="vagaSelecionada && modalStep === 'detalhe'">
       <div class="modal-header">
-        <button class="modal-close" (click)="fecharModal()">
+        <button class="modal-close" (click)="fecharModal()" aria-label="Fechar">
           <i class="pi pi-times"></i>
         </button>
 
@@ -213,22 +275,32 @@
 
     <ng-container *ngIf="modalStep === 'form'">
       <div class="modal-header modal-header--form">
-        <button class="modal-back" (click)="voltarParaDetalhe()">
+        <button *ngIf="vagaSelecionada" class="modal-back" (click)="voltarParaDetalhe()">
           <i class="pi pi-arrow-left"></i> Voltar
         </button>
 
-        <button class="modal-close" (click)="fecharModal()">
+        <button class="modal-close modal-close--abs" (click)="fecharModal()" aria-label="Fechar">
           <i class="pi pi-times"></i>
         </button>
 
-        <h2 class="modal-titulo">Seus dados</h2>
-        <p class="modal-subtitulo">
-          Candidatando-se para <strong>{{ vagaSelecionada.titulo }}</strong>
-        </p>
+        <ng-container *ngIf="vagaSelecionada">
+          <h2 class="modal-titulo">Seus dados</h2>
+          <p class="modal-subtitulo">
+            Candidatando-se para <strong>{{ vagaSelecionada.titulo }}</strong>
+          </p>
+        </ng-container>
+
+        <ng-container *ngIf="cadastroAberto">
+          <span class="banco-badge"><i class="pi pi-folder-open"></i> Banco de talentos</span>
+          <h2 class="modal-titulo">Cadastre seu currículo</h2>
+          <p class="modal-subtitulo">
+            Sem vaga específica. Se abrir uma que combine com você, o RH pode entrar em contato.
+          </p>
+        </ng-container>
       </div>
 
       <div class="modal-body">
-        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="cand-form">
+        <form [formGroup]="form" (ngSubmit)="cadastroAberto ? enviarCadastro() : enviar()" novalidate class="cand-form">
           <div class="field" [class.field--error]="invalid('nome')">
             <label for="f-nome">Nome completo <span class="req">*</span></label>
             <div class="input-wrap">
@@ -292,16 +364,44 @@
             </span>
           </div>
 
+          <ng-container *ngIf="cadastroAberto">
+            <div class="field">
+              <label for="f-area">Área de interesse <span class="opcional">(opcional)</span></label>
+              <p-select
+                inputId="f-area"
+                formControlName="areaInteresse"
+                [options]="opcoesAreaInteresse"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Escolha uma área"
+                [showClear]="true"
+                appendTo="body"
+                styleClass="banco-select"
+              ></p-select>
+            </div>
+
+            <div class="field" *ngIf="form.value.areaInteresse === AREA_OUTRA" [class.field--error]="invalid('areaOutra')">
+              <label for="f-area-outra">Qual área?</label>
+              <div class="input-wrap">
+                <i class="pi pi-briefcase"></i>
+                <input pInputText id="f-area-outra" formControlName="areaOutra" placeholder="Ex.: Manutenção" />
+              </div>
+              <span class="field-err" *ngIf="invalid('areaOutra')">{{ erroCampo('areaOutra') }}</span>
+            </div>
+          </ng-container>
+
           <div class="field" [class.field--error]="!!curriculoErro">
             <label for="f-curriculo">
-              Currículo <span class="opcional">(opcional, PDF até 10MB)</span>
+              Currículo
+              <span *ngIf="cadastroAberto" class="req">*</span>
+              <span class="opcional">{{ cadastroAberto ? '(PDF até 10 MB)' : '(opcional, PDF até 10 MB)' }}</span>
             </label>
 
             <label class="file-drop" [class.file-drop--selected]="!!curriculoFile" for="f-curriculo">
               <input
                 id="f-curriculo"
                 type="file"
-                accept=".pdf"
+                accept=".pdf,application/pdf"
                 class="file-input-hidden"
                 (change)="onCurriculoChange($event)"
               />
@@ -322,48 +422,117 @@
               </ng-container>
             </label>
 
+            <!--
+              O texto vale para todo mundo. Dizer só a quem já tem currículo
+              guardado seria revelar quem está na base.
+            -->
+            <span *ngIf="vagaSelecionada" class="field-hint">
+              Se você já enviou um currículo para a Proauto antes, pode deixar em branco: usamos o que está guardado.
+            </span>
+
             <span class="field-err" *ngIf="curriculoErro">{{ curriculoErro }}</span>
+          </div>
+
+          <label
+            class="banco-consentimento"
+            [class.banco-consentimento--marcado]="form.value.consentimento"
+            for="f-consentimento"
+            data-testid="consentimento"
+          >
+            <input id="f-consentimento" type="checkbox" formControlName="consentimento" />
+            <span *ngIf="cadastroAberto">
+              <strong>Autorizo a Proauto Kimium a guardar meus dados e meu currículo por 24 meses</strong>
+              para vagas futuras. Posso ver, corrigir ou apagar tudo a qualquer momento pelo link que chega por e-mail.
+            </span>
+            <span *ngIf="vagaSelecionada">
+              <strong>Também quero ficar no banco de talentos por 24 meses</strong>, para ser lembrado em outras vagas.
+              <span class="opcional">Sem marcar, sua candidatura segue normalmente.</span>
+            </span>
+          </label>
+
+          <div *ngIf="cadastroAberto" class="banco-aviso">
+            <i class="pi pi-info-circle"></i>
+            <span>
+              Já se cadastrou antes com este e-mail? Não mudamos nada por aqui: enviamos um link para você
+              atualizar seus dados e trocar o currículo.
+            </span>
           </div>
         </form>
       </div>
 
       <div class="modal-footer">
-        <button class="btn-secundario" (click)="voltarParaDetalhe()">
-          <i class="pi pi-arrow-left"></i> Voltar
-        </button>
-        <button class="btn-primario" [disabled]="enviando" (click)="enviar()">
-          <span *ngIf="!enviando"><i class="pi pi-send"></i> Enviar candidatura</span>
-          <span *ngIf="enviando"><i class="pi pi-spin pi-spinner"></i> Enviando...</span>
-        </button>
+        <ng-container *ngIf="vagaSelecionada">
+          <button class="btn-secundario" (click)="voltarParaDetalhe()">
+            <i class="pi pi-arrow-left"></i> Voltar
+          </button>
+          <button class="btn-primario" [disabled]="enviando" (click)="enviar()">
+            <span *ngIf="!enviando"><i class="pi pi-send"></i> Enviar candidatura</span>
+            <span *ngIf="enviando"><i class="pi pi-spin pi-spinner"></i> Enviando...</span>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="cadastroAberto">
+          <span *ngIf="!form.value.consentimento" class="banco-porque">Marque a autorização para enviar.</span>
+          <button class="btn-secundario" (click)="fecharModal()">Cancelar</button>
+          <button
+            class="btn-primario"
+            data-testid="enviar-cadastro"
+            [disabled]="enviando || !form.value.consentimento"
+            (click)="enviarCadastro()"
+          >
+            <span *ngIf="!enviando"><i class="pi pi-send"></i> Enviar cadastro</span>
+            <span *ngIf="enviando"><i class="pi pi-spin pi-spinner"></i> Enviando...</span>
+          </button>
+        </ng-container>
       </div>
     </ng-container>
 
     <ng-container *ngIf="modalStep === 'sucesso'">
       <div class="modal-feedback">
-        <button class="modal-close modal-close--abs" (click)="fecharModal()">
+        <button class="modal-close modal-close--abs" (click)="fecharModal()" aria-label="Fechar">
           <i class="pi pi-times"></i>
         </button>
 
-        <div class="feedback-icon feedback-icon--ok">
-          <i class="pi pi-check-circle"></i>
-        </div>
+        <ng-container *ngIf="vagaSelecionada">
+          <div class="feedback-icon feedback-icon--ok">
+            <i class="pi pi-check-circle"></i>
+          </div>
 
-        <h2>Candidatura enviada!</h2>
+          <h2>Candidatura enviada!</h2>
 
-        <p>
-          Sua candidatura para <strong>{{ vagaSelecionada.titulo }}</strong> foi registrada.
-          Em breve entraremos em contato pelo e-mail informado.
-        </p>
+          <p>
+            Sua candidatura para <strong>{{ vagaSelecionada.titulo }}</strong> foi registrada.
+            Em breve entraremos em contato pelo e-mail informado.
+          </p>
+        </ng-container>
+
+        <!-- A mesma tela para quem é novo e para quem já estava no banco. -->
+        <ng-container *ngIf="cadastroAberto">
+          <div class="feedback-icon feedback-icon--ok">
+            <i class="pi pi-envelope"></i>
+          </div>
+
+          <h2>Recebemos seus dados</h2>
+
+          <p>
+            Enviamos um e-mail para <strong>{{ emailEnviado }}</strong> com os próximos passos.
+            Pode levar até um minuto para chegar.
+          </p>
+        </ng-container>
 
         <button class="btn-primario" (click)="fecharModal()">
           <i class="pi pi-home"></i> Voltar às vagas
         </button>
+
+        <p *ngIf="cadastroAberto" class="banco-rodape">
+          Não chegou? Confira o spam, ou <a routerLink="/meu-curriculo">peça outro link</a>.
+        </p>
       </div>
     </ng-container>
 
     <ng-container *ngIf="modalStep === 'erro'">
       <div class="modal-feedback">
-        <button class="modal-close modal-close--abs" (click)="fecharModal()">
+        <button class="modal-close modal-close--abs" (click)="fecharModal()" aria-label="Fechar">
           <i class="pi pi-times"></i>
         </button>
 
