@@ -9,7 +9,7 @@
     <div filters>
       <input type="text"
              class="toolbar-search"
-             placeholder="Buscar por nome, CNPJ…"
+             placeholder="Buscar por nome, CNPJ, cidade…"
              aria-label="Buscar empresas"
              (input)="grid.filterGlobal($any($event.target).value)" />
     </div>
@@ -20,7 +20,7 @@
       [showCaption]="false"
       [data]="companies()"
       [loading]="loading()"
-      [filterFields]="['name', 'legalName', 'cnpj']"
+      [filterFields]="['name', 'legalName', 'cnpj', 'address.city', 'address.street']"
       emptyIcon="pi pi-building"
       emptyTitle="Nenhuma empresa cadastrada"
       emptySubtitle="Adicione uma nova empresa para começar."
@@ -31,6 +31,8 @@
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
           <th pSortableColumn="legalName">Razão Social <p-sortIcon field="legalName"></p-sortIcon></th>
           <th pSortableColumn="cnpj">CNPJ <p-sortIcon field="cnpj"></p-sortIcon></th>
+          <th>Endereço</th>
+          <th class="col-acoes"></th>
         </tr>
       </ng-template>
 
@@ -39,6 +41,17 @@
           <td>{{ c.name }}</td>
           <td>{{ c.legalName }}</td>
           <td>{{ c.cnpj }}</td>
+          <td>
+            @if (c.address) {
+              {{ c.address.formatted || formatAddress(c.address) }}
+            } @else {
+              <span class="status-chip status-chip--neutral">Sem endereço</span>
+            }
+          </td>
+          <td class="col-acoes">
+            <pk-button *pkCan="'rh/organizational-structure:ALTERAR'" pkType="edit" pkSize="sm" [pkIconOnly]="true"
+                       pkTooltip="Editar" (clicked)="openForm(c)"/>
+          </td>
         </tr>
       </ng-template>
 
@@ -47,7 +60,7 @@
 
 } @else {
 
-  <app-form-screen title="Nova Empresa" subtitle="Cadastro de empresa do grupo" (back)="closeForm()">
+  <app-form-screen [title]="editing() ? 'Editar Empresa' : 'Nova Empresa'" subtitle="Cadastro de empresa do grupo" (back)="closeForm()">
     <form [formGroup]="form" (ngSubmit)="save()">
       <div class="form-grid">
         <div class="form-field form-field--full">
@@ -60,11 +73,16 @@
           <pk-input label="CNPJ" placeholder="00.000.000/0000-00" [pkRequired]="true" [pkMaxLength]="18" type="text" formControlName="cnpj"/>
         </div>
       </div>
+
+      <h3 class="secao-endereco">Endereço <small>(opcional)</small></h3>
+      <p class="secao-dica">É de onde os eventos lêem o local quando acontecem nesta empresa.</p>
+      <app-address-fields [group]="address" />
+      <app-map-preview class="mapa" [address]="addressText()" [height]="220" />
     </form>
 
     <div formActions>
       <pk-button pkType="cancel" (clicked)="closeForm()" pkLabel="Cancelar" pkSize="sm"/>
-      <pk-button pkType="save" (clicked)="save()" pkLabel="Salvar" pkSize="sm" [pkDisabled]="form.invalid"/>
+      <pk-button pkType="save" (clicked)="save()" [pkLabel]="editing() ? 'Salvar alterações' : 'Salvar'" pkSize="sm" [pkDisabled]="form.invalid"/>
     </div>
   </app-form-screen>
 

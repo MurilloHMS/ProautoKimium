@@ -1,14 +1,20 @@
+import { Address } from '../address.model';
+
 export interface Company {
   id: string;
   name: string;
   legalName: string;
   cnpj: string;
+  /** Opcional. É de onde os eventos lêem o local quando acontecem na empresa. */
+  address: Address | null;
 }
 
+/** Criar e editar mandam o mesmo corpo. */
 export interface CreateCompanyRequest {
   name: string;
   legalName: string;
   cnpj: string;
+  address: Address | null;
 }
 
 export interface Department {

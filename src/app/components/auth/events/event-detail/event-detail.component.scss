@@ -1,0 +1,485 @@
+@use 'variables' as v;
+@use 'chips';
+
+.evento {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rotulo {
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-head);
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.dica {
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-subtle);
+}
+
+.aviso-rascunho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui);
+}
+
+// ── Capa ────────────────────────────────────────────────────────────────────
+// Sem foto, o degradê do tema. Com foto, um véu escuro por cima para o texto
+// branco continuar legível em qualquer imagem.
+.capa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
+  padding: 20px;
+  border-radius: var(--radius-surface);
+  color: #fff;
+  background: linear-gradient(135deg, v.$primary, v.$secondary-dark);
+  background-size: cover;
+  background-position: center;
+}
+
+.capa--foto {
+  background-image: none;
+  box-shadow: inset 0 0 0 2000px rgba(15, 23, 42, .55);
+}
+
+.capa__texto { flex: 1 1 260px; min-width: 0; }
+
+.capa__titulo {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-wrap: balance;
+}
+
+.capa__descricao {
+  margin: 6px 0 0;
+  max-width: 62ch;
+  color: rgba(255, 255, 255, .88);
+  font-size: .9rem;
+  line-height: 1.55;
+}
+
+.capa__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 10px 0 0;
+  font-size: var(--text-ui);
+  color: rgba(255, 255, 255, .92);
+
+  span { display: inline-flex; align-items: center; gap: 6px; }
+}
+
+.botao-claro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--btn-h-md);
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: rgba(255, 255, 255, .24); }
+  &:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+}
+
+// ── Onde fica ───────────────────────────────────────────────────────────────
+.onde {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 14px;
+  align-items: start;
+
+  @media (max-width: v.$bp-md) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.onde__texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.onde__nome {
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.onde__endereco {
+  margin: 0;
+  font-size: var(--text-ui);
+  color: var(--app-text-muted);
+
+  &--vazio { color: var(--app-text-subtle); }
+}
+
+// ── Abas de dia ─────────────────────────────────────────────────────────────
+// Cartões e não aba sublinhada: no celular, onde se consulta durante o evento, o
+// alvo grande com o número do dia lê melhor. Rolam de lado quando não cabem.
+.dias {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-top: 10px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.dia {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 82px;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  cursor: pointer;
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 600;
+    letter-spacing: var(--tracking-head);
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+  }
+
+  b { font-family: v.$font-heading; font-size: 1.3rem; line-height: 1.1; }
+  em { font-style: normal; font-size: var(--text-micro); color: var(--app-text-muted); }
+
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.dia--ativo {
+  border-color: var(--app-action);
+  background: var(--app-action);
+  color: var(--app-on-action);
+
+  small, em { color: color-mix(in srgb, var(--app-on-action) 80%, transparent); }
+}
+
+.dia__hoje {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--app-danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+// ── Linha do tempo ──────────────────────────────────────────────────────────
+.linha-do-tempo { display: flex; flex-direction: column; }
+
+.item {
+  display: grid;
+  grid-template-columns: 58px 18px minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.item__hora {
+  padding-top: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+
+  b { display: block; font-family: v.$font-heading; font-size: .95rem; color: var(--app-text); }
+  small { font-size: var(--text-micro); color: var(--app-text-muted); }
+}
+
+.item__trilho {
+  position: relative;
+  display: flex;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto;
+    width: 2px;
+    background: var(--app-border);
+  }
+
+  i {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    margin-top: 16px;
+    border: 2px solid var(--app-border-strong);
+    border-radius: 50%;
+    background: var(--app-surface);
+  }
+}
+
+.palestra {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  min-width: 0;
+}
+
+.palestra--intervalo {
+  border-style: dashed;
+  background: var(--app-surface-2);
+
+  h3 { font-weight: 600; color: var(--app-text-muted); }
+}
+
+// Passou: recua, mas continua lá — a programação de hoje ainda é consultada.
+.item--passou {
+  .palestra, .item__hora { opacity: .55; }
+}
+
+.item--agora {
+  .item__trilho i {
+    border-color: var(--app-danger);
+    background: var(--app-danger);
+    box-shadow: 0 0 0 4px var(--app-danger-soft);
+  }
+
+  .palestra { border-color: var(--app-danger); box-shadow: 0 0 0 1px var(--app-danger); }
+}
+
+.item--a-seguir .item__trilho i { border-color: var(--app-info); }
+
+.palestra__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.palestra__titulos {
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: .98rem;
+    font-weight: 700;
+    color: var(--app-text);
+    text-wrap: balance;
+  }
+}
+
+.palestra__sala {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  i { font-size: var(--text-micro); }
+}
+
+.palestra__descricao {
+  margin: 0;
+  font-size: var(--text-ui);
+  line-height: 1.55;
+  color: var(--app-text-muted);
+  white-space: pre-line;
+}
+
+.chip-agora i { font-size: 8px; }
+
+.fora {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+}
+
+.fora__texto {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  font-size: var(--text-ui);
+  color: var(--app-text);
+
+  i { margin-top: 3px; color: var(--app-warning); }
+}
+
+// ── Palestrantes ────────────────────────────────────────────────────────────
+.palestrantes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+
+.palestrante {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.avatar {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar--iniciais {
+  display: grid;
+  place-items: center;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+}
+
+.palestrante__texto {
+  min-width: 0;
+
+  b { display: block; font-size: var(--text-ui); font-weight: 600; color: var(--app-text); }
+  small { display: block; font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+}
+
+.redes {
+  display: inline-flex;
+  gap: 2px;
+
+  a {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-control);
+    color: var(--app-text-muted);
+
+    &:hover, &:focus-visible { background: var(--app-surface-2); color: var(--app-action); outline: none; }
+  }
+}
+
+.calendario { position: relative; align-self: flex-start; }
+
+.botao-texto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: var(--app-action-soft); }
+}
+
+.calendario__menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+
+  a, button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--app-text);
+    font: inherit;
+    font-size: var(--text-ui);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover, &:focus-visible { background: var(--app-surface-2); outline: none; }
+  }
+}
+
+.vazio {
+  margin: 0;
+  padding: 24px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-surface);
+  color: var(--app-text-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

@@ -1,0 +1,24 @@
+@if (open()) {
+  <div class="pk-sheet" [class.pk-sheet--sobreposta]="stacked()" (click)="fechar()">
+    <div class="pk-sheet__painel" role="dialog" aria-modal="true" [attr.aria-label]="title()"
+         (click)="$event.stopPropagation()">
+      <div class="pk-sheet__cabeca">
+        <span class="pk-sheet__puxador" aria-hidden="true"></span>
+        <div class="pk-sheet__titulo-linha">
+          <p class="pk-sheet__titulo">{{ title() }}</p>
+          <button type="button" class="pk-sheet__fechar" aria-label="Fechar" (click)="fechar()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="pk-sheet__miolo">
+        <ng-content select="[pkSheetBody]" />
+      </div>
+
+      <div class="pk-sheet__pe">
+        <ng-content select="[pkSheetFooter]" />
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,164 @@
+<div class="evento">
+  <button type="button" class="voltar" (click)="back.emit()">
+    <i class="pi pi-arrow-left"></i> {{ backLabel() }}
+  </button>
+
+  @if (preview() && !event().publishedAt) {
+    <p class="aviso-rascunho" data-testid="aviso-rascunho">
+      <i class="pi pi-eye-slash"></i>
+      Rascunho: é assim que vai aparecer em Documentos, mas ninguém vê ainda.
+    </p>
+  }
+
+  <header class="capa" [class.capa--foto]="capa()" [style.background-image]="capa() ? 'url(' + capa() + ')' : null">
+    <div class="capa__texto">
+      <h1 class="capa__titulo">{{ event().name }}</h1>
+      @if (event().description) {
+        <p class="capa__descricao">{{ event().description }}</p>
+      }
+      <p class="capa__meta">
+        <span><i class="pi pi-calendar"></i> {{ formatPeriod(event().startDate, event().endDate) }}</span>
+        @if (local()?.name) {
+          <span><i class="pi pi-map-marker"></i> {{ local()!.name }}</span>
+        }
+      </p>
+    </div>
+    <div class="capa__acoes">
+      <button type="button" class="botao-claro" data-testid="salvar-evento" (click)="salvarEvento()">
+        <i class="pi pi-calendar-plus"></i> Salvar evento no calendário
+      </button>
+    </div>
+  </header>
+
+  @if (local()) {
+    <section class="onde">
+      <div class="onde__texto">
+        <p class="rotulo">Onde fica</p>
+        <h2 class="onde__nome">{{ local()!.name }}</h2>
+        @if (enderecoDoEvento()) {
+          <p class="onde__endereco">{{ enderecoDoEvento() }}</p>
+          <app-directions-menu [address]="enderecoDoEvento()" />
+        } @else {
+          <p class="onde__endereco onde__endereco--vazio">Endereço não cadastrado.</p>
+        }
+        <p class="dica">Cada palestra usa este local, a não ser que diga outro.</p>
+      </div>
+      <app-map-preview [address]="enderecoDoEvento()" [height]="190" emptyText="Sem endereço para o mapa" />
+    </section>
+  }
+
+  <nav class="dias" role="tablist" aria-label="Dias do evento">
+    @for (aba of abas(); track aba.data) {
+      <button type="button" role="tab" class="dia" data-testid="aba-dia"
+              [class.dia--ativo]="aba.data === diaSelecionado()"
+              [attr.aria-selected]="aba.data === diaSelecionado()"
+              (click)="escolherDia(aba.data)">
+        @if (aba.hoje) { <span class="dia__hoje">Hoje</span> }
+        <small>{{ aba.semana }}</small>
+        <b>{{ aba.dia }}</b>
+        <em>{{ aba.quantas }} {{ aba.quantas === 1 ? 'palestra' : 'palestras' }}</em>
+      </button>
+    }
+  </nav>
+
+  <p class="rotulo">{{ rotuloDoDia() }}{{ diaSelecionado() === now().date ? ' · hoje' : '' }}</p>
+
+  <div class="linha-do-tempo">
+    @for (t of palestrasDoDia(); track t.id) {
+      @let st = statusDe(t);
+      <div class="item" data-testid="palestra" [class]="'item item--' + st">
+        <div class="item__hora">
+          <b>{{ hhmm(t.startTime) }}</b>
+          <small>até {{ hhmm(t.endTime) }}</small>
+        </div>
+        <div class="item__trilho"><i></i></div>
+
+        <article class="palestra" [class.palestra--intervalo]="!t.speakers.length">
+          <div class="palestra__topo">
+            <div class="palestra__titulos">
+              <h3>{{ t.title }}</h3>
+              @if (!foraDoEvento(t) && (t.room || local()?.name)) {
+                <span class="palestra__sala"><i class="pi pi-map-marker"></i>{{ t.room }}{{ t.room && local()?.name ? ' · ' : '' }}{{ local()?.name }}</span>
+              }
+            </div>
+            @if (st === 'agora') {
+              <span class="status-chip status-chip--danger chip-agora" data-testid="chip-agora"><i class="pi pi-circle-fill"></i>Agora</span>
+            } @else if (st === 'a-seguir') {
+              <span class="status-chip status-chip--info" data-testid="chip-seguir"><i class="pi pi-forward"></i>A seguir</span>
+            }
+          </div>
+
+          @if (t.description) {
+            <p class="palestra__descricao">{{ t.description }}</p>
+          }
+
+          @if (foraDoEvento(t)) {
+            <div class="fora" data-testid="palestra-fora">
+              <div class="fora__texto">
+                <i class="pi pi-map-marker"></i>
+                <span>
+                  <b>{{ t.locationType === 'COMPANY' ? '' : 'Fora da empresa: ' }}{{ t.location!.name }}</b>
+                  @if (t.room) { · {{ t.room }} }
+                  @if (texto(t.location)) { <br>{{ texto(t.location) }} }
+                </span>
+              </div>
+              @if (texto(t.location)) {
+                <app-directions-menu [address]="texto(t.location)" />
+              }
+            </div>
+            @if (texto(t.location)) {
+              <app-map-preview [address]="texto(t.location)" [height]="150" />
+            }
+          }
+
+          @if (t.speakers.length) {
+            <div class="palestrantes">
+              @for (s of t.speakers; track s.id) {
+                <div class="palestrante">
+                  @if (foto(s); as src) {
+                    <img class="avatar" [src]="src" [alt]="s.name" loading="lazy">
+                  } @else {
+                    <span class="avatar avatar--iniciais" aria-hidden="true">{{ initials(s.name) }}</span>
+                  }
+                  <div class="palestrante__texto">
+                    <b>{{ s.name }}</b>
+                    @if (s.role || s.companyName) {
+                      <small>{{ s.role }}{{ s.role && s.companyName ? ' · ' : '' }}{{ s.companyName }}</small>
+                    }
+                  </div>
+                  <span class="redes">
+                    @if (instagramUrl(s.instagram); as ig) {
+                      <a [href]="ig" target="_blank" rel="noopener" [attr.aria-label]="'Instagram de ' + s.name"><i class="pi pi-instagram"></i></a>
+                    }
+                    @if (linkedinUrl(s.linkedin); as li) {
+                      <a [href]="li" target="_blank" rel="noopener" [attr.aria-label]="'LinkedIn de ' + s.name"><i class="pi pi-linkedin"></i></a>
+                    }
+                    @if (websiteUrl(s.website); as site) {
+                      <a [href]="site" target="_blank" rel="noopener" [attr.aria-label]="'Site de ' + s.name"><i class="pi pi-globe"></i></a>
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+
+            <div class="calendario">
+              <button type="button" class="botao-texto" [attr.aria-expanded]="calendarioAberto() === t.id" (click)="alternarCalendario(t)">
+                <i class="pi pi-calendar-plus"></i> Salvar no calendário
+              </button>
+              @if (calendarioAberto() === t.id) {
+                <div class="calendario__menu" role="menu">
+                  <a role="menuitem" [href]="googleAgenda(t)" target="_blank" rel="noopener" (click)="calendarioAberto.set(null)">
+                    <i class="pi pi-google"></i> Google Agenda</a>
+                  <button type="button" role="menuitem" (click)="salvarPalestra(t)">
+                    <i class="pi pi-download"></i> Arquivo .ics (Outlook, iPhone)</button>
+                </div>
+              }
+            </div>
+          }
+        </article>
+      </div>
+    } @empty {
+      <p class="vazio">Nenhuma palestra neste dia.</p>
+    }
+  </div>
+</div>

@@ -129,6 +129,7 @@ export const routes: Routes = [
       { path: 'communication/secrets', loadComponent: () => import('./components/auth/communication/secrets/secrets.component').then(m => m.SecretsComponent), data: { screen: 'communication/secrets' } },
       { path: 'communication/email-signature', loadComponent: () => import('./components/auth/documents/email-signature/email-signature.component').then(m => m.EmailSignatureComponent), data: { screen: 'communication/email-signature' } },
       { path: 'communication/contact', loadComponent: () => import('./components/auth/support/contacts/contacts.component').then(m => m.ContactsComponent), data: { screen: 'communication/contact' } },
+      { path: 'communication/events', loadComponent: () => import('./components/auth/events/events-manage/events-manage.component').then(m => m.EventsManageComponent), data: { screen: 'communication/events' } },
 
       // ── Configurações ────────────────────────────────────────────────────
       { path: 'settings/products/website', loadComponent: () => import('./components/auth/company/products/website/website.component').then(m => m.WebsiteComponent), data: { screen: 'settings/products/website' } },
@@ -147,6 +148,9 @@ export const routes: Routes = [
       { path: 'documentos/calculadoras/combustivel', loadComponent: () => import('./components/auth/calculadoras/combustivel/combustivel.component').then(m => m.CombustivelComponent), data: { screen: 'documentos/calculadoras/combustivel' } },
       { path: 'documentos/calculadoras/cmv', loadComponent: () => import('./components/auth/calculadoras/cmv/cmv.component').then(m => m.CmvComponent), data: { screen: 'documentos/calculadoras/cmv' } },
       { path: 'documentos/galeria', loadComponent: () => import('./components/auth/gallery/gallery.component').then(m => m.GalleryComponent), data: { screen: 'documentos/galeria' } },
+      // Eventos: só visualização. O detalhe é `?evento=<id>` na mesma rota — nenhuma
+      // rota autenticada tem parâmetro, e o `app.routes.spec` exige screen === path.
+      { path: 'documentos/eventos', loadComponent: () => import('./components/auth/events/events-view/events-view.component').then(m => m.EventsViewComponent), data: { screen: 'documentos/eventos' } },
       { path: 'documentos/logos', loadComponent: () => import('./components/public/branding/branding.component').then(m => m.BrandingComponent), data: { screen: 'documentos/logos' } },
       { path: 'documentos/holerites', loadComponent: () => import('./components/auth/holerites/holerites.component').then(m => m.HoleritesComponent), data: { screen: 'documentos/holerites' } },
       { path: 'documentos/rh', loadComponent: () => import('./components/auth/hr-hub/hr-hub.component').then(m => m.HrHubComponent), data: { screen: 'documentos/rh' } },

@@ -1,0 +1,136 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'chips';
+@use 'sheet-grid';
+
+// Mesma casca de grade da Programação: cabeçalho parado, lista rolando por dentro.
+:host { @include m.grid-screen; }
+
+.tela {
+  @include m.grid-screen;
+}
+
+.cabeca {
+  flex: 0 0 auto;
+  padding: 16px 20px 0;
+
+  app-page-header { margin-bottom: 12px; }
+}
+
+.corpo {
+  @include m.grid-screen-body;
+}
+
+.previa {
+  overflow-y: auto;
+  @include m.page-layout;
+}
+
+.secoes {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.secao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin-bottom: -1px;
+  padding: 0 16px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--app-text-muted);
+  font-family: v.$font-heading;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: -2px; }
+}
+
+.secao--ativa { border-bottom-color: var(--app-action); color: var(--app-action); }
+
+.linha--rascunho td { background: var(--app-surface-2); }
+
+.chip-rascunho { border: 1px dashed var(--app-border-strong); }
+
+.pessoa { display: inline-flex; align-items: center; gap: 8px; }
+
+.avatar {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar--iniciais {
+  display: inline-grid;
+  place-items: center;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.cartoes .avatar { width: 38px; height: 38px; font-size: 12px; }
+
+.avatar--grande { width: 60px; height: 60px; font-size: 18px; }
+
+.redes {
+  display: inline-flex;
+  gap: 2px;
+
+  a {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-control);
+    color: var(--app-text-muted);
+
+    &:hover { background: var(--app-surface-2); color: var(--app-action); }
+  }
+}
+
+// ── Formulário do palestrante ───────────────────────────────────────────────
+.form-palestrante { display: flex; flex-direction: column; gap: 12px; }
+
+.foto-linha { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+
+.botao-arquivo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--btn-h-md);
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  &:focus-within { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.botao-texto {
+  border: 0;
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.erro { margin: 0; color: var(--app-danger); font-size: var(--text-ui-sm); }
+
+.confirmacao { margin: 0 0 8px; font-size: var(--text-ui); color: var(--app-text); }
+.confirmacao--aviso { color: var(--app-text-muted); font-size: var(--text-ui-sm); }

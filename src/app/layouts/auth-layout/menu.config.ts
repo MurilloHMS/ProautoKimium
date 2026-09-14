@@ -125,6 +125,7 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-lock', routerLink: ['communication/secrets'], screen: 'communication/secrets' },
       { label: 'Assinatura de Email', icon: 'pi pi-fw pi-file', routerLink: ['communication/email-signature'], screen: 'communication/email-signature' },
       { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['communication/contact'], screen: 'communication/contact' },
+      { label: 'Eventos', icon: 'pi pi-fw pi-calendar', routerLink: ['communication/events'], screen: 'communication/events' },
     ],
   },
   {

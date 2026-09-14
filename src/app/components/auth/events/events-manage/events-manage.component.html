@@ -1,0 +1,288 @@
+<p-toast position="top-right" />
+
+@switch (modo()) {
+
+  @case ('formulario') {
+    <app-event-form [event]="emEdicao()" [celular]="ehCelular()" [speakers]="palestrantes()"
+                    (saved)="aoSalvarEvento($event)" (preview)="verComoFica($event)"
+                    (deleted)="voltarParaLista()" (back)="voltarParaLista()" />
+  }
+
+  @case ('previa') {
+    @if (previa(); as evento) {
+      <div class="previa">
+        <app-event-detail [event]="evento" [now]="agora()" [preview]="true" backLabel="Voltar ao cadastro"
+                          (back)="emEdicao()?.id === evento.id ? modo.set('formulario') : voltarParaLista()" />
+      </div>
+    }
+  }
+
+  @default {
+    <div class="tela">
+      <div class="cabeca">
+        <app-page-header icon="pi pi-calendar" title="Eventos" subtitle="Cadastro dos eventos, da programação e dos palestrantes" />
+        <nav class="secoes" aria-label="Seções do cadastro de eventos">
+          <button type="button" class="secao" data-testid="secao-eventos" [class.secao--ativa]="secao() === 'eventos'"
+                  [attr.aria-current]="secao() === 'eventos' ? 'page' : null" (click)="trocarSecao('eventos')">
+            <i class="pi pi-calendar"></i> Eventos
+          </button>
+          <button type="button" class="secao" data-testid="secao-palestrantes" [class.secao--ativa]="secao() === 'palestrantes'"
+                  [attr.aria-current]="secao() === 'palestrantes' ? 'page' : null" (click)="trocarSecao('palestrantes')">
+            <i class="pi pi-users"></i> Palestrantes
+          </button>
+        </nav>
+      </div>
+
+      @if (secao() === 'eventos') {
+        <app-toolbar>
+          @if (!ehCelular()) {
+            <pk-button *pkCan="'communication/events:INCLUIR'" pkType="new" pkSize="sm" pkLabel="Novo evento" (clicked)="novoEvento()" />
+          }
+          <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="carregandoEventos()" (clicked)="carregarEventos()" />
+          <div filters>
+            <input type="text" class="toolbar-search" placeholder="Buscar evento, local…" aria-label="Buscar eventos"
+                   [value]="buscaEventos()" (input)="buscaEventos.set($any($event.target).value)" />
+          </div>
+        </app-toolbar>
+
+        <div class="corpo">
+          @if (!ehCelular()) {
+            <div class="planilha">
+              <table class="sheet" data-testid="planilha-eventos">
+                <thead>
+                  <tr>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemEventos().campo === 'name'" (click)="ordenarEventos('name')">Evento <i [class]="iconeOrdem(ordemEventos(), 'name')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemEventos().campo === 'startDate'" (click)="ordenarEventos('startDate')">Período <i [class]="iconeOrdem(ordemEventos(), 'startDate')"></i></button></th>
+                    <th>Local</th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemEventos().campo === 'talkCount'" (click)="ordenarEventos('talkCount')">Programação <i [class]="iconeOrdem(ordemEventos(), 'talkCount')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemEventos().campo === 'publishedAt'" (click)="ordenarEventos('publishedAt')">Situação <i [class]="iconeOrdem(ordemEventos(), 'publishedAt')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemEventos().campo === 'updatedAt'" (click)="ordenarEventos('updatedAt')">Última alteração <i [class]="iconeOrdem(ordemEventos(), 'updatedAt')"></i></button></th>
+                    <th class="col-acoes">—</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (e of eventosVisiveis(); track e.id) {
+                    @let s = situacao(e);
+                    <tr [class.linha--rascunho]="!e.publishedAt">
+                      <td><b>{{ e.name }}</b></td>
+                      <td class="num">{{ formatDateBr(e.startDate) }}{{ e.startDate !== e.endDate ? ' a ' + formatDateBr(e.endDate) : '' }}</td>
+                      <td>{{ e.location?.name || '—' }}{{ e.awayTalkCount ? ' · ' + e.awayTalkCount + ' fora' : '' }}</td>
+                      <td class="num">{{ e.talkCount }} {{ e.talkCount === 1 ? 'item' : 'itens' }}</td>
+                      <td><span class="status-chip" [class]="'status-chip ' + s.classe">{{ s.rotulo }}</span></td>
+                      <td>
+                        @if (e.updatedAt) {
+                          <span class="audit"><span class="audit__who">{{ e.updatedBy || '—' }}</span><small class="audit__when">{{ formatStamp(e.updatedAt) }}</small></span>
+                        } @else { — }
+                      </td>
+                      <td class="col-acoes">
+                        @if (!e.publishedAt) {
+                          <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Publicar" tooltipPosition="left" aria-label="Publicar" (click)="publicar(e)"><i class="pi pi-upload"></i></button>
+                        }
+                        <button type="button" class="acao" pTooltip="Ver como fica" tooltipPosition="left" aria-label="Ver como fica" (click)="verComoFica(e)"><i class="pi pi-eye"></i></button>
+                        <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Editar" tooltipPosition="left" aria-label="Editar" (click)="editarEvento(e)"><i class="pi pi-pencil"></i></button>
+                        <button *pkCan="'communication/events:EXCLUIR'" type="button" class="acao acao--perigo" pTooltip="Excluir" tooltipPosition="left" aria-label="Excluir" (click)="excluindoEvento.set(e)"><i class="pi pi-trash"></i></button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="7" class="vazio"><i class="pi pi-calendar"></i><p>{{ carregandoEventos() ? 'Carregando…' : 'Nenhum evento. Use "Novo evento" para começar.' }}</p></td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <p class="nota"><i class="pi pi-info-circle"></i> Evento novo nasce rascunho e só aparece em Documentos depois de publicado. "Ver como fica" abre como Documentos mostra.</p>
+          } @else {
+            <div class="cartoes" data-testid="cartoes-eventos">
+              @for (e of eventosVisiveis(); track e.id) {
+                @let s = situacao(e);
+                <article class="cartao" [class.cartao--rascunho]="!e.publishedAt">
+                  <button type="button" class="cartao__corpo" (click)="editarEvento(e)">
+                    <span class="cartao__titulo">{{ e.name }}</span>
+                    <span class="cartao__sub">{{ e.location?.name || 'Sem local' }} · {{ e.talkCount }} {{ e.talkCount === 1 ? 'item' : 'itens' }}</span>
+                  </button>
+                  <span class="cartao__canto">{{ formatDateBr(e.startDate).slice(0, 5) }}</span>
+                  <div class="cartao__rodape">
+                    <span [class]="'status-chip ' + s.classe">{{ s.rotulo }}</span>
+                    @if (!e.publishedAt) {
+                      <button *pkCan="'communication/events:ALTERAR'" type="button" class="cartao__atalho" (click)="publicar(e)"><i class="pi pi-upload"></i> Publicar</button>
+                    }
+                    <button type="button" class="cartao__atalho cartao__atalho--fim" (click)="verComoFica(e)"><i class="pi pi-eye"></i> Ver como fica</button>
+                  </div>
+                </article>
+              } @empty {
+                <p class="vazio">{{ carregandoEventos() ? 'Carregando…' : 'Nenhum evento cadastrado.' }}</p>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <app-toolbar>
+          @if (!ehCelular()) {
+            <pk-button *pkCan="'communication/events:INCLUIR'" pkType="new" pkSize="sm" pkLabel="Novo palestrante" (clicked)="abrirPalestrante('novo')" />
+          }
+          <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="carregandoPalestrantes()" (clicked)="carregarPalestrantes()" />
+          <div filters>
+            <input type="text" class="toolbar-search" placeholder="Buscar nome, cargo, empresa…" aria-label="Buscar palestrantes"
+                   [value]="buscaPalestrantes()" (input)="buscaPalestrantes.set($any($event.target).value)" />
+          </div>
+        </app-toolbar>
+
+        <div class="corpo">
+          @if (!ehCelular()) {
+            <div class="planilha">
+              <table class="sheet" data-testid="planilha-palestrantes">
+                <thead>
+                  <tr>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemPalestrantes().campo === 'name'" (click)="ordenarPalestrantes('name')">Palestrante <i [class]="iconeOrdem(ordemPalestrantes(), 'name')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemPalestrantes().campo === 'role'" (click)="ordenarPalestrantes('role')">Cargo <i [class]="iconeOrdem(ordemPalestrantes(), 'role')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemPalestrantes().campo === 'companyName'" (click)="ordenarPalestrantes('companyName')">Empresa <i [class]="iconeOrdem(ordemPalestrantes(), 'companyName')"></i></button></th>
+                    <th>Redes</th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemPalestrantes().campo === 'talkCount'" (click)="ordenarPalestrantes('talkCount')">Palestras <i [class]="iconeOrdem(ordemPalestrantes(), 'talkCount')"></i></button></th>
+                    <th><button type="button" class="th-sort" [class.th-sort--on]="ordemPalestrantes().campo === 'updatedAt'" (click)="ordenarPalestrantes('updatedAt')">Última alteração <i [class]="iconeOrdem(ordemPalestrantes(), 'updatedAt')"></i></button></th>
+                    <th class="col-acoes">—</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (s of palestrantesVisiveis(); track s.id) {
+                    <tr>
+                      <td>
+                        <span class="pessoa">
+                          @if (foto(s); as src) { <img class="avatar" [src]="src" [alt]="s.name"> }
+                          @else { <span class="avatar avatar--iniciais">{{ initials(s.name) }}</span> }
+                          <b>{{ s.name }}</b>
+                        </span>
+                      </td>
+                      <td>{{ s.role || '—' }}</td>
+                      <td>{{ s.companyName || '—' }}</td>
+                      <td>
+                        <span class="redes">
+                          @if (instagramUrl(s.instagram); as ig) { <a [href]="ig" target="_blank" rel="noopener" aria-label="Instagram"><i class="pi pi-instagram"></i></a> }
+                          @if (linkedinUrl(s.linkedin); as li) { <a [href]="li" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="pi pi-linkedin"></i></a> }
+                          @if (websiteUrl(s.website); as site) { <a [href]="site" target="_blank" rel="noopener" aria-label="Site"><i class="pi pi-globe"></i></a> }
+                        </span>
+                      </td>
+                      <td class="num">{{ s.talkCount }}</td>
+                      <td>
+                        @if (s.updatedAt) {
+                          <span class="audit"><span class="audit__who">{{ s.updatedBy || '—' }}</span><small class="audit__when">{{ formatStamp(s.updatedAt) }}</small></span>
+                        } @else { — }
+                      </td>
+                      <td class="col-acoes">
+                        <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Editar" tooltipPosition="left" aria-label="Editar" (click)="abrirPalestrante(s)"><i class="pi pi-pencil"></i></button>
+                        <button *pkCan="'communication/events:EXCLUIR'" type="button" class="acao acao--perigo" pTooltip="Excluir" tooltipPosition="left" aria-label="Excluir" (click)="excluindoPalestrante.set(s)"><i class="pi pi-trash"></i></button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="7" class="vazio"><i class="pi pi-users"></i><p>{{ carregandoPalestrantes() ? 'Carregando…' : 'Nenhum palestrante cadastrado.' }}</p></td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="cartoes" data-testid="cartoes-palestrantes">
+              @for (s of palestrantesVisiveis(); track s.id) {
+                <article class="cartao">
+                  <button type="button" class="cartao__corpo cartao__corpo--linha" (click)="abrirPalestrante(s)">
+                    @if (foto(s); as src) { <img class="avatar" [src]="src" [alt]="s.name"> }
+                    @else { <span class="avatar avatar--iniciais">{{ initials(s.name) }}</span> }
+                    <span class="cartao__textos">
+                      <span class="cartao__titulo">{{ s.name }}</span>
+                      <span class="cartao__sub">{{ s.role }}{{ s.role && s.companyName ? ' · ' : '' }}{{ s.companyName }}</span>
+                    </span>
+                  </button>
+                  <span class="cartao__canto">{{ s.talkCount }} {{ s.talkCount === 1 ? 'palestra' : 'palestras' }}</span>
+                </article>
+              } @empty {
+                <p class="vazio">{{ carregandoPalestrantes() ? 'Carregando…' : 'Nenhum palestrante cadastrado.' }}</p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+}
+
+<!-- ═══ Palestrante: o mesmo corpo em duas molduras ═══════════════════════
+     Folha no celular, pk-dialog no computador. Um template só, para as duas
+     versões não envelhecerem separadas. -->
+<ng-template #corpoPalestrante>
+  <form class="form-palestrante" [formGroup]="formPalestrante" (ngSubmit)="salvarPalestrante()">
+    <div class="foto-linha">
+      @if (fotoPrevia(); as src) { <img class="avatar avatar--grande" [src]="src" alt="Foto"> }
+      @else { <span class="avatar avatar--grande avatar--iniciais">{{ initials(formPalestrante.value.name) || '?' }}</span> }
+      <label class="botao-arquivo">
+        <input type="file" accept=".jpg,.jpeg,.png,.webp" (change)="aoEscolherFoto($event)">
+        <i class="pi pi-image"></i> {{ fotoPrevia() ? 'Trocar foto' : 'Enviar foto' }}
+      </label>
+      @if (fotoPrevia()) {
+        <button type="button" class="botao-texto" (click)="tirarFoto()">Tirar foto</button>
+      }
+    </div>
+    @if (erroFoto()) { <p class="erro">{{ erroFoto() }}</p> }
+    <div class="form-grid">
+      <div class="form-field form-field--full"><pk-input label="Nome" formControlName="name" [pkRequired]="true" [pkMaxLength]="150" /></div>
+      <div class="form-field"><pk-input label="Cargo" formControlName="role" [pkMaxLength]="120" placeholder="Química responsável" /></div>
+      <div class="form-field"><pk-input label="Empresa" formControlName="companyName" [pkMaxLength]="120" placeholder="Proauto Kimium" /></div>
+      <div class="form-field"><pk-input label="Instagram" formControlName="instagram" [pkMaxLength]="100" placeholder="usuario ou link do perfil" hint="Pode colar o link: guardamos só o usuário" /></div>
+      <div class="form-field"><pk-input label="LinkedIn" formControlName="linkedin" [pkMaxLength]="100" placeholder="usuario ou link do perfil" /></div>
+      <div class="form-field form-field--full"><pk-input label="Site" formControlName="website" [pkMaxLength]="255" placeholder="https://" /></div>
+    </div>
+  </form>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!editandoPalestrante()" [title]="tituloPalestrante()" (closed)="fecharPalestrante()">
+    <div pkSheetBody>
+      <ng-container *ngTemplateOutlet="corpoPalestrante" />
+    </div>
+    <div pkSheetFooter>
+      <pk-button pkType="cancel" pkLabel="Cancelar" (clicked)="fecharPalestrante()" />
+      <pk-button pkType="save" pkLabel="Salvar" [pkLoading]="salvandoPalestrante()" [pkDisabled]="formPalestrante.invalid" (clicked)="salvarPalestrante()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [header]="tituloPalestrante()" [visible]="!!editandoPalestrante()" (visibleChange)="fecharPalestrante()" width="620px">
+    <div pkDialogContent>
+      <div class="pk-form-section">
+        <ng-container *ngTemplateOutlet="corpoPalestrante" />
+      </div>
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharPalestrante()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkLoading]="salvandoPalestrante()" [pkDisabled]="formPalestrante.invalid" (clicked)="salvarPalestrante()" />
+    </div>
+  </pk-dialog>
+}
+
+<pk-dialog header="Excluir evento" [visible]="!!excluindoEvento()" (visibleChange)="excluindoEvento.set(null)" width="460px">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      @if (excluindoEvento(); as alvo) {
+        <p class="confirmacao"><b>{{ alvo.name }}</b> e toda a programação dele ({{ alvo.talkCount }} {{ alvo.talkCount === 1 ? 'item' : 'itens' }}) são apagados. Os palestrantes continuam cadastrados.</p>
+        <p class="confirmacao confirmacao--aviso">Não dá para desfazer.</p>
+      }
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="excluindoEvento.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" (clicked)="confirmarExclusaoEvento()" />
+  </div>
+</pk-dialog>
+
+<pk-dialog header="Excluir palestrante" [visible]="!!excluindoPalestrante()" (visibleChange)="excluindoPalestrante.set(null)" width="460px">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      @if (excluindoPalestrante(); as alvo) {
+        @if (alvo.talkCount) {
+          <p class="confirmacao"><b>{{ alvo.name }}</b> está em {{ alvo.talkCount }} {{ alvo.talkCount === 1 ? 'palestra' : 'palestras' }}. Tire da programação antes de excluir.</p>
+        } @else {
+          <p class="confirmacao"><b>{{ alvo.name }}</b> e a foto são apagados. Não dá para desfazer.</p>
+        }
+      }
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="excluindoPalestrante.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" [pkDisabled]="!!excluindoPalestrante()?.talkCount" (clicked)="confirmarExclusaoPalestrante()" />
+  </div>
+</pk-dialog>

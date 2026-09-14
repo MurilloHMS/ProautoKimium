@@ -1,0 +1,202 @@
+@use 'variables' as v;
+@use 'chips';
+@use 'sheet-grid';
+
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+app-form-screen { display: block; margin: 12px; }
+
+.publicacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.publicacao--rascunho { border-style: dashed; background: var(--app-surface-2); }
+
+.publicacao__texto {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  b { font-size: var(--text-ui); color: var(--app-text); }
+  small { font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+}
+
+.publicacao__acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip-rascunho { border: 1px dashed var(--app-border-strong); }
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.bloco__cabeca { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+.bloco__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: v.$font-heading;
+  font-size: .98rem;
+  font-weight: 700;
+  color: var(--app-text);
+
+  i { color: var(--app-text-muted); font-size: .9rem; }
+}
+
+.radios { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: var(--text-ui);
+  font-weight: 500;
+  cursor: pointer;
+
+  input { accent-color: var(--app-action); }
+  i { font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+
+  &:has(input:checked) { border-color: var(--app-action); background: var(--app-action-soft); color: var(--app-action); }
+  &:focus-within { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.dica { font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+.erro { font-size: var(--text-ui-sm); color: var(--app-danger); }
+
+.capa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1.5px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+}
+
+.capa__previa {
+  width: 140px;
+  height: 78px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.capa__previa--vazia {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, v.$primary, v.$secondary-dark);
+  color: #fff;
+}
+
+.capa__acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+
+.botao-arquivo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--btn-h-md);
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  &:focus-within { outline: 2px solid var(--app-action); outline-offset: 2px; }
+}
+
+.botao-texto {
+  border: 0;
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+// Dentro do formulário a planilha não é a superfície da tela: ganha borda.
+.planilha--solta {
+  overflow-x: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+
+  table.sheet { min-width: 720px; }
+}
+
+.intervalo { color: var(--app-text-muted); }
+
+.dia-vazio { color: var(--app-text-subtle); font-style: italic; }
+
+.cartoes--soltos { padding: 0; overflow: visible; }
+
+.rotulo-dia {
+  margin: 8px 0 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--tracking-head);
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.form-palestra { display: flex; flex-direction: column; gap: 14px; }
+
+.escolhidos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.escolhido {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+}
+
+.escolhido__nome { flex: 1; min-width: 0; font-size: var(--text-ui); font-weight: 600; }
+
+.avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex: none; }
+
+.avatar--iniciais {
+  display: inline-grid;
+  place-items: center;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.confirmacao { margin: 0; font-size: var(--text-ui); color: var(--app-text); }

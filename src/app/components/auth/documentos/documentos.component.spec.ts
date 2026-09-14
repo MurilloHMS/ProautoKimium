@@ -74,10 +74,22 @@ describe('DocumentosComponent', () => {
    * do card mesmo sem permissão de consulta.
    */
   it('basta ter qualquer permissão na tela para ver o card', () => {
-    abertas = ['documentos/logos'];
+    abertas = ['documentos/eventos'];
     montar();
 
-    expect(titulos()).toContain('Logos');
+    expect(titulos()).toContain('Eventos');
+  });
+
+  /**
+   * **Eventos ocupa o lugar de Logos** (2026-09-14). Quem ainda tem a permissão
+   * de Logos não pode ver o cartão voltar: a tela continua existindo por link,
+   * mas a porta pelo hub é Eventos.
+   */
+  it('o card Logos saiu, mesmo para quem tem a tela de logos', () => {
+    abertas = ['documentos/logos', 'documentos/eventos'];
+    montar();
+
+    expect(titulos()).toEqual(['Eventos']);
   });
 
   /**
@@ -95,7 +107,7 @@ describe('DocumentosComponent', () => {
 
   /** E o "Em breve" não existe mais em lugar nenhum da tela. */
   it('nenhum card fica marcado como Em breve', () => {
-    abertas = ['documentos/galeria', 'documentos/logos', 'documentos/holerites',
+    abertas = ['documentos/galeria', 'documentos/eventos', 'documentos/holerites',
                'documentos/rh', 'tools/pdf'];
     montar();
 

@@ -1,0 +1,271 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Planilha e cartões — o padrão da Programação, para outras telas de cadastro
+//
+// Pedido dele em 2026-09-14 para o cadastro de eventos: "as tabelas eu quero que
+// siga o mesmo padrão do programações e no mobile virem cards". A Programação
+// continua com a cópia dela, sobre a tabela do PrimeNG; aqui é uma `<table>`
+// comum com as mesmas medidas, para tela que não edita célula por célula.
+//
+// Computador: a grade encosta nas bordas, linha de coluna, cabeçalho em
+// maiúsculas que ordena (`.th-sort`), ações no fim. Celular: `.cartoes`, e a
+// edição abre no `pk-sheet`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.planilha {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: var(--app-surface);
+}
+
+table.sheet {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-ui);
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: var(--row-head-h);
+    padding: 0;
+    background: var(--app-surface-2);
+    border-bottom: 1px solid var(--app-border);
+    border-right: 1px solid var(--app-border);
+    color: var(--app-text-muted);
+    font-size: var(--text-ui-sm);
+    font-weight: 700;
+    letter-spacing: var(--tracking-head);
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &:not(:has(.th-sort)) { padding: 0 var(--cell-px); }
+  }
+
+  // `<button>` e não clique no `<th>`: o `<th>` não é focável, e a grade é
+  // navegada por Tab.
+  .th-sort {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 0 var(--cell-px);
+    cursor: pointer;
+
+    &:hover { background: var(--app-action-soft); }
+    &:focus-visible { box-shadow: inset var(--app-focus-ring); }
+
+    // Largura reservada mesmo apagado: sem isso o texto pula a cada clique.
+    i { width: 12px; font-size: 10px; opacity: .35; }
+  }
+
+  .th-sort--on { color: var(--app-text); i { opacity: 1; color: var(--app-action); } }
+
+  td {
+    height: var(--row-h);
+    max-width: 340px;
+    padding: 0 var(--cell-px);
+    border-bottom: 1px solid var(--app-border);
+    border-right: 1px solid var(--app-border);
+    color: var(--app-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  tbody tr:hover td { background: var(--app-surface-2); }
+
+  .num { font-variant-numeric: tabular-nums; }
+
+  .col-acoes {
+    width: 1%;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  tr.grupo-dia td {
+    height: 28px;
+    background: var(--app-surface-3);
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
+    font-weight: 700;
+    letter-spacing: var(--tracking-head);
+    text-transform: uppercase;
+  }
+
+  .vazio {
+    height: auto;
+    padding: 2.5rem 1rem;
+    color: var(--app-text-subtle);
+    text-align: center;
+    white-space: normal;
+
+    i { display: block; margin-bottom: 8px; font-size: 1.6rem; }
+    p { margin: 0; }
+  }
+}
+
+.acao {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  margin: 0 1px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  i { font-size: var(--text-ui-sm); }
+
+  &:hover { background: var(--app-surface-2); color: var(--app-text); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 1px; }
+}
+
+.acao--perigo:hover {
+  border-color: var(--app-danger);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+}
+
+.audit {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.audit__who { font-size: var(--text-ui-sm); font-weight: 500; }
+.audit__when { font-size: var(--text-micro); color: var(--app-text-subtle); font-variant-numeric: tabular-nums; }
+
+.nota {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 16px;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+// ── Celular ─────────────────────────────────────────────────────────────────
+// A lista rola por conta própria: herdando o lugar da tabela sem herdar o que a
+// fazia rolar, ela parava no quinto cartão. `min-height: 0` é o par obrigatório.
+.cartoes {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .5rem .75rem 1rem;
+
+  .vazio {
+    margin: 0;
+    padding: 2rem 1rem;
+    color: var(--app-text-subtle);
+    text-align: center;
+  }
+}
+
+.cartao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .45rem .6rem;
+  padding: .7rem .75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.cartao--rascunho {
+  border-style: dashed;
+  background: var(--app-surface-2);
+}
+
+// Estado excepcional na borda, e não no fundo — como a previsão vencida.
+.cartao--fora { box-shadow: inset 3px 0 0 var(--app-warning); }
+
+.cartao__corpo {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 3px; border-radius: var(--radius-control); }
+}
+
+.cartao__corpo--linha { flex-direction: row; align-items: center; gap: 10px; }
+.cartao__textos { display: flex; flex-direction: column; min-width: 0; }
+
+.cartao__titulo {
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: .86rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao__sub {
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: .74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao__canto {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  color: var(--app-text-subtle);
+  font-size: .68rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cartao__rodape {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.cartao__atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  height: 34px;
+  padding: 0 .7rem;
+  border: 1px dashed var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  i { font-size: .8rem; color: var(--app-text-muted); }
+}
+
+.cartao__atalho--fim { margin-left: auto; }
