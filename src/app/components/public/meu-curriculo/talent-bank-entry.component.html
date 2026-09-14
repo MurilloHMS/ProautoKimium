@@ -1,0 +1,323 @@
+@switch (estado()) {
+
+  @case ('carregando') {
+    <div class="mc-carregando" aria-live="polite">
+      <i class="pi pi-spin pi-spinner"></i>
+      <p>Abrindo seus dados…</p>
+    </div>
+  }
+
+  @case ('aberto') {
+    @if (cadastro(); as c) {
+      <div class="mc-pagina">
+
+        <header class="mc-identidade">
+          <div>
+            <p class="mc-eyebrow">Seus dados no banco de talentos</p>
+            <h1 class="mc-nome">{{ c.nome }}</h1>
+            <div class="mc-meta">
+              <span><i class="pi pi-calendar"></i> Cadastrado em {{ formatarData(c.criadoEm) }}</span>
+              @if (c.atualizadoEm) {
+                <span><i class="pi pi-pencil"></i> Atualizado em {{ formatarData(c.atualizadoEm) }}</span>
+              }
+            </div>
+          </div>
+
+          @if (situacao(); as s) {
+            <span
+              class="mc-chip"
+              data-testid="situacao"
+              [class.mc-chip--ok]="s.papel === 'success'"
+              [class.mc-chip--aviso]="s.papel === 'warning'"
+              [class.mc-chip--neutro]="s.papel === 'neutral'"
+            >
+              <i [class]="s.icone"></i>
+              @if (s.papel === 'neutral' && !c.consentimentoEm) {
+                Sem autorização para vagas futuras
+              } @else if (s.papel === 'success' && c.expiraEm) {
+                Guardado até {{ formatarData(c.expiraEm) }}
+              } @else {
+                {{ s.rotulo }}
+              }
+            </span>
+          }
+        </header>
+
+        <div class="mc-grade">
+          <section class="mc-painel">
+            <h2 class="mc-painel-topo"><i class="pi pi-user"></i> Seus dados</h2>
+
+            <div class="mc-painel-corpo">
+              <div class="mc-duas">
+                <div class="mc-campo mc-inteira">
+                  <label for="mc-nome">Nome completo</label>
+                  <div class="mc-input" [class.mc-input--erro]="nome().trim().length < 3">
+                    <input id="mc-nome" autocomplete="name" maxlength="100"
+                           [ngModel]="nome()" (ngModelChange)="nome.set($event); marcarAlterado()" />
+                  </div>
+                </div>
+
+                <div class="mc-campo mc-inteira">
+                  <label for="mc-email">E-mail</label>
+                  <div class="mc-input mc-input--travado">
+                    <i class="pi pi-lock"></i>
+                    <input id="mc-email" [value]="c.email" readonly />
+                  </div>
+                  <span class="mc-dica">Mudou de e-mail? Faça um cadastro novo e apague este.</span>
+                </div>
+
+                <div class="mc-campo">
+                  <label for="mc-telefone">Telefone</label>
+                  <div class="mc-input">
+                    <input id="mc-telefone" inputmode="tel" autocomplete="tel"
+                           [ngModel]="telefone()" (ngModelChange)="aoDigitarTelefone($event)" />
+                  </div>
+                </div>
+
+                <div class="mc-campo">
+                  <label for="mc-area">Área de interesse</label>
+                  <p-select
+                    inputId="mc-area"
+                    [options]="opcoesArea()"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Escolha uma área"
+                    [showClear]="true"
+                    appendTo="body"
+                    styleClass="mc-select"
+                    [ngModel]="area()"
+                    (ngModelChange)="area.set($event); marcarAlterado()"
+                  ></p-select>
+                </div>
+
+                @if (area() === AREA_OUTRA) {
+                  <div class="mc-campo mc-inteira">
+                    <label for="mc-area-outra">Qual área?</label>
+                    <div class="mc-input">
+                      <input id="mc-area-outra" maxlength="100" placeholder="Ex.: Manutenção"
+                             [ngModel]="areaOutra()" (ngModelChange)="areaOutra.set($event); marcarAlterado()" />
+                    </div>
+                  </div>
+                }
+
+                <div class="mc-campo mc-inteira">
+                  <label for="mc-linkedin">LinkedIn <span class="mc-opcional">(opcional)</span></label>
+                  <div class="mc-input">
+                    <input id="mc-linkedin" maxlength="100" placeholder="linkedin.com/in/seu-perfil"
+                           [ngModel]="linkedin()" (ngModelChange)="linkedin.set($event); marcarAlterado()" />
+                  </div>
+                </div>
+              </div>
+
+              <label class="mc-caixa" for="mc-autorizar">
+                <input id="mc-autorizar" type="checkbox"
+                       [ngModel]="autorizar()" (ngModelChange)="autorizar.set($event); marcarAlterado()" />
+                @if (jaAutorizou()) {
+                  <span><strong>Renovar a autorização por mais 24 meses</strong>, contando a partir de hoje.</span>
+                } @else {
+                  <span>
+                    <strong>Autorizo a Proauto Kimium a guardar meus dados e meu currículo por 24 meses</strong>
+                    para vagas futuras.
+                  </span>
+                }
+              </label>
+              @if (autorizar()) {
+                <p class="mc-prazo-novo">Ao salvar, o prazo passa a ser {{ prazoNovo() }}.</p>
+              }
+            </div>
+
+            <div class="mc-painel-rodape">
+              @if (erroAoSalvar()) {
+                <span class="mc-porque mc-erro" role="alert">{{ erroAoSalvar() }}</span>
+              } @else if (salvo()) {
+                <span class="mc-porque mc-porque--ok" role="status"><i class="pi pi-check"></i> Alterações salvas.</span>
+              } @else {
+                <span class="mc-porque">Nada muda até você salvar.</span>
+              }
+              <button type="button" class="mc-btn mc-btn--primario" data-testid="salvar"
+                      [disabled]="!formularioValido() || salvando()" (click)="salvar()">
+                @if (salvando()) { <i class="pi pi-spin pi-spinner"></i> Salvando… } @else { Salvar alterações }
+              </button>
+            </div>
+          </section>
+
+          <div class="mc-coluna">
+            <section class="mc-painel">
+              <h2 class="mc-painel-topo"><i class="pi pi-file"></i> Currículo</h2>
+              <div class="mc-painel-corpo">
+                @if (novoCurriculo(); as novo) {
+                  <div class="mc-arquivo">
+                    <span class="mc-arquivo-icone">PDF</span>
+                    <div>
+                      <strong>{{ novo.name }}</strong>
+                      <small>Substitui o atual quando você salvar</small>
+                    </div>
+                  </div>
+                } @else if (c.temCurriculo) {
+                  <div class="mc-arquivo">
+                    <span class="mc-arquivo-icone">{{ (c.extensaoCurriculo || 'pdf').toUpperCase() }}</span>
+                    <div>
+                      <strong>Currículo guardado</strong>
+                      <small>Atualizado em {{ formatarData(c.atualizadoEm || c.criadoEm) }}</small>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="mc-arquivo">
+                    <span class="mc-arquivo-icone mc-arquivo-icone--vazio"><i class="pi pi-minus"></i></span>
+                    <div>
+                      <strong>Nenhum currículo guardado</strong>
+                      <small>Envie um PDF de até 10 MB</small>
+                    </div>
+                  </div>
+                }
+
+                <input #arquivo id="mc-arquivo" class="mc-arquivo-input" type="file"
+                       accept=".pdf,application/pdf" (change)="aoEscolherCurriculo($event)" />
+
+                <div class="mc-botoes">
+                  @if (c.temCurriculo && !novoCurriculo()) {
+                    <button type="button" class="mc-btn mc-btn--secundario" (click)="baixarCurriculo()">
+                      <i class="pi pi-download"></i> Baixar
+                    </button>
+                  }
+                  @if (novoCurriculo()) {
+                    <button type="button" class="mc-btn mc-btn--secundario" (click)="descartarNovoCurriculo(arquivo)">
+                      <i class="pi pi-times"></i> Manter o atual
+                    </button>
+                  } @else {
+                    <label class="mc-btn mc-btn--secundario" for="mc-arquivo">
+                      <i class="pi pi-upload"></i> {{ c.temCurriculo ? 'Substituir' : 'Enviar' }}
+                    </label>
+                  }
+                </div>
+
+                @if (erroCurriculo()) {
+                  <span class="mc-erro" role="alert">{{ erroCurriculo() }}</span>
+                }
+              </div>
+            </section>
+
+            <section class="mc-painel">
+              <h2 class="mc-painel-topo"><i class="pi pi-briefcase"></i> Vagas em que você se candidatou</h2>
+              <div class="mc-painel-corpo">
+                @if (c.candidaturas.length) {
+                  <ul class="mc-lista">
+                    @for (cand of c.candidaturas; track $index) {
+                      <li><span>{{ cand.vagaTitulo }}</span><span>{{ formatarData(cand.criadoEm) }}</span></li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="mc-vazio">Nenhuma. Seu cadastro foi feito sem vaga específica.</p>
+                }
+              </div>
+            </section>
+          </div>
+        </div>
+
+        @if (!confirmandoExclusao()) {
+          <section class="mc-apagar">
+            <div>
+              <h2>Apagar meus dados</h2>
+              <p>Remove seu nome, contatos e currículo do banco de talentos. Não dá para desfazer.</p>
+            </div>
+            <button type="button" class="mc-btn mc-btn--perigo" data-testid="pedir-exclusao" (click)="pedirExclusao()">
+              <i class="pi pi-trash"></i> Apagar meus dados
+            </button>
+          </section>
+        } @else {
+          <section class="mc-apagar mc-apagar--confirmando" data-testid="confirmar-exclusao">
+            <div>
+              <h2>Apagar tudo agora?</h2>
+              @if (quantidadeDeCandidaturas() > 0) {
+                <p>
+                  Seu nome, telefone, LinkedIn e currículo saem do banco.
+                  {{ quantidadeDeCandidaturas() === 1 ? 'Sua candidatura continua registrada' : 'Suas candidaturas continuam registradas' }},
+                  mas sem seus dados.
+                </p>
+              } @else {
+                <p>Seu cadastro e seu currículo são apagados por inteiro.</p>
+              }
+            </div>
+
+            <div class="mc-apagar-confirmacao">
+              <div class="mc-campo">
+                <label for="mc-confirmacao">Digite <span class="mc-palavra">{{ PALAVRA }}</span> para confirmar</label>
+                <div class="mc-input">
+                  <input id="mc-confirmacao" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                         [ngModel]="textoDeConfirmacao()" (ngModelChange)="textoDeConfirmacao.set($event)" />
+                </div>
+              </div>
+              <button type="button" class="mc-btn mc-btn--secundario" (click)="cancelarExclusao()">Cancelar</button>
+              <button type="button" class="mc-btn mc-btn--perigo-cheio" data-testid="apagar"
+                      [disabled]="!podeApagar()" (click)="apagar()">
+                @if (apagando()) { <i class="pi pi-spin pi-spinner"></i> Apagando… } @else { <i class="pi pi-trash"></i> Apagar tudo }
+              </button>
+            </div>
+
+            @if (erroAoApagar()) {
+              <span class="mc-erro" role="alert">{{ erroAoApagar() }}</span>
+            }
+          </section>
+        }
+      </div>
+    }
+  }
+
+  @case ('apagado') {
+    <div class="mc-centro">
+      <div class="mc-cartao">
+        <div class="mc-estado" data-testid="apagado">
+          <span class="mc-icone mc-icone--ok"><i class="pi pi-check"></i></span>
+          <h1>Seus dados foram apagados</h1>
+          <p>Removemos seu nome, contatos e currículo do nosso banco de talentos. Este link não funciona mais.</p>
+        </div>
+        <a class="mc-btn mc-btn--primario mc-btn--largo" routerLink="/trabalhe-conosco">Voltar às vagas</a>
+      </div>
+    </div>
+  }
+
+  @case ('expirado') {
+    <div class="mc-centro">
+      <div class="mc-cartao">
+        <div class="mc-estado" data-testid="expirado">
+          <span class="mc-icone mc-icone--aviso"><i class="pi pi-hourglass"></i></span>
+          <h1>Este link expirou</h1>
+          <p>Os links valem por 24 horas, e pedir um novo cancela os anteriores.</p>
+        </div>
+        <a class="mc-btn mc-btn--primario mc-btn--largo" routerLink="/meu-curriculo">
+          <i class="pi pi-send"></i> Pedir um novo link
+        </a>
+      </div>
+    </div>
+  }
+
+  @case ('invalido') {
+    <div class="mc-centro">
+      <div class="mc-cartao">
+        <div class="mc-estado" data-testid="invalido">
+          <span class="mc-icone mc-icone--neutro"><i class="pi pi-link"></i></span>
+          <h1>Link não encontrado</h1>
+          <p>Confira se você copiou o endereço inteiro do e-mail.</p>
+        </div>
+        <a class="mc-btn mc-btn--primario mc-btn--largo" routerLink="/meu-curriculo">
+          <i class="pi pi-send"></i> Pedir um novo link
+        </a>
+      </div>
+    </div>
+  }
+
+  @case ('falha') {
+    <div class="mc-centro">
+      <div class="mc-cartao">
+        <div class="mc-estado">
+          <span class="mc-icone mc-icone--neutro"><i class="pi pi-exclamation-triangle"></i></span>
+          <h1>Não conseguimos abrir seus dados</h1>
+          <p>Pode ser uma instabilidade. Tente de novo em instantes.</p>
+        </div>
+        <button type="button" class="mc-btn mc-btn--primario mc-btn--largo" (click)="carregar()">
+          <i class="pi pi-refresh"></i> Tentar de novo
+        </button>
+      </div>
+    </div>
+  }
+}

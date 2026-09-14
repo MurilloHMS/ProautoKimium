@@ -1,0 +1,87 @@
+<div class="mc-centro">
+  <div class="mc-cartao">
+
+    @if (estado() === 'pedir') {
+      <div class="mc-cartao-topo">
+        <span class="mc-marca"><i class="pi pi-folder-open"></i></span>
+        <div>
+          <h1>Ver o que enviei</h1>
+          <p>Informe o e-mail que você usou no cadastro. Mandamos um link para ver, corrigir ou apagar seus dados.</p>
+        </div>
+      </div>
+
+      <form class="mc-coluna" (ngSubmit)="enviar()" novalidate>
+        <div class="mc-campo">
+          <label for="mc-email">E-mail</label>
+          <div class="mc-input">
+            <i class="pi pi-envelope"></i>
+            <input
+              id="mc-email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="seu@email.com"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+            />
+          </div>
+        </div>
+
+        @if (erro()) {
+          <span class="mc-erro" role="alert">{{ erro() }}</span>
+        }
+
+        <button
+          type="submit"
+          class="mc-btn mc-btn--primario mc-btn--largo"
+          data-testid="enviar-link"
+          [disabled]="!emailValido() || enviando()"
+        >
+          @if (enviando()) {
+            <i class="pi pi-spin pi-spinner"></i> Enviando…
+          } @else {
+            <i class="pi pi-send"></i> Enviar link
+          }
+        </button>
+      </form>
+
+      <p class="mc-dica mc-centralizado">O link vale por 24 horas.</p>
+    }
+
+    @if (estado() === 'enviado') {
+      <div class="mc-estado" data-testid="link-enviado">
+        <span class="mc-icone"><i class="pi pi-envelope"></i></span>
+        <h1>Confira seu e-mail</h1>
+        <p>Se este e-mail estiver no nosso banco de talentos, você receberá um link em instantes.</p>
+      </div>
+
+      <div class="mc-nota">
+        <i class="pi pi-clock"></i>
+        <span>O link vale por 24 horas. Pedir um novo cancela o anterior.</span>
+      </div>
+
+      <button
+        type="button"
+        class="mc-btn mc-btn--secundario mc-btn--largo"
+        [disabled]="segundosParaReenviar() > 0 || enviando()"
+        (click)="enviar()"
+      >
+        <i class="pi pi-refresh"></i> Pedir outro link
+      </button>
+
+      @if (segundosParaReenviar() > 0) {
+        <p class="mc-contagem">Você pode pedir outro em {{ contagemFormatada() }}</p>
+      }
+
+      @if (erro()) {
+        <span class="mc-erro" role="alert">{{ erro() }}</span>
+      }
+
+      <button type="button" class="mc-btn mc-btn--texto" (click)="trocarEmail()">
+        Usar outro e-mail
+      </button>
+    }
+
+    <a class="mc-btn mc-btn--texto" routerLink="/trabalhe-conosco">Voltar às vagas</a>
+  </div>
+</div>
