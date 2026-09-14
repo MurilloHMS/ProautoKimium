@@ -190,7 +190,10 @@ pipeline {
           rm -rf "$destino"
           mkdir -p "$destino"
 
-          anterior=$(ls -1t "$RELEASES" 2>/dev/null | grep -v "^$TAG\\$" | head -1)
+          # A anterior e a de VERSAO mais alta, e nao a de data mais nova.
+          # O `cp -al` logo abaixo preserva a data da pasta copiada, entao toda
+          # release herda a data da primeira e `ls -t` deixa de ordenar nada.
+          anterior=$(ls -1 "$RELEASES" 2>/dev/null | grep -vx "$TAG" | sort -V | tail -1)
           if [ -n "$anterior" ]; then
             echo "Aproveitando o que nao mudou desde $anterior."
             cp -al "$RELEASES/$anterior/." "$destino/" 2>/dev/null || true
@@ -220,6 +223,42 @@ pipeline {
       }
     }
 
+    stage('Limpar releases antigas') {
+      steps {
+        // **Ordena por VERSAO, e nunca apaga o que esta no ar.**
+        //
+        // Ate 2026-09-14 isto era `ls -1t | tail -n +6 | xargs rm -rf` no
+        // `post { success }`. O `cp -al` da montagem preserva a data da pasta,
+        // entao todas as releases tinham a data da primeira; o `ls -t`
+        // desempatava pelo nome, e a tag mais nova — a ultima no alfabeto —
+        // era a apagada. A 2.44.1 subiu verde e o site deu 404 em toda pagina:
+        // o `current` apontava para uma pasta que a limpeza acabara de levar.
+        //
+        // A limpeza deixou de ser `post`: roda ANTES da conferencia, para o
+        // ultimo passo destrutivo do deploy ser verificado como os outros.
+        //
+        // As guardas por nome (a TAG e o alvo do `current`) sao redundantes com
+        // a ordenacao certa. Ficam porque errar aqui derruba o site inteiro, e
+        // a ordenacao ja errou uma vez.
+        sh '''
+          cd "$RELEASES"
+          no_ar=$(basename "$(readlink "$ATUAL")")
+
+          ls -1 | sort -V | head -n -"$MANTER" | while read -r antiga; do
+            if [ "$antiga" = "$TAG" ] || [ "$antiga" = "$no_ar" ]; then
+              echo "Mantendo $antiga: e a release no ar."
+              continue
+            fi
+            echo "Apagando $antiga"
+            rm -rf -- "$antiga"
+          done
+
+          echo "Releases em disco:"; ls -1 | sort -V
+          du -sh "$RELEASES"
+        '''
+      }
+    }
+
     stage('Conferir se subiu') {
       steps {
         // O nginx serve o que estiver na pasta, com status 200, mesmo que seja
@@ -230,6 +269,13 @@ pipeline {
           alvo=$(readlink "$ATUAL")
           [ "$alvo" = "releases/$TAG" ] || {
             echo "ERRO: o link aponta para [$alvo], nao para releases/$TAG."
+            exit 1
+          }
+
+          # O mesmo teste de antes de virar o link, repetido depois da limpeza:
+          # link certo para uma pasta que nao existe mais foi o 404 da 2.44.1.
+          [ -f "$ATUAL/browser/index.html" ] || {
+            echo "ERRO: current/browser/index.html sumiu depois da limpeza."
             exit 1
           }
 
@@ -249,34 +295,34 @@ pipeline {
     failure {
       // Volta o link para a release anterior. Não apaga nada: o disco é o que
       // torna o rollback instantâneo, e apagar no susto é como se perde isso.
-      script {
-        def anterior = sh(
-          script: """
-            ls -1t ${RELEASES} 2>/dev/null | grep -v '^${params.TAG}\$' | head -1
-          """,
-          returnStdout: true
-        ).trim()
+      //
+      // **Só mexe no link se ele apontar para a release que falhou.** Se o
+      // deploy quebrou antes de virar o link, o site continua na versão de
+      // antes, e trocar aqui seria mudar de versão sem ninguém pedir. E a
+      // anterior é escolhida por VERSÃO, pelo mesmo motivo da limpeza.
+      //
+      // Aspas simples no Groovy: TAG, RELEASES e ATUAL chegam ao shell como
+      // variáveis de ambiente, sem interpolação e sem `\$` para escapar.
+      sh '''
+        cd "$RELEASES" 2>/dev/null || exit 0
 
-        if (anterior) {
-          echo "Deploy falhou. Voltando o link para ${anterior}."
-          sh "ln -sfn 'releases/${anterior}' '${ATUAL}'"
-        } else {
-          echo 'Deploy falhou e NAO ha release anterior para voltar.'
-          echo 'Na primeira execucao isso e esperado.'
-        }
-      }
+        if [ "$(readlink "$ATUAL")" != "releases/$TAG" ]; then
+          echo "O link nao aponta para $TAG. Nao ha o que voltar."
+          exit 0
+        fi
+
+        anterior=$(ls -1 | grep -vx "$TAG" | sort -V | tail -1)
+        if [ -n "$anterior" ]; then
+          echo "Deploy falhou. Voltando o link para $anterior."
+          ln -sfn "releases/$anterior" "$ATUAL"
+        else
+          echo "Deploy falhou e NAO ha release anterior para voltar."
+          echo "Na primeira execucao isso e esperado."
+        fi
+      '''
     }
 
     success {
-      // Guarda as últimas e apaga o resto. Como as antigas compartilham dados
-      // por hard link, apagar uma não estraga as outras: o Linux só libera o
-      // espaço quando o último nome some.
-      sh '''
-        cd "$RELEASES" || exit 0
-        ls -1t | tail -n +$((MANTER + 1)) | xargs -r rm -rf
-        echo "Releases em disco:"; ls -1t
-        du -sh "$RELEASES"
-      '''
       echo "No ar: ${params.TAG}"
     }
   }
