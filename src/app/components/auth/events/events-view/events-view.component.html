@@ -1,0 +1,78 @@
+@if (aberto(); as evento) {
+  <app-event-detail [event]="evento" [now]="agora()" (back)="fechar()" />
+} @else {
+  <app-page-header icon="pi pi-calendar" title="Eventos" subtitle="Programação dos eventos da empresa" />
+
+  @if (naoEncontrado()) {
+    <p class="aviso" data-testid="nao-encontrado">
+      <i class="pi pi-info-circle"></i> Este evento não existe mais ou ainda não foi publicado.
+    </p>
+  }
+
+  @for (item of noAr(); track item.evento.id) {
+    <button type="button" class="no-ar" data-testid="no-ar" (click)="abrir(item.evento)">
+      <span class="no-ar__quando">
+        <span class="status-chip status-chip--danger"><i class="pi pi-circle-fill"></i>Agora</span>
+        <b>{{ hhmm(item.palestra.startTime) }}</b>
+        <small>até {{ hhmm(item.palestra.endTime) }}</small>
+      </span>
+      <span class="no-ar__texto">
+        <small class="rotulo">{{ item.evento.name }}{{ item.palestra.location?.name ? ' · ' + item.palestra.location!.name : '' }}</small>
+        <b>{{ item.palestra.title }}</b>
+        @if (nomesDe(item.palestra)) {
+          <span class="no-ar__quem">Com {{ nomesDe(item.palestra) }}</span>
+        }
+        @if (item.seguinte) {
+          <span class="no-ar__seguinte">A seguir, <b>{{ hhmm(item.seguinte.startTime) }}</b>: {{ item.seguinte.title }}</span>
+        }
+      </span>
+      <span class="no-ar__ir">Ver programação <i class="pi pi-chevron-right"></i></span>
+    </button>
+  }
+
+  @if (carregando() || abrindo()) {
+    <p class="estado"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+  } @else if (erro()) {
+    <div class="estado estado--erro">
+      <p>Não foi possível carregar os eventos.</p>
+      <button type="button" class="botao" (click)="carregar()"><i class="pi pi-refresh"></i> Tentar de novo</button>
+    </div>
+  } @else {
+    @for (grupo of grupos(); track grupo.titulo) {
+      <h2 class="rotulo grupo">{{ grupo.titulo }}</h2>
+      <div class="cards">
+        @for (e of grupo.itens; track e.id) {
+          <button type="button" class="card" data-testid="card-evento" [class.card--passou]="faseDe(e) === 'encerrado'" (click)="abrir(e)">
+            <span class="card__capa" [class.card__capa--foto]="capa(e)" [style.background-image]="capa(e) ? 'url(' + capa(e) + ')' : null">
+              <span class="status-chip card__fase"
+                    [class.status-chip--danger]="faseDe(e) === 'acontecendo'"
+                    [class.status-chip--info]="faseDe(e) === 'proximo'"
+                    [class.status-chip--neutral]="faseDe(e) === 'encerrado'">
+                {{ rotuloDe(e) }}
+              </span>
+              <span class="card__data">
+                <b>{{ coverDateBox(e.startDate, e.endDate).dias }}</b>
+                <small>{{ coverDateBox(e.startDate, e.endDate).mes }}</small>
+              </span>
+            </span>
+            <span class="card__corpo">
+              <b class="card__nome">{{ e.name }}</b>
+              <span class="card__meta">
+                <span><i class="pi pi-calendar"></i> {{ formatPeriod(e.startDate, e.endDate) }}</span>
+                <span><i class="pi pi-microphone"></i> {{ e.talkCount }} na programação</span>
+                @if (e.location?.address?.city) {
+                  <span><i class="pi pi-map-marker"></i> {{ e.location!.address!.city }}</span>
+                }
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+    } @empty {
+      <div class="estado">
+        <i class="pi pi-calendar estado__icone"></i>
+        <p>Nenhum evento publicado ainda.</p>
+      </div>
+    }
+  }
+}

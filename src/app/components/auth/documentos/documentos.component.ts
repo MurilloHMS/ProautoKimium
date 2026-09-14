@@ -42,7 +42,10 @@ export class DocumentosComponent {
 
   private readonly todas: CategoriaDoc[] = [
     { titulo: 'Galeria',     descricao: 'Fotos, logos e catálogos da empresa',      icon: 'pi pi-images',    accent: '#7c5cbf', rota: 'documentos/galeria' },
-    { titulo: 'Logos',       descricao: 'Identidade visual e arquivos da marca',    icon: 'pi pi-palette',   accent: '#e07b4c', rota: 'documentos/logos' },
+    // Eventos ocupa o lugar do Logos (2026-09-14). A tela de logos continua em
+    // `/branding` e `documentos/logos`; só o cartão saiu, e a V106 deu a quem via
+    // Logos a permissão de ver Eventos.
+    { titulo: 'Eventos',     descricao: 'Programação dos eventos da empresa',       icon: 'pi pi-calendar',  accent: '#2c6fb5', rota: 'documentos/eventos' },
     { titulo: 'Holerites',   descricao: 'Seus demonstrativos de pagamento',         icon: 'pi pi-receipt',   accent: '#d92d20', rota: 'documentos/holerites' },
     { titulo: 'Pessoal',     descricao: 'Suas férias, reembolsos, atestados e documentos', icon: 'pi pi-id-card', accent: '#232e61', rota: 'documentos/rh' },
     { titulo: 'Calculadoras', descricao: 'Combustível e CMV, sem planilha', icon: 'pi pi-calculator', accent: '#3e9e8e', rota: 'documentos/calculadoras' },

@@ -1,0 +1,311 @@
+<app-form-screen [title]="titulo()" subtitle="Comunicação · Eventos" width="wide" (back)="back.emit()">
+
+  @if (atual(); as e) {
+    <div class="publicacao" [class.publicacao--rascunho]="!e.publishedAt" data-testid="publicacao">
+      @if (e.publishedAt) {
+        <span class="status-chip status-chip--success"><i class="pi pi-check-circle"></i>Publicado</span>
+        <div class="publicacao__texto">
+          <b>Aparece em Documentos → Eventos desde {{ formatStamp(e.publishedAt) }}</b>
+          <small>Última alteração: {{ e.updatedBy || '—' }}, {{ formatStamp(e.updatedAt) }}</small>
+        </div>
+      } @else {
+        <span class="status-chip status-chip--neutral chip-rascunho"><i class="pi pi-eye-slash"></i>Rascunho</span>
+        <div class="publicacao__texto">
+          <b>Ninguém vê este evento em Documentos ainda</b>
+          <small>Monte a programação com calma. Só quem tem o cadastro vê, pelo "Ver como fica".</small>
+        </div>
+      }
+      <div class="publicacao__acoes">
+        <pk-button pkType="filter" pkSize="sm" pkIcon="pi pi-eye" pkLabel="Ver como fica" (clicked)="preview.emit({ id: e.id })" />
+        @if (e.publishedAt) {
+          <pk-button *pkCan="'communication/events:ALTERAR'" pkType="cancel" pkSize="sm" pkIcon="pi pi-eye-slash" pkLabel="Voltar para rascunho" (clicked)="publicar(false)" />
+        } @else {
+          <pk-button *pkCan="'communication/events:ALTERAR'" pkType="send" pkSize="sm" pkIcon="pi pi-upload" pkLabel="Publicar evento" (clicked)="publicar(true)" />
+        }
+      </div>
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="salvar()">
+    <section class="bloco">
+      <h2 class="bloco__titulo"><i class="pi pi-calendar"></i> Evento</h2>
+      <div class="form-grid">
+        <div class="form-field form-field--full">
+          <pk-input label="Nome" formControlName="name" [pkRequired]="true" [pkMaxLength]="150" placeholder="Poseidon Week" />
+        </div>
+        <div class="form-field">
+          <label for="ev-inicio">Primeiro dia <span class="required">*</span></label>
+          <input id="ev-inicio" type="date" formControlName="startDate" />
+        </div>
+        <div class="form-field">
+          <label for="ev-fim">Último dia <span class="required">*</span></label>
+          <input id="ev-fim" type="date" formControlName="endDate" />
+          @if (periodoInvalido()) { <small class="erro">O último dia não pode ser antes do primeiro.</small> }
+        </div>
+        <div class="form-field form-field--full">
+          <label for="ev-descricao">Descrição <span class="label-hint">(opcional)</span></label>
+          <textarea id="ev-descricao" rows="3" formControlName="description" placeholder="Uma semana de palestras sobre…"></textarea>
+        </div>
+        <div class="form-field form-field--full">
+          <label>Capa <span class="label-hint">(opcional, JPG, PNG ou WEBP até 8 MB)</span></label>
+          <div class="capa">
+            @if (capaPrevia(); as src) {
+              <img class="capa__previa" [src]="src" alt="Capa do evento">
+            } @else {
+              <span class="capa__previa capa__previa--vazia"><i class="pi pi-image"></i></span>
+            }
+            <div class="capa__acoes">
+              <label class="botao-arquivo">
+                <input type="file" accept=".jpg,.jpeg,.png,.webp" (change)="aoEscolherCapa($event)">
+                <i class="pi pi-upload"></i> {{ capaPrevia() ? 'Trocar' : 'Enviar capa' }}
+              </label>
+              @if (capaPrevia()) { <button type="button" class="botao-texto" (click)="tirarCapa()">Tirar capa</button> }
+              <small class="dica">Sem capa, o card usa o degradê do tema.</small>
+            </div>
+          </div>
+          @if (erroCapa()) { <small class="erro">{{ erroCapa() }}</small> }
+        </div>
+      </div>
+    </section>
+
+    <section class="bloco">
+      <h2 class="bloco__titulo"><i class="pi pi-map-marker"></i> Local do evento</h2>
+      <div class="radios" role="radiogroup" aria-label="Local do evento">
+        <label class="radio"><input type="radio" formControlName="locationType" value="COMPANY"> <i class="pi pi-building"></i> Empresa do grupo</label>
+        <label class="radio"><input type="radio" formControlName="locationType" value="ADDRESS"> <i class="pi pi-map-marker"></i> Outro endereço</label>
+        <label class="radio"><input type="radio" formControlName="locationType" value="NONE"> Ainda sem local</label>
+      </div>
+
+      @switch (tipoLocalEvento()) {
+        @case ('COMPANY') {
+          <div class="form-field">
+            <label for="ev-empresa">Empresa</label>
+            <p-select inputId="ev-empresa" formControlName="companyId" [options]="opcoesEmpresa()" optionLabel="label" optionValue="value"
+                      placeholder="Escolha a empresa" [filter]="true" appendTo="body" styleClass="select-field" />
+            <small class="dica">O endereço vem do cadastro de empresas do RH. Vale para toda palestra que não disser outro lugar.</small>
+          </div>
+        }
+        @case ('ADDRESS') {
+          <div class="form-field">
+            <pk-input label="Nome do lugar" formControlName="placeName" [pkRequired]="true" [pkMaxLength]="150" placeholder="Hotel Bourbon" />
+          </div>
+          <app-address-fields [group]="enderecoEvento" [required]="true" />
+        }
+      }
+
+      @if (tipoLocalEvento() !== 'NONE') {
+        <app-map-preview [address]="mapaEvento()" [height]="220"
+                         [emptyText]="tipoLocalEvento() === 'COMPANY' ? 'Escolha uma empresa com endereço para ver no mapa' : 'Preencha rua e cidade para ver no mapa'" />
+      }
+    </section>
+  </form>
+
+  @if (atual(); as e) {
+    <section class="bloco bloco--programacao">
+      <div class="bloco__cabeca">
+        <h2 class="bloco__titulo"><i class="pi pi-microphone"></i> Programação</h2>
+        @if (!celular()) {
+          <pk-button *pkCan="'communication/events:ALTERAR'" pkType="new" pkSize="sm" pkLabel="Nova palestra" (clicked)="abrirPalestra('nova')" />
+        }
+      </div>
+
+      @if (!celular()) {
+        <div class="planilha planilha--solta">
+          <table class="sheet" data-testid="planilha-programacao">
+            <thead>
+              <tr><th>Horário</th><th>Palestra</th><th>Palestrantes</th><th>Onde</th><th class="col-acoes">—</th></tr>
+            </thead>
+            <tbody>
+              @for (grupo of programacao(); track grupo.dia) {
+                <tr class="grupo-dia"><td colspan="5">{{ grupo.rotulo }}</td></tr>
+                @for (t of grupo.palestras; track t.id) {
+                  <tr>
+                    <td class="num">{{ hhmm(t.startTime) }}–{{ hhmm(t.endTime) }}</td>
+                    <td [class.intervalo]="!t.speakers.length">{{ t.title }}</td>
+                    <td>{{ nomesDe(t) || '—' }}</td>
+                    <td>
+                      @if (t.locationType !== 'EVENT') {
+                        <span class="status-chip status-chip--warning"><i class="pi pi-map-marker"></i>Fora</span>
+                      }
+                      {{ ondeDe(t) }}
+                    </td>
+                    <td class="col-acoes">
+                      <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Editar" tooltipPosition="left" aria-label="Editar" (click)="abrirPalestra(t)"><i class="pi pi-pencil"></i></button>
+                      <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao acao--perigo" pTooltip="Excluir" tooltipPosition="left" aria-label="Excluir" (click)="excluindoPalestra.set(t)"><i class="pi pi-trash"></i></button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="dia-vazio">Nenhuma palestra neste dia.</td></tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="cartoes cartoes--soltos">
+          @for (grupo of programacao(); track grupo.dia) {
+            <p class="rotulo-dia">{{ grupo.rotulo }}</p>
+            @for (t of grupo.palestras; track t.id) {
+              <article class="cartao" [class.cartao--fora]="t.locationType !== 'EVENT'">
+                <button type="button" class="cartao__corpo" (click)="abrirPalestra(t)">
+                  <span class="cartao__titulo">{{ t.title }}</span>
+                  <span class="cartao__sub">{{ nomesDe(t) || 'Sem palestrante' }}</span>
+                </button>
+                <span class="cartao__canto">{{ hhmm(t.startTime) }}–{{ hhmm(t.endTime) }}</span>
+                <div class="cartao__rodape">
+                  <span class="status-chip" [class.status-chip--warning]="t.locationType !== 'EVENT'" [class.status-chip--neutral]="t.locationType === 'EVENT'">{{ ondeDe(t) }}</span>
+                  <button type="button" class="cartao__atalho cartao__atalho--fim" aria-label="Excluir" (click)="excluindoPalestra.set(t)"><i class="pi pi-trash"></i></button>
+                </div>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <div formActions>
+    @if (atual()) {
+      <pk-button *pkCan="'communication/events:EXCLUIR'" pkType="delete" pkSize="sm" pkLabel="Excluir evento" (clicked)="excluindo.set(true)" />
+    }
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="back.emit()" />
+    <pk-button pkType="save" pkSize="sm" [pkLabel]="atual() ? 'Salvar alterações' : 'Criar rascunho'" [pkLoading]="salvando()"
+               [pkDisabled]="form.invalid || periodoInvalido()" (clicked)="salvar()" />
+  </div>
+</app-form-screen>
+
+<!-- ═══ Palestra: um corpo, duas molduras (folha no celular, diálogo no computador) ═══ -->
+<ng-template #corpoPalestra>
+  <form class="form-palestra" [formGroup]="formPalestra" (ngSubmit)="salvarPalestra()">
+    <div class="form-grid">
+      <div class="form-field form-field--full">
+        <pk-input label="Título" formControlName="title" [pkRequired]="true" [pkMaxLength]="200" placeholder="Descontaminação de pintura na prática" />
+      </div>
+      <div class="form-field form-field--full">
+        <label for="pa-dia">Dia <span class="required">*</span></label>
+        <p-select inputId="pa-dia" formControlName="date" [options]="opcoesDia()" optionLabel="label" optionValue="value" appendTo="body" styleClass="select-field" />
+      </div>
+      <div class="form-field">
+        <label for="pa-inicio">Início <span class="required">*</span></label>
+        <input id="pa-inicio" type="time" formControlName="startTime" />
+      </div>
+      <div class="form-field">
+        <label for="pa-fim">Fim <span class="required">*</span></label>
+        <input id="pa-fim" type="time" formControlName="endTime" />
+        @if (horarioInvalido()) { <small class="erro">O fim precisa ser depois do início.</small> }
+      </div>
+      <div class="form-field form-field--full">
+        <label for="pa-descricao">Descrição <span class="label-hint">(opcional)</span></label>
+        <textarea id="pa-descricao" rows="2" formControlName="description"></textarea>
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Palestrantes <span class="label-hint">(vazio para intervalo, abertura, almoço)</span></label>
+      @if (palestrantesEscolhidos().length) {
+        <ol class="escolhidos">
+          @for (s of palestrantesEscolhidos(); track s.id; let i = $index) {
+            <li class="escolhido">
+              @if (foto(s); as src) { <img class="avatar" [src]="src" [alt]="s.name"> }
+              @else { <span class="avatar avatar--iniciais">{{ initials(s.name) }}</span> }
+              <span class="escolhido__nome">{{ s.name }}</span>
+              @if (i > 0) {
+                <button type="button" class="acao" aria-label="Subir na ordem" pTooltip="Subir" (click)="subirPalestrante(i)"><i class="pi pi-arrow-up"></i></button>
+              }
+              <button type="button" class="acao acao--perigo" aria-label="Tirar" pTooltip="Tirar" (click)="tirarPalestrante(s.id)"><i class="pi pi-times"></i></button>
+            </li>
+          }
+        </ol>
+      }
+      <p-select [options]="opcoesPalestrante()" optionLabel="label" optionValue="value" [filter]="true"
+                placeholder="Adicionar palestrante" appendTo="body" styleClass="select-field"
+                [ngModel]="palestranteParaAdicionar()" [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="adicionarPalestrante($event)" emptyMessage="Nenhum palestrante. Cadastre na aba Palestrantes." />
+    </div>
+
+    <div class="form-field">
+      <label>Onde</label>
+      <div class="radios" role="radiogroup" aria-label="Onde a palestra acontece">
+        <label class="radio"><input type="radio" formControlName="locationType" value="EVENT"> No local do evento</label>
+        <label class="radio"><input type="radio" formControlName="locationType" value="COMPANY"> <i class="pi pi-building"></i> Outra empresa do grupo</label>
+        <label class="radio"><input type="radio" formControlName="locationType" value="ADDRESS"> <i class="pi pi-map-marker"></i> Outro endereço</label>
+      </div>
+    </div>
+
+    @switch (tipoLocalPalestra()) {
+      @case ('COMPANY') {
+        <div class="form-field">
+          <label for="pa-empresa">Empresa</label>
+          <p-select inputId="pa-empresa" formControlName="companyId" [options]="opcoesEmpresa()" optionLabel="label" optionValue="value"
+                    placeholder="Escolha a empresa" [filter]="true" appendTo="body" styleClass="select-field" />
+        </div>
+      }
+      @case ('ADDRESS') {
+        <div class="form-field">
+          <pk-input label="Nome do lugar" formControlName="placeName" [pkRequired]="true" [pkMaxLength]="150" placeholder="Lava Rápido Estrela (cliente)" />
+        </div>
+        <app-address-fields [group]="enderecoPalestra" [required]="true" />
+      }
+    }
+
+    <div class="form-field">
+      <pk-input label="Sala" formControlName="room" [pkMaxLength]="100" placeholder="Auditório, Sala 2…" hint="Opcional, vale para qualquer lugar" />
+    </div>
+
+    @if (tipoLocalPalestra() !== 'EVENT') {
+      <app-map-preview [address]="mapaPalestra()" [height]="180" />
+    }
+  </form>
+</ng-template>
+
+@if (celular()) {
+  <pk-sheet [open]="!!palestra()" [title]="tituloPalestra()" (closed)="fecharPalestra()">
+    <div pkSheetBody>
+      <ng-container *ngTemplateOutlet="corpoPalestra" />
+    </div>
+    <div pkSheetFooter>
+      <pk-button pkType="cancel" pkLabel="Cancelar" (clicked)="fecharPalestra()" />
+      <pk-button pkType="save" pkLabel="Salvar" [pkLoading]="salvandoPalestra()" [pkDisabled]="formPalestra.invalid || horarioInvalido()" (clicked)="salvarPalestra()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [header]="tituloPalestra()" [visible]="!!palestra()" (visibleChange)="fecharPalestra()" width="760px">
+    <div pkDialogContent>
+      <div class="pk-form-section">
+        <ng-container *ngTemplateOutlet="corpoPalestra" />
+      </div>
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharPalestra()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar palestra" [pkLoading]="salvandoPalestra()" [pkDisabled]="formPalestra.invalid || horarioInvalido()" (clicked)="salvarPalestra()" />
+    </div>
+  </pk-dialog>
+}
+
+<pk-dialog header="Excluir palestra" [visible]="!!excluindoPalestra()" (visibleChange)="excluindoPalestra.set(null)" width="440px">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      @if (excluindoPalestra(); as t) {
+        <p class="confirmacao"><b>{{ t.title }}</b> sai da programação. Os palestrantes continuam cadastrados.</p>
+      }
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="excluindoPalestra.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" (clicked)="confirmarExclusaoPalestra()" />
+  </div>
+</pk-dialog>
+
+<pk-dialog header="Excluir evento" [visible]="excluindo()" (visibleChange)="excluindo.set(false)" width="460px">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      @if (atual(); as e) {
+        <p class="confirmacao"><b>{{ e.name }}</b> e toda a programação ({{ e.talks.length }} {{ e.talks.length === 1 ? 'item' : 'itens' }}) são apagados. Não dá para desfazer.</p>
+      }
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="excluindo.set(false)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" (clicked)="confirmarExclusao()" />
+  </div>
+</pk-dialog>

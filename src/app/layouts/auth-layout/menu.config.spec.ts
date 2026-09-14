@@ -72,6 +72,7 @@ describe('menu.config × app.routes', () => {
     'documentos/calculadoras',
     'documentos/holerites',
     'documentos/logos',
+    'documentos/eventos',
     'documentos/rh',
     'documentos/rh/announcements',
     'documentos/rh/documents',
