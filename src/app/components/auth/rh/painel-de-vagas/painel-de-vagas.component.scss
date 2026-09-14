@@ -18,6 +18,51 @@
   @include m.grid-screen-body;
 }
 
+// Seções da tela (Vagas · Banco de talentos). Fica acima da toolbar e das abas
+// de status, porque troca tudo o que vem abaixo — as abas de status só existem
+// dentro de Vagas.
+.hub-nav {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.hub-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  color: var(--app-text-muted);
+  font-family: v.$font-heading;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  i { font-size: var(--text-ui); }
+
+  &:hover { color: var(--app-text); background: var(--app-surface-2); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: -2px; }
+
+  &--ativa {
+    color: var(--app-action);
+    border-bottom-color: var(--app-action);
+  }
+}
+
+.hub-corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 // Abas de status no mesmo desenho do seletor da Estrutura Organizacional:
 // sublinhado na cor de ação, sem pílula colorida.
 .tabs-nav {

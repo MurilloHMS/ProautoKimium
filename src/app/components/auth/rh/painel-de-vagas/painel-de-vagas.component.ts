@@ -24,6 +24,7 @@ import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
+import { TalentBankPanelComponent } from '../talent-bank-panel/talent-bank-panel.component';
 
 type TabStatus = 'publicadas' | 'rascunho' | 'arquivadas' | 'encerradas';
 
@@ -49,6 +50,7 @@ const CAMPO_LIMITS = {
     CommonModule, FormsModule, TableModule, TagModule, ButtonModule,
     TooltipModule, BadgeModule, Select,
     DialogModule, TextareaModule, ToastModule, ToolbarComponent, FormScreenComponent, PkButtonComponent, PkTableComponent, PkInputComponent,
+    TalentBankPanelComponent,
   ],
   providers: [MessageService],
   templateUrl: './painel-de-vagas.component.html',
@@ -66,6 +68,9 @@ export class PainelDeVagasComponent implements OnInit, OnDestroy, TabDirtyCheck 
   private destroy$ = new Subject<void>();
 
   readonly limites = CAMPO_LIMITS;
+
+  /** Vagas ou banco de talentos. O estado das abas de status fica guardado ao trocar. */
+  readonly secao = signal<'vagas' | 'banco'>('vagas');
 
   activeTab: TabStatus = 'publicadas';
 

@@ -1,0 +1,125 @@
+@use 'mixins' as m;
+@use 'chips';
+@use 'tables';
+@use 'buttons';
+
+// Mesma casca de grade do painel de vagas: toolbar parada, tabela com o resto.
+:host { @include m.grid-screen; }
+
+.tabela-section {
+  @include m.grid-screen-body;
+}
+
+.candidato {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong {
+    font-weight: 600;
+    color: var(--app-text);
+  }
+
+  small {
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+  }
+}
+
+.chip-area {
+  display: inline-block;
+  font-size: var(--text-ui-sm);
+  font-weight: 500;
+  color: var(--app-text-muted);
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.vazio { color: var(--app-text-subtle); }
+
+// Origem não é status: texto com ícone, sem chip. Chip fica para o que tem papel de cor.
+.origem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+
+  i {
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+  }
+}
+
+.data {
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.col-acoes {
+  width: 7rem;
+  text-align: right;
+}
+
+.action-buttons { justify-content: flex-end; }
+
+.estado-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 3.5rem 1.5rem;
+  color: var(--app-text-subtle);
+  text-align: center;
+
+  i {
+    font-size: 2.5rem;
+    opacity: .45;
+  }
+}
+
+.estado-erro i { color: var(--app-danger); opacity: .7; }
+
+// ── Diálogo de exclusão ─────────────────────────────────────────────────────
+.exclusao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: var(--text-ui);
+  color: var(--app-text);
+
+  p { margin: 0; }
+}
+
+.exclusao__caminho {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+
+  li {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: var(--text-ui-sm);
+    line-height: 1.5;
+  }
+
+  i { margin-top: 3px; font-size: var(--text-ui-sm); }
+}
+
+.exclusao__sai i  { color: var(--app-danger); }
+.exclusao__fica i { color: var(--app-success); }
+
+.exclusao__aviso {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}

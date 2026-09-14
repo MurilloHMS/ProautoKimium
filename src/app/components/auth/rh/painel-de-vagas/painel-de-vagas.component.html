@@ -4,6 +4,29 @@
 
 <div class="page-content">
 
+  <!--
+    Duas seções na mesma tela, e não uma rota nova: a aba usa a permissão de
+    rh/painel-de-vagas, que já existe, e não precisou de migration de permissão.
+  -->
+  <nav class="hub-nav" aria-label="Seções do painel de vagas">
+    <button type="button" class="hub-tab" data-testid="secao-vagas"
+            [class.hub-tab--ativa]="secao() === 'vagas'"
+            [attr.aria-current]="secao() === 'vagas' ? 'page' : null"
+            (click)="secao.set('vagas')">
+      <i class="pi pi-briefcase"></i> Vagas
+    </button>
+    <button type="button" class="hub-tab" data-testid="secao-banco"
+            [class.hub-tab--ativa]="secao() === 'banco'"
+            [attr.aria-current]="secao() === 'banco' ? 'page' : null"
+            (click)="secao.set('banco')">
+      <i class="pi pi-folder-open"></i> Banco de talentos
+    </button>
+  </nav>
+
+  @if (secao() === 'banco') {
+    <app-talent-bank-panel class="hub-corpo" />
+  } @else {
+
   <app-toolbar>
     <pk-button pkType="new" pkSize="sm" pkLabel="Nova Vaga" (clicked)="abrirModalNova()"/>
     <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" (clicked)="recarregar()"/>
@@ -147,6 +170,8 @@
 
     }
   </div>
+
+  }
 
 </div>
 
