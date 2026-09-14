@@ -1,0 +1,115 @@
+// A receita da folha de baixo — ver `skills/kimiumhub/SKILL.md`, "Folha de baixo
+// no celular". Cada número aqui tem motivo, e está anotado.
+
+// Entre o overlay (1000) e o drawer (1100). Em 1200 empatava com `$z-modal`, e o
+// PrimeNG numera o diálogo dinamicamente a partir dali: o diálogo abria atrás.
+.pk-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: var(--app-overlay);
+  animation: pk-sheet-vela .2s ease;
+}
+
+.pk-sheet--sobreposta { z-index: 1060; }
+
+// 82dvh e 16px, escolhidos por ele no aparelho. `dvh` e não `vh`: o `vh` ignora a
+// barra do navegador que aparece e some, e o pé da folha some embaixo dela.
+.pk-sheet__painel {
+  height: 82dvh;
+  max-height: 82dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--app-surface);
+  border-radius: 16px 16px 0 0;
+  animation: pk-sheet-sobe .26s cubic-bezier(.32, .72, 0, 1);
+}
+
+// Cabeça e pé parados; só o miolo rola — senão o botão de salvar foge para baixo.
+.pk-sheet__cabeca {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+  padding: .6rem 1rem .7rem;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.pk-sheet__puxador {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--app-border);
+}
+
+.pk-sheet__titulo-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  width: 100%;
+}
+
+.pk-sheet__titulo {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.pk-sheet__fechar {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 1px; }
+}
+
+// `min-height: 0` não é enfeite: sem ele o item flex não encolhe abaixo do
+// próprio conteúdo e o `overflow-y` nunca vale.
+.pk-sheet__miolo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: .85rem 1rem;
+}
+
+.pk-sheet__pe {
+  flex: 0 0 auto;
+  padding: .7rem 1rem;
+  padding-bottom: calc(.7rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+
+  &:empty { display: none; }
+}
+
+// O `pk-button` não estica sozinho: o host aceita `flex: 1`, mas o `.pk-btn` de
+// dentro é `inline-flex` e ficaria do tamanho do texto. Alvo de 48px: público 40+.
+::ng-deep .pk-sheet__pe [pkSheetFooter] {
+  display: flex;
+  gap: .5rem;
+
+  > * { flex: 1; }
+  .pk-btn { width: 100%; min-height: 48px; }
+}
+
+@keyframes pk-sheet-vela { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pk-sheet-sobe { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pk-sheet, .pk-sheet__painel { animation: none; }
+}

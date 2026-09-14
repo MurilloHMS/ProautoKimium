@@ -1,0 +1,30 @@
+// CEP e número estreitos, rua larga: a grade segue o tamanho do que se digita.
+.endereco {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 110px;
+  grid-template-areas:
+    "cep    rua    numero"
+    "comp   bairro bairro"
+    "cidade cidade uf";
+  gap: 4px 12px;
+}
+
+.endereco__cep         { grid-area: cep; }
+.endereco__rua         { grid-area: rua; }
+.endereco__numero      { grid-area: numero; }
+.endereco__complemento { grid-area: comp; }
+.endereco__bairro      { grid-area: bairro; }
+.endereco__cidade      { grid-area: cidade; }
+.endereco__uf          { grid-area: uf; }
+
+@media (max-width: 620px) {
+  .endereco {
+    grid-template-columns: minmax(0, 1fr) 96px;
+    grid-template-areas:
+      "cep    cep"
+      "rua    numero"
+      "comp   comp"
+      "bairro bairro"
+      "cidade uf";
+  }
+}

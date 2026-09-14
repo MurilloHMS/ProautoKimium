@@ -1,4 +1,5 @@
 @use 'mixins' as m;
+@use 'chips';
 
 // Tela de grade dentro da Estrutura Organizacional.
 :host { @include m.grid-screen; }
@@ -19,3 +20,22 @@ app-form-screen {
   gap: 10px;
   margin-bottom: 16px;
 }
+
+.col-acoes { width: 4rem; text-align: right; }
+
+.secao-endereco {
+  margin: 20px 0 2px;
+  font-size: var(--text-ui);
+  font-weight: 700;
+  color: var(--app-text);
+
+  small { font-weight: 400; color: var(--app-text-subtle); }
+}
+
+.secao-dica {
+  margin: 0 0 10px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.mapa { margin-top: 12px; }

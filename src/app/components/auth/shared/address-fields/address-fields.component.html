@@ -1,0 +1,24 @@
+<div class="endereco" [formGroup]="group()">
+  <div class="endereco__cep" (input)="aoDigitarCep($event)">
+    <pk-input label="CEP" placeholder="87020-900" formControlName="zipCode" [pkMaxLength]="9"
+              [hint]="buscando() ? 'Buscando endereço…' : (naoEncontrado() ? 'CEP não encontrado. Preencha à mão.' : 'Preenche rua, bairro e cidade')"/>
+  </div>
+  <div class="endereco__rua">
+    <pk-input label="Logradouro" placeholder="Av. Colombo" formControlName="street" [pkRequired]="required()" [pkMaxLength]="150"/>
+  </div>
+  <div class="endereco__numero">
+    <pk-input label="Número" placeholder="5790" formControlName="number" [pkMaxLength]="20"/>
+  </div>
+  <div class="endereco__complemento">
+    <pk-input label="Complemento" placeholder="Bloco A" formControlName="complement" [pkMaxLength]="100"/>
+  </div>
+  <div class="endereco__bairro">
+    <pk-input label="Bairro" placeholder="Zona 7" formControlName="district" [pkMaxLength]="100"/>
+  </div>
+  <div class="endereco__cidade">
+    <pk-input label="Cidade" placeholder="Maringá" formControlName="city" [pkRequired]="required()" [pkMaxLength]="100"/>
+  </div>
+  <div class="endereco__uf">
+    <pk-input label="UF" placeholder="PR" formControlName="state" [pkMaxLength]="2"/>
+  </div>
+</div>

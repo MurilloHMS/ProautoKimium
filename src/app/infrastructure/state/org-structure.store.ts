@@ -33,6 +33,10 @@ export class CompanyStore extends ReferenceStore<Company> {
   create(request: CreateCompanyRequest): Observable<Company> {
     return this.withUpsert(this.service.create(request));
   }
+
+  update(id: string, request: CreateCompanyRequest): Observable<Company> {
+    return this.withUpsert(this.service.update(id, request));
+  }
 }
 
 @Injectable({ providedIn: 'root' })

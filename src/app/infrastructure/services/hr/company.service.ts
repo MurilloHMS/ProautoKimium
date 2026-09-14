@@ -18,4 +18,8 @@ export class CompanyService {
   create(request: CreateCompanyRequest): Observable<Company> {
     return this.http.post<Company>(`${environment.apiUrl}/hr/companies`, request);
   }
+
+  update(id: string, request: CreateCompanyRequest): Observable<Company> {
+    return this.http.put<Company>(`${environment.apiUrl}/hr/companies/${id}`, request);
+  }
 }
