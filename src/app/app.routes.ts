@@ -21,6 +21,8 @@ import { ForgotPasswordComponent } from './components/public/forgot-password/for
 import { FirstAccessComponent } from './components/public/first-access/first-access.component';
 import { TrabalheConoscoComponent } from './components/public/trabalhe-conosco/trabalhe-conosco.component';
 import { ViewSecretsComponent } from './components/public/view-secrets/view-secrets.component';
+import { TalentBankLinkRequestComponent } from './components/public/meu-curriculo/talent-bank-link-request.component';
+import { TalentBankEntryComponent } from './components/public/meu-curriculo/talent-bank-entry.component';
 import { VcardComponent } from './components/public/profile/vcard/vcard.component';
 import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
 import { clientGuard, clientLoggedOutGuard } from './infrastructure/guard/client.guard';
@@ -41,6 +43,10 @@ export const routes: Routes = [
       { path: 'support/faq', component: FaqComponent, pathMatch: 'full' },
       { path: 'branding', component: BrandingComponent, pathMatch: 'full' },
       { path: 'trabalhe-conosco', component: TrabalheConoscoComponent, pathMatch: 'full' },
+      // Banco de talentos: pedir o link, e o que a pessoa enviou. Sem `data.screen`
+      // — são públicas, e a permissão por tela só vale para rota autenticada.
+      { path: 'meu-curriculo', component: TalentBankLinkRequestComponent, pathMatch: 'full' },
+      { path: 'meu-curriculo/:token', component: TalentBankEntryComponent, pathMatch: 'full' },
       { path: 's/:token', component: ViewSecretsComponent, pathMatch: 'full' },
       { path: 'profile/:slug', component: VcardComponent, pathMatch: 'full' },
       { path: 'contato/eventos', component: ContatoEventosComponent, pathMatch: 'full' },

@@ -1,0 +1,560 @@
+@use 'variables' as v;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// "Meu currículo" — as duas telas do link do banco de talentos
+//
+// Continuação do trabalhe-conosco, então fala a mesma língua visual dele:
+// fundo claro, títulos em Plus Jakarta, ação primária em pílula. O molde de
+// comportamento é o `view-secrets` (token na URL, 410 e 404 com frases
+// distintas); o desenho, não — aquele é um cofre escuro, e isto é um formulário.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:host {
+  display: block;
+  background: v.$bg-base;
+  min-height: 70vh;
+  font-family: v.$font-body;
+  color: v.$neutral-700;
+  margin-top: 15px;
+}
+
+// ── Cartão centralizado (pedir link, estados finais) ────────────────────────
+.mc-centro {
+  padding: 3rem 1.25rem 4rem;
+  display: flex;
+  justify-content: center;
+}
+
+.mc-cartao {
+  width: 100%;
+  max-width: 440px;
+  background: v.$bg-panel;
+  border: 1px solid v.$bg-surface-dark;
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mc-cartao-topo {
+  display: flex;
+  gap: .8rem;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: v.$primary-dark;
+    line-height: 1.25;
+  }
+
+  p { font-size: .88rem; line-height: 1.55; margin-top: .2rem; }
+}
+
+.mc-marca {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: rgba(v.$primary, .08);
+  color: v.$primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 1.1rem; }
+}
+
+.mc-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .6rem;
+
+  h1 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: v.$primary-dark;
+  }
+
+  p { font-size: .9rem; line-height: 1.6; max-width: 36ch; }
+}
+
+.mc-icone {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(v.$primary, .08);
+  color: v.$primary;
+
+  i { font-size: 1.4rem; }
+
+  &--ok     { background: rgba(v.$secondary, .16); color: v.$secondary-dark; }
+  &--aviso  { background: rgba(v.$warning, .2);    color: #b7791f; }
+  &--neutro { background: v.$bg-surface;           color: v.$neutral-500; }
+}
+
+.mc-nota {
+  display: flex;
+  gap: .55rem;
+  align-items: flex-start;
+  padding: .7rem .85rem;
+  border-radius: 10px;
+  background: v.$bg-hover;
+  border: 1px solid v.$bg-surface-dark;
+  font-size: .8rem;
+  line-height: 1.5;
+
+  i { color: v.$neutral-500; font-size: .85rem; margin-top: .12rem; }
+}
+
+.mc-contagem {
+  font-size: .8rem;
+  color: v.$text-secondary;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-centralizado { text-align: center; }
+
+.mc-erro {
+  font-size: .8rem;
+  color: v.$danger;
+}
+
+// ── Campos ──────────────────────────────────────────────────────────────────
+.mc-campo {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  min-width: 0;
+
+  label, .mc-rotulo {
+    font-family: v.$font-heading;
+    font-size: .78rem;
+    font-weight: 700;
+    color: v.$primary;
+    letter-spacing: .03em;
+  }
+}
+
+.mc-opcional { font-weight: 400; color: v.$neutral-500; font-family: v.$font-body; }
+
+.mc-input {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  border: 1.5px solid v.$bg-surface-dark;
+  border-radius: 10px;
+  background: v.$bg-base;
+  padding: 0 .8rem;
+  transition: border-color .18s, box-shadow .18s;
+
+  i { color: v.$secondary; font-size: .85rem; }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    padding: .65rem 0;
+    font-family: v.$font-body;
+    font-size: .9rem;
+    color: v.$text-primary-color;
+  }
+
+  &:focus-within {
+    border-color: v.$secondary;
+    box-shadow: 0 0 0 3px rgba(v.$secondary, .14);
+    background: v.$bg-panel;
+  }
+
+  &--travado {
+    background: v.$bg-surface;
+
+    i { color: v.$neutral-500; }
+    input { color: v.$neutral-500; }
+  }
+
+  &--erro { border-color: v.$danger; }
+}
+
+.mc-dica {
+  font-size: .76rem;
+  color: v.$text-secondary;
+  line-height: 1.4;
+}
+
+:host ::ng-deep .mc-select {
+  width: 100%;
+  border: 1.5px solid v.$bg-surface-dark;
+  border-radius: 10px;
+  background: v.$bg-base;
+}
+
+// ── Botões ──────────────────────────────────────────────────────────────────
+.mc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border-radius: 99px;
+  padding: .62rem 1.3rem;
+  font-family: v.$font-heading;
+  font-size: .86rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition: background .18s, border-color .18s, color .18s, opacity .18s;
+
+  i { font-size: .82rem; }
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid v.$primary; outline-offset: 2px; }
+
+  &--primario {
+    background: v.$secondary;
+    color: #fff;
+
+    &:hover:not(:disabled) { background: v.$secondary-dark; }
+  }
+
+  &--secundario {
+    background: none;
+    border-color: v.$bg-surface-dark;
+    color: v.$neutral-700;
+
+    &:hover:not(:disabled) { border-color: v.$primary; color: v.$primary; }
+  }
+
+  &--perigo {
+    background: none;
+    border-color: v.$danger;
+    color: v.$danger;
+
+    &:hover:not(:disabled) { background: rgba(v.$danger, .08); }
+  }
+
+  &--perigo-cheio {
+    background: v.$danger;
+    color: #fff;
+
+    &:hover:not(:disabled) { background: color-mix(in srgb, v.$danger 85%, #000); }
+  }
+
+  &--largo { width: 100%; }
+
+  &--texto {
+    background: none;
+    color: v.$primary;
+    font-size: .8rem;
+    padding: .4rem .6rem;
+
+    &:hover { background: rgba(v.$primary, .06); }
+  }
+}
+
+// ── Tela do link aberto ─────────────────────────────────────────────────────
+.mc-pagina {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.mc-identidade {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mc-eyebrow {
+  font-family: v.$font-heading;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: v.$text-secondary;
+}
+
+.mc-nome {
+  font-family: v.$font-heading;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: v.$primary-dark;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  margin-top: .15rem;
+}
+
+.mc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem 1.1rem;
+  margin-top: .35rem;
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+
+  span { display: inline-flex; align-items: center; gap: .35rem; }
+  i { font-size: .75rem; color: v.$neutral-500; }
+}
+
+.mc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  border-radius: 99px;
+  padding: .28rem .8rem;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  i { font-size: .75rem; }
+
+  &--ok     { background: rgba(v.$secondary, .16); color: v.$secondary-dark; }
+  &--aviso  { background: rgba(v.$warning, .22);   color: #975a16; }
+  &--neutro { background: v.$bg-surface;           color: v.$neutral-700; }
+}
+
+.mc-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+
+.mc-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.mc-painel {
+  background: v.$bg-panel;
+  border: 1px solid v.$bg-surface-dark;
+  border-radius: 12px;
+}
+
+.mc-painel-topo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .8rem 1rem;
+  border-bottom: 1px solid v.$bg-surface-dark;
+  font-family: v.$font-heading;
+  font-size: .9rem;
+  font-weight: 700;
+  color: v.$primary-dark;
+
+  i { color: v.$neutral-500; font-size: .85rem; }
+}
+
+.mc-painel-corpo {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+}
+
+.mc-painel-rodape {
+  padding: .8rem 1rem;
+  border-top: 1px solid v.$bg-surface-dark;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.mc-porque {
+  margin-right: auto;
+  font-size: .78rem;
+  color: v.$text-secondary;
+
+  &--ok { color: v.$secondary-dark; font-weight: 600; }
+}
+
+.mc-duas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem;
+}
+
+.mc-inteira { grid-column: 1 / -1; }
+
+.mc-caixa {
+  display: flex;
+  gap: .65rem;
+  align-items: flex-start;
+  font-size: .85rem;
+  line-height: 1.55;
+  cursor: pointer;
+
+  input {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: .15rem;
+    accent-color: v.$primary;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  strong { color: v.$primary-dark; font-weight: 600; }
+}
+
+.mc-prazo-novo {
+  padding-left: 1.7rem;
+  font-size: .8rem;
+  font-weight: 600;
+  color: v.$secondary-dark;
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-arquivo {
+  display: flex;
+  gap: .8rem;
+  align-items: center;
+
+  div { flex: 1; min-width: 0; }
+
+  strong {
+    display: block;
+    font-size: .88rem;
+    color: v.$primary-dark;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small { font-size: .78rem; color: v.$text-secondary; }
+}
+
+.mc-arquivo-icone {
+  width: 2.4rem;
+  height: 2.9rem;
+  border-radius: 6px;
+  background: rgba(v.$danger, .1);
+  color: v.$danger;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+
+  &--vazio { background: v.$bg-surface; color: v.$neutral-500; }
+}
+
+.mc-botoes {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.mc-arquivo-input { display: none; }
+
+.mc-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: .8rem;
+    padding: .6rem 0;
+    font-size: .86rem;
+    font-variant-numeric: tabular-nums;
+
+    span:last-child { color: v.$text-secondary; white-space: nowrap; }
+  }
+
+  li + li { border-top: 1px solid v.$bg-surface-dark; }
+}
+
+.mc-vazio {
+  font-size: .84rem;
+  color: v.$text-secondary;
+}
+
+// ── Apagar ──────────────────────────────────────────────────────────────────
+.mc-apagar {
+  background: v.$bg-panel;
+  border: 1px solid v.$bg-surface-dark;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: .95rem;
+    font-weight: 700;
+    color: v.$primary-dark;
+  }
+
+  p { font-size: .82rem; line-height: 1.5; margin-top: .15rem; max-width: 60ch; }
+
+  &--confirmando {
+    border-color: v.$danger;
+    background: rgba(v.$danger, .04);
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.mc-apagar-confirmacao {
+  display: flex;
+  gap: .6rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  .mc-campo { flex: 1 1 220px; }
+}
+
+.mc-palavra {
+  font-family: v.$font-mono;
+  font-weight: 700;
+  color: v.$danger;
+  letter-spacing: .04em;
+}
+
+.mc-carregando {
+  padding: 5rem 1rem;
+  text-align: center;
+  color: v.$text-secondary;
+
+  i { font-size: 1.6rem; }
+}
+
+@media (max-width: 760px) {
+  .mc-grade { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 520px) {
+  .mc-duas { grid-template-columns: minmax(0, 1fr); }
+  .mc-nome { font-size: 1.35rem; }
+  .mc-apagar-confirmacao .mc-btn { flex: 1 1 auto; }
+}

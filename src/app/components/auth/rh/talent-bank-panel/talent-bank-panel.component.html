@@ -1,0 +1,174 @@
+<app-toolbar>
+  <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" (clicked)="carregar()" />
+
+  @if (filtrosAtivos()) {
+    <span class="toolbar__divider"></span>
+    <pk-button pkType="filter" pkSize="sm" pkLabel="Limpar filtros" pkIcon="pi pi-filter-slash" (clicked)="limparFiltros()" />
+  }
+
+  <div filters>
+    <p-select
+      [options]="opcoesArea()"
+      [ngModel]="filtros().area"
+      (ngModelChange)="aoFiltrar('area', $event)"
+      placeholder="Todas as áreas"
+      [showClear]="true"
+      appendTo="body"
+      ariaLabel="Área"
+      styleClass="select-field" />
+
+    <p-select
+      [options]="opcoesOrigem"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filtros().origem"
+      (ngModelChange)="aoFiltrar('origem', $event)"
+      appendTo="body"
+      ariaLabel="Origem"
+      styleClass="select-field" />
+
+    <p-select
+      [options]="opcoesConsentimento"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filtros().consentimento"
+      (ngModelChange)="aoFiltrar('consentimento', $event)"
+      appendTo="body"
+      ariaLabel="Autorização"
+      styleClass="select-field" />
+
+    <p-select
+      [options]="opcoesSituacao"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="filtros().situacao"
+      (ngModelChange)="aoFiltrar('situacao', $event)"
+      appendTo="body"
+      ariaLabel="Situação"
+      styleClass="select-field" />
+
+    <input type="text"
+           class="toolbar-search"
+           placeholder="Nome, e-mail ou telefone…"
+           aria-label="Buscar no banco de talentos"
+           [ngModel]="filtros().q"
+           (ngModelChange)="aoDigitarBusca($event)" />
+  </div>
+</app-toolbar>
+
+<div class="tabela-section">
+  @if (erro()) {
+    <div class="estado-vazio estado-erro" data-testid="erro">
+      <i class="pi pi-exclamation-circle"></i>
+      <p>Ocorreu um erro ao carregar o banco de talentos.</p>
+      <pk-button pkType="refresh" pkSize="sm" pkLabel="Tentar novamente" (clicked)="carregar()" />
+    </div>
+  } @else {
+    <pk-table
+      [data]="linhas()"
+      [loading]="carregando()"
+      [showCaption]="false"
+      emptyIcon="pi pi-folder-open"
+      [emptyTitle]="filtrosAtivos() ? 'Ninguém corresponde aos filtros' : 'O banco de talentos está vazio'"
+      [emptySubtitle]="filtrosAtivos() ? 'Troque ou limpe os filtros.' : 'Os cadastros do Trabalhe Conosco aparecem aqui.'"
+      pageReportTitle="candidatos">
+
+      <ng-template #headerTpl>
+        <tr>
+          <th>Candidato</th>
+          <th>Área</th>
+          <th>Origem</th>
+          <th>Autorização</th>
+          <th>Cadastro</th>
+          <th class="col-acoes">Ações</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #bodyTpl let-linha>
+        <tr data-testid="linha">
+          <td>
+            <div class="candidato">
+              <strong>{{ linha.nome }}</strong>
+              <small>{{ linha.email }}</small>
+            </div>
+          </td>
+          <td>
+            @if (linha.areaInteresse) {
+              <span class="chip-area">{{ linha.areaInteresse }}</span>
+            } @else {
+              <span class="vazio">—</span>
+            }
+          </td>
+          <td>
+            <span class="origem">
+              @if (linha.espontaneo) {
+                <i class="pi pi-folder-open"></i> Sem vaga
+              } @else {
+                <i class="pi pi-briefcase"></i>
+                {{ linha.quantidadeDeCandidaturas }} {{ linha.quantidadeDeCandidaturas === 1 ? 'candidatura' : 'candidaturas' }}
+              }
+            </span>
+          </td>
+          <td>
+            <span class="status-chip status-chip--{{ linha.situacao.papel }}"
+                  data-testid="situacao"
+                  [pTooltip]="dicaDaSituacao(linha)"
+                  tooltipPosition="top">
+              <i [class]="linha.situacao.icone"></i>{{ linha.situacao.rotulo }}
+            </span>
+          </td>
+          <td class="data">{{ formatarData(linha.criadoEm) }}</td>
+          <td class="col-acoes">
+            <div class="action-buttons">
+              @if (podeBaixar()) {
+                <pk-button pkType="download" pkSize="sm" [pkIconOnly]="true"
+                           [pkDisabled]="!linha.temCurriculo"
+                           [pkTooltip]="linha.temCurriculo ? 'Baixar currículo' : 'Sem currículo guardado'"
+                           (clicked)="baixar(linha)" />
+              }
+              <pk-button *pkCan="'rh/painel-de-vagas:EXCLUIR'"
+                         pkType="delete" pkSize="sm" [pkIconOnly]="true"
+                         pkTooltip="Excluir do banco de talentos"
+                         (clicked)="pedirExclusao(linha)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </pk-table>
+  }
+</div>
+
+<pk-dialog header="Excluir do banco de talentos"
+           [visible]="!!excluindo()"
+           (visibleChange)="fecharExclusao()"
+           width="480px">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      @if (excluindo(); as alvo) {
+        <div class="exclusao" data-testid="exclusao">
+          @if (alvo.quantidadeDeCandidaturas > 0) {
+            <p>
+              <strong>{{ alvo.nome }}</strong> tem {{ alvo.quantidadeDeCandidaturas }}
+              {{ alvo.quantidadeDeCandidaturas === 1 ? 'candidatura registrada' : 'candidaturas registradas' }}.
+            </p>
+            <ul class="exclusao__caminho">
+              <li class="exclusao__sai"><i class="pi pi-trash"></i> Nome, telefone, LinkedIn e currículo são apagados.</li>
+              <li class="exclusao__fica"><i class="pi pi-inbox"></i> {{ alvo.quantidadeDeCandidaturas === 1 ? 'A candidatura continua' : 'As candidaturas continuam' }} no histórico da vaga, sem os dados pessoais.</li>
+            </ul>
+          } @else {
+            <p><strong>{{ alvo.nome }}</strong> se cadastrou sem vaga.</p>
+            <ul class="exclusao__caminho">
+              <li class="exclusao__sai"><i class="pi pi-trash"></i> O cadastro e o currículo são apagados por inteiro.</li>
+            </ul>
+          }
+          <p class="exclusao__aviso">Não dá para desfazer.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" [pkDisabled]="excluindoSalvando()" (clicked)="fecharExclusao()" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" [pkLoading]="excluindoSalvando()" (clicked)="confirmarExclusao()" />
+  </div>
+</pk-dialog>
