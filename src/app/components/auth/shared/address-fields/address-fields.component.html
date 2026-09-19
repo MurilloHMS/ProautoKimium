@@ -21,4 +21,19 @@
   <div class="endereco__uf">
     <pk-input label="UF" placeholder="PR" formControlName="state" [pkMaxLength]="2"/>
   </div>
+
+  <!--
+    O ponto no mapa não tem campo, mas tem que dar sinal: quem cadastra precisa
+    saber, antes de salvar, que aquele endereço não vai abrir no Uber.
+  -->
+  @if (localizando()) {
+    <p class="endereco__ponto" data-testid="ponto-status">
+      <i class="pi pi-spin pi-spinner"></i> Localizando no mapa…
+    </p>
+  } @else if (semPonto()) {
+    <p class="endereco__ponto endereco__ponto--aviso" data-testid="ponto-status">
+      <i class="pi pi-exclamation-triangle"></i>
+      Não encontramos este endereço no mapa. Dá para salvar assim — só o Uber não vai aparecer em "Como chegar".
+    </p>
+  }
 </div>

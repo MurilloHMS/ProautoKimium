@@ -37,13 +37,14 @@
         <h2 class="onde__nome">{{ local()!.name }}</h2>
         @if (enderecoDoEvento()) {
           <p class="onde__endereco">{{ enderecoDoEvento() }}</p>
-          <app-directions-menu [address]="enderecoDoEvento()" />
+          <app-directions-menu [address]="enderecoDoEvento()" [coords]="ponto(local())" />
         } @else {
           <p class="onde__endereco onde__endereco--vazio">Endereço não cadastrado.</p>
         }
         <p class="dica">Cada palestra usa este local, a não ser que diga outro.</p>
       </div>
-      <app-map-preview [address]="enderecoDoEvento()" [height]="190" emptyText="Sem endereço para o mapa" />
+      <app-map-preview [address]="enderecoDoEvento()" [coords]="ponto(local())" [height]="190"
+                       emptyText="Sem endereço para o mapa" />
     </section>
   }
 
@@ -103,11 +104,11 @@
                 </span>
               </div>
               @if (texto(t.location)) {
-                <app-directions-menu [address]="texto(t.location)" />
+                <app-directions-menu [address]="texto(t.location)" [coords]="ponto(t.location)" />
               }
             </div>
             @if (texto(t.location)) {
-              <app-map-preview [address]="texto(t.location)" [height]="150" />
+              <app-map-preview [address]="texto(t.location)" [coords]="ponto(t.location)" [height]="150" />
             }
           }
 

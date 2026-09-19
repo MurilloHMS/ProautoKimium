@@ -42,11 +42,25 @@ export function isUsableAddress(a: Address | null | undefined): boolean {
   return !!a && temTexto(a.street) && temTexto(a.city);
 }
 
+/** O ponto no mapa, quando o geocodificador achou. Sempre os dois juntos. */
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+/** O ponto do endereço, ou `null` quando ele não foi localizado. */
+export function coordinatesOf(a: Address | null | undefined): Coordinates | null {
+  return typeof a?.latitude === 'number' && typeof a?.longitude === 'number'
+    ? { latitude: a.latitude, longitude: a.longitude }
+    : null;
+}
+
 export interface DirectionsLinks {
   waze: string;
   googleMaps: string;
   appleMaps: string;
-  uber: string;
+  /** `null` sem coordenadas — ver `uberLink`. */
+  uber: string | null;
 }
 
 /**
@@ -54,29 +68,65 @@ export interface DirectionsLinks {
  *
  * - **Waze** e **Google Maps**: links universais, abrem o app se instalado.
  * - **Apple Maps**: `maps.apple.com` abre o Mapas no iPhone e o site no resto.
- * - **Uber**: o deep link aceita só o endereço de destino em texto
- *   (`dropoff[formatted_address]`); sem coordenadas o app pede para confirmar o
- *   ponto — é o preço de não guardar latitude e longitude.
+ * - **Uber**: ver `uberLink` — é o único que não busca por texto solto.
  */
-export function directionsLinks(texto: string): DirectionsLinks {
+export function directionsLinks(texto: string, ponto?: Coordinates | null): DirectionsLinks {
   const q = encodeURIComponent(texto);
   return {
     waze: `https://waze.com/ul?q=${q}&navigate=yes`,
     googleMaps: `https://www.google.com/maps/search/?api=1&query=${q}`,
     appleMaps: `https://maps.apple.com/?q=${q}`,
-    uber: `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff%5Bformatted_address%5D=${q}`,
+    uber: ponto ? uberLink(texto, ponto) : null,
   };
+}
+
+/**
+ * O destino do Uber — o único dos quatro que **não** procura por texto.
+ *
+ * <p>Descoberto no duro em 2026-09-19: ele testou os quatro botões no iPhone e
+ * só o Uber abriu pedindo para digitar o destino. Eram dois erros somados.
+ *
+ * 1. O formato antigo daqui era `dropoff[formatted_address]`, sintaxe do Ride
+ *    Request Widget, que a Uber aposentou. Parâmetro que ela não conhece é
+ *    ignorado calado — nenhum erro, só o app abrindo vazio. O link de hoje quer
+ *    `drop`, uma **lista** de objetos `Location` em JSON.
+ * 2. Mesmo no formato certo, o texto não basta. A documentação do `Location` diz
+ *    de `addressLine2`: *"will not override the latitude/longitude"*. As duas
+ *    linhas de endereço são o **rótulo do pino**; quem localiza é o par de
+ *    números. O único campo que a Uber aceita sem coordenada é `pickup`, e só
+ *    porque `my_location` o app resolve sozinho.
+ *
+ * Por isso `directionsLinks` devolve `null` aqui quando o endereço não tem
+ * ponto: botão que abre o app em branco é pior do que botão nenhum. Waze, Google
+ * Maps e Apple Maps continuam saindo sempre — esses sabem procurar por texto.
+ *
+ * Os colchetes vão codificados porque `[` e `]` não valem em query string; o
+ * servidor da Uber decodifica antes de ler.
+ */
+function uberLink(texto: string, ponto: Coordinates): string {
+  const destino = encodeURIComponent(JSON.stringify({
+    latitude: ponto.latitude,
+    longitude: ponto.longitude,
+    addressLine1: texto,
+  }));
+  return `https://m.uber.com/ul/?action=setPickup&pickup=my_location&drop%5B0%5D=${destino}`;
 }
 
 /**
  * O mapa embutido, sem chave (decisão dele).
  *
+ * Com o ponto, a URL leva a coordenada e o mapa cai exatamente nela; sem ele,
+ * leva o texto e o Google procura — o que às vezes para no centro da cidade.
+ * Era o risco anotado no mockup quando ele escolheu o mapa sem chave, e que as
+ * coordenadas guardadas desde a V107 tiram do caminho.
+ *
  * `output=embed` é um recurso gratuito do Google que não é a Maps Embed API
  * oficial: se um dia parar, a troca é esta função — a oficial muda só a URL e
  * pede `key=`.
  */
-export function mapEmbedUrl(texto: string): string {
-  return `https://maps.google.com/maps?q=${encodeURIComponent(texto)}&z=16&output=embed`;
+export function mapEmbedUrl(texto: string, ponto?: Coordinates | null): string {
+  const q = ponto ? `${ponto.latitude},${ponto.longitude}` : texto;
+  return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=${ponto ? 17 : 16}&output=embed`;
 }
 
 /** "87020900" e "87020-900" viram "87020900"; qualquer outra coisa, null. */

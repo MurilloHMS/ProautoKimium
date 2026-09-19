@@ -94,7 +94,7 @@
       }
 
       @if (tipoLocalEvento() !== 'NONE') {
-        <app-map-preview [address]="mapaEvento()" [height]="220"
+        <app-map-preview [address]="mapaEvento().texto" [coords]="mapaEvento().ponto" [height]="220"
                          [emptyText]="tipoLocalEvento() === 'COMPANY' ? 'Escolha uma empresa com endereço para ver no mapa' : 'Preencha rua e cidade para ver no mapa'" />
       }
     </section>
@@ -253,7 +253,7 @@
     </div>
 
     @if (tipoLocalPalestra() !== 'EVENT') {
-      <app-map-preview [address]="mapaPalestra()" [height]="180" />
+      <app-map-preview [address]="mapaPalestra().texto" [coords]="mapaPalestra().ponto" [height]="180" />
     }
   </form>
 </ng-template>

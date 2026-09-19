@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import { mapEmbedUrl } from '../../../../domain/utils/address';
+import { Coordinates, mapEmbedUrl } from '../../../../domain/utils/address';
 
 /**
  * O mapa do Google pelo endereço em texto, sem chave (decisão dele).
@@ -45,11 +45,13 @@ export class MapPreviewComponent {
 
   /** O texto já formatado ("Av. Colombo, 5790 - Zona 7, Maringá - PR"). */
   readonly address = input<string | null | undefined>('');
+  /** Havendo o ponto, o mapa cai nele em vez de procurar pelo texto. */
+  readonly coords = input<Coordinates | null>(null);
   readonly height = input(200);
   readonly emptyText = input('Preencha rua e cidade para ver no mapa');
 
   readonly url = computed<SafeResourceUrl | null>(() => {
     const texto = (this.address() ?? '').trim();
-    return texto ? this.sanitizer.bypassSecurityTrustResourceUrl(mapEmbedUrl(texto)) : null;
+    return texto ? this.sanitizer.bypassSecurityTrustResourceUrl(mapEmbedUrl(texto, this.coords())) : null;
   });
 }

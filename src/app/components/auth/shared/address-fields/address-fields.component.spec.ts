@@ -3,6 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { of } from 'rxjs';
 
 import { AddressFieldsComponent, addressFromGroup, addressGroup } from './address-fields.component';
+import { GeocodingService } from '../../../../infrastructure/services/address/geocoding.service';
 import { ZipCodeService } from '../../../../infrastructure/services/address/zip-code.service';
 import { providersDeTeste } from '../../../../../testing/test-setup';
 
@@ -11,11 +12,16 @@ const esperar = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 describe('AddressFieldsComponent', () => {
   const zip = { lookup: jasmine.createSpy('lookup') };
+  const geo = { lookup: jasmine.createSpy('lookup') };
 
-  function montar(inicial: Record<string, string> = {}) {
+  function montar(inicial: Record<string, unknown> = {}) {
     TestBed.configureTestingModule({
       imports: [AddressFieldsComponent],
-      providers: [...providersDeTeste(), { provide: ZipCodeService, useValue: zip }],
+      providers: [
+        ...providersDeTeste(),
+        { provide: ZipCodeService, useValue: zip },
+        { provide: GeocodingService, useValue: geo },
+      ],
     });
     const group = addressGroup(TestBed.inject(FormBuilder), inicial as any);
     const fixture = TestBed.createComponent(AddressFieldsComponent);
@@ -24,7 +30,11 @@ describe('AddressFieldsComponent', () => {
     return { fixture, group };
   }
 
-  beforeEach(() => zip.lookup.calls.reset());
+  beforeEach(() => {
+    zip.lookup.calls.reset();
+    geo.lookup.calls.reset();
+    geo.lookup.and.returnValue(of(null));
+  });
 
   it('o CEP preenche rua, bairro, cidade e UF', async () => {
     zip.lookup.and.returnValue(of({ zipCode: '87020-900', street: 'Av. Colombo', district: 'Zona 7', city: 'Maringá', state: 'PR' }));
@@ -76,6 +86,71 @@ describe('AddressFieldsComponent', () => {
 
     expect(addressFromGroup(group)).toEqual({
       zipCode: null, street: 'Av. Colombo', number: null, complement: null, district: null, city: 'Maringá', state: 'PR',
+      latitude: null, longitude: null,
     });
+  });
+
+  // ── O ponto no mapa ─────────────────────────────────────────────────────────
+  // Sem ele o Uber abre pedindo o destino: ele roteia por coordenada, e o
+  // endereço em texto é só o rótulo do pino.
+
+  it('endereço completo vira um ponto, que vai junto para a API', async () => {
+    geo.lookup.and.returnValue(of({ latitude: -23.422847, longitude: -51.93205 }));
+    const { group } = montar({ street: 'R. Néo Alves Martins', number: '2100' });
+
+    group.get('city')!.setValue('Maringá');
+    await esperar(1000);
+
+    expect(geo.lookup).toHaveBeenCalledWith('R. Néo Alves Martins, 2100, Maringá');
+    expect(addressFromGroup(group).latitude).toBe(-23.422847);
+    expect(addressFromGroup(group).longitude).toBe(-51.93205);
+  });
+
+  it('sem rua ou sem cidade não gasta consulta no Nominatim', async () => {
+    const { group } = montar();
+
+    group.get('street')!.setValue('R. Néo Alves Martins');
+    await esperar(1000);
+
+    expect(geo.lookup).not.toHaveBeenCalled();
+  });
+
+  /**
+   * O caso que mais importa: o pino do endereço anterior não pode sobrar. Se
+   * sobrasse, o Uber abriria confiante no endereço errado — pior do que não
+   * abrir.
+   */
+  it('trocar o endereço apaga o ponto antigo quando o novo não é encontrado', async () => {
+    geo.lookup.and.returnValue(of({ latitude: -23.422847, longitude: -51.93205 }));
+    const { fixture, group } = montar({ street: 'R. Néo Alves Martins', number: '2100' });
+
+    group.get('city')!.setValue('Maringá');
+    await esperar(1000);
+    expect(addressFromGroup(group).latitude).toBe(-23.422847);
+
+    geo.lookup.and.returnValue(of(null));
+    group.get('street')!.setValue('Rua Que Não Existe');
+    await esperar(1000);
+    fixture.detectChanges();
+
+    expect(addressFromGroup(group).latitude).toBeNull();
+    expect(addressFromGroup(group).longitude).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Não encontramos este endereço no mapa');
+  });
+
+  it('mexer só no complemento não refaz a busca do ponto', async () => {
+    geo.lookup.and.returnValue(of({ latitude: -23.422847, longitude: -51.93205 }));
+    const { group } = montar({ street: 'R. Néo Alves Martins', number: '2100' });
+
+    group.get('city')!.setValue('Maringá');
+    await esperar(1000);
+    expect(geo.lookup).toHaveBeenCalledTimes(1);
+
+    // "Bloco A" não muda o ponto, e por isso fica de fora de `formatAddress`.
+    group.get('complement')!.setValue('Bloco A');
+    await esperar(1000);
+
+    expect(geo.lookup).toHaveBeenCalledTimes(1);
+    expect(addressFromGroup(group).latitude).toBe(-23.422847);
   });
 });

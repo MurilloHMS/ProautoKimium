@@ -5,7 +5,8 @@
   grid-template-areas:
     "cep    rua    numero"
     "comp   bairro bairro"
-    "cidade cidade uf";
+    "cidade cidade uf"
+    "ponto  ponto  ponto";
   gap: 4px 12px;
 }
 
@@ -17,6 +18,22 @@
 .endereco__cidade      { grid-area: cidade; }
 .endereco__uf          { grid-area: uf; }
 
+.endereco__ponto {
+  grid-area: ponto;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 2px 0 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  line-height: 1.4;
+
+  i { margin-top: 2px; font-size: var(--text-micro); }
+}
+
+// Aviso e não erro: o endereço sem ponto é salvo do mesmo jeito.
+.endereco__ponto--aviso i { color: var(--app-warning); }
+
 @media (max-width: 620px) {
   .endereco {
     grid-template-columns: minmax(0, 1fr) 96px;
@@ -25,6 +42,7 @@
       "rua    numero"
       "comp   comp"
       "bairro bairro"
-      "cidade uf";
+      "cidade uf"
+      "ponto  ponto";
   }
 }
