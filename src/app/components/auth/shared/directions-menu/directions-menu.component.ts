@@ -1,9 +1,10 @@
 import { Component, ElementRef, HostListener, computed, inject, input, signal } from '@angular/core';
 
-import { directionsLinks } from '../../../../domain/utils/address';
+import { Coordinates, directionsLinks } from '../../../../domain/utils/address';
 
 /**
- * "Como chegar": Waze, Google Maps, Apple Maps e Uber pelo endereço em texto.
+ * "Como chegar": Waze, Google Maps e Apple Maps pelo endereço em texto, e o
+ * Uber quando há coordenada — só ele exige (ver `uberLink`).
  *
  * Links comuns (`<a target="_blank">`), e não `window.open` num clique: no
  * celular o link universal é o que abre o app instalado em vez do site.
@@ -26,8 +27,10 @@ import { directionsLinks } from '../../../../domain/utils/address';
             <i class="pi pi-map"></i> Google Maps</a>
           <a role="menuitem" [href]="links().appleMaps" target="_blank" rel="noopener" (click)="aberto.set(false)">
             <i class="pi pi-apple"></i> Apple Maps</a>
-          <a role="menuitem" [href]="links().uber" target="_blank" rel="noopener" (click)="aberto.set(false)">
-            <i class="pi pi-car"></i> Uber</a>
+          @if (links().uber; as uber) {
+            <a role="menuitem" [href]="uber" target="_blank" rel="noopener" (click)="aberto.set(false)">
+              <i class="pi pi-car"></i> Uber</a>
+          }
         </div>
       }
     </div>
@@ -68,12 +71,20 @@ export class DirectionsMenuComponent {
   private readonly host = inject(ElementRef<HTMLElement>);
 
   readonly address = input.required<string>();
+  /**
+   * O ponto do endereço, quando o Nominatim achou.
+   *
+   * Sem ele o Uber some do menu: o link universal da Uber roteia por coordenada
+   * e o endereço em texto é só o rótulo do pino, então o botão abriria o app
+   * pedindo o destino.
+   */
+  readonly coords = input<Coordinates | null>(null);
   readonly label = input('Como chegar');
   /** Sobre a capa escura do evento. */
   readonly light = input(false);
 
   readonly aberto = signal(false);
-  readonly links = computed(() => directionsLinks(this.address()));
+  readonly links = computed(() => directionsLinks(this.address(), this.coords()));
 
   @HostListener('document:click', ['$event'])
   fecharFora(event: MouseEvent): void {

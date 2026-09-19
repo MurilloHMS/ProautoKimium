@@ -13,7 +13,7 @@ import {
   EventDetail, EventLocationType, EventTalk, Speaker, TalkLocationType, TalkRequest,
 } from '../../../../domain/models/events.model';
 import { apiMessage } from '../../../../domain/utils/api-error';
-import { formatAddress, isUsableAddress } from '../../../../domain/utils/address';
+import { Coordinates, coordinatesOf, formatAddress, isUsableAddress } from '../../../../domain/utils/address';
 import { dayTab, eventDays, formatDateBr, formatStamp, hhmm, initials } from '../../../../domain/utils/events';
 import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
@@ -99,18 +99,7 @@ export class EventFormComponent implements OnInit {
 
   readonly tipoLocalEvento = computed(() => this.valorEvento()?.locationType ?? 'NONE');
 
-  readonly mapaEvento = computed(() => {
-    const v = this.valorEvento();
-    if (!v) return '';
-    if (v.locationType === 'COMPANY') {
-      const empresa = this.companies.items().find(c => c.id === v.companyId);
-      return empresa?.address ? (empresa.address.formatted || formatAddress(empresa.address)) : '';
-    }
-    if (v.locationType === 'ADDRESS') {
-      return isUsableAddress(v.address) ? formatAddress(v.address) : '';
-    }
-    return '';
-  });
+  readonly mapaEvento = computed(() => this.mapaDe(this.valorEvento(), 'NONE'));
 
   readonly periodoInvalido = computed(() => {
     const v = this.valorEvento();
@@ -157,16 +146,39 @@ export class EventFormComponent implements OnInit {
 
   readonly tipoLocalPalestra = computed(() => this.valorPalestra()?.locationType ?? 'EVENT');
 
-  readonly mapaPalestra = computed(() => {
-    const v = this.valorPalestra();
-    if (!v) return '';
+  readonly mapaPalestra = computed(() => this.mapaDe(this.valorPalestra(), 'EVENT'));
+
+  /**
+   * O que mostrar no mapa: o texto e, quando existe, o ponto exato.
+   *
+   * O ponto vem pronto da empresa escolhida ou sai dos campos escondidos que o
+   * `app-address-fields` preenche pelo Nominatim enquanto se digita — é o que
+   * deixa o mapa cair no lugar certo em vez de procurar pelo texto, e é o que o
+   * botão do Uber exige para aparecer depois, na visualização.
+   *
+   * @param semLocal o `locationType` que significa "não tem lugar próprio":
+   *                 `NONE` no evento, `EVENT` na palestra, que herda o do evento.
+   */
+  private mapaDe(v: { locationType?: string; companyId?: string | null; address?: Address | null } | undefined,
+                 semLocal: string): { texto: string; ponto: Coordinates | null } {
+    const vazio = { texto: '', ponto: null };
+    if (!v || v.locationType === semLocal) return vazio;
+
     if (v.locationType === 'COMPANY') {
       const empresa = this.companies.items().find(c => c.id === v.companyId);
-      return empresa?.address ? (empresa.address.formatted || formatAddress(empresa.address)) : '';
+      if (!empresa?.address) return vazio;
+      return {
+        texto: empresa.address.formatted || formatAddress(empresa.address),
+        ponto: coordinatesOf(empresa.address),
+      };
     }
-    if (v.locationType === 'ADDRESS') return isUsableAddress(v.address) ? formatAddress(v.address) : '';
-    return '';
-  });
+
+    if (v.locationType === 'ADDRESS' && isUsableAddress(v.address)) {
+      return { texto: formatAddress(v.address), ponto: coordinatesOf(v.address) };
+    }
+
+    return vazio;
+  }
 
   readonly horarioInvalido = computed(() => {
     const v = this.valorPalestra();

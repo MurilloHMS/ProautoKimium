@@ -77,7 +77,7 @@
       <h3 class="secao-endereco">Endereço <small>(opcional)</small></h3>
       <p class="secao-dica">É de onde os eventos lêem o local quando acontecem nesta empresa.</p>
       <app-address-fields [group]="address" />
-      <app-map-preview class="mapa" [address]="addressText()" [height]="220" />
+      <app-map-preview class="mapa" [address]="addressText()" [coords]="addressCoords()" [height]="220" />
     </form>
 
     <div formActions>

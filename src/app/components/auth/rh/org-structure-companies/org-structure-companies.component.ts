@@ -17,7 +17,7 @@ import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-chec
 import { CompanyStore } from '../../../../infrastructure/state/org-structure.store';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { Company } from '../../../../domain/models/hr/org-structure.model';
-import { formatAddress, isUsableAddress } from '../../../../domain/utils/address';
+import { coordinatesOf, formatAddress, isUsableAddress } from '../../../../domain/utils/address';
 
 @Component({
   selector: 'app-org-structure-companies',
@@ -60,6 +60,9 @@ export class OrgStructureCompaniesComponent implements OnInit, TabDirtyCheck {
     const valor = this.addressValue();
     return isUsableAddress(valor) ? formatAddress(valor) : '';
   });
+
+  /** O ponto que o Nominatim achou, para o mapa cair nele em vez de procurar. */
+  readonly addressCoords = computed(() => coordinatesOf(this.addressValue()));
 
   readonly formatAddress = formatAddress;
 

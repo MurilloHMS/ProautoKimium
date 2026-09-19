@@ -1,10 +1,11 @@
 import { Component, DestroyRef, OnInit, inject, input, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { Address } from '../../../../domain/models/address.model';
-import { maskZip, onlyZipDigits } from '../../../../domain/utils/address';
+import { Coordinates, formatAddress, isUsableAddress, maskZip, onlyZipDigits } from '../../../../domain/utils/address';
+import { GeocodingService } from '../../../../infrastructure/services/address/geocoding.service';
 import { ZipCodeService } from '../../../../infrastructure/services/address/zip-code.service';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 
@@ -18,6 +19,10 @@ export function addressGroup(fb: FormBuilder, value?: Address | null): FormGroup
     district: [value?.district ?? '', [Validators.maxLength(100)]],
     city: [value?.city ?? '', [Validators.maxLength(100)]],
     state: [value?.state ?? '', [Validators.pattern(/^$|^[A-Za-z]{2}$/)]],
+    // Sem campo na tela: quem preenche é o Nominatim, e quem lê é o Uber e o
+    // mapa. Ficam no grupo para ir junto no salvar e voltar junto no editar.
+    latitude: [value?.latitude ?? null],
+    longitude: [value?.longitude ?? null],
   });
 }
 
@@ -33,7 +38,14 @@ export function addressFromGroup(group: FormGroup): Address {
     district: limpo(v.district),
     city: limpo(v.city),
     state: limpo(v.state)?.toUpperCase() ?? null,
+    // Ou as duas ou nenhuma, como o CHECK da V107 exige.
+    latitude: temPonto(v) ? v.latitude : null,
+    longitude: temPonto(v) ? v.longitude : null,
   };
+}
+
+function temPonto(v: { latitude?: unknown; longitude?: unknown }): boolean {
+  return typeof v.latitude === 'number' && typeof v.longitude === 'number';
 }
 
 /**
@@ -42,6 +54,12 @@ export function addressFromGroup(group: FormGroup): Address {
  * **O CEP preenche o resto**, e só o que estiver vazio: quem corrigiu a rua à
  * mão e depois mexeu no CEP não perde a correção. Número e complemento nunca
  * vêm do CEP.
+ *
+ * **E o endereço pronto vira um ponto no mapa**, pelo Nominatim, guardado em
+ * campos sem tela. É o que faz o Uber abrir no lugar certo — ele roteia por
+ * coordenada, não por texto (ver `GeocodingService`). Endereço que o Nominatim
+ * não acha é salvo sem ponto: o cadastro segue, e o botão do Uber é o único que
+ * não aparece.
  */
 @Component({
   selector: 'app-address-fields',
@@ -52,6 +70,7 @@ export function addressFromGroup(group: FormGroup): Address {
 })
 export class AddressFieldsComponent implements OnInit {
   private readonly zip = inject(ZipCodeService);
+  private readonly geo = inject(GeocodingService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly group = input.required<FormGroup>();
@@ -61,7 +80,16 @@ export class AddressFieldsComponent implements OnInit {
   readonly buscando = signal(false);
   readonly naoEncontrado = signal(false);
 
+  /** O estado do ponto no mapa, para a linha de aviso embaixo dos campos. */
+  readonly localizando = signal(false);
+  readonly semPonto = signal(false);
+
   ngOnInit(): void {
+    this.ligarBuscaDeCep();
+    this.ligarBuscaDoPonto();
+  }
+
+  private ligarBuscaDeCep(): void {
     const cep = this.group().get('zipCode')!;
 
     cep.valueChanges.pipe(
@@ -84,6 +112,52 @@ export class AddressFieldsComponent implements OnInit {
       }
       this.preencherVazios(achado);
     });
+  }
+
+  /**
+   * O ponto é refeito sempre que o endereço muda de verdade.
+   *
+   * O gatilho é o texto formatado, e não cada tecla: trocar "Bloco A" no
+   * complemento não move o pino, e `distinctUntilChanged` sobre o texto já
+   * descarta isso — o complemento fica de fora de `formatAddress`. A espera de
+   * 900 ms é maior que a do CEP porque aqui se digita rua e número seguidos, e
+   * também porque o Nominatim é um serviço gratuito que pede parcimônia.
+   *
+   * **Coordenada velha é apagada antes da busca.** Sem isso, mudar a rua e o
+   * Nominatim não achar a nova deixaria o pino da anterior — e o Uber abriria
+   * confiante no endereço errado, que é pior do que não abrir.
+   */
+  private ligarBuscaDoPonto(): void {
+    const g = this.group();
+
+    g.valueChanges.pipe(
+      map(() => formatAddress(addressFromGroup(g))),
+      debounceTime(900),
+      distinctUntilChanged(),
+      tap(() => this.limparPonto()),
+      filter(() => isUsableAddress(addressFromGroup(g))),
+      switchMap(texto => {
+        this.localizando.set(true);
+        return this.geo.lookup(texto);
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(ponto => {
+      this.localizando.set(false);
+      this.semPonto.set(!ponto);
+      if (ponto) this.gravarPonto(ponto);
+    });
+  }
+
+  private limparPonto(): void {
+    this.semPonto.set(false);
+    this.gravarPonto(null);
+  }
+
+  /** `emitEvent: false`: gravar o ponto não pode disparar outra busca. */
+  private gravarPonto(ponto: Coordinates | null): void {
+    const g = this.group();
+    g.get('latitude')!.setValue(ponto?.latitude ?? null, { emitEvent: false });
+    g.get('longitude')!.setValue(ponto?.longitude ?? null, { emitEvent: false });
   }
 
   aoDigitarCep(event: Event): void {

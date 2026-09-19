@@ -6,6 +6,8 @@ const matriz: Address = {
   district: 'Zona 7', city: 'Maringá', state: 'pr',
 };
 
+const PONTO = { latitude: -23.422847, longitude: -51.93205 };
+
 describe('formatAddress', () => {
 
   it('monta o mesmo texto da API, sem o complemento', () => {
@@ -39,9 +41,38 @@ describe('directionsLinks', () => {
     expect(l.waze).toBe('https://waze.com/ul?q=Av.%20Colombo%2C%205790%20-%20Zona%207%2C%20Maring%C3%A1%20-%20PR&navigate=yes');
     expect(l.googleMaps).toContain('query=Av.%20Colombo');
     expect(l.appleMaps).toContain('maps.apple.com/?q=Av.%20Colombo');
-    // `dropoff[formatted_address]` com os colchetes codificados: sem isso o
-    // Uber ignora o destino e abre só com a origem.
-    expect(l.uber).toContain('dropoff%5Bformatted_address%5D=Av.%20Colombo');
+  });
+
+  // O primeiro formato usava `dropoff[formatted_address]`, do widget aposentado.
+  // O Uber não recusa parâmetro que não conhece: abria o app com a origem e o
+  // destino em branco. O link de hoje leva `drop[0]` com um `Location` em JSON.
+  it('manda o destino do Uber como Location em JSON, e não pelo formato do widget antigo', () => {
+    const l = directionsLinks('Av. Colombo, 5790 - Zona 7, Maringá - PR', PONTO);
+
+    expect(l.uber).not.toContain('dropoff');
+    const destino = JSON.parse(new URL(l.uber!).searchParams.get('drop[0]')!);
+    expect(destino.addressLine1).toBe('Av. Colombo, 5790 - Zona 7, Maringá - PR');
+  });
+
+  // A documentação é explícita: `addressLine2` "will not override the
+  // latitude/longitude". O texto é o rótulo do pino; quem localiza é o par de
+  // números. Sem eles o app abre pedindo o destino — foi o que ele viu no
+  // iPhone em 2026-09-19.
+  it('leva o ponto do mapa para o Uber, que não roteia por texto', () => {
+    const destino = JSON.parse(new URL(directionsLinks('Av. Colombo', PONTO).uber!).searchParams.get('drop[0]')!);
+
+    expect(destino.latitude).toBe(-23.422847);
+    expect(destino.longitude).toBe(-51.93205);
+  });
+
+  it('sem coordenadas não oferece o Uber, em vez de oferecer um botão que abre vazio', () => {
+    const l = directionsLinks('Av. Colombo, 5790 - Zona 7, Maringá - PR');
+
+    expect(l.uber).toBeNull();
+    // Os outros três procuram por texto e continuam valendo.
+    expect(l.waze).toContain('Av.%20Colombo');
+    expect(l.googleMaps).toContain('Av.%20Colombo');
+    expect(l.appleMaps).toContain('Av.%20Colombo');
   });
 
   it('um & no nome do lugar não quebra a URL', () => {
@@ -53,6 +84,12 @@ describe('mapEmbedUrl', () => {
 
   it('usa o embed sem chave', () => {
     expect(mapEmbedUrl('Maringá - PR')).toBe('https://maps.google.com/maps?q=Maring%C3%A1%20-%20PR&z=16&output=embed');
+  });
+
+  it('com o ponto, aponta a coordenada em vez de buscar pelo texto', () => {
+    // Busca por texto às vezes cai no centro da cidade; a coordenada é o ponto.
+    expect(mapEmbedUrl('Av. Colombo, 5790', PONTO))
+      .toBe('https://maps.google.com/maps?q=-23.422847%2C-51.93205&z=17&output=embed');
   });
 });
 

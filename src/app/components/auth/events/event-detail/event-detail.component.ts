@@ -1,7 +1,7 @@
 import { Component, computed, effect, input, output, signal, untracked } from '@angular/core';
 
 import { EventDetail, EventLocation, EventTalk, Speaker } from '../../../../domain/models/events.model';
-import { formatAddress } from '../../../../domain/utils/address';
+import { Coordinates, coordinatesOf, formatAddress } from '../../../../domain/utils/address';
 import {
   SaoPauloNow, TalkStatus, dayTab, downloadText, eventDays, formatPeriod, googleCalendarLink, hhmm,
   icsFileName, icsForEvent, icsForTalk, initialDay, initials, instagramUrl, linkedinUrl, talkStatuses, websiteUrl,
@@ -98,6 +98,11 @@ export class EventDetailComponent {
   texto(local: EventLocation | null | undefined): string {
     const a = local?.address;
     return a ? (a.formatted || formatAddress(a)) : '';
+  }
+
+  /** O ponto do mapa, quando o endereço foi localizado — o Uber depende dele. */
+  ponto(local: EventLocation | null | undefined): Coordinates | null {
+    return coordinatesOf(local?.address);
   }
 
   foto(s: Speaker): string | null {
