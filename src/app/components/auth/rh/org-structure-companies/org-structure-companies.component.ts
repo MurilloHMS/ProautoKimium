@@ -11,7 +11,7 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
-import { AddressFieldsComponent, addressFromGroup, addressGroup } from '../../shared/address-fields/address-fields.component';
+import { AddressFieldsComponent, addressFromGroup, addressGroup, addressPatch } from '../../shared/address-fields/address-fields.component';
 import { MapPreviewComponent } from '../../shared/map-preview/map-preview.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { CompanyStore } from '../../../../infrastructure/state/org-structure.store';
@@ -85,15 +85,7 @@ export class OrgStructureCompaniesComponent implements OnInit, TabDirtyCheck {
       name: company?.name ?? '',
       legalName: company?.legalName ?? '',
       cnpj: company?.cnpj ?? '',
-      address: {
-        zipCode: company?.address?.zipCode ?? '',
-        street: company?.address?.street ?? '',
-        number: company?.address?.number ?? '',
-        complement: company?.address?.complement ?? '',
-        district: company?.address?.district ?? '',
-        city: company?.address?.city ?? '',
-        state: company?.address?.state ?? '',
-      },
+      address: addressPatch(company?.address),
     });
     this.mode.set('form');
   }

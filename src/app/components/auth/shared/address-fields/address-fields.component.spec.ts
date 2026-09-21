@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { of } from 'rxjs';
 
-import { AddressFieldsComponent, addressFromGroup, addressGroup } from './address-fields.component';
+import { AddressFieldsComponent, addressFromGroup, addressGroup, addressPatch } from './address-fields.component';
 import { GeocodingService } from '../../../../infrastructure/services/address/geocoding.service';
 import { ZipCodeService } from '../../../../infrastructure/services/address/zip-code.service';
 import { providersDeTeste } from '../../../../../testing/test-setup';
@@ -152,5 +152,61 @@ describe('AddressFieldsComponent', () => {
 
     expect(geo.lookup).toHaveBeenCalledTimes(1);
     expect(addressFromGroup(group).latitude).toBe(-23.422847);
+  });
+  /**
+   * O caso que ele encontrou na produção em 2026-09-21: a empresa já tinha
+   * endereço (salvo antes da V107, portanto sem ponto), ele abriu, salvou, e o
+   * Uber continuou sem aparecer. O componente só reagia a mudanças — o que já
+   * estava no grupo ao montar nunca era localizado.
+   */
+  it('endereço que já vem preenchido é localizado ao montar', async () => {
+    geo.lookup.and.returnValue(of({ latitude: -23.422847, longitude: -51.93205 }));
+    const { group } = montar({ street: 'R. Néo Alves Martins', number: '2100', city: 'Maringá', state: 'PR' });
+
+    await esperar(50);
+
+    expect(geo.lookup).toHaveBeenCalledTimes(1);
+    expect(addressFromGroup(group).latitude).toBe(-23.422847);
+  });
+
+  it('endereço que já vem com ponto não gasta consulta de novo', async () => {
+    const { group } = montar({
+      street: 'R. Néo Alves Martins', number: '2100', city: 'Maringá', state: 'PR',
+      latitude: -23.422847, longitude: -51.93205,
+    });
+
+    await esperar(50);
+
+    expect(geo.lookup).not.toHaveBeenCalled();
+    expect(addressFromGroup(group).latitude).toBe(-23.422847);
+  });
+
+  it('endereço incompleto ao montar não consulta nada', async () => {
+    montar({ street: 'R. Néo Alves Martins' });
+
+    await esperar(50);
+
+    expect(geo.lookup).not.toHaveBeenCalled();
+  });
+
+  /**
+   * `reset` com um objeto parcial zera o que ficou de fora. Sem o ponto no
+   * molde, editar o nome de uma empresa apagava a coordenada dela.
+   */
+  it('o molde do formulário carrega o ponto junto com o resto', () => {
+    expect(addressPatch({
+      zipCode: '87013-060', street: 'R. Néo Alves Martins', number: '2100', complement: null,
+      district: 'Zona 01', city: 'Maringá', state: 'PR', latitude: -23.422847, longitude: -51.93205,
+    })).toEqual({
+      zipCode: '87013-060', street: 'R. Néo Alves Martins', number: '2100', complement: '',
+      district: 'Zona 01', city: 'Maringá', state: 'PR', latitude: -23.422847, longitude: -51.93205,
+    });
+  });
+
+  it('sem endereço, o molde vem vazio e sem ponto', () => {
+    expect(addressPatch(null)).toEqual({
+      zipCode: '', street: '', number: '', complement: '', district: '', city: '', state: '',
+      latitude: null, longitude: null,
+    });
   });
 });

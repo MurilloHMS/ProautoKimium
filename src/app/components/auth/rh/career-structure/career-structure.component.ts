@@ -24,6 +24,7 @@ import {
 } from '../../../../domain/models/hr/career.model';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
+import { lerValorDoCampo } from '../../../../infrastructure/validators/valor-decimal';
 
 @Component({
   selector: 'app-career-structure',
@@ -230,7 +231,8 @@ export class CareerStructureComponent implements OnInit, TabDirtyCheck {
       levelOrder,
       positionId: position.id,
       adjustmentType,
-      fixedAmount: adjustmentType === 'FIXED' ? fixedAmount : null,
+      // O campo tem máscara: entrega texto ("3.500,00"), e a API quer número.
+      fixedAmount: adjustmentType === 'FIXED' ? lerValorDoCampo(fixedAmount) : null,
       percentageIncrease: adjustmentType === 'PERCENTAGE' ? percentageIncrease : null,
     };
 

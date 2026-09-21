@@ -103,7 +103,7 @@
       <div class="calc-card">
         <form [formGroup]="bulkFuelForm" (ngSubmit)="calculateBulkFuel()" class="calc-inline-form">
           <div class="form-field">
-            <pk-input label="Preço do litro (R$)" placeholder="Ex: 5.50" [pkRequired]="true" type="number" formControlName="fuelPricePerLiter"/>
+            <pk-input label="Preço do litro (R$)" placeholder="0,00" [pkRequired]="true" [pkDecimals]="2" formControlName="fuelPricePerLiter"/>
           </div>
           <div class="form-field">
             <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>
@@ -182,7 +182,7 @@
             </p-select>
           </div>
           <div class="form-field">
-            <pk-input label="Novo valor (R$)" placeholder="Ex: 5.00" [pkRequired]="true" type="number" formControlName="newTicketPrice"/>
+            <pk-input label="Novo valor (R$)" placeholder="0,00" [pkRequired]="true" [pkDecimals]="2" formControlName="newTicketPrice"/>
           </div>
           <div class="calc-inline-form__actions">
             <pk-button pkType="save" (clicked)="adjustTicketPrices()" pkLabel="Aplicar Reajuste" pkSize="sm" [pkDisabled]="adjustmentForm.invalid" [pkLoading]="adjustmentLoading"/>
@@ -219,7 +219,7 @@
           </p-select>
         </div>
         <div class="form-field">
-          <pk-input label="Valor da refeição (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="mealValue"/>
+          <pk-input label="Valor da refeição (R$)" placeholder="0,00" [pkRequired]="true" [pkDecimals]="2" formControlName="mealValue"/>
         </div>
         <div class="form-field">
           <pk-input label="Dias trabalhados" placeholder="Ex: 22" [pkRequired]="true" type="number" formControlName="workingDays"/>

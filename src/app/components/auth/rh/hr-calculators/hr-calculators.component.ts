@@ -8,6 +8,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { PayrollCalculatorService } from '../../../../infrastructure/services/hr/payroll-calculator.service';
+import { lerValorDoCampo, valorMinimo } from '../../../../infrastructure/validators/valor-decimal';
 import {
   BulkFuelResponse,
   BulkTransportVoucherResponse,
@@ -89,20 +90,32 @@ export class HrCalculatorsComponent implements OnInit {
     });
 
     this.bulkFuelForm = this.fb.group({
-      fuelPricePerLiter: [null, [Validators.required, Validators.min(0.01)]],
+      fuelPricePerLiter: [null, [Validators.required, valorMinimo(0.01)]],
       workingDays: [null, [Validators.required, Validators.min(1)]],
     });
 
     this.adjustmentForm = this.fb.group({
       transportType: [null, Validators.required],
-      newTicketPrice: [null, [Validators.required, Validators.min(0.01)]],
+      newTicketPrice: [null, [Validators.required, valorMinimo(0.01)]],
     });
 
     this.vrForm = this.fb.group({
       employeeId: [null, Validators.required],
-      mealValue: [null, [Validators.required, Validators.min(0.01)]],
+      mealValue: [null, [Validators.required, valorMinimo(0.01)]],
       workingDays: [null, [Validators.required, Validators.min(1)]],
     });
+  }
+
+
+  /**
+   * O formulário com o campo de dinheiro já convertido para número.
+   *
+   * Os campos com máscara entregam texto em português ("1.234,56"), e a API
+   * espera número. Sem isto o cálculo sairia errado — ou não sairia — sem erro
+   * nenhum na tela.
+   */
+  private comValor(form: FormGroup, campo: string): any {
+    return { ...form.value, [campo]: lerValorDoCampo(form.value[campo]) };
   }
 
   ngOnInit(): void {
@@ -161,7 +174,7 @@ export class HrCalculatorsComponent implements OnInit {
     if (!this.bulkFuelForm.valid) return;
 
     this.bulkFuelLoading = true;
-    this.calculatorService.calculateBulkFuel(this.bulkFuelForm.value).subscribe({
+    this.calculatorService.calculateBulkFuel(this.comValor(this.bulkFuelForm, 'fuelPricePerLiter')).subscribe({
       next: (result) => {
         this.bulkFuelLoading = false;
         this.bulkFuelResult = result;
@@ -192,7 +205,7 @@ export class HrCalculatorsComponent implements OnInit {
     if (!this.adjustmentForm.valid) return;
 
     this.adjustmentLoading = true;
-    this.calculatorService.adjustTicketPrices(this.adjustmentForm.value).subscribe({
+    this.calculatorService.adjustTicketPrices(this.comValor(this.adjustmentForm, 'newTicketPrice')).subscribe({
       next: (result) => {
         this.adjustmentLoading = false;
         this.adjustmentResult = result;
@@ -219,7 +232,7 @@ export class HrCalculatorsComponent implements OnInit {
     if (!this.vrForm.valid) return;
 
     this.vrLoading = true;
-    this.calculatorService.calculateMealVoucher(this.vrForm.value).subscribe({
+    this.calculatorService.calculateMealVoucher(this.comValor(this.vrForm, 'mealValue')).subscribe({
       next: (result) => {
         this.vrLoading = false;
         this.vrResult = result;

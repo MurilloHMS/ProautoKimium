@@ -8,6 +8,7 @@ import { ReimbursementService } from '../../../infrastructure/services/hr/reimbu
 import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 import { formatDateBr } from '../../../domain/utils/date-only';
+import { lerValorDoCampo, valorMinimo } from '../../../infrastructure/validators/valor-decimal';
 
 @Component({
   selector: 'app-hr-reimbursements',
@@ -37,7 +38,7 @@ export class HrReimbursementsComponent implements OnInit {
   constructor(private service: ReimbursementService, private fb: FormBuilder) {
     this.form = this.fb.group({
       expenseDate: [null, Validators.required],
-      amount: [null, [Validators.required, Validators.min(0.01)]],
+      amount: ['', [Validators.required, valorMinimo(0.01)]],
       category: ['', Validators.required],
       reason: ['', Validators.required],
     });
@@ -76,7 +77,7 @@ export class HrReimbursementsComponent implements OnInit {
     this.enviando.set(true);
     const { expenseDate, amount, category, reason } = this.form.value as {
       expenseDate: Date;
-      amount: number;
+      amount: string;
       category: string;
       reason: string;
     };
@@ -84,7 +85,8 @@ export class HrReimbursementsComponent implements OnInit {
     this.service
       .request({
         expenseDate: this.toIsoDate(expenseDate),
-        amount,
+        // O campo entrega o texto da máscara ("1.234,56"); a API quer o número.
+        amount: lerValorDoCampo(amount) ?? 0,
         category,
         reason,
         receipt: this.selectedReceipt,
