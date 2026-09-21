@@ -23,7 +23,7 @@ import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-but
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
-import { AddressFieldsComponent, addressFromGroup, addressGroup } from '../../shared/address-fields/address-fields.component';
+import { AddressFieldsComponent, addressFromGroup, addressGroup, addressPatch } from '../../shared/address-fields/address-fields.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
 import { MapPreviewComponent } from '../../shared/map-preview/map-preview.component';
 
@@ -225,11 +225,7 @@ export class EventFormComponent implements OnInit {
       locationType: e ? (e.locationType ?? 'NONE') : 'COMPANY',
       companyId: e?.locationType === 'COMPANY' ? e.location?.companyId ?? null : null,
       placeName: e?.locationType === 'ADDRESS' ? e.location?.name ?? '' : '',
-      address: {
-        zipCode: endereco?.zipCode ?? '', street: endereco?.street ?? '', number: endereco?.number ?? '',
-        complement: endereco?.complement ?? '', district: endereco?.district ?? '', city: endereco?.city ?? '',
-        state: endereco?.state ?? '',
-      },
+      address: addressPatch(endereco),
     });
   }
 
@@ -348,11 +344,7 @@ export class EventFormComponent implements OnInit {
       locationType: p?.locationType ?? 'EVENT',
       companyId: p?.locationType === 'COMPANY' ? p.location?.companyId ?? null : null,
       placeName: p?.locationType === 'ADDRESS' ? p.location?.name ?? '' : '',
-      address: {
-        zipCode: endereco?.zipCode ?? '', street: endereco?.street ?? '', number: endereco?.number ?? '',
-        complement: endereco?.complement ?? '', district: endereco?.district ?? '', city: endereco?.city ?? '',
-        state: endereco?.state ?? '',
-      },
+      address: addressPatch(endereco),
     });
     this.palestrantesEscolhidos.set(p ? [...p.speakers] : []);
     this.palestranteParaAdicionar.set(null);

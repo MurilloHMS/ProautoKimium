@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { Address } from '../../../../domain/models/address.model';
-import { Coordinates, formatAddress, isUsableAddress, maskZip, onlyZipDigits } from '../../../../domain/utils/address';
+import { Coordinates, coordinatesOf, formatAddress, isUsableAddress, maskZip, onlyZipDigits } from '../../../../domain/utils/address';
 import { GeocodingService } from '../../../../infrastructure/services/address/geocoding.service';
 import { ZipCodeService } from '../../../../infrastructure/services/address/zip-code.service';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
@@ -24,6 +24,27 @@ export function addressGroup(fb: FormBuilder, value?: Address | null): FormGroup
     latitude: [value?.latitude ?? null],
     longitude: [value?.longitude ?? null],
   });
+}
+
+/**
+ * O molde para `form.reset()` / `patchValue()` de quem embute este grupo.
+ *
+ * Existe porque `reset` com objeto parcial **zera o que ficou de fora**: as
+ * telas montavam o endereço campo a campo, esqueciam latitude e longitude, e
+ * editar o nome de uma empresa apagava o ponto dela no mapa.
+ */
+export function addressPatch(a: Address | null | undefined): Record<string, unknown> {
+  return {
+    zipCode: a?.zipCode ?? '',
+    street: a?.street ?? '',
+    number: a?.number ?? '',
+    complement: a?.complement ?? '',
+    district: a?.district ?? '',
+    city: a?.city ?? '',
+    state: a?.state ?? '',
+    latitude: a?.latitude ?? null,
+    longitude: a?.longitude ?? null,
+  };
 }
 
 /** Do formulário para a API: campo em branco vai `null`. */
@@ -87,6 +108,37 @@ export class AddressFieldsComponent implements OnInit {
   ngOnInit(): void {
     this.ligarBuscaDeCep();
     this.ligarBuscaDoPonto();
+    this.localizarOQueJaVeio();
+  }
+
+  /**
+   * O endereço que já estava no grupo quando a tela abriu também precisa de
+   * ponto.
+   *
+   * Sem isto o componente só reagia a mudanças, e endereço salvo antes da V107
+   * — que não tem coordenada — nunca ganhava uma: abrir o cadastro e salvar de
+   * novo não adiantava, porque nada mudava. Foi o que ele encontrou na
+   * produção em 2026-09-21.
+   *
+   * Quem já tem ponto é deixado em paz: a consulta seria desperdício, e trocar
+   * um ponto conferido por outro do Nominatim seria pior.
+   *
+   * Na prática não briga com `ligarBuscaDoPonto`: as telas preenchem o
+   * formulário **antes** de mostrá-lo, então este componente nasce depois do
+   * `reset` e aquele fluxo nem chega a ver a mudança.
+   */
+  private localizarOQueJaVeio(): void {
+    const atual = addressFromGroup(this.group());
+    if (!isUsableAddress(atual) || coordinatesOf(atual)) return;
+
+    this.localizando.set(true);
+    this.geo.lookup(formatAddress(atual))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(ponto => {
+        this.localizando.set(false);
+        this.semPonto.set(!ponto);
+        if (ponto) this.gravarPonto(ponto);
+      });
   }
 
   private ligarBuscaDeCep(): void {

@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
@@ -8,6 +8,21 @@ import { ReimbursementService } from '../../../infrastructure/services/hr/reimbu
 import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 import { formatDateBr } from '../../../domain/utils/date-only';
+import { lerDecimal } from '../../../domain/utils/decimal-br';
+
+/**
+ * Mínimo de um centavo, lido do texto da máscara.
+ *
+ * `Validators.min` não serve aqui: ele compara o valor do campo, que agora é
+ * "1.234,56" — texto. `Number('1.234,56')` é `NaN`, e `NaN >= 0.01` é falso,
+ * então todo valor seria recusado. Com dois dígitos ("12" → "0,12") a conta
+ * por acaso funcionaria, e o defeito só apareceria no primeiro valor com
+ * milhar.
+ */
+function valorPositivo(control: AbstractControl): ValidationErrors | null {
+  const valor = lerDecimal(String(control.value ?? ''));
+  return valor !== null && valor >= 0.01 ? null : { min: true };
+}
 
 @Component({
   selector: 'app-hr-reimbursements',
@@ -37,7 +52,7 @@ export class HrReimbursementsComponent implements OnInit {
   constructor(private service: ReimbursementService, private fb: FormBuilder) {
     this.form = this.fb.group({
       expenseDate: [null, Validators.required],
-      amount: [null, [Validators.required, Validators.min(0.01)]],
+      amount: ['', [Validators.required, valorPositivo]],
       category: ['', Validators.required],
       reason: ['', Validators.required],
     });
@@ -76,7 +91,7 @@ export class HrReimbursementsComponent implements OnInit {
     this.enviando.set(true);
     const { expenseDate, amount, category, reason } = this.form.value as {
       expenseDate: Date;
-      amount: number;
+      amount: string;
       category: string;
       reason: string;
     };
@@ -84,7 +99,8 @@ export class HrReimbursementsComponent implements OnInit {
     this.service
       .request({
         expenseDate: this.toIsoDate(expenseDate),
-        amount,
+        // O campo entrega o texto da máscara ("1.234,56"); a API quer o número.
+        amount: lerDecimal(amount) ?? 0,
         category,
         reason,
         receipt: this.selectedReceipt,
