@@ -31,6 +31,7 @@ import { FormScreenComponent } from '../../shared/form-screen/form-screen.compon
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {PkInputComponent} from "../../../theme/ProautoKimium/pk-input/pk-input.component";
 import {PkCheckboxComponent} from "../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component";
+import { lerValorDoCampo } from '../../../../infrastructure/validators/valor-decimal';
 
 
 
@@ -469,6 +470,9 @@ export class EmployesComponent implements TabDirtyCheck {
       if(employee.hiringDate){
         employee.hiringDate = formatDateOnly(employee.hiringDate);
       }
+
+      // O campo tem máscara: entrega texto ("4,50"), e a API quer número.
+      employee.ticketPrice = lerValorDoCampo(employee.ticketPrice);
 
       if(this.employeToEdit){
         this.employeeStore.update(employee).subscribe({

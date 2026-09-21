@@ -433,8 +433,8 @@
             <div class="form-field">
               <pk-input
                 label="Valor da passagem (R$)"
-                placeholder="Ex: 4.50"
-                type="number"
+                placeholder="0,00"
+                [pkDecimals]="2"
                 formControlName="ticketPrice"
               />
             </div>

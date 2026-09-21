@@ -176,4 +176,35 @@ describe('CareerStructureComponent · editar o nível', () => {
       .toBe('level');
     expect(toast.add).toHaveBeenCalled();
   });
+  /**
+   * O campo era `type="number"`, que no teclado brasileiro recusa vírgula.
+   * Com a máscara ele passa a entregar texto, e salário é o pior lugar
+   * possível para mandar "3.500,00" onde a API espera um número.
+   */
+  it('salário digitado com a máscara vai para a API como número', async () => {
+    const tela = await montar();
+
+    tela.openEditLevel(JUNIOR);
+    tela.levelForm.get('fixedAmount')!.setValue('3.500,00');
+    tela.saveLevel();
+
+    expect(levelStore.update).toHaveBeenCalledWith('nivel-1', jasmine.objectContaining({
+      fixedAmount: 3500,
+    }));
+  });
+
+  /**
+   * O que vem do banco chega numérico. Passá-lo pela leitura de texto, onde o
+   * ponto é separador de milhar, faria 3000.5 virar 30005.
+   */
+  it('salário que veio do banco não é destruído ao salvar sem edição', async () => {
+    const tela = await montar();
+
+    tela.openEditLevel({ ...JUNIOR, fixedAmount: 3000.5 });
+    tela.saveLevel();
+
+    expect(levelStore.update).toHaveBeenCalledWith('nivel-1', jasmine.objectContaining({
+      fixedAmount: 3000.5,
+    }));
+  });
 });

@@ -173,7 +173,7 @@
 
         @if (isFixedLevel) {
           <div class="form-field form-field--full">
-            <pk-input label="Valor fixo (R$)" placeholder="0,00" [pkRequired]="true" type="number" formControlName="fixedAmount"/>
+            <pk-input label="Valor fixo (R$)" placeholder="0,00" [pkRequired]="true" [pkDecimals]="2" formControlName="fixedAmount"/>
           </div>
         } @else {
           <div class="form-field form-field--full">
