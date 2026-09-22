@@ -1,4 +1,4 @@
-import { directionsLinks, formatAddress, isUsableAddress, maskZip, mapEmbedUrl, onlyZipDigits } from './address';
+import { directionsLinks, formatAddress, isUsableAddress, looksSwapped, maskZip, mapEmbedUrl, onlyZipDigits, parseCoordinates } from './address';
 import { Address } from '../models/address.model';
 
 const matriz: Address = {
@@ -106,5 +106,90 @@ describe('CEP', () => {
     expect(maskZip('87020')).toBe('87020');
     expect(maskZip('870209')).toBe('87020-9');
     expect(maskZip('87020-90099')).toBe('87020-900');
+  });
+});
+
+/**
+ * O ponto digitado à mão.
+ *
+ * Existe porque o Nominatim não conhece toda rua — medido em 2026-09-22 com
+ * `Avenida João do Prado, Santo André - SP`, que o OpenStreetMap não tem e o
+ * Google tem.
+ */
+describe('parseCoordinates', () => {
+
+  it('entende o par que o Google Maps copia', () => {
+    expect(parseCoordinates('-23.652345, -46.456789'))
+      .toEqual({ latitude: -23.652345, longitude: -46.456789 });
+  });
+
+  it('entende sem espaço e com ponto-e-vírgula', () => {
+    expect(parseCoordinates('-23.652,-46.456')).toEqual({ latitude: -23.652, longitude: -46.456 });
+    expect(parseCoordinates('-23.652; -46.456')).toEqual({ latitude: -23.652, longitude: -46.456 });
+  });
+
+  /** É o que costuma estar na área de transferência, mais que o par solto. */
+  it('extrai o par de uma URL do Google Maps', () => {
+    expect(parseCoordinates('https://www.google.com/maps/@-23.652345,-46.456789,17z'))
+      .toEqual({ latitude: -23.652345, longitude: -46.456789 });
+  });
+
+  it('extrai o par de uma URL com q=', () => {
+    expect(parseCoordinates('https://maps.google.com/?q=-23.652,-46.456'))
+      .toEqual({ latitude: -23.652, longitude: -46.456 });
+  });
+
+  /**
+   * <b>Fora de URL, o texto tem que casar inteiro.</b>
+   *
+   * Sem essa exigência `Rua 25, 30` — pedaço de endereço colado por engano —
+   * vira um ponto no Egito. E o `looksSwapped` não salva: nem `25,30` nem
+   * `30,25` caem no Brasil, então ele não tem o que acusar.
+   *
+   * Medido em 2026-09-22: o `17z` do zoom, que eu supunha ser o caso
+   * perigoso, não engana forma nenhuma.
+   */
+  it('recusa pedaço de endereço que parece um par', () => {
+    expect(parseCoordinates('Rua 25, 30')).toBeNull();
+  });
+
+  it('arredonda em seis casas, como a coluna do banco', () => {
+    expect(parseCoordinates('-23.6523456789, -46.4')!.latitude).toBe(-23.652346);
+  });
+
+  it('recusa o que não é coordenada', () => {
+    expect(parseCoordinates('Avenida João do Prado, 300')).toBeNull();
+    expect(parseCoordinates('')).toBeNull();
+    expect(parseCoordinates(null)).toBeNull();
+  });
+
+  it('recusa número fora de faixa', () => {
+    expect(parseCoordinates('-100, -46')).toBeNull();
+    expect(parseCoordinates('-23, -200')).toBeNull();
+  });
+
+  /** 0,0 é o Golfo da Guiné, e quase sempre é campo vazio virando número. */
+  it('recusa o par zerado', () => {
+    expect(parseCoordinates('0, 0')).toBeNull();
+  });
+});
+
+describe('looksSwapped', () => {
+
+  it('o ponto certo de Santo André não parece trocado', () => {
+    expect(looksSwapped({ latitude: -23.652, longitude: -46.456 })).toBeFalse();
+  });
+
+  /**
+   * O erro mais comum de quem digita à mão, e o único totalmente silencioso:
+   * `-46.45, -23.65` é válido e cai no Atlântico.
+   */
+  it('acusa a latitude e a longitude trocadas', () => {
+    expect(looksSwapped({ latitude: -46.456, longitude: -23.652 })).toBeTrue();
+  });
+
+  /** Só acusa quando inverter resolve — endereço fora do Brasil não é erro. */
+  it('não acusa um ponto legitimamente fora do Brasil', () => {
+    expect(looksSwapped({ latitude: 38.7223, longitude: -9.1393 })).toBeFalse();
   });
 });

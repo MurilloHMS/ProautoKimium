@@ -1,12 +1,13 @@
 import { Component, DestroyRef, OnInit, inject, input, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs';
 
 import { Address } from '../../../../domain/models/address.model';
-import { Coordinates, coordinatesOf, formatAddress, isUsableAddress, maskZip, onlyZipDigits } from '../../../../domain/utils/address';
+import { Coordinates, coordinatesOf, formatAddress, isUsableAddress, looksSwapped, maskZip, onlyZipDigits, parseCoordinates } from '../../../../domain/utils/address';
 import { GeocodingService } from '../../../../infrastructure/services/address/geocoding.service';
 import { ZipCodeService } from '../../../../infrastructure/services/address/zip-code.service';
+import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
 
 /** O `FormGroup` que este componente preenche. Quem usa cria com `addressGroup`. */
@@ -85,7 +86,7 @@ function temPonto(v: { latitude?: unknown; longitude?: unknown }): boolean {
 @Component({
   selector: 'app-address-fields',
   standalone: true,
-  imports: [ReactiveFormsModule, PkInputComponent],
+  imports: [ReactiveFormsModule, PkInputComponent, PkButtonComponent],
   templateUrl: './address-fields.component.html',
   styleUrl: './address-fields.component.scss',
 })
@@ -104,6 +105,24 @@ export class AddressFieldsComponent implements OnInit {
   /** O estado do ponto no mapa, para a linha de aviso embaixo dos campos. */
   readonly localizando = signal(false);
   readonly semPonto = signal(false);
+
+  /**
+   * O ponto digitado à mão, para quando o Nominatim não conhece o endereço.
+   *
+   * Não é caso de borda: em 2026-09-22 caiu num endereço real —
+   * `Avenida João do Prado, 300, Santo André - SP`. Medido no dia: o
+   * OpenStreetMap tem a cidade e tem o bairro, e **não tem a rua**, em nenhuma
+   * forma de consulta. O Google e o Waze têm, que é por que o mapa embutido
+   * mostrava enquanto a busca dizia "não encontrei". Sem esta saída, endereço
+   * nenhum naquela rua jamais teria ponto.
+   *
+   * O campo fica **fora** do `group()`: ele é a entrada de quem digita, não um
+   * dado do endereço. O que vai para a API continua sendo `latitude` e
+   * `longitude`, iguais aos que o geocodificador escreveria.
+   */
+  readonly campoPonto = new FormControl('');
+  readonly pontoManual = signal(false);
+  readonly erroDoPonto = signal('');
 
   ngOnInit(): void {
     this.ligarBuscaDeCep();
@@ -200,8 +219,54 @@ export class AddressFieldsComponent implements OnInit {
     });
   }
 
+  /**
+   * O que a pessoa colou, virando ponto.
+   *
+   * <p>Aceita o par que o Google Maps copia no botão direito e também a URL
+   * dele — é o que costuma estar na área de transferência.
+   *
+   * <p><b>Recusa o par invertido</b>, e é por isso que a checagem existe:
+   * `-46.45, -23.65` é um ponto perfeitamente válido que cai no Atlântico, e o
+   * Uber abriria confiante nele. Só acusa quando inverter resolve, então
+   * endereço legitimamente fora do Brasil continua passando.
+   */
+  aplicarPontoManual(): void {
+    const ponto = parseCoordinates(this.campoPonto.value);
+
+    if (!ponto) {
+      this.erroDoPonto.set('Não entendi. Cole no formato -23.652, -46.456 ou o endereço do Google Maps.');
+      return;
+    }
+
+    if (looksSwapped(ponto)) {
+      this.erroDoPonto.set('Esse ponto cai fora do Brasil — a latitude e a longitude parecem trocadas.');
+      return;
+    }
+
+    this.erroDoPonto.set('');
+    this.semPonto.set(false);
+    this.pontoManual.set(true);
+    this.gravarPonto(ponto);
+    // Sem isto o formulário não se dá por alterado, e a tela que pergunta
+    // "descartar as mudanças?" deixaria o ponto novo escapar em silêncio.
+    this.group().markAsDirty();
+  }
+
+  /** Volta a valer o que o geocodificador disser no próximo toque no endereço. */
+  descartarPontoManual(): void {
+    this.campoPonto.setValue('');
+    this.erroDoPonto.set('');
+    this.pontoManual.set(false);
+    this.semPonto.set(true);
+    this.gravarPonto(null);
+    this.group().markAsDirty();
+  }
+
   private limparPonto(): void {
     this.semPonto.set(false);
+    this.pontoManual.set(false);
+    this.erroDoPonto.set('');
+    this.campoPonto.setValue('', { emitEvent: false });
     this.gravarPonto(null);
   }
 
