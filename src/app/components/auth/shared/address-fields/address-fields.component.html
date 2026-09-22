@@ -30,10 +30,36 @@
     <p class="endereco__ponto" data-testid="ponto-status">
       <i class="pi pi-spin pi-spinner"></i> Localizando no mapa…
     </p>
-  } @else if (semPonto()) {
-    <p class="endereco__ponto endereco__ponto--aviso" data-testid="ponto-status">
-      <i class="pi pi-exclamation-triangle"></i>
-      Não encontramos este endereço no mapa. Dá para salvar assim — só o Uber não vai aparecer em "Como chegar".
+  } @else if (pontoManual()) {
+    <p class="endereco__ponto endereco__ponto--ok" data-testid="ponto-status">
+      <i class="pi pi-check-circle"></i>
+      Ponto definido à mão — o Uber vai abrir aqui.
+      <button type="button" class="endereco__link" (click)="descartarPontoManual()">Remover</button>
     </p>
+  } @else if (semPonto()) {
+    <div class="endereco__ponto endereco__ponto--aviso" data-testid="ponto-status">
+      <i class="pi pi-exclamation-triangle"></i>
+      <div class="endereco__ponto-corpo">
+        <p class="endereco__ponto-texto">
+          Não encontramos este endereço no mapa. Dá para salvar assim — só o Uber
+          não vai aparecer em "Como chegar".
+        </p>
+
+        <!--
+          O caminho de escape: o OpenStreetMap não conhece toda rua, e sem isto
+          o endereço fica sem ponto para sempre. Com o par colado, o Uber e o
+          mapa passam a cair no lugar exato.
+        -->
+        <div class="endereco__ponto-manual">
+          <pk-input label="Ou informe o ponto do mapa"
+                    placeholder="-23.652, -46.456"
+                    hint="No Google Maps: botão direito no local e clique nas coordenadas para copiar. A URL também serve."
+                    [errorMsg]="erroDoPonto()"
+                    [formControl]="campoPonto"/>
+          <pk-button pkType="save" pkLabel="Usar este ponto" pkSize="sm"
+                     (clicked)="aplicarPontoManual()"/>
+        </div>
+      </div>
+    </div>
   }
 </div>

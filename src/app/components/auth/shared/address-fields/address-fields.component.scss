@@ -33,6 +33,33 @@
 
 // Aviso e não erro: o endereço sem ponto é salvo do mesmo jeito.
 .endereco__ponto--aviso i { color: var(--app-warning); }
+.endereco__ponto--ok i    { color: var(--app-success); }
+
+.endereco__ponto-corpo { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.endereco__ponto-texto { margin: 0; }
+
+// O campo e o botão alinham pela base: o pk-input carrega rótulo em cima e
+// dica embaixo, então centralizar deixaria o botão flutuando no meio.
+.endereco__ponto-manual {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  pk-input { flex: 1 1 220px; min-width: 0; }
+}
+
+// Botão que parece link: a ação é secundária e desfaz o que a pessoa acabou de
+// fazer — dar a ela um botão de verdade competiria com o "Usar este ponto".
+.endereco__link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--app-action);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 @media (max-width: 620px) {
   .endereco {

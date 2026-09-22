@@ -209,4 +209,117 @@ describe('AddressFieldsComponent', () => {
       latitude: null, longitude: null,
     });
   });
+
+  // ─── O ponto digitado à mão ────────────────────────────────────────────────
+  //
+  // O Nominatim não conhece toda rua. Medido em 2026-09-22 contra o serviço
+  // real: `Avenida João do Prado, Santo André - SP` não existe no
+  // OpenStreetMap em nenhuma forma de consulta, embora a cidade e o bairro
+  // existam — e o Google e o Waze tenham a rua. Sem esta saída, endereço
+  // nenhum naquela rua jamais teria ponto, e o botão do Uber nunca apareceria.
+
+  /** O texto do aviso e o campo, como a pessoa os vê. */
+  const bloco = (f: any): HTMLElement | null =>
+    f.nativeElement.querySelector('[data-testid="ponto-status"]');
+
+  async function comEnderecoNaoLocalizado() {
+    geo.lookup.and.returnValue(of(null));
+    const { fixture, group } = montar();
+
+    group.patchValue({ street: 'Avenida João do Prado', number: '300', city: 'Santo André', state: 'SP' });
+    await esperar(1000);
+    fixture.detectChanges();
+
+    return { fixture, group };
+  }
+
+  it('quando o mapa não acha, oferece informar o ponto à mão', async () => {
+    const { fixture } = await comEnderecoNaoLocalizado();
+
+    expect(bloco(fixture)?.textContent)
+      .withContext('sem o campo no DOM, o endereço fica sem ponto para sempre')
+      .toContain('Ou informe o ponto do mapa');
+  });
+
+  it('o par colado vira latitude e longitude no formulário', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    const tela = fixture.componentInstance;
+
+    tela.campoPonto.setValue('-23.652345, -46.456789');
+    tela.aplicarPontoManual();
+    fixture.detectChanges();
+
+    expect(group.get('latitude')!.value).toBe(-23.652345);
+    expect(group.get('longitude')!.value).toBe(-46.456789);
+    expect(addressFromGroup(group).latitude).toBe(-23.652345);
+    expect(bloco(fixture)?.textContent).toContain('à mão');
+  });
+
+  it('o formulário fica sujo, senão o ponto novo escapa no descartar', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    group.markAsPristine();
+
+    fixture.componentInstance.campoPonto.setValue('-23.652, -46.456');
+    fixture.componentInstance.aplicarPontoManual();
+
+    expect(group.dirty).toBeTrue();
+  });
+
+  it('par invertido é recusado e não grava nada', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    const tela = fixture.componentInstance;
+
+    tela.campoPonto.setValue('-46.456, -23.652');
+    tela.aplicarPontoManual();
+    fixture.detectChanges();
+
+    expect(group.get('latitude')!.value)
+      .withContext('esse par é válido e cai no Atlântico — o Uber abriria confiante nele')
+      .toBeNull();
+    expect(tela.erroDoPonto()).toContain('trocadas');
+  });
+
+  it('texto que não é coordenada é recusado', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    const tela = fixture.componentInstance;
+
+    tela.campoPonto.setValue('atrás do posto');
+    tela.aplicarPontoManual();
+
+    expect(group.get('latitude')!.value).toBeNull();
+    expect(tela.erroDoPonto()).toBeTruthy();
+  });
+
+  it('remover devolve o aviso e apaga o ponto', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    const tela = fixture.componentInstance;
+    tela.campoPonto.setValue('-23.652, -46.456');
+    tela.aplicarPontoManual();
+
+    tela.descartarPontoManual();
+    fixture.detectChanges();
+
+    expect(group.get('latitude')!.value).toBeNull();
+    expect(bloco(fixture)?.textContent).toContain('Ou informe o ponto do mapa');
+  });
+
+  /**
+   * Trocar de endereço apaga o ponto escrito à mão — ele era daquele endereço.
+   * Mantê-lo deixaria o pino do anterior, e o Uber abriria no lugar errado,
+   * que é pior do que não abrir.
+   */
+  it('mudar o endereço descarta o ponto informado à mão', async () => {
+    const { fixture, group } = await comEnderecoNaoLocalizado();
+    const tela = fixture.componentInstance;
+    tela.campoPonto.setValue('-23.652, -46.456');
+    tela.aplicarPontoManual();
+
+    group.patchValue({ street: 'Outra Rua' });
+    await esperar(1000);
+    fixture.detectChanges();
+
+    expect(group.get('latitude')!.value).toBeNull();
+    expect(tela.pontoManual()).toBeFalse();
+  });
+
 });

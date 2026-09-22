@@ -48,6 +48,75 @@ export interface Coordinates {
   longitude: number;
 }
 
+/**
+ * O Brasil, em caixa retangular grosseira.
+ *
+ * Não serve para validar endereço — serve para uma coisa só: reconhecer o par
+ * **invertido**, que é o erro mais comum de quem digita coordenada à mão e o
+ * único que é totalmente silencioso. `-46.45, -23.65` é um ponto perfeitamente
+ * válido, e fica no Atlântico.
+ */
+const BRASIL = { latMin: -34, latMax: 6, lonMin: -74, lonMax: -34 };
+
+const dentroDoBrasil = (lat: number, lon: number): boolean =>
+  lat >= BRASIL.latMin && lat <= BRASIL.latMax && lon >= BRASIL.lonMin && lon <= BRASIL.lonMax;
+
+/** O par está trocado de lugar? Só afirma quando inverter resolve. */
+export function looksSwapped(p: Coordinates): boolean {
+  return !dentroDoBrasil(p.latitude, p.longitude)
+      && dentroDoBrasil(p.longitude, p.latitude);
+}
+
+/**
+ * Coordenada digitada à mão → o ponto, quando dá para entender.
+ *
+ * Existe porque **o Nominatim não conhece todo endereço**. Em 2026-09-22 ele
+ * caiu num real: `Avenida João do Prado, 300 - Polo Petroquímico de Capuava,
+ * Santo André - SP`. Medido no dia: o OpenStreetMap tem a cidade e tem o
+ * bairro, e **não tem a rua** — em nenhuma forma de consulta, nem na
+ * estruturada. O Google e o Waze têm, que é por que o mapa embutido mostrava
+ * enquanto a busca dizia "não encontrei".
+ *
+ * Aceita as duas coisas que costumam estar na área de transferência:
+ *
+ * - o par que o Google Maps copia no botão direito — `-23.652, -46.456`;
+ * - a **URL** do Google Maps, de onde o `@lat,lon` ou o `q=lat,lon` é extraído.
+ *
+ * Devolve `null` para qualquer outra coisa, inclusive para número fora de
+ * faixa. Não julga se o ponto é o certo — só se é um ponto.
+ */
+export function parseCoordinates(texto: string | null | undefined): Coordinates | null {
+  const bruto = (texto ?? '').trim();
+  if (!bruto) return null;
+
+  // Numa URL o par vem depois de `@` ou de `q=`; fora dela, é o texto inteiro.
+  //
+  // A âncora `[@=]` não é enfeite, e nem é sobre o zoom — medido em 2026-09-22,
+  // o `17z` no fim da URL não engana nenhuma das duas formas. Ela é sobre
+  // **pedaço de endereço colado por engano**: sem a âncora, `Rua 25, 30` casa e
+  // vira um ponto no Egito, que o `looksSwapped` não acusa porque nenhuma das
+  // duas orientações cai no Brasil.
+  const daUrl = bruto.match(/[@=](-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/);
+  const solto = bruto.match(/^(-?\d{1,3}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)$/);
+  const achado = solto ?? daUrl;
+  if (!achado) return null;
+
+  const latitude = Number(achado[1]);
+  const longitude = Number(achado[2]);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
+  // 0,0 é o Golfo da Guiné, e quase sempre é campo vazio virando número.
+  if (latitude === 0 && longitude === 0) return null;
+
+  return { latitude: round6(latitude), longitude: round6(longitude) };
+}
+
+/** Seis casas — o mesmo NUMERIC(9,6) do banco, cerca de 11 cm. */
+function round6(valor: number): number {
+  return Math.round(valor * 1e6) / 1e6;
+}
+
 /** O ponto do endereço, ou `null` quando ele não foi localizado. */
 export function coordinatesOf(a: Address | null | undefined): Coordinates | null {
   return typeof a?.latitude === 'number' && typeof a?.longitude === 'number'
