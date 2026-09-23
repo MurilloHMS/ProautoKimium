@@ -170,8 +170,11 @@ export class TalentBankPanelComponent implements OnInit {
       return 'Veio de uma candidatura antes de 11/09/2026. Não autorizou ficar para vagas futuras, e não vence.';
     }
     if (linha.situacao.papel === 'neutral') {
-      // Não prometer a limpeza automática: o agendador que apaga ainda não existe.
-      return `O prazo de guarda acabou em ${formatarData(linha.expiraEm)}.`;
+      // Desde o `TalentBankScheduler` (2026-09-22) a limpeza existe e roda às
+      // 3h30. Por isso a linha aparece aqui no máximo por um dia: passada a
+      // varredura, o cadastro é anonimizado e sai desta lista.
+      return `O prazo de guarda acabou em ${formatarData(linha.expiraEm)}. `
+           + 'Os dados são apagados na próxima limpeza, às 3h30.';
     }
     return `Autorizou em ${formatarData(linha.consentimentoEm)}.`;
   }
