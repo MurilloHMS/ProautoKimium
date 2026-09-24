@@ -15,13 +15,13 @@ interface ItemDaBarra {
   /** Só a Início casa exato; ela é prefixo de nada e capturaria tudo. */
   exato: boolean;
   /**
-   * "Apps" abre a gaveta em vez de navegar.
+   * "Menu" abre a gaveta em vez de navegar.
    *
    * Por isso ele é `<button>` no template, e não `<a>`: elemento que não leva a
    * lugar nenhum não pode ser link — o leitor de tela anuncia errado, e o toque
    * longo oferece "abrir em nova aba" para algo que não é página.
    */
-  acao?: 'apps';
+  acao?: 'menu';
 }
 
 /**
@@ -51,8 +51,8 @@ export class BottomNavComponent {
   private readonly telasRecentes = inject(TelasRecentesService);
   private readonly router = inject(Router);
 
-  /** O toque em "Apps": quem abre a gaveta é o shell, que guarda esse estado. */
-  readonly apps = output<void>();
+  /** O toque em "Menu": quem abre a gaveta é o shell, que guarda esse estado. */
+  readonly menu = output<void>();
 
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -79,17 +79,17 @@ export class BottomNavComponent {
       item.icon,
       item.routerLink ?? []));
 
-    // "Apps" entra na terceira posição — onde Notificações estava. A posição é
+    // "Menu" entra na terceira posição — onde Notificações estava. A posição é
     // aqui e não no `MOBILE_NAV` porque ele não é destino: não tem rota, não
     // tem tela no catálogo de permissões e não pode ser filtrado por uma.
     const fixos = [...destinos];
     fixos.splice(Math.min(2, fixos.length), 0, {
-      label: 'Apps',
+      label: 'Menu',
       icon: 'pi pi-th-large',
       routerLink: [],
       path: '',
       exato: false,
-      acao: 'apps',
+      acao: 'menu',
     });
 
     const habito = this.telasRecentes.porHabito()
@@ -107,7 +107,7 @@ export class BottomNavComponent {
   readonly indiceAtivo = computed(() => {
     const atual = this.url().split(/[?#]/)[0].replace(/\/+$/, '');
 
-    // O "Apps" nunca fica ativo: ele abre uma camada por cima, e a tela de
+    // O "Menu" nunca fica ativo: ele abre uma camada por cima, e a tela de
     // trás continua sendo a atual. A pílula tem que continuar apontando para ela.
     return this.items().findIndex(item => !item.acao && (item.exato
       ? atual === item.path

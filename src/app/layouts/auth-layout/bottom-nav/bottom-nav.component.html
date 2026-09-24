@@ -14,7 +14,7 @@
       <!-- Abre a gaveta: é ação, não navegação, então é `<button>`. -->
       <button type="button"
               class="bottom-nav__item"
-              (click)="apps.emit()">
+              (click)="menu.emit()">
         <span class="bottom-nav__icone"><i [class]="item.icon"></i></span>
         <span class="bottom-nav__rotulo">{{ item.label }}</span>
       </button>

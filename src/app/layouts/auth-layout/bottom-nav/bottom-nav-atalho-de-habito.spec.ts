@@ -58,7 +58,7 @@ describe('BottomNavComponent · o quinto atalho', () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it('sem histórico nenhum, mostra só os fixos mais o Apps', async () => {
+  it('sem histórico nenhum, mostra só os fixos mais o Menu', async () => {
     const barra = await montar([]);
 
     expect(barra.items().length).toBe(4);
@@ -100,38 +100,38 @@ describe('BottomNavComponent · o quinto atalho', () => {
     expect(barra.items().length).toBe(4);
   });
 
-  // ── o botão Apps ──────────────────────────────────────────────────────────
+  // ── o botão Menu ──────────────────────────────────────────────────────────
 
   /**
-   * "Apps" entrou no lugar de Notificações, e abre a gaveta em vez de navegar.
+   * "Menu" entrou no lugar de Notificações, e abre a gaveta em vez de navegar.
    * Como não leva a lugar nenhum, ele não pode ser link: o leitor de tela
    * anunciaria errado e o toque longo ofereceria "abrir em nova aba".
    */
-  it('o Apps esta na terceira posicao, e nao e um destino', async () => {
+  it('o Menu esta na terceira posicao, e nao e um destino', async () => {
     const barra = await montar([]);
 
-    expect(barra.items()[2].label).toBe('Apps');
-    expect(barra.items()[2].acao).toBe('apps');
+    expect(barra.items()[2].label).toBe('Menu');
+    expect(barra.items()[2].acao).toBe('menu');
     expect(barra.items()[2].routerLink).toEqual([]);
   });
 
-  it('tocar no Apps avisa o shell, que e quem abre a gaveta', async () => {
+  it('tocar no Menu avisa o shell, que e quem abre a gaveta', async () => {
     const barra = await montar([]);
 
     let pediu = false;
-    barra.apps.subscribe(() => (pediu = true));
+    barra.menu.subscribe(() => (pediu = true));
 
-    barra.apps.emit();
+    barra.menu.emit();
 
     expect(pediu).toBeTrue();
   });
 
   /**
-   * A pílula marca onde a pessoa está. O Apps abre uma camada por cima, e a
+   * A pílula marca onde a pessoa está. O Menu abre uma camada por cima, e a
    * tela de trás continua sendo a atual — se ele pudesse ficar ativo, a pílula
    * apontaria para um item que não é lugar nenhum.
    */
-  it('o Apps nunca fica ativo', async () => {
+  it('o Menu nunca fica ativo', async () => {
     const barra = await montar([]);
 
     expect(barra.indiceAtivo()).not.toBe(2);
