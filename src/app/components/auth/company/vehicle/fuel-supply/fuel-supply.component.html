@@ -149,6 +149,9 @@
             <b>{{ totalLidas() }}</b><span>linhas lidas</span>
           </div>
           <div class="resumo__item">
+            <b>{{ totalDeMotoristas() }}</b><span>motoristas</span>
+          </div>
+          <div class="resumo__item">
             <b>{{ marcadas().length }}</b><span>marcadas para gravar</span>
           </div>
           <div class="resumo__item" [class.resumo__item--aviso]="semMotorista().length > 0">
@@ -193,9 +196,29 @@
                     (click)="filtro.set('duplicadas')">Duplicadas · {{ duplicadas().length }}</button>
           </div>
 
+          <div class="busca">
+            <i class="pi pi-search"></i>
+            <input type="text"
+                   class="busca__campo"
+                   placeholder="Buscar motorista ou placa…"
+                   aria-label="Buscar motorista ou placa"
+                   [value]="busca()"
+                   (input)="busca.set($any($event.target).value)" />
+            @if (busca()) {
+              <button type="button"
+                      class="busca__limpar"
+                      aria-label="Limpar a busca"
+                      (click)="busca.set('')">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+
           @if (semDepartamento().length > 0) {
             <div class="em-massa">
-              <span class="em-massa__rotulo">Sem departamento? Aplique um em todas:</span>
+              <span class="em-massa__rotulo">
+                {{ motoristasSemDepartamento() }} sem departamento. Aplicar um em todos:
+              </span>
               <pk-combobox [options]="departamentos()"
                            optionLabel="name"
                            optionValue="id"
@@ -214,8 +237,8 @@
           [rows]="20"
           [rowsOptions]="[10, 20, 50]"
           emptyIcon="pi pi-filter-slash"
-          emptyTitle="Nenhuma linha neste filtro"
-          emptySubtitle="Volte para Tudo para ver a planilha inteira."
+          emptyTitle="Nenhuma linha aqui"
+          emptySubtitle="Limpe a busca, ou volte para Tudo para ver a planilha inteira."
           pageReportTitle="linhas">
 
           <ng-template #headerTpl>
@@ -232,7 +255,12 @@
               <th style="width: 110px">Placa</th>
               <th class="col-num" style="width: 90px">Litros</th>
               <th class="col-num" style="width: 110px">Total</th>
-              <th style="width: 230px">Departamento</th>
+              <th style="width: 230px">
+                Departamento
+                <i class="pi pi-info-circle cabecalho__dica"
+                   pTooltip="Vale para todas as linhas do mesmo motorista"
+                   tooltipPosition="left"></i>
+              </th>
             </tr>
           </ng-template>
 

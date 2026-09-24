@@ -317,6 +317,52 @@
   }
 }
 
+.busca {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  flex: 1 1 260px;
+  max-width: 360px;
+  padding: 0 v.$space-3;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+
+  &:focus-within { border-color: var(--app-action); }
+
+  > i { color: var(--app-text-subtle); }
+}
+
+.busca__campo {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+
+  &:focus { outline: none; }
+}
+
+.busca__limpar {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-subtle);
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+}
+
+.cabecalho__dica {
+  margin-left: 4px;
+  color: var(--app-text-subtle);
+  font-size: 0.8em;
+}
+
 .em-massa {
   display: flex;
   align-items: center;

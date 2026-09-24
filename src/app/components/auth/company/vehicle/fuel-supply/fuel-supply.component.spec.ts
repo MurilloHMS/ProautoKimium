@@ -151,6 +151,96 @@ describe('FuelSupplyComponent', () => {
   });
 
   /**
+   * <b>Uma pessoa dirige para um departamento só.</b> A planilha de agosto tem
+   * 246 linhas e 34 motoristas: escolher linha a linha seriam 246 cliques para
+   * 34 decisões — e bastaria errar uma para a mesma pessoa aparecer em dois
+   * departamentos no relatório do mês.
+   */
+  it('o departamento escolhido vale para TODAS as linhas do motorista', () => {
+    conferirCom([
+      linhaLida({ linha: 2, driverName: 'Marcio Gabe Silveira', departmentId: null, departmentName: null }),
+      linhaLida({ linha: 3, driverName: 'Marcio Gabe Silveira', departmentId: null, departmentName: null }),
+      linhaLida({ linha: 4, driverName: 'Outra Pessoa', departmentId: null, departmentName: null }),
+    ]);
+
+    component.definirDepartamento(component.linhas()[0], 'dep-log');
+
+    expect(component.linhas()[0].departmentId).toBe('dep-log');
+    expect(component.linhas()[1].departmentId)
+      .withContext('a segunda linha do mesmo motorista tinha que ir junto')
+      .toBe('dep-log');
+    expect(component.linhas()[2].departmentId)
+      .withContext('e a de outra pessoa nao pode ser tocada')
+      .toBeNull();
+  });
+
+  /**
+   * O cartão escreve o mesmo nome de dois jeitos dentro do mesmo mês — com e
+   * sem acento. Continua sendo uma pessoa só, e um departamento só.
+   */
+  it('acento nao separa o motorista de si mesmo na hora de aplicar', () => {
+    conferirCom([
+      linhaLida({ linha: 2, driverName: 'Márcio Gabe Silveira', departmentId: null, departmentName: null }),
+      linhaLida({ linha: 3, driverName: 'Marcio Gabe Silveira', departmentId: null, departmentName: null }),
+    ]);
+
+    component.definirDepartamento(component.linhas()[0], 'dep-adm');
+
+    expect(component.linhas()[1].departmentId).toBe('dep-adm');
+  });
+
+  it('a conferencia conta motoristas, e nao so linhas', () => {
+    conferirCom([
+      linhaLida({ linha: 2, driverName: 'Marcio Gabe Silveira' }),
+      linhaLida({ linha: 3, driverName: 'Marcio Gabe Silveira' }),
+      linhaLida({ linha: 4, driverName: 'Outra Pessoa' }),
+    ]);
+
+    expect(component.totalLidas()).toBe(3);
+    expect(component.totalDeMotoristas()).toBe(2);
+  });
+
+  /**
+   * A busca é o que torna 246 linhas navegáveis: acha o motorista, resolve o
+   * departamento dele, passa para o próximo.
+   */
+  it('a busca filtra por motorista, ignorando acento', () => {
+    conferirCom([
+      linhaLida({ linha: 2, driverName: 'Márcio Gabe Silveira' }),
+      linhaLida({ linha: 3, driverName: 'Outra Pessoa', plate: 'XYZ9A88' }),
+    ]);
+
+    component.busca.set('marcio');
+    fixture.detectChanges();
+
+    expect(component.linhasVisiveis().length).toBe(1);
+    expect(component.linhasVisiveis()[0].driverName).toBe('Márcio Gabe Silveira');
+  });
+
+  it('a busca tambem acha pela placa', () => {
+    conferirCom([
+      linhaLida({ linha: 2, driverName: 'Marcio Gabe Silveira', plate: 'ABC1D23' }),
+      linhaLida({ linha: 3, driverName: 'Outra Pessoa', plate: 'XYZ9A88' }),
+    ]);
+
+    component.busca.set('xyz9');
+    fixture.detectChanges();
+
+    expect(component.linhasVisiveis().length).toBe(1);
+    expect(component.linhasVisiveis()[0].plate).toBe('XYZ9A88');
+  });
+
+  /** A busca some junto com a conferência: nada de filtro herdado do mês passado. */
+  it('descartar a conferencia limpa a busca', () => {
+    conferirCom([linhaLida()]);
+    component.busca.set('marcio');
+
+    component.descartarConferencia();
+
+    expect(component.busca()).toBe('');
+  });
+
+  /**
    * <b>O defeito que a tela existe para corrigir.</b> Antes, a linha sem
    * motorista casado era gravada em SEM_DEPARTAMENTO sem avisar ninguém.
    */

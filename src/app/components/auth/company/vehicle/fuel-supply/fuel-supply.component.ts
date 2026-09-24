@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkComboboxComponent } from '../../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
@@ -47,6 +48,7 @@ import { FuelSuppyService } from '../../../../../infrastructure/services/company
     CommonModule,
     FormsModule,
     ToastModule,
+    TooltipModule,
     PkButtonComponent,
     PkComboboxComponent,
     PkTableComponent,
@@ -78,6 +80,7 @@ export class FuelSupplyComponent implements OnInit {
   readonly linhas = signal<LinhaDeConferencia[]>([]);
   readonly departamentos = signal<DepartmentOption[]>([]);
   readonly filtro = signal<FiltroDeConferencia>('tudo');
+  readonly busca = signal('');
   readonly gravando = signal(false);
   readonly recusas = signal<string[]>([]);
   readonly nomeDoArquivo = signal('');
@@ -109,13 +112,38 @@ export class FuelSupplyComponent implements OnInit {
     this.linhas().filter(l => !l.motoristaEncontrado || l.jaExiste || !l.departmentId));
 
   readonly linhasVisiveis = computed<LinhaDeConferencia[]>(() => {
-    switch (this.filtro()) {
-      case 'atencao':       return this.pedemAtencao();
-      case 'sem-motorista': return this.semMotorista();
-      case 'duplicadas':    return this.duplicadas();
-      default:              return this.linhas();
-    }
+    const doFiltro = (() => {
+      switch (this.filtro()) {
+        case 'atencao':       return this.pedemAtencao();
+        case 'sem-motorista': return this.semMotorista();
+        case 'duplicadas':    return this.duplicadas();
+        default:              return this.linhas();
+      }
+    })();
+
+    const termo = chaveDeNome(this.busca());
+
+    if (!termo) return doFiltro;
+
+    return doFiltro.filter(l =>
+      chaveDeNome(l.driverName ?? '').includes(termo) ||
+      chaveDeNome(l.plate ?? '').includes(termo));
   });
+
+  /**
+   * Quantos motoristas distintos a planilha tem.
+   *
+   * <p>É o número que importa na hora de escolher departamento: a planilha de
+   * agosto tem 246 linhas e 34 motoristas. Uma pessoa dirige para um
+   * departamento só, então são 34 decisões, não 246.
+   */
+  readonly totalDeMotoristas = computed(() =>
+    new Set(this.linhas().map(l => chaveDeNome(l.driverName ?? ''))).size);
+
+  readonly motoristasSemDepartamento = computed(() =>
+    new Set(this.linhas()
+      .filter(l => !l.departmentId)
+      .map(l => chaveDeNome(l.driverName ?? ''))).size);
 
   readonly temConferenciaPendente = computed(() => this.linhas().length > 0);
 
@@ -275,26 +303,56 @@ export class FuelSupplyComponent implements OnInit {
     this.linhas.update(todas => todas.map(l => ({ ...l, selecionada: marcar })));
   }
 
+  /**
+   * O departamento vale para o <b>motorista</b>, e não para a linha.
+   *
+   * <p>Uma pessoa dirige para um departamento só, e a planilha do mês traz a
+   * mesma pessoa dezenas de vezes: escolher linha a linha seriam 246 cliques
+   * para 34 decisões, e bastaria errar um para o relatório do mês sair com a
+   * mesma pessoa em dois departamentos.
+   */
   definirDepartamento(linha: LinhaDeConferencia, departmentId: string | null): void {
     const nome = this.departamentos().find(d => d.id === departmentId)?.name ?? null;
+    const motorista = chaveDeNome(linha.driverName ?? '');
 
-    this.linhas.update(todas => todas.map(l =>
-      l.linha === linha.linha ? { ...l, departmentId, departmentName: nome } : l));
+    let alteradas = 0;
+
+    this.linhas.update(todas => todas.map(l => {
+      if (chaveDeNome(l.driverName ?? '') !== motorista) return l;
+      alteradas++;
+      return { ...l, departmentId, departmentName: nome };
+    }));
+
+    if (alteradas > 1) {
+      this.messageService.add({
+        severity: 'info',
+        summary: nome ?? 'Departamento',
+        detail: `Aplicado às ${alteradas} linhas de ${linha.driverName}.`,
+        life: 2500
+      });
+    }
   }
 
   /**
-   * Aplica o mesmo departamento a todas as linhas que estão sem.
+   * Aplica o mesmo departamento a todo mundo que ainda está sem.
    *
-   * Uma planilha com cinco motoristas terceirizados da mesma frota não merece
-   * cinco cliques iguais.
+   * <p>Quando a planilha inteira é de uma frota só, é um clique em vez de 34.
    */
   aplicarDepartamentoNasVazias(departmentId: string | null): void {
     if (!departmentId) return;
 
     const nome = this.departamentos().find(d => d.id === departmentId)?.name ?? null;
+    const motoristas = this.motoristasSemDepartamento();
 
     this.linhas.update(todas => todas.map(l =>
       l.departmentId ? l : { ...l, departmentId, departmentName: nome }));
+
+    this.messageService.add({
+      severity: 'info',
+      summary: nome ?? 'Departamento',
+      detail: `Aplicado a ${motoristas} ${motoristas === 1 ? 'motorista' : 'motoristas'} que estavam sem.`,
+      life: 2500
+    });
   }
 
   situacaoDaLinha(linha: LinhaDeConferencia): { texto: string; tom: 'ok' | 'warn' | 'erro' } {
@@ -346,6 +404,7 @@ export class FuelSupplyComponent implements OnInit {
           detail: `${resultado.gravadas} ${resultado.gravadas === 1 ? 'linha gravada' : 'linhas gravadas'}. Já dá para emitir o relatório.`
         });
 
+        this.busca.set('');
         this.linhas.set([]);
         this.nomeDoArquivo.set('');
         this.gravando.set(false);
@@ -386,6 +445,7 @@ export class FuelSupplyComponent implements OnInit {
   }
 
   descartarConferencia(): void {
+    this.busca.set('');
     this.linhas.set([]);
     this.recusas.set([]);
     this.nomeDoArquivo.set('');
@@ -455,4 +515,22 @@ export class FuelSupplyComponent implements OnInit {
       }
     });
   }
+}
+
+/**
+ * O nome reduzido ao que dá para comparar e procurar.
+ *
+ * <p>Minúsculas, sem acento e sem espaço sobrando — é a mesma regra que a API
+ * usa para casar o motorista com o cadastro. Aqui ela serve para duas coisas:
+ * a busca achar "Vinicius" quando a planilha escreveu "Vinícius", e o
+ * departamento escolhido pegar todas as linhas da mesma pessoa mesmo quando o
+ * cartão escreveu o nome dela de dois jeitos no mesmo mês.
+ */
+function chaveDeNome(nome: string): string {
+  return nome
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
 }
