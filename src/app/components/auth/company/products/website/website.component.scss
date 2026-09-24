@@ -45,7 +45,10 @@
 .stat-label { font-size: 0.78rem; color: var(--app-action); margin-top: .2rem; display: block; }
 
 .stat-total  { .stat-icon { background: var(--app-action); color: #fff; } .stat-value { color: var(--app-action); } }
-.stat-active { .stat-icon { background: var(--app-success); color: var(--app-action); } .stat-value { color: var(--app-success); } }
+// O `.stat-total` logo acima ja fazia assim: fundo cheio, tinta branca. Este
+// usava o navy sobre o verde e dava 3,97:1 — reprovado mesmo antes de o verde
+// escurecer, e 2,38 depois. Com branco vai a 5,41.
+.stat-active { .stat-icon { background: var(--app-success); color: #fff; } .stat-value { color: var(--app-success); } }
 .stat-hidden { .stat-icon { background: var(--app-warning-soft);        color: var(--app-warning) } .stat-value { color: var(--app-warning); } }
 
 // Onde ficava .tabs-nav. A separação visual antes vinha da borda inferior da
