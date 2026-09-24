@@ -30,6 +30,36 @@
     emptySubtitle="Cadastre o primeiro usuário no botão Novo usuário."
     pageReportTitle="usuários">
 
+    <ng-template #cardTpl let-user>
+      <article class="pk-cartao" [class.pk-cartao--atencao]="!user.active">
+        <button type="button" class="pk-cartao__corpo" (click)="openPermissions(user)">
+          <span class="pk-cartao__titulo">{{ user.login }}</span>
+          <span class="pk-cartao__sub">
+            {{ user.codParceiro ? 'Funcionário ' + user.codParceiro : 'Sem vínculo' }}
+          </span>
+        </button>
+        <div class="pk-cartao__rodape">
+          <span class="ac-status"
+                [class.ac-status-active]="user.active"
+                [class.ac-status-blocked]="!user.active">
+            <i class="pi" [ngClass]="user.active ? 'pi-check-circle' : 'pi-ban'"></i>
+            {{ user.active ? 'Ativo' : 'Bloqueado' }}
+          </span>
+
+          <button *ngIf="!user.roles.includes('DEVELOPER')" type="button" class="pk-cartao__icone"
+                  [attr.aria-label]="(user.active ? 'Bloquear ' : 'Liberar ') + user.login"
+                  (click)="toggleBlock(user)">
+            <i class="pi" [ngClass]="user.active ? 'pi-lock' : 'pi-lock-open'"></i>
+          </button>
+          <button type="button" class="pk-cartao__icone"
+                  [attr.aria-label]="'Redefinir a senha de ' + user.login"
+                  (click)="resetPassword(user)">
+            <i class="pi pi-key"></i>
+          </button>
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th>Login</th>

@@ -7,6 +7,7 @@ import { VacationRequestsManagerComponent } from './vacation-requests-manager.co
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { VacationRequest } from '../../../../domain/models/hr/vacation-request.model';
+import { larguraDaJanela, restaurarLargura, NO_COMPUTADOR } from '../../../../../testing/test-setup';
 
 /**
  * A coluna de ações das férias.
@@ -34,6 +35,9 @@ describe('VacationRequestsManagerComponent · coluna de ações', () => {
   });
 
   beforeEach(async () => {
+    // A janela do Karma e' estreita e esta tela agora tem cartao: sem dizer a
+    // largura, o teste conferiria os cartoes achando que ve a tabela.
+    larguraDaJanela(NO_COMPUTADOR);
     service = jasmine.createSpyObj<VacationRequestService>('VacationRequestService', [
       'getAll', 'getAlerts', 'approve', 'reject', 'registerByRh',
     ]);
@@ -49,6 +53,8 @@ describe('VacationRequestsManagerComponent · coluna de ações', () => {
       ],
     }).compileComponents();
   });
+
+  afterEach(restaurarLargura);
 
   const montarCom = (...pedidos: VacationRequest[]) => {
     service.getAll.and.returnValue(of(pedidos));

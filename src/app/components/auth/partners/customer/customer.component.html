@@ -56,6 +56,33 @@
       emptyTitle="Nenhum Cliente encontrado"
       emptySubtitle="Adicione um novo Cliente para começar">
 
+      <ng-template #cardTpl let-customer>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="editCustomer(customer)">
+            <span class="pk-cartao__titulo">{{ customer.nome }}</span>
+            <span class="pk-cartao__sub">{{ customer.email }}</span>
+          </button>
+          <span class="pk-cartao__marca">{{ customer.codParceiro }}</span>
+          <div class="pk-cartao__rodape">
+            <span class="status-chip"
+                  [ngClass]="customer.ativo ? 'status-chip--active' : 'status-chip--inactive'">
+              <i class="pi" [ngClass]="customer.ativo ? 'pi-check' : 'pi-times'"></i>
+              {{ customer.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+            @if (!customer.recebeEmail) {
+              <span class="status-chip status-chip--neutral">
+                <i class="pi pi-envelope"></i> Não recebe e-mail
+              </span>
+            }
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Acessos ao portal de ' + customer.nome"
+                    (click)="openAccess(customer)">
+              <i class="pi pi-key"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="codParceiro">

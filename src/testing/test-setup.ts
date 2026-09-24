@@ -44,3 +44,43 @@ export function providersDeTeste(
     ...extras,
   ];
 }
+
+/** A largura em que a tela e' desktop nos testes. */
+export const NO_COMPUTADOR = 1280;
+
+/** A largura em que a tela e' celular nos testes — o iPhone comum. */
+export const NO_CELULAR = 390;
+
+/**
+ * Diz a largura da janela antes de montar o componente.
+ *
+ * **A janela do Karma e' um iframe de ~749px**, e `(max-width: 768px)` casa
+ * nela. Sem dizer a largura, toda tela nasce em modo celular no teste: desde
+ * que o `pk-table` ganhou cartao, um teste que confere `<tr>` passa a examinar
+ * um elemento que nao existe mais ali.
+ *
+ * A largura tem de valer **antes** de montar: o `ehCelular()` le o
+ * `matchMedia` na construcao do componente, e mudar depois nao refaz a
+ * decisao — so um `change` da media query faria, e redimensionar o iframe nao
+ * dispara um.
+ *
+ * Quem chama devolve a janela ao fim com {@link restaurarLargura}, senao a
+ * largura vaza para o proximo spec do mesmo navegador.
+ */
+export function larguraDaJanela(px: number): void {
+  const frame = window.frameElement as HTMLElement | null;
+  if (!frame) {
+    throw new Error('Sem iframe: este teste depende da largura da janela.');
+  }
+
+  frame.style.width = `${px}px`;
+  frame.getBoundingClientRect();          // forca o layout antes do matchMedia
+}
+
+/** Devolve a janela ao tamanho que o Karma deu. */
+export function restaurarLargura(): void {
+  const frame = window.frameElement as HTMLElement | null;
+  if (frame) {
+    frame.style.width = '';
+  }
+}

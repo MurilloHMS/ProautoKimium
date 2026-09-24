@@ -34,6 +34,51 @@
     emptySubtitle="Troque o filtro de status pra ver outros reembolsos."
     pageReportTitle="Reembolsos">
 
+    <ng-template #cardTpl let-r>
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ employeeName(r.employeeId) }}</span>
+          <span class="pk-cartao__sub">{{ r.category }} · {{ formatDate(r.expenseDate) }}</span>
+        </div>
+        <span class="pk-cartao__marca">{{ r.amount | currency:'BRL' }}</span>
+        <div class="pk-cartao__rodape">
+          <span class="rm-badge" [ngClass]="'rm-badge--' + r.status.toLowerCase()">
+            {{ statusLabel(r.status) }}
+          </span>
+
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <span class="rm-notes">{{ r.reviewNotes }}</span>
+          }
+          @if (r.status === 'PAID' && r.paymentDate) {
+            <span class="rm-notes rm-notes--paid">Pago em {{ formatDate(r.paymentDate) }}</span>
+          }
+
+          @if (r.status === 'PENDING') {
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Aprovar o reembolso de ' + employeeName(r.employeeId)"
+                    (click)="openReview(r, 'approve')">
+              <i class="pi pi-check"></i>
+            </button>
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Recusar o reembolso de ' + employeeName(r.employeeId)"
+                    (click)="openReview(r, 'reject')">
+              <i class="pi pi-times"></i>
+            </button>
+          } @else if (r.status === 'APPROVED') {
+            <button type="button" class="pk-cartao__atalho" (click)="openPay(r)">
+              <i class="pi pi-money-bill"></i> Pagar
+            </button>
+          }
+
+          <button type="button" class="pk-cartao__icone"
+                  aria-label="Ver comprovante"
+                  [disabled]="baixandoId === r.id" (click)="baixarComprovante(r)">
+            <i [class]="baixandoId === r.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"></i>
+          </button>
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th>Funcionário</th>

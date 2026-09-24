@@ -8,6 +8,7 @@ import { PermissionStore } from '../../../../infrastructure/state/permission.sto
 import { environment } from '../../../../../environments/environment';
 
 import { providersDeTeste } from '../../../../../testing/test-setup';
+import { larguraDaJanela, restaurarLargura, NO_COMPUTADOR } from '../../../../../testing/test-setup';
 
 const URL_LISTA = `${environment.apiUrl}/talent-bank`;
 
@@ -60,6 +61,9 @@ describe('TalentBankPanelComponent', () => {
   }
 
   beforeEach(async () => {
+    // A janela do Karma e' estreita e esta tela agora tem cartao: sem dizer a
+    // largura, o teste conferiria os cartoes achando que ve a tabela.
+    larguraDaJanela(NO_COMPUTADOR);
     await TestBed.configureTestingModule({
       imports: [TalentBankPanelComponent],
       providers: providersDeTeste([MessageService]),
@@ -67,6 +71,8 @@ describe('TalentBankPanelComponent', () => {
 
     http = TestBed.inject(HttpTestingController);
   });
+
+  afterEach(restaurarLargura);
 
   afterEach(() => http.verify());
 

@@ -43,6 +43,33 @@
       emptySubtitle="Adicione um novo funcionário para começar."
       pageReportTitle="Funcionários">
 
+      <ng-template #cardTpl let-e>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="editEmploye(e)">
+            <span class="pk-cartao__titulo">{{ e.name }}</span>
+            <span class="pk-cartao__sub">
+              {{ e.positionName || 'Sem cargo' }}@if (e.department) { · {{ e.department }} }
+            </span>
+          </button>
+          <span class="pk-cartao__marca">{{ e.partnerCode }}</span>
+          <div class="pk-cartao__rodape">
+            <span class="status-chip"
+                  [ngClass]="e.ativo ? 'status-chip--active' : 'status-chip--inactive'">
+              <i class="pi" [ngClass]="e.ativo ? 'pi-check' : 'pi-times'"></i>
+              {{ e.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+
+            @if (linkedUserOf(e); as login) {
+              <span class="user-link-chip"><i class="pi pi-user"></i>{{ login }}</span>
+            } @else {
+              <button type="button" class="pk-cartao__atalho" (click)="openLinkDialog(e)">
+                <i class="pi pi-link"></i> Vincular
+              </button>
+            }
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="partnerCode">Cód Parceiro <p-sortIcon field="partnerCode"></p-sortIcon></th>
