@@ -27,6 +27,23 @@
       emptySubtitle="Adicione uma nova hierarquia para começar."
       pageReportTitle="Hierarquias">
 
+      <!-- O nivel e a marca: e por ele que a hierarquia e chamada em voz alta. -->
+      <ng-template #cardTpl let-h>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="openEdit(h)">
+            <span class="pk-cartao__titulo">{{ h.name }}</span>
+            <span class="pk-cartao__sub">Nível {{ h.levelOrder }}</span>
+          </button>
+          <span class="pk-cartao__marca">{{ h.levelOrder }}</span>
+          <div class="pk-cartao__rodape">
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + h.name" (click)="confirmDelete(h)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th>Nível</th>

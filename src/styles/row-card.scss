@@ -77,6 +77,12 @@
   }
 }
 
+// Mesma forma, sem ser botao: para quem nao tem permissao de editar. O cartao
+// continua mostrando o registro — some a porta, nao a informacao.
+.pk-cartao__corpo--parado {
+  cursor: default;
+}
+
 .pk-cartao__titulo {
   font-size: .84rem;
   font-weight: 600;

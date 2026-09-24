@@ -27,6 +27,22 @@
       emptySubtitle="Adicione um novo departamento para começar."
       pageReportTitle="Departamentos">
 
+      <!-- Departamento so tem nome: o cartao e o caso minimo da anatomia. -->
+      <ng-template #cardTpl let-d>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="openEdit(d)">
+            <span class="pk-cartao__titulo">{{ d.name }}</span>
+            <span class="pk-cartao__sub">Toque para editar</span>
+          </button>
+          <div class="pk-cartao__rodape">
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + d.name" (click)="confirmDelete(d)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>

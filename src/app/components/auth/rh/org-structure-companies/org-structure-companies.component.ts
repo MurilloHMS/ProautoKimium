@@ -15,6 +15,7 @@ import { AddressFieldsComponent, addressFromGroup, addressGroup, addressPatch } 
 import { MapPreviewComponent } from '../../shared/map-preview/map-preview.component';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
 import { CompanyStore } from '../../../../infrastructure/state/org-structure.store';
+import { PermissionStore } from '../../../../infrastructure/state/permission.store';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { Company } from '../../../../domain/models/hr/org-structure.model';
 import { coordinatesOf, formatAddress, isUsableAddress } from '../../../../domain/utils/address';
@@ -31,8 +32,18 @@ import { coordinatesOf, formatAddress, isUsableAddress } from '../../../../domai
 export class OrgStructureCompaniesComponent implements OnInit, TabDirtyCheck {
 
   private readonly store = inject(CompanyStore);
+  private readonly permissoes = inject(PermissionStore);
   private readonly fb = inject(FormBuilder);
   private readonly msgService = inject(MessageService);
+
+  /**
+   * A mesma authority do `*pkCan` do lapis da tabela.
+   *
+   * No cartao ela precisa ser consultavel, e nao so estrutural: quem nao pode
+   * alterar continua vendo a empresa — o cartao so deixa de ser um botao.
+   */
+  readonly podeAlterar = computed(() =>
+    this.permissoes.canByCode('rh/organizational-structure:ALTERAR'));
 
   /** Lista compartilhada: o cadastro feito aqui aparece em qualquer tela aberta. */
   readonly companies = this.store.items;
