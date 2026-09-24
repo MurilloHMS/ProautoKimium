@@ -45,7 +45,8 @@
               <span class="tile__rotulo">{{ categoria.label }}</span>
             </a>
           } @else {
-            <!-- Pasta: o poço com miniaturas é o que diz "aqui tem mais". -->
+            <!-- Pasta: grade 2x2. Ate quatro destinos os quatro aparecem; acima
+                 disso, tres e a quarta celula vira "ver mais". -->
             <div class="tile tile--pasta">
               <p class="tile__nome">
                 <i [class]="categoria.icon" aria-hidden="true"></i>
@@ -73,7 +74,7 @@
                   }
                 }
 
-                @if (restantes(categoria) > 0) {
+                @if (temVerMais(categoria)) {
                   <button type="button"
                           class="mini mini--resto"
                           aria-haspopup="dialog"
@@ -81,7 +82,7 @@
                           [attr.aria-label]="'Abrir ' + categoria.labelCompleto + ', mais ' + restantes(categoria) + ' telas'"
                           (click)="abrirPasta(categoria)">
                     <span class="mini__poco">+{{ restantes(categoria) }}</span>
-                    <span class="mini__rotulo">Ver tudo</span>
+                    <span class="mini__rotulo">Ver mais</span>
                   </button>
                 }
               </div>

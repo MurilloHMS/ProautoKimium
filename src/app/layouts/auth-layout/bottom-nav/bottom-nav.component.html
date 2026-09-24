@@ -8,27 +8,25 @@
     <span class="bottom-nav__pilula" aria-hidden="true"></span>
   }
 
-  @for (item of items(); track item.path; let i = $index) {
-    <!-- A contagem vai no `aria-label` porque o tema não tem classe de texto
-         só para leitor de tela, e classe inventada não estiliza nada. -->
-    <a class="bottom-nav__item"
-       [routerLink]="item.routerLink"
-       [class.is-active]="i === indiceAtivo()"
-       [attr.aria-current]="i === indiceAtivo() ? 'page' : null"
-       [attr.aria-label]="item.contador && naoLidas() > 0
-         ? item.label + ': ' + naoLidas() + (naoLidas() === 1 ? ' não lida' : ' não lidas')
-         : null">
+  @for (item of items(); track item.label; let i = $index) {
 
-      <span class="bottom-nav__icone">
-        <i [class]="item.icon"></i>
+    @if (item.acao) {
+      <!-- Abre a gaveta: é ação, não navegação, então é `<button>`. -->
+      <button type="button"
+              class="bottom-nav__item"
+              (click)="apps.emit()">
+        <span class="bottom-nav__icone"><i [class]="item.icon"></i></span>
+        <span class="bottom-nav__rotulo">{{ item.label }}</span>
+      </button>
+    } @else {
+      <a class="bottom-nav__item"
+         [routerLink]="item.routerLink"
+         [class.is-active]="i === indiceAtivo()"
+         [attr.aria-current]="i === indiceAtivo() ? 'page' : null">
+        <span class="bottom-nav__icone"><i [class]="item.icon"></i></span>
+        <span class="bottom-nav__rotulo">{{ item.label }}</span>
+      </a>
+    }
 
-        @if (item.contador && naoLidas() > 0) {
-          <span class="bottom-nav__ponto"></span>
-        }
-      </span>
-
-      <span class="bottom-nav__rotulo">{{ item.label }}</span>
-
-    </a>
   }
 </nav>

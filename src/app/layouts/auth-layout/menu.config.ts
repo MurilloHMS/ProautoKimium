@@ -182,9 +182,18 @@ export const APP_MENU: AppMenuItem[] = [
  * "Notificações" está aqui, e não "Avisos", porque só notificação tem estado de
  * lido — é a única que pode acender um ponto honesto. Avisos continua no menu.
  */
+/**
+ * Os DESTINOS fixos da barra de baixo — três, desde 2026-09-24.
+ *
+ * "Apps" ocupa a terceira posição na barra e não está aqui porque não é
+ * destino: ele abre a gaveta, e quem o insere é o `BottomNavComponent`.
+ *
+ * **Notificações saiu.** Ela estava aqui por ser a única com estado de lido, e
+ * levava o ponto de não lidas no polegar. O indicador não se perdeu: o sino da
+ * topbar mostra o NÚMERO, que diz mais que o ponto dizia.
+ */
 export const MOBILE_NAV: AppMenuItem[] = [
   { label: 'Início', icon: 'pi pi-home', routerLink: ['home'] },
   { label: 'Documentos', icon: 'pi pi-folder', routerLink: ['documentos'], screen: 'documentos' },
-  { label: 'Notificações', icon: 'pi pi-bell', routerLink: ['notificacoes'] },
   { label: 'Perfil', icon: 'pi pi-user', routerLink: ['perfil'], screen: 'perfil' },
 ];

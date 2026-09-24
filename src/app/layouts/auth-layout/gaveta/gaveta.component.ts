@@ -14,8 +14,15 @@ import {
   destinosDe,
 } from './gaveta.model';
 
-/** Quantos apps o cartão da categoria mostra grandes, antes do aglomerado. */
-const NO_CARTAO = 3;
+/**
+ * O cartão é uma grade 2x2 — quatro células, e nunca um buraco.
+ *
+ * Até quatro destinos, os quatro aparecem e nao existe "ver mais": abrir uma
+ * pasta para ver o que ja esta na tela nao leva a lugar nenhum. Acima de
+ * quatro, entram tres e a quarta celula vira o "ver mais".
+ */
+const CABEM_NO_CARTAO = 4;
+const COM_VER_MAIS = 3;
 
 /**
  * A gaveta de apps do celular.
@@ -86,6 +93,7 @@ export class GavetaComponent {
    */
   destaques(categoria: CategoriaDaGaveta): DestinoDaGaveta[] {
     const habito = this.telasRecentes.porHabito();
+    const quantos = this.temVerMais(categoria) ? COM_VER_MAIS : CABEM_NO_CARTAO;
 
     const posicao = (destino: DestinoDaGaveta) => {
       const path = destino.routerLink?.join('/');
@@ -95,12 +103,17 @@ export class GavetaComponent {
 
     return [...destinosDe(categoria)]
       .sort((a, b) => posicao(a) - posicao(b))
-      .slice(0, NO_CARTAO);
+      .slice(0, quantos);
   }
 
-  /** Quantos sobram fora do cartão — o "+14" do aglomerado. */
+  /** A quarta célula vira "ver mais" só quando há o que a pasta mostre a mais. */
+  temVerMais(categoria: CategoriaDaGaveta): boolean {
+    return categoria.total > CABEM_NO_CARTAO;
+  }
+
+  /** Quantos ficam de fora do cartão — o "+13" da quarta célula. */
   restantes(categoria: CategoriaDaGaveta): number {
-    return Math.max(0, categoria.total - NO_CARTAO);
+    return Math.max(0, categoria.total - COM_VER_MAIS);
   }
 
   abrirPasta(categoria: CategoriaDaGaveta): void {

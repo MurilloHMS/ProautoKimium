@@ -116,17 +116,39 @@ describe('GavetaComponent', () => {
       .toBeNull();
   });
 
-  it('o aglomerado abre a pasta, com o nome inteiro da categoria', async () => {
+  /**
+   * O cartao e 2x2. Ate quatro destinos os quatro aparecem e nao ha "ver
+   * mais" — abrir uma pasta para ver o que ja esta na tela nao leva a lugar
+   * nenhum. Empresa tem exatamente quatro, e e a fronteira.
+   */
+  it('categoria com quatro destinos mostra os quatro, sem ver mais', async () => {
     await montar();
 
-    const resto = raiz().querySelector('.mini--resto') as HTMLButtonElement;
-    expect(resto).withContext('Empresa tem 4 itens e mostra 3: sobra 1').not.toBeNull();
+    const empresa = Array.from(raiz().querySelectorAll('.tile--pasta'))
+      .find(t => t.textContent?.includes('Empresa')) as HTMLElement;
+
+    expect(empresa.querySelectorAll('a.mini').length).toBe(4);
+    expect(empresa.querySelector('.mini--resto')).toBeNull();
+  });
+
+  it('acima de quatro, entram tres e a quarta celula abre a pasta', async () => {
+    await montar();
+
+    const rh = Array.from(raiz().querySelectorAll('.tile--pasta'))
+      .find(t => t.textContent?.includes('RH')) as HTMLElement;
+
+    expect(rh.querySelectorAll('a.mini').length)
+      .withContext('tres apps mais a celula de ver mais fecham o 2x2')
+      .toBe(3);
+
+    const resto = rh.querySelector('.mini--resto') as HTMLButtonElement;
+    expect(resto).not.toBeNull();
 
     resto.click();
     fixture.detectChanges();
 
-    expect(raiz().querySelector('.pk-sheet')).not.toBeNull();
-    expect(raiz().querySelector('.pk-sheet__titulo')?.textContent).toContain('Empresa');
+    expect(raiz().querySelector('.pk-sheet__titulo')?.textContent)
+      .toContain('RH - Recursos Humanos');
   });
 
   it('categoria sem sobra nao mostra aglomerado', async () => {
@@ -153,6 +175,7 @@ describe('GavetaComponent', () => {
     (raiz().querySelector('.mini--resto') as HTMLButtonElement).click();
     fixture.detectChanges();
 
+    // A primeira categoria com sobra e o RH; qualquer uma serve para este teste.
     const painel = raiz().querySelector('.gaveta__painel')!;
     const folha = raiz().querySelector('.pk-sheet')!;
 

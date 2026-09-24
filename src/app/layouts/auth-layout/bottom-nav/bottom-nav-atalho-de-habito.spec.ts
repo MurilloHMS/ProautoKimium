@@ -4,9 +4,8 @@ import { provideRouter } from '@angular/router';
 
 import { BottomNavComponent } from './bottom-nav.component';
 import { MenuService } from '../../../infrastructure/services/menu.service';
-import { NotificationService } from '../../../infrastructure/services/notification.service';
 import { TelasRecentesService, TelaRecente } from '../../../infrastructure/services/telas-recentes.service';
-import { AppMenuItem } from '../menu.config';
+import { MOBILE_NAV } from '../menu.config';
 
 /**
  * **O quinto atalho da barra de baixo.**
@@ -26,12 +25,12 @@ import { AppMenuItem } from '../menu.config';
  */
 describe('BottomNavComponent · o quinto atalho', () => {
 
-  const FIXOS: AppMenuItem[] = [
-    { label: 'Início', icon: 'pi pi-home', routerLink: ['home'] },
-    { label: 'Documentos', icon: 'pi pi-folder', routerLink: ['documentos'] },
-    { label: 'Notificações', icon: 'pi pi-bell', routerLink: ['notificacoes'] },
-    { label: 'Perfil', icon: 'pi pi-user', routerLink: ['perfil'] },
-  ];
+  // O fake devolve o MOBILE_NAV de verdade, e nao uma copia: a lista ja mudou
+  // uma vez (Notificacoes saiu para o "Apps" entrar) e a copia local ficou
+  // para tras, quebrando quatro testes por contagem. Lendo a fonte, ela nao
+  // diverge de novo.
+  //
+  // A barra mostra MOBILE_NAV + o botao "Apps", que o componente insere.
 
   const tela = (path: string, label: string, visitas: number, quando = 0): TelaRecente => ({
     path, label, icon: 'pi pi-file', breadcrumb: label, visitas, ultimoAcesso: quando,
@@ -49,8 +48,7 @@ describe('BottomNavComponent · o quinto atalho', () => {
       providers: [
         provideZonelessChangeDetection(),
         provideRouter([]),
-        { provide: MenuService, useValue: { mobileItems: () => FIXOS } },
-        { provide: NotificationService, useValue: { unreadCount: signal(0) } },
+        { provide: MenuService, useValue: { mobileItems: () => MOBILE_NAV } },
         { provide: TelasRecentesService, useValue: recentes },
       ],
     }).compileComponents();
@@ -60,7 +58,7 @@ describe('BottomNavComponent · o quinto atalho', () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it('sem histórico nenhum, mostra só os quatro fixos', async () => {
+  it('sem histórico nenhum, mostra só os fixos mais o Apps', async () => {
     const barra = await montar([]);
 
     expect(barra.items().length).toBe(4);
@@ -84,7 +82,6 @@ describe('BottomNavComponent · o quinto atalho', () => {
   it('pula quantos fixos forem precisos até achar uma tela de fora', async () => {
     const barra = await montar([
       tela('/home', 'Início', 40),
-      tela('/notificacoes', 'Notificações', 30),
       tela('/perfil', 'Perfil', 20),
       tela('/documentos', 'Documentos', 10),
       tela('/estoque', 'Estoque', 2),
@@ -101,6 +98,43 @@ describe('BottomNavComponent · o quinto atalho', () => {
     ]);
 
     expect(barra.items().length).toBe(4);
+  });
+
+  // ── o botão Apps ──────────────────────────────────────────────────────────
+
+  /**
+   * "Apps" entrou no lugar de Notificações, e abre a gaveta em vez de navegar.
+   * Como não leva a lugar nenhum, ele não pode ser link: o leitor de tela
+   * anunciaria errado e o toque longo ofereceria "abrir em nova aba".
+   */
+  it('o Apps esta na terceira posicao, e nao e um destino', async () => {
+    const barra = await montar([]);
+
+    expect(barra.items()[2].label).toBe('Apps');
+    expect(barra.items()[2].acao).toBe('apps');
+    expect(barra.items()[2].routerLink).toEqual([]);
+  });
+
+  it('tocar no Apps avisa o shell, que e quem abre a gaveta', async () => {
+    const barra = await montar([]);
+
+    let pediu = false;
+    barra.apps.subscribe(() => (pediu = true));
+
+    barra.apps.emit();
+
+    expect(pediu).toBeTrue();
+  });
+
+  /**
+   * A pílula marca onde a pessoa está. O Apps abre uma camada por cima, e a
+   * tela de trás continua sendo a atual — se ele pudesse ficar ativo, a pílula
+   * apontaria para um item que não é lugar nenhum.
+   */
+  it('o Apps nunca fica ativo', async () => {
+    const barra = await montar([]);
+
+    expect(barra.indiceAtivo()).not.toBe(2);
   });
 
   /**
