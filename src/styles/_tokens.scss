@@ -97,17 +97,19 @@
   // Pêssego a 83 do laranja, os dois que a lista de evitar proíbe. Dessaturados
   // eles viram tijolo e terracota, a 124 e 103.
   //
-  // Todos passam de 3,2:1 sobre o próprio fundo — a régua de **objeto
-  // gráfico**, que é 3:1; 4,5 é de texto e não se aplica a um glifo.
-  --cat-espaco:      #665dac;  // Lavanda
-  --cat-rh:          #c25147;  // Coral
-  --cat-financeiro:  #538c4e;  // Verde Pastel
-  --cat-empresa:     #62868a;  // Azul Petróleo
-  --cat-comunicacao: #967d25;  // Amarelo
-  --cat-estoque:     #8a7d72;  // Bege
-  --cat-ferramentas: #77827c;  // Verde Cinza
+  // Todos passam de **5:1** sobre o próprio fundo. A régua de objeto gráfico é
+  // 3:1, mas ela é o mínimo e não um teto: ele pediu o traço mais escuro para
+  // contrastar mais, e escurecer também afasta as matizes da lista de evitar —
+  // o Coral foi de 124 para 124 e o Pêssego de 103 para 139.
+  --cat-espaco:      #5e54a5;  // Lavanda
+  --cat-rh:          #a13e35;  // Coral
+  --cat-financeiro:  #3e693a;  // Verde Pastel
+  --cat-empresa:     #496367;  // Azul Petróleo
+  --cat-comunicacao: #6f5d1b;  // Amarelo
+  --cat-estoque:     #675c55;  // Bege
+  --cat-ferramentas: #59615c;  // Verde Cinza
   --cat-config:      #{v.$text-muted};
-  --cat-externos:    #c26535;  // Pêssego
+  --cat-externos:    #904b27;  // Pêssego
 
 
   // Nomes antigos mantidos como apelido: o shell, o page-header e as telas de
@@ -192,17 +194,18 @@
   --app-danger-soft:  rgba(248, 113, 113, 0.16);
 
   // ─── Identidade de categoria ───────────────────────────────────────────
-  // As mesmas matizes, clareadas até passar 3,2:1 sobre o fundo de 10% delas
+  // As mesmas matizes. Aqui elas CLAREIAM para ganhar contraste, que é a
+  // direção oposta do tema claro — também até 5:1 sobre o fundo de 10% delas
   // mesmas na superfície escura.
-  --cat-espaco:      #766eb5;
-  --cat-rh:          #c65c53;
+  --cat-espaco:      #9e98ca;
+  --cat-rh:          #d68982;
   --cat-financeiro:  #71ad6c;
-  --cat-empresa:     #799ba0;
+  --cat-empresa:     #84a3a7;
   --cat-comunicacao: #d2b347;
-  --cat-estoque:     #978b81;
-  --cat-ferramentas: #87918c;
+  --cat-estoque:     #a69b93;
+  --cat-ferramentas: #97a09b;
   --cat-config:      #97a3b8;
-  --cat-externos:    #ce774b;
+  --cat-externos:    #d58b64;
 
 
   --app-overlay:        rgba(2, 6, 16, 0.66);
