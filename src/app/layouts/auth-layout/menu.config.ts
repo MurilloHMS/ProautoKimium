@@ -29,20 +29,36 @@ export interface AppMenuItem {
 }
 
 export const APP_MENU: AppMenuItem[] = [
+  /**
+   * As tres entradas pessoais, juntas.
+   *
+   * Elas eram folhas soltas no primeiro nivel. Na gaveta do celular isso as
+   * deixava como tiles avulsos ao lado de categorias, e a forma dizia coisas
+   * diferentes lado a lado. Agrupadas, o primeiro nivel fica so de grupos.
+   *
+   * A mudanca e no APP_MENU e vale para o desktop tambem, por decisao dele em
+   * 2026-09-24: o menu do celular e o do computador nao podem divergir.
+   */
   {
-    label: 'Início',
-    icon: 'pi pi-fw pi-home',
-    routerLink: ['home'],
-  },
-  {
-    label: 'Documentos',
-    icon: 'pi pi-fw pi-folder',
-    routerLink: ['documentos'], screen: 'documentos',
-  },
-  {
-    label: 'Galeria',
-    icon: 'pi pi-fw pi-images',
-    routerLink: ['documentos/galeria'], screen: 'documentos/galeria',
+    label: 'Meu espaço',
+    icon: 'pi pi-fw pi-inbox',
+    items: [
+      {
+        label: 'Início',
+        icon: 'pi pi-fw pi-home',
+        routerLink: ['home'],
+      },
+      {
+        label: 'Documentos',
+        icon: 'pi pi-fw pi-folder',
+        routerLink: ['documentos'], screen: 'documentos',
+      },
+      {
+        label: 'Galeria',
+        icon: 'pi pi-fw pi-images',
+        routerLink: ['documentos/galeria'], screen: 'documentos/galeria',
+      },
+    ],
   },
   {
     label: 'RH - Recursos Humanos',
