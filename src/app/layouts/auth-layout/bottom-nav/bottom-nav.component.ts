@@ -1,10 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 
 import { MenuService } from '../../../infrastructure/services/menu.service';
-import { NotificationService } from '../../../infrastructure/services/notification.service';
 import { TelasRecentesService } from '../../../infrastructure/services/telas-recentes.service';
 
 /** Um atalho da barra, já resolvido para desenho. */
@@ -15,8 +14,14 @@ interface ItemDaBarra {
   path: string;
   /** Só a Início casa exato; ela é prefixo de nada e capturaria tudo. */
   exato: boolean;
-  /** Se este item acende o ponto de não lidas. */
-  contador: boolean;
+  /**
+   * "Menu" abre a gaveta em vez de navegar.
+   *
+   * Por isso ele é `<button>` no template, e não `<a>`: elemento que não leva a
+   * lugar nenhum não pode ser link — o leitor de tela anuncia errado, e o toque
+   * longo oferece "abrir em nova aba" para algo que não é página.
+   */
+  acao?: 'menu';
 }
 
 /**
@@ -44,11 +49,10 @@ export class BottomNavComponent {
 
   private readonly menuService = inject(MenuService);
   private readonly telasRecentes = inject(TelasRecentesService);
-  private readonly notifications = inject(NotificationService);
   private readonly router = inject(Router);
 
-  /** Alimenta o ponto: é signal, e o STOMP o atualiza ao vivo. */
-  readonly naoLidas = this.notifications.unreadCount;
+  /** O toque em "Menu": quem abre a gaveta é o shell, que guarda esse estado. */
+  readonly menu = output<void>();
 
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -70,11 +74,23 @@ export class BottomNavComponent {
    * piscava, porque duas voltas à Início bastavam para retomar a liderança.
    */
   readonly items = computed<ItemDaBarra[]>(() => {
-    const fixos = this.menuService.mobileItems().map(item => this.paraItem(
+    const destinos = this.menuService.mobileItems().map(item => this.paraItem(
       item.label,
       item.icon,
-      item.routerLink ?? [],
-      item.routerLink?.[0] === 'notificacoes'));
+      item.routerLink ?? []));
+
+    // "Menu" entra na terceira posição — onde Notificações estava. A posição é
+    // aqui e não no `MOBILE_NAV` porque ele não é destino: não tem rota, não
+    // tem tela no catálogo de permissões e não pode ser filtrado por uma.
+    const fixos = [...destinos];
+    fixos.splice(Math.min(2, fixos.length), 0, {
+      label: 'Menu',
+      icon: 'pi pi-th-large',
+      routerLink: [],
+      path: '',
+      exato: false,
+      acao: 'menu',
+    });
 
     const habito = this.telasRecentes.porHabito()
       .find(tela => !fixos.some(fixo => fixo.path === tela.path));
@@ -84,26 +100,22 @@ export class BottomNavComponent {
     return [...fixos, this.paraItem(
       habito.label,
       habito.icon,
-      habito.path.replace(/^\//, '').split('/'),
-      false)];
+      habito.path.replace(/^\//, '').split('/'))];
   });
 
   /** `-1` quando a tela atual não é nenhum dos atalhos: a pílula some. */
   readonly indiceAtivo = computed(() => {
     const atual = this.url().split(/[?#]/)[0].replace(/\/+$/, '');
 
-    return this.items().findIndex(item => item.exato
+    // O "Menu" nunca fica ativo: ele abre uma camada por cima, e a tela de
+    // trás continua sendo a atual. A pílula tem que continuar apontando para ela.
+    return this.items().findIndex(item => !item.acao && (item.exato
       ? atual === item.path
-      : atual === item.path || atual.startsWith(`${item.path}/`));
+      : atual === item.path || atual.startsWith(`${item.path}/`)));
   });
 
-  private paraItem(
-    label: string,
-    icon: string,
-    routerLink: string[],
-    contador: boolean,
-  ): ItemDaBarra {
+  private paraItem(label: string, icon: string, routerLink: string[]): ItemDaBarra {
     const path = `/${routerLink.join('/')}`.replace(/\/+/g, '/');
-    return { label, icon, routerLink, path, exato: path === '/home', contador };
+    return { label, icon, routerLink, path, exato: path === '/home' };
   }
 }

@@ -63,6 +63,17 @@ $folga: 10px;
 }
 
 .bottom-nav__item {
+  // O item "Menu" e <button> e os outros sao <a>. Botao nao herda fonte e vem
+  // com fundo, borda e padding do navegador — sem este reset ele destoa dos
+  // vizinhos, que foi exatamente o que apareceu no aparelho.
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
+
   position: relative;
   display: flex;
   flex-direction: column;

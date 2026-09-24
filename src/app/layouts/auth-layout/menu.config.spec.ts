@@ -70,10 +70,10 @@ describe('menu.config × app.routes', () => {
     'documentos/calculadoras/combustivel',
     // Documentos e RH: o hub é a porta, e as subtelas são os cartões dele.
     'documentos/calculadoras',
-    'documentos/holerites',
     'documentos/logos',
-    'documentos/eventos',
-    'documentos/rh',
+    // Holerites, Eventos e Pessoal SAIRAM desta lista em 2026-09-24: ele pediu
+    // as tres em "Meu espaco", e agora elas tem linha no menu — o que tambem
+    // as coloca na busca, onde nunca estiveram.
     'documentos/rh/announcements',
     'documentos/rh/documents',
     'documentos/rh/medical-certificates',
@@ -119,4 +119,32 @@ describe('menu.config × app.routes', () => {
 
     expect(divergentes).toEqual([]);
   });
+
+  /**
+   * Nenhum icone se repete.
+   *
+   * <p>Em 2026-09-24 **21 dos 67 itens dividiam icone com outro**: `pi-file`
+   * sozinho aparecia quatro vezes — Holerite, NF-e, Assinatura de E-mail e a
+   * documentacao da API. Um quinto do menu era visualmente ambiguo, e a queixa
+   * dele foi literal: "preciso de icones melhores para identificar as paginas".
+   *
+   * <p>Isto so volta por descuido: quem adiciona uma tela copia a linha de cima
+   * e troca o rotulo. O teste transforma o descuido em build vermelho.
+   */
+  it('nenhum icone do menu se repete', () => {
+    const porIcone = new Map<string, string[]>();
+
+    for (const item of itensDoMenu(APP_MENU)) {
+      porIcone.set(item.icon, [...(porIcone.get(item.icon) ?? []), item.label]);
+    }
+
+    const repetidos = [...porIcone.entries()]
+      .filter(([, rotulos]) => rotulos.length > 1)
+      .map(([icone, rotulos]) => `${icone}: ${rotulos.join(' / ')}`);
+
+    expect(repetidos)
+      .withContext('icone repetido faz duas telas diferentes parecerem a mesma')
+      .toEqual([]);
+  });
+
 });

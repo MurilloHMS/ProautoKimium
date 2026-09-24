@@ -99,6 +99,50 @@
   --app-danger:       #c91f1f;   // era $danger #e53e3e — 3,50:1
   --app-danger-soft:  rgba(229, 62, 62, 0.12);
 
+  // ─── Identidade de categoria ───────────────────────────────────────────
+  //
+  // A QUARTA função da cor neste tema, aberta em 2026-09-24, e a única que não
+  // estava prevista na doutrina do topo ("se algo não é ação nem status, é
+  // neutro").
+  //
+  // **Escopo, estreito de propósito:** o selo ao lado do nome do grupo na
+  // gaveta de apps, e mais nada. Uma marca de cor por cartão. Nunca em chip,
+  // botão, borda ou superfície — é isso que impede a cor de categoria de virar
+  // cor de status.
+  //
+  // O tratamento é o do `.doc-card__icon` do Documentos: **fundo claro e
+  // colorido, traço da MESMA matiz escurecido**.
+  //
+  // São dois valores, e não um acento com `color-mix`, porque com um só não dá
+  // para ter as duas coisas: acento escuro faz o fundo de 10% sair cinza, e
+  // acento médio faz o traço sair claro. Medido — os accents do Documentos
+  // ficam em L≈0,43-0,55, e os meus estavam em 0,32.
+  //
+  // As matizes são as nove de apoio da marca (`/branding`). O traço escurece
+  // **dessaturando** (0,70): escurecer saturando transforma pastel em primária,
+  // e o Coral caía a 53 do vermelho puro. Dessaturado ele fica a 136.
+  //
+  // O traço passa de 4:1 sobre o próprio fundo, a maioria de 5,5:1.
+  --cat-espaco-fundo:      #dad6f5;
+  --cat-espaco:            #3d3673;  // Lavanda
+  --cat-rh-fundo:          #fdd2ce;
+  --cat-rh:                #842c24;  // Coral
+  --cat-financeiro-fundo:  #daf3d8;
+  --cat-financeiro:        #3e6f39;  // Verde Pastel
+  --cat-empresa-fundo:     #deeced;
+  --cat-empresa:           #446064;  // Azul Petróleo
+  --cat-comunicacao-fundo: #fff4cc;
+  --cat-comunicacao:       #8e741b;  // Amarelo
+  --cat-estoque-fundo:     #eae5e1;
+  --cat-estoque:           #5d534b;  // Bege
+  --cat-ferramentas-fundo: #e3e8e5;
+  --cat-ferramentas:       #505854;  // Verde Cinza
+  --cat-config-fundo:      #{v.$neutral-100};
+  --cat-config:            #{v.$text-muted};
+  --cat-externos-fundo:    #ffddcc;
+  --cat-externos:          #8a431e;  // Pêssego
+
+
   // Nomes antigos mantidos como apelido: o shell, o page-header e as telas de
   // entrada já os consomem. `--app-primary` e `--app-action` são a mesma cor.
   --app-primary:      var(--app-action);
@@ -179,6 +223,29 @@
   --app-work-soft:    rgba(169, 140, 224, 0.16);
   --app-danger:       #f87171;
   --app-danger-soft:  rgba(248, 113, 113, 0.16);
+
+  // ─── Identidade de categoria ───────────────────────────────────────────
+  // A lógica inverte: o fundo escurece (a matiz a 16% sobre a superfície) e o
+  // traço clareia. Todos passam de 4,5:1.
+  --cat-espaco-fundo:      #333a4f;
+  --cat-espaco:            #a9a2de;
+  --cat-rh-fundo:          #372e3d;
+  --cat-rh:                #e98e86;
+  --cat-financeiro-fundo:  #2d3c45;
+  --cat-financeiro:        #a0d39c;
+  --cat-empresa-fundo:     #1f3043;
+  --cat-empresa:           #a7c4c8;
+  --cat-comunicacao-fundo: #383b39;
+  --cat-comunicacao:       #f3d87d;
+  --cat-estoque-fundo:     #2d3241;
+  --cat-estoque:           #c1b6ae;
+  --cat-ferramentas-fundo: #263040;
+  --cat-ferramentas:       #b3bcb7;
+  --cat-config-fundo:      #223049;
+  --cat-config:            #97a3b8;
+  --cat-externos-fundo:    #383641;
+  --cat-externos:          #f0a680;
+
 
   --app-overlay:        rgba(2, 6, 16, 0.66);
   --app-shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.30);

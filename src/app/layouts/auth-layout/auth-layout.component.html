@@ -1,6 +1,13 @@
 <app-topbar (menuToggle)="drawerOpen.set(true)" />
 
-<app-nav-drawer [open]="drawerOpen()" (closed)="drawerOpen.set(false)" />
+<!-- No celular a gaveta de apps SUBSTITUI a arvore. O CSS mobile do
+     nav-drawer ainda esta la e sai numa commit propria, para esta poder ser
+     vista no aparelho antes de qualquer remocao. -->
+@if (ehCelular()) {
+  <app-gaveta [open]="drawerOpen()" (closed)="drawerOpen.set(false)" />
+} @else {
+  <app-nav-drawer [open]="drawerOpen()" (closed)="drawerOpen.set(false)" />
+}
 
 <app-tab-bar />
 
@@ -18,4 +25,4 @@
     (deactivate)="tabs.setActiveComponent(null)" />
 </main>
 
-<app-bottom-nav />
+<app-bottom-nav (menu)="drawerOpen.set(true)" />

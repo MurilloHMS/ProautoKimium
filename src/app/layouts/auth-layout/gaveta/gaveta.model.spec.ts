@@ -106,8 +106,25 @@ describe('gaveta.model', () => {
 
   // ── a forma dos tiles ─────────────────────────────────────────────────────
 
-  it('folha de primeiro nivel vira tile que navega, e nao pasta', () => {
-    const inicio = acharCategoria('inicio');
+  /**
+   * O menu de hoje nao tem folha no primeiro nivel: Inicio, Documentos e
+   * Galeria eram as tres, e foram agrupadas em "Meu espaco" em 2026-09-24
+   * justamente para nao ficarem como tiles avulsos ao lado de categorias.
+   *
+   * O modelo continua sabendo lidar com uma — o teste abaixo prova isso com
+   * menu sintetico —, e este aqui e o que avisa se ela voltar sem ninguem
+   * decidir como a grade a mostra.
+   */
+  it('hoje nenhuma categoria do menu real e folha', () => {
+    expect(categorias.filter(c => c.tipo === 'folha').map(c => c.label))
+      .withContext('folha de primeiro nivel volta a ser tile avulso na grade')
+      .toEqual([]);
+  });
+
+  it('folha de primeiro nivel, se existir, vira tile que navega', () => {
+    const [inicio] = categoriasDaGaveta([
+      { label: 'Início', icon: 'pi pi-home', routerLink: ['home'] },
+    ]);
 
     expect(inicio.tipo).toBe('folha');
     expect(inicio.destino?.routerLink).toEqual(['home']);
@@ -224,6 +241,40 @@ describe('gaveta.model', () => {
       .withContext('icone sem rotulo ja foi tentado e revertido: o publico e 40+')
       .toBeTrue();
     expect(todos.every(d => !!d.icon?.trim())).toBeTrue();
+  });
+
+  // ── identidade ────────────────────────────────────────────────────────────
+
+  /**
+   * Toda categoria do menu real tem cor. Categoria nova entra cinza — o que e
+   * aceitavel —, mas entrar cinza SEM NINGUEM PERCEBER nao e: a grade fica com
+   * um buraco visual e ninguem liga o defeito a quem criou o grupo.
+   */
+  it('as nove categorias do menu tem cor de identidade', () => {
+    const semCor = categorias.filter(c => !c.cor).map(c => c.label);
+
+    expect(semCor)
+      .withContext('categoria nova precisa de uma cor no COR_DA_CATEGORIA')
+      .toEqual([]);
+  });
+
+  it('nenhuma cor de categoria e usada duas vezes', () => {
+    const cores = categorias.map(c => c.cor);
+
+    expect(cores.length)
+      .withContext('duas categorias da mesma cor voltam a ser indistinguiveis')
+      .toBe(new Set(cores).size);
+  });
+
+  /** Categoria fora do mapa nao pode quebrar: cai no neutro. */
+  it('categoria sem cor atribuida vem com cor vazia, e nao indefinida', () => {
+    const [nova] = categoriasDaGaveta([
+      { label: 'Categoria Nova', icon: 'pi pi-box', items: [
+        { label: 'Uma tela', icon: 'pi pi-file', routerLink: ['x'] },
+      ] },
+    ]);
+
+    expect(nova.cor).toBe('');
   });
 
   it('toda categoria tem rotulo e icone', () => {

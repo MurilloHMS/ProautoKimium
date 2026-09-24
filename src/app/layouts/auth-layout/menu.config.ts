@@ -29,26 +29,47 @@ export interface AppMenuItem {
 }
 
 export const APP_MENU: AppMenuItem[] = [
+  /**
+   * As tres entradas pessoais, juntas.
+   *
+   * Elas eram folhas soltas no primeiro nivel. Na gaveta do celular isso as
+   * deixava como tiles avulsos ao lado de categorias, e a forma dizia coisas
+   * diferentes lado a lado. Agrupadas, o primeiro nivel fica so de grupos.
+   *
+   * A mudanca e no APP_MENU e vale para o desktop tambem, por decisao dele em
+   * 2026-09-24: o menu do celular e o do computador nao podem divergir.
+   */
   {
-    label: 'Início',
-    icon: 'pi pi-fw pi-home',
-    routerLink: ['home'],
-  },
-  {
-    label: 'Documentos',
-    icon: 'pi pi-fw pi-folder',
-    routerLink: ['documentos'], screen: 'documentos',
-  },
-  {
-    label: 'Galeria',
-    icon: 'pi pi-fw pi-images',
-    routerLink: ['documentos/galeria'], screen: 'documentos/galeria',
+    label: 'Meu espaço',
+    icon: 'pi pi-fw pi-inbox',
+    items: [
+      {
+        label: 'Início',
+        icon: 'pi pi-fw pi-home',
+        routerLink: ['home'],
+      },
+      {
+        label: 'Documentos',
+        icon: 'pi pi-fw pi-folder',
+        routerLink: ['documentos'], screen: 'documentos',
+      },
+      {
+        label: 'Galeria',
+        icon: 'pi pi-fw pi-images',
+        routerLink: ['documentos/galeria'], screen: 'documentos/galeria',
+      },
+      // Estas tres so eram alcancaveis pela pagina Documentos — nao tinham
+      // linha no menu, entao nao apareciam na busca nem na gaveta.
+      { label: 'Eventos', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['documentos/eventos'], screen: 'documentos/eventos' },
+      { label: 'Holerites', icon: 'pi pi-fw pi-credit-card', routerLink: ['documentos/holerites'], screen: 'documentos/holerites' },
+      { label: 'Pessoal', icon: 'pi pi-fw pi-user-edit', routerLink: ['documentos/rh'], screen: 'documentos/rh' },
+    ],
   },
   {
     label: 'RH - Recursos Humanos',
     icon: 'pi pi-fw pi-users',
     items: [
-      { label: 'Painel RH', icon: 'pi pi-fw pi-th-large', routerLink: ['rh/hub'], screen: 'rh/hub' },
+      { label: 'Painel RH', icon: 'pi pi-fw pi-objects-column', routerLink: ['rh/hub'], screen: 'rh/hub' },
       {
         label: 'Aprovações',
         icon: 'pi pi-fw pi-check-circle',
@@ -60,10 +81,10 @@ export const APP_MENU: AppMenuItem[] = [
       },
       {
         label: 'Pessoas',
-        icon: 'pi pi-fw pi-user',
+        icon: 'pi pi-fw pi-address-book',
         items: [
           { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
-          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-users', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
+          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-share-alt', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
           { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar' },
         ],
       },
@@ -71,17 +92,17 @@ export const APP_MENU: AppMenuItem[] = [
         label: 'Organização',
         icon: 'pi pi-fw pi-sitemap',
         items: [
-          { label: 'Estrutura', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure' },
+          { label: 'Estrutura', icon: 'pi pi-fw pi-building-columns', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure' },
           { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], screen: 'rh/career-structure' },
           { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
         ],
       },
       {
         label: 'Ferramentas',
-        icon: 'pi pi-fw pi-wrench',
+        icon: 'pi pi-fw pi-sliders-h',
         items: [
           { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators' },
-          { label: 'Holerit', icon: 'pi pi-fw pi-file', routerLink: ['rh/holerit'], screen: 'rh/holerit' },
+          { label: 'Holerit', icon: 'pi pi-fw pi-receipt', routerLink: ['rh/holerit'], screen: 'rh/holerit' },
           { label: 'Coletar Holerite', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/holerit/extractor'], screen: 'rh/holerit/extractor' },
         ],
       },
@@ -89,9 +110,9 @@ export const APP_MENU: AppMenuItem[] = [
         label: 'Comunicação',
         icon: 'pi pi-fw pi-megaphone',
         items: [
-          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/announcements'], screen: 'rh/announcements' },
+          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-flag', routerLink: ['rh/announcements'], screen: 'rh/announcements' },
           { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], screen: 'rh/notifications' },
-          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
+          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
         ],
       },
     ],
@@ -107,13 +128,13 @@ export const APP_MENU: AppMenuItem[] = [
     label: 'Empresa',
     icon: 'pi pi-fw pi-building',
     items: [
-      { label: 'Clientes', icon: 'pi pi-fw pi-user', routerLink: ['company/customers'], screen: 'company/customers' },
-      { label: 'Coletar Dados NFe', icon: 'pi pi-fw pi-file', routerLink: ['company/nfe-collector'], screen: 'company/nfe-collector' },
-      { label: 'Remover Senha do Excel', icon: 'pi pi-fw pi-lock', routerLink: ['company/excel'], screen: 'company/excel' },
+      { label: 'Clientes', icon: 'pi pi-fw pi-shop', routerLink: ['company/customers'], screen: 'company/customers' },
+      { label: 'Coletar Dados NFe', icon: 'pi pi-fw pi-barcode', routerLink: ['company/nfe-collector'], screen: 'company/nfe-collector' },
+      { label: 'Remover Senha do Excel', icon: 'pi pi-fw pi-file-excel', routerLink: ['company/excel'], screen: 'company/excel' },
       { label: 'Abastecimento', icon: 'pi pi-fw pi-gauge', routerLink: ['company/fuel-supply'], screen: 'company/fuel-supply' },
       { label: 'Hub de Abastecimento', icon: 'pi pi-fw pi-chart-line', routerLink: ['company/fuel-hub'], screen: 'company/fuel-hub' },
-      { label: 'Guia de Utilização', icon: 'pi pi-fw pi-file-pdf', routerLink: ['company/guide'], screen: 'company/guide' },
-      { label: 'Equipamentos', icon: 'pi pi-fw pi-wrench', routerLink: ['company/equipments'], screen: 'company/equipments' },
+      { label: 'Guia de Utilização', icon: 'pi pi-fw pi-book', routerLink: ['company/guide'], screen: 'company/guide' },
+      { label: 'Equipamentos', icon: 'pi pi-fw pi-hammer', routerLink: ['company/equipments'], screen: 'company/equipments' },
     ],
   },
   {
@@ -122,10 +143,10 @@ export const APP_MENU: AppMenuItem[] = [
     items: [
       { label: 'Newsletter', icon: 'pi pi-fw pi-envelope', routerLink: ['communication/newsletter'], screen: 'communication/newsletter' },
       { label: 'Disparo de Emails', icon: 'pi pi-fw pi-send', routerLink: ['communication/email'], screen: 'communication/email' },
-      { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-lock', routerLink: ['communication/secrets'], screen: 'communication/secrets' },
-      { label: 'Assinatura de Email', icon: 'pi pi-fw pi-file', routerLink: ['communication/email-signature'], screen: 'communication/email-signature' },
+      { label: 'Comunicação Protegida', icon: 'pi pi-fw pi-key', routerLink: ['communication/secrets'], screen: 'communication/secrets' },
+      { label: 'Assinatura de Email', icon: 'pi pi-fw pi-at', routerLink: ['communication/email-signature'], screen: 'communication/email-signature' },
       { label: 'Contato', icon: 'pi pi-fw pi-phone', routerLink: ['communication/contact'], screen: 'communication/contact' },
-      { label: 'Eventos', icon: 'pi pi-fw pi-calendar', routerLink: ['communication/events'], screen: 'communication/events' },
+      { label: 'Eventos', icon: 'pi pi-fw pi-star', routerLink: ['communication/events'], screen: 'communication/events' },
     ],
   },
   {
@@ -135,9 +156,9 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Hub das Máquinas', icon: 'pi pi-fw pi-th-large', routerLink: ['stock/hub'], screen: 'stock/hub' },
       { label: 'Programação', icon: 'pi pi-fw pi-table', routerLink: ['stock/programacao'], screen: 'stock/programacao' },
       { label: 'Hub do Estoque', icon: 'pi pi-fw pi-chart-bar', routerLink: ['stock/inventory-hub'], screen: 'stock/inventory-hub' },
-      { label: 'Produtos', icon: 'pi pi-fw pi-box', routerLink: ['stock/products'], screen: 'stock/products' },
+      { label: 'Produtos', icon: 'pi pi-fw pi-tag', routerLink: ['stock/products'], screen: 'stock/products' },
       { label: 'Movimentações', icon: 'pi pi-fw pi-arrow-right-arrow-left', routerLink: ['stock/movements'], screen: 'stock/movements' },
-      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bell', routerLink: ['stock/alerts'], screen: 'stock/alerts' },
+      { label: 'Alertas de saída', icon: 'pi pi-fw pi-bolt', routerLink: ['stock/alerts'], screen: 'stock/alerts' },
     ],
   },
   {
@@ -165,10 +186,10 @@ export const APP_MENU: AppMenuItem[] = [
     icon: 'pi pi-fw pi-external-link',
     items: [
       { label: 'NextCloud', icon: 'pi pi-fw pi-cloud', url: 'https://cloud.proautokimium.com.br/', target: '_blank' },
-      { label: 'N8N', icon: 'pi pi-fw pi-cog', url: 'https://n8n.proautokimium.com.br/', target: '_blank' },
-      { label: 'PDF', icon: 'pi pi-fw pi-file-pdf', url: 'https://pdf.proautokimium.com.br/', target: '_blank' },
-      { label: 'Jenkins', icon: 'pi pi-fw pi-cog', url: 'https://jenkins.proautokimium.com.br/', target: '_blank' },
-      { label: 'Api (Documentação)', icon: 'pi pi-fw pi-file', url: 'https://api.proautokimium.com/swagger-ui/index.html', target: '_blank' },
+      { label: 'N8N', icon: 'pi pi-fw pi-sync', url: 'https://n8n.proautokimium.com.br/', target: '_blank' },
+      { label: 'PDF', icon: 'pi pi-fw pi-globe', url: 'https://pdf.proautokimium.com.br/', target: '_blank' },
+      { label: 'Jenkins', icon: 'pi pi-fw pi-refresh', url: 'https://jenkins.proautokimium.com.br/', target: '_blank' },
+      { label: 'Api (Documentação)', icon: 'pi pi-fw pi-server', url: 'https://api.proautokimium.com/swagger-ui/index.html', target: '_blank' },
       { label: 'GLPI (Chamados)', icon: 'pi pi-fw pi-ticket', url: 'https://infra.proautokimium.com.br/', target: '_blank' },
     ],
   },
@@ -182,9 +203,18 @@ export const APP_MENU: AppMenuItem[] = [
  * "Notificações" está aqui, e não "Avisos", porque só notificação tem estado de
  * lido — é a única que pode acender um ponto honesto. Avisos continua no menu.
  */
+/**
+ * Os DESTINOS fixos da barra de baixo — três, desde 2026-09-24.
+ *
+ * "Apps" ocupa a terceira posição na barra e não está aqui porque não é
+ * destino: ele abre a gaveta, e quem o insere é o `BottomNavComponent`.
+ *
+ * **Notificações saiu.** Ela estava aqui por ser a única com estado de lido, e
+ * levava o ponto de não lidas no polegar. O indicador não se perdeu: o sino da
+ * topbar mostra o NÚMERO, que diz mais que o ponto dizia.
+ */
 export const MOBILE_NAV: AppMenuItem[] = [
   { label: 'Início', icon: 'pi pi-home', routerLink: ['home'] },
   { label: 'Documentos', icon: 'pi pi-folder', routerLink: ['documentos'], screen: 'documentos' },
-  { label: 'Notificações', icon: 'pi pi-bell', routerLink: ['notificacoes'] },
   { label: 'Perfil', icon: 'pi pi-user', routerLink: ['perfil'], screen: 'perfil' },
 ];
