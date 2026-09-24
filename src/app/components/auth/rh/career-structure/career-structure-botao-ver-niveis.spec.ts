@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 
 import { CareerStructureComponent } from './career-structure.component';
 import { PositionStore, PositionLevelStore } from '../../../../infrastructure/state/position.store';
+import { larguraDaJanela, restaurarLargura, NO_COMPUTADOR } from '../../../../../testing/test-setup';
 
 /**
  * **O botão "Ver Níveis" não aparecia.**
@@ -30,7 +31,12 @@ describe('CareerStructureComponent · o botão Ver Níveis', () => {
     { id: 'cargo-2', name: 'Analista' },
   ];
 
+  afterEach(restaurarLargura);
+
   async function montar() {
+    // A janela do Karma e estreita e esta tela agora tem cartao: sem dizer a
+    // largura, o teste conferiria o cartao achando que ve o botao da tabela.
+    larguraDaJanela(NO_COMPUTADOR);
     await TestBed.configureTestingModule({
       imports: [CareerStructureComponent],
       providers: [
