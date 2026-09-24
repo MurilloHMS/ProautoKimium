@@ -161,37 +161,34 @@
 
 // ── identidade de categoria ────────────────────────────────────────────────
 //
-// Cada categoria declara duas variaveis, e quem as consome e APENAS o selo ao
-// lado do nome do grupo. As miniaturas e as linhas da pasta ficam neutras: uma
-// marca de cor por cartao identifica, nove competem.
+// O tratamento e o do Documentos: fundo a 10% do acento e o traco no acento.
+// A cor aparece UMA vez por cartao, no selo do nome do grupo — as miniaturas e
+// as linhas da pasta sao neutras. O peso vinha da repeticao, nao da cor.
 //
-// Categoria sem cor atribuida cai no neutro, sem quebrar.
-//
-// A doutrina e o escopo estao no `_tokens.scss`: cor de identidade so vive no
-// poco do icone. Nunca em chip, botao, borda ou superficie.
-.cat-espaco      { --poco: var(--cat-espaco);      --tinta: var(--cat-espaco-tinta); }
-.cat-rh          { --poco: var(--cat-rh);          --tinta: var(--cat-rh-tinta); }
-.cat-financeiro  { --poco: var(--cat-financeiro);  --tinta: var(--cat-financeiro-tinta); }
-.cat-empresa     { --poco: var(--cat-empresa);     --tinta: var(--cat-empresa-tinta); }
-.cat-comunicacao { --poco: var(--cat-comunicacao); --tinta: var(--cat-comunicacao-tinta); }
-.cat-estoque     { --poco: var(--cat-estoque);     --tinta: var(--cat-estoque-tinta); }
-.cat-ferramentas { --poco: var(--cat-ferramentas); --tinta: var(--cat-ferramentas-tinta); }
-.cat-config      { --poco: var(--cat-config);      --tinta: var(--cat-config-tinta); }
-.cat-externos    { --poco: var(--cat-externos);    --tinta: var(--cat-externos-tinta); }
-.cat-neutra      { --poco: var(--app-surface-3);   --tinta: var(--app-text-muted); }
+// A doutrina e o escopo estao no `_tokens.scss`.
+.cat-espaco      { --acento: var(--cat-espaco); }
+.cat-rh          { --acento: var(--cat-rh); }
+.cat-financeiro  { --acento: var(--cat-financeiro); }
+.cat-empresa     { --acento: var(--cat-empresa); }
+.cat-comunicacao { --acento: var(--cat-comunicacao); }
+.cat-estoque     { --acento: var(--cat-estoque); }
+.cat-ferramentas { --acento: var(--cat-ferramentas); }
+.cat-config      { --acento: var(--cat-config); }
+.cat-externos    { --acento: var(--cat-externos); }
+.cat-neutra      { --acento: var(--app-text-muted); }
 
 // O selo ao lado do nome da categoria: a cor aparece mesmo quando o cartao
 // esta cheio de miniaturas.
 .tile__selo {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   flex: 0 0 auto;
-  border-radius: 8px;
-  background: var(--poco, var(--app-surface-3));
-  color: var(--tinta, var(--app-text-muted));
-  font-size: .75rem;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--acento, var(--app-text-muted)) 10%, transparent);
+  color: var(--acento, var(--app-text-muted));
+  font-size: .8rem;
 }
 
 .tile__icone {
@@ -200,8 +197,8 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--poco, var(--app-action-soft));
-  color: var(--tinta, var(--app-action));
+  background: color-mix(in srgb, var(--acento, var(--app-action)) 10%, transparent);
+  color: var(--acento, var(--app-action));
   font-size: 1.1rem;
 }
 

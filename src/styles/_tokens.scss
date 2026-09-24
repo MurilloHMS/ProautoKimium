@@ -82,45 +82,32 @@
   // estava prevista na doutrina do topo ("se algo não é ação nem status, é
   // neutro").
   //
-  // **Escopo, estreito de propósito:** o poço do ícone da gaveta de apps, e
-  // mais nada. Nunca em chip, botão, borda ou superfície — é isso que impede a
-  // cor de categoria de virar cor de status.
+  // **Escopo, estreito de propósito:** o selo ao lado do nome do grupo na
+  // gaveta de apps, e mais nada. Uma marca de cor por cartão. Nunca em chip,
+  // botão, borda ou superfície — é isso que impede a cor de categoria de virar
+  // cor de status.
   //
-  // As nove saem da **paleta de apoio da marca** (a de `/branding`), que existe
-  // exatamente para identidade.
+  // O tratamento é o do Documentos: **fundo a 10% do acento, traço no acento**.
+  // Foi o que ele pediu depois de duas voltas — cor cheia ficou pesada, e cor
+  // clareada com glifo escuro ficou "muito colorida".
   //
-  // **Elas são fundo, não traço, e isso foi medido.** A primeira versão punha a
-  // cor cheia no poço e ficou pesada. A segunda tentou o caminho do Documentos
-  // — fundo a 10% e ícone na cor — e esbarrou na própria marca: escurecidos
-  // para virar tinta, o Coral cai a 53 do vermelho puro e o Pêssego a 83 do
-  // laranja, os dois que a lista de evitar proíbe com motivo escrito.
+  // As matizes são as nove de apoio da marca (`/branding`). Para virar traço
+  // elas escurecem **dessaturando**: a primeira tentativa escurecia saturando,
+  // e pastel saturado vira primária — o Coral caía a 53 do vermelho puro e o
+  // Pêssego a 83 do laranja, os dois que a lista de evitar proíbe. Dessaturados
+  // eles viram tijolo e terracota, a 124 e 103.
   //
-  // Então o poço é a cor da marca e o glifo é tinta escura neutra, escolhida
-  // por luminância: os oito passam de 5:1, e a maioria de 10:1.
-  //
-  // **A cor aparece UMA vez por cartão**, no selo ao lado do nome do grupo. As
-  // miniaturas e as linhas da pasta são neutras. Isso é o que resolveu o
-  // "ficou pesado": o peso vinha da repetição, não da cor. Uma versão
-  // intermediária clareou os tons a ~1,18:1 contra o cartão — e num selo de
-  // 26px isso deixa de ser cor e vira mancha, então a cor cheia voltou.
-  --cat-espaco:         #dcd9f3;  // Lavanda
-  --cat-espaco-tinta:   #1a2233;
-  --cat-rh:             #f28b82;  // Coral
-  --cat-rh-tinta:       #1a2233;
-  --cat-financeiro:     #b5e2b1;  // Verde Pastel
-  --cat-financeiro-tinta: #1a2233;
-  --cat-empresa:        #609ca4;  // Azul Petróleo
-  --cat-empresa-tinta:  #1a2233;
-  --cat-comunicacao:    #fddc69;  // Amarelo
-  --cat-comunicacao-tinta: #1a2233;
-  --cat-estoque:        #b7a89d;  // Bege
-  --cat-estoque-tinta:  #1a2233;
-  --cat-ferramentas:    #8a9a91;  // Verde Cinza
-  --cat-ferramentas-tinta: #1a2233;
-  --cat-config:         #{v.$neutral-100};
-  --cat-config-tinta:   #{v.$text-muted};
-  --cat-externos:       #fbbd9d;  // Pêssego
-  --cat-externos-tinta: #1a2233;
+  // Todos passam de 3,2:1 sobre o próprio fundo — a régua de **objeto
+  // gráfico**, que é 3:1; 4,5 é de texto e não se aplica a um glifo.
+  --cat-espaco:      #665dac;  // Lavanda
+  --cat-rh:          #c25147;  // Coral
+  --cat-financeiro:  #538c4e;  // Verde Pastel
+  --cat-empresa:     #62868a;  // Azul Petróleo
+  --cat-comunicacao: #967d25;  // Amarelo
+  --cat-estoque:     #8a7d72;  // Bege
+  --cat-ferramentas: #77827c;  // Verde Cinza
+  --cat-config:      #{v.$text-muted};
+  --cat-externos:    #c26535;  // Pêssego
 
 
   // Nomes antigos mantidos como apelido: o shell, o page-header e as telas de
@@ -205,27 +192,17 @@
   --app-danger-soft:  rgba(248, 113, 113, 0.16);
 
   // ─── Identidade de categoria ───────────────────────────────────────────
-  // No escuro a lógica inverte: clarear o poço ofuscaria, então ele escurece —
-  // a cor a 16% sobre a superfície — e quem carrega a cor passa a ser o
-  // **glifo**, que é o pastel da marca sem alteração. Os oito passam de 4:1.
-  --cat-espaco:         #333a4f;
-  --cat-espaco-tinta:   #dcd9f3;
-  --cat-rh:             #372e3d;
-  --cat-rh-tinta:       #f28b82;
-  --cat-financeiro:     #2d3c45;
-  --cat-financeiro-tinta: #b5e2b1;
-  --cat-empresa:        #1f3043;
-  --cat-empresa-tinta:  #609ca4;
-  --cat-comunicacao:    #383b39;
-  --cat-comunicacao-tinta: #fddc69;
-  --cat-estoque:        #2d3241;
-  --cat-estoque-tinta:  #b7a89d;
-  --cat-ferramentas:    #263040;
-  --cat-ferramentas-tinta: #8a9a91;
-  --cat-config:         #223049;
-  --cat-config-tinta:   #97a3b8;
-  --cat-externos:       #383641;
-  --cat-externos-tinta: #fbbd9d;
+  // As mesmas matizes, clareadas até passar 3,2:1 sobre o fundo de 10% delas
+  // mesmas na superfície escura.
+  --cat-espaco:      #766eb5;
+  --cat-rh:          #c65c53;
+  --cat-financeiro:  #71ad6c;
+  --cat-empresa:     #799ba0;
+  --cat-comunicacao: #d2b347;
+  --cat-estoque:     #978b81;
+  --cat-ferramentas: #87918c;
+  --cat-config:      #97a3b8;
+  --cat-externos:    #ce774b;
 
 
   --app-overlay:        rgba(2, 6, 16, 0.66);
