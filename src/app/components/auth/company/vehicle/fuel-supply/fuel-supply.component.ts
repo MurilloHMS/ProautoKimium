@@ -1,14 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { ButtonModule }   from 'primeng/button';
-import { SelectModule }   from 'primeng/select';
-import { CardModule }     from 'primeng/card';
-import { ToastModule }    from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { RippleModule }   from 'primeng/ripple';
-import { DividerModule }  from 'primeng/divider';
+import { ToastModule } from 'primeng/toast';
+
+import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkComboboxComponent } from '../../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
+import { PkTableComponent } from '../../../../theme/ProautoKimium/pk-table/pk-table.component';
+import { PKTitleComponent } from '../../../../theme/ProautoKimium/pk-title/pk-title.component';
 
 import {
   FORMAT_OPTIONS,
@@ -18,20 +18,39 @@ import {
   MonthOption,
   ReportFormat
 } from '../../../../../domain/models/report.model';
+import {
+  DepartmentOption,
+  FiltroDeConferencia,
+  FuelSupplyImportRow,
+  LinhaDeConferencia
+} from '../../../../../domain/models/fuel-supply-audit.model';
 import { FuelSuppyService } from '../../../../../infrastructure/services/company/vehicle/fuelSupply/fuel-suppy.service';
 
+/**
+ * Abastecimento: enviar, conferir, emitir.
+ *
+ * <b>Por que são três passos.</b> Até 2026-09-24 a tela tinha dois, e o
+ * primeiro gravava: escolher o arquivo e clicar em "Enviar Planilha" já punha
+ * tudo no banco, com a API respondendo "Importação concluída com sucesso!"
+ * mesmo quando a gravação falhava e mesmo quando o motorista não casava com
+ * nenhum funcionário — caso em que a linha caía calada num departamento
+ * chamado SEM_DEPARTAMENTO, e o relatório, que agrupa por departamento, saía
+ * errado sem ninguém perceber.
+ *
+ * Agora o envio só lê. O que a pessoa vê na conferência é exatamente o que vai
+ * ser gravado, e é isso que o botão manda de volta — não o arquivo outra vez.
+ */
 @Component({
   selector: 'app-fuel-supply-report',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
-    SelectModule,
-    CardModule,
     ToastModule,
-    RippleModule,
-    DividerModule,
+    PkButtonComponent,
+    PkComboboxComponent,
+    PkTableComponent,
+    PKTitleComponent,
   ],
   providers: [MessageService],
   templateUrl: './fuel-supply.component.html',
@@ -41,63 +60,120 @@ export class FuelSupplyComponent implements OnInit {
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  // ── Opções ────────────────────────────────────────────────────────────────
-  monthOptions:  MonthOption[]  = MONTH_OPTIONS;
-  formatOptions: FormatOption[] = FORMAT_OPTIONS;
-  yearOptions:   number[]       = [];
+  private readonly service = inject(FuelSuppyService);
+  private readonly messageService = inject(MessageService);
 
-  // ── Formulário ────────────────────────────────────────────────────────────
-  selectedMonth:  number       = new Date().getMonth() + 1;
-  selectedYear:   number       = new Date().getFullYear();
+  // ── Passos ────────────────────────────────────────────────────────────────
+
+  readonly passo = signal<1 | 2 | 3>(1);
+
+  // ── Passo 1: envio ────────────────────────────────────────────────────────
+
+  selectedFile: File | null = null;
+  readonly conferindo = signal(false);
+  readonly baixandoModelo = signal(false);
+
+  // ── Passo 2: conferência ──────────────────────────────────────────────────
+
+  readonly linhas = signal<LinhaDeConferencia[]>([]);
+  readonly departamentos = signal<DepartmentOption[]>([]);
+  readonly filtro = signal<FiltroDeConferencia>('tudo');
+  readonly gravando = signal(false);
+  readonly recusas = signal<string[]>([]);
+  readonly nomeDoArquivo = signal('');
+
+  // ── Passo 3: emissão ──────────────────────────────────────────────────────
+
+  monthOptions: MonthOption[] = MONTH_OPTIONS;
+  formatOptions: FormatOption[] = FORMAT_OPTIONS;
+  yearOptions: { label: string; value: number }[] = [];
+
+  selectedMonth = new Date().getMonth() + 1;
+  selectedYear = new Date().getFullYear();
   selectedFormat: ReportFormat = 'PDF';
 
-  // ── Upload ────────────────────────────────────────────────────────────────
-  selectedFile: File | null = null;
+  readonly loadingReport = signal(false);
+  readonly exportando = signal(false);
 
-  private uploadedPeriodKey: string | null = null;
+  // ── Contagens ─────────────────────────────────────────────────────────────
 
-  loadingUpload = false;
-  loadingReport = false;
+  readonly totalLidas = computed(() => this.linhas().length);
+  readonly marcadas = computed(() => this.linhas().filter(l => l.selecionada));
+  readonly semMotorista = computed(() => this.linhas().filter(l => !l.motoristaEncontrado));
+  readonly duplicadas = computed(() => this.linhas().filter(l => l.jaExiste));
+  readonly semDepartamento = computed(() =>
+    this.linhas().filter(l => l.selecionada && !l.departmentId));
 
-  constructor(
-    private reportService: FuelSuppyService,
-    private messageService: MessageService
-  ) {}
+  /** As linhas que não podem ser gravadas de olhos fechados. */
+  readonly pedemAtencao = computed(() =>
+    this.linhas().filter(l => !l.motoristaEncontrado || l.jaExiste || !l.departmentId));
+
+  readonly linhasVisiveis = computed<LinhaDeConferencia[]>(() => {
+    switch (this.filtro()) {
+      case 'atencao':       return this.pedemAtencao();
+      case 'sem-motorista': return this.semMotorista();
+      case 'duplicadas':    return this.duplicadas();
+      default:              return this.linhas();
+    }
+  });
+
+  readonly temConferenciaPendente = computed(() => this.linhas().length > 0);
+
+  readonly todasMarcadas = computed(() =>
+    this.linhas().length > 0 && this.marcadas().length === this.linhas().length);
+
+  readonly resumoDoPasso2 = computed(() => {
+    if (!this.temConferenciaPendente()) return 'nada conferido ainda';
+
+    const atencao = this.pedemAtencao().length;
+    return atencao === 0
+      ? `${this.totalLidas()} linhas, nenhuma pendência`
+      : `${atencao} ${atencao === 1 ? 'linha pede' : 'linhas pedem'} atenção`;
+  });
+
+  // ── Ciclo de vida ─────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.buildYearOptions();
+    this.carregarDepartamentos();
   }
 
   private buildYearOptions(): void {
     const current = new Date().getFullYear();
     for (let y = current; y >= current - 3; y--) {
-      this.yearOptions.push(y);
+      this.yearOptions.push({ label: String(y), value: y });
     }
   }
 
-  // ── Computed ──────────────────────────────────────────────────────────────
-
-  get selectedMonthLabel(): string {
-    return this.monthOptions.find(m => m.value === this.selectedMonth)?.label ?? '';
+  private carregarDepartamentos(): void {
+    this.service.listarDepartamentos().subscribe({
+      next: (lista) => this.departamentos.set(lista),
+      error: () => this.messageService.add({
+        severity: 'error',
+        summary: 'Departamentos',
+        detail: 'Não foi possível carregar a lista de departamentos. A conferência precisa dela para gravar.'
+      })
+    });
   }
+
+  // ── Navegação ─────────────────────────────────────────────────────────────
+
+  /**
+   * O passo 2 só abre com conferência na mão. O 3 abre sempre: emitir um
+   * relatório de março não depende de ter acabado de importar agosto.
+   */
+  irPara(passo: 1 | 2 | 3): void {
+    if (passo === 2 && !this.temConferenciaPendente()) return;
+    this.passo.set(passo);
+  }
+
+  // ── Passo 1 ───────────────────────────────────────────────────────────────
 
   get fileSizeLabel(): string {
     if (!this.selectedFile) return '';
     const kb = this.selectedFile.size / 1024;
     return kb < 1024 ? `${kb.toFixed(1)} KB` : `${(kb / 1024).toFixed(1)} MB`;
   }
-
-  /** O botão Gerar só fica ativo se o período atual já foi enviado com sucesso. */
-  get canGenerate(): boolean {
-    //return this.uploadedPeriodKey === this.currentPeriodKey;
-    return true;
-  }
-
-  private get currentPeriodKey(): string {
-    return `${this.selectedMonth}-${this.selectedYear}`;
-  }
-
-  // ── Arquivo ───────────────────────────────────────────────────────────────
 
   onFileSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -106,8 +182,8 @@ export class FuelSupplyComponent implements OnInit {
     if (!file.name.toLowerCase().endsWith('.xlsx')) {
       this.messageService.add({
         severity: 'warn',
-        summary:  'Formato inválido',
-        detail:   'Apenas arquivos .xlsx são aceitos.'
+        summary: 'Formato inválido',
+        detail: 'Apenas arquivos .xlsx são aceitos.'
       });
       this.clearFile();
       return;
@@ -123,74 +199,259 @@ export class FuelSupplyComponent implements OnInit {
     }
   }
 
-  // ── Upload ────────────────────────────────────────────────────────────────
+  baixarModelo(): void {
+    this.baixandoModelo.set(true);
 
-  upload(): void {
-    if (!this.selectedFile || !this.selectedMonth || !this.selectedYear) {
+    this.service.baixarModelo().subscribe({
+      next: (blob) => {
+        this.service.salvarPlanilha(blob, 'modelo-abastecimentos.xlsx');
+        this.baixandoModelo.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Modelo',
+          detail: 'Não foi possível baixar o modelo.'
+        });
+        this.baixandoModelo.set(false);
+      }
+    });
+  }
+
+  /**
+   * Lê a planilha e vai para a conferência.
+   *
+   * As duplicatas chegam desmarcadas, e é a única decisão que a tela toma
+   * sozinha: reenviar a planilha do mês é o erro mais comum, e marcar tudo por
+   * padrão faria o duplo envio passar despercebido. Marcar de volta é um
+   * clique — e existem dois abastecimentos idênticos de verdade.
+   */
+  conferir(): void {
+    if (!this.selectedFile) return;
+
+    this.conferindo.set(true);
+    this.recusas.set([]);
+
+    this.service.conferirPlanilha(this.selectedFile).subscribe({
+      next: (linhas) => {
+        this.linhas.set(linhas.map(l => ({ ...l, selecionada: !l.jaExiste })));
+        this.nomeDoArquivo.set(this.selectedFile?.name ?? '');
+        this.filtro.set(this.pedemAtencao().length > 0 ? 'atencao' : 'tudo');
+        this.conferindo.set(false);
+        this.clearFile();
+
+        if (linhas.length === 0) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Planilha vazia',
+            detail: 'Nenhuma linha preenchida foi encontrada no arquivo.'
+          });
+          return;
+        }
+
+        this.passo.set(2);
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Não foi possível ler a planilha',
+          detail: typeof err.error === 'string'
+            ? err.error
+            : 'Confira se o arquivo segue o modelo, com as 13 colunas na mesma ordem.'
+        });
+        this.conferindo.set(false);
+      }
+    });
+  }
+
+  // ── Passo 2 ───────────────────────────────────────────────────────────────
+
+  alternarLinha(linha: LinhaDeConferencia): void {
+    this.linhas.update(todas => todas.map(l =>
+      l.linha === linha.linha ? { ...l, selecionada: !l.selecionada } : l));
+  }
+
+  marcarTodas(marcar: boolean): void {
+    this.linhas.update(todas => todas.map(l => ({ ...l, selecionada: marcar })));
+  }
+
+  definirDepartamento(linha: LinhaDeConferencia, departmentId: string | null): void {
+    const nome = this.departamentos().find(d => d.id === departmentId)?.name ?? null;
+
+    this.linhas.update(todas => todas.map(l =>
+      l.linha === linha.linha ? { ...l, departmentId, departmentName: nome } : l));
+  }
+
+  /**
+   * Aplica o mesmo departamento a todas as linhas que estão sem.
+   *
+   * Uma planilha com cinco motoristas terceirizados da mesma frota não merece
+   * cinco cliques iguais.
+   */
+  aplicarDepartamentoNasVazias(departmentId: string | null): void {
+    if (!departmentId) return;
+
+    const nome = this.departamentos().find(d => d.id === departmentId)?.name ?? null;
+
+    this.linhas.update(todas => todas.map(l =>
+      l.departmentId ? l : { ...l, departmentId, departmentName: nome }));
+  }
+
+  situacaoDaLinha(linha: LinhaDeConferencia): { texto: string; tom: 'ok' | 'warn' | 'erro' } {
+    if (linha.selecionada && !linha.departmentId) {
+      return { texto: 'sem departamento', tom: 'erro' };
+    }
+    if (linha.jaExiste) {
+      return { texto: 'já existe', tom: 'warn' };
+    }
+    if (!linha.motoristaEncontrado) {
+      return { texto: 'sem cadastro', tom: 'warn' };
+    }
+    return { texto: 'pronta', tom: 'ok' };
+  }
+
+  gravar(): void {
+    const marcadas = this.marcadas();
+
+    if (marcadas.length === 0) {
       this.messageService.add({
         severity: 'warn',
-        summary:  'Campos obrigatórios',
-        detail:   'Selecione o mês, ano e a planilha antes de enviar.'
+        summary: 'Nada marcado',
+        detail: 'Marque ao menos uma linha para gravar.'
       });
       return;
     }
 
-    this.loadingUpload = true;
+    const semDepartamento = this.semDepartamento();
 
-    this.reportService
-      .uploadSpreadsheet(this.selectedFile, this.selectedMonth, this.selectedYear)
-      .subscribe({
-        next: () => {
-          // Marca o período como enviado e habilita o botão Gerar
-          this.uploadedPeriodKey = this.currentPeriodKey;
-
-          this.messageService.add({
-            severity: 'success',
-            summary:  'Planilha enviada',
-            detail:   `Dados de ${this.selectedMonthLabel}/${this.selectedYear} importados. Você já pode gerar o relatório.`
-          });
-
-          this.clearFile();
-          this.loadingUpload = false;
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary:  'Erro no upload',
-            detail:   err.error ?? 'Não foi possível processar a planilha. Verifique o formato e tente novamente.'
-          });
-          this.loadingUpload = false;
-        }
+    if (semDepartamento.length > 0) {
+      this.filtro.set('atencao');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Falta o departamento',
+        detail: `${semDepartamento.length} ${semDepartamento.length === 1
+          ? 'linha marcada está' : 'linhas marcadas estão'} sem departamento. O relatório agrupa por ele.`
       });
+      return;
+    }
+
+    this.gravando.set(true);
+    this.recusas.set([]);
+
+    this.service.gravarConferidos(marcadas.map(l => this.paraGravacao(l))).subscribe({
+      next: (resultado) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Abastecimentos gravados',
+          detail: `${resultado.gravadas} ${resultado.gravadas === 1 ? 'linha gravada' : 'linhas gravadas'}. Já dá para emitir o relatório.`
+        });
+
+        this.linhas.set([]);
+        this.nomeDoArquivo.set('');
+        this.gravando.set(false);
+        this.passo.set(3);
+      },
+      error: (err) => {
+        const motivos: string[] = err?.error?.motivos ?? [];
+
+        this.recusas.set(motivos);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Nada foi gravado',
+          detail: motivos.length > 0
+            ? `${motivos.length} ${motivos.length === 1 ? 'linha foi recusada' : 'linhas foram recusadas'} — e a remessa inteira foi cancelada.`
+            : 'Não foi possível gravar os abastecimentos. Tente novamente.'
+        });
+        this.gravando.set(false);
+      }
+    });
   }
 
-  // ── Geração ───────────────────────────────────────────────────────────────
+  private paraGravacao(linha: LinhaDeConferencia): FuelSupplyImportRow {
+    return {
+      linha: linha.linha,
+      fuelSupplyDate: linha.fuelSupplyDate,
+      uf: linha.uf,
+      plate: linha.plate,
+      driverName: linha.driverName,
+      departmentId: linha.departmentId,
+      actualHodometer: linha.actualHodometer,
+      diferenceHodometer: linha.diferenceHodometer,
+      averageKm: linha.averageKm,
+      fuelType: linha.fuelType,
+      liters: linha.liters,
+      price: linha.price,
+      totalValue: linha.totalValue
+    };
+  }
+
+  descartarConferencia(): void {
+    this.linhas.set([]);
+    this.recusas.set([]);
+    this.nomeDoArquivo.set('');
+    this.passo.set(1);
+  }
+
+  // ── Passo 3 ───────────────────────────────────────────────────────────────
+
+  get selectedMonthLabel(): string {
+    return this.monthOptions.find(m => m.value === this.selectedMonth)?.label ?? '';
+  }
+
+  private get primeiroDia(): string {
+    return `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}-01`;
+  }
+
+  private get ultimoDia(): string {
+    const dia = new Date(this.selectedYear, this.selectedMonth, 0).getDate();
+    return `${this.selectedYear}-${String(this.selectedMonth).padStart(2, '0')}-${dia}`;
+  }
+
+  exportarDados(): void {
+    this.exportando.set(true);
+
+    this.service.exportarPeriodo(this.primeiroDia, this.ultimoDia).subscribe({
+      next: (blob) => {
+        this.service.salvarPlanilha(blob,
+          `abastecimentos-${String(this.selectedMonth).padStart(2, '0')}-${this.selectedYear}.xlsx`);
+        this.exportando.set(false);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Exportação',
+          detail: 'Não foi possível exportar os dados do período.'
+        });
+        this.exportando.set(false);
+      }
+    });
+  }
 
   generate(): void {
-    this.loadingReport = true;
+    this.loadingReport.set(true);
 
     const request: FuelSupplyReportRequest = {
-      month:    this.selectedMonth,
-      year:    this.selectedYear,
+      month: this.selectedMonth,
+      year: this.selectedYear,
       format: this.selectedFormat
     };
 
-    this.reportService.generateReport(request).subscribe({
+    this.service.generateReport(request).subscribe({
       next: (blob) => {
-        this.reportService.downloadFile(blob, this.selectedFormat, this.selectedMonth, this.selectedYear);
+        this.service.downloadFile(blob, this.selectedFormat, this.selectedMonth, this.selectedYear);
         this.messageService.add({
           severity: 'success',
-          summary:  'Relatório gerado',
-          detail:   `Download iniciado — ${this.selectedMonthLabel}/${this.selectedYear}`
+          summary: 'Relatório gerado',
+          detail: `Download iniciado — ${this.selectedMonthLabel}/${this.selectedYear}`
         });
-        this.loadingReport = false;
+        this.loadingReport.set(false);
       },
       error: (err) => {
         const detail = err.status === 204
           ? 'Nenhum registro encontrado para o período informado.'
           : 'Não foi possível gerar o relatório. Tente novamente.';
         this.messageService.add({ severity: 'error', summary: 'Erro', detail });
-        this.loadingReport = false;
+        this.loadingReport.set(false);
       }
     });
   }
