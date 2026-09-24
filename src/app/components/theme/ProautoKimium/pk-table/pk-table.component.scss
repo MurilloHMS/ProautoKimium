@@ -212,3 +212,69 @@
     color: var(--app-text-subtle);
   }
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// O cartão que substitui a linha no celular
+//
+// Estreou na Programação, onde uma planilha de 11 colunas (~1785px) só rolava
+// de lado. Virou o padrão das telas com tabela em 2026-09-24.
+//
+// A anatomia é fixa de propósito — título, subtítulo, marca no canto, rodapé.
+// É ela que faz cartões de dezenove telas diferentes parecerem o mesmo
+// componente; quem preenche só escolhe O QUE vai em cada lugar.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.pk-cartoes {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  // Sem `min-height: 0` o item flex se recusa a encolher abaixo do conteúdo e
+  // o `overflow-y` nunca vale: a lista transborda e o pai corta no meio.
+  min-height: 0;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.pk-cartoes__barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+
+.pk-cartoes__contagem {
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  white-space: nowrap;
+
+  strong { color: var(--app-text); }
+}
+
+.pk-cartoes__mais {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  // 48px: o público é 40+, e este é o alvo que se acerta rolando com o polegar.
+  min-height: 48px;
+  margin-top: 4px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+.pk-cartoes__restantes {
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+  font-weight: 400;
+}
