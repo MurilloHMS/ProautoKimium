@@ -159,14 +159,47 @@
   background: var(--app-surface);
 }
 
+// ── identidade de categoria ────────────────────────────────────────────────
+//
+// Cada categoria declara duas variaveis, e todo poco de icone dentro dela as
+// consome. Assim a cor entra em UM lugar por categoria em vez de em cada
+// elemento — e uma categoria sem cor atribuida cai no neutro, sem quebrar.
+//
+// A doutrina e o escopo estao no `_tokens.scss`: cor de identidade so vive no
+// poco do icone. Nunca em chip, botao, borda ou superficie.
+.cat-espaco      { --poco: var(--cat-espaco);      --tinta: var(--cat-espaco-tinta); }
+.cat-rh          { --poco: var(--cat-rh);          --tinta: var(--cat-rh-tinta); }
+.cat-financeiro  { --poco: var(--cat-financeiro);  --tinta: var(--cat-financeiro-tinta); }
+.cat-empresa     { --poco: var(--cat-empresa);     --tinta: var(--cat-empresa-tinta); }
+.cat-comunicacao { --poco: var(--cat-comunicacao); --tinta: var(--cat-comunicacao-tinta); }
+.cat-estoque     { --poco: var(--cat-estoque);     --tinta: var(--cat-estoque-tinta); }
+.cat-ferramentas { --poco: var(--cat-ferramentas); --tinta: var(--cat-ferramentas-tinta); }
+.cat-config      { --poco: var(--cat-config);      --tinta: var(--cat-config-tinta); }
+.cat-externos    { --poco: var(--cat-externos);    --tinta: var(--cat-externos-tinta); }
+.cat-neutra      { --poco: var(--app-surface-3);   --tinta: var(--app-text-muted); }
+
+// O selo ao lado do nome da categoria: a cor aparece mesmo quando o cartao
+// esta cheio de miniaturas.
+.tile__selo {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: var(--poco, var(--app-surface-3));
+  color: var(--tinta, var(--app-text-muted));
+  font-size: .75rem;
+}
+
 .tile__icone {
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--app-action-soft);
-  color: var(--app-action);
+  background: var(--poco, var(--app-action-soft));
+  color: var(--tinta, var(--app-action));
   font-size: 1.1rem;
 }
 
@@ -222,20 +255,23 @@
 .mini__poco {
   display: grid;
   place-items: center;
-  // 44px de alvo com 38 de desenho: o respiro do `gap` completa a área tocável.
   width: 100%;
   min-width: 44px;
   height: 44px;
-  border-radius: 11px;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  color: var(--app-action);
-  font-size: .9rem;
+  border-radius: 12px;
+  font-size: 1rem;
 }
 
+.mini__icone {
+  background: var(--poco, var(--app-surface));
+  color: var(--tinta, var(--app-action));
+}
+
+// O "ver mais" NAO leva a cor da categoria: ele nao e um app, e o tracejado
+// mais o neutro sao o que o separam dos tres vizinhos.
 .mini__poco {
   background: var(--app-surface-3);
-  border-style: dashed;
+  border: 1px dashed var(--app-border);
   color: var(--app-text-muted);
   font-size: var(--text-micro);
   font-weight: 700;
@@ -297,8 +333,8 @@
   height: 34px;
   flex: 0 0 auto;
   border-radius: 10px;
-  background: var(--app-action-soft);
-  color: var(--app-action);
+  background: var(--poco, var(--app-action-soft));
+  color: var(--tinta, var(--app-action));
   font-size: .85rem;
 }
 

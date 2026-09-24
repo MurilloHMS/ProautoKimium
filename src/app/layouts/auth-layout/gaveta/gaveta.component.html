@@ -39,6 +39,7 @@
             <!-- Folha de 1º nível: navega no toque, e é `<a>` para o leitor de
                  tela anunciar link e o toque longo abrir em outra aba. -->
             <a class="tile tile--folha"
+               [class]="'tile tile--folha cat-' + (categoria.cor || 'neutra')"
                [routerLink]="destino.routerLink"
                (click)="aoEscolher()">
               <span class="tile__icone"><i [class]="categoria.icon" aria-hidden="true"></i></span>
@@ -47,9 +48,9 @@
           } @else {
             <!-- Pasta: grade 2x2. Ate quatro destinos os quatro aparecem; acima
                  disso, tres e a quarta celula vira "ver mais". -->
-            <div class="tile tile--pasta">
+            <div [class]="'tile tile--pasta cat-' + (categoria.cor || 'neutra')">
               <p class="tile__nome">
-                <i [class]="categoria.icon" aria-hidden="true"></i>
+                <span class="tile__selo"><i [class]="categoria.icon" aria-hidden="true"></i></span>
                 {{ categoria.label }}
               </p>
 
@@ -101,7 +102,7 @@
     <pk-sheet [open]="!!pastaAberta()"
               [title]="pastaAberta()?.labelCompleto ?? ''"
               (closed)="fecharPasta()">
-      <div pkSheetBody class="pasta">
+      <div pkSheetBody [class]="'pasta cat-' + (pastaAberta()?.cor || 'neutra')">
         @for (secao of pastaAberta()?.secoes ?? []; track secao.titulo) {
 
           @if (secao.titulo) {

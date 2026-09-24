@@ -76,6 +76,47 @@
   --app-danger:       #{v.$danger};
   --app-danger-soft:  rgba(229, 62, 62, 0.12);
 
+  // ─── Identidade de categoria ───────────────────────────────────────────
+  //
+  // A QUARTA função da cor neste tema, aberta em 2026-09-24, e a única que não
+  // estava prevista na doutrina do topo deste arquivo ("se algo não é ação nem
+  // status, é neutro").
+  //
+  // **Escopo, e ele é estreito de propósito:** o poço do ícone da gaveta de
+  // apps, e mais nada. Nunca em chip, botão, borda ou superfície — é isso que
+  // impede a cor de categoria de virar cor de status. Um tile verde nunca
+  // significa "aprovado", porque status não mora nesse slot.
+  //
+  // As nove cores saem da **paleta de apoio da marca** (a mesma da página
+  // /branding), que existe exatamente para identidade. Nenhuma está na lista de
+  // evitar de lá — que proíbe vermelho, amarelo puro, laranja e roxo.
+  //
+  // A tinta de cada uma foi escolhida por **luminância**, não por gosto: no
+  // tema claro os nove pares passam de 4,5:1, medido.
+  //
+  // Configurações fica NEUTRA: o Cinza Escuro da marca reprovava no tema
+  // escuro (3,76:1) e ficava perto do navy de ação. E configuração não é
+  // domínio, é sistema.
+  --cat-espaco:         #dcd9f3;  // Lavanda
+  --cat-espaco-tinta:   #1a2233;
+  --cat-rh:             #f28b82;  // Coral
+  --cat-rh-tinta:       #1a2233;
+  --cat-financeiro:     #b5e2b1;  // Verde Pastel
+  --cat-financeiro-tinta: #1a2233;
+  --cat-empresa:        #609ca4;  // Azul Petróleo
+  --cat-empresa-tinta:  #1a2233;
+  --cat-comunicacao:    #fddc69;  // Amarelo
+  --cat-comunicacao-tinta: #1a2233;
+  --cat-estoque:        #b7a89d;  // Bege
+  --cat-estoque-tinta:  #1a2233;
+  --cat-ferramentas:    #8a9a91;  // Verde Cinza
+  --cat-ferramentas-tinta: #1a2233;
+  --cat-config:         #{v.$neutral-100};
+  --cat-config-tinta:   #{v.$text-muted};
+  --cat-externos:       #fbbd9d;  // Pêssego
+  --cat-externos-tinta: #1a2233;
+
+
   // Nomes antigos mantidos como apelido: o shell, o page-header e as telas de
   // entrada já os consomem. `--app-primary` e `--app-action` são a mesma cor.
   --app-primary:      var(--app-action);
@@ -156,6 +197,30 @@
   --app-work-soft:    rgba(169, 140, 224, 0.16);
   --app-danger:       #f87171;
   --app-danger-soft:  rgba(248, 113, 113, 0.16);
+
+  // ─── Identidade de categoria ───────────────────────────────────────────
+  // No escuro a cor cheia da marca ofusca, então o poço é ela a 18% sobre a
+  // superfície e a tinta é a mesma cor clareada — o mesmo mecanismo dos
+  // `*-soft`. Oito dos nove passam de 4,5:1; Configurações é neutra.
+  --cat-espaco:         #373e53;
+  --cat-espaco-tinta:   #e5e2f6;
+  --cat-rh:             #3b303f;
+  --cat-rh-tinta:       #f5a8a1;
+  --cat-financeiro:     #304047;
+  --cat-financeiro-tinta: #c8e9c4;
+  --cat-empresa:        #213345;
+  --cat-empresa-tinta:  #88b5bb;
+  --cat-comunicacao:    #3d3f3a;
+  --cat-comunicacao-tinta: #fee58e;
+  --cat-estoque:        #313544;
+  --cat-estoque-tinta:  #c9beb6;
+  --cat-ferramentas:    #283341;
+  --cat-ferramentas-tinta: #a7b3ac;
+  --cat-config:         #223049;
+  --cat-config-tinta:   #97a3b8;
+  --cat-externos:       #3d3944;
+  --cat-externos-tinta: #fcceb6;
+
 
   --app-overlay:        rgba(2, 6, 16, 0.66);
   --app-shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.30);

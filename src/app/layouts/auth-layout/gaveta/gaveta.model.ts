@@ -60,7 +60,37 @@ export interface CategoriaDaGaveta {
   secoes: SecaoDaPasta[];
   /** Quantos destinos a pasta tem, somando as seções. Alimenta o "+14". */
   total: number;
+  /**
+   * O sufixo do token de identidade — `espaco` vira `--cat-espaco`.
+   *
+   * Vazio quando a categoria não tem cor atribuída: a grade cai no neutro em
+   * vez de quebrar, e uma categoria nova nasce cinza até alguém escolher.
+   */
+  cor: string;
 }
+
+/**
+ * Categoria → cor da marca.
+ *
+ * <p>Mora aqui, e não no `menu.config.ts`, pela mesma razão do
+ * {@link ROTULO_CURTO}: o desktop não tem cor de categoria e não precisa saber
+ * que ela existe.
+ *
+ * <p>As nove vêm da paleta de apoio da marca (`/branding`), que existe
+ * exatamente para identidade. A doutrina, o escopo e as medições estão no
+ * `_tokens.scss`.
+ */
+export const COR_DA_CATEGORIA: Record<string, string> = {
+  'meu-espaco': 'espaco',
+  'rh-recursos-humanos': 'rh',
+  'financeiro': 'financeiro',
+  'empresa': 'empresa',
+  'comunicacao': 'comunicacao',
+  'estoque': 'estoque',
+  'ferramentas': 'ferramentas',
+  'configuracoes': 'config',
+  'apps-externos': 'externos',
+};
 
 /**
  * Rótulos que não cabem no tile.
@@ -111,6 +141,7 @@ function comoFolha(item: AppMenuItem): CategoriaDaGaveta {
     destino: comoDestino(item),
     secoes: [],
     total: 1,
+    cor: COR_DA_CATEGORIA[idDe(item.label)] ?? '',
   };
 }
 
@@ -149,6 +180,7 @@ function comoPasta(item: AppMenuItem): CategoriaDaGaveta {
     tipo: 'pasta',
     secoes,
     total: secoes.reduce((soma, secao) => soma + secao.itens.length, 0),
+    cor: COR_DA_CATEGORIA[idDe(item.label)] ?? '',
   };
 }
 

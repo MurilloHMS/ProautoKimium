@@ -243,6 +243,40 @@ describe('gaveta.model', () => {
     expect(todos.every(d => !!d.icon?.trim())).toBeTrue();
   });
 
+  // ── identidade ────────────────────────────────────────────────────────────
+
+  /**
+   * Toda categoria do menu real tem cor. Categoria nova entra cinza — o que e
+   * aceitavel —, mas entrar cinza SEM NINGUEM PERCEBER nao e: a grade fica com
+   * um buraco visual e ninguem liga o defeito a quem criou o grupo.
+   */
+  it('as nove categorias do menu tem cor de identidade', () => {
+    const semCor = categorias.filter(c => !c.cor).map(c => c.label);
+
+    expect(semCor)
+      .withContext('categoria nova precisa de uma cor no COR_DA_CATEGORIA')
+      .toEqual([]);
+  });
+
+  it('nenhuma cor de categoria e usada duas vezes', () => {
+    const cores = categorias.map(c => c.cor);
+
+    expect(cores.length)
+      .withContext('duas categorias da mesma cor voltam a ser indistinguiveis')
+      .toBe(new Set(cores).size);
+  });
+
+  /** Categoria fora do mapa nao pode quebrar: cai no neutro. */
+  it('categoria sem cor atribuida vem com cor vazia, e nao indefinida', () => {
+    const [nova] = categoriasDaGaveta([
+      { label: 'Categoria Nova', icon: 'pi pi-box', items: [
+        { label: 'Uma tela', icon: 'pi pi-file', routerLink: ['x'] },
+      ] },
+    ]);
+
+    expect(nova.cor).toBe('');
+  });
+
   it('toda categoria tem rotulo e icone', () => {
     expect(categorias.every(c => !!c.label?.trim() && !!c.icon?.trim())).toBeTrue();
   });
