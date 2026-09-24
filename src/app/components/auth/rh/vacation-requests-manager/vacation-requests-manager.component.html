@@ -72,6 +72,40 @@
     emptySubtitle="Troque o filtro de status pra ver outras solicitações."
     pageReportTitle="Férias">
 
+    <ng-template #cardTpl let-r>
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ employeeName(r.employeeId) }}</span>
+          <span class="pk-cartao__sub">
+            {{ formatDate(r.startDate) }} — {{ formatDate(r.endDate) }}
+          </span>
+        </div>
+        <span class="pk-cartao__marca">{{ r.daysRequested }}d</span>
+        <div class="pk-cartao__rodape">
+          <span class="vr-badge" [ngClass]="'vr-badge--' + r.status.toLowerCase()">
+            {{ statusLabel(r.status) }}
+          </span>
+
+          @if (r.status === 'REJECTED' && r.reviewNotes) {
+            <span class="vr-notes">{{ r.reviewNotes }}</span>
+          }
+
+          @if (r.status === 'PENDING') {
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Aprovar as férias de ' + employeeName(r.employeeId)"
+                    (click)="openReview(r, 'approve')">
+              <i class="pi pi-check"></i>
+            </button>
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Recusar as férias de ' + employeeName(r.employeeId)"
+                    (click)="openReview(r, 'reject')">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th>Funcionário</th>

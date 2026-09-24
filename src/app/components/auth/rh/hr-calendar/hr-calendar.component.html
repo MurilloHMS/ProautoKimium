@@ -40,6 +40,25 @@
     emptySubtitle="Ajuste o período ou os filtros pra ver outros eventos."
     pageReportTitle="Eventos">
 
+    <ng-template #cardTpl let-e>
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ e.employeeName }}</span>
+          <span class="pk-cartao__sub">
+            {{ e.teamName ?? 'Sem setor' }} · {{ formatDate(e.startDate) }} — {{ formatDate(e.endDate) }}
+          </span>
+        </div>
+        <div class="pk-cartao__rodape">
+          <span class="event-type-badge">
+            <i class="pi pi-sun"></i> {{ eventTypeLabel(e.eventType) }}
+          </span>
+          <span class="hc-badge" [ngClass]="'hc-badge--' + e.status.toLowerCase()">
+            {{ statusLabel(e.status) }}
+          </span>
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th>Tipo</th>

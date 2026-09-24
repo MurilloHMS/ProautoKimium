@@ -51,6 +51,35 @@
       emptySubtitle="Cadastre um produto ou importe a planilha."
       pageReportTitle="Produtos">
 
+      <ng-template #cardTpl let-p>
+        <article class="pk-cartao" [class.pk-cartao--atencao]="isLow(p)">
+          <button type="button" class="pk-cartao__corpo" (click)="editProduct(p)">
+            <span class="pk-cartao__titulo">{{ p.name }}</span>
+            <span class="pk-cartao__sub">
+              {{ p.isMachine ? 'Máquina' : 'Insumo' }} · mínimo {{ p.minimumStock }}
+            </span>
+          </button>
+          <span class="pk-cartao__marca">{{ p.systemCode }}</span>
+          <div class="pk-cartao__rodape">
+            <span class="status-chip"
+                  [class.status-chip--active]="p.active"
+                  [class.status-chip--inactive]="!p.active">
+              <i class="pi" [ngClass]="p.active ? 'pi-check' : 'pi-times'"></i>
+              {{ p.active ? 'Ativo' : 'Inativo' }}
+            </span>
+            @if (isLow(p)) {
+              <span class="status-chip status-chip--warning">
+                <i class="pi pi-exclamation-triangle"></i> Estoque baixo
+              </span>
+            }
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + p.name" (click)="askDelete(p)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="systemCode">Código <p-sortIcon field="systemCode"></p-sortIcon></th>

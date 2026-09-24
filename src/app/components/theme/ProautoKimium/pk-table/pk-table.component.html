@@ -1,7 +1,21 @@
-<div class="pk-table-card">
+<!--
+  No celular a linha vira cartão. A tabela do PrimeNG continua montada, mas
+  SEM LINHAS — e escondida.
+
+  Parece contraditório, e é o preço de uma coisa concreta: o `@ViewChild('dt',
+  { static: true })` não enxerga dentro de um `@if`, e o provider de `Table`
+  deste componente serve justamente esse `dt` às diretivas que as telas usam no
+  cabeçalho projetado (`pSortableColumn`). Pôr a tabela num `@if` deixaria `dt`
+  indefinido TAMBÉM no desktop, e a ordenação morreria em silêncio.
+
+  O que pesa numa tabela de oito colunas são as linhas, não a casca: com
+  `[value]` vazio, o aparelho que nunca vai mostrar a tabela também não monta
+  nenhuma delas.
+-->
+<div class="pk-table-card" [hidden]="mostrarCartoes()">
   <p-table
     #dt
-    [value]="data()"
+    [value]="mostrarCartoes() ? [] : data()"
     [paginator]="true"
     [rows]="rows()"
     [rowsPerPageOptions]="rowsOptions()"
@@ -27,7 +41,7 @@
               type="text"
               icon="pi pi-search"
               [placeholder]="searchPlaceholder()"
-              (input)="dt.filterGlobal($any($event.target).value, 'contains')" />
+              (input)="filterGlobal($any($event.target).value)" />
           </span>
         </div>
       </ng-template>
@@ -55,3 +69,42 @@
 
   </p-table>
 </div>
+
+@if (mostrarCartoes()) {
+  <div class="pk-cartoes">
+
+    @if (showCaption()) {
+      <div class="pk-cartoes__barra">
+        <span class="pk-cartoes__contagem">
+          <strong>{{ linhasFiltradas().length }}</strong> {{ totalLabel() }}
+        </span>
+        <pk-input
+          type="text"
+          icon="pi pi-search"
+          [placeholder]="searchPlaceholder()"
+          (input)="filterGlobal($any($event.target).value)" />
+      </div>
+    }
+
+    @for (linha of linhasVisiveis(); track $index) {
+      <ng-container *ngTemplateOutlet="cardTpl; context: { $implicit: linha }" />
+    } @empty {
+      <pk-empty
+        [icon]="emptyIcon()"
+        [title]="emptyTitle()"
+        [subtitle]="emptySubtitle()" />
+    }
+
+    <!--
+      Lote de 20 em vez de paginação: no celular, "carregar mais" é rolar,
+      enquanto paginar é mirar num número de 30px com o polegar.
+    -->
+    @if (temMais()) {
+      <button type="button" class="pk-cartoes__mais" (click)="mostrarMais()">
+        Mostrar mais {{ restantes() > 20 ? 20 : restantes() }}
+        <span class="pk-cartoes__restantes">de {{ restantes() }} restantes</span>
+      </button>
+    }
+
+  </div>
+}

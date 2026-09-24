@@ -7,6 +7,14 @@
   flex: 1 1 auto;
 }
 
+// No celular o unico filho e a folha, que e `position: fixed` e nao ocupa
+// lugar nenhum. Sem isto o host continuaria sendo um item flex com
+// `flex-grow: 1` e conteudo de altura zero — esticando e empurrando a lista
+// que ficou atras da folha.
+:host(.em-folha) {
+  display: contents;
+}
+
 // Elevação por borda e superfície, sem sombra — a regra dos tokens.
 .form-screen {
   display: flex;

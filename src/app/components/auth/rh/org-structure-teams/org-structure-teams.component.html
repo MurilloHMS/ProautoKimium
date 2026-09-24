@@ -27,6 +27,21 @@
       emptySubtitle="Adicione um novo setor para começar."
       pageReportTitle="Setores">
 
+      <ng-template #cardTpl let-t>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="openEdit(t)">
+            <span class="pk-cartao__titulo">{{ t.name }}</span>
+            <span class="pk-cartao__sub">{{ t.department?.name || 'Sem departamento' }}</span>
+          </button>
+          <div class="pk-cartao__rodape">
+            <button type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + t.name" (click)="confirmDelete(t)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>

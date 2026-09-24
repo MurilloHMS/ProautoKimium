@@ -24,6 +24,29 @@
     emptySubtitle="Ainda nao ha atestados enviados."
     pageReportTitle="Atestados">
 
+    <ng-template #cardTpl let-c>
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ c.employeeName }}</span>
+          <span class="pk-cartao__sub">
+            {{ formatDate(c.startDate) }} — {{ formatDate(c.endDate) }}
+          </span>
+        </div>
+        <span class="pk-cartao__marca">{{ c.daysCount }}d</span>
+        <div class="pk-cartao__rodape">
+          <span class="type-badge">
+            <i [class]="c.submissionType === 'PHOTO' ? 'pi pi-camera' : 'pi pi-file'"></i>
+            {{ submissionLabel(c.submissionType) }}
+          </span>
+          <button type="button" class="pk-cartao__icone"
+                  [attr.aria-label]="'Baixar o atestado de ' + c.employeeName"
+                  [disabled]="downloadingId === c.id" (click)="download(c)">
+            <i [class]="downloadingId === c.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"></i>
+          </button>
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th pSortableColumn="employeeName">Funcionario <p-sortIcon field="employeeName"></p-sortIcon></th>

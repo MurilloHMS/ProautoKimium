@@ -39,6 +39,30 @@
     emptySubtitle="Registre um novo equipamento para começar."
     [pageReportTitle]="listTitle">
 
+    <ng-template #cardTpl let-a>
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ employeeName(a.employeeId) }}</span>
+          <span class="pk-cartao__sub">
+            {{ a.equipmentType }}@if (a.description) { · {{ a.description }} }
+          </span>
+        </div>
+        <span class="pk-cartao__marca">{{ formatDate(a.deliveredAt) }}</span>
+        <div class="pk-cartao__rodape">
+          @if (a.withEmployee) {
+            <span class="ea-badge ea-badge--with">Em posse</span>
+            <button type="button" class="pk-cartao__atalho" (click)="openReturn(a)">
+              <i class="pi pi-undo"></i> Devolução
+            </button>
+          } @else {
+            <span class="ea-badge ea-badge--returned">
+              Devolvido em {{ formatDate(a.returnedAt) }}
+            </span>
+          }
+        </div>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th>Funcionário</th>

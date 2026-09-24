@@ -26,6 +26,34 @@
       emptySubtitle="Adicione uma nova empresa para começar."
       pageReportTitle="Empresas">
 
+      <!--
+        Aqui o corpo so e clicavel para quem pode alterar. Na tabela o lapis esta
+        atras de `*pkCan`; se o cartao abrisse para todo mundo, ele seria uma porta
+        mais larga que a linha que substitui — e quem nao pode editar descobriria
+        isso depois de preencher.
+      -->
+      <ng-template #cardTpl let-c>
+        <article class="pk-cartao">
+          @if (podeAlterar()) {
+            <button type="button" class="pk-cartao__corpo" (click)="openForm(c)">
+              <span class="pk-cartao__titulo">{{ c.name }}</span>
+              <span class="pk-cartao__sub">{{ c.legalName }}</span>
+            </button>
+          } @else {
+            <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+              <span class="pk-cartao__titulo">{{ c.name }}</span>
+              <span class="pk-cartao__sub">{{ c.legalName }}</span>
+            </div>
+          }
+          <span class="pk-cartao__marca">{{ c.cnpj }}</span>
+          <div class="pk-cartao__rodape">
+            @if (!c.address) {
+              <span class="status-chip status-chip--neutral">Sem endereço</span>
+            }
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>

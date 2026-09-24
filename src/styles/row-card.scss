@@ -1,0 +1,168 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// O cartão que substitui a linha da tabela no celular
+//
+// Estreou na Programação, onde uma planilha de 11 colunas (~1785px) só rolava
+// de lado. Virou o padrão das telas com tabela em 2026-09-24.
+//
+// **Global, e não no SCSS do `pk-table`.** O cartão é escrito no `#cardTpl` da
+// tela e projetado para dentro do componente do tema: o markup carrega o
+// atributo de encapsulamento DA TELA, então o estilo do `pk-table` não o
+// alcançaria — regra silenciosa, que dá build verde e cartão sem estilo.
+//
+// A anatomia é fixa de propósito — título, subtítulo, marca no canto, rodapé.
+// É ela que faz cartões de dezenove telas diferentes parecerem o mesmo
+// componente; quem preenche só escolhe O QUE vai em cada lugar.
+//
+// ```html
+// <ng-template #cardTpl let-e>
+//   <article class="pk-cartao" [class.pk-cartao--atencao]="venceu(e)">
+//     <button class="pk-cartao__corpo" (click)="editar(e)">
+//       <span class="pk-cartao__titulo">{{ e.nome }}</span>
+//       <span class="pk-cartao__sub">{{ e.setor }}</span>
+//     </button>
+//     <span class="pk-cartao__marca">{{ e.tag }}</span>
+//     <div class="pk-cartao__rodape">
+//       <span class="status-chip status-chip--success">Ativo</span>
+//     </div>
+//   </article>
+// </ng-template>
+// ```
+// ═══════════════════════════════════════════════════════════════════════════
+
+.pk-cartao {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .45rem .6rem;
+  padding: .7rem .75rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+// Estado excepcional — vencido, parado, bloqueado — se marca na BORDA. Cartão
+// inteiro tingido grita mais alto que o status, que é a informação principal.
+.pk-cartao--atencao {
+  border-color: var(--app-danger);
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.pk-cartao--rascunho {
+  border-style: dashed;
+  background: var(--app-warning-soft);
+}
+
+// O corpo é um `<button>`: é ele que abre o formulário. Elemento clicável tem
+// que ser um botão de verdade, senão o teclado não alcança e o leitor de tela
+// não anuncia.
+.pk-cartao__corpo {
+  grid-column: 1;
+  grid-row: 1;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 3px;
+    border-radius: var(--radius-control);
+  }
+}
+
+// Mesma forma, sem ser botao: para quem nao tem permissao de editar. O cartao
+// continua mostrando o registro — some a porta, nao a informacao.
+.pk-cartao__corpo--parado {
+  cursor: default;
+}
+
+.pk-cartao__titulo {
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pk-cartao__sub {
+  font-size: .72rem;
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A marca é como a coisa é chamada em voz alta: tag, placa, número da OS.
+.pk-cartao__marca {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+
+  color: var(--app-text-subtle);
+  font-size: .66rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pk-cartao__rodape {
+  grid-column: 1 / -1;
+  grid-row: 2;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+
+  &:empty { display: none; }
+}
+
+// O campo mais editado vira botão no próprio cartão: cobrar um formulário
+// inteiro por uma troca de data é pagar o preço do caso raro em toda edição.
+.pk-cartao__atalho {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+// Ícone sozinho no rodapé (histórico, anexo). 44px porque é alvo de dedo, e
+// `aria-label` é obrigatório — sem rótulo ele não existe para o leitor de tela.
+.pk-cartao__icone {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}

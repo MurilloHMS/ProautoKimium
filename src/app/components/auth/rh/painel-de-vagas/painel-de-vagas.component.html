@@ -89,6 +89,50 @@
       emptySubtitle="Crie uma vaga ou troque de aba para ver outras."
       pageReportTitle="Vagas">
 
+      <ng-template #cardTpl let-vaga>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="abrirModalEditar(vaga)">
+            <span class="pk-cartao__titulo">{{ vaga.titulo }}</span>
+            <span class="pk-cartao__sub">
+              Aberta em {{ formatarData(vaga.dataAbertura) }}
+              @if (vaga.dataEncerramento) { · encerra {{ formatarData(vaga.dataEncerramento) }} }
+            </span>
+          </button>
+          <span class="pk-cartao__marca">{{ vaga.area }}</span>
+          <div class="pk-cartao__rodape">
+            <button type="button" class="pk-cartao__atalho" (click)="verCandidaturas(vaga)">
+              <i class="pi pi-users"></i> Candidaturas
+            </button>
+
+            @if (activeTab === 'rascunho') {
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Publicar ' + vaga.titulo" (click)="publicar(vaga)">
+                <i class="pi pi-send"></i>
+              </button>
+            }
+            @if (activeTab === 'publicadas') {
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Encerrar ' + vaga.titulo" (click)="encerrar(vaga)">
+                <i class="pi pi-times-circle"></i>
+              </button>
+            }
+            @if (activeTab === 'encerradas') {
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Arquivar ' + vaga.titulo" (click)="arquivar(vaga)">
+                <i class="pi pi-inbox"></i>
+              </button>
+            }
+            @if (activeTab === 'arquivadas') {
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Mover ' + vaga.titulo + ' para rascunho'"
+                      (click)="moverParaRascunho(vaga)">
+                <i class="pi pi-file-edit"></i>
+              </button>
+            }
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th style="width: 3rem"></th>

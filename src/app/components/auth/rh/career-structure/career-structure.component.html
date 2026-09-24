@@ -31,6 +31,16 @@
     emptySubtitle="Adicione um novo cargo para começar."
     pageReportTitle="Cargos">
 
+    <ng-template #cardTpl let-p>
+      <article class="pk-cartao">
+        <button type="button" class="pk-cartao__corpo" (click)="selectPosition(p)">
+          <span class="pk-cartao__titulo">{{ p.name }}</span>
+          <span class="pk-cartao__sub">Toque para ver os níveis</span>
+        </button>
+        <i class="pi pi-chevron-right pk-cartao__marca" aria-hidden="true"></i>
+      </article>
+    </ng-template>
+
     <ng-template #headerTpl>
       <tr>
         <th pSortableColumn="name">Nome <p-sortIcon field="name"></p-sortIcon></th>
@@ -80,6 +90,31 @@
         emptyTitle="Nenhum nível cadastrado"
         emptySubtitle="Adicione o primeiro nível deste cargo — o nível 1 precisa ser fixo."
         pageReportTitle="Níveis">
+
+        <ng-template #cardTpl let-l>
+          <article class="pk-cartao">
+            <button type="button" class="pk-cartao__corpo" (click)="openEditLevel(l)">
+              <span class="pk-cartao__titulo">{{ l.name }}</span>
+              <span class="pk-cartao__sub">
+                Nível {{ l.levelOrder }} ·
+                @if (l.adjustmentType === 'FIXED') {
+                  {{ l.fixedAmount | currency:'BRL' }} fixo
+                } @else {
+                  +{{ l.percentageIncrease }}%
+                }
+              </span>
+            </button>
+            <span class="pk-cartao__marca">{{ l.resolvedSalary | currency:'BRL' }}</span>
+            <div class="pk-cartao__rodape">
+              <span class="type-badge"
+                    [class.type-badge--fixed]="l.adjustmentType === 'FIXED'"
+                    [class.type-badge--pct]="l.adjustmentType !== 'FIXED'">
+                <i [class]="l.adjustmentType === 'FIXED' ? 'pi pi-lock' : 'pi pi-percentage'"></i>
+                {{ l.adjustmentType === 'FIXED' ? 'Fixo' : 'Percentual' }}
+              </span>
+            </div>
+          </article>
+        </ng-template>
 
         <ng-template #headerTpl>
           <tr>

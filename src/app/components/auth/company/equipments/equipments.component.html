@@ -31,6 +31,41 @@
       emptySubtitle="Adicione um novo equipamento para começar."
       pageReportTitle="Equipamentos">
 
+      <!--
+        O cartão do celular. Equipamento tem três coisas: a foto, o nome e as
+        duas ações — então o cartão é o caso mais simples da anatomia, sem
+        marca no canto e sem status.
+      -->
+      <ng-template #cardTpl let-e>
+        <article class="pk-cartao">
+          <button type="button" class="pk-cartao__corpo" (click)="openEditDialog(e)">
+            <span class="pk-cartao__titulo">{{ e.nome }}</span>
+            <span class="pk-cartao__sub">Toque para editar</span>
+          </button>
+
+          <img
+            class="equipment-thumb equipment-thumb--cartao"
+            [src]="resolverImagem(e.imagem)"
+            [alt]="e.nome"
+            onerror="this.src='images/products/placeholder.png'" />
+
+          <div class="pk-cartao__rodape">
+            <button type="button"
+                    class="pk-cartao__icone"
+                    [attr.aria-label]="'Editar ' + e.nome"
+                    (click)="openEditDialog(e)">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button type="button"
+                    class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + e.nome"
+                    (click)="confirmDelete(e)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th class="col-center" style="width: 92px">Imagem</th>

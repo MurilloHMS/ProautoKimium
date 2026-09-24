@@ -159,6 +159,16 @@
             emptySubtitle="Este produto ainda não tem lançamentos."
             pageReportTitle="Movimentações">
 
+            <ng-template #cardTpl let-m>
+              <article class="pk-cartao">
+                <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+                  <span class="pk-cartao__titulo">{{ formatDateTime(m.movementDate) }}</span>
+                  <span class="pk-cartao__sub">Estoque após o lançamento</span>
+                </div>
+                <span class="pk-cartao__marca">{{ m.quantity }}</span>
+              </article>
+            </ng-template>
+
             <ng-template #headerTpl>
               <tr>
                 <th>Data</th>

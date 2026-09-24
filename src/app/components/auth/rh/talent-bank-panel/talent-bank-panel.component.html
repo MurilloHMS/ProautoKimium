@@ -73,6 +73,47 @@
       [emptySubtitle]="filtrosAtivos() ? 'Troque ou limpe os filtros.' : 'Os cadastros do Trabalhe Conosco aparecem aqui.'"
       pageReportTitle="candidatos">
 
+      <ng-template #cardTpl let-linha>
+        <article class="pk-cartao">
+          <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+            <span class="pk-cartao__titulo">{{ linha.nome }}</span>
+            <span class="pk-cartao__sub">
+              {{ linha.email }}
+              @if (linha.areaInteresse) { · {{ linha.areaInteresse }} }
+            </span>
+          </div>
+          <span class="pk-cartao__marca">{{ formatarData(linha.criadoEm) }}</span>
+          <div class="pk-cartao__rodape">
+            <span class="status-chip status-chip--{{ linha.situacao.papel }}"
+                  [pTooltip]="dicaDaSituacao(linha)" tooltipPosition="top">
+              <i [class]="linha.situacao.icone"></i>{{ linha.situacao.rotulo }}
+            </span>
+
+            <span class="origem">
+              @if (linha.espontaneo) {
+                <i class="pi pi-folder-open"></i> Sem vaga
+              } @else {
+                <i class="pi pi-briefcase"></i>
+                {{ linha.quantidadeDeCandidaturas }} {{ linha.quantidadeDeCandidaturas === 1 ? 'candidatura' : 'candidaturas' }}
+              }
+            </span>
+
+            @if (podeBaixar()) {
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="linha.temCurriculo ? 'Baixar o currículo de ' + linha.nome : 'Sem currículo guardado'"
+                      [disabled]="!linha.temCurriculo" (click)="baixar(linha)">
+                <i class="pi pi-download"></i>
+              </button>
+            }
+            <button *pkCan="'rh/painel-de-vagas:EXCLUIR'" type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Excluir ' + linha.nome + ' do banco de talentos'"
+                    (click)="pedirExclusao(linha)">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </article>
+      </ng-template>
+
       <ng-template #headerTpl>
         <tr>
           <th>Candidato</th>
