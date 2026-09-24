@@ -58,6 +58,11 @@ export const APP_MENU: AppMenuItem[] = [
         icon: 'pi pi-fw pi-images',
         routerLink: ['documentos/galeria'], screen: 'documentos/galeria',
       },
+      // Estas tres so eram alcancaveis pela pagina Documentos — nao tinham
+      // linha no menu, entao nao apareciam na busca nem na gaveta.
+      { label: 'Eventos', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['documentos/eventos'], screen: 'documentos/eventos' },
+      { label: 'Holerites', icon: 'pi pi-fw pi-credit-card', routerLink: ['documentos/holerites'], screen: 'documentos/holerites' },
+      { label: 'Pessoal', icon: 'pi pi-fw pi-user-edit', routerLink: ['documentos/rh'], screen: 'documentos/rh' },
     ],
   },
   {

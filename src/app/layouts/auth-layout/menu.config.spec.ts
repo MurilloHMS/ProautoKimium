@@ -70,10 +70,10 @@ describe('menu.config × app.routes', () => {
     'documentos/calculadoras/combustivel',
     // Documentos e RH: o hub é a porta, e as subtelas são os cartões dele.
     'documentos/calculadoras',
-    'documentos/holerites',
     'documentos/logos',
-    'documentos/eventos',
-    'documentos/rh',
+    // Holerites, Eventos e Pessoal SAIRAM desta lista em 2026-09-24: ele pediu
+    // as tres em "Meu espaco", e agora elas tem linha no menu — o que tambem
+    // as coloca na busca, onde nunca estiveram.
     'documentos/rh/announcements',
     'documentos/rh/documents',
     'documentos/rh/medical-certificates',

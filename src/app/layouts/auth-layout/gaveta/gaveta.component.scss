@@ -166,16 +166,16 @@
 // as linhas da pasta sao neutras. O peso vinha da repeticao, nao da cor.
 //
 // A doutrina e o escopo estao no `_tokens.scss`.
-.cat-espaco      { --acento: var(--cat-espaco); }
-.cat-rh          { --acento: var(--cat-rh); }
-.cat-financeiro  { --acento: var(--cat-financeiro); }
-.cat-empresa     { --acento: var(--cat-empresa); }
-.cat-comunicacao { --acento: var(--cat-comunicacao); }
-.cat-estoque     { --acento: var(--cat-estoque); }
-.cat-ferramentas { --acento: var(--cat-ferramentas); }
-.cat-config      { --acento: var(--cat-config); }
-.cat-externos    { --acento: var(--cat-externos); }
-.cat-neutra      { --acento: var(--app-text-muted); }
+.cat-espaco       { --fundo: var(--cat-espaco-fundo); --acento: var(--cat-espaco); }
+.cat-rh           { --fundo: var(--cat-rh-fundo); --acento: var(--cat-rh); }
+.cat-financeiro   { --fundo: var(--cat-financeiro-fundo); --acento: var(--cat-financeiro); }
+.cat-empresa      { --fundo: var(--cat-empresa-fundo); --acento: var(--cat-empresa); }
+.cat-comunicacao  { --fundo: var(--cat-comunicacao-fundo); --acento: var(--cat-comunicacao); }
+.cat-estoque      { --fundo: var(--cat-estoque-fundo); --acento: var(--cat-estoque); }
+.cat-ferramentas  { --fundo: var(--cat-ferramentas-fundo); --acento: var(--cat-ferramentas); }
+.cat-config       { --fundo: var(--cat-config-fundo); --acento: var(--cat-config); }
+.cat-externos     { --fundo: var(--cat-externos-fundo); --acento: var(--cat-externos); }
+.cat-neutra      { --fundo: var(--app-surface-3); --acento: var(--app-text-muted); }
 
 // O selo ao lado do nome da categoria: a cor aparece mesmo quando o cartao
 // esta cheio de miniaturas.
@@ -186,7 +186,7 @@
   height: 28px;
   flex: 0 0 auto;
   border-radius: 9px;
-  background: color-mix(in srgb, var(--acento, var(--app-text-muted)) 10%, transparent);
+  background: var(--fundo, var(--app-surface-3));
   color: var(--acento, var(--app-text-muted));
   font-size: .8rem;
 }
@@ -197,7 +197,7 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: color-mix(in srgb, var(--acento, var(--app-action)) 10%, transparent);
+  background: var(--fundo, var(--app-action-soft));
   color: var(--acento, var(--app-action));
   font-size: 1.1rem;
 }
