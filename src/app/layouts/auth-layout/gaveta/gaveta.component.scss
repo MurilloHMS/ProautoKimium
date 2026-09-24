@@ -161,9 +161,11 @@
 
 // ── identidade de categoria ────────────────────────────────────────────────
 //
-// Cada categoria declara duas variaveis, e todo poco de icone dentro dela as
-// consome. Assim a cor entra em UM lugar por categoria em vez de em cada
-// elemento — e uma categoria sem cor atribuida cai no neutro, sem quebrar.
+// Cada categoria declara duas variaveis, e quem as consome e APENAS o selo ao
+// lado do nome do grupo. As miniaturas e as linhas da pasta ficam neutras: uma
+// marca de cor por cartao identifica, nove competem.
+//
+// Categoria sem cor atribuida cai no neutro, sem quebrar.
 //
 // A doutrina e o escopo estao no `_tokens.scss`: cor de identidade so vive no
 // poco do icone. Nunca em chip, botao, borda ou superficie.
@@ -262,9 +264,13 @@
   font-size: 1rem;
 }
 
+// Neutras de proposito. A cor mora SO no selo do nome do grupo: com todas as
+// miniaturas coloridas o cartao virava um mosaico, e ele apontou — "muito
+// estranho". Uma marca de cor por cartao identifica; nove competem.
 .mini__icone {
-  background: var(--poco, var(--app-surface));
-  color: var(--tinta, var(--app-action));
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
 }
 
 // O "ver mais" NAO leva a cor da categoria: ele nao e um app, e o tracejado
@@ -333,8 +339,8 @@
   height: 34px;
   flex: 0 0 auto;
   border-radius: 10px;
-  background: var(--poco, var(--app-action-soft));
-  color: var(--tinta, var(--app-action));
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
   font-size: .85rem;
 }
 

@@ -95,30 +95,31 @@
   // para virar tinta, o Coral cai a 53 do vermelho puro e o Pêssego a 83 do
   // laranja, os dois que a lista de evitar proíbe com motivo escrito.
   //
-  // Então o poço é a cor **clareada** e o glifo é tinta escura neutra. A
-  // mistura de cada uma é diferente (30% a 90%) porque os pastéis da marca têm
-  // luminâncias muito diferentes: o alvo é a mesma LEVEZA em todos, ~1,18:1
-  // contra a superfície do cartão. Mais claro que isso e o poço some.
+  // Então o poço é a cor da marca e o glifo é tinta escura neutra, escolhida
+  // por luminância: os oito passam de 5:1, e a maioria de 10:1.
   //
-  // O glifo passa de 11:1 em todos — folga, porque ícone é objeto gráfico e a
-  // régua dele é 3:1, não 4,5.
-  --cat-espaco:         #e1dff5;  // Lavanda a 85%
+  // **A cor aparece UMA vez por cartão**, no selo ao lado do nome do grupo. As
+  // miniaturas e as linhas da pasta são neutras. Isso é o que resolveu o
+  // "ficou pesado": o peso vinha da repetição, não da cor. Uma versão
+  // intermediária clareou os tons a ~1,18:1 contra o cartão — e num selo de
+  // 26px isso deixa de ser cor e vira mancha, então a cor cheia voltou.
+  --cat-espaco:         #dcd9f3;  // Lavanda
   --cat-espaco-tinta:   #1a2233;
-  --cat-rh:             #fad6d3;  // Coral a 35%
+  --cat-rh:             #f28b82;  // Coral
   --cat-rh-tinta:       #1a2233;
-  --cat-financeiro:     #cbebc8;  // Verde Pastel a 70%
+  --cat-financeiro:     #b5e2b1;  // Verde Pastel
   --cat-financeiro-tinta: #1a2233;
-  --cat-empresa:        #cfe1e4;  // Azul Petróleo a 30%
+  --cat-empresa:        #609ca4;  // Azul Petróleo
   --cat-empresa-tinta:  #1a2233;
-  --cat-comunicacao:    #fde078;  // Amarelo a 90%
+  --cat-comunicacao:    #fddc69;  // Amarelo
   --cat-comunicacao-tinta: #1a2233;
-  --cat-estoque:        #e6e1dd;  // Bege a 35%
+  --cat-estoque:        #b7a89d;  // Bege
   --cat-estoque-tinta:  #1a2233;
-  --cat-ferramentas:    #dce1de;  // Verde Cinza a 30%
+  --cat-ferramentas:    #8a9a91;  // Verde Cinza
   --cat-ferramentas-tinta: #1a2233;
   --cat-config:         #{v.$neutral-100};
   --cat-config-tinta:   #{v.$text-muted};
-  --cat-externos:       #fddbc9;  // Pêssego a 55%
+  --cat-externos:       #fbbd9d;  // Pêssego
   --cat-externos-tinta: #1a2233;
 
 
