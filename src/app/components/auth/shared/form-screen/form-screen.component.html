@@ -1,24 +1,60 @@
-<section class="form-screen">
+<!--
+  O mesmo corpo servido em duas molduras.
 
-  <header class="form-screen__head">
-    <button type="button" class="form-screen__back" aria-label="Voltar" (click)="back.emit()">
-      <i class="pi pi-arrow-left"></i>
-    </button>
+  `<ng-content>` projeta UMA vez só: repeti-lo nos dois ramos de um `@if`
+  deixaria o ramo inativo vazio — e, quando a tela girasse, o formulário
+  apareceria em branco. Por isso o conteúdo mora num `ng-template` e cada
+  moldura o instancia com `ngTemplateOutlet`. É a mesma saída da Programação,
+  quando o histórico passou a abrir de dois lugares.
+-->
+<ng-template #corpo><ng-content /></ng-template>
+<ng-template #acoes><ng-content select="[formActions]" /></ng-template>
 
-    <div class="form-screen__titles">
-      <h1 class="form-screen__title">{{ title() }}</h1>
-      @if (subtitle()) {
-        <p class="form-screen__subtitle">{{ subtitle() }}</p>
-      }
+@if (ehCelular()) {
+
+  <!--
+    No celular o formulário sobe de baixo em vez de trocar de tela. O centro
+    deixa o conteúdo longe do polegar, que mora na base; e o pedaço de tela que
+    sobra em cima é o que diz "você abriu uma gaveta, não trocou de tela".
+
+    `[open]="true"`: quem decide se o formulário existe é a tela dona, com o
+    `@if` dela em volta deste componente. A folha não guarda esse estado de
+    novo — duas fontes para a mesma verdade divergem no primeiro bug.
+  -->
+  <pk-sheet [open]="true" [title]="title()" (closed)="back.emit()">
+    <div pkSheetBody>
+      <ng-container *ngTemplateOutlet="corpo" />
     </div>
-  </header>
+    <div pkSheetFooter>
+      <ng-container *ngTemplateOutlet="acoes" />
+    </div>
+  </pk-sheet>
 
-  <div class="form-screen__body" [class.form-screen__body--wide]="width() === 'wide'">
-    <ng-content />
-  </div>
+} @else {
 
-  <footer class="form-screen__footer">
-    <ng-content select="[formActions]" />
-  </footer>
+  <section class="form-screen">
 
-</section>
+    <header class="form-screen__head">
+      <button type="button" class="form-screen__back" aria-label="Voltar" (click)="back.emit()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+
+      <div class="form-screen__titles">
+        <h1 class="form-screen__title">{{ title() }}</h1>
+        @if (subtitle()) {
+          <p class="form-screen__subtitle">{{ subtitle() }}</p>
+        }
+      </div>
+    </header>
+
+    <div class="form-screen__body" [class.form-screen__body--wide]="width() === 'wide'">
+      <ng-container *ngTemplateOutlet="corpo" />
+    </div>
+
+    <footer class="form-screen__footer">
+      <ng-container *ngTemplateOutlet="acoes" />
+    </footer>
+
+  </section>
+
+}
