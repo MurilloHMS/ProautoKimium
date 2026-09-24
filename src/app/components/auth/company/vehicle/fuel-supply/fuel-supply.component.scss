@@ -41,10 +41,7 @@
 
   &:hover:not(:disabled) { border-color: var(--app-border-strong); }
 
-  &:focus-visible {
-    outline: 2px solid var(--app-focus-ring);
-    outline-offset: 2px;
-  }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
 
   &--atual {
     border-color: var(--app-action);
@@ -159,6 +156,8 @@
 
   &:hover { border-color: var(--app-action); }
 
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
   &--cheia {
     border-style: solid;
     border-color: var(--app-success);
@@ -195,6 +194,8 @@
   cursor: pointer;
 
   &:hover { color: var(--app-danger); }
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
 }
 
 .entrada-escondida {
@@ -310,6 +311,8 @@
 
   &:hover { border-color: var(--app-border-strong); }
 
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
   &--ativo {
     border-color: var(--app-action);
     background: var(--app-action);
@@ -355,6 +358,8 @@
   cursor: pointer;
 
   &:hover { color: var(--app-text); }
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
 }
 
 .cabecalho__dica {
@@ -383,9 +388,11 @@
     width: 44px;
     text-align: center;
 
+    // 24px e' o minimo do WCAG 2.2 (2.5.8). Esta e' a tela em que mais se
+    // toca: uma planilha do mes tem dezenas de linhas para marcar.
     input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
+      width: 24px;
+      height: 24px;
       accent-color: var(--app-action);
       cursor: pointer;
     }
@@ -412,30 +419,6 @@
   display: block;
   color: var(--app-text-subtle);
   font-size: var(--text-micro);
-}
-
-.selo {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-micro);
-  font-weight: 600;
-  white-space: nowrap;
-
-  &--ok {
-    background: var(--app-success-soft);
-    color: var(--app-success);
-  }
-
-  &--warn {
-    background: var(--app-warning-soft);
-    color: var(--app-warning);
-  }
-
-  &--erro {
-    background: var(--app-danger-soft);
-    color: var(--app-danger);
-  }
 }
 
 // ── Passo 3: a emissão ─────────────────────────────────────────────────────
@@ -467,6 +450,8 @@
   cursor: pointer;
 
   &:hover { border-color: var(--app-border-strong); }
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
 
   &--ativo {
     border-color: var(--app-action);

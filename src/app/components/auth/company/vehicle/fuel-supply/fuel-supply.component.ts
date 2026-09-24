@@ -355,17 +355,22 @@ export class FuelSupplyComponent implements OnInit {
     });
   }
 
-  situacaoDaLinha(linha: LinhaDeConferencia): { texto: string; tom: 'ok' | 'warn' | 'erro' } {
+  /**
+   * O tom sai com o nome que o `.status-chip` do tema usa, e nao com um nome
+   * nosso: assim o chip herda o que o tema passar a dar aos status — e o
+   * contraste deles esta para ser corrigido la.
+   */
+  situacaoDaLinha(linha: LinhaDeConferencia): { texto: string; tom: 'success' | 'warning' | 'danger' } {
     if (linha.selecionada && !linha.departmentId) {
-      return { texto: 'sem departamento', tom: 'erro' };
+      return { texto: 'sem departamento', tom: 'danger' };
     }
     if (linha.jaExiste) {
-      return { texto: 'já existe', tom: 'warn' };
+      return { texto: 'já existe', tom: 'warning' };
     }
     if (!linha.motoristaEncontrado) {
-      return { texto: 'sem cadastro', tom: 'warn' };
+      return { texto: 'sem cadastro', tom: 'warning' };
     }
-    return { texto: 'pronta', tom: 'ok' };
+    return { texto: 'pronta', tom: 'success' };
   }
 
   gravar(): void {

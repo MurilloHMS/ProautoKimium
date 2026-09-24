@@ -72,9 +72,18 @@
 
       <div class="painel__corpo">
 
+        <!-- `role` + `tabindex` + teclado, e nao um `<button>`: o botao de
+             remover mora dentro, e botao dentro de botao e HTML invalido.
+             Sem isto a area de soltar nao existia para o teclado — o anel de
+             foco viria para algo que nunca recebe foco. -->
         <div class="solta"
+             role="button"
+             tabindex="0"
+             aria-label="Escolher a planilha"
              [class.solta--cheia]="selectedFile"
-             (click)="fileInput.click()">
+             (click)="fileInput.click()"
+             (keydown.enter)="fileInput.click()"
+             (keydown.space)="$event.preventDefault(); fileInput.click()">
           @if (!selectedFile) {
             <i class="pi pi-file-excel solta__icone"></i>
             <b>Clique para escolher a planilha</b>
@@ -274,7 +283,7 @@
                        (change)="alternarLinha(l)" />
               </td>
               <td>
-                <span class="selo" [class]="'selo selo--' + situacaoDaLinha(l).tom">
+                <span [class]="'status-chip status-chip--' + situacaoDaLinha(l).tom">
                   {{ situacaoDaLinha(l).texto }}
                 </span>
               </td>
