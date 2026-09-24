@@ -1,196 +1,387 @@
 <p-toast position="top-right" />
 
-<div class="page">
+<div class="painel-wrapper abastecimento">
 
-  <!-- ── Header ─────────────────────────────────────────────────────────── -->
-  <div class="page-header">
-    <div class="page-header__icon">
-      <i class="pi pi-gas-pump"></i>
-    </div>
-    <div>
-      <h1 class="page-header__title">Abastecimento</h1>
-      <p class="page-header__sub">Importe a planilha mensal e gere os relatórios consolidados por período.</p>
-    </div>
-  </div>
+  <pk-title
+    text="Abastecimentos"
+    tagLine="A planilha é conferida antes de entrar. Nada é gravado até você confirmar — e o relatório só sai depois disso." />
 
-  <div class="layout">
+  <!-- ── Passos ─────────────────────────────────────────────────────────── -->
+  <nav class="passos" aria-label="Etapas da importação">
 
-    <!-- ══════════════════════════════════════════════════════════════════ -->
-    <!-- COLUNA 1 — Importar planilha                                       -->
-    <!-- ══════════════════════════════════════════════════════════════════ -->
-    <div class="panel">
-      <div class="panel__header">
-        <span class="panel__step">01</span>
-        <div>
-          <h2 class="panel__title">Importar Planilha</h2>
-          <p class="panel__desc">Envie o arquivo .xlsx do período de referência.</p>
-        </div>
-      </div>
-
-      <div class="form">
-
-        <!-- Período -->
-        <div class="form-row">
-          <div class="field">
-            <label class="field__label" for="mes-upload">Mês</label>
-            <p-select
-              inputId="mes-upload"
-              [options]="monthOptions"
-              [(ngModel)]="selectedMonth"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Mês"
-              styleClass="w-full"
-            />
-          </div>
-          <div class="field">
-            <label class="field__label" for="ano-upload">Ano</label>
-            <p-select
-              inputId="ano-upload"
-              [options]="yearOptions"
-              [(ngModel)]="selectedYear"
-              placeholder="Ano"
-              styleClass="w-full"
-            />
-          </div>
-        </div>
-
-        <!-- Drop zone -->
-        <div class="field">
-          <label class="field__label">Arquivo</label>
-          <div
-            class="dropzone"
-            [class.dropzone--filled]="selectedFile"
-            (click)="fileInput.click()"
-          >
-            @if (!selectedFile) {
-              <div class="dropzone__empty">
-                <div class="dropzone__icon-wrap">
-                  <i class="pi pi-file-excel"></i>
-                </div>
-                <p class="dropzone__text">Clique para selecionar</p>
-                <p class="dropzone__hint">Apenas arquivos <strong>.xlsx</strong></p>
-              </div>
-            } @else {
-              <div class="dropzone__filled">
-                <div class="dropzone__file-icon">
-                  <i class="pi pi-file-excel"></i>
-                </div>
-                <div class="dropzone__file-info">
-                  <span class="dropzone__file-name">{{ selectedFile.name }}</span>
-                  <span class="dropzone__file-size">{{ fileSizeLabel }}</span>
-                </div>
-                <button
-                  class="dropzone__remove"
-                  (click)="$event.stopPropagation(); clearFile()"
-                  title="Remover"
-                >
-                  <i class="pi pi-times"></i>
-                </button>
-              </div>
-            }
-          </div>
-          <input
-            #fileInput
-            type="file"
-            accept=".xlsx"
-            class="hidden-input"
-            (change)="onFileSelected($event)"
-          />
-        </div>
-
-        <!-- Ação -->
-        <div class="form-actions">
-          <p-button
-            label="Enviar Planilha"
-            icon="pi pi-upload"
-            iconPos="right"
-            [loading]="loadingUpload"
-            [disabled]="!selectedFile || !selectedMonth || !selectedYear"
-            styleClass="btn btn--secondary"
-            (onClick)="upload()"
-            pRipple
-          />
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Divisor vertical -->
-    <div class="divider-v">
-      <span class="divider-v__line"></span>
-      <span class="divider-v__dot" [class.divider-v__dot--active]="canGenerate">
-        <i class="pi" [ngClass]="canGenerate ? 'pi-arrow-right' : 'pi-lock'"></i>
+    <button type="button"
+            class="passo"
+            [class.passo--atual]="passo() === 1"
+            [class.passo--feito]="temConferenciaPendente()"
+            [attr.aria-current]="passo() === 1 ? 'step' : null"
+            (click)="irPara(1)">
+      <span class="passo__num">
+        @if (temConferenciaPendente()) { <i class="pi pi-check"></i> } @else { 1 }
       </span>
-      <span class="divider-v__line"></span>
-    </div>
+      <span class="passo__texto">
+        <strong>1 · Enviar</strong>
+        <span>{{ nomeDoArquivo() || 'planilha .xlsx do período' }}</span>
+      </span>
+    </button>
 
-    <!-- ══════════════════════════════════════════════════════════════════ -->
-    <!-- COLUNA 2 — Gerar relatório                                         -->
-    <!-- ══════════════════════════════════════════════════════════════════ -->
-    <div class="panel" [class.panel--locked]="!canGenerate">
-      <div class="panel__header">
-        <span class="panel__step" [class.panel__step--active]="canGenerate">02</span>
-        <div>
-          <h2 class="panel__title">Gerar Relatório</h2>
-          <p class="panel__desc">
-            @if (canGenerate) {
-              Dados de <strong>{{ selectedMonthLabel }}/{{ selectedYear }}</strong> prontos para exportar.
-            } @else {
-              Disponível após a importação do período.
-            }
-          </p>
-        </div>
+    <button type="button"
+            class="passo"
+            [class.passo--atual]="passo() === 2"
+            [class.passo--travado]="!temConferenciaPendente()"
+            [attr.aria-current]="passo() === 2 ? 'step' : null"
+            [disabled]="!temConferenciaPendente()"
+            (click)="irPara(2)">
+      <span class="passo__num">
+        @if (temConferenciaPendente()) { 2 } @else { <i class="pi pi-lock"></i> }
+      </span>
+      <span class="passo__texto">
+        <strong>2 · Conferir</strong>
+        <span>{{ resumoDoPasso2() }}</span>
+      </span>
+    </button>
 
-        <!-- Status pill -->
-        <div class="status-pill" [class.status-pill--ready]="canGenerate">
-          <i class="pi" [ngClass]="canGenerate ? 'pi-check-circle' : 'pi-clock'"></i>
-          <span>{{ canGenerate ? 'Pronto' : 'Aguardando' }}</span>
-        </div>
+    <button type="button"
+            class="passo"
+            [class.passo--atual]="passo() === 3"
+            [attr.aria-current]="passo() === 3 ? 'step' : null"
+            (click)="irPara(3)">
+      <span class="passo__num">3</span>
+      <span class="passo__texto">
+        <strong>3 · Emitir</strong>
+        <span>relatório de qualquer período</span>
+      </span>
+    </button>
+
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASSO 1 — Enviar                                                       -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  @if (passo() === 1) {
+    <section class="painel">
+
+      <div class="painel__topo">
+        <h2 class="painel__titulo">Enviar a planilha</h2>
+        <span class="painel__espaco"></span>
+        <pk-button pkType="download"
+                   pkLabel="Baixar modelo (.xlsx)"
+                   pkSize="sm"
+                   [pkLoading]="baixandoModelo()"
+                   (clicked)="baixarModelo()" />
       </div>
 
-      <div class="form">
+      <div class="painel__corpo">
 
-        <!-- Formato -->
-        <div class="field">
-          <label class="field__label">Formato</label>
-          <div class="format-grid">
-            @for (opt of formatOptions; track opt.value) {
-              <div
-                class="format-item"
-                [class.format-item--active]="selectedFormat === opt.value"
-                [class.format-item--locked]="!canGenerate"
-                (click)="canGenerate && (selectedFormat = opt.value)"
-              >
-                <i [class]="opt.icon + ' format-item__icon'"></i>
-                <div class="format-item__text">
-                  <span class="format-item__label">{{ opt.label }}</span>
-                  <span class="format-item__desc">{{ opt.description }}</span>
-                </div>
-                <div class="format-item__check">
-                  <i class="pi pi-check"></i>
-                </div>
-              </div>
-            }
+        <div class="solta"
+             [class.solta--cheia]="selectedFile"
+             (click)="fileInput.click()">
+          @if (!selectedFile) {
+            <i class="pi pi-file-excel solta__icone"></i>
+            <b>Clique para escolher a planilha</b>
+            <span>.xlsx, no formato do modelo</span>
+          } @else {
+            <i class="pi pi-file-excel solta__icone solta__icone--ok"></i>
+            <b>{{ selectedFile.name }}</b>
+            <span>{{ fileSizeLabel }}</span>
+            <button type="button"
+                    class="solta__remover"
+                    aria-label="Remover arquivo"
+                    (click)="$event.stopPropagation(); clearFile()">
+              <i class="pi pi-times"></i>
+            </button>
+          }
+        </div>
+
+        <input #fileInput
+               type="file"
+               accept=".xlsx"
+               class="entrada-escondida"
+               (change)="onFileSelected($event)" />
+
+        <p class="nota">
+          <i class="pi pi-info-circle"></i>
+          <span>
+            O modelo tem <strong>13 colunas</strong>, e a ordem importa: o importador lê por
+            posição. Duas delas — <strong>Cidade</strong> e <strong>Custo por Km</strong> —
+            não são gravadas, e existem para manter as outras no lugar. Não apague nenhuma.
+          </span>
+        </p>
+
+        <div class="painel__acoes">
+          <pk-button pkType="new"
+                     pkLabel="Conferir planilha"
+                     [pkDisabled]="!selectedFile"
+                     [pkLoading]="conferindo()"
+                     (clicked)="conferir()" />
+          <span class="painel__acoes-nota">Ler não grava nada.</span>
+        </div>
+
+      </div>
+    </section>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASSO 2 — Conferir                                                     -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  @if (passo() === 2) {
+    <section class="painel">
+
+      <div class="painel__topo">
+        <h2 class="painel__titulo">Conferir antes de gravar</h2>
+        <span class="painel__espaco"></span>
+        <pk-button pkType="cancel"
+                   pkLabel="Descartar"
+                   pkSize="sm"
+                   [pkDisabled]="gravando()"
+                   (clicked)="descartarConferencia()" />
+        <pk-button pkType="save"
+                   [pkLabel]="'Gravar ' + marcadas().length + ' marcadas'"
+                   [pkDisabled]="marcadas().length === 0"
+                   [pkLoading]="gravando()"
+                   (clicked)="gravar()" />
+      </div>
+
+      <div class="painel__corpo">
+
+        <!-- Resumo -->
+        <div class="resumo">
+          <div class="resumo__item">
+            <b>{{ totalLidas() }}</b><span>linhas lidas</span>
+          </div>
+          <div class="resumo__item">
+            <b>{{ totalDeMotoristas() }}</b><span>motoristas</span>
+          </div>
+          <div class="resumo__item">
+            <b>{{ marcadas().length }}</b><span>marcadas para gravar</span>
+          </div>
+          <div class="resumo__item" [class.resumo__item--aviso]="semMotorista().length > 0">
+            <b>{{ semMotorista().length }}</b><span>motorista sem cadastro</span>
+          </div>
+          <div class="resumo__item" [class.resumo__item--aviso]="duplicadas().length > 0">
+            <b>{{ duplicadas().length }}</b><span>já existem · desmarcadas</span>
           </div>
         </div>
 
-        <!-- Ação -->
-        <div class="form-actions">
-          <p-button
-            label="Gerar Relatório"
-            icon="pi pi-download"
-            iconPos="right"
-            [loading]="loadingReport"
-            [disabled]="!canGenerate"
-            styleClass="btn btn--primary"
-            (onClick)="generate()"
-            pRipple
-          />
+        <!-- As recusas da última tentativa -->
+        @if (recusas().length > 0) {
+          <div class="recusas" role="alert">
+            <p class="recusas__titulo">
+              <i class="pi pi-times-circle"></i>
+              Nada foi gravado. Corrija estas linhas e mande de novo:
+            </p>
+            <ul>
+              @for (motivo of recusas(); track motivo) { <li>{{ motivo }}</li> }
+            </ul>
+          </div>
+        }
+
+        <!-- Filtros e ação em massa -->
+        <div class="barra-conferencia">
+          <div class="chips" role="group" aria-label="Filtrar linhas">
+            <button type="button" class="chip"
+                    [class.chip--ativo]="filtro() === 'tudo'"
+                    [attr.aria-pressed]="filtro() === 'tudo'"
+                    (click)="filtro.set('tudo')">Tudo · {{ totalLidas() }}</button>
+            <button type="button" class="chip"
+                    [class.chip--ativo]="filtro() === 'atencao'"
+                    [attr.aria-pressed]="filtro() === 'atencao'"
+                    (click)="filtro.set('atencao')">Pedem atenção · {{ pedemAtencao().length }}</button>
+            <button type="button" class="chip"
+                    [class.chip--ativo]="filtro() === 'sem-motorista'"
+                    [attr.aria-pressed]="filtro() === 'sem-motorista'"
+                    (click)="filtro.set('sem-motorista')">Sem motorista · {{ semMotorista().length }}</button>
+            <button type="button" class="chip"
+                    [class.chip--ativo]="filtro() === 'duplicadas'"
+                    [attr.aria-pressed]="filtro() === 'duplicadas'"
+                    (click)="filtro.set('duplicadas')">Duplicadas · {{ duplicadas().length }}</button>
+          </div>
+
+          <div class="busca">
+            <i class="pi pi-search"></i>
+            <input type="text"
+                   class="busca__campo"
+                   placeholder="Buscar motorista ou placa…"
+                   aria-label="Buscar motorista ou placa"
+                   [value]="busca()"
+                   (input)="busca.set($any($event.target).value)" />
+            @if (busca()) {
+              <button type="button"
+                      class="busca__limpar"
+                      aria-label="Limpar a busca"
+                      (click)="busca.set('')">
+                <i class="pi pi-times"></i>
+              </button>
+            }
+          </div>
+
+          @if (semDepartamento().length > 0) {
+            <div class="em-massa">
+              <span class="em-massa__rotulo">
+                {{ motoristasSemDepartamento() }} sem departamento. Aplicar um em todos:
+              </span>
+              <pk-combobox [options]="departamentos()"
+                           optionLabel="name"
+                           optionValue="id"
+                           placeholder="Escolha o departamento…"
+                           [dense]="true"
+                           [filter]="true"
+                           (changed)="aplicarDepartamentoNasVazias($event)" />
+            </div>
+          }
+        </div>
+
+        <!-- Tabela -->
+        <pk-table
+          [data]="linhasVisiveis()"
+          [showCaption]="false"
+          [rows]="20"
+          [rowsOptions]="[10, 20, 50]"
+          emptyIcon="pi pi-filter-slash"
+          emptyTitle="Nenhuma linha aqui"
+          emptySubtitle="Limpe a busca, ou volte para Tudo para ver a planilha inteira."
+          pageReportTitle="linhas">
+
+          <ng-template #headerTpl>
+            <tr>
+              <th class="col-sel">
+                <input type="checkbox"
+                       aria-label="Marcar todas as linhas"
+                       [checked]="todasMarcadas()"
+                       (change)="marcarTodas($any($event.target).checked)" />
+              </th>
+              <th style="width: 130px">Situação</th>
+              <th>Motorista</th>
+              <th style="width: 110px">Data</th>
+              <th style="width: 110px">Placa</th>
+              <th class="col-num" style="width: 90px">Litros</th>
+              <th class="col-num" style="width: 110px">Total</th>
+              <th style="width: 230px">
+                Departamento
+                <i class="pi pi-info-circle cabecalho__dica"
+                   pTooltip="Vale para todas as linhas do mesmo motorista"
+                   tooltipPosition="left"></i>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template #bodyTpl let-l>
+            <tr class="table-row"
+                [class.linha--desmarcada]="!l.selecionada">
+              <td class="col-sel">
+                <input type="checkbox"
+                       [attr.aria-label]="'Gravar a linha ' + l.linha + ' — ' + (l.driverName || 'sem motorista')"
+                       [checked]="l.selecionada"
+                       (change)="alternarLinha(l)" />
+              </td>
+              <td>
+                <span class="selo" [class]="'selo selo--' + situacaoDaLinha(l).tom">
+                  {{ situacaoDaLinha(l).texto }}
+                </span>
+              </td>
+              <td>
+                <span class="motorista">{{ l.driverName || '—' }}</span>
+                <span class="linha-origem">linha {{ l.linha }}</span>
+              </td>
+              <td>{{ l.fuelSupplyDate | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ l.plate || '—' }}</td>
+              <td class="col-num">{{ l.liters | number: '1.1-2' }}</td>
+              <td class="col-num">{{ l.totalValue | number: '1.2-2' }}</td>
+              <td>
+                <pk-combobox [options]="departamentos()"
+                             optionLabel="name"
+                             optionValue="id"
+                             placeholder="Escolha…"
+                             [dense]="true"
+                             [filter]="true"
+                             [ngModel]="l.departmentId"
+                             [ngModelOptions]="{ standalone: true }"
+                             (changed)="definirDepartamento(l, $event)" />
+              </td>
+            </tr>
+          </ng-template>
+
+        </pk-table>
+
+      </div>
+    </section>
+  }
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PASSO 3 — Emitir                                                       -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  @if (passo() === 3) {
+    <section class="painel">
+
+      <div class="painel__topo">
+        <h2 class="painel__titulo">Emitir</h2>
+        <span class="painel__espaco"></span>
+        <pk-button pkType="download"
+                   pkLabel="Baixar dados (.xlsx)"
+                   pkSize="sm"
+                   [pkLoading]="exportando()"
+                   (clicked)="exportarDados()" />
+      </div>
+
+      <div class="painel__corpo">
+
+        @if (temConferenciaPendente()) {
+          <p class="nota nota--aviso">
+            <i class="pi pi-exclamation-triangle"></i>
+            <span>
+              Há <strong>{{ totalLidas() }}</strong> linhas conferidas e ainda não gravadas.
+              Elas não entram neste relatório enquanto você não voltar ao passo 2.
+            </span>
+          </p>
+        }
+
+        <div class="periodo">
+          <div class="campo">
+            <pk-combobox label="Mês"
+                         [options]="monthOptions"
+                         optionLabel="label"
+                         optionValue="value"
+                         [(ngModel)]="selectedMonth"
+                         [ngModelOptions]="{ standalone: true }" />
+          </div>
+          <div class="campo">
+            <pk-combobox label="Ano"
+                         [options]="yearOptions"
+                         optionLabel="label"
+                         optionValue="value"
+                         [(ngModel)]="selectedYear"
+                         [ngModelOptions]="{ standalone: true }" />
+          </div>
+        </div>
+
+        <div class="formatos">
+          @for (opt of formatOptions; track opt.value) {
+            <button type="button"
+                    class="formato"
+                    [class.formato--ativo]="selectedFormat === opt.value"
+                    [attr.aria-pressed]="selectedFormat === opt.value"
+                    (click)="selectedFormat = opt.value">
+              <i [class]="opt.icon + ' formato__icone'"></i>
+              <span class="formato__texto">
+                <strong>{{ opt.label }}</strong>
+                <span>{{ opt.description }}</span>
+              </span>
+              <i class="pi pi-check formato__check"></i>
+            </button>
+          }
+        </div>
+
+        <div class="painel__acoes">
+          <pk-button pkType="download"
+                     pkLabel="Gerar relatório"
+                     [pkLoading]="loadingReport()"
+                     (clicked)="generate()" />
+          <span class="painel__acoes-nota">
+            {{ selectedMonthLabel }}/{{ selectedYear }}
+          </span>
         </div>
 
       </div>
-    </div>
+    </section>
+  }
 
-  </div>
 </div>

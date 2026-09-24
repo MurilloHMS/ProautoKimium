@@ -1,484 +1,502 @@
 @use 'variables' as v;
-@use "sass:color";
 
-// ─── Página ───────────────────────────────────────────────────────────────────
-.page {
-  max-width: 1000px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
+// ═══════════════════════════════════════════════════════════════════════════
+// Abastecimentos — enviar, conferir, emitir
+//
+// A tela tem forma própria: uma trilha de três passos e um painel por passo.
+// O que é catálogo — botões, combos, tabela, título — vem dos componentes
+// `pk-*`; aqui fica só o que é desta tela.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.abastecimento {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: v.$space-5;
 }
 
-// ─── Header ───────────────────────────────────────────────────────────────────
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+// ── A trilha dos passos ────────────────────────────────────────────────────
 
-  &__icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: var(--app-action);
-    flex-shrink: 0;
-
-    i {
-      font-size: 1.35rem;
-      color: #fff;
-    }
-  }
-
-  &__title {
-    font-family: v.$font-heading;
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--app-action);
-    margin: 0 0 0.15rem;
-  }
-
-  &__sub {
-    font-family: v.$font-body;
-    font-size: 0.875rem;
-    color: var(--app-text-muted)-color;
-    margin: 0;
-  }
-}
-
-// ─── Layout 2 colunas ─────────────────────────────────────────────────────────
-.layout {
+.passos {
   display: grid;
-  grid-template-columns: 1fr 48px 1fr;
-  align-items: start;
-  gap: 0;
+  grid-template-columns: repeat(3, 1fr);
+  gap: v.$space-3;
 
-  @media (max-width: 768px) {
+  @media (max-width: v.$bp-md) {
     grid-template-columns: 1fr;
   }
 }
 
-// ─── Panel ────────────────────────────────────────────────────────────────────
-.panel {
+.passo {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
   background: var(--app-surface);
-  border: 1px solid var(--app-bg)-dark;
-  border-radius: 16px;
-  padding: 1.75rem;
-  transition: opacity 0.2s;
-
-  &--locked {
-    opacity: 0.55;
-    pointer-events: none;
-  }
-
-  &__header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
-  }
-
-  &__step {
-    font-family: v.$font-heading;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--app-bg)-dark;
-    line-height: 1;
-    margin-top: 2px;
-    flex-shrink: 0;
-    transition: color 0.2s;
-
-    &--active {
-      color: var(--app-action);
-    }
-  }
-
-  &__title {
-    font-family: v.$font-heading;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--app-action);
-    margin: 0 0 0.2rem;
-  }
-
-  &__desc {
-    font-family: v.$font-body;
-    font-size: 0.82rem;
-    color: var(--app-text-muted)-color;
-    margin: 0;
-    line-height: 1.4;
-  }
-}
-
-// ─── Status pill ──────────────────────────────────────────────────────────────
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-left: auto;
-  padding: 0.2rem 0.65rem;
-  border-radius: 20px;
-  font-family: v.$font-body;
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: color-mix(in srgb, var(--app-warning) 12%, transparent);
-  color: color-mix(in srgb, var(--app-warning) 80%, #000);
-  border: 1px solid color-mix(in srgb, var(--app-warning) 30%, transparent);
-  white-space: nowrap;
-  flex-shrink: 0;
-
-  i { font-size: 0.7rem; }
-
-  &--ready {
-    background: color-mix(in srgb, var(--app-success) 10%, transparent);
-    color: color-mix(in srgb, var(--app-success) 90%, #000);
-    border-color: color-mix(in srgb, var(--app-success) 25%, transparent);
-  }
-}
-
-// ─── Divisor vertical ─────────────────────────────────────────────────────────
-.divider-v {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 2.5rem;
-  gap: 0;
-
-  @media (max-width: 768px) {
-    flex-direction: row;
-    padding-top: 0;
-    height: 32px;
-  }
-
-  &__line {
-    flex: 1;
-    width: 1px;
-    background: var(--app-bg)-dark;
-
-    @media (max-width: 768px) {
-      width: auto;
-      height: 1px;
-    }
-  }
-
-  &__dot {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--app-bg);
-    border: 1px solid var(--app-bg)-dark;
-    color: var(--app-text-muted)-color;
-    flex-shrink: 0;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-
-    i { font-size: 0.75rem; }
-
-    &--active {
-      background: var(--app-success);
-      border-color: var(--app-success);
-      color: #fff;
-    }
-  }
-}
-
-// ─── Formulário ───────────────────────────────────────────────────────────────
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-
-  &-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-
-  &-actions {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 0.25rem;
-  }
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-
-  &__label {
-    font-family: v.$font-body;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--app-text);
-    letter-spacing: 0.01em;
-  }
-}
-
-// ─── Drop zone ────────────────────────────────────────────────────────────────
-.hidden-input { display: none; }
-
-.dropzone {
-  border: 2px dashed var(--app-bg)-dark;
-  border-radius: 12px;
-  background: var(--app-bg);
+  color: var(--app-text);
+  text-align: left;
   cursor: pointer;
-  transition: border-color 0.18s, background 0.18s;
-  overflow: hidden;
+  transition: border-color .15s ease, background .15s ease;
 
-  &:hover {
-    border-color: var(--app-success);
-    background: color-mix(in srgb, var(--app-success) 4%, transparent);
+  &:hover:not(:disabled) { border-color: var(--app-border-strong); }
+
+  &:focus-visible {
+    outline: 2px solid var(--app-focus-ring);
+    outline-offset: 2px;
   }
 
-  &--filled {
-    border-style: solid;
-    border-color: var(--app-success);
-    background: color-mix(in srgb, var(--app-success) 5%, transparent);
-
-    &:hover {
-      border-color: var(--app-success);
-      background: color-mix(in srgb, var(--app-success) 8%, transparent);
-    }
+  &--atual {
+    border-color: var(--app-action);
+    box-shadow: inset 3px 0 0 var(--app-action);
   }
 
-  &__empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1.75rem 1rem;
-    gap: 0.4rem;
+  &--travado,
+  &:disabled {
+    cursor: not-allowed;
+    background: var(--app-surface-2);
+    color: var(--app-text-muted);
+  }
+}
+
+.passo__num {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+
+  .passo--atual & {
+    background: var(--app-action);
+    color: var(--app-on-action);
   }
 
-  &__icon-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    background: var(--app-bg)-darker;
-    margin-bottom: 0.25rem;
-
-    i {
-      font-size: 1.25rem;
-      color: var(--app-text-muted);
-    }
+  .passo--feito & {
+    background: var(--app-success-soft);
+    color: var(--app-success);
   }
+}
 
-  &__text {
-    font-family: v.$font-body;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--app-text);
-    margin: 0;
-  }
+.passo__texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 
-  &__hint {
-    font-family: v.$font-body;
-    font-size: 0.78rem;
-    color: var(--app-text-muted)-color;
-    margin: 0;
+  strong { font-size: var(--text-ui); }
 
-    strong { color: var(--app-text); }
-  }
-
-  &__filled {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem 1rem;
-  }
-
-  &__file-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--app-success) 15%, transparent);
-    flex-shrink: 0;
-
-    i {
-      font-size: 1.1rem;
-      color: var(--app-success);
-    }
-  }
-
-  &__file-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    min-width: 0;
-    flex: 1;
-  }
-
-  &__file-name {
-    font-family: v.$font-body;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--app-text);
+  span {
     overflow: hidden;
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  &__file-size {
-    font-family: v.$font-body;
-    font-size: 0.75rem;
-    color: var(--app-text-muted)-color;
-  }
-
-  &__remove {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: none;
-    background: var(--app-bg)-darker;
-    color: var(--app-text-muted)-color;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.15s, color 0.15s;
-
-    i { font-size: 0.65rem; }
-
-    &:hover {
-      background: color-mix(in srgb, var(--app-danger) 12%, transparent);
-      color: var(--app-danger);
-    }
-  }
 }
 
-// ─── Grade de formatos ────────────────────────────────────────────────────────
-.format-grid {
+// ── O painel do passo ──────────────────────────────────────────────────────
+
+.painel {
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.painel__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: v.$space-2;
+  padding: v.$space-4 v.$space-5;
+  border-bottom: 1px solid var(--app-border-soft);
+}
+
+.painel__espaco { flex: 1 1 auto; }
+
+.painel__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.painel__corpo {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: v.$space-4;
+  padding: v.$space-5;
 }
 
-.format-item {
+.painel__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: v.$space-3;
+}
+
+.painel__acoes-nota {
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+// ── Passo 1: o arquivo ─────────────────────────────────────────────────────
+
+.solta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: v.$space-1;
+  padding: v.$space-10 v.$space-5;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface-2);
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+
+  &:hover { border-color: var(--app-action); }
+
+  &--cheia {
+    border-style: solid;
+    border-color: var(--app-success);
+    background: var(--app-success-soft);
+  }
+
+  b { font-size: var(--text-ui); }
+
+  span {
+    color: var(--app-text-muted);
+    font-size: var(--text-ui-sm);
+  }
+}
+
+.solta__icone {
+  font-size: 1.75rem;
+  color: var(--app-text-subtle);
+
+  &--ok { color: var(--app-success); }
+}
+
+.solta__remover {
+  position: absolute;
+  top: v.$space-3;
+  right: v.$space-3;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover { color: var(--app-danger); }
+}
+
+.entrada-escondida {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nota {
+  display: flex;
+  align-items: flex-start;
+  gap: v.$space-2;
+  margin: 0;
+  padding: v.$space-3 v.$space-4;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+
+  i { margin-top: 2px; flex-shrink: 0; }
+
+  &--aviso {
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+  }
+}
+
+// ── Passo 2: a conferência ─────────────────────────────────────────────────
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: v.$space-3;
+}
+
+.resumo__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: v.$space-3 v.$space-4;
+  border: 1px solid var(--app-border-soft);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+
+  b {
+    font-size: 1.4rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+
+  span {
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
+  }
+
+  &--aviso {
+    border-color: var(--app-warning);
+    background: var(--app-warning-soft);
+
+    b { color: var(--app-warning); }
+  }
+}
+
+.recusas {
+  padding: v.$space-3 v.$space-4;
+  border: 1px solid var(--app-danger);
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+
+  ul {
+    margin: v.$space-2 0 0;
+    padding-left: v.$space-5;
+  }
+
+  li { margin-bottom: 2px; }
+}
+
+.recusas__titulo {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
-  border: 1.5px solid var(--app-bg)-dark;
-  background: var(--app-bg);
+  gap: v.$space-2;
+  margin: 0;
+  font-weight: 600;
+}
+
+.barra-conferencia {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: v.$space-3;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: v.$space-2;
+}
+
+.chip {
+  padding: 6px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
 
-  &:hover {
-    border-color: var(--app-success);
-    background: color-mix(in srgb, var(--app-success) 4%, transparent);
-  }
+  &:hover { border-color: var(--app-border-strong); }
 
-  &--active {
+  &--ativo {
     border-color: var(--app-action);
-    background: color-mix(in srgb, var(--app-action) 4%, transparent);
-
-    .format-item__icon { color: var(--app-action); }
-    .format-item__label { color: var(--app-action); }
-    .format-item__check { opacity: 1; }
-  }
-
-  &--locked {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  &__icon {
-    font-size: 1.35rem;
-    color: var(--app-text-muted);
-    flex-shrink: 0;
-    transition: color 0.15s;
-  }
-
-  &__text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-    flex: 1;
-  }
-
-  &__label {
-    font-family: v.$font-body;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--app-text);
-    transition: color 0.15s;
-  }
-
-  &__desc {
-    font-family: v.$font-body;
-    font-size: 0.75rem;
-    color: var(--app-text-muted)-color;
-  }
-
-  &__check {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
     background: var(--app-action);
-    opacity: 0;
-    transition: opacity 0.15s;
-    flex-shrink: 0;
-
-    i {
-      font-size: 0.6rem;
-      color: #fff;
-    }
+    color: var(--app-on-action);
   }
 }
 
-// ─── Botões (override PrimeNG via host) ───────────────────────────────────────
+.busca {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  flex: 1 1 260px;
+  max-width: 360px;
+  padding: 0 v.$space-3;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+
+  &:focus-within { border-color: var(--app-action); }
+
+  > i { color: var(--app-text-subtle); }
+}
+
+.busca__campo {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+
+  &:focus { outline: none; }
+}
+
+.busca__limpar {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-subtle);
+  cursor: pointer;
+
+  &:hover { color: var(--app-text); }
+}
+
+.cabecalho__dica {
+  margin-left: 4px;
+  color: var(--app-text-subtle);
+  font-size: 0.8em;
+}
+
+.em-massa {
+  display: flex;
+  align-items: center;
+  gap: v.$space-2;
+  min-width: 320px;
+}
+
+.em-massa__rotulo {
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  white-space: nowrap;
+}
+
+// ── A tabela da conferência ────────────────────────────────────────────────
+
 :host ::ng-deep {
-  .btn {
-    font-family: v.$font-body;
-    font-weight: 600;
-    font-size: 0.875rem;
-    border-radius: 8px;
-    padding: 0.55rem 1.4rem;
+  .col-sel {
+    width: 44px;
+    text-align: center;
 
-    &--primary {
-      background: var(--app-action) !important;
-      border-color: var(--app-action) !important;
-
-      &:hover:not(:disabled) {
-        background: var(--app-action-hover) !important;
-        border-color: var(--app-action-hover) !important;
-      }
-    }
-
-    &--secondary {
-      background: transparent !important;
-      border-color: var(--app-action) !important;
-      color: var(--app-action) !important;
-
-      &:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--app-action) 6%, transparent) !important;
-      }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--app-action);
+      cursor: pointer;
     }
   }
 
-  .p-select {
-    border-radius: 8px;
-    border-color: var(--app-bg)-dark;
-    font-family: v.$font-body;
-    font-size: 0.875rem;
-
-    &:hover { border-color: var(--app-success); }
-    &.p-focus { border-color: var(--app-action); box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-action) 15%, transparent); }
+  .col-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
   }
+
+  // Desmarcada continua legível: ela não saiu da planilha, só não vai ser
+  // gravada agora.
+  .linha--desmarcada td {
+    opacity: .55;
+  }
+}
+
+.motorista {
+  display: block;
+  font-weight: 500;
+}
+
+.linha-origem {
+  display: block;
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+}
+
+.selo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  white-space: nowrap;
+
+  &--ok {
+    background: var(--app-success-soft);
+    color: var(--app-success);
+  }
+
+  &--warn {
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+  }
+
+  &--erro {
+    background: var(--app-danger-soft);
+    color: var(--app-danger);
+  }
+}
+
+// ── Passo 3: a emissão ─────────────────────────────────────────────────────
+
+.periodo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: v.$space-4;
+  max-width: 480px;
+}
+
+.formatos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: v.$space-3;
+  max-width: 560px;
+}
+
+.formato {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3 v.$space-4;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { border-color: var(--app-border-strong); }
+
+  &--ativo {
+    border-color: var(--app-action);
+    background: var(--app-action-soft);
+  }
+}
+
+.formato__icone {
+  font-size: 1.25rem;
+  color: var(--app-text-muted);
+
+  .formato--ativo & { color: var(--app-action); }
+}
+
+.formato__texto {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  strong { font-size: var(--text-ui); }
+
+  span {
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
+  }
+}
+
+.formato__check {
+  color: var(--app-action);
+  opacity: 0;
+
+  .formato--ativo & { opacity: 1; }
 }
