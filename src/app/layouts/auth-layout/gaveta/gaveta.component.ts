@@ -7,6 +7,7 @@ import { RouterLink } from '@angular/router';
 import { MenuService } from '../../../infrastructure/services/menu.service';
 import { TelasRecentesService } from '../../../infrastructure/services/telas-recentes.service';
 import { PkSheetComponent } from '../../../components/theme/ProautoKimium/pk-sheet/pk-sheet.component';
+import { camadaVoltavel } from '../../../infrastructure/state/camada-voltavel';
 import {
   CategoriaDaGaveta,
   DestinoDaGaveta,
@@ -35,6 +36,11 @@ const COM_VER_MAIS = 3;
  * categorias com os apps mais usados visíveis é a biblioteca do iOS, e a pasta
  * que abre por cima é a MIUI.
  *
+ * <p><b>O voltar do aparelho fecha uma camada por vez</b>, pelo
+ * {@link camadaVoltavel}: primeiro a pasta, depois a gaveta. Sem isso o voltar
+ * do Android saía da tela com a gaveta ainda por cima — que é como ela estava
+ * até agora.
+ *
  * <p><b>A pasta é montada DENTRO do painel</b>, e isso não é arrumação: o
  * `$z-drawer` é 1100 e a `pk-sheet` é 1050. Irmã, a pasta abriria invisível
  * atrás da gaveta. Funciona porque o painel tem `transform`, que cria bloco
@@ -61,6 +67,15 @@ export class GavetaComponent {
   readonly pastaAberta = signal<CategoriaDaGaveta | null>(null);
 
   /**
+   * O voltar do aparelho, e também o X e o Esc: todos passam por aqui.
+   *
+   * <p>Ter um caminho só é o ponto. Fechar pelo X sem consumir a entrada do
+   * histórico deixaria um toque de voltar que não faz nada; fechar por dois
+   * caminhos diferentes deixaria dois comportamentos que precisam concordar.
+   */
+  private readonly camada = camadaVoltavel(() => this.fecharUmaCamada());
+
+  /**
    * As categorias, do menu já filtrado por permissão.
    *
    * <p>É `computed` sobre um sinal que muda quando as permissões chegam: elas
@@ -80,6 +95,12 @@ export class GavetaComponent {
     this.destroyRef.onDestroy(() => document.body.classList.remove('drawer-open'));
 
     effect(() => document.body.classList.toggle('drawer-open', this.open()));
+
+    // Uma entrada por abertura. A pasta NÃO empilha outra: ela reaproveita
+    // esta, e quem a repõe é o `fecharUmaCamada`.
+    effect(() => {
+      if (this.open()) this.camada.empilhar();
+    });
   }
 
   /**
@@ -121,16 +142,39 @@ export class GavetaComponent {
   }
 
   fecharPasta(): void {
-    this.pastaAberta.set(null);
+    this.camada.voltar();
   }
 
   fechar(): void {
+    this.camada.voltar();
+  }
+
+  /**
+   * Navegar fecha a gaveta inteira — inclusive a pasta, pelo efeito.
+   *
+   * <p>Não pede o voltar: o `routerLink` já navegou, e um `back()` aqui
+   * desfaria a navegação que a pessoa acabou de pedir. A entrada fica
+   * enterrada, e o helper a engole quando o voltar chegar nela.
+   */
+  aoEscolher(): void {
     this.closed.emit();
   }
 
-  /** Navegar fecha a gaveta inteira — inclusive a pasta, pelo efeito. */
-  aoEscolher(): void {
-    this.fechar();
+  /**
+   * Fecha a camada de cima. É o que o voltar do aparelho faz, e no que o X e o
+   * Esc desembocam.
+   *
+   * <p>Havendo pasta, ela fecha e a entrada é **reposta** — senão o próximo
+   * voltar sairia da tela em vez de fechar a gaveta.
+   */
+  private fecharUmaCamada(): void {
+    if (this.pastaAberta()) {
+      this.pastaAberta.set(null);
+      this.camada.empilhar();
+      return;
+    }
+
+    this.closed.emit();
   }
 
   /**

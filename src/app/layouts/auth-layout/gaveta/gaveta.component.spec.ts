@@ -78,6 +78,12 @@ describe('GavetaComponent', () => {
     // depois do teste e estoura NG0205 no injetor ja destruido.
     spyOn(TestBed.inject(Router), 'navigateByUrl').and.resolveTo(true);
 
+    // Fechar a gaveta consome a entrada de historico dela (camadaVoltavel).
+    // Espiar nao e' so' isolamento: o iframe do Karma divide o historico com a
+    // pagina que o hospeda, e um back() de verdade aqui leva o runner junto.
+    spyOn(window.history, 'pushState');
+    spyOn(window.history, 'back');
+
     fixture = TestBed.createComponent(GavetaComponent);
     fixture.componentRef.setInput('open', aberta);
     fixture.detectChanges();
@@ -305,13 +311,23 @@ describe('GavetaComponent', () => {
       .toBeFalse();
   });
 
-  it('Esc sem pasta aberta fecha a gaveta', async () => {
+  /**
+   * O `Esc` nao fecha mais na mao: ele pede o voltar ao navegador, e quem fecha
+   * e' o `popstate` que volta. E' o mesmo caminho do X e do voltar do aparelho
+   * — um so', em vez de tres que precisam concordar. Coberto em
+   * `gaveta-voltar.spec.ts`.
+   */
+  it('Esc sem pasta aberta pede o voltar, e o voltar fecha a gaveta', async () => {
     await montar();
 
     let fechou = false;
     fixture.componentInstance.closed.subscribe(() => (fechou = true));
 
     fixture.componentInstance.aoEsc();
+
+    expect(window.history.back).withContext('consome a entrada').toHaveBeenCalled();
+
+    window.dispatchEvent(new PopStateEvent('popstate', { state: { navigationId: 1 } }));
 
     expect(fechou).toBeTrue();
   });
