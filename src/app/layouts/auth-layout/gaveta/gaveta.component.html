@@ -1,0 +1,136 @@
+<div class="gaveta"
+     [class.gaveta--aberta]="open()"
+     [attr.aria-hidden]="open() ? null : 'true'"
+     (click)="fechar()">
+
+  <!--
+    O painel tem `transform`, e isso é estrutural, não estético: é ele que cria
+    o bloco contentor que faz a `pk-sheet` da pasta (z-index 1050) aparecer
+    acima da gaveta (1100) em vez de atrás. Trocar por `opacity` some com a
+    pasta. O teste "a folha é descendente do painel" é o que avisa.
+  -->
+  <div class="gaveta__painel"
+       role="dialog"
+       aria-modal="true"
+       aria-label="Aplicativos"
+       (click)="$event.stopPropagation()">
+
+    <header class="gaveta__cabeca">
+      <span class="gaveta__puxador" aria-hidden="true"></span>
+      <div class="gaveta__titulo-linha">
+        <p class="gaveta__titulo">Aplicativos</p>
+        <button type="button" class="gaveta__fechar" aria-label="Fechar" (click)="fechar()">
+          <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- `inert` enquanto a pasta está aberta: o trap de foco filtra por
+         `offsetParent`, e a grade atrás continua tendo um — sem isto o Tab
+         entraria nela por baixo da pasta. -->
+    <div class="gaveta__corpo" [attr.inert]="pastaAberta() ? '' : null">
+
+      <p class="gaveta__faixa">Categorias</p>
+
+      <div class="gaveta__grade">
+        @for (categoria of categorias(); track categoria.id) {
+
+          @if (categoria.tipo === 'folha' && categoria.destino; as destino) {
+            <!-- Folha de 1º nível: navega no toque, e é `<a>` para o leitor de
+                 tela anunciar link e o toque longo abrir em outra aba. -->
+            <a class="tile tile--folha"
+               [routerLink]="destino.routerLink"
+               (click)="aoEscolher()">
+              <span class="tile__icone"><i [class]="categoria.icon" aria-hidden="true"></i></span>
+              <span class="tile__rotulo">{{ categoria.label }}</span>
+            </a>
+          } @else {
+            <!-- Pasta: o poço com miniaturas é o que diz "aqui tem mais". -->
+            <div class="tile tile--pasta">
+              <p class="tile__nome">
+                <i [class]="categoria.icon" aria-hidden="true"></i>
+                {{ categoria.label }}
+              </p>
+
+              <div class="tile__apps">
+                @for (destino of destaques(categoria); track destino.label) {
+                  @if (destino.externo) {
+                    <a class="mini"
+                       [href]="destino.url"
+                       [target]="destino.target ?? '_blank'"
+                       rel="noopener"
+                       (click)="aoEscolher()">
+                      <span class="mini__icone"><i [class]="destino.icon" aria-hidden="true"></i></span>
+                      <span class="mini__rotulo">{{ destino.label }}</span>
+                    </a>
+                  } @else {
+                    <a class="mini"
+                       [routerLink]="destino.routerLink"
+                       (click)="aoEscolher()">
+                      <span class="mini__icone"><i [class]="destino.icon" aria-hidden="true"></i></span>
+                      <span class="mini__rotulo">{{ destino.label }}</span>
+                    </a>
+                  }
+                }
+
+                @if (restantes(categoria) > 0) {
+                  <button type="button"
+                          class="mini mini--resto"
+                          aria-haspopup="dialog"
+                          [attr.aria-expanded]="pastaAberta()?.id === categoria.id"
+                          [attr.aria-label]="'Abrir ' + categoria.labelCompleto + ', mais ' + restantes(categoria) + ' telas'"
+                          (click)="abrirPasta(categoria)">
+                    <span class="mini__poco">+{{ restantes(categoria) }}</span>
+                    <span class="mini__rotulo">Ver tudo</span>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+        }
+      </div>
+
+    </div>
+
+    <!--
+      A pasta. Montada AQUI DENTRO, e não ao lado da gaveta — ver o comentário
+      do `transform` acima.
+    -->
+    <pk-sheet [open]="!!pastaAberta()"
+              [title]="pastaAberta()?.labelCompleto ?? ''"
+              (closed)="fecharPasta()">
+      <div pkSheetBody class="pasta">
+        @for (secao of pastaAberta()?.secoes ?? []; track secao.titulo) {
+
+          @if (secao.titulo) {
+            <p class="pasta__secao">{{ secao.titulo }}</p>
+          }
+
+          @for (destino of secao.itens; track destino.label) {
+            @if (destino.externo) {
+              <a class="pasta__linha"
+                 [href]="destino.url"
+                 [target]="destino.target ?? '_blank'"
+                 rel="noopener"
+                 (click)="aoEscolher()">
+                <span class="pasta__icone"><i [class]="destino.icon" aria-hidden="true"></i></span>
+                <span class="pasta__rotulo">{{ destino.label }}</span>
+                <i class="pi pi-external-link pasta__fora" aria-hidden="true"></i>
+              </a>
+            } @else {
+              <a class="pasta__linha"
+                 [routerLink]="destino.routerLink"
+                 (click)="aoEscolher()">
+                <span class="pasta__icone"><i [class]="destino.icon" aria-hidden="true"></i></span>
+                <span class="pasta__rotulo">{{ destino.label }}</span>
+              </a>
+            }
+          }
+
+        }
+      </div>
+    </pk-sheet>
+
+  </div>
+</div>

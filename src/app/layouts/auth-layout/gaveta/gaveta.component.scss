@@ -1,0 +1,311 @@
+@use 'variables' as v;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A gaveta de apps do celular
+//
+// Sem media query nenhuma, de propósito: quem decide se ela existe é o `@if`
+// do shell. O breakpoint já está escrito em três lugares (o `$bp-md` do SCSS,
+// o 769 do `TabHandleStore` e o `eh-celular.ts`) — um quarto não entra por
+// aqui.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:host { display: contents; }
+
+.gaveta {
+  position: fixed;
+  inset: 0;
+  z-index: v.$z-drawer;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: var(--app-overlay);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity v.$transition-base, visibility v.$transition-base;
+}
+
+.gaveta--aberta {
+  visibility: visible;
+  opacity: 1;
+}
+
+// O `transform` daqui é ESTRUTURAL. Ele cria o bloco contentor que faz a
+// `pk-sheet` da pasta (z-index 1050) desenhar acima da gaveta (1100) em vez de
+// atrás dela. Trocar esta animação por `opacity` faz a pasta sumir — e some em
+// silêncio, porque nada quebra no build.
+.gaveta__painel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--app-surface);
+  transform: translateY(100%);
+  transition: transform v.$transition-slow;
+  overflow: hidden;
+
+  .gaveta--aberta & { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaveta, .gaveta__painel { transition: none; }
+}
+
+// ── cabeça ─────────────────────────────────────────────────────────────────
+
+.gaveta__cabeca {
+  flex: 0 0 auto;
+  padding: 8px 14px 10px;
+  padding-top: calc(8px + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--app-border-soft);
+}
+
+.gaveta__puxador {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 10px;
+  border-radius: var(--radius-pill);
+  background: var(--app-border);
+}
+
+.gaveta__titulo-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gaveta__titulo {
+  margin: 0;
+  font-size: var(--text-ui);
+  font-weight: 620;
+}
+
+.gaveta__fechar {
+  display: grid;
+  place-items: center;
+  // 44px: é alvo de dedo, e a auditoria já achou um de 16px nesta base.
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+// ── corpo ──────────────────────────────────────────────────────────────────
+
+.gaveta__corpo {
+  flex: 1 1 auto;
+  // Sem `min-height: 0` o item flex não encolhe abaixo do conteúdo e o
+  // `overflow-y` nunca vale: a grade transborda e o painel corta.
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.gaveta__faixa {
+  margin: 0 0 10px;
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.gaveta__grade {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+
+  // Abaixo de 360px duas colunas espremem "Configurações" em três linhas.
+  @media (max-width: 359px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── o tile ─────────────────────────────────────────────────────────────────
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+// Folha: sem poço de miniaturas. A forma é o que diz que isto navega.
+.tile--folha {
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 96px;
+  background: var(--app-surface);
+}
+
+.tile__icone {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: 1.1rem;
+}
+
+.tile__rotulo {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-align: center;
+}
+
+.tile__nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  font-weight: 700;
+
+  i { color: var(--app-text-muted); }
+}
+
+.tile__apps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 4px;
+}
+
+// ── a miniatura ────────────────────────────────────────────────────────────
+
+.mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+    border-radius: var(--radius-control);
+  }
+}
+
+.mini__icone,
+.mini__poco {
+  display: grid;
+  place-items: center;
+  // 44px de alvo com 38 de desenho: o respiro do `gap` completa a área tocável.
+  width: 100%;
+  min-width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  color: var(--app-action);
+  font-size: .9rem;
+}
+
+.mini__poco {
+  background: var(--app-surface-3);
+  border-style: dashed;
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+// Duas linhas e reticências: rótulo cortado no meio da palavra é pior que
+// rótulo em duas linhas, e sumir com ele já foi decidido duas vezes que não.
+.mini__rotulo {
+  width: 100%;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: 9.5px;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// ── a pasta ────────────────────────────────────────────────────────────────
+//
+// Lista, e não grade: "Equipamentos do funcionário" e "Estrutura
+// organizacional" não cabem numa coluna de ~104px sem truncar.
+
+.pasta { display: flex; flex-direction: column; }
+
+.pasta__secao {
+  margin: 14px 0 4px;
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+
+  &:first-child { margin-top: 0; }
+}
+
+.pasta__linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 4px 2px;
+  border-radius: var(--radius-control);
+  color: var(--app-text);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-action);
+    outline-offset: 2px;
+  }
+}
+
+.pasta__icone {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: .85rem;
+}
+
+.pasta__rotulo {
+  min-width: 0;
+  font-size: var(--text-ui);
+}
+
+.pasta__fora {
+  margin-left: auto;
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+}
