@@ -64,12 +64,27 @@ describe('GavetaComponent', () => {
 
   const habito = signal<any[]>([]);
 
+  /**
+   * O `search` e o `flatten` são os de verdade, emprestados do protótipo. A
+   * gaveta não tem busca própria — usa a da topbar —, e um dublê que
+   * reimplementasse a busca testaria o dublê.
+   */
+  function menuDeTeste() {
+    const proto = MenuService.prototype as any;
+    const plano = proto.flatten.call({ flatten: proto.flatten }, MENU);
+    return {
+      menu: () => MENU,
+      flatItems: () => plano,
+      search(query: string) { return proto.search.call(this, query); },
+    };
+  }
+
   async function montar(aberta = true): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [GavetaComponent],
       providers: [
         ...providersDeTeste(),
-        { provide: MenuService, useValue: { menu: () => MENU } },
+        { provide: MenuService, useValue: menuDeTeste() },
         { provide: TelasRecentesService, useValue: { porHabito: habito } },
       ],
     }).compileComponents();
@@ -330,5 +345,232 @@ describe('GavetaComponent', () => {
     window.dispatchEvent(new PopStateEvent('popstate', { state: { navigationId: 1 } }));
 
     expect(fechou).toBeTrue();
+  });
+
+  // ── a busca ───────────────────────────────────────────────────────────────
+
+  const campo = () => raiz().querySelector('.gaveta__busca-campo') as HTMLInputElement;
+
+  const lupa = () => raiz().querySelector('.gaveta__lupa') as HTMLButtonElement;
+  const linha = () => raiz().querySelector('.gaveta__titulo-linha') as HTMLElement;
+
+  function abrirBusca(): void {
+    lupa().click();
+    fixture.detectChanges();
+  }
+
+  /** Abre pela lupa quando preciso, como a pessoa faria. */
+  function digitar(texto: string): void {
+    if (!fixture.componentInstance.buscaAberta()) abrirBusca();
+    campo().value = texto;
+    campo().dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+  }
+
+  const rotulos = () => Array.from(raiz().querySelectorAll('.resultado__rotulo'))
+    .map(el => el.textContent!.trim());
+
+  it('o campo de busca mora na cabeca, fora do corpo que rola', async () => {
+    await montar();
+
+    expect(raiz().querySelector('.gaveta__cabeca .gaveta__busca-campo'))
+      .withContext('no corpo ele sairia da vista com a grade rolada')
+      .not.toBeNull();
+  });
+
+  it('com texto, a grade sai e a lista entra', async () => {
+    await montar();
+
+    digitar('abast');
+
+    expect(raiz().querySelectorAll('.tile').length).withContext('grade').toBe(0);
+    expect(rotulos()).toEqual(['Abastecimento']);
+  });
+
+  /**
+   * "Eventos", "PDF" e "Equipamentos" existem em dois lugares cada no menu de
+   * verdade. Sem o caminho, seriam linhas iguais.
+   */
+  it('cada resultado mostra onde a tela mora, com a raiz encurtada como no cartao', async () => {
+    await montar();
+
+    digitar('reembolso');
+
+    const caminho = raiz().querySelector('.resultado__caminho')!.textContent!.trim();
+
+    expect(caminho).toBe('RH › Aprovações');
+  });
+
+  it('destaca o trecho digitado mesmo sem acento', async () => {
+    await montar();
+
+    digitar('feri');
+
+    expect(raiz().querySelector('.resultado__rotulo mark')?.textContent).toBe('Féri');
+  });
+
+  it('sem resultado, diz o que foi buscado em vez de lista vazia', async () => {
+    await montar();
+
+    digitar('salario');
+
+    expect(raiz().querySelector('.resultados')).toBeNull();
+    expect(raiz().querySelector('.busca-vazia')?.textContent).toContain('salario');
+  });
+
+  it('apagar o texto devolve a grade', async () => {
+    await montar();
+
+    digitar('abast');
+    digitar('');
+
+    expect(raiz().querySelectorAll('.tile').length).toBe(4);
+  });
+
+  it('o botao de limpar esvazia o campo e devolve o foco a ele', async () => {
+    await montar();
+    document.body.appendChild(raiz());
+
+    digitar('abast');
+    (raiz().querySelector('.gaveta__busca-limpar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(campo().value).toBe('');
+    expect(document.activeElement).toBe(campo());
+
+    raiz().remove();
+  });
+
+  it('Enter abre o primeiro resultado e fecha a gaveta', async () => {
+    await montar();
+
+    let fechou = false;
+    fixture.componentInstance.closed.subscribe(() => (fechou = true));
+
+    digitar('reembolso');
+    campo().dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/rh/reimbursements');
+    expect(fechou).toBeTrue();
+  });
+
+  it('Esc com a busca aberta fecha o campo e deixa a gaveta aberta', async () => {
+    await montar();
+
+    digitar('abast');
+    fixture.componentInstance.aoEsc();
+    fixture.detectChanges();
+
+    expect(window.history.back).withContext('nao pode fechar a gaveta').not.toHaveBeenCalled();
+    expect(fixture.componentInstance.buscaAberta()).toBeFalse();
+    expect(campo().value).toBe('');
+    expect(raiz().querySelectorAll('.tile').length).toBe(4);
+  });
+
+  // ── a lupa ────────────────────────────────────────────────────────────────
+
+  it('fechado, o campo fica fora do Tab e escondido do leitor de tela', async () => {
+    await montar();
+
+    expect(campo().getAttribute('tabindex')).toBe('-1');
+    expect(raiz().querySelector('.gaveta__campo')!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  /**
+   * No Safari do iPhone o teclado so sobe se o foco acontecer dentro do toque.
+   * Por isso o teste confere o foco logo depois do clique, SEM `detectChanges`
+   * e sem esperar nada: foco que precisasse de um ciclo a mais abriria o campo
+   * com o teclado fechado.
+   */
+  it('a lupa abre o campo e o foco chega nele dentro do proprio toque', async () => {
+    await montar();
+    document.body.appendChild(raiz());
+
+    lupa().click();
+
+    expect(document.activeElement).withContext('no mesmo tique do clique').toBe(campo());
+
+    fixture.detectChanges();
+
+    expect(linha().classList).toContain('gaveta__titulo-linha--buscando');
+    expect(lupa().getAttribute('aria-expanded')).toBe('true');
+    expect(campo().hasAttribute('tabindex')).withContext('aberto, volta ao Tab').toBeFalse();
+
+    raiz().remove();
+  });
+
+  it('com a busca aberta, o titulo, a lupa e o X ficam inertes por baixo', async () => {
+    await montar();
+
+    abrirBusca();
+
+    expect(raiz().querySelector('.gaveta__acoes')!.hasAttribute('inert')).toBeTrue();
+  });
+
+  it('aberta e vazia, a grade continua na tela', async () => {
+    await montar();
+
+    abrirBusca();
+
+    expect(raiz().querySelectorAll('.tile').length).toBe(4);
+  });
+
+  it('Cancelar fecha o campo, esquece o texto e devolve o foco a lupa', async () => {
+    await montar();
+    document.body.appendChild(raiz());
+
+    digitar('abast');
+    (raiz().querySelector('.gaveta__cancelar') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(linha().classList).not.toContain('gaveta__titulo-linha--buscando');
+    expect(campo().value).toBe('');
+    expect(document.activeElement).toBe(lupa());
+
+    raiz().remove();
+  });
+
+  /**
+   * A busca e uma camada, como a pasta: o voltar do Android fecha ela e
+   * repoe a entrada, senao o proximo voltar sairia da tela.
+   */
+  it('o voltar do aparelho fecha a busca e a gaveta continua', async () => {
+    await montar();
+
+    let fechou = false;
+    fixture.componentInstance.closed.subscribe(() => (fechou = true));
+
+    digitar('abast');
+    const empilhadas = (window.history.pushState as jasmine.Spy).calls.count();
+
+    window.dispatchEvent(new PopStateEvent('popstate', { state: { navigationId: 1 } }));
+    fixture.detectChanges();
+
+    expect(fechou).withContext('a gaveta').toBeFalse();
+    expect(fixture.componentInstance.buscaAberta()).toBeFalse();
+    expect((window.history.pushState as jasmine.Spy).calls.count())
+      .withContext('repoe a entrada da gaveta')
+      .toBe(empilhadas + 1);
+  });
+
+  it('fechar a gaveta esquece a busca', async () => {
+    await montar();
+
+    digitar('abast');
+    fixture.componentRef.setInput('open', false);
+    fixture.detectChanges();
+    fixture.componentRef.setInput('open', true);
+    fixture.detectChanges();
+
+    expect(campo().value).toBe('');
+    expect(raiz().querySelectorAll('.tile').length).toBe(4);
+  });
+
+  it('o leitor de tela ouve quantas telas foram achadas', async () => {
+    await montar();
+
+    digitar('abast');
+
+    expect(raiz().querySelector('[aria-live]')?.textContent?.trim()).toBe('1 tela encontrada');
   });
 });

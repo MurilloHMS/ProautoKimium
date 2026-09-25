@@ -50,6 +50,7 @@
   .gaveta, .gaveta__painel { transition: none; }
 }
 
+
 // ── cabeça ─────────────────────────────────────────────────────────────────
 
 .gaveta__cabeca {
@@ -69,17 +70,31 @@
 }
 
 .gaveta__titulo-linha {
+  position: relative;
+  height: 44px;
+}
+
+.gaveta__acoes {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 100%;
 }
 
 .gaveta__titulo {
   margin: 0;
   font-size: var(--text-ui);
   font-weight: 620;
+  transition: opacity 160ms ease;
+
+  .gaveta__titulo-linha--buscando & { opacity: 0; }
 }
 
+// A lupa é irmã do X: mesmo alvo de 44px, mesma moldura. Quem empurra os
+// dois para a direita é ela; o X encosta nela.
+.gaveta__lupa + .gaveta__fechar { margin-left: 0; }
+
+.gaveta__lupa,
 .gaveta__fechar {
   display: grid;
   place-items: center;
@@ -98,6 +113,236 @@
     outline-offset: 2px;
   }
 }
+
+// ── busca ──────────────────────────────────────────────────────────────────
+
+// O campo cobre a linha inteira e, fechado, é recortado até o tamanho exato
+// da lupa: 44px de largura, a 52px da direita (o X de 44 mais o gap de 8).
+// Abrir é desfazer o recorte — cresce da lupa para a esquerda.
+//
+// `clip-path` e não `width`: não recalcula layout a cada quadro, e o campo já
+// nasce do tamanho final, então o texto não se rearruma durante o movimento.
+// Abre em 240ms e fecha em 180ms: sair mais rápido do que entra é o que faz a
+// tela parecer responder, e não esperar.
+.gaveta__campo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--app-surface);
+  clip-path: inset(0 52px 0 calc(100% - 96px) round var(--radius-control));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    clip-path 180ms cubic-bezier(.4, 0, 1, 1),
+    opacity 120ms linear 60ms;
+
+  .gaveta__titulo-linha--buscando & {
+    clip-path: inset(0 0 0 0 round var(--radius-control));
+    opacity: 1;
+    pointer-events: auto;
+    transition:
+      clip-path 240ms cubic-bezier(.2, .8, .2, 1),
+      opacity 80ms linear;
+  }
+}
+
+.gaveta__cancelar {
+  flex: 0 0 auto;
+  height: 44px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.gaveta__busca {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 44px;
+  padding: 0 4px 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+
+  // O anel fica no contêiner, e não no campo: é o contêiner que tem a borda
+  // e o raio. `--app-focus-ring` é sombra, não cor — em `outline` o navegador
+  // descarta a declaração inteira, calado.
+  &:focus-within {
+    border-color: var(--app-action);
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.gaveta__busca-campo {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--app-text);
+  // 16px e não `--text-ui`: abaixo disso o Safari do iPhone dá zoom na página
+  // ao focar o campo, e ela não volta sozinha.
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+
+  &::placeholder { color: var(--app-text-subtle); }
+
+  // O `type="search"` traz um X próprio no Chrome; o nosso é o botão ao lado,
+  // que tem alvo de 36px e devolve o foco.
+  &::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+}
+
+.gaveta__busca-limpar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.resultados {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// 56px: duas linhas de texto e ainda folga acima dos 48 do público 40+.
+.resultado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 6px 4px;
+  border-radius: var(--radius-control);
+  color: var(--app-text);
+  text-decoration: none;
+
+  &:active { background: var(--app-surface-2); }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.resultado__icone {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: .85rem;
+}
+
+.resultado__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.resultado__rotulo {
+  font-size: 14px;
+  font-weight: 600;
+
+  mark {
+    border-radius: 3px;
+    background: var(--app-action-soft);
+    color: inherit;
+  }
+}
+
+.resultado__caminho {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// O selo da categoria, em miniatura. É o mesmo papel do `.tile__selo` — ao
+// lado do nome do grupo — e é o que separa os dois "Eventos" sem ler o
+// caminho inteiro. 3:1 contra a superfície basta: é objeto gráfico, não texto.
+.resultado__selo {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  background: var(--acento, var(--app-text-muted));
+}
+
+.resultado__fora {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--app-text-subtle);
+  font-size: var(--text-micro);
+}
+
+.busca-vazia {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  p { margin: 0; }
+  i { font-size: 1.5rem; color: var(--app-text-subtle); }
+  strong { color: var(--app-text); }
+}
+
+.busca-vazia__dica { font-size: var(--text-ui-sm); }
 
 // ── corpo ──────────────────────────────────────────────────────────────────
 
@@ -350,4 +595,12 @@
   margin-left: auto;
   color: var(--app-text-subtle);
   font-size: var(--text-micro);
+}
+
+// Sem movimento, o campo aparece pronto. No fim do arquivo para vencer as
+// transições declaradas acima.
+@media (prefers-reduced-motion: reduce) {
+  .gaveta__campo,
+  .gaveta__titulo-linha--buscando .gaveta__campo,
+  .gaveta__titulo { transition: none; }
 }

@@ -1,7 +1,10 @@
 import { APP_MENU, AppMenuItem } from '../menu.config';
+import { MenuService } from '../../../infrastructure/services/menu.service';
 import {
   CategoriaDaGaveta,
   categoriasDaGaveta,
+  comoResultado,
+  destacar,
   destinosDe,
   primeirosDestinos,
 } from './gaveta.model';
@@ -279,5 +282,52 @@ describe('gaveta.model', () => {
 
   it('toda categoria tem rotulo e icone', () => {
     expect(categorias.every(c => !!c.label?.trim() && !!c.icon?.trim())).toBeTrue();
+  });
+
+  // ── a busca ─────────────────────────────────────────────────────────────
+
+  describe('destacar', () => {
+
+    it('casa sem acento e devolve o trecho com o acento original', () => {
+      expect(destacar('Férias', 'feri')).toEqual({ antes: '', trecho: 'Féri', depois: 'as' });
+    });
+
+    it('acerta a posicao depois de letras acentuadas', () => {
+      expect(destacar('Movimentações', 'acoes'))
+        .toEqual({ antes: 'Moviment', trecho: 'ações', depois: '' });
+      expect(destacar('Comunicação Protegida', 'prot'))
+        .toEqual({ antes: 'Comunicação ', trecho: 'Prot', depois: 'egida' });
+    });
+
+    it('casou so pelo caminho: sem destaque', () => {
+      expect(destacar('Produtos', 'estoque')).toEqual({ antes: 'Produtos', trecho: '', depois: '' });
+    });
+  });
+
+  describe('comoResultado', () => {
+
+    const item = (breadcrumb: string, label: string) =>
+      ({ label, icon: 'pi pi-x', breadcrumb, path: '/x', routerLink: ['x'] });
+
+    it('o caminho e o breadcrumb sem a propria tela, com a raiz curta', () => {
+      const resultado = comoResultado(item('RH - Recursos Humanos › Aprovações › Férias', 'Férias'), 'fe');
+
+      expect(resultado.caminho).toBe('RH › Aprovações');
+      expect(resultado.cor).toBe('rh');
+    });
+
+    it('folha de primeiro nivel nao tem caminho', () => {
+      expect(comoResultado(item('Início', 'Início'), 'ini').caminho).toBe('');
+    });
+
+    it('os dois "Eventos" do menu de verdade saem com caminhos diferentes', () => {
+      const proto = MenuService.prototype as any;
+      const plano: any[] = proto.flatten.call({ flatten: proto.flatten }, APP_MENU);
+
+      const eventos = plano.filter(i => i.label === 'Eventos').map(i => comoResultado(i, 'ev'));
+
+      expect(eventos.length).toBe(2);
+      expect(new Set(eventos.map(e => e.caminho)).size).toBe(2);
+    });
   });
 });
