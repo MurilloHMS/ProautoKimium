@@ -1,4 +1,5 @@
 import { AppMenuItem } from '../menu.config';
+import { FlatMenuItem, dobrarAcento } from '../../../infrastructure/services/menu.service';
 
 /**
  * A árvore do menu virando gaveta de apps.
@@ -123,6 +124,97 @@ export function primeirosDestinos(
 ): DestinoDaGaveta[] {
   const todos = destinosDe(categoria);
   return (ordenar ? ordenar(todos) : todos).slice(0, quantos);
+}
+
+// ── a busca ─────────────────────────────────────────────────────────────────
+
+/**
+ * O rótulo partido em volta do trecho que casou com a busca.
+ *
+ * <p>Três pedaços e não HTML: o template monta o `<mark>` com interpolação, e
+ * nada que venha do menu passa por `innerHTML`.
+ */
+export interface TrechosDoRotulo {
+  antes: string;
+  trecho: string;
+  depois: string;
+}
+
+/** Uma linha da lista de resultados. */
+export interface ResultadoDaBusca extends DestinoDaGaveta {
+  /** Único na lista — "Eventos" existe em dois lugares, o caminho não. */
+  breadcrumb: string;
+  /** URL absoluta, para o Enter navegar sem passar pelo `routerLink`. */
+  path: string;
+  /**
+   * Onde a tela mora, sem ela mesma: `RH › Aprovações`. Vazio numa folha de
+   * primeiro nível, que não tem onde morar.
+   */
+  caminho: string;
+  /** O mesmo sufixo de {@link CategoriaDaGaveta.cor}: o selo do caminho. */
+  cor: string;
+  rotulo: TrechosDoRotulo;
+}
+
+/**
+ * Um item achado pelo `MenuService.search` virando linha da gaveta.
+ *
+ * <p>A busca em si NÃO mora aqui: é a mesma da topbar, e duas buscas
+ * discordariam na primeira vez que uma delas mudasse. Aqui só se decide como o
+ * resultado se desenha.
+ *
+ * <p>A raiz do caminho usa o {@link ROTULO_CURTO}, pela mesma razão do tile:
+ * o cartão diz "RH", e o caminho dizer "RH - Recursos Humanos" faria a pessoa
+ * procurar duas coisas diferentes.
+ */
+export function comoResultado(item: FlatMenuItem, busca: string): ResultadoDaBusca {
+  const partes = item.breadcrumb.split(' › ');
+  const raiz = partes[0];
+  const acima = partes.slice(0, -1);
+
+  if (acima.length > 0) acima[0] = ROTULO_CURTO[acima[0]] ?? acima[0];
+
+  return {
+    label: item.label,
+    icon: item.icon,
+    routerLink: item.routerLink,
+    url: item.url,
+    target: item.target,
+    externo: !!item.url,
+    breadcrumb: item.breadcrumb,
+    path: item.path,
+    caminho: acima.join(' › '),
+    cor: COR_DA_CATEGORIA[idDe(raiz)] ?? '',
+    rotulo: destacar(item.label, busca),
+  };
+}
+
+/**
+ * Parte o rótulo em volta do que foi digitado, <b>ignorando acento</b>.
+ *
+ * <p>A busca casa "ferias" com "Férias", então o destaque tem que casar
+ * também: procura no texto dobrado e corta o original na mesma posição. Dá
+ * certo porque dobrar tira o acento sem mudar o comprimento — "é" é uma letra
+ * antes e depois. Se um dia não for (texto já decomposto vindo de fora), o
+ * rótulo sai sem destaque, que é feio mas não é errado.
+ *
+ * <p>Casou só pelo caminho (buscar "estoque" acha "Produtos"): sem destaque,
+ * o rótulo inteiro vai em `antes`.
+ */
+export function destacar(rotulo: string, busca: string): TrechosDoRotulo {
+  const alvo = dobrarAcento(busca.trim());
+  const dobrado = dobrarAcento(rotulo);
+  const inicio = alvo && dobrado.length === rotulo.length ? dobrado.indexOf(alvo) : -1;
+
+  if (inicio === -1) return { antes: rotulo, trecho: '', depois: '' };
+
+  const fim = inicio + alvo.length;
+
+  return {
+    antes: rotulo.slice(0, inicio),
+    trecho: rotulo.slice(inicio, fim),
+    depois: rotulo.slice(fim),
+  };
 }
 
 // ── por dentro ──────────────────────────────────────────────────────────────

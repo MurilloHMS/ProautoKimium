@@ -17,18 +17,114 @@
 
     <header class="gaveta__cabeca">
       <span class="gaveta__puxador" aria-hidden="true"></span>
-      <div class="gaveta__titulo-linha">
-        <p class="gaveta__titulo">Menu</p>
-        <button type="button" class="gaveta__fechar" aria-label="Fechar" (click)="fechar()">
-          <i class="pi pi-times" aria-hidden="true"></i>
-        </button>
+      <!-- Na cabeça, e não no topo da grade: a grade passa de uma tela, e a
+           busca é para quem não achou — que é justamente quem já rolou. -->
+      <div class="gaveta__titulo-linha"
+           [class.gaveta__titulo-linha--buscando]="buscaAberta()"
+           [attr.inert]="pastaAberta() ? '' : null">
+
+        <!-- Inertes com a busca aberta: o campo cobre os três por cima, e o
+             Tab chegaria num X que ninguém vê. -->
+        <div class="gaveta__acoes" [attr.inert]="buscaAberta() ? '' : null">
+          <p class="gaveta__titulo">Menu</p>
+          <button #lupa
+                  type="button"
+                  class="gaveta__lupa"
+                  aria-label="Buscar tela"
+                  [attr.aria-expanded]="buscaAberta()"
+                  (click)="abrirBusca(campoBusca)">
+            <i class="pi pi-search" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="gaveta__fechar" aria-label="Fechar" (click)="fechar()">
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- Sempre no DOM, recortado até o tamanho da lupa. Não é `@if` por
+             causa do iPhone: o teclado só sobe se o foco acontecer dentro do
+             toque, e um campo que ainda vai nascer não tem como receber foco
+             ali. Fechado, sai do Tab pelo `tabindex`, e não por `inert` —
+             `inert` recusaria justamente esse foco. -->
+        <div class="gaveta__campo" [attr.aria-hidden]="buscaAberta() ? null : 'true'">
+          <div class="gaveta__busca">
+            <i class="pi pi-search gaveta__busca-lupa" aria-hidden="true"></i>
+            <!-- 16px: abaixo disso o iPhone dá zoom na página ao focar. -->
+            <input #campoBusca
+                   type="search"
+                   class="gaveta__busca-campo"
+                   placeholder="Buscar tela"
+                   aria-label="Buscar tela"
+                   enterkeyhint="search"
+                   autocomplete="off"
+                   [attr.tabindex]="buscaAberta() ? null : -1"
+                   [value]="busca()"
+                   (input)="busca.set(campoBusca.value)"
+                   (keydown.enter)="aoEnter($event)" />
+            @if (buscando()) {
+              <button type="button"
+                      class="gaveta__busca-limpar"
+                      aria-label="Limpar busca"
+                      (click)="limparBusca(campoBusca)">
+                <i class="pi pi-times" aria-hidden="true"></i>
+              </button>
+            }
+          </div>
+          <button type="button"
+                  class="gaveta__cancelar"
+                  [attr.tabindex]="buscaAberta() ? null : -1"
+                  (click)="cancelarBusca(lupa)">
+            Cancelar
+          </button>
+        </div>
       </div>
     </header>
+
+    <p class="so-leitor" aria-live="polite">{{ anuncio() }}</p>
 
     <!-- `inert` enquanto a pasta está aberta: o trap de foco filtra por
          `offsetParent`, e a grade atrás continua tendo um — sem isto o Tab
          entraria nela por baixo da pasta. -->
     <div class="gaveta__corpo" [attr.inert]="pastaAberta() ? '' : null">
+
+      @if (buscando()) {
+
+        @if (resultados().length > 0) {
+          <p class="gaveta__faixa">
+            {{ resultados().length }} {{ resultados().length === 1 ? 'tela' : 'telas' }}
+          </p>
+
+          <!-- Rótulo e caminho: "Eventos" existe em Meu espaço e em
+               Comunicação, e sem o caminho seriam duas linhas iguais. -->
+          <ul class="resultados">
+            @for (resultado of resultados(); track resultado.breadcrumb) {
+              <li>
+                @if (resultado.externo) {
+                  <a [class]="'resultado cat-' + (resultado.cor || 'neutra')"
+                     [href]="resultado.url"
+                     [target]="resultado.target ?? '_blank'"
+                     rel="noopener"
+                     (click)="aoEscolher()">
+                    <ng-container *ngTemplateOutlet="linhaDoResultado; context: { $implicit: resultado }" />
+                  </a>
+                } @else {
+                  <a [class]="'resultado cat-' + (resultado.cor || 'neutra')"
+                     [routerLink]="resultado.routerLink"
+                     (click)="aoEscolher()">
+                    <ng-container *ngTemplateOutlet="linhaDoResultado; context: { $implicit: resultado }" />
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="busca-vazia">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <p>Nenhuma tela para "<strong>{{ busca().trim() }}</strong>".</p>
+            <p class="busca-vazia__dica">Procure pelo nome da tela ou da categoria.</p>
+          </div>
+        }
+
+      } @else {
 
       <p class="gaveta__faixa">Categorias</p>
 
@@ -93,7 +189,28 @@
         }
       </div>
 
+      }
+
     </div>
+
+    <!-- O miolo de uma linha de resultado, servido às duas molduras (link
+         interno e externo) para as duas não divergirem. -->
+    <ng-template #linhaDoResultado let-resultado>
+      <span class="resultado__icone"><i [class]="resultado.icon" aria-hidden="true"></i></span>
+      <span class="resultado__texto">
+        <span class="resultado__rotulo">{{ resultado.rotulo.antes }}@if (resultado.rotulo.trecho) {<mark>{{ resultado.rotulo.trecho }}</mark>}{{ resultado.rotulo.depois }}</span>
+        @if (resultado.caminho) {
+          <span class="resultado__caminho">
+            <span class="resultado__selo" aria-hidden="true"></span>
+            {{ resultado.caminho }}
+          </span>
+        }
+      </span>
+      @if (resultado.externo) {
+        <i class="pi pi-external-link resultado__fora" aria-hidden="true"></i>
+        <span class="so-leitor">, abre fora do app</span>
+      }
+    </ng-template>
 
     <!--
       A pasta. Montada AQUI DENTRO, e não ao lado da gaveta — ver o comentário
