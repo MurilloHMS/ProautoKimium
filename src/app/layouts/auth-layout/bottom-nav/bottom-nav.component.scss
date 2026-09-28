@@ -15,7 +15,7 @@ $folga: 10px;
 
 // A barra flutua: descolada das três bordas, com o respiro do
 // `--bottom-nav-gap`. O mesmo token entra no `padding-bottom` do `.app-content`
-// (auth-layout.component.scss) — se os dois saírem de sincronia, o último item
+// (`--app-bottom-reserve`, em styles/_shell.scss) — se os dois saírem de sincronia, o último item
 // de toda lista fica inalcançável.
 .bottom-nav {
   position: fixed;

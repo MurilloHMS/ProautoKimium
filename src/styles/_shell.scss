@@ -1,3 +1,5 @@
+@use 'variables' as v;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Comportamento padrão da tela dentro da área de trabalho
 //
@@ -30,4 +32,47 @@
 // Escopo por `:has` para o site público continuar com o fundo dele.
 body:has(app-client-layout) {
   background: var(--app-bg);
+}
+
+// ── A barra de baixo e o conteúdo que passa por trás dela ────────────────────
+// Decidido em 2026-09-28 (opção "B" do mockup "Barra de Baixo"): a cápsula fica
+// sólida, e o conteúdo passa pelos vãos em volta dela e pela área segura. Piloto
+// em Reembolsos do RH, aprovado no aparelho; depois estendido a todas as telas.
+//
+// `--app-bottom-reserve` é o espaço que a barra ocupa: cápsula + vão em cima e
+// embaixo + área segura. O shell NÃO o reserva mais; quem rola é que o põe no
+// FIM da rolagem, para o último item parar acima da cápsula:
+//
+// - tela que rola inteira (o padrão, logo acima): o `::after` abaixo;
+// - tela de grade (`m.grid-screen`): o mixin passa `--scroll-end-reserve` e
+//   desliga o `::after`; o `pk-table` e o `.cartoes` o usam no fim da lista;
+// - contêiner de rolagem próprio: `padding-bottom` com
+//   `var(--scroll-end-reserve, 0px)` — hoje newsletter-hub, movimentações,
+//   formulário de evento e conciliação de clientes.
+//
+// Tela nova com rolagem interna própria que esquecer isso deixa o último item
+// atrás da cápsula, inalcançável e sem erro. O teste `passa-pela-barra.spec`
+// guarda o shell; cada tela guarda o seu contêiner.
+:root { --app-bottom-reserve: 0px; }
+
+@media (max-width: v.$bp-md) {
+  :root {
+    --app-bottom-reserve: calc(var(--bottom-nav-h) + var(--bottom-nav-gap) * 2 + env(safe-area-inset-bottom));
+  }
+
+  // Especificidade maior que um `.app-content` simples, sem `!important`.
+  .app-content.app-content { padding-bottom: 0; }
+
+  // O fim da rolagem da tela que rola inteira. Especificidade zero: a tela que
+  // precisar de outra coisa sobrescreve sem esforço.
+  //
+  // `router-outlet ~ *` e não "todo filho": o `.app-content` tem o banner de
+  // instalar ANTES do router-outlet, e o espaçador nele empurrou o título de
+  // todas as telas para baixo (2026-09-28). A tela roteada entra DEPOIS dele.
+  :where(.app-content) > :where(router-outlet ~ *)::after {
+    content: '';
+    display: block;
+    flex: none;
+    height: var(--app-bottom-reserve);
+  }
 }

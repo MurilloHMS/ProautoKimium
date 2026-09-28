@@ -14,8 +14,13 @@
 :host {
   @include m.grid-screen-body;
   overflow-y: auto;
-  padding: 16px 20px 24px;
+  // Rola no próprio host, dentro da grade de Clientes: o fim leva o espaço da barra.
+  padding: 16px 20px calc(24px + var(--scroll-end-reserve, 0px));
 }
+
+// O espaço já está no fim desta rolagem; a lista de cartões dentro dela não
+// rola sozinha e não deve somar outro.
+:host > * { --scroll-end-reserve: 0px; }
 
 // São cinco blocos antes da primeira linha de dados — período, resumo, filtro,
 // ação e cabeçalho da seção. Com 20px entre cada um, só o respiro comia 100px da

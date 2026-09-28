@@ -20,6 +20,11 @@
   height: 100%;
   overflow: hidden;
   padding: 0;
+  // Barra de baixo (opção B): a tela de grade não rola inteira — quem rola é a
+  // lista dentro dela. Então o espaço da barra vai para o fim da lista
+  // (`--scroll-end-reserve`), e o espaçador do shell sai. Ver styles/_shell.scss.
+  --scroll-end-reserve: var(--app-bottom-reserve, 0px);
+  &::after { content: none; }
 }
 
 // Cabeçalho de uma tela de grade (título e ações), que não rola com a tabela.

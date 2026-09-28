@@ -234,6 +234,9 @@
   min-height: 0;
   gap: 8px;
   overflow-y: auto;
+  // Numa tela `.passa-pela-barra`, a lista vai até o pé da tela e o último
+  // cartão para acima da barra de baixo. Nas outras, vale zero.
+  padding-bottom: var(--scroll-end-reserve, 0px);
 }
 
 .pk-cartoes__barra {
