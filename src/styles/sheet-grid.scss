@@ -168,7 +168,8 @@ table.sheet {
   display: flex;
   flex-direction: column;
   gap: .5rem;
-  padding: .5rem .75rem 1rem;
+  // O fim leva o espaço da barra de baixo quando a tela é de grade (opção B).
+  padding: .5rem .75rem calc(1rem + var(--scroll-end-reserve, 0px));
 
   .vazio {
     margin: 0;

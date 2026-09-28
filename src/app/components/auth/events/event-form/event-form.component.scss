@@ -6,6 +6,8 @@
   display: block;
   height: 100%;
   overflow-y: auto;
+  // Rola no próprio host, dentro da grade de Eventos: o fim leva o espaço da barra.
+  padding-bottom: var(--scroll-end-reserve, 0px);
 }
 
 app-form-screen { display: block; margin: 12px; }

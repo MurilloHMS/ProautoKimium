@@ -96,7 +96,6 @@ describe('ReimbursementsManagerComponent', () => {
      */
     it('passa por trás da barra de baixo, com o espaço no fim da lista', () => {
       const host = fixture.nativeElement as HTMLElement;
-      expect(host.classList).toContain('passa-pela-barra');
       const lista = host.querySelector('.pk-cartoes') as HTMLElement | null;
       expect(lista).withContext('lista de cartões do pk-table').not.toBeNull();
       expect(getComputedStyle(lista!).paddingBottom).toBe('82px');

@@ -460,8 +460,9 @@
   gap: .5rem;
 
   // A grade encostava nas bordas porque é a superfície da tela; o cartão não é,
-  // e precisa de margem para se ler como objeto solto.
-  padding: .5rem .75rem 1rem;
+  // e precisa de margem para se ler como objeto solto. O fim leva o espaço da
+  // barra de baixo (opção B): o último cartão para acima da cápsula.
+  padding: .5rem .75rem calc(1rem + var(--scroll-end-reserve, 0px));
 }
 
 .cartao {

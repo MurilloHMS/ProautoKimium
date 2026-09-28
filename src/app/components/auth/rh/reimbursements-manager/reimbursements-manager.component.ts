@@ -32,9 +32,6 @@ type ReviewAction = 'approve' | 'reject';
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
-  // Conferida para passar por trás da barra de baixo: a rolagem mora no
-  // pk-table, que põe o espaço no fim da lista. Ver styles/_shell.scss.
-  host: { class: 'passa-pela-barra' },
 })
 export class ReimbursementsManagerComponent implements OnInit {
   reimbursements: Reimbursement[] = [];

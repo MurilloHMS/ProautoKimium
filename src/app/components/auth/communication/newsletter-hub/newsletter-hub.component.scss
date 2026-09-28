@@ -140,6 +140,8 @@
 
 .conteudo {
   overflow-y: auto;
+  // Rola por conta própria dentro da grade: o fim leva o espaço da barra de baixo.
+  padding-bottom: var(--scroll-end-reserve, 0px);
 
   app-newsletter-revisao ::ng-deep .revisao { padding: 0 0 v.$space-6; }
 }

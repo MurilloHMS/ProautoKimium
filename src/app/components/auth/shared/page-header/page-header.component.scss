@@ -86,3 +86,43 @@
     margin-left: 0;
   }
 }
+
+// ── Celular: cabeçalho compacto (padrão, decidido por ele em 2026-09-28) ────
+// Medido na Newsletter a 390px: o conteúdo só começava em 111px (cabeçalho de
+// 67px com título de 21,6px, e 28px de margem). Compacto: ícone de 32px,
+// título de uma linha, subtítulo de uma linha em 12px, 12px de margem — o
+// conteúdo começa em ~66px. O subtítulo fica: diz o que a tela faz, e custa
+// uma linha. Vale para as 41 telas que usam este componente.
+@media (max-width: v.$bp-md) {
+  :host { margin-bottom: 12px; }
+
+  // `margin: 0`: existe uma regra global antiga para `.page-header` que põe
+  // 24px embaixo — somada à margem do :host, o compacto parava em 89px, não 66.
+  .page-header { gap: 10px; margin: 0; }
+
+  .page-header__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-control);
+    font-size: 0.95rem;
+  }
+
+  .page-header__title,
+  .page-header__subtitle {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .page-header__title { font-size: 1.1rem; line-height: 1.25; }
+  .page-header__subtitle { margin-top: 1px; font-size: 12px; }
+
+  // O de hub encolhe junto, mas continua um degrau acima.
+  .page-header--lg {
+    align-items: center;
+
+    .page-header__title { font-size: 1.25rem; }
+    .page-header__subtitle { font-size: 12px; }
+  }
+}
+
