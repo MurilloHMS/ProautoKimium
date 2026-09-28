@@ -1,0 +1,172 @@
+// Seção própria, e não `.pk-form-section`: aquela é global só enquanto o
+// pk-dialog existe — no celular, dentro da folha, ela não chega.
+.rr-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px;
+
+  & + & { border-top: 1px solid var(--app-border); }
+}
+
+.rr-titulo {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.rr-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.rr-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+
+  label { font-size: 12px; font-weight: 600; }
+}
+
+.rr-dica {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.rr-status {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.rr-para {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.rr-rotulo { font-size: 12px; color: var(--app-text-muted); }
+
+.rr-link {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 4px 6px;
+  border-radius: var(--radius-control);
+  font: inherit;
+  font-weight: 600;
+  color: var(--app-action);
+  cursor: pointer;
+
+  &:hover { background: var(--app-action-soft); }
+  // O anel do tema é sombra, não cor: `outline: … var(--app-focus-ring)` seria descartado calado.
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.rr-aviso {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  font-size: 12.5px;
+
+  strong { display: block; }
+  span { color: var(--app-text); }
+  i { margin-top: 2px; }
+
+  &--ok       { background: var(--app-success-soft); color: var(--app-success); }
+  &--atencao  { background: var(--app-warning-soft); color: var(--app-warning); }
+  &--erro     { background: var(--app-danger-soft);  color: var(--app-danger); }
+}
+
+.rr-motivo {
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.rr-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: var(--row-h);
+    padding: 0 6px 0 12px;
+    overflow-wrap: anywhere;
+
+    & + & { border-top: 1px solid var(--app-border); }
+    small { color: var(--app-text-muted); }
+  }
+}
+
+.rr-remover {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--app-danger-soft); color: var(--app-danger); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.rr-vazio { margin: 0; color: var(--app-text-muted); }
+
+.rr-adicionar {
+  display: flex;
+  gap: 8px;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: var(--field-h);
+    padding: 0 10px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+}
+
+.rr-erro-campo { margin: 0; font-size: 12px; color: var(--app-danger); }
+
+.rr-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+// Celular: a folha. Duas colunas de status, alvos de 48px (público 40+).
+@media (max-width: 768px) {
+  .rr-secao { padding: 14px 16px; }
+  .rr-status { grid-template-columns: 1fr 1fr; }
+  .rr-lista__item { min-height: 48px; }
+  .rr-remover { width: 44px; height: 44px; }
+  .rr-adicionar input { height: 44px; font-size: 16px; } // 16px: o iPhone não dá zoom no campo
+}

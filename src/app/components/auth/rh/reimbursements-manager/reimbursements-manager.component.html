@@ -2,6 +2,8 @@
 
 <app-toolbar>
   <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
+  <pk-button *pkCan="'rh/reimbursements:BAIXAR'" pkType="download" pkIcon="pi pi-file-pdf"
+             pkLabel="Comprovante" pkSize="sm" (clicked)="reportOpen = true"/>
 
   <div filters>
     <span class="toolbar__label">Status:</span>
@@ -189,3 +191,5 @@
     <pk-button pkType="save" (clicked)="confirmPay()" pkLabel="Confirmar pagamento" pkSize="sm" [pkDisabled]="!payDate" [pkLoading]="paySaving"/>
   </div>
 </pk-dialog>
+
+<app-reimbursement-report-dialog [open]="reportOpen" (closed)="reportOpen = false" />
