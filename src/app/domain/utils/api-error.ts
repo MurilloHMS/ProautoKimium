@@ -35,3 +35,27 @@ export function apiMessage(err: HttpErrorResponse): string | null {
 
   return null;
 }
+
+/**
+ * {@link apiMessage} para pedido de arquivo, que devolve o erro como **Blob**.
+ *
+ * Com `responseType: 'blob'`, o corpo do 400/404 também chega como Blob — e
+ * Blob é `object` sem `.message`, então `apiMessage` devolveria `null` e a tela
+ * cairia no texto genérico mesmo com a API explicando ("O período pode ter no
+ * máximo um ano"). Por isso é assíncrona: o Blob precisa ser lido antes.
+ *
+ * 5xx nunca mostra o corpo: é falha técnica, e o texto da API é genérico de
+ * propósito (o detalhe fica no log).
+ */
+export async function apiMessageOrFallback(err: unknown, fallback: string): Promise<string> {
+  if (!(err instanceof HttpErrorResponse)) return fallback;
+  if (err.status === 0) return 'Sem conexão com o servidor. Tente de novo.';
+  if (err.status >= 500) return fallback;
+
+  let readable = err;
+  if (err.error instanceof Blob) {
+    const text = await err.error.text();
+    readable = new HttpErrorResponse({ error: text, status: err.status, statusText: err.statusText, url: err.url ?? undefined });
+  }
+  return apiMessage(readable) ?? fallback;
+}

@@ -16,13 +16,15 @@ import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
 import { formatDateBr } from '../../../../domain/utils/date-only';
+import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
+import { ReimbursementReportDialogComponent } from './report-dialog/reimbursement-report-dialog.component';
 
 type ReviewAction = 'approve' | 'reject';
 
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
@@ -31,6 +33,8 @@ export class ReimbursementsManagerComponent implements OnInit {
   reimbursements: Reimbursement[] = [];
   loading = false;
   baixandoId: string | null = null;
+  /** O comprovante para a diretoria: baixar o PDF ou mandar ao RH. */
+  reportOpen = false;
   private readonly employeeStore = inject(EmployeeStore);
 
   statusFilter: ReimbursementStatus | null = 'PENDING';
@@ -193,11 +197,13 @@ export class ReimbursementsManagerComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
-      case 400: return 'Requisição inválida';
-      case 403: return 'Você não tem permissão para esta ação';
+      // A API escreve a mensagem da regra ("Você não pode revisar o seu próprio
+      // pedido", "Motivo é obrigatório…"): o texto genérico só entra se ela faltar.
+      case 400: return err.error?.message ?? 'Requisição inválida';
+      case 403: return err.error?.message ?? 'Você não tem permissão para esta ação';
       case 404: return err.error?.message ?? 'Funcionário ou reembolso não encontrado. Verifique se seu usuário está vinculado a um funcionário.';
       case 409: return err.error?.message ?? 'Conflito ao processar a solicitação';
-      case 422: return 'Dados inválidos';
+      case 422: return err.error?.message ?? 'Dados inválidos';
       case 500: return 'Erro interno do servidor';
       case 0:   return 'Sem conexão com o servidor';
       default:  return `Erro inesperado (${err.status})`;

@@ -1,0 +1,180 @@
+<!--
+  Um corpo, duas molduras: folha no celular, diálogo no computador. O @if vai
+  fora das molduras e o conteúdo entra por ngTemplateOutlet — ng-content nos
+  dois ramos projetaria uma vez só, e o outro ramo ficaria vazio.
+-->
+@if (ehCelular()) {
+  <pk-sheet [open]="open()" [title]="mode() === 'form' ? 'Comprovante de reembolsos' : 'Destinatários do RH'" (closed)="close()">
+    <div pkSheetBody>
+      <ng-container *ngTemplateOutlet="corpo" />
+    </div>
+    <div pkSheetFooter>
+      <ng-container *ngTemplateOutlet="acoes" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog
+    [header]="mode() === 'form' ? 'Comprovante de reembolsos' : 'Destinatários do RH'"
+    [visible]="open()"
+    width="560px"
+    (visibleChange)="!$event && close()">
+    <div pkDialogContent>
+      <ng-container *ngTemplateOutlet="corpo" />
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <ng-container *ngTemplateOutlet="acoes" />
+    </div>
+  </pk-dialog>
+}
+
+<ng-template #corpo>
+  @if (mode() === 'form') {
+    <section class="rr-secao">
+      <h3 class="rr-titulo">Período · data da despesa</h3>
+      <pk-segmented
+        [options]="presetOptions"
+        [value]="preset()"
+        (valueChange)="applyPreset($event)"
+        [fill]="ehCelular()"
+        size="sm"
+        ariaLabel="Atalhos de período" />
+      <div class="rr-linha">
+        <div class="rr-campo">
+          <label for="rrFrom">De</label>
+          <p-datepicker inputId="rrFrom" appendTo="body" [(ngModel)]="from" (ngModelChange)="onDateEdited()"
+                        dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" styleClass="datepicker-field" />
+        </div>
+        <div class="rr-campo">
+          <label for="rrTo">Até</label>
+          <p-datepicker inputId="rrTo" appendTo="body" [(ngModel)]="to" (ngModelChange)="onDateEdited()"
+                        dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" styleClass="datepicker-field" />
+        </div>
+      </div>
+    </section>
+
+    <section class="rr-secao">
+      <h3 class="rr-titulo">Quem</h3>
+      <div class="rr-campo">
+        <label for="rrEmployee">Funcionário</label>
+        <p-select inputId="rrEmployee" [options]="employeeOptions()" [(ngModel)]="employeeId"
+                  optionLabel="label" optionValue="value" [filter]="true" filterBy="label"
+                  appendTo="body" styleClass="select-field" />
+      </div>
+      <p class="rr-dica">
+        <i class="pi pi-paperclip" aria-hidden="true"></i>
+        @if (withAnnexes) {
+          <span>Os comprovantes de cada despesa vão <b>anexados</b> ao final do PDF.</span>
+        } @else {
+          <span>Com todos, o PDF traz o resumo e o detalhe. Para anexar os comprovantes, escolha um funcionário.</span>
+        }
+      </p>
+    </section>
+
+    <section class="rr-secao">
+      <h3 class="rr-titulo">Status incluídos</h3>
+      <div class="rr-status">
+        @for (s of statusOptions; track s.value) {
+          <pk-checkbox [inputId]="'rrStatus' + s.value" [label]="s.label" [(ngModel)]="selected[s.value]" />
+        }
+      </div>
+    </section>
+
+    <section class="rr-secao" *pkCan="'rh/reimbursements:ENVIAR'">
+      <h3 class="rr-titulo">Enviar ao RH</h3>
+      @if (result(); as r) {
+        @if (r.failed.length === 0) {
+          <div class="rr-aviso rr-aviso--ok" role="status">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            <div>
+              <strong>Enviado para {{ r.sentTo.length }} {{ r.sentTo.length === 1 ? 'endereço' : 'endereços' }}</strong>
+              <span>{{ r.sentTo.join(', ') }}</span>
+            </div>
+          </div>
+        } @else {
+          <div class="rr-aviso rr-aviso--atencao" role="status">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+            <div>
+              <strong>Enviado para {{ r.sentTo.length }} de {{ r.sentTo.length + r.failed.length }} endereços</strong>
+              <span>Não saiu para <b>{{ r.failed.join(', ') }}</b>. Confira o endereço e envie de novo.</span>
+            </div>
+          </div>
+        }
+      } @else if (noRecipients) {
+        <div class="rr-aviso rr-aviso--atencao">
+          <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+          <div>
+            <strong>Nenhum e-mail do RH cadastrado</strong>
+            <span>Cadastre pelo menos um endereço para poder enviar.</span>
+          </div>
+        </div>
+        <button *pkCan="'rh/reimbursements:CONFIGURAR'" type="button" class="rr-link" (click)="mode.set('recipients')">
+          Cadastrar e-mail do RH
+        </button>
+      } @else {
+        <div class="rr-para">
+          <span class="rr-rotulo">Vai para</span>
+          @for (r of recipients(); track r.id) {
+            <span class="code-badge">{{ r.email }}</span>
+          }
+          <button *pkCan="'rh/reimbursements:CONFIGURAR'" type="button" class="rr-link" (click)="mode.set('recipients')">
+            Editar
+          </button>
+        </div>
+      }
+    </section>
+
+    @if (error()) {
+      <div class="rr-secao">
+        <div class="rr-aviso rr-aviso--erro" role="alert">
+          <i class="pi pi-times-circle" aria-hidden="true"></i>
+          <div><span>{{ error() }}</span></div>
+        </div>
+      </div>
+    }
+  } @else {
+    <section class="rr-secao">
+      <p class="rr-dica">Estes endereços recebem os relatórios do RH quando alguém clica em “Enviar ao RH”.</p>
+      @if (recipients().length) {
+        <ul class="rr-lista">
+          @for (r of recipients(); track r.id) {
+            <li class="rr-lista__item">
+              <span>{{ r.email }} <small>· por {{ r.createdBy }}</small></span>
+              <button type="button" class="rr-remover" [attr.aria-label]="'Remover ' + r.email" (click)="removeRecipient(r)">
+                <i class="pi pi-times" aria-hidden="true"></i>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="rr-vazio">Ninguém recebe os relatórios ainda.</p>
+      }
+      <form class="rr-adicionar" (ngSubmit)="addRecipient()">
+        <label for="rrNewEmail" class="rr-oculto">Novo e-mail</label>
+        <input id="rrNewEmail" name="newEmail" type="email" inputmode="email" autocomplete="email"
+               placeholder="nome@proautokimium.com.br" [(ngModel)]="newEmail" />
+        <pk-button pkType="new" pkLabel="Adicionar" pkSize="sm" [pkLoading]="adding()"
+                   [pkDisabled]="!newEmail.trim()" (clicked)="addRecipient()" />
+      </form>
+      @if (recipientError()) {
+        <p class="rr-erro-campo" role="alert">{{ recipientError() }}</p>
+      }
+    </section>
+  }
+</ng-template>
+
+<ng-template #acoes>
+  @if (mode() === 'form') {
+    @if (invalidReason) {
+      <span class="rr-motivo">{{ invalidReason }}</span>
+    }
+    <pk-button pkType="cancel" pkLabel="Cancelar" pkSize="sm" (clicked)="close()" />
+    <!-- Cor por hierarquia, não por tipo: enviar é a ação secundária aqui. -->
+    <pk-button *pkCan="'rh/reimbursements:ENVIAR'" pkType="download" pkIcon="pi pi-envelope"
+               [pkLabel]="result() ? 'Enviar de novo' : 'Enviar ao RH'" pkSize="sm"
+               [pkDisabled]="!!invalidReason || noRecipients" [pkLoading]="sending()" (clicked)="send()" />
+    <pk-button *pkCan="'rh/reimbursements:BAIXAR'" pkType="save" pkIcon="pi pi-download" pkLabel="Baixar PDF"
+               pkSize="sm" [pkDisabled]="!!invalidReason" [pkLoading]="downloading()" (clicked)="download()" />
+  } @else {
+    <pk-button pkType="left" pkLabel="Voltar ao comprovante" pkSize="sm" (clicked)="mode.set('form')" />
+  }
+</ng-template>

@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -8,6 +8,7 @@ import {
   ReimbursementStatus,
   ReviewReimbursementPayload
 } from '../../../domain/models/hr/reimbursement.model';
+import { ReimbursementReportFilter, ReportEmailResult } from '../../../domain/models/hr/reimbursement-report.model';
 
 export interface RequestReimbursementPayload {
   expenseDate: string;
@@ -64,4 +65,36 @@ export class ReimbursementService {
   pay(id: string, payload: PayReimbursementPayload): Observable<Reimbursement> {
     return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements/${id}/pay`, payload);
   }
+
+  /** O comprovante para a diretoria, em PDF. */
+  downloadReport(filter: ReimbursementReportFilter): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${environment.apiUrl}/hr/reimbursements/report`, {
+      params: reportParams(filter),
+      responseType: 'blob',
+      observe: 'response',
+    });
+  }
+
+  /** O mesmo PDF, para os e-mails do RH cadastrados. */
+  emailReport(filter: ReimbursementReportFilter): Observable<ReportEmailResult> {
+    return this.http.post<ReportEmailResult>(`${environment.apiUrl}/hr/reimbursements/report/email`, null, {
+      params: reportParams(filter),
+    });
+  }
+}
+
+/**
+ * `status` repetido (`?status=PAID&status=APPROVED`), que é como o Spring
+ * monta a lista. Sem funcionário, o parâmetro nem vai: vazio viraria UUID
+ * inválido na API.
+ */
+export function reportParams(filter: ReimbursementReportFilter): HttpParams {
+  let params = new HttpParams().set('from', filter.from).set('to', filter.to);
+  for (const status of filter.statuses) {
+    params = params.append('status', status);
+  }
+  if (filter.employeeId) {
+    params = params.set('employeeId', filter.employeeId);
+  }
+  return params;
 }
