@@ -9,6 +9,7 @@ import { MedicalCertificateService } from '../../../infrastructure/services/hr/m
 import { MedicalCertificate, SubmissionType } from '../../../domain/models/hr/medical-certificate.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 import { formatDateBr } from '../../../domain/utils/date-only';
+import { apiMessage } from '../../../domain/utils/api-error';
 
 @Component({
   selector: 'app-hr-medical-certificates',
@@ -31,6 +32,12 @@ export class HrMedicalCertificatesComponent implements OnInit {
   loading = signal(true);
   erro = signal(false);
   enviando = signal(false);
+  /**
+   * Por que o envio não saiu. Antes o erro só parava o spinner: a API recusava
+   * com motivo ("data final antes da inicial", "valor maior que zero") e a
+   * pessoa via o botão voltar ao normal sem saber de nada.
+   */
+  erroEnvio = signal<string | null>(null);
   baixandoId = signal<string | null>(null);
 
   selectedFile: File | null = null;
@@ -96,6 +103,7 @@ export class HrMedicalCertificatesComponent implements OnInit {
     if (!this.podeEnviar || !this.selectedFile) return;
 
     this.enviando.set(true);
+    this.erroEnvio.set(null);
     const { startDate, endDate, submissionType } = this.form.value as {
       startDate: Date;
       endDate: Date;
@@ -118,7 +126,10 @@ export class HrMedicalCertificatesComponent implements OnInit {
           this.form.reset({ submissionType: 'FILE' });
           this.carregar();
         },
-        error: () => this.enviando.set(false),
+        error: (err) => {
+          this.enviando.set(false);
+          this.erroEnvio.set(apiMessage(err) ?? 'Não foi possível enviar o atestado. Tente de novo.');
+        },
       });
   }
 

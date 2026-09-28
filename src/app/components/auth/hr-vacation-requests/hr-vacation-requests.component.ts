@@ -127,9 +127,10 @@ export class HrVacationRequestsComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
+      case 400: return err.error?.message ?? 'Dados inválidos.';
       case 404: return 'Funcionário não encontrado. Verifique seu cadastro com o RH.';
       case 409: return err.error?.message ?? 'Saldo de férias insuficiente ou conflito de datas.';
-      case 403: return 'Sem permissão para esta ação.';
+      case 403: return err.error?.message ?? 'Sem permissão para esta ação.';
       case 0:   return 'Sem conexão com o servidor.';
       default:  return `Erro inesperado (${err.status}).`;
     }

@@ -85,6 +85,9 @@
           (clicked)="enviar()">
         </pk-button>
       </div>
+      @if (erroEnvio()) {
+        <p class="erro-envio" role="alert">{{ erroEnvio() }}</p>
+      }
     </form>
   </div>
 

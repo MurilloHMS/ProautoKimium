@@ -276,8 +276,8 @@ export class HrCalculatorsComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
-      case 400: return 'Requisição inválida';
-      case 403: return 'Você não tem permissão para esta ação';
+      case 400: return err?.error?.message ?? 'Requisição inválida';
+      case 403: return err?.error?.message ?? 'Você não tem permissão para esta ação';
       case 404: return 'Funcionário não encontrado ou sem dados cadastrados';
       case 409: return err.error?.message ?? 'Funcionário sem dados necessários para o cálculo (refeições, histórico de carreira, etc.)';
       case 500: return 'Erro interno do servidor';

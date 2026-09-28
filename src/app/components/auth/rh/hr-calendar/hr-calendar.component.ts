@@ -113,8 +113,8 @@ export class HrCalendarComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
-      case 400: return 'Requisição inválida';
-      case 403: return 'Você não tem permissão para esta ação';
+      case 400: return err?.error?.message ?? 'Requisição inválida';
+      case 403: return err?.error?.message ?? 'Você não tem permissão para esta ação';
       case 404: return 'Recurso não encontrado';
       case 500: return 'Erro interno do servidor';
       case 0:   return 'Sem conexão com o servidor';

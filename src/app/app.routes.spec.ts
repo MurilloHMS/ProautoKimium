@@ -67,4 +67,35 @@ describe('app.routes · o catálogo de telas', () => {
 
     expect(divergentes).toEqual([]);
   });
+
+  /**
+   * **Os links que a API grava nas notificações.** Ficam salvos no banco, então
+   * mudar a API não conserta as notificações antigas — quem conserta é a rota.
+   * `/reembolsos` e `/mural` caíam no 404 desde que nasceram.
+   *
+   * Lista copiada dos `notificationService.notify(…)` da API (2026-09-28):
+   * ReimbursementService, AnnouncementService, EmployeeDocumentService e
+   * HoleriteService. Link novo lá entra aqui.
+   */
+  it('todo link de notificação da API chega a uma tela', () => {
+    const LINKS_DA_API = ['/reembolsos', '/mural', '/documentos', '/documentos/holerites'];
+
+    const telas = new Set(todas(routes).map(r => r.path));
+    const redirects = new Map<string, string>();
+    const coletar = (lista: Route[], prefixo = ''): void => lista.forEach(rota => {
+      const path = [prefixo, rota.path].filter(Boolean).join('/');
+      if (typeof rota.redirectTo === 'string') {
+        redirects.set(path, rota.redirectTo.startsWith('/') ? rota.redirectTo.slice(1)
+          : [prefixo, rota.redirectTo].filter(Boolean).join('/'));
+      }
+      if (rota.children) coletar(rota.children, path);
+    });
+    coletar(routes);
+
+    const quebrados = LINKS_DA_API
+      .map(link => link.slice(1))
+      .filter(path => !telas.has(path) && !telas.has(redirects.get(path) ?? ''));
+
+    expect(quebrados).withContext('links que caem no 404').toEqual([]);
+  });
 });

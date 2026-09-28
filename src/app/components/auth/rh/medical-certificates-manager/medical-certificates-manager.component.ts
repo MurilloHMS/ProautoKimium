@@ -87,7 +87,9 @@ export class MedicalCertificatesManagerComponent implements OnInit {
 
   private getErrorMessage(err: any): string {
     switch (err.status) {
-      case 403: return 'Voce nao tem permissao para esta acao';
+      case 400: return err.error?.message ?? 'Dados inválidos';
+      case 403: return err.error?.message ?? 'Você não tem permissão para esta ação';
+      case 409: return err.error?.message ?? 'Conflito ao processar a solicitação';
       case 404: return 'Recurso nao encontrado';
       case 500: return 'Erro interno do servidor';
       case 0:   return 'Sem conexao com o servidor';

@@ -159,6 +159,11 @@ export const routes: Routes = [
       { path: 'documentos/rh/reimbursements', loadComponent: () => import('./components/auth/hr-reimbursements/hr-reimbursements.component').then(m => m.HrReimbursementsComponent), data: { screen: 'documentos/rh/reimbursements' } },
       { path: 'documentos/rh/vacation-requests', loadComponent: () => import('./components/auth/hr-vacation-requests/hr-vacation-requests.component').then(m => m.HrVacationRequestsComponent), data: { screen: 'documentos/rh/vacation-requests' } },
       { path: 'documentos/rh/announcements', loadComponent: () => import('./components/auth/hr-announcements/hr-announcements.component').then(m => m.HrAnnouncementsComponent), data: { screen: 'documentos/rh/announcements' } },
+      // Os links que a API grava nas notificações. Ficam salvos no banco — o
+      // redirect é o que conserta também as antigas. Quem guarda é a rota de
+      // destino, que tem `screen`. Ver o teste em app.routes.spec.ts.
+      { path: 'reembolsos', redirectTo: 'documentos/rh/reimbursements', pathMatch: 'full' },
+      { path: 'mural', redirectTo: 'documentos/rh/announcements', pathMatch: 'full' },
 
       { path: 'notificacoes', loadComponent: () => import('./components/auth/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent) },
       { path: 'perfil', loadComponent: () => import('./components/auth/perfil/perfil.component').then(m => m.PerfilComponent), data: { screen: 'perfil' } },
