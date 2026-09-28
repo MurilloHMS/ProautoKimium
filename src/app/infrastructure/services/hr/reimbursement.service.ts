@@ -6,6 +6,7 @@ import {
   PayReimbursementPayload,
   Reimbursement,
   ReimbursementStatus,
+  ReimbursementSummary,
   ReviewReimbursementPayload
 } from '../../../domain/models/hr/reimbursement.model';
 import { ReimbursementReportFilter, ReportEmailResult } from '../../../domain/models/hr/reimbursement-report.model';
@@ -40,18 +41,39 @@ export class ReimbursementService {
     return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements`, formData);
   }
 
-  downloadReceipt(id: string): Observable<HttpResponse<Blob>> {
+  /** `original`: o comprovante de antes da contestação, que a primeira análise viu. */
+  downloadReceipt(id: string, original = false): Observable<HttpResponse<Blob>> {
     return this.http.get(`${environment.apiUrl}/hr/reimbursements/${id}/receipt`, {
+      params: original ? { original: 'true' } : {},
       responseType: 'blob',
       observe: 'response',
     });
   }
 
-  /** Gerenciador do RH — sem status, lista tudo. */
-  getAll(status?: ReimbursementStatus): Observable<Reimbursement[]> {
+  /** Gerenciador do RH — sem status, lista tudo; com mês (`2026-09`), pela data da despesa. */
+  getAll(status?: ReimbursementStatus, month?: string): Observable<Reimbursement[]> {
     const params: Record<string, string> = {};
     if (status) params['status'] = status;
+    if (month) params['month'] = month;
     return this.http.get<Reimbursement[]>(`${environment.apiUrl}/hr/reimbursements`, { params });
+  }
+
+  /** Totais do mês para o RH (todos os funcionários). */
+  getSummary(month: string): Observable<ReimbursementSummary> {
+    return this.http.get<ReimbursementSummary>(`${environment.apiUrl}/hr/reimbursements/summary`, { params: { month } });
+  }
+
+  /** Totais do mês do funcionário logado. */
+  getMySummary(month: string): Observable<ReimbursementSummary> {
+    return this.http.get<ReimbursementSummary>(`${environment.apiUrl}/hr/reimbursements/me/summary`, { params: { month } });
+  }
+
+  /** O dono contesta a recusa: comprovante novo e comentário, uma vez, até 30 dias. */
+  contest(id: string, comment: string, receipt: File): Observable<Reimbursement> {
+    const formData = new FormData();
+    formData.append('comment', comment);
+    formData.append('receipt', receipt);
+    return this.http.post<Reimbursement>(`${environment.apiUrl}/hr/reimbursements/${id}/contest`, formData);
   }
 
   approve(id: string, payload: ReviewReimbursementPayload): Observable<Reimbursement> {

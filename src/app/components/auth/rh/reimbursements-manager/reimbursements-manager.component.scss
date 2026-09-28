@@ -115,3 +115,67 @@
 
   i { color: var(--app-action); }
 }
+
+// ── Totais do mês ────────────────────────────────────────────────────────────
+.rm-totals { display: block; padding: 12px 16px 0; }
+
+// ── Contestação ──────────────────────────────────────────────────────────────
+// Rótulo neutro: "contestado" é um fato do pedido, não um status com cor.
+.rm-tag {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text-muted);
+}
+
+// Estado excepcional marca a BORDA, não o fundo: o status continua sendo o
+// que o olho lê primeiro (mesmo padrão da previsão vencida na Programação).
+.rm-cartao--contestado { box-shadow: inset 3px 0 0 var(--app-warning); }
+
+.rm-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 12px;
+  border-left: 2px solid var(--app-border);
+  padding-left: 10px;
+  font-size: 12.5px;
+}
+
+.rm-files { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+
+.rm-file {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control, 8px);
+  background: var(--app-surface);
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+
+  span { display: flex; flex-direction: column; min-width: 0; }
+  small { color: var(--app-text-muted); overflow-wrap: anywhere; }
+  &:hover { border-color: var(--app-border-strong); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.rm-aviso {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius-control, 8px);
+  background: var(--app-warning-soft);
+  color: var(--app-warning);
+  font-size: 12.5px;
+}
+
+@media (max-width: 768px) {
+  .rm-files { grid-template-columns: 1fr; }
+  .rm-file { min-height: 48px; }
+}

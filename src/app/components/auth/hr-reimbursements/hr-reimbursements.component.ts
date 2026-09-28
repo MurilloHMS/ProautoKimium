@@ -1,20 +1,29 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkInputComponent } from '../../theme/ProautoKimium/pk-input/pk-input.component';
+import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { PkSheetComponent } from '../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
+import { FormScreenComponent } from '../shared/form-screen/form-screen.component';
+import { MonthSwitcherComponent, currentMonth } from '../shared/month-switcher/month-switcher.component';
+import { ReimbursementTotalsComponent } from '../shared/reimbursement-totals/reimbursement-totals.component';
+import { ehCelular } from '../../../infrastructure/state/eh-celular';
 import { ReimbursementService } from '../../../infrastructure/services/hr/reimbursement.service';
-import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
+import { Reimbursement, ReimbursementStatus, ReimbursementSummary } from '../../../domain/models/hr/reimbursement.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
-import { formatDateBr } from '../../../domain/utils/date-only';
+import { formatDateBr, formatStampBr } from '../../../domain/utils/date-only';
 import { apiMessage } from '../../../domain/utils/api-error';
 import { lerValorDoCampo, valorMinimo } from '../../../infrastructure/validators/valor-decimal';
 
 @Component({
   selector: 'app-hr-reimbursements',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent, PkInputComponent, PageHeaderComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent, PkInputComponent,
+    PkDialogComponent, PkSheetComponent, PageHeaderComponent, FormScreenComponent, MonthSwitcherComponent,
+    ReimbursementTotalsComponent],
   templateUrl: './hr-reimbursements.component.html',
   styleUrl: './hr-reimbursements.component.scss',
 })
@@ -30,6 +39,30 @@ export class HrReimbursementsComponent implements OnInit {
    */
   erroEnvio = signal<string | null>(null);
   baixandoId = signal<string | null>(null);
+
+  readonly ehCelular = ehCelular();
+
+  /**
+   * Lista ou formulário. O formulário que ficava sempre aberto no topo virou
+   * botão (desenho aprovado em 2026-09-28): quem abre a tela quer saber como
+   * estão os pedidos, e criar fica a um toque.
+   */
+  mode = signal<'list' | 'form'>('list');
+
+  /** `yyyy-MM`; totais e lista pela data do gasto, como o comprovante. */
+  month = signal(currentMonth());
+  summary = signal<ReimbursementSummary | null>(null);
+  loadingSummary = signal(false);
+
+  /** Os pedidos do mês escolhido. A lista inteira vem de uma vez; o recorte é aqui. */
+  readonly doMes = computed(() => this.reimbursements().filter(r => r.expenseDate.startsWith(this.month())));
+
+  // ── contestação ──
+  contestTarget = signal<Reimbursement | null>(null);
+  contestFile: File | null = null;
+  contestComment = '';
+  contestando = signal(false);
+  erroContestacao = signal<string | null>(null);
 
   selectedReceipt: File | null = null;
 
@@ -53,6 +86,33 @@ export class HrReimbursementsComponent implements OnInit {
 
   ngOnInit(): void {
     this.carregar();
+    this.carregarTotais();
+  }
+
+  mudarMes(month: string): void {
+    this.month.set(month);
+    this.carregarTotais();
+  }
+
+  carregarTotais(): void {
+    this.loadingSummary.set(true);
+    this.service.getMySummary(this.month()).subscribe({
+      next: (s) => {
+        this.summary.set(s);
+        this.loadingSummary.set(false);
+      },
+      // Sem totais a lista continua útil; os cartões mostram o traço.
+      error: () => this.loadingSummary.set(false),
+    });
+  }
+
+  abrirForm(): void {
+    this.erroEnvio.set(null);
+    this.mode.set('form');
+  }
+
+  fecharForm(): void {
+    this.mode.set('list');
   }
 
   carregar(): void {
@@ -104,7 +164,9 @@ export class HrReimbursementsComponent implements OnInit {
           this.enviando.set(false);
           this.selectedReceipt = null;
           this.form.reset();
+          this.mode.set('list');
           this.carregar();
+          this.carregarTotais();
         },
         error: (err) => {
           this.enviando.set(false);
@@ -124,15 +186,64 @@ export class HrReimbursementsComponent implements OnInit {
     return formatDateBr(iso);
   }
 
+  /** `LocalDateTime` da API (revisão, contestação, prazo) — lido por partes, sem fuso. */
+  formatStamp(iso: string | null): string {
+    return formatStampBr(iso).slice(0, 10);
+  }
+
+  // ── contestação ──
+
+  abrirContestacao(r: Reimbursement): void {
+    this.contestTarget.set(r);
+    this.contestFile = null;
+    this.contestComment = '';
+    this.erroContestacao.set(null);
+  }
+
+  fecharContestacao(): void {
+    this.contestTarget.set(null);
+  }
+
+  onContestFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.contestFile = input.files?.[0] ?? null;
+  }
+
+  get podeContestar(): boolean {
+    return !!this.contestFile && this.contestComment.trim().length > 0 && !this.contestando();
+  }
+
+  contestar(): void {
+    const target = this.contestTarget();
+    if (!target || !this.podeContestar || !this.contestFile) return;
+    this.contestando.set(true);
+    this.erroContestacao.set(null);
+    this.service.contest(target.id, this.contestComment.trim(), this.contestFile).subscribe({
+      next: () => {
+        this.contestando.set(false);
+        this.contestTarget.set(null);
+        this.carregar();
+        this.carregarTotais();
+      },
+      error: (err) => {
+        this.contestando.set(false);
+        this.erroContestacao.set(apiMessage(err) ?? 'Não foi possível enviar a contestação. Tente de novo.');
+      },
+    });
+  }
+
   statusLabel(status: ReimbursementStatus): string {
     return this.statusLabels[status];
   }
 
-  baixarComprovante(reimbursement: Reimbursement): void {
-    this.baixandoId.set(reimbursement.id);
-    this.service.downloadReceipt(reimbursement.id).subscribe({
+  /** `original`: o comprovante de antes da contestação. */
+  baixarComprovante(reimbursement: Reimbursement, original = false): void {
+    this.baixandoId.set(reimbursement.id + (original ? ':original' : ''));
+    this.service.downloadReceipt(reimbursement.id, original).subscribe({
       next: (resp) => {
-        this.triggerDownload(resp.body!, reimbursement.receiptOriginalFilename);
+        this.triggerDownload(resp.body!, original
+          ? reimbursement.originalReceiptFilename ?? 'comprovante-original'
+          : reimbursement.receiptOriginalFilename);
         this.baixandoId.set(null);
       },
       error: () => this.baixandoId.set(null),

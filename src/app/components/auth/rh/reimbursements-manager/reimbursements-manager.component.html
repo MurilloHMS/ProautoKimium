@@ -6,6 +6,7 @@
              pkLabel="Comprovante" pkSize="sm" (clicked)="reportOpen = true"/>
 
   <div filters>
+    <app-month-switcher [month]="month" (change)="changeMonth($event)" />
     <span class="toolbar__label">Status:</span>
     <p-select
       [options]="statusOptions"
@@ -25,6 +26,10 @@
   </div>
 </app-toolbar>
 
+<!-- Totais do mês: cada cartão filtra a grade, junto com o seletor de status. -->
+<app-reimbursement-totals class="rm-totals" [summary]="summary" [loading]="loadingSummary"
+                          [selectable]="true" [selected]="statusFilter" (select)="filterByCard($event)" />
+
 <div class="table-card">
   <pk-table
     #grid
@@ -37,7 +42,7 @@
     pageReportTitle="Reembolsos">
 
     <ng-template #cardTpl let-r>
-      <article class="pk-cartao">
+      <article class="pk-cartao" [class.rm-cartao--contestado]="r.contestedAt && r.status === 'PENDING'">
         <div class="pk-cartao__corpo pk-cartao__corpo--parado">
           <span class="pk-cartao__titulo">{{ employeeName(r.employeeId) }}</span>
           <span class="pk-cartao__sub">{{ r.category }} · {{ formatDate(r.expenseDate) }}</span>
@@ -47,6 +52,9 @@
           <span class="rm-badge" [ngClass]="'rm-badge--' + r.status.toLowerCase()">
             {{ statusLabel(r.status) }}
           </span>
+          @if (r.contestedAt) {
+            <span class="rm-tag">Contestado</span>
+          }
 
           @if (r.status === 'REJECTED' && r.reviewNotes) {
             <span class="rm-notes">{{ r.reviewNotes }}</span>
@@ -100,6 +108,9 @@
         <td>{{ formatDate(r.expenseDate) }}</td>
         <td>
           <span class="rm-badge" [ngClass]="'rm-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+          @if (r.contestedAt) {
+            <span class="rm-tag">Contestado</span>
+          }
           @if (r.status === 'REJECTED' && r.reviewNotes) {
             <div class="rm-notes">{{ r.reviewNotes }}</div>
           }
@@ -137,6 +148,25 @@
         <strong>{{ employeeName(reviewTarget.employeeId) }}</strong>
         — {{ reviewTarget.category }} · {{ reviewTarget.amount | currency:'BRL' }}
       </p>
+      @if (reviewTarget.contestedAt) {
+        <div class="rm-trail">
+          <span><b>{{ formatStamp(reviewTarget.firstReviewedAt) }} · Recusado:</b> “{{ reviewTarget.firstReviewNotes }}”</span>
+          <span><b>{{ formatStamp(reviewTarget.contestedAt) }} · {{ employeeName(reviewTarget.employeeId) }} contestou:</b> “{{ reviewTarget.contestComment }}”</span>
+        </div>
+        <div class="rm-files">
+          <button type="button" class="rm-file" (click)="baixarComprovante(reviewTarget, true)">
+            <i class="pi pi-download" aria-hidden="true"></i>
+            <span><b>Original</b><small>{{ reviewTarget.originalReceiptFilename }}</small></span>
+          </button>
+          <button type="button" class="rm-file" (click)="baixarComprovante(reviewTarget)">
+            <i class="pi pi-download" aria-hidden="true"></i>
+            <span><b>Novo (contestação)</b><small>{{ reviewTarget.receiptOriginalFilename }}</small></span>
+          </button>
+        </div>
+        @if (reviewAction === 'reject') {
+          <p class="rm-aviso">Esta é a contestação. Se recusar, a decisão é final.</p>
+        }
+      }
     }
 
     <div class="form-field form-field--full">

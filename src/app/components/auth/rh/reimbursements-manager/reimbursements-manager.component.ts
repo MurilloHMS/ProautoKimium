@@ -11,11 +11,13 @@ import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dia
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
-import { Reimbursement, ReimbursementStatus } from '../../../../domain/models/hr/reimbursement.model';
+import { Reimbursement, ReimbursementStatus, ReimbursementSummary } from '../../../../domain/models/hr/reimbursement.model';
+import { MonthSwitcherComponent, currentMonth } from '../../shared/month-switcher/month-switcher.component';
+import { ReimbursementTotalsComponent } from '../../shared/reimbursement-totals/reimbursement-totals.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
-import { formatDateBr } from '../../../../domain/utils/date-only';
+import { formatDateBr, formatStampBr } from '../../../../domain/utils/date-only';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { ReimbursementReportDialogComponent } from './report-dialog/reimbursement-report-dialog.component';
 
@@ -24,7 +26,7 @@ type ReviewAction = 'approve' | 'reject';
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent, MonthSwitcherComponent, ReimbursementTotalsComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
@@ -38,6 +40,11 @@ export class ReimbursementsManagerComponent implements OnInit {
   private readonly employeeStore = inject(EmployeeStore);
 
   statusFilter: ReimbursementStatus | null = 'PENDING';
+
+  /** `yyyy-MM`; grade e totais pela data do gasto, como o comprovante. */
+  month = currentMonth();
+  summary: ReimbursementSummary | null = null;
+  loadingSummary = false;
   statusOptions: { label: string; value: ReimbursementStatus | null }[] = [
     { label: 'Em análise', value: 'PENDING' },
     { label: 'Aprovados', value: 'APPROVED' },
@@ -74,7 +81,8 @@ export class ReimbursementsManagerComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.reimbursementService.getAll(this.statusFilter ?? undefined).subscribe({
+    this.loadSummary();
+    this.reimbursementService.getAll(this.statusFilter ?? undefined, this.month).subscribe({
       next: (list) => {
         this.reimbursements = list;
         this.loading = false;
@@ -84,6 +92,34 @@ export class ReimbursementsManagerComponent implements OnInit {
         this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
       },
     });
+  }
+
+  loadSummary(): void {
+    this.loadingSummary = true;
+    this.reimbursementService.getSummary(this.month).subscribe({
+      next: (s) => {
+        this.summary = s;
+        this.loadingSummary = false;
+      },
+      // Sem totais a grade continua útil; os cartões mostram o traço.
+      error: () => (this.loadingSummary = false),
+    });
+  }
+
+  changeMonth(month: string): void {
+    this.month = month;
+    this.load();
+  }
+
+  /** O cartão clicado vira o filtro de status — o mesmo do seletor da toolbar. */
+  filterByCard(status: ReimbursementStatus | null): void {
+    this.statusFilter = status;
+    this.load();
+  }
+
+  /** `LocalDateTime` da API, lido por partes. */
+  formatStamp(iso: string | null): string {
+    return formatStampBr(iso).slice(0, 10);
   }
 
   statusLabel(status: ReimbursementStatus): string {
@@ -99,11 +135,12 @@ export class ReimbursementsManagerComponent implements OnInit {
     return formatDateBr(iso);
   }
 
-  baixarComprovante(r: Reimbursement): void {
-    this.baixandoId = r.id;
-    this.reimbursementService.downloadReceipt(r.id).subscribe({
+  /** `original`: o comprovante de antes da contestação, que a primeira análise viu. */
+  baixarComprovante(r: Reimbursement, original = false): void {
+    this.baixandoId = r.id + (original ? ':original' : '');
+    this.reimbursementService.downloadReceipt(r.id, original).subscribe({
       next: (resp) => {
-        this.triggerDownload(resp.body!, r.receiptOriginalFilename);
+        this.triggerDownload(resp.body!, original ? r.originalReceiptFilename ?? 'comprovante-original' : r.receiptOriginalFilename);
         this.baixandoId = null;
       },
       error: () => (this.baixandoId = null),
