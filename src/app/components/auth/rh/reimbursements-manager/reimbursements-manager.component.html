@@ -1,5 +1,69 @@
 <p-toast position="top-right"></p-toast>
 
+@if (ehCelular()) {
+  <!--
+    Celular: uma linha de 52px no lugar da toolbar que quebrava em várias
+    (182px medidos a 390px) e a faixa de totais de 64px no lugar do 2×2 (226px).
+    Sobravam 2 cartões visíveis; agora cabem ~5. Desenho aprovado em 2026-09-28.
+  -->
+  <div class="rm-bar">
+    <app-month-switcher [month]="month" [compact]="true" (change)="changeMonth($event)" />
+    <button type="button" class="rm-icon" aria-label="Buscar" (click)="openSearch(searchInput)">
+      <i class="pi pi-search" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="rm-icon" aria-label="Filtrar por status" (click)="statusSheetOpen = true">
+      <i class="pi pi-filter" aria-hidden="true"></i>
+      @if (statusFilter) { <span class="rm-icon__dot" aria-hidden="true"></span> }
+    </button>
+    <button *pkCan="'rh/reimbursements:BAIXAR'" type="button" class="rm-icon" aria-label="Comprovante"
+            (click)="reportOpen = true">
+      <i class="pi pi-file-pdf" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="rm-icon" aria-label="Atualizar" (click)="load()">
+      <i class="pi pi-refresh" aria-hidden="true"></i>
+    </button>
+
+    <!--
+      A busca abre por cima da linha. O campo fica SEMPRE no DOM, recortado
+      quando fechado: o teclado do iPhone só sobe se o foco acontecer dentro
+      do toque — com @if, o campo ainda não existiria no clique.
+    -->
+    <div class="rm-search" [class.rm-search--open]="searchOpen">
+      <input #searchInput type="search" aria-label="Buscar reembolsos" placeholder="Buscar…"
+             [attr.tabindex]="searchOpen ? 0 : -1"
+             (input)="grid.filterGlobal($any($event.target).value)" />
+      <button type="button" class="rm-search__cancel" [attr.tabindex]="searchOpen ? 0 : -1"
+              (click)="closeSearch(searchInput); grid.filterGlobal('')">Cancelar</button>
+    </div>
+  </div>
+
+  <app-reimbursement-totals [compact]="true" [summary]="summary" [loading]="loadingSummary"
+                            [selectable]="true" [selected]="statusFilter" (select)="filterByCard($event)" />
+
+  <!-- Filtro ativo sempre visível e removível: filtro escondido é grade curta sem explicação. -->
+  @if (statusFilter) {
+    <div class="rm-chips">
+      <button type="button" class="rm-chip" [attr.aria-label]="'Remover filtro: ' + statusFilterLabel"
+              (click)="filterByCard(null)">
+        {{ statusFilterLabel }} <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+
+  <pk-sheet [open]="statusSheetOpen" title="Status" (closed)="statusSheetOpen = false">
+    <div pkSheetBody>
+      <div class="rm-options" role="radiogroup" aria-label="Status">
+        @for (o of statusOptions; track o.label) {
+          <button type="button" class="rm-option" role="radio" [attr.aria-checked]="o.value === statusFilter"
+                  (click)="pickStatus(o.value)">
+            {{ o.label }}
+            @if (o.value === statusFilter) { <i class="pi pi-check" aria-hidden="true"></i> }
+          </button>
+        }
+      </div>
+    </div>
+  </pk-sheet>
+} @else {
 <app-toolbar>
   <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
   <pk-button *pkCan="'rh/reimbursements:BAIXAR'" pkType="download" pkIcon="pi pi-file-pdf"
@@ -29,6 +93,7 @@
 <!-- Totais do mês: cada cartão filtra a grade, junto com o seletor de status. -->
 <app-reimbursement-totals class="rm-totals" [summary]="summary" [loading]="loadingSummary"
                           [selectable]="true" [selected]="statusFilter" (select)="filterByCard($event)" />
+}
 
 <div class="table-card">
   <pk-table

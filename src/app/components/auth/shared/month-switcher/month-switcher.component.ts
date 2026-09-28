@@ -14,6 +14,7 @@ export function currentMonth(today = new Date()): string {
 
 const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+const SHORT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 /**
  * ‹ Setembro 2026 › — anda um mês por vez.
@@ -25,11 +26,11 @@ const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   selector: 'app-month-switcher',
   standalone: true,
   template: `
-    <div class="ms" [class.ms--fill]="fill()" role="group" aria-label="Mês">
+    <div class="ms" [class.ms--fill]="fill()" [class.ms--compact]="compact()" role="group" aria-label="Mês">
       <button type="button" class="ms__btn" (click)="change.emit(prev())" [attr.aria-label]="'Mês anterior: ' + label(prev())">
         <i class="pi pi-chevron-left" aria-hidden="true"></i>
       </button>
-      <span class="ms__label" aria-live="polite">{{ label(month()) }}</span>
+      <span class="ms__label" aria-live="polite" [attr.aria-label]="label(month())">{{ compact() ? short(month()) : label(month()) }}</span>
       <button type="button" class="ms__btn" (click)="change.emit(next())" [attr.aria-label]="'Próximo mês: ' + label(next())">
         <i class="pi pi-chevron-right" aria-hidden="true"></i>
       </button>
@@ -44,16 +45,27 @@ const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     .ms__btn:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
     .ms__label { padding: 0 10px; min-width: 128px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
     @media (max-width: 768px) { .ms__btn { width: 48px; height: 44px; } }
+    /* Compacto (toolbar do celular): cabe numa linha com os botões de ícone. */
+    .ms--compact { flex: 1 1 auto; min-width: 0; justify-content: space-between; }
+    .ms--compact .ms__btn { width: 36px; height: 40px; }
+    .ms--compact .ms__label { min-width: 0; padding: 0 4px; font-size: 12.5px; white-space: nowrap; }
   `],
 })
 export class MonthSwitcherComponent {
   /** `yyyy-MM` */
   readonly month = input.required<string>();
   readonly fill = input(false);
+  /** "Set 2026" em vez de "Setembro 2026", para a toolbar do celular. */
+  readonly compact = input(false);
   readonly change = output<string>();
 
   readonly prev = computed(() => shiftMonth(this.month(), -1));
   readonly next = computed(() => shiftMonth(this.month(), 1));
+
+  short(month: string): string {
+    const [y, m] = month.split('-').map(Number);
+    return `${SHORT[m - 1]} ${y}`;
+  }
 
   label(month: string): string {
     const [y, m] = month.split('-').map(Number);
