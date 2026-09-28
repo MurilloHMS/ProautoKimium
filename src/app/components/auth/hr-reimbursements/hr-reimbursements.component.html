@@ -1,18 +1,16 @@
-<section class="hrr-page">
-  <app-page-header
-    icon="pi pi-wallet"
-    title="Reembolsos"
-    subtitle="Solicite reembolsos e acompanhe o status." />
-
-  <div class="hrr-form-card">
-    <h2 class="hrr-form-card__title"><i class="pi pi-plus-circle"></i> Novo reembolso</h2>
-
+@if (mode() === 'form') {
+  <!--
+    O formulário que ficava sempre aberto no topo virou modo formulário
+    (desenho aprovado em 2026-09-28): tela cheia com "Voltar" no computador,
+    folha de baixo no celular — quem decide é o app-form-screen.
+  -->
+  <app-form-screen title="Novo reembolso" subtitle="Anexe o comprovante da despesa." (back)="fecharForm()">
     <form [formGroup]="form">
       <div class="form-grid">
         <div class="form-field">
           <label for="expenseDate">Data do gasto <span class="required">*</span></label>
           <p-datepicker appendTo="body"
-            id="expenseDate"
+            inputId="expenseDate"
             formControlName="expenseDate"
             [showButtonBar]="true"
             dateFormat="dd/mm/yy"
@@ -54,7 +52,7 @@
 
       <div class="hrr-upload">
         <label class="hrr-upload__label" for="receiptInput">
-          <i class="pi pi-camera"></i> Enviar comprovante (foto ou arquivo)
+          <i class="pi pi-camera"></i> {{ ehCelular() ? 'Tirar foto ou escolher arquivo' : 'Enviar comprovante (foto ou arquivo)' }}
         </label>
         <input id="receiptInput" type="file" accept="image/*,.pdf" (change)="onReceiptSelected($event)" />
 
@@ -63,60 +61,159 @@
         }
       </div>
 
-      <div class="hrr-form-actions">
-        <pk-button
-          pkType="save"
-          pkLabel="Solicitar reembolso"
-          pkSize="sm"
-          [pkDisabled]="!podeEnviar || enviando()"
-          (clicked)="enviar()">
-        </pk-button>
-      </div>
       @if (erroEnvio()) {
         <p class="erro-envio" role="alert">{{ erroEnvio() }}</p>
       }
     </form>
-  </div>
 
-  <h2 class="hrr-history-title">Meus reembolsos</h2>
-
-  @if (loading()) {
-    <div class="hrr-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
-  } @else if (erro()) {
-    <div class="hrr-state">Não foi possível carregar seus reembolsos. Tente novamente mais tarde.</div>
-  } @else if (reimbursements().length === 0) {
-    <div class="hrr-empty">
-      <span class="hrr-empty-icon"><i class="pi pi-wallet"></i></span>
-      <p>Nenhum reembolso solicitado ainda</p>
+    <div formActions class="hrr-form-actions">
+      <pk-button pkType="cancel" pkLabel="Cancelar" pkSize="sm" (clicked)="fecharForm()" />
+      <pk-button
+        pkType="save"
+        pkLabel="Solicitar reembolso"
+        pkSize="sm"
+        [pkDisabled]="!podeEnviar || enviando()"
+        [pkLoading]="enviando()"
+        (clicked)="enviar()">
+      </pk-button>
     </div>
-  } @else {
-    <div class="hrr-grid">
-      @for (r of reimbursements(); track r.id) {
-        <div class="hrr-card">
-          <div class="hrr-card__top">
-            <div class="hrr-card__main">
-              <span class="hrr-card__category">{{ r.category }}</span>
-              <span class="hrr-card__amount">{{ r.amount | currency:'BRL' }}</span>
+  </app-form-screen>
+} @else {
+  <section class="hrr-page">
+    <app-page-header
+      icon="pi pi-wallet"
+      title="Reembolsos"
+      subtitle="Os totais contam pela data do gasto.">
+      <div actions class="hrr-actions">
+        <app-month-switcher [month]="month()" [fill]="ehCelular()" (change)="mudarMes($event)" />
+        <pk-button pkType="new" pkLabel="Novo reembolso" pkSize="sm" (clicked)="abrirForm()" />
+      </div>
+    </app-page-header>
+
+    <app-reimbursement-totals [summary]="summary()" [loading]="loadingSummary()" />
+
+    <h2 class="hrr-history-title">Meus reembolsos</h2>
+
+    @if (loading()) {
+      <div class="hrr-state"><i class="pi pi-spin pi-spinner"></i> Carregando...</div>
+    } @else if (erro()) {
+      <div class="hrr-state">Não foi possível carregar seus reembolsos. Tente novamente mais tarde.</div>
+    } @else if (doMes().length === 0) {
+      <div class="hrr-empty">
+        <span class="hrr-empty-icon"><i class="pi pi-wallet"></i></span>
+        <p>Nenhum reembolso com gasto neste mês</p>
+      </div>
+    } @else {
+      <div class="hrr-grid">
+        @for (r of doMes(); track r.id) {
+          <div class="hrr-card">
+            <div class="hrr-card__top">
+              <div class="hrr-card__main">
+                <span class="hrr-card__category">{{ r.category }}</span>
+                <span class="hrr-card__amount">{{ r.amount | currency:'BRL' }}</span>
+              </div>
+              <span class="hrr-card__chips">
+                <span class="hrr-badge" [ngClass]="'hrr-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+                @if (r.contestedAt) {
+                  <span class="hrr-tag">Contestado</span>
+                }
+              </span>
             </div>
-            <span class="hrr-badge" [ngClass]="'hrr-badge--' + r.status.toLowerCase()">{{ statusLabel(r.status) }}</span>
+
+            <p class="hrr-card__reason">{{ r.reason }}</p>
+            <span class="hrr-card__date">{{ formatDate(r.expenseDate) }}</span>
+
+            @if (r.contestedAt) {
+              <!-- A trilha: o que a primeira análise disse e o que a pessoa respondeu. -->
+              <div class="hrr-trail">
+                <span><b>{{ formatStamp(r.firstReviewedAt) }}</b> · Recusado: “{{ r.firstReviewNotes }}”</span>
+                <span><b>{{ formatStamp(r.contestedAt) }}</b> · Você contestou: “{{ r.contestComment }}”</span>
+              </div>
+            }
+
+            @if (r.status === 'REJECTED' && r.reviewNotes) {
+              <p class="hrr-card__notes hrr-card__notes--rejected"><i class="pi pi-info-circle"></i> {{ r.reviewNotes }}</p>
+            }
+            @if (r.status === 'REJECTED' && r.contestedAt) {
+              <p class="hrr-card__notes">A contestação já foi usada: esta decisão é final.</p>
+            }
+            @if (r.status === 'PENDING' && r.contestedAt) {
+              <p class="hrr-card__notes">Esta foi sua contestação. Se for recusado de novo, a decisão é final.</p>
+            }
+            @if (r.status === 'PAID' && r.paymentDate) {
+              <p class="hrr-card__notes hrr-card__notes--paid"><i class="pi pi-check-circle"></i> Pago em {{ formatDate(r.paymentDate) }}</p>
+            }
+
+            <div class="hrr-card__actions">
+              @if (r.contestDeadline) {
+                <pk-button pkType="save" pkIcon="pi pi-replay" pkLabel="Contestar" pkSize="sm" (clicked)="abrirContestacao(r)" />
+                <span class="hrr-deadline">até {{ formatStamp(r.contestDeadline) }} · uma vez só</span>
+              }
+              <button class="hrr-card__btn" (click)="baixarComprovante(r)" [disabled]="baixandoId() === r.id">
+                <i class="pi" [ngClass]="baixandoId() === r.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+                {{ r.originalReceiptFilename ? 'Comprovante novo' : 'Ver comprovante' }}
+              </button>
+              @if (r.originalReceiptFilename) {
+                <button class="hrr-card__btn" (click)="baixarComprovante(r, true)" [disabled]="baixandoId() === r.id + ':original'">
+                  <i class="pi" [ngClass]="baixandoId() === r.id + ':original' ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+                  Original
+                </button>
+              }
+            </div>
           </div>
+        }
+      </div>
+    }
+  </section>
+}
 
-          <p class="hrr-card__reason">{{ r.reason }}</p>
-          <span class="hrr-card__date">{{ formatDate(r.expenseDate) }}</span>
-
-          @if (r.status === 'REJECTED' && r.reviewNotes) {
-            <p class="hrr-card__notes hrr-card__notes--rejected"><i class="pi pi-info-circle"></i> {{ r.reviewNotes }}</p>
-          }
-          @if (r.status === 'PAID' && r.paymentDate) {
-            <p class="hrr-card__notes hrr-card__notes--paid"><i class="pi pi-check-circle"></i> Pago em {{ formatDate(r.paymentDate) }}</p>
-          }
-
-          <button class="hrr-card__btn" (click)="baixarComprovante(r)" [disabled]="baixandoId() === r.id">
-            <i class="pi" [ngClass]="baixandoId() === r.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
-            Ver comprovante
-          </button>
-        </div>
+<!-- Contestar: folha no celular, diálogo no computador — mesmo corpo, duas molduras. -->
+<ng-template #contestBody>
+  @if (contestTarget(); as t) {
+    <section class="hrr-secao">
+      <h3 class="hrr-secao__titulo">O que o RH disse</h3>
+      <p class="hrr-card__notes hrr-card__notes--rejected"><i class="pi pi-info-circle"></i> {{ t.reviewNotes }}</p>
+      <span class="hrr-card__date">{{ t.category }} · {{ t.amount | currency:'BRL' }} · {{ formatDate(t.expenseDate) }} — valor, data e categoria continuam os mesmos.</span>
+    </section>
+    <section class="hrr-secao">
+      <h3 class="hrr-secao__titulo">Sua resposta</h3>
+      <div class="hrr-upload">
+        <label class="hrr-upload__label" for="contestReceipt">
+          <i class="pi pi-camera"></i> {{ ehCelular() ? 'Tirar foto ou escolher o comprovante novo' : 'Enviar o comprovante novo' }}
+        </label>
+        <input id="contestReceipt" type="file" accept="image/*,.pdf" (change)="onContestFile($event)" />
+        @if (contestFile) {
+          <span class="hrr-upload__filename"><i class="pi pi-file"></i> {{ contestFile.name }}</span>
+        }
+      </div>
+      <div class="form-field">
+        <label for="contestComment">Comentário <span class="required">*</span></label>
+        <textarea id="contestComment" rows="3" maxlength="500" [(ngModel)]="contestComment"
+                  placeholder="Explique o que mudou no comprovante"></textarea>
+      </div>
+      <p class="hrr-aviso">Você só pode contestar <b>uma vez</b>. Se o RH recusar de novo, a decisão é final.</p>
+      @if (erroContestacao()) {
+        <p class="erro-envio" role="alert">{{ erroContestacao() }}</p>
       }
-    </div>
+    </section>
   }
-</section>
+</ng-template>
+
+<ng-template #contestActions>
+  <pk-button pkType="cancel" pkLabel="Cancelar" pkSize="sm" (clicked)="fecharContestacao()" />
+  <pk-button pkType="save" pkIcon="pi pi-send" pkLabel="Enviar contestação" pkSize="sm"
+             [pkDisabled]="!podeContestar" [pkLoading]="contestando()" (clicked)="contestar()" />
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!contestTarget()" title="Contestar a recusa" (closed)="fecharContestacao()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="contestBody" /></div>
+    <div pkSheetFooter><ng-container *ngTemplateOutlet="contestActions" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Contestar a recusa" [visible]="!!contestTarget()" width="540px"
+             (visibleChange)="!$event && fecharContestacao()">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="contestBody" /></div>
+    <div pkDialogFooter class="pk-dialog-footer"><ng-container *ngTemplateOutlet="contestActions" /></div>
+  </pk-dialog>
+}
