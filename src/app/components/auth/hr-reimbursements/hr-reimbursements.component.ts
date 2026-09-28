@@ -8,6 +8,7 @@ import { ReimbursementService } from '../../../infrastructure/services/hr/reimbu
 import { Reimbursement, ReimbursementStatus } from '../../../domain/models/hr/reimbursement.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 import { formatDateBr } from '../../../domain/utils/date-only';
+import { apiMessage } from '../../../domain/utils/api-error';
 import { lerValorDoCampo, valorMinimo } from '../../../infrastructure/validators/valor-decimal';
 
 @Component({
@@ -22,6 +23,12 @@ export class HrReimbursementsComponent implements OnInit {
   loading = signal(true);
   erro = signal(false);
   enviando = signal(false);
+  /**
+   * Por que o envio não saiu. Antes o erro só parava o spinner: a API recusava
+   * com motivo ("data final antes da inicial", "valor maior que zero") e a
+   * pessoa via o botão voltar ao normal sem saber de nada.
+   */
+  erroEnvio = signal<string | null>(null);
   baixandoId = signal<string | null>(null);
 
   selectedReceipt: File | null = null;
@@ -75,6 +82,7 @@ export class HrReimbursementsComponent implements OnInit {
     if (!this.podeEnviar || !this.selectedReceipt) return;
 
     this.enviando.set(true);
+    this.erroEnvio.set(null);
     const { expenseDate, amount, category, reason } = this.form.value as {
       expenseDate: Date;
       amount: string;
@@ -98,7 +106,10 @@ export class HrReimbursementsComponent implements OnInit {
           this.form.reset();
           this.carregar();
         },
-        error: () => this.enviando.set(false),
+        error: (err) => {
+          this.enviando.set(false);
+          this.erroEnvio.set(apiMessage(err) ?? 'Não foi possível enviar a solicitação. Tente de novo.');
+        },
       });
   }
 

@@ -77,4 +77,33 @@ describe('HrReimbursementsComponent', () => {
 
     expect(component.podeEnviar).toBeFalse();
   });
+
+  /**
+   * Antes a recusa só parava o spinner: a API explicava o motivo e a pessoa
+   * via o botão voltar ao normal sem saber de nada.
+   */
+  it('recusa da API aparece junto do botão, com o motivo dela', () => {
+    preencher('10,00');
+
+    component.enviar();
+    http.expectOne(`${environment.apiUrl}/hr/reimbursements`).flush(
+      { status: 400, message: 'Valor do reembolso precisa ser maior que zero' },
+      { status: 400, statusText: 'Bad Request' });
+    fixture.detectChanges();
+
+    expect(component.enviando()).toBeFalse();
+    const alerta = fixture.nativeElement.querySelector('[role="alert"]') as HTMLElement | null;
+    expect(alerta?.textContent).toContain('Valor do reembolso precisa ser maior que zero');
+  });
+
+  it('um novo envio apaga o motivo do anterior', () => {
+    component.erroEnvio.set('motivo antigo');
+    preencher('10,00');
+
+    component.enviar();
+
+    expect(component.erroEnvio()).toBeNull();
+    http.expectOne(`${environment.apiUrl}/hr/reimbursements`).flush({});
+    http.expectOne(`${environment.apiUrl}/hr/reimbursements/me`).flush([]);
+  });
 });

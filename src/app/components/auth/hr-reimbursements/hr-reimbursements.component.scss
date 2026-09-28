@@ -253,3 +253,9 @@
 @media (max-width: 600px) {
   .hrr-page { padding: 24px 16px 40px; }
 }
+
+.erro-envio {
+  margin: 8px 0 0;
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm, 12px);
+}
