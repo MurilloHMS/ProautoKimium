@@ -14,6 +14,8 @@ import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { Reimbursement, ReimbursementStatus, ReimbursementSummary } from '../../../../domain/models/hr/reimbursement.model';
 import { MonthSwitcherComponent, currentMonth } from '../../shared/month-switcher/month-switcher.component';
 import { ReimbursementTotalsComponent } from '../../shared/reimbursement-totals/reimbursement-totals.component';
+import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
+import { ehCelular } from '../../../../infrastructure/state/eh-celular';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
@@ -26,7 +28,7 @@ type ReviewAction = 'approve' | 'reject';
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent, MonthSwitcherComponent, ReimbursementTotalsComponent],
+  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent, MonthSwitcherComponent, ReimbursementTotalsComponent, PkSheetComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
@@ -44,6 +46,11 @@ export class ReimbursementsManagerComponent implements OnInit {
   /** `yyyy-MM`; grade e totais pela data do gasto, como o comprovante. */
   month = currentMonth();
   summary: ReimbursementSummary | null = null;
+
+  readonly ehCelular = ehCelular();
+  /** Celular: a busca abre por cima da linha, e o status numa folha. */
+  searchOpen = false;
+  statusSheetOpen = false;
   loadingSummary = false;
   statusOptions: { label: string; value: ReimbursementStatus | null }[] = [
     { label: 'Em análise', value: 'PENDING' },
@@ -115,6 +122,27 @@ export class ReimbursementsManagerComponent implements OnInit {
   filterByCard(status: ReimbursementStatus | null): void {
     this.statusFilter = status;
     this.load();
+  }
+
+  get statusFilterLabel(): string {
+    return this.statusOptions.find(o => o.value === this.statusFilter)?.label ?? '';
+  }
+
+  /** Escolher na folha filtra e fecha: um toque, como no seletor da toolbar. */
+  pickStatus(status: ReimbursementStatus | null): void {
+    this.statusSheetOpen = false;
+    this.filterByCard(status);
+  }
+
+  /** O foco vai no mesmo toque: o teclado do iPhone só sobe assim. */
+  openSearch(input: HTMLInputElement): void {
+    this.searchOpen = true;
+    input.focus();
+  }
+
+  closeSearch(input: HTMLInputElement): void {
+    this.searchOpen = false;
+    input.value = '';
   }
 
   /** `LocalDateTime` da API, lido por partes. */
