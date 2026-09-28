@@ -90,6 +90,18 @@ describe('ReimbursementsManagerComponent', () => {
       expect((fixture.nativeElement as HTMLElement).querySelector('.rm-chip')).toBeNull();
     });
 
+    /**
+     * Opção B da barra de baixo: a tela vai até o pé, e a lista de cartões
+     * reserva no FIM o espaço da barra — o último pedido para acima dela.
+     */
+    it('passa por trás da barra de baixo, com o espaço no fim da lista', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.classList).toContain('passa-pela-barra');
+      const lista = host.querySelector('.pk-cartoes') as HTMLElement | null;
+      expect(lista).withContext('lista de cartões do pk-table').not.toBeNull();
+      expect(getComputedStyle(lista!).paddingBottom).toBe('82px');
+    });
+
     /** O teclado do iPhone só sobe com o foco dado dentro do toque. */
     it('abrir a busca foca o campo no mesmo toque', () => {
       const input = (fixture.nativeElement as HTMLElement).querySelector('.rm-search input') as HTMLInputElement;

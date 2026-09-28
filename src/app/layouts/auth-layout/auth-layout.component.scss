@@ -42,12 +42,8 @@
   }
 }
 
-// No mobile a barra de abas some e entra o bottom nav; o respiro embaixo é
-// para o conteúdo não ficar atrás dele.
-@media (max-width: v.$bp-md) {
-  .app-content {
-    padding-bottom: calc(
-      var(--bottom-nav-h) + var(--bottom-nav-gap) * 2 + env(safe-area-inset-bottom)
-    );
-  }
-}
+// No mobile a barra de abas some e entra o bottom nav. O respiro embaixo dele
+// (`--app-bottom-reserve`) mora em `styles/_shell.scss`: a tela que passa por
+// trás da barra (`.passa-pela-barra`) precisa desligá-lo, e ela vem do
+// router-outlet, sem o `_ngcontent` deste componente — o seletor encapsulado
+// não a enxergaria.

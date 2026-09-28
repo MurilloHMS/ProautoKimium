@@ -1,3 +1,5 @@
+@use 'variables' as v;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Comportamento padrão da tela dentro da área de trabalho
 //
@@ -31,3 +33,31 @@
 body:has(app-client-layout) {
   background: var(--app-bg);
 }
+
+// ── A barra de baixo e o conteúdo que passa por trás dela ────────────────────
+// Decidido em 2026-09-28 (opção "B" do mockup "Barra de Baixo"): a cápsula fica
+// sólida, e o conteúdo passa pelos vãos em volta dela e pela área segura.
+//
+// `--app-bottom-reserve` é o espaço que a barra ocupa: cápsula + vão em cima e
+// embaixo + área segura. Por padrão o shell o reserva (a tela termina acima da
+// barra, como sempre foi). A tela que foi CONFERIDA declara `.passa-pela-barra`
+// no host: o shell para de reservar, e ela põe o espaço no FIM da própria
+// rolagem (`--scroll-end-reserve`), para o último item parar acima da cápsula.
+//
+// Opt-in de propósito: 9 telas de grade e ~24 outras rolam num contêiner
+// interno próprio; ligar para todas de uma vez deixaria o último item de
+// algumas atrás da cápsula, inalcançável e sem erro nenhum.
+:root { --app-bottom-reserve: 0px; }
+
+@media (max-width: v.$bp-md) {
+  :root {
+    --app-bottom-reserve: calc(var(--bottom-nav-h) + var(--bottom-nav-gap) * 2 + env(safe-area-inset-bottom));
+  }
+
+  // Especificidade maior que um `.app-content` simples, sem `!important`.
+  .app-content.app-content { padding-bottom: var(--app-bottom-reserve); }
+  .app-content.app-content:has(> .passa-pela-barra) { padding-bottom: 0; }
+
+  .passa-pela-barra { --scroll-end-reserve: var(--app-bottom-reserve); }
+}
+
