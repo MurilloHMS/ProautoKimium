@@ -173,10 +173,11 @@
                 Previsão <i class="pi" [ngClass]="sortIcon('previsao')"></i>
               </button>
             </th>
-            <th class="col-pessoas" [attr.aria-sort]="ariaSort('consultor')">
-              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'consultor'"
-                      (click)="toggleSort('consultor')">
-                Consultor · técnico <i class="pi" [ngClass]="sortIcon('consultor')"></i>
+            <!-- O técnico em cima: é quem faz a máquina sair (pedido dele, 2026-09-29). -->
+            <th class="col-pessoas" [attr.aria-sort]="ariaSort('tecnico')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'tecnico'"
+                      (click)="toggleSort('tecnico')">
+                Técnico · consultor <i class="pi" [ngClass]="sortIcon('tecnico')"></i>
               </button>
             </th>
             <th class="col-alterado" [attr.aria-sort]="ariaSort('updatedAt')">
@@ -206,7 +207,6 @@
                 {{ machineName(row.machineId) || 'Sem máquina' }}
                 @if (row.tag) { <span class="tag">{{ row.tag }}</span> }
               </span>
-              <span class="cel__sub">{{ row.Observacao || ' ' }}</span>
             </td>
             <td>
               <span class="cel__main" [class.cel__vazio]="!row.nomeCliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
@@ -216,13 +216,19 @@
               @if (row.status) {
                 <span [class]="statusClass(row.status)"><i [class]="statusIcon(row.status)" aria-hidden="true"></i>{{ statusLabel(row.status) }}</span>
               }
+              <!-- A observação embaixo do status (pedido dele, 2026-09-29): ela
+                   explica a situação — "aguardando frete", "falta mangueira" —,
+                   não a máquina. Cortada com "…"; o texto inteiro no title. -->
+              @if (row.Observacao) {
+                <span class="cel__sub cel__obs" [attr.title]="row.Observacao">{{ row.Observacao }}</span>
+              }
             </td>
             <td>
               <ng-container *ngTemplateOutlet="dataBotao; context: { $implicit: row }" />
             </td>
             <td>
-              <span class="cel__main" [class.cel__vazio]="!row.consultor">{{ row.consultor || 'Sem consultor' }}</span>
-              <span class="cel__sub">{{ row.tecnico || 'sem técnico' }}</span>
+              <span class="cel__main" [class.cel__vazio]="!row.tecnico">{{ row.tecnico || 'Sem técnico' }}</span>
+              <span class="cel__sub">{{ row.consultor || 'sem consultor' }}</span>
             </td>
             <!-- Só leitura: quem assina a alteração é o servidor. -->
             <td>

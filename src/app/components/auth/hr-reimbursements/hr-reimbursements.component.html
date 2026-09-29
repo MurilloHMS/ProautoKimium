@@ -1,3 +1,5 @@
+<p-toast position="top-right" />
+
 @if (mode() === 'form') {
   <!--
     O formulário que ficava sempre aberto no topo virou modo formulário
@@ -9,13 +11,22 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="expenseDate">Data do gasto <span class="required">*</span></label>
+          <!--
+            Só o calendário, sem digitar (pedido dele, 2026-09-29: "escrever é
+            complicado"). Com o campo editável, o toque no celular abria o
+            teclado junto com o calendário; `readonlyInput` deixa só o
+            calendário, e o ícone diz que é para escolher, não escrever.
+          -->
           <p-datepicker appendTo="body"
             inputId="expenseDate"
             formControlName="expenseDate"
             [showButtonBar]="true"
+            [readonlyInput]="true"
+            [showIcon]="true"
+            iconDisplay="input"
             dateFormat="dd/mm/yy"
             styleClass="datepicker-field"
-            placeholder="dd/mm/aaaa">
+            placeholder="Escolha a data">
           </p-datepicker>
         </div>
         <div class="form-field">

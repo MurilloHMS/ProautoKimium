@@ -1,3 +1,4 @@
+import { MessageService } from 'primeng/api';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 
@@ -143,6 +144,35 @@ describe('HrReimbursementsComponent', () => {
     expect(component.mode()).toBe('list');
   });
 
+  /** Pedido dele: voltar para a lista em silêncio se lia como "não sei se foi". */
+  it('pedido aceito mostra a mensagem de sucesso', () => {
+    const messages = fixture.debugElement.injector.get(MessageService);
+    const add = spyOn(messages, 'add').and.callThrough();
+    responderCarga();
+    component.abrirForm();
+    preencher('10,00');
+
+    component.enviar();
+    http.expectOne(API).flush({});
+    responderCarga();
+
+    expect(add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success', summary: 'Reembolso enviado' }));
+  });
+
+  /**
+   * "Escrever é complicado": o campo da data não aceita digitação. Editável, o
+   * toque no celular abria o teclado junto com o calendário.
+   */
+  it('a data do gasto se escolhe no calendário, sem digitar', () => {
+    responderCarga();
+    component.abrirForm();
+    fixture.detectChanges();
+
+    const campo = (fixture.nativeElement as HTMLElement).querySelector('#expenseDate') as HTMLInputElement;
+    expect(campo).not.toBeNull();
+    expect(campo.readOnly).toBeTrue();
+  });
+
   /**
    * Antes a recusa só parava o spinner: a API explicava o motivo e a pessoa
    * via o botão voltar ao normal sem saber de nada.
@@ -240,10 +270,12 @@ describe('HrReimbursementsComponent', () => {
     const body = req.request.body as FormData;
     expect(body.get('comment')).toBe('Segue a nota escaneada');
     expect((body.get('receipt') as File).name).toBe('nota-nova.pdf');
+    const add = spyOn(fixture.debugElement.injector.get(MessageService), 'add').and.callThrough();
     req.flush(pedido({ status: 'PENDING', contestedAt: '2026-09-28T10:00:00' }));
     responderCarga();
 
     expect(component.contestTarget()).toBeNull();
+    expect(add).toHaveBeenCalledWith(jasmine.objectContaining({ severity: 'success', summary: 'Contestação enviada' }));
   });
 
   it('contestação recusada pela API mostra o motivo e mantém a janela aberta', () => {
