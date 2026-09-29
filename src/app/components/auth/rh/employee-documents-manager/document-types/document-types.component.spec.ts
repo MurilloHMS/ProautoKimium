@@ -77,6 +77,24 @@ describe('DocumentTypesComponent', () => {
     expect(component.preview()).toContain('Sem aviso');
   });
 
+  it('rodar avisos agora chama a API e diz quantos avisaram', () => {
+    component.runAlerts();
+    const req = http.expectOne(`${environment.apiUrl}/hr/employee-document-alerts/run`);
+    expect(req.request.method).toBe('POST');
+    req.flush({ alerted: 2 });
+
+    expect(component.runResult()).toContain('2 documentos geraram aviso');
+    expect(component.running()).toBeFalse();
+  });
+
+  /** Zero não é erro: a frase explica os dois motivos, que é a pergunta seguinte. */
+  it('nenhum aviso explica por quê', () => {
+    component.runAlerts();
+    http.expectOne(`${environment.apiUrl}/hr/employee-document-alerts/run`).flush({ alerted: 0 });
+
+    expect(component.runResult()).toContain('Nenhum aviso agora');
+  });
+
   it('o resumo da lista: dias, só no dia, sem aviso ou inativo', () => {
     const base = { id: 't', name: 'X', recipientEmployeeIds: [], active: true };
     expect(component.summary({ ...base, alertDaysBefore: [60, 15], notifyOnExpiry: true })).toBe('60 · 15 dias');

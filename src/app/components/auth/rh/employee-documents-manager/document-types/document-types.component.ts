@@ -60,6 +60,10 @@ export class DocumentTypesComponent {
 
   readonly formOpen = computed(() => this.editing() !== undefined);
 
+  /** "Rodar avisos agora": para conferir um tipo sem esperar as 8h de amanhã. */
+  readonly running = signal(false);
+  readonly runResult = signal<string | null>(null);
+
   /**
    * A frase de prévia, com uma data de exemplo: um documento que vence daqui a
    * tantos dias quanto o maior aviso, mais um mês — assim todos os avisos caem
@@ -164,6 +168,30 @@ export class DocumentTypesComponent {
       error: async (err) => {
         this.saving.set(false);
         this.error.set(await apiMessageOrFallback(err, 'Não foi possível salvar o tipo.'));
+      },
+    });
+  }
+
+  /**
+   * Roda os avisos de hoje e diz o que aconteceu. Zero não é erro: ou nenhum
+   * documento está num dia de aviso, ou os de hoje já saíram — e a frase diz os
+   * dois, porque é a pergunta que vem depois de apertar.
+   */
+  runAlerts(): void {
+    if (this.running()) return;
+    this.running.set(true);
+    this.runResult.set(null);
+
+    this.service.runAlerts().subscribe({
+      next: ({ alerted }) => {
+        this.running.set(false);
+        this.runResult.set(alerted === 0
+          ? 'Nenhum aviso agora: nenhum documento está num dia de aviso, ou os de hoje já saíram.'
+          : `${alerted} ${alerted === 1 ? 'documento gerou' : 'documentos geraram'} aviso, pelo sino e por e-mail.`);
+      },
+      error: async (err) => {
+        this.running.set(false);
+        this.runResult.set(await apiMessageOrFallback(err, 'Não foi possível rodar os avisos.'));
       },
     });
   }
