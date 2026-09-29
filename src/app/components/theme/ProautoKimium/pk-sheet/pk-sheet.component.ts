@@ -34,6 +34,12 @@ export class PkSheetComponent {
   readonly title = input('');
   /** Folha sobre outra folha (1060 contra 1050), decidido por número e não por ordem no HTML. */
   readonly stacked = input(false);
+  /**
+   * Da altura do conteúdo, em vez dos 82dvh do formulário. Para folha curta —
+   * um calendário, uma escolha —, onde a altura fixa deixaria meia folha vazia.
+   * Continua parando em 90dvh e rolando o miolo.
+   */
+  readonly fit = input(false);
 
   readonly closed = output<void>();
 

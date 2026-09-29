@@ -235,6 +235,20 @@ export class ReimbursementsManagerComponent implements OnInit {
     this.payDialogVisible = true;
   }
 
+  /** "Hoje" é 0, "Ontem" é 1: os dias de quase todo pagamento, a um toque. */
+  payQuickDate(daysAgo: number): void {
+    const today = new Date();
+    this.payDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysAgo);
+  }
+
+  /** O atalho fica marcado quando o dia escolhido é o dele, venha de onde vier. */
+  isPayDay(daysAgo: number): boolean {
+    if (!this.payDate) return false;
+    const today = new Date();
+    const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() - daysAgo);
+    return this.payDate.toDateString() === day.toDateString();
+  }
+
   confirmPay(): void {
     if (!this.payTarget || !this.payDate) return;
 
