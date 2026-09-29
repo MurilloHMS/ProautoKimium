@@ -15,6 +15,17 @@
   <button type="button" class="tipos__novo" (click)="create()">
     <i class="pi pi-plus" aria-hidden="true"></i> Novo tipo
   </button>
+
+  <!-- O mesmo que o agendamento das 8h. Seguro de repetir: cada aviso sai uma vez só. -->
+  <div class="tipos__rodar">
+    <button type="button" class="tipos__rodar-botao" [disabled]="running()" (click)="runAlerts()">
+      <i [class]="running() ? 'pi pi-spin pi-spinner' : 'pi pi-bell'" aria-hidden="true"></i>
+      Rodar avisos agora
+    </button>
+    @if (runResult(); as resultado) {
+      <p class="tipos__rodar-resultado" role="status">{{ resultado }}</p>
+    }
+  </div>
 </ng-template>
 
 <ng-template #formulario>

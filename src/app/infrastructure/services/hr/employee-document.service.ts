@@ -76,6 +76,14 @@ export class EmployeeDocumentService {
     return this.http.put<EmployeeDocumentType>(`${this.typesUrl}/${id}`, body);
   }
 
+  /**
+   * Roda os avisos de vencimento de hoje, o mesmo que o agendamento das 8h.
+   * Seguro de repetir: cada aviso sai uma vez só.
+   */
+  runAlerts(): Observable<{ alerted: number }> {
+    return this.http.post<{ alerted: number }>(`${environment.apiUrl}/hr/employee-document-alerts/run`, {});
+  }
+
   /** Desativa: tipo com documentos não some. */
   deactivateType(id: string): Observable<void> {
     return this.http.delete<void>(`${this.typesUrl}/${id}`);
