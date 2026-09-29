@@ -1,10 +1,9 @@
-import { ToolbarComponent } from '../../../shared/toolbar/toolbar.component';
 import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkCheckboxComponent } from '../../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
 import { PkColorPickerComponent } from '../../../../theme/ProautoKimium/pk-color-picker/pk-color-picker.component';
 import { GalleryEscolha, GalleryPickerComponent } from '../../../shared/gallery-picker/gallery-picker.component';
-import { PkSegmentedComponent, PkSegmentedOption } from '../../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
+import { PkTableComponent } from '../../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { TabDirtyCheck } from '../../../../../infrastructure/routing/tab-dirty-check';
 import { Component, ElementRef, OnInit, signal, computed, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -21,7 +20,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { DividerModule } from 'primeng/divider';
 import { SelectModule } from 'primeng/select';
 import { EquipmentService } from '../../../../../infrastructure/services/company/equipment/equipment.service';
 import { EquipmentResponseDTO } from '../../../../../domain/models/equipment.model';
@@ -63,14 +61,12 @@ export type FiltroProduto = 'todos' | 'publicados' | 'ocultos';
     SkeletonModule,
     TooltipModule,
     SelectModule,
-    DividerModule,
-    ToolbarComponent,
     FormScreenComponent,
     PkButtonComponent,
     GalleryPickerComponent,
     PkCheckboxComponent,
     PkColorPickerComponent,
-    PkSegmentedComponent,
+    PkTableComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './website.component.html',
@@ -130,18 +126,63 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   equipamentos = signal<EquipmentResponseDTO[]>([]);
 
   /**
-   * O que era aba virou recorte da mesma lista.
+   * Só os produtos sem descrição do guia (pedido dele, 2026-09-29).
    *
-   * As contagens continuam nos cards acima, sempre as três. O que sumiu foi o
-   * badge da aba, que só mostrava o número do recorte selecionado: "Ocultos 4"
-   * aparecia depois de clicar em Ocultos, e quem não clicava não tinha como
-   * saber que existia.
+   * Antes, para saber se um produto tinha a descrição do guia, era preciso abrir
+   * o formulário. O chip lista todas as lacunas de uma vez, com a contagem.
    */
-  readonly filtros: PkSegmentedOption[] = [
-    { value: 'todos',      label: 'Todos' },
-    { value: 'publicados', label: 'Publicados' },
-    { value: 'ocultos',    label: 'Ocultos' },
-  ];
+  readonly semGuia = signal(false);
+
+  /**
+   * As contagens dos chips — do quadro inteiro, e não do recorte: o número de
+   * um chip não pode mudar porque outro foi ligado. Substituem os três cards de
+   * total, que ocupavam uma faixa inteira antes da lista.
+   */
+  readonly semGuiaCount = computed(() => this.allProducts().filter(p => !temDescricaoGuia(p)).length);
+
+  readonly temFiltro = computed(() => {
+    this._buscaTrigger();
+    return this.filtro() !== 'todos' || this.semGuia() || !!this.termoBusca.trim();
+  });
+
+  // ─── A linha que abre (o accordion das descrições) ──────────────────────────
+
+  /**
+   * Uma aberta por vez: a de baixo abrir fecha a de cima. Com várias, a tela
+   * vira um paredão de texto — e a pergunta é sempre sobre um produto.
+   */
+  readonly expandedId = signal<string | null>(null);
+
+  toggleRow(product: ProductWebSiteResponseDTO): void {
+    this.expandedId.update(current => current === product.id ? null : product.id);
+  }
+
+  isExpanded(product: ProductWebSiteResponseDTO): boolean {
+    return this.expandedId() === product.id;
+  }
+
+  temDescricaoGuia(product: ProductWebSiteResponseDTO): boolean {
+    return temDescricaoGuia(product);
+  }
+
+  equipamentoNome(product: ProductWebSiteResponseDTO): string {
+    if (!product.equipmentId) return '—';
+    return this.equipamentos().find(e => e.id === product.equipmentId)?.nome ?? '—';
+  }
+
+  /**
+   * "Escrever" a descrição do guia: o formulário de edição, com o foco já no
+   * campo — quem clicou veio para escrever aquilo, e não para rolar até ele.
+   */
+  escreverDescricaoGuia(product: ProductWebSiteResponseDTO): void {
+    this.openEditDialog(product);
+    setTimeout(() => document.getElementById('descricaoGuia')?.focus());
+  }
+
+  /** Os chips de situação se excluem: tocar no ligado volta para todos. */
+  alternarFiltro(key: 'publicados' | 'ocultos'): void {
+    this.setFiltro(this.filtro() === key ? 'todos' : key);
+  }
 
   private _buscaTrigger = signal(0);
 
@@ -156,15 +197,15 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
       this.filtro() === 'ocultos'    ? this.hiddenProducts() :
                                        this.allProducts();
 
-    const termo = this.termoBusca.toLowerCase().trim();
-    if (!termo) return lista;
+    const recorte = this.semGuia() ? lista.filter(p => !temDescricaoGuia(p)) : lista;
 
-    return lista.filter(p =>
-      (p.name ?? '').toLowerCase().includes(termo) ||
-      (p.systemCode ?? '').toLowerCase().includes(termo) ||
-      (p.finalidade ?? '').toLowerCase().includes(termo) ||
-      (p.diluicao ?? '').toLowerCase().includes(termo)
-    );
+    // Sem acento e sem caixa, e agora também DENTRO das descrições: "espuma"
+    // acha o produto de baixa espuma, mesmo que o nome não diga.
+    const termo = normalizar(this.termoBusca);
+    if (!termo) return recorte;
+
+    return recorte.filter(p => normalizar(
+      [p.name, p.systemCode, p.finalidade, p.diluicao, p.descricao, p.descricaoGuia].join(' ')).includes(termo));
   });
 
   constructor(
@@ -243,6 +284,7 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   /** Usado pelo estado vazio, que oferece ver a lista inteira em vez de só dizer "nada aqui". */
   limparFiltros(): void {
     this.filtro.set('todos');
+    this.semGuia.set(false);
     this.termoBusca = '';
     this.aplicarFiltro();
   }
@@ -527,6 +569,11 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
     return urlDeMidia(produto.imagem);
   }
 
+  /** A foto do equipamento no combobox — o mesmo caminho da tela de equipamentos. */
+  imagemEquipamento(equipamento: EquipmentResponseDTO): string {
+    return urlDeMidia(equipamento.imagem);
+  }
+
   get totalProdutos(): number {
     return this.allProducts().length;
   }
@@ -538,4 +585,13 @@ export class WebsiteComponent implements OnInit, TabDirtyCheck {
   get totalOcultos(): number {
     return this.hiddenProducts().length;
   }
+}
+
+/** Vazia ou só espaço conta como sem descrição — é o mesmo critério do PDF do guia. */
+function temDescricaoGuia(product: ProductWebSiteResponseDTO): boolean {
+  return !!product.descricaoGuia?.trim();
+}
+
+function normalizar(value: string | null | undefined): string {
+  return (value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 }

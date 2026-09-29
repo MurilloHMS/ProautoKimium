@@ -1,3 +1,4 @@
+@use 'mixins' as m;
 @use 'variables' as v;
 @use 'cards';
 @use 'buttons';
@@ -19,43 +20,491 @@
   overflow: hidden;
 }
 
-.stats-row{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+// Em modo lista a tela é de grade: barra fixa em cima, a lista rolando dentro
+// (o `pk-table` e os cartões dele passam pela barra de baixo do celular).
+:host:not(:has(app-form-screen)) { @include m.grid-screen; }
 
-  @media(max-width: 640px){
-    grid-template-columns: 1fr;
+.grade { @include m.grid-screen-body; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A BARRA — as medidas da toolbar da Programação (opção A): busca e ações numa
+// linha; os recortes em chips com contagem, na cor do selo.
+// ═══════════════════════════════════════════════════════════════════════════
+.barra {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.barra__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  min-width: 0;
+}
+
+.barra__espaco { flex: 1 1 auto; }
+
+.busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 400px;
+  min-width: 0;
+
+  i {
+    position: absolute;
+    left: 11px;
+    font-size: .8rem;
+    color: var(--app-text-subtle);
+    pointer-events: none;
   }
 }
 
-.stat-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  flex-shrink: 0;
+.busca__campo {
+  width: 100%;
+  height: var(--field-h);
+  padding-left: 32px;
 }
 
-.stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; display: block; }
-.stat-label { font-size: 0.78rem; color: var(--app-action); margin-top: .2rem; display: block; }
+.barra__icone {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-h);
+  height: var(--field-h);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, transform .12s ease;
 
-.stat-total  { .stat-icon { background: var(--app-action); color: #fff; } .stat-value { color: var(--app-action); } }
-// O `.stat-total` logo acima ja fazia assim: fundo cheio, tinta branca. Este
-// usava o navy sobre o verde e dava 3,97:1 — reprovado mesmo antes de o verde
-// escurecer, e 2,38 depois. Com branco vai a 5,41.
-.stat-active { .stat-icon { background: var(--app-success); color: #fff; } .stat-value { color: var(--app-success); } }
-.stat-hidden { .stat-icon { background: var(--app-warning-soft);        color: var(--app-warning) } .stat-value { color: var(--app-warning); } }
+  &:hover:not(:disabled) { border-color: var(--app-border-strong); color: var(--app-text); }
+  &:active:not(:disabled) { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &:disabled { cursor: default; }
 
-// Onde ficava .tabs-nav. A separação visual antes vinha da borda inferior da
-// aba; o pk-segmented é uma pílula solta, então o respiro precisa ser explícito.
-.filtros-row {
+  &--acao {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+  }
+}
+
+// No computador, o botão com rótulo; no celular, o "+" de 40px.
+.barra__novo-icone { display: none; }
+
+.chips {
   display: flex;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+
+  i { font-size: .72rem; color: var(--app-text-muted); }
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 600;
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:active { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  // O par de tokens do `.status-chip` (styles/chips.scss).
+  &--status {
+    i, small { color: var(--c); }
+    &:hover { border-color: var(--c); }
+
+    &.is-on {
+      background: var(--s);
+      border-color: var(--c);
+      color: var(--c);
+    }
+  }
+
+  &--success { --c: var(--app-success); --s: var(--app-success-soft); }
+  &--warning { --c: var(--app-warning); --s: var(--app-warning-soft); }
+  &--neutral { --c: var(--app-text-muted); --s: var(--app-surface-3); }
+
+  &--tracejado:not(.is-on) { border-style: dashed; }
+
+  &--limpar {
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-text-muted);
+    padding: 0 6px;
+
+    &:hover { color: var(--app-text); border-color: transparent; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A LISTA
+// ═══════════════════════════════════════════════════════════════════════════
+
+.col-seta { width: 48px; }
+.col-finalidade { width: 24%; }
+.col-cores { width: 150px; }
+.col-descricoes { width: 150px; }
+.col-situacao { width: 124px; }
+.col-acoes { width: 88px; }
+
+.prod-linha--aberta > td { background: var(--app-action-soft); }
+
+// A seta que abre: gira para baixo quando aberta.
+.prod-abrir {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, color .15s ease;
+
+  i { font-size: .72rem; }
+
+  &:hover { border-color: var(--app-border-strong); color: var(--app-text); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &.is-on {
+    transform: rotate(90deg);
+    border-color: var(--app-action);
+    color: var(--app-action);
+  }
+}
+
+.prod {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.prod-thumb {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.prod-nome {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+
+  b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: var(--app-text);
+  }
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 700;
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Oculto: riscado, como antes — continua no guia, mas fora da vitrine.
+.prod-nome--oculto {
+  text-decoration: line-through;
+  text-decoration-color: var(--app-text-subtle);
+}
+
+// Finalidade em até duas linhas; o texto inteiro no title.
+.prod-finalidade {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+// "Site ✓ / Guia —": o que existe, sem abrir nada.
+.marcas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  white-space: nowrap;
+
+  i { font-size: .62rem; }
+
+  &--ok { background: var(--app-success-soft); color: var(--app-success); }
+
+  // A falta é tracejada e apagada: aponta a lacuna sem gritar como erro — o
+  // guia continua saindo, com a descrição do site.
+  &--falta {
+    border: 1px dashed var(--app-border-strong);
+    color: var(--app-text-subtle);
+  }
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.acao {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+
+  &:hover { background: var(--app-action-soft); border-color: var(--app-action); color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ─── O accordion ────────────────────────────────────────────────────────────
+.prod-detalhe-linha > td {
+  padding: 0 !important;
+  background: var(--app-surface-2);
+}
+
+.detalhe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px 60px;
+  animation: detalhe-abre .18s cubic-bezier(.2, .8, .2, 1);
+}
+
+.detalhe__descricoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detalhe__bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-size: var(--text-micro);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--app-text-muted);
+
+    small {
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--text-ui);
+    line-height: 1.55;
+    color: var(--app-text);
+    white-space: pre-line;
+  }
+
+  &--vazio {
+    border-style: dashed;
+    background: transparent;
+
+    p { color: var(--app-text-muted); }
+  }
+}
+
+.detalhe__campos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+
+  div { min-width: 0; }
+
+  dt {
+    font-size: var(--text-micro);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--app-text-muted);
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-size: var(--text-ui);
+    overflow-wrap: anywhere;
+  }
+}
+
+.detalhe__pe {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@keyframes detalhe-abre {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes detalhe-esmaece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ─── O cartão do celular ────────────────────────────────────────────────────
+.prod-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prod-cartao__topo {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--app-primary); outline-offset: 3px; border-radius: var(--radius-control); }
+}
+
+.prod-seta {
+  color: var(--app-text-muted);
+  font-size: .8rem;
+  transition: transform .15s ease;
+
+  &.is-on { transform: rotate(90deg); color: var(--app-action); }
+}
+
+.prod-cartao__marcas {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.prod-cartao .detalhe { padding: 4px 0 0; }
+
+.contador {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: var(--text-micro);
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELULAR
+// ═══════════════════════════════════════════════════════════════════════════
+@media (max-width: 768px) {
+  .barra { padding: 10px 12px; }
+  .busca { flex: 1 1 auto; }
+
+  // 16px no campo: abaixo disso o iPhone dá zoom ao focar.
+  .busca__campo { font-size: 16px; height: 40px; }
+  .barra__icone { width: 40px; height: 40px; }
+  .barra__novo { display: none; }
+  .barra__novo-icone { display: inline-flex; }
+
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -12px;
+    padding: 0 12px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .chip { height: 34px; }
+
+  .detalhe__descricoes { grid-template-columns: 1fr; }
+  .detalhe__campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detalhe { animation-name: detalhe-esmaece; }
+  .chip:active, .barra__icone:active { transform: none; }
+  .prod-abrir, .prod-seta { transition: none; }
 }
 
 .estado-vazio {
@@ -71,60 +520,188 @@
   p { margin: 0; font-size: .9rem; }
 }
 
-.product-name {
-  font-weight: 600;
-  color: var(--app-action);
-
-  &.product-name-hidden {
-    color: var(--app-action);
-    text-decoration: line-through;
-    text-decoration-color: var(--app-text-subtle);
-  }
-}
-
 .field-error { color: var(--app-danger); font-size: .76rem; }
 
 
-.product-thumb {
-  width: 54px;
-  height: 54px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
+// ═══════════════════════════════════════════════════════════════════════════
+// O FORMULÁRIO — duas colunas (aprovado em 2026-09-29): à esquerda o que se
+// digita, à direita o que se escolhe. Só esta tela: a largura vem do
+// `width="wide"` do app-form-screen, e as classes são daqui.
+// ═══════════════════════════════════════════════════════════════════════════
+.pf {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
 }
 
-.file-input {
-  width: 100%;
-  padding: .75rem;
-  border: 1px dashed var(--app-border);
-  border-radius: 10px;
-  background: var(--app-surface);
-}
-
-.preview-wrap {
+.pf__col {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: .5rem;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+
+  &--lado { gap: 12px; }
 }
 
-.product-preview {
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid var(--app-border);
-  background: var(--app-surface);
+.pf__secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-// As duas origens da foto lado a lado: enviar arquivo ou escolher da galeria.
-.imagem-origens {
+// Títulos pequenos no lugar dos divisores largos com ícone, que custavam
+// altura em cada uma das seis seções.
+.pf__titulo {
   display: flex;
   align-items: center;
-  gap: .75rem;
-  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--app-text-muted);
 
-  .file-input { flex: 1 1 260px; }
+  i { font-size: .72rem; }
+}
+
+.pf__grid {
+  display: grid;
+  gap: 12px;
+
+  &--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  &--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  &--codigo { grid-template-columns: 200px minmax(0, 1fr); }
+}
+
+.pf .form-field {
+  margin: 0;
+  min-width: 0;
+
+  input[pInputText], textarea { width: 100%; }
+}
+
+.pf__texto {
+  resize: vertical;
+  min-height: 132px;
+  line-height: 1.5;
+}
+
+// Os cartões da coluna da direita: cada um é uma escolha independente.
+.pf__cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.pf__previa {
+  display: grid;
+  place-items: center;
+  height: 180px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  overflow: hidden;
+}
+
+.pf__foto {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pf__sem-foto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--app-text-subtle);
+  font-size: var(--text-ui-sm);
+}
+
+// O input de arquivo fica escondido, e o rótulo "Enviar arquivo" é o botão:
+// o seletor nativo mostrava "Nenhum arquivo escolhido" e um botão que não
+// seguia o tema.
+.pf__arquivo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pf__botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pf__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color .15s ease, background-color .15s ease;
+
+  &:hover { border-color: var(--app-border-strong); background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+// O rótulo não recebe foco; o input escondido sim — o anel aparece no botão.
+.pf__arquivo:focus-visible + .pf__botoes .pf__botao:first-child { box-shadow: var(--app-focus-ring); }
+
+.pf__remover {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--app-danger);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+// O equipamento com a foto, na lista e no escolhido.
+.eq-opcao {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.eq-opcao__foto {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 7px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+}
+
+@media (max-width: 900px) {
+  .pf { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .pf__grid--2, .pf__grid--3, .pf__grid--codigo { grid-template-columns: 1fr; }
 }
