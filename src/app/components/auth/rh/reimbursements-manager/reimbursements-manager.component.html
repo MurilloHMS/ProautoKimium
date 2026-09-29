@@ -141,7 +141,7 @@
             </button>
           } @else if (r.status === 'APPROVED') {
             <button type="button" class="pk-cartao__atalho" (click)="openPay(r)">
-              <i class="pi pi-money-bill"></i> Pagar
+              <i class="pi pi-dollar"></i> Pagar
             </button>
           }
 
@@ -188,7 +188,12 @@
             <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve" pTooltip="Aprovar" tooltipPosition="left" (click)="openReview(r, 'approve')"></button>
             <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject" pTooltip="Recusar" tooltipPosition="left" (click)="openReview(r, 'reject')"></button>
           } @else if (r.status === 'APPROVED') {
-            <button pButton type="button" icon="pi pi-money-bill" label="Pagar" class="action-btn action-btn--pay" (click)="openPay(r)"></button>
+            <!-- Só ícone, como Aprovar e Recusar ao lado: o `action-btn` é um
+                 quadrado de 32px, e o rótulo "Pagar" vazava por cima da linha. -->
+            <button pButton type="button" icon="pi pi-dollar" class="action-btn action-btn--pay"
+                    pTooltip="Pagar" tooltipPosition="left"
+                    [attr.aria-label]="'Pagar o reembolso de ' + employeeName(r.employeeId)"
+                    (click)="openPay(r)"></button>
           }
           <button pButton type="button" [icon]="baixandoId === r.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
                   class="action-btn" pTooltip="Ver comprovante" tooltipPosition="left"
@@ -200,13 +205,14 @@
   </pk-table>
 </div>
 
-<!-- Dialog: Aprovar/Recusar -->
-<pk-dialog
-  [header]="reviewAction === 'approve' ? 'Aprovar reembolso' : 'Recusar reembolso'"
-  [visible]="reviewDialogVisible"
-  (visibleChange)="reviewDialogVisible = $event">
+<!--
+  Aprovar / Recusar — a mesma janela para os dois.
 
-  <div pkDialogContent>
+  No celular sobe de baixo, como o registrar pagamento (pedido dele em
+  2026-09-29): o polegar mora na base da tela, e os botões ficam onde ele já
+  está. No computador continua diálogo. O conteúdo é escrito uma vez só.
+-->
+<ng-template #revisaoCorpo>
     @if (reviewTarget) {
       <p class="review-target">
         <i class="pi pi-user"></i>
@@ -242,49 +248,124 @@
       <textarea id="reviewNotes" [(ngModel)]="reviewNotes" rows="3" maxlength="500"
                 placeholder="{{ reviewAction === 'reject' ? 'Explique o motivo da recusa' : 'Opcional' }}"></textarea>
     </div>
-  </div>
+</ng-template>
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="reviewDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button
-      [pkType]="reviewAction === 'approve' ? 'save' : 'cancel'"
-      (clicked)="confirmReview()"
-      [pkLabel]="reviewAction === 'approve' ? 'Aprovar' : 'Recusar'"
-      pkSize="sm"
-      [pkDisabled]="!canConfirmReview"
-      [pkLoading]="reviewSaving">
-    </pk-button>
-  </div>
-</pk-dialog>
-
-<!-- Dialog: Pagar -->
-<pk-dialog header="Registrar pagamento" [visible]="payDialogVisible" (visibleChange)="payDialogVisible = $event">
-  <div pkDialogContent>
-    @if (payTarget) {
-      <p class="review-target">
-        <i class="pi pi-user"></i>
-        <strong>{{ employeeName(payTarget.employeeId) }}</strong>
-        — {{ payTarget.category }} · {{ payTarget.amount | currency:'BRL' }}
-      </p>
-    }
-
-    <div class="form-field form-field--full">
-      <label for="payDate">Data do pagamento <span class="required">*</span></label>
-      <p-datepicker appendTo="body"
-        id="payDate"
-        [(ngModel)]="payDate"
-        [showButtonBar]="true"
-        dateFormat="dd/mm/yy"
-        styleClass="datepicker-field"
-        placeholder="dd/mm/aaaa">
-      </p-datepicker>
+@if (ehCelular()) {
+  <pk-sheet [open]="reviewDialogVisible" [fit]="true"
+            [title]="reviewAction === 'approve' ? 'Aprovar reembolso' : 'Recusar reembolso'"
+            (closed)="reviewDialogVisible = false">
+    <div pkSheetBody class="revisao revisao--folha">
+      <ng-container *ngTemplateOutlet="revisaoCorpo" />
     </div>
-  </div>
+    <div pkSheetFooter class="pagamento__botoes">
+      <pk-button pkType="cancel" (clicked)="reviewDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button
+        [pkType]="reviewAction === 'approve' ? 'save' : 'cancel'"
+        (clicked)="confirmReview()"
+        [pkLabel]="reviewAction === 'approve' ? 'Aprovar' : 'Recusar'"
+        pkSize="sm"
+        [pkDisabled]="!canConfirmReview"
+        [pkLoading]="reviewSaving" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog
+    [header]="reviewAction === 'approve' ? 'Aprovar reembolso' : 'Recusar reembolso'"
+    [visible]="reviewDialogVisible"
+    (visibleChange)="reviewDialogVisible = $event">
 
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" (clicked)="payDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
-    <pk-button pkType="save" (clicked)="confirmPay()" pkLabel="Confirmar pagamento" pkSize="sm" [pkDisabled]="!payDate" [pkLoading]="paySaving"/>
+    <div pkDialogContent class="revisao">
+      <ng-container *ngTemplateOutlet="revisaoCorpo" />
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="reviewDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button
+        [pkType]="reviewAction === 'approve' ? 'save' : 'cancel'"
+        (clicked)="confirmReview()"
+        [pkLabel]="reviewAction === 'approve' ? 'Aprovar' : 'Recusar'"
+        pkSize="sm"
+        [pkDisabled]="!canConfirmReview"
+        [pkLoading]="reviewSaving">
+      </pk-button>
+    </div>
+  </pk-dialog>
+}
+
+<!--
+  Registrar pagamento — o mesmo calendário da Programação (pedido dele em
+  2026-09-29: "siga nosso padrão"). Computador: diálogo com o calendário à
+  esquerda e o que está sendo pago à direita. Celular: folha que sobe de baixo,
+  porque o polegar mora na base da tela.
+
+  "Hoje" e "Ontem" são os dias de quase todo pagamento, e viram atalho de um
+  toque. O dia escolhido aparece por extenso: o calendário marca, mas é a frase
+  que se confere antes de confirmar.
+-->
+<ng-template #pagamentoCalendario>
+  <div class="pagamento__calendario">
+    <div class="pagamento__atalhos" role="group" aria-label="Atalhos de data">
+      <button type="button" class="pagamento__atalho" [class.is-on]="isPayDay(0)" (click)="payQuickDate(0)">Hoje</button>
+      <button type="button" class="pagamento__atalho" [class.is-on]="isPayDay(1)" (click)="payQuickDate(1)">Ontem</button>
+    </div>
+
+    <p-datepicker
+      [(ngModel)]="payDate"
+      [inline]="true"
+      dateFormat="dd/mm/yy"
+      ariaLabel="Data do pagamento" />
   </div>
-</pk-dialog>
+</ng-template>
+
+<ng-template #pagamentoEscolha>
+  <p class="pagamento__escolha" [class.is-vazia]="!payDate" aria-live="polite">
+    @if (payDate) {
+      <i class="pi pi-check-circle" aria-hidden="true"></i>
+      <span>Pago em <strong>{{ payDate | date: "EEEE, dd/MM/yyyy" : "" : "pt-BR" }}</strong></span>
+    } @else {
+      Escolha o dia em que o dinheiro saiu.
+    }
+  </p>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="payDialogVisible" title="Registrar pagamento" [fit]="true" (closed)="payDialogVisible = false">
+    <div pkSheetBody class="pagamento pagamento--folha">
+      @if (payTarget) {
+        <p class="pagamento__linha">
+          {{ employeeName(payTarget.employeeId) }} · {{ payTarget.category }} ·
+          <strong>{{ payTarget.amount | currency:'BRL' }}</strong>
+        </p>
+      }
+      <ng-container *ngTemplateOutlet="pagamentoCalendario" />
+      <ng-container *ngTemplateOutlet="pagamentoEscolha" />
+    </div>
+    <div pkSheetFooter class="pagamento__botoes">
+      <pk-button pkType="cancel" (clicked)="payDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="confirmPay()" pkLabel="Confirmar" pkSize="sm" [pkDisabled]="!payDate" [pkLoading]="paySaving"/>
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Registrar pagamento" width="640px" [visible]="payDialogVisible" (visibleChange)="payDialogVisible = $event">
+    <div pkDialogContent class="pagamento pagamento--lado">
+      <ng-container *ngTemplateOutlet="pagamentoCalendario" />
+
+      <div class="pagamento__resumo">
+        @if (payTarget) {
+          <span class="pagamento__rotulo">Pagamento de</span>
+          <strong class="pagamento__quem">{{ employeeName(payTarget.employeeId) }}</strong>
+          <span class="pagamento__oque">{{ payTarget.category }} · gasto em {{ formatDate(payTarget.expenseDate) }}</span>
+          <strong class="pagamento__valor">{{ payTarget.amount | currency:'BRL' }}</strong>
+        }
+        <ng-container *ngTemplateOutlet="pagamentoEscolha" />
+      </div>
+    </div>
+
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="payDialogVisible = false" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button pkType="save" (clicked)="confirmPay()" pkLabel="Confirmar pagamento" pkSize="sm" [pkDisabled]="!payDate" [pkLoading]="paySaving"/>
+    </div>
+  </pk-dialog>
+}
 
 <app-reimbursement-report-dialog [open]="reportOpen" (closed)="reportOpen = false" />

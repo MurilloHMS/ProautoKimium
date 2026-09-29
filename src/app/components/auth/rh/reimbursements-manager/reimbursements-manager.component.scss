@@ -32,30 +32,26 @@
   align-items: center;
   justify-content: center;
 
-  &--approve:hover {
+  // `&.action-btn--x`, e não `&--x`: aqui dentro o `&` é `.action-btn.p-button`,
+  // e `&--x` compilava para `.action-btn.p-button--x` — uma classe que não
+  // existe. As três cores de hover nunca apareceram, e o "Pagar" ficava preso
+  // nos 32px com o rótulo vazando por cima da linha.
+  &.action-btn--approve:hover {
     background: var(--app-success);
     border-color: var(--app-success);
     color: #fff;
   }
 
-  &--reject:hover {
+  &.action-btn--reject:hover {
     background: var(--app-danger);
     border-color: var(--app-danger);
     color: #fff;
   }
 
-  &--pay {
-    width: auto;
-    padding: 0 .7rem;
-    gap: .35rem;
-    font-size: .78rem;
-    font-weight: 600;
-
-    &:hover {
-      background: var(--app-action);
-      border-color: var(--app-action);
-      color: #fff;
-    }
+  &.action-btn--pay:hover {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
   }
 
   &:disabled { opacity: 0.6; cursor: default; }
@@ -117,7 +113,9 @@
 }
 
 // ── Totais do mês ────────────────────────────────────────────────────────────
-.rm-totals { display: block; padding: 12px 16px 0; }
+// 12px embaixo também: com `0` os cartões encostavam na grade (ele: "estão
+// grudadas"). O mesmo respiro de 12px entre blocos do resto da tela.
+.rm-totals { display: block; padding: 12px 16px; }
 
 // ── Contestação ──────────────────────────────────────────────────────────────
 // Rótulo neutro: "contestado" é um fato do pedido, não um status com cor.
@@ -311,3 +309,186 @@
   .table-card { padding: 12px 12px 16px; }
 }
 
+
+// ─── Aprovar / Recusar ──────────────────────────────────────────────────────
+.revisao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  > * { margin: 0; }
+}
+
+// O `pk-dialog` zera o padding do conteúdo; a folha já traz o dela.
+.revisao:not(.revisao--folha) { padding: 16px 20px 20px; }
+
+// 16px no campo: abaixo disso o iPhone dá zoom ao focar, e a folha pula.
+.revisao--folha textarea { font-size: 16px; }
+
+// ─── Registrar pagamento ────────────────────────────────────────────────────
+//
+// As medidas são as do calendário da Programação, que ele aprovou: 308px com
+// dias de 36px no computador; a largura toda com dias de 40px no celular.
+
+.pagamento {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+.pagamento--lado {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 24px;
+  padding: 16px 20px 20px;
+}
+
+.pagamento__calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.pagamento__atalhos { display: flex; gap: 6px; }
+
+.pagamento__atalho {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:active { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &.is-on {
+    background: var(--app-action-soft);
+    border-color: var(--app-action);
+    color: var(--app-action);
+  }
+}
+
+// O resumo à direita: quem, o quê, quanto — e, embaixo, o dia escolhido.
+.pagamento__resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding-left: 24px;
+  border-left: 1px solid var(--app-border);
+
+  .pagamento__escolha { margin-top: auto; }
+}
+
+.pagamento__rotulo {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--app-text-subtle);
+}
+
+.pagamento__quem {
+  font-size: 1rem;
+  color: var(--app-text);
+}
+
+.pagamento__oque {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.pagamento__valor {
+  margin: 10px 0 16px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--app-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagamento__linha {
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  text-align: center;
+
+  strong { color: var(--app-text); }
+}
+
+.pagamento__escolha {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-success-soft);
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+  line-height: 1.4;
+
+  i { margin-top: 2px; color: var(--app-success); }
+
+  // Sem dia ainda: cinza, e não verde — verde diria "pronto".
+  &.is-vazia {
+    background: var(--app-surface-2);
+    color: var(--app-text-muted);
+  }
+}
+
+.pagamento__botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+
+  > * { flex: 1; }
+}
+
+::ng-deep .pagamento__botoes .pk-btn { width: 100%; }
+
+// O calendário: o global do `forms.scss` trava o painel em 262px com dias de
+// 30px — certo para o menu que abre num campo, apertado aqui, onde o dia É o
+// conteúdo. `!important` só porque o global usa.
+::ng-deep .pagamento .p-datepicker-panel {
+  padding: 12px !important;
+  border: 1px solid var(--app-border);
+  box-shadow: none;
+
+  .p-datepicker-header { padding-bottom: 10px; margin-bottom: 8px; }
+  .p-datepicker-calendar { border-spacing: 3px; }
+  .p-datepicker-calendar th { height: 30px; }
+}
+
+::ng-deep .pagamento--lado .p-datepicker-panel {
+  width: 308px !important;
+
+  .p-datepicker-calendar td > span { width: 36px; height: 36px; font-size: var(--text-ui); }
+}
+
+::ng-deep .pagamento--folha {
+  .p-datepicker { width: 100%; }
+
+  .p-datepicker-panel {
+    width: 100% !important;
+    max-width: none;
+    padding: 0 !important;
+    border: 0;
+  }
+
+  // `.p-datepicker-panel` na frente para empatar com o global e vencer pela
+  // ordem — sem ele o teste mediu dias de 30px (o mesmo tropeço da Programação).
+  .p-datepicker-panel .p-datepicker-calendar td > span { width: 100%; height: 40px; font-size: var(--text-ui); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagamento__atalho:active { transform: none; }
+}

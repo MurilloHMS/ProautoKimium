@@ -29,6 +29,14 @@
   animation: pk-sheet-sobe .26s cubic-bezier(.32, .72, 0, 1);
 }
 
+// Folha curta (`[fit]`): da altura do conteúdo, como a do calendário da
+// Programação. O teto de 90dvh deixa a faixa de cima à vista — é ela que diz
+// "isto é uma gaveta".
+.pk-sheet__painel--ajustada {
+  height: auto;
+  max-height: 90dvh;
+}
+
 // Cabeça e pé parados; só o miolo rola — senão o botão de salvar foge para baixo.
 .pk-sheet__cabeca {
   flex: 0 0 auto;
