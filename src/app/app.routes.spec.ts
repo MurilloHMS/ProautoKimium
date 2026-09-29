@@ -78,7 +78,8 @@ describe('app.routes · o catálogo de telas', () => {
    * HoleriteService. Link novo lá entra aqui.
    */
   it('todo link de notificação da API chega a uma tela', () => {
-    const LINKS_DA_API = ['/reembolsos', '/mural', '/documentos', '/documentos/holerites'];
+    const LINKS_DA_API = ['/reembolsos', '/mural', '/documentos', '/documentos/holerites',
+      '/documentos/rh/documents', '/rh/employee-documents'];
 
     const telas = new Set(todas(routes).map(r => r.path));
     const redirects = new Map<string, string>();

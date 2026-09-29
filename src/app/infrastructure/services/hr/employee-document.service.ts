@@ -1,23 +1,89 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { EmployeeDocument } from '../../../domain/models/hr/employee-document.model';
+import {
+  EmployeeDocument,
+  EmployeeDocumentType,
+  EmployeeDocumentTypeRequest,
+  EmployeeDocumentUpdate,
+} from '../../../domain/models/hr/employee-document.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+/** O que o RH manda ao vincular um documento. */
+export interface LinkEmployeeDocument {
+  employeeId: string;
+  typeId: string;
+  title: string;
+  /** `yyyy-MM-dd`; nulo = sem vencimento. */
+  dueDate: string | null;
+  /** O documento ativo que este substitui (para de gerar aviso). */
+  replacesId: string | null;
+  file: File;
+}
+
+@Injectable({ providedIn: 'root' })
 export class EmployeeDocumentService {
 
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly url = `${environment.apiUrl}/hr/employee-documents`;
+  private readonly typesUrl = `${environment.apiUrl}/hr/employee-document-types`;
 
   getMine(): Observable<EmployeeDocument[]> {
-    return this.http.get<EmployeeDocument[]>(`${environment.apiUrl}/hr/employee-documents/me`);
+    return this.http.get<EmployeeDocument[]>(`${this.url}/me`);
+  }
+
+  /**
+   * A lista do RH, inteira. Os filtros da tela são aplicados no navegador: os
+   * chips mostram a contagem do quadro todo, e ela não pode mudar só porque
+   * outro filtro foi ligado.
+   */
+  search(): Observable<EmployeeDocument[]> {
+    return this.http.get<EmployeeDocument[]>(this.url);
+  }
+
+  link(request: LinkEmployeeDocument): Observable<EmployeeDocument> {
+    const form = new FormData();
+    form.append('employeeId', request.employeeId);
+    form.append('typeId', request.typeId);
+    form.append('title', request.title);
+    if (request.dueDate) form.append('dueDate', request.dueDate);
+    if (request.replacesId) form.append('replacesId', request.replacesId);
+    form.append('file', request.file);
+    return this.http.post<EmployeeDocument>(this.url, form);
+  }
+
+  update(id: string, body: EmployeeDocumentUpdate): Observable<EmployeeDocument> {
+    return this.http.put<EmployeeDocument>(`${this.url}/${id}`, body);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
   }
 
   download(id: string): Observable<Blob> {
-    return this.http.get(`${environment.apiUrl}/hr/employee-documents/${id}/arquivo`, {
-      responseType: 'blob'
-    });
+    return this.http.get(`${this.url}/${id}/arquivo`, { responseType: 'blob' });
   }
+
+  listTypes(): Observable<EmployeeDocumentType[]> {
+    return this.http.get<EmployeeDocumentType[]>(this.typesUrl);
+  }
+
+  createType(body: EmployeeDocumentTypeRequest): Observable<EmployeeDocumentType> {
+    return this.http.post<EmployeeDocumentType>(this.typesUrl, body);
+  }
+
+  updateType(id: string, body: EmployeeDocumentTypeRequest): Observable<EmployeeDocumentType> {
+    return this.http.put<EmployeeDocumentType>(`${this.typesUrl}/${id}`, body);
+  }
+
+  /** Desativa: tipo com documentos não some. */
+  deactivateType(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.typesUrl}/${id}`);
+  }
+}
+
+/** A data do calendário no formato da API, sem fuso: meia-noite local não pode virar o dia anterior. */
+export function toIsoDate(date: Date): string {
+  const pad = (n: number) => `${n}`.padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }

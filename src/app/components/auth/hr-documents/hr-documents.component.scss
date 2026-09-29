@@ -115,6 +115,38 @@
   }
 }
 
+// A situação logo abaixo do prazo: o selo tem a cor e o ícone do vocabulário.
+.hrd-card__status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+
+  small { font-size: 0.78rem; color: var(--app-text-muted); }
+}
+
+// O substituído continua baixável, mas lido como passado.
+.hrd-card--antigo {
+  opacity: .72;
+
+  .hrd-card__title { color: var(--app-text-muted); }
+}
+
+.hrd-anteriores {
+  margin-top: 20px;
+
+  summary {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border: 1px dashed var(--app-border-strong);
+    border-radius: 12px;
+    color: var(--app-text-muted);
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+}
+
 @media (max-width: 600px) {
   .hrd-page { padding: 24px 16px 40px; }
 }

@@ -1,7 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EmployeeDocumentService } from '../../../infrastructure/services/hr/employee-document.service';
-import { EmployeeDocument } from '../../../domain/models/hr/employee-document.model';
+import {
+  DOCUMENT_STATUS_INFO,
+  EmployeeDocument,
+  EmployeeDocumentStatus,
+  describeDue,
+} from '../../../domain/models/hr/employee-document.model';
 import { PageHeaderComponent } from '../shared/page-header/page-header.component';
 
 @Component({
@@ -16,6 +21,13 @@ export class HrDocumentsComponent implements OnInit {
   loading = signal(true);
   erro = signal(false);
   baixandoId = signal<string | null>(null);
+
+  readonly statusInfo = DOCUMENT_STATUS_INFO;
+  readonly describeDue = describeDue;
+
+  /** Os que valem hoje. Os substituídos ficam dobrados em "Anteriores": são histórico. */
+  readonly current = computed(() => this.documents().filter(doc => doc.status !== 'REPLACED'));
+  readonly previous = computed(() => this.documents().filter(doc => doc.status === 'REPLACED'));
 
   constructor(private service: EmployeeDocumentService) {}
 
@@ -32,6 +44,18 @@ export class HrDocumentsComponent implements OnInit {
     });
   }
 
+  statusLabel(status: EmployeeDocumentStatus): string {
+    return DOCUMENT_STATUS_INFO[status].label;
+  }
+
+  statusIcon(status: EmployeeDocumentStatus): string {
+    return DOCUMENT_STATUS_INFO[status].icon;
+  }
+
+  statusClass(status: EmployeeDocumentStatus): string {
+    return `status-chip status-chip--${DOCUMENT_STATUS_INFO[status].severity}`;
+  }
+
   formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('pt-BR');
   }
@@ -43,7 +67,7 @@ export class HrDocumentsComponent implements OnInit {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = doc.originalFilename;
+        a.download = doc.originalFilename || doc.title;
         a.click();
         URL.revokeObjectURL(url);
         this.baixandoId.set(null);

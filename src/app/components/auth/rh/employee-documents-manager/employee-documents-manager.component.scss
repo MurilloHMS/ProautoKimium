@@ -1,0 +1,355 @@
+@use 'mixins' as m;
+
+// Tela de grade: barra fixa em cima, a lista ocupando o resto e rolando dentro.
+:host { @include m.grid-screen; }
+
+.grade { @include m.grid-screen-body; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A BARRA — as mesmas medidas da toolbar da Programação (opção A): busca,
+// filtros e ações numa linha; as situações em chips com a cor do selo.
+// ═══════════════════════════════════════════════════════════════════════════
+
+.barra {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.barra__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  min-width: 0;
+}
+
+.barra__espaco { flex: 1 1 auto; }
+
+::ng-deep .barra__filtro { width: 220px; }
+::ng-deep .barra__filtro--tipo { width: 180px; }
+
+.busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 320px;
+  min-width: 0;
+
+  i {
+    position: absolute;
+    left: 11px;
+    font-size: .8rem;
+    color: var(--app-text-subtle);
+    pointer-events: none;
+  }
+}
+
+.busca__campo {
+  width: 100%;
+  height: var(--field-h);
+  padding-left: 32px;
+}
+
+.barra__icone {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-h);
+  height: var(--field-h);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, transform .12s ease;
+
+  &:hover:not(:disabled) { border-color: var(--app-border-strong); color: var(--app-text); }
+  &:active:not(:disabled) { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &:disabled { cursor: default; }
+
+  &--acao {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+  }
+}
+
+.barra__ponto {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--app-action);
+}
+
+// ─── Chips ──────────────────────────────────────────────────────────────────
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+
+  i { font-size: .72rem; color: var(--app-text-muted); }
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 600;
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:active { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  // O par de tokens do `.status-chip` (styles/chips.scss): parado, só o ícone e
+  // o número têm cor; ligado, o chip vira o selo da linha.
+  &--status {
+    i, small { color: var(--c); }
+    &:hover { border-color: var(--c); }
+
+    &.is-on {
+      background: var(--s);
+      border-color: var(--c);
+      color: var(--c);
+    }
+  }
+
+  &--success { --c: var(--app-success); --s: var(--app-success-soft); }
+  &--warning { --c: var(--app-warning); --s: var(--app-warning-soft); }
+  &--neutral { --c: var(--app-text-muted); --s: var(--app-surface-3); }
+
+  // Vencidos: o único chip que fica sólido — é o único recorte que diz
+  // "alguém precisa agir", como Atrasadas na Programação.
+  &--atraso {
+    color: var(--app-danger);
+    border-color: var(--app-danger);
+
+    i, small { color: var(--app-danger); }
+
+    &.is-on {
+      background: var(--app-danger);
+      color: #fff;
+
+      i, small { color: #fff; }
+    }
+  }
+
+  // Sem vencimento e Substituídos não são pendência: tracejados, como o que
+  // não tem data na Programação.
+  &--tracejado:not(.is-on) { border-style: dashed; }
+
+  &--limpar {
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-text-muted);
+    padding: 0 6px;
+
+    &:hover { color: var(--app-text); border-color: transparent; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A LISTA
+// ═══════════════════════════════════════════════════════════════════════════
+
+.cel-principal,
+.cel-sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cel-principal { font-weight: 600; }
+
+.cel-sub {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+
+  &--forte { color: var(--app-text); font-weight: 500; }
+}
+
+// O prazo em dois andares: a data e a distância até ela.
+.vence {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+
+  b { font-size: var(--text-ui); }
+  small { font-size: var(--text-micro); color: var(--app-text-muted); white-space: nowrap; }
+
+  &--atraso small { color: var(--app-danger); font-weight: 600; }
+  &--breve small { color: var(--app-warning); font-weight: 600; }
+}
+
+// A faixa vermelha do vencido — a mesma marca da linha atrasada na Programação.
+::ng-deep .pk-table tr.linha--vencida > td:first-child { box-shadow: inset 3px 0 0 var(--app-danger); }
+
+.col-acoes { width: 150px; text-align: right; }
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.acao {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+
+  &:hover:not(:disabled) { background: var(--app-action-soft); border-color: var(--app-action); color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &--perigo:hover:not(:disabled) { background: var(--app-danger-soft); border-color: var(--app-danger); color: var(--app-danger); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ─── O cartão do celular ────────────────────────────────────────────────────
+.doc-cartao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.doc-cartao--vencido { box-shadow: inset 3px 0 0 var(--app-danger); }
+
+.doc-cartao .vence { align-items: flex-end; text-align: right; }
+
+.doc-cartao__rodape {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// ─── Janelas ────────────────────────────────────────────────────────────────
+
+// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+.janela { padding: 16px 20px 20px; }
+
+.janela__texto { margin: 0 0 10px; line-height: 1.5; }
+
+.janela__aviso {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-warning-soft);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+}
+
+.edicao,
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .form-field { margin: 0; }
+  input[pInputText] { width: 100%; }
+}
+
+::ng-deep .edicao pk-combobox,
+::ng-deep .edicao p-datepicker,
+::ng-deep .filtros pk-combobox { width: 100%; }
+
+.filtros__tipos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+
+  > * { flex: 1; }
+}
+
+::ng-deep .botoes .pk-btn { width: 100%; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELULAR
+// ═══════════════════════════════════════════════════════════════════════════
+@media (max-width: 768px) {
+  .barra { padding: 10px 12px; }
+  .busca { flex: 1 1 auto; }
+
+  // 16px no campo: abaixo disso o iPhone dá zoom ao focar.
+  .busca__campo { font-size: 16px; height: 40px; }
+  .barra__icone { width: 40px; height: 40px; }
+
+  // Os chips rolam de lado numa fileira só; duas linhas de chip empurrariam a
+  // lista para baixo.
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -12px;
+    padding: 0 12px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .chip { height: 34px; }
+  .edicao input, .filtros input { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip:active, .barra__icone:active { transform: none; }
+}
