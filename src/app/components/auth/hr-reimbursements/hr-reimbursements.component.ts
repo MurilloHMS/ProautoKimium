@@ -1,4 +1,6 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -23,11 +25,18 @@ import { lerValorDoCampo, valorMinimo } from '../../../infrastructure/validators
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, DatePickerModule, PkButtonComponent, PkInputComponent,
     PkDialogComponent, PkSheetComponent, PageHeaderComponent, FormScreenComponent, MonthSwitcherComponent,
-    ReimbursementTotalsComponent],
+    ReimbursementTotalsComponent, Toast],
   templateUrl: './hr-reimbursements.component.html',
   styleUrl: './hr-reimbursements.component.scss',
+  providers: [MessageService],
 })
 export class HrReimbursementsComponent implements OnInit {
+  /**
+   * A confirmação de envio (pedido dele, 2026-09-29). Antes, enviar só voltava
+   * para a lista — e a volta silenciosa se lê como "não sei se foi".
+   */
+  private readonly messages = inject(MessageService);
+
   reimbursements = signal<Reimbursement[]>([]);
   loading = signal(true);
   erro = signal(false);
@@ -167,6 +176,11 @@ export class HrReimbursementsComponent implements OnInit {
           this.mode.set('list');
           this.carregar();
           this.carregarTotais();
+          this.messages.add({
+            severity: 'success',
+            summary: 'Reembolso enviado',
+            detail: 'O comprovante chegou ao RH. Acompanhe a situação aqui na lista.',
+          });
         },
         error: (err) => {
           this.enviando.set(false);
@@ -224,6 +238,11 @@ export class HrReimbursementsComponent implements OnInit {
         this.contestTarget.set(null);
         this.carregar();
         this.carregarTotais();
+        this.messages.add({
+          severity: 'success',
+          summary: 'Contestação enviada',
+          detail: 'O RH vai analisar de novo, com o novo comprovante.',
+        });
       },
       error: (err) => {
         this.contestando.set(false);

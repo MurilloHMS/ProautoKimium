@@ -368,6 +368,9 @@
   color: var(--app-text-muted);
 }
 
+// Embaixo do selo de status: um respiro para não encostar no chip.
+.cel__obs { margin-top: 4px; }
+
 .cel__vazio {
   font-weight: 400;
   color: var(--app-text-subtle);
