@@ -16,8 +16,9 @@ const RESUMO = {
  * A tela do RH no celular — 70% dos acessos (dito por ele em 2026-09-28).
  *
  * Medido a 390px: a toolbar quebrava em várias linhas (182px) e os totais em
- * 2×2 ocupavam 226px; sobravam 2 cartões visíveis. Agora a barra tem 52px, a
- * faixa de totais 64px, e o computador continua como era.
+ * 2×2 ocupavam 226px; sobravam 2 cartões visíveis. Em 2026-09-29 os totais
+ * saíram das duas larguras (a análise foi para os Indicadores), e a contagem
+ * do mês ficou nos chips de status.
  *
  * `detectChanges(false)`: a tela usa campos comuns, e no teste sem zone.js a
  * checagem extra acusaria a mudança feita pela resposta HTTP.
@@ -52,44 +53,80 @@ describe('ReimbursementsManagerComponent', () => {
     return reqs.find(r => r.request.url === API);
   }
 
+  function chipDe(rotulo: string): HTMLButtonElement {
+    const chips = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.chip'));
+    const chip = chips.find(c => c.textContent!.includes(rotulo));
+    if (!chip) throw new Error(`sem o chip "${rotulo}"`);
+    return chip;
+  }
+
+  /** O número pequeno do chip, ou null quando não tem. */
+  function contagem(rotulo: string): string | null {
+    return chipDe(rotulo).querySelector('small')?.textContent?.trim() ?? null;
+  }
+
   afterEach(() => restaurarLargura());
 
   describe('no celular', () => {
     beforeEach(() => montar(NO_CELULAR));
 
-    it('troca a toolbar pela linha compacta e os totais pela faixa', () => {
+    it('uma linha compacta e os chips, sem os cartões de total', () => {
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('app-toolbar')).toBeNull();
       expect(el.querySelector('.rm-bar')).not.toBeNull();
-      expect(el.querySelector('.rs')).withContext('faixa de totais').not.toBeNull();
-      expect(el.querySelector('.rs')?.textContent).toContain('A pagar');
+      expect(el.querySelector('.barra')).withContext('a barra do computador').toBeNull();
+      expect(el.querySelector('app-reimbursement-totals')).toBeNull();
+      expect(el.querySelectorAll('.chip').length).toBe(5);
+    });
+
+    /**
+     * No celular a linha das abas não tem espaço: o mesmo período aparece só
+     * como ‹ Set 2026 › na barra de Pedidos, e inteiro no topo dos Indicadores.
+     */
+    it('o período vira ‹ › curto na barra, e inteiro no topo dos Indicadores', async () => {
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('.rm-abas__lado')).toBeNull();
+      expect(el.querySelector('.rm-bar .pp-nav b')?.textContent).toBe('Set 2026');
+      expect(el.querySelector('.rm-bar .pp-gran')).withContext('sem Mês/Trimestre/Ano na barra estreita').toBeNull();
+
+      component.openTab('indicadores');
+      fixture.detectChanges(false);
+      responder();
+      await fixture.whenStable();
+      fixture.detectChanges(false);
+      const topo = el.querySelector('.rm-periodo-celular') as HTMLElement;
+      expect(topo.querySelector('.pp-gran')).not.toBeNull();
+      const nav = topo.querySelector('.pp-nav') as HTMLElement;
+      expect(nav.getBoundingClientRect().right).withContext('cabe na largura, sem vazar').toBeLessThanOrEqual(topo.getBoundingClientRect().right);
+      // O nome de mês mais comprido também: "Fevereiro" tem uma letra a mais que "Setembro".
+      for (const mes of ['2026-09', '2026-02']) {
+        component.month = mes;
+        fixture.detectChanges(false);
+        const b = nav.querySelector('b')!;
+        expect(b.scrollWidth).withContext(`"${b.textContent}" não é cortado`).toBeLessThanOrEqual(b.clientWidth);
+      }
     });
 
     it('os botões de ícone têm nome para o leitor de tela', () => {
       const nomes = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.rm-icon'))
         .map(b => b.getAttribute('aria-label'));
-      expect(nomes).toEqual(jasmine.arrayContaining(['Buscar', 'Filtrar por status', 'Atualizar']));
+      expect(nomes).toEqual(jasmine.arrayContaining(['Buscar', 'Atualizar']));
+      expect(nomes).withContext('o status é chip agora').not.toContain('Filtrar por status');
     });
 
-    it('escolher na folha de status filtra, recarrega e fecha', () => {
-      component.statusSheetOpen = true;
-      component.pickStatus('APPROVED');
+    it('tocar num chip filtra o mês pelo status e acende só ele', () => {
+      const chip = chipDe('A pagar');
+      chip.click();
 
       const req = lista(responder());
       expect(req?.request.params.get('status')).toBe('APPROVED');
       expect(req?.request.params.get('month')).toBe('2026-09');
-      expect(component.statusSheetOpen).toBeFalse();
+      expect(chip.getAttribute('aria-pressed')).toBe('true');
+      expect(chipDe('Em análise').getAttribute('aria-pressed')).toBe('false');
     });
 
-    /** Filtro escondido é grade curta sem explicação: o chip mostra e remove. */
-    it('o chip mostra o filtro ativo, e remover volta para todos', () => {
-      const chip = (fixture.nativeElement as HTMLElement).querySelector('.rm-chip') as HTMLButtonElement;
-      expect(chip.textContent).toContain('Em análise');
-
-      chip.click();
-      const req = lista(responder());
-      expect(req?.request.params.has('status')).toBeFalse();
-      expect((fixture.nativeElement as HTMLElement).querySelector('.rm-chip')).toBeNull();
+    it('"Todos" tira o filtro de status', () => {
+      chipDe('Todos').click();
+      expect(lista(responder())?.request.params.has('status')).toBeFalse();
     });
 
     /**
@@ -178,6 +215,47 @@ describe('ReimbursementsManagerComponent', () => {
       expect(document.querySelector('.pk-sheet__painel')?.textContent).toContain('Recusar reembolso');
       const campo = document.querySelector('.revisao--folha textarea') as HTMLElement;
       expect(getComputedStyle(campo).fontSize).toBe('16px');
+    });
+  });
+
+  /**
+   * Um clique num gráfico dos Indicadores volta para Pedidos com o recorte: a
+   * lista vem inteira (o período pode ser trimestre ou ano) e é filtrada aqui.
+   */
+  describe('o recorte que vem dos Indicadores', () => {
+    beforeEach(() => montar(NO_COMPUTADOR));
+
+    it('volta para Pedidos, pede a lista sem mês e filtra pelo recorte', () => {
+      component.aba.set('indicadores');
+      component.onDrill({ employeeId: 'e1', label: 'Ana · 2026', from: '2026-01-01', to: '2026-12-31' });
+
+      expect(component.aba()).toBe('pedidos');
+      expect(component.statusFilter).toBeNull();
+      const req = lista(http.match(() => true));
+      expect(req?.request.params.has('month')).withContext('sem mês: o período é o do recorte').toBeFalse();
+      req!.flush([
+        { id: 'a', employeeId: 'e1', expenseDate: '2026-03-10', category: 'Hotel', amount: 10, status: 'PAID' },
+        { id: 'b', employeeId: 'e2', expenseDate: '2026-03-10', category: 'Hotel', amount: 10, status: 'PAID' },
+        { id: 'c', employeeId: 'e1', expenseDate: '2025-12-31', category: 'Hotel', amount: 10, status: 'PAID' },
+      ]);
+      expect(component.reimbursements.map(r => r.id)).toEqual(['a']);
+    });
+
+    it('a categoria do recorte ignora acento e caixa, como no gráfico', () => {
+      component.onDrill({ categoryKey: 'alimentacao', label: 'Alimentação · set', from: '2026-09-01', to: '2026-09-30' });
+      lista(http.match(() => true))!.flush([
+        { id: 'a', employeeId: 'e1', expenseDate: '2026-09-10', category: 'Alimentação ', amount: 10, status: 'PAID' },
+        { id: 'b', employeeId: 'e1', expenseDate: '2026-09-10', category: 'Hotel', amount: 10, status: 'PAID' },
+      ]);
+      expect(component.reimbursements.map(r => r.id)).toEqual(['a']);
+    });
+
+    it('andar o período tira o recorte', () => {
+      component.onDrill({ employeeId: 'e1', label: 'Ana · 2026', from: '2026-01-01', to: '2026-12-31' });
+      responder();
+      component.movePeriod(-1);
+      expect(component.recorte()).toBeNull();
+      expect(lista(responder())?.request.params.get('month')).toBe('2026-08');
     });
   });
 
@@ -277,22 +355,164 @@ describe('ReimbursementsManagerComponent', () => {
       expect(document.querySelector('.pk-sheet__painel')).toBeNull();
     });
 
-    /** Ele: "estão grudadas". Os cartões de total e a grade eram colados. */
-    it('há respiro entre os cartões de total e a grade', () => {
+    /**
+     * Os cartões saíram (2026-09-29), e com eles o seletor de status e a
+     * toolbar antiga: a contagem do mês ficou no chip — é o número e o filtro.
+     */
+    it('a barra de chips no lugar da toolbar e dos cartões de total', () => {
       const el = fixture.nativeElement as HTMLElement;
-      const cartoes = el.querySelector('.rt') as HTMLElement;
-      const grade = el.querySelector('.table-card') as HTMLElement;
-
-      const vao = grade.getBoundingClientRect().top - cartoes.getBoundingClientRect().bottom;
-      expect(vao).toBeGreaterThanOrEqual(12);
+      expect(el.querySelector('.barra')).not.toBeNull();
+      expect(el.querySelector('app-toolbar')).toBeNull();
+      expect(el.querySelector('app-reimbursement-totals')).toBeNull();
+      expect(el.querySelector('.barra p-select')).withContext('o seletor de status').toBeNull();
+      expect(el.querySelector('.rm-bar')).toBeNull();
     });
 
-    it('continua com a toolbar e os cartões de total', () => {
+    /**
+     * Opção C: o período e as ações sobem para a linha das abas, com o ‹ ›
+     * como o último da direita, junto do Atualizar (pedido dele). A barra fica
+     * com o que filtra a lista: os chips e a busca.
+     */
+    it('o período, o Atualizar e o PDF na linha das abas; chips e busca na barra', () => {
       const el = fixture.nativeElement as HTMLElement;
-      expect(el.querySelector('app-toolbar')).not.toBeNull();
-      expect(el.querySelector('.rm-bar')).toBeNull();
-      expect(el.querySelector('.rs')).toBeNull();
-      expect(el.querySelector('.rt')).not.toBeNull();
+      const lado = el.querySelector('.rm-abas .rm-abas__lado') as HTMLElement;
+      expect(lado).not.toBeNull();
+      const filhos = Array.from(lado.children);
+      expect(filhos.at(-1)?.tagName).toBe('APP-PERIOD-PICKER');
+      expect(filhos.at(-2)?.getAttribute('aria-label')).toBe('Atualizar');
+
+      const barra = el.querySelector('.barra') as HTMLElement;
+      expect(barra.querySelector('.chips')).not.toBeNull();
+      expect(barra.querySelector('.busca')).not.toBeNull();
+      expect(barra.querySelector('app-period-picker')).withContext('o período saiu da barra').toBeNull();
+    });
+
+    /** A linha das abas não pode crescer com os controles: é a graça da opção C. */
+    it('os controles cabem na linha das abas sem ela crescer', () => {
+      const abas = (fixture.nativeElement as HTMLElement).querySelector('.rm-abas') as HTMLElement;
+      const aba = abas.querySelector('button[role="tab"]') as HTMLElement;
+      const altura = abas.getBoundingClientRect().height;
+      expect(altura).toBeLessThanOrEqual(aba.getBoundingClientRect().height + 9 + 1);
+    });
+
+    async function abrirAba(indice: number): Promise<TestRequest[]> {
+      ((fixture.nativeElement as HTMLElement).querySelectorAll('.rm-abas button[role="tab"]')[indice] as HTMLElement).click();
+      fixture.detectChanges(false);
+      const reqs = responder();
+      await fixture.whenStable();
+      fixture.detectChanges(false);
+      return reqs;
+    }
+
+    function botao(dentro: Element, texto: string): HTMLButtonElement {
+      return Array.from(dentro.querySelectorAll('button')).find(b => b.textContent?.trim() === texto)!;
+    }
+
+    /**
+     * **O que ele viu:** "o seletor de mês ficou um tamanho em cada tab, e
+     * ficou duplicado". Eram dois controles diferentes, cada aba com o seu mês.
+     * Agora é UM seletor da tela — Mês/Trimestre/Ano e o ‹ › — nas duas abas.
+     */
+    it('o seletor é o mesmo nas duas abas: mesmo tamanho, mesmo lugar', async () => {
+      const el = fixture.nativeElement as HTMLElement;
+      const pedidos = el.querySelector('.rm-abas__lado .pp-nav')!.getBoundingClientRect();
+      expect(el.querySelector('.rm-abas__lado .pp-gran')).withContext('Mês/Trimestre/Ano em Pedidos também').not.toBeNull();
+      await abrirAba(1);
+      const indicadores = el.querySelector('.rm-abas__lado .pp-nav')!.getBoundingClientRect();
+
+      expect(el.querySelectorAll('app-period-picker').length).withContext('um seletor só na tela').toBe(1);
+      expect(Math.round(indicadores.width)).toBe(Math.round(pedidos.width));
+      expect(Math.round(indicadores.right)).toBe(Math.round(pedidos.right));
+      expect(Math.round(indicadores.top)).toBe(Math.round(pedidos.top));
+    });
+
+    it('o período é um só: escolher Ano nos Indicadores e voltar mostra o ano em Pedidos', async () => {
+      const el = fixture.nativeElement as HTMLElement;
+      await abrirAba(1);
+      botao(el.querySelector('.rm-abas__lado')!, 'Ano').click();
+      fixture.detectChanges(false);
+      expect(el.querySelector('.pp-nav b')?.textContent).toBe('2026');
+      expect(el.querySelector('.ind-vs')?.textContent).withContext('os Indicadores leem o mesmo período').toContain('comparando com 2025');
+      expect(lista(http.match(() => true))).withContext('nos Indicadores a lista de Pedidos não é buscada').toBeUndefined();
+
+      const reqs = await abrirAba(0);
+      expect(lista(reqs)?.request.params.has('month')).withContext('ano: a lista vem inteira').toBeFalse();
+      expect(el.querySelector('.pp-nav b')?.textContent).toBe('2026');
+      expect(botao(el.querySelector('.rm-abas__lado')!, 'Ano').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('voltar para Pedidos recarrega só se o período mudou nos Indicadores', async () => {
+      await abrirAba(1);
+      ((fixture.nativeElement as HTMLElement).querySelectorAll('.rm-abas button[role="tab"]')[0] as HTMLElement).click();
+      expect(lista(http.match(() => true))).withContext('mesmo período: nada a recarregar').toBeUndefined();
+    });
+
+    /**
+     * Trimestre e ano em Pedidos: a API só filtra por mês, então a lista vem
+     * inteira e é cortada aqui — pela data do gasto — e os chips contam o
+     * trimestre, da mesma lista que a grade mostra.
+     */
+    it('no trimestre, a lista é cortada no trimestre e os chips contam ele', () => {
+      botao((fixture.nativeElement as HTMLElement).querySelector('.rm-abas__lado')!, 'Trimestre').click();
+      const req = lista(http.match(() => true))!;
+      expect(req.request.params.has('month')).toBeFalse();
+      expect(req.request.params.has('status')).withContext('o status é filtrado aqui, para os chips contarem tudo').toBeFalse();
+      req.flush([
+        { id: 'a', employeeId: 'e1', expenseDate: '2026-07-02', category: 'Hotel', amount: 10, status: 'PENDING' },
+        { id: 'b', employeeId: 'e1', expenseDate: '2026-09-30', category: 'Hotel', amount: 10, status: 'PENDING' },
+        { id: 'c', employeeId: 'e1', expenseDate: '2026-08-15', category: 'Hotel', amount: 10, status: 'PAID' },
+        { id: 'd', employeeId: 'e1', expenseDate: '2026-06-30', category: 'Hotel', amount: 10, status: 'PENDING' },
+        { id: 'e', employeeId: 'e1', expenseDate: '2026-10-01', category: 'Hotel', amount: 10, status: 'PENDING' },
+      ]);
+      fixture.detectChanges(false);
+
+      expect(component.reimbursements.map(r => r.id)).withContext('Em análise, só no 3º tri').toEqual(['a', 'b']);
+      expect(contagem('Em análise')).toBe('2');
+      expect(contagem('Pagos')).toBe('1');
+      expect(contagem('Todos')).toBe('3');
+      expect((fixture.nativeElement as HTMLElement).querySelector('.pp-nav b')?.textContent).toBe('3º tri 2026');
+    });
+
+    it('o ‹ › não passa do período de hoje', () => {
+      component.month = '2026-09';
+      if (component.canGoForward()) return pending('o teste roda depois de setembro de 2026');
+      component.movePeriod(1);
+      expect(component.month).toBe('2026-09');
+      http.expectNone(() => true);
+    });
+
+    /** Recusado não vem no resumo: é o pedido (7) menos os outros (2 + 1 + 1). */
+    it('cada chip conta o mês inteiro, e o recusado sai da conta', () => {
+      expect(contagem('Em análise')).toBe('2');
+      expect(contagem('A pagar')).toBe('1');
+      expect(contagem('Pagos')).toBe('1');
+      expect(contagem('Recusados')).toBe('3');
+      expect(contagem('Todos')).toBe('7');
+    });
+
+    /** Com um recorte dos Indicadores, os chips contam o recorte — a mesma lista da grade. */
+    it('com um recorte dos Indicadores, os chips contam o recorte', () => {
+      component.onDrill({ employeeId: 'e1', label: 'Ana · 2026', from: '2026-01-01', to: '2026-12-31' });
+      lista(http.match(() => true))!.flush([
+        { id: 'a', employeeId: 'e1', expenseDate: '2026-03-10', category: 'Hotel', amount: 10, status: 'PAID' },
+        { id: 'b', employeeId: 'e2', expenseDate: '2026-03-10', category: 'Hotel', amount: 10, status: 'PAID' },
+      ]);
+      fixture.detectChanges(false);
+      expect(contagem('Todos')).toBe('1');
+      expect(chipDe('Todos').getAttribute('aria-pressed')).toBe('true');
+    });
+
+    it('tocar no chip que já está ligado não recarrega', () => {
+      chipDe('Em análise').click();
+      http.expectNone(() => true);
+    });
+
+    it('"Em análise" é o chip sólido: a borda já tem cor desligado', () => {
+      chipDe('Todos').click();
+      responder();
+      const pendente = getComputedStyle(chipDe('Em análise')).borderTopColor;
+      const pago = getComputedStyle(chipDe('Pagos')).borderTopColor;
+      expect(pendente).not.toBe(pago);
     });
   });
 });

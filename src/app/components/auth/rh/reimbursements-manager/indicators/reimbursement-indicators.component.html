@@ -1,0 +1,179 @@
+<!--
+  Comparação com cor: para gasto, subir é vermelho e cair é verde. `inverse`
+  vira isso ao contrário (taxa de aprovação: subir é bom).
+-->
+<ng-template #delta let-value let-suffix="suffix" let-inverse="inverse">
+  @if (value === null) {
+    <span class="ind-delta ind-delta--neutro">sem base</span>
+  } @else if (value === 0) {
+    <span class="ind-delta ind-delta--neutro">= igual</span>
+  } @else {
+    <span class="ind-delta" [class.ind-delta--ruim]="(value > 0) !== !!inverse" [class.ind-delta--bom]="(value > 0) === !!inverse">
+      {{ value > 0 ? '▲' : '▼' }} {{ (value < 0 ? -value : value) | number: '1.0-1' : 'pt-BR' }}{{ suffix }}
+    </span>
+  }
+</ng-template>
+
+<div class="ind">
+  <!-- O seletor do período é da tela (vale para as duas abas); aqui, a frase da comparação. -->
+  <div class="ind-periodo">
+    <span class="ind-vs">comparando com {{ vsLabel() }} · pela data do gasto</span>
+  </div>
+
+  @if (error(); as erro) {
+    <p class="ind-erro" role="alert">{{ erro }} <button type="button" (click)="load()">Tentar de novo</button></p>
+  }
+
+  <!-- Os oito cartões. -->
+  <div class="ind-kpis">
+    <pk-kpi label="Solicitado" icon="pi pi-send" [hero]="true" [loading]="loading()"
+            [value]="(kpis().requested.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')!"
+            [sub]="kpis().requested.count + (kpis().requested.count === 1 ? ' pedido' : ' pedidos')">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: change('requested'), suffix: '%' }" />
+    </pk-kpi>
+    <pk-kpi label="Aprovado a pagar" icon="pi pi-clock" [loading]="loading()"
+            [value]="(kpis().approved.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')!"
+            [sub]="kpis().approved.count + (kpis().approved.count === 1 ? ' pedido' : ' pedidos')">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: change('approved'), suffix: '%' }" />
+    </pk-kpi>
+    <pk-kpi label="Pago" icon="pi pi-check-circle" tone="success" [loading]="loading()"
+            [value]="(kpis().paid.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')!"
+            [sub]="kpis().paid.count + (kpis().paid.count === 1 ? ' pedido' : ' pedidos')">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: change('paid'), suffix: '%' }" />
+    </pk-kpi>
+    <pk-kpi label="Em análise" icon="pi pi-hourglass" tone="warning" [loading]="loading()"
+            [value]="(kpis().pending.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')!"
+            [sub]="kpis().pending.count + (kpis().pending.count === 1 ? ' pedido' : ' pedidos')">
+      @if (kpis().pendingOld) {
+        <span class="ind-alerta">{{ kpis().pendingOld }} há mais de 7 dias</span>
+      }
+    </pk-kpi>
+    <pk-kpi label="Taxa de aprovação" icon="pi pi-percentage" [loading]="loading()"
+            [value]="kpis().approvalRate === null ? '—' : kpis().approvalRate + '%'"
+            sub="aprovados entre os decididos">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: diff('approvalRate'), suffix: ' pontos', inverse: true }" />
+    </pk-kpi>
+    <pk-kpi label="Ticket médio" icon="pi pi-receipt" [loading]="loading()"
+            [value]="kpis().averageTicket === null ? '—' : (kpis().averageTicket | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')!"
+            sub="por pedido">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: change('averageTicket'), suffix: '%' }" />
+    </pk-kpi>
+    <pk-kpi label="Tempo até a análise" icon="pi pi-stopwatch" [loading]="loading()"
+            [value]="kpis().daysToReview === null ? '—' : (kpis().daysToReview | number: '1.0-1' : 'pt-BR')!"
+            [unit]="kpis().daysToReview === null ? '' : 'dias'" sub="do pedido à primeira análise">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: diff('daysToReview'), suffix: ' d' }" />
+    </pk-kpi>
+    <pk-kpi label="Tempo até o pagamento" icon="pi pi-wallet" [loading]="loading()"
+            [value]="kpis().daysToPay === null ? '—' : (kpis().daysToPay | number: '1.0-1' : 'pt-BR')!"
+            [unit]="kpis().daysToPay === null ? '' : 'dias'" sub="da aprovação ao pagamento">
+      <ng-container *ngTemplateOutlet="delta; context: { $implicit: diff('daysToPay'), suffix: ' d' }" />
+    </pk-kpi>
+  </div>
+
+  <div class="ind-linha ind-linha--larga">
+    <!-- Evolução: 12 meses empilhados; o mês do período em destaque. -->
+    <section class="ind-cartao" aria-labelledby="ind-evolucao">
+      <h3 id="ind-evolucao">Evolução <small>últimos 12 meses</small></h3>
+      <div class="ind-colunas" role="img" aria-label="Valores por mês nos últimos 12 meses">
+        @for (p of evolution(); track p.label + p.year) {
+          <div class="ind-coluna" [class.is-atual]="p.year === period().year && p.month === +period().to.slice(5, 7)"
+               [attr.title]="p.label + '/' + p.year + ': ' + ((p.paid + p.approved + p.pending) | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR')">
+            <span class="ind-coluna__pilha" [style.height.%]="percentOf(p.paid + p.approved + p.pending, evolutionMax())">
+              <i class="ind-c ind-c--pendente" [style.flex-grow]="p.pending"></i>
+              <i class="ind-c ind-c--aprovado" [style.flex-grow]="p.approved"></i>
+              <i class="ind-c ind-c--pago" [style.flex-grow]="p.paid"></i>
+            </span>
+            <small>{{ p.label }}</small>
+          </div>
+        }
+      </div>
+      <div class="ind-legenda">
+        <span><i class="ind-c--pago"></i> Pago</span>
+        <span><i class="ind-c--aprovado"></i> Aprovado a pagar</span>
+        <span><i class="ind-c--pendente"></i> Em análise</span>
+      </div>
+    </section>
+
+    <!-- Por categoria: donut e legenda clicável. -->
+    <section class="ind-cartao" aria-labelledby="ind-categoria">
+      <h3 id="ind-categoria">Por categoria <small>sem os recusados</small></h3>
+      @if (categories().length) {
+        <div class="ind-donut-linha">
+          <div class="ind-donut" [style.background]="donut()">
+            <span class="ind-donut__centro">
+              <b>{{ categoriesTotal() | currency: 'BRL' : 'symbol' : '1.0-0' : 'pt-BR' }}</b>
+              no período
+            </span>
+          </div>
+          <div class="ind-lista">
+            @for (row of categories(); track row.key; let i = $index) {
+              <button type="button" class="ind-item" [disabled]="row.key === '__outros'" (click)="openCategory(row)">
+                <i [style.background]="sliceColor(i)"></i>
+                <span class="ind-item__nome" [attr.title]="row.label">{{ row.label }}</span>
+                <b>{{ row.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</b>
+                <small>{{ percentOf(row.amount, categoriesTotal()) }}%</small>
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <p class="ind-vazio">Nenhum reembolso neste período.</p>
+      }
+    </section>
+  </div>
+
+  <div class="ind-linha">
+    <section class="ind-cartao" aria-labelledby="ind-funcionario">
+      <h3 id="ind-funcionario">Por funcionário <small>top 6</small></h3>
+      <ng-container *ngTemplateOutlet="ranking; context: { $implicit: employees(), kind: 'employee' }" />
+    </section>
+
+    @if (departments().length) {
+      <section class="ind-cartao" aria-labelledby="ind-departamento">
+        <h3 id="ind-departamento">Por departamento <small>pelo setor</small></h3>
+        <ng-container *ngTemplateOutlet="ranking; context: { $implicit: departments(), kind: 'department' }" />
+      </section>
+    }
+
+    <section class="ind-cartao" aria-labelledby="ind-situacao">
+      <h3 id="ind-situacao">Por situação <small>{{ period().label }}</small></h3>
+      <div class="ind-barra" role="img" aria-label="Valores por situação">
+        @for (s of statusBars(); track s.label) {
+          @if (s.amount) { <i [style.flex-grow]="s.amount" [style.background]="s.color"></i> }
+        }
+      </div>
+      <div class="ind-situacoes">
+        @for (s of statusBars(); track s.label) {
+          <div>
+            <small><i [style.background]="s.color"></i>{{ s.label }}</small>
+            <b>{{ s.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</b>
+            <span>{{ s.percent }}%</span>
+          </div>
+        }
+      </div>
+      <p class="ind-nota"><i class="pi pi-undo" aria-hidden="true"></i>
+        {{ kpis().contested }} {{ kpis().contested === 1 ? 'contestação' : 'contestações' }} no período ·
+        {{ kpis().reverted }} {{ kpis().reverted === 1 ? 'revertida' : 'revertidas' }} em aprovação</p>
+    </section>
+  </div>
+</div>
+
+<ng-template #ranking let-rows let-kind="kind">
+  @if (rows.length) {
+    <div class="ind-ranking">
+      @for (row of rows; track row.key) {
+        <button type="button" class="ind-rank" [disabled]="row.key === '__sem'"
+                (click)="kind === 'employee' ? openEmployee(row) : openDepartment(row)">
+          <span class="ind-rank__topo">
+            <span class="ind-rank__nome">{{ row.label }}</span>
+            <b>{{ row.amount | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} <small>· {{ row.count }}</small></b>
+          </span>
+          <span class="ind-rank__trilho"><i [style.width.%]="percentOf(row.amount, rows[0].amount)"></i></span>
+        </button>
+      }
+    </div>
+    <p class="ind-nota"><i class="pi pi-arrow-right" aria-hidden="true"></i> Toque para ver os pedidos</p>
+  } @else {
+    <p class="ind-vazio">Nenhum reembolso neste período.</p>
+  }
+</ng-template>

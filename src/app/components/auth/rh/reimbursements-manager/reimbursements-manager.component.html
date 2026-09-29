@@ -1,19 +1,69 @@
 <p-toast position="top-right"></p-toast>
 
+<!--
+  Duas abas (2026-09-29): os pedidos, como sempre, e os Indicadores do mês,
+  trimestre e ano. Um clique num gráfico volta para Pedidos já com o recorte.
+-->
+<div class="rm-abas" role="tablist" aria-label="Reembolsos">
+  <button type="button" role="tab" [attr.aria-selected]="aba() === 'pedidos'" [class.is-on]="aba() === 'pedidos'"
+          (click)="openTab('pedidos')"><i class="pi pi-list" aria-hidden="true"></i> Pedidos</button>
+  <button type="button" role="tab" [attr.aria-selected]="aba() === 'indicadores'" [class.is-on]="aba() === 'indicadores'"
+          (click)="openTab('indicadores')"><i class="pi pi-chart-bar" aria-hidden="true"></i> Indicadores</button>
+
+  <!--
+    Opção C (2026-09-29): no computador, o canto direito da linha das abas é
+    "o período" — Mês/Trimestre/Ano e o ‹ ›, UM seletor para as duas abas, no
+    mesmo lugar. Em Pedidos, as ações da lista entram à esquerda dele.
+  -->
+  @if (!ehCelular()) {
+    <div class="rm-abas__lado">
+      @if (aba() === 'pedidos') {
+        <button *pkCan="'rh/reimbursements:BAIXAR'" type="button" class="barra__icone" aria-label="Comprovante"
+                pTooltip="Comprovante" tooltipPosition="bottom" (click)="reportOpen = true">
+          <i class="pi pi-file-pdf" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="barra__icone" aria-label="Atualizar" pTooltip="Atualizar" tooltipPosition="bottom"
+                [disabled]="loading" (click)="load()">
+          <i class="pi pi-refresh" [class.pi-spin]="loading" aria-hidden="true"></i>
+        </button>
+      }
+      <app-period-picker [granularity]="granularity()" [label]="period().label" [canGoForward]="canGoForward()"
+                         (granularityChange)="setGranularity($event)" (move)="movePeriod($event)" />
+    </div>
+  }
+</div>
+
+@if (aba() === 'pedidos') {
+<!--
+  Os recortes por status, com a contagem do mês (2026-09-29): os cartões de
+  total saíram — a análise mora nos Indicadores, e aqui fica a lista. O padrão
+  da toolbar da Programação A; no celular a fileira rola de lado.
+-->
+<ng-template #chipsDeStatus>
+  <div class="chips" role="group" aria-label="Status">
+    @for (c of statusChips; track c.label) {
+      <button type="button" class="chip chip--status" [ngClass]="'chip--' + c.tone"
+              [class.chip--tracejado]="c.dashed" [class.is-on]="statusFilter === c.value"
+              [attr.aria-pressed]="statusFilter === c.value" (click)="filterByStatus(c.value)">
+        <i [ngClass]="c.icon" aria-hidden="true"></i> {{ c.label }}
+        @if (countOf(c.value); as n) { <small>{{ n }}</small> }
+      </button>
+    }
+  </div>
+</ng-template>
+
 @if (ehCelular()) {
   <!--
-    Celular: uma linha de 52px no lugar da toolbar que quebrava em várias
-    (182px medidos a 390px) e a faixa de totais de 64px no lugar do 2×2 (226px).
-    Sobravam 2 cartões visíveis; agora cabem ~5. Desenho aprovado em 2026-09-28.
+    Celular: uma linha de 56px com o mês e os ícones (desenho aprovado em
+    2026-09-28), e os chips logo abaixo, rolando de lado.
   -->
+  <div class="rm-topo">
   <div class="rm-bar">
-    <app-month-switcher [month]="month" [compact]="true" (change)="changeMonth($event)" />
+    <!-- O mesmo período da tela, só o ‹ ›: Mês/Trimestre/Ano fica no topo dos Indicadores. -->
+    <app-period-picker [compact]="true" [granularity]="granularity()" [label]="periodShortLabel()"
+                       [canGoForward]="canGoForward()" (move)="movePeriod($event)" />
     <button type="button" class="rm-icon" aria-label="Buscar" (click)="openSearch(searchInput)">
       <i class="pi pi-search" aria-hidden="true"></i>
-    </button>
-    <button type="button" class="rm-icon" aria-label="Filtrar por status" (click)="statusSheetOpen = true">
-      <i class="pi pi-filter" aria-hidden="true"></i>
-      @if (statusFilter) { <span class="rm-icon__dot" aria-hidden="true"></span> }
     </button>
     <button *pkCan="'rh/reimbursements:BAIXAR'" type="button" class="rm-icon" aria-label="Comprovante"
             (click)="reportOpen = true">
@@ -36,63 +86,31 @@
               (click)="closeSearch(searchInput); grid.filterGlobal('')">Cancelar</button>
     </div>
   </div>
-
-  <app-reimbursement-totals [compact]="true" [summary]="summary" [loading]="loadingSummary"
-                            [selectable]="true" [selected]="statusFilter" (select)="filterByCard($event)" />
-
-  <!-- Filtro ativo sempre visível e removível: filtro escondido é grade curta sem explicação. -->
-  @if (statusFilter) {
-    <div class="rm-chips">
-      <button type="button" class="rm-chip" [attr.aria-label]="'Remover filtro: ' + statusFilterLabel"
-              (click)="filterByCard(null)">
-        {{ statusFilterLabel }} <i class="pi pi-times" aria-hidden="true"></i>
-      </button>
-    </div>
-  }
-
-  <pk-sheet [open]="statusSheetOpen" title="Status" (closed)="statusSheetOpen = false">
-    <div pkSheetBody>
-      <div class="rm-options" role="radiogroup" aria-label="Status">
-        @for (o of statusOptions; track o.label) {
-          <button type="button" class="rm-option" role="radio" [attr.aria-checked]="o.value === statusFilter"
-                  (click)="pickStatus(o.value)">
-            {{ o.label }}
-            @if (o.value === statusFilter) { <i class="pi pi-check" aria-hidden="true"></i> }
-          </button>
-        }
-      </div>
-    </div>
-  </pk-sheet>
-} @else {
-<app-toolbar>
-  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
-  <pk-button *pkCan="'rh/reimbursements:BAIXAR'" pkType="download" pkIcon="pi pi-file-pdf"
-             pkLabel="Comprovante" pkSize="sm" (clicked)="reportOpen = true"/>
-
-  <div filters>
-    <app-month-switcher [month]="month" (change)="changeMonth($event)" />
-    <span class="toolbar__label">Status:</span>
-    <p-select
-      [options]="statusOptions"
-      [(ngModel)]="statusFilter"
-      (onChange)="load()"
-      optionLabel="label"
-      optionValue="value"
-      appendTo="body"
-      styleClass="select-field">
-    </p-select>
-
-    <input type="text"
-           class="toolbar-search"
-           placeholder="Buscar…"
-           aria-label="Buscar reembolsos"
-           (input)="grid.filterGlobal($any($event.target).value)" />
+  <div class="rm-chips-linha"><ng-container *ngTemplateOutlet="chipsDeStatus" /></div>
   </div>
-</app-toolbar>
+} @else {
+<!-- Computador (opção C): o que filtra a lista — os chips e a busca inteira.
+     O mês e as ações subiram para a linha das abas. -->
+<div class="barra">
+  <div class="barra__linha">
+    <ng-container *ngTemplateOutlet="chipsDeStatus" />
+    <span class="barra__espaco"></span>
+    <label class="busca">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input pInputText type="search" class="busca__campo" placeholder="Buscar por funcionário, categoria…"
+             aria-label="Buscar reembolsos" (input)="grid.filterGlobal($any($event.target).value)" />
+    </label>
+  </div>
+</div>
+}
 
-<!-- Totais do mês: cada cartão filtra a grade, junto com o seletor de status. -->
-<app-reimbursement-totals class="rm-totals" [summary]="summary" [loading]="loadingSummary"
-                          [selectable]="true" [selected]="statusFilter" (select)="filterByCard($event)" />
+<!-- O recorte que veio de um gráfico dos Indicadores: visível e removível. -->
+@if (recorte(); as r) {
+  <div class="rm-recorte">
+    <button type="button" class="rm-chip" [attr.aria-label]="'Remover recorte: ' + r.label" (click)="limparRecorte()">
+      <i class="pi pi-chart-bar" aria-hidden="true"></i> {{ r.label }} <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  </div>
 }
 
 <div class="table-card">
@@ -204,6 +222,16 @@
 
   </pk-table>
 </div>
+} @else {
+  @if (ehCelular()) {
+    <!-- Celular: a linha das abas não tem espaço, e o seletor inteiro abre a aba. -->
+    <div class="rm-periodo-celular">
+      <app-period-picker [granularity]="granularity()" [label]="period().label" [canGoForward]="canGoForward()"
+                         (granularityChange)="setGranularity($event)" (move)="movePeriod($event)" />
+    </div>
+  }
+  <app-reimbursement-indicators class="rm-indicadores" [period]="period()" (drill)="onDrill($event)" />
+}
 
 <!--
   Aprovar / Recusar — a mesma janela para os dois.
