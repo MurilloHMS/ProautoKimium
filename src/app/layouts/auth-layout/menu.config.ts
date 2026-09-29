@@ -84,6 +84,7 @@ export const APP_MENU: AppMenuItem[] = [
         icon: 'pi pi-fw pi-address-book',
         items: [
           { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
+          { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
           { label: 'Visão de Equipe', icon: 'pi pi-fw pi-share-alt', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
           { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar' },
         ],

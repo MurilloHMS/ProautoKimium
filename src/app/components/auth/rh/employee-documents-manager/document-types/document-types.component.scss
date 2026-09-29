@@ -1,0 +1,199 @@
+.tipos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+.tipos--lado {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 24px;
+  padding: 16px 20px 20px;
+  min-height: 380px;
+}
+
+.tipos__coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+
+  &--form {
+    padding-left: 24px;
+    border-left: 1px solid var(--app-border);
+  }
+}
+
+.tipos__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tipos__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color .15s ease;
+
+  small { color: var(--app-text-muted); font-size: var(--text-ui-sm); white-space: nowrap; }
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &.is-sel {
+    background: var(--app-action-soft);
+    color: var(--app-action);
+    font-weight: 600;
+  }
+
+  &.is-off { color: var(--app-text-subtle); }
+}
+
+// No celular cada tipo é uma linha de 48px: alvo de polegar.
+.tipos--folha .tipos__item { min-height: 48px; }
+
+.tipos__novo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.tipos__vazio {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}
+
+.tipos__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .form-field { margin: 0; }
+  input[pInputText] { width: 100%; }
+}
+
+::ng-deep .tipos__form pk-multiselect { width: 100%; }
+
+.tipos__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 5px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+
+  &:focus-within { border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
+}
+
+.tipos__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 4px 0 9px;
+  border-radius: 6px;
+  background: var(--app-surface-3);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--app-text-muted);
+    cursor: pointer;
+
+    i { font-size: 10px; }
+    &:hover { background: var(--app-surface-2); color: var(--app-text); }
+  }
+}
+
+.tipos__tag-input {
+  flex: 1;
+  min-width: 120px;
+  height: 28px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+}
+
+.tipos__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 32px;
+  font-size: var(--text-ui);
+  cursor: pointer;
+
+  input { width: 20px; height: 20px; margin: 0; accent-color: var(--app-action); flex: none; }
+}
+
+.tipos__previa {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  line-height: 1.55;
+}
+
+.tipos__erro {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+}
+
+.tipos__botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+
+  > * { flex: 1; }
+}
+
+::ng-deep .tipos__botoes .pk-btn { width: 100%; }
+
+// 16px nos campos do celular: abaixo disso o iPhone dá zoom ao focar.
+.tipos--folha input { font-size: 16px; }

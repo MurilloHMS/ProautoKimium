@@ -26,7 +26,8 @@ import { formatDateBr } from '../../../../domain/utils/date-only';
 type ToolKey =
   | 'vacation' | 'reimbursements' | 'employees' | 'orgStructure' | 'career'
   | 'teamOverview' | 'calendar' | 'calculators' | 'equipment' | 'notifications'
-  | 'announcements' | 'medicalCertificates' | 'jobs' | 'payslip' | 'payslipExtractor';
+  | 'announcements' | 'medicalCertificates' | 'jobs' | 'payslip' | 'payslipExtractor'
+  | 'employeeDocuments';
 
 interface RhTool {
   key: ToolKey;
@@ -137,6 +138,7 @@ export class RhHubComponent implements OnInit {
       label: 'Pessoas',
       tools: [
         { key: 'employees', title: 'Funcionários', icon: 'pi pi-user', route: '/rh/employees' },
+        { key: 'employeeDocuments', title: 'Documentos', icon: 'pi pi-file-edit', route: '/rh/employee-documents' },
         { key: 'teamOverview', title: 'Visão de Equipe', icon: 'pi pi-users', route: '/rh/team-overview' },
         { key: 'calendar', title: 'Calendário', icon: 'pi pi-calendar', route: '/rh/calendar' },
       ],

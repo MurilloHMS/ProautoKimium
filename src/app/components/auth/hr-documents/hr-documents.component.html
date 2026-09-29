@@ -16,18 +16,42 @@
     </div>
   } @else {
     <div class="hrd-grid">
-      @for (doc of documents(); track doc.id) {
-        <div class="hrd-card">
-          <span class="hrd-card__icon"><i class="pi pi-file"></i></span>
-          <div class="hrd-card__info">
-            <span class="hrd-card__title">{{ doc.title }}</span>
-            <span class="hrd-card__meta">{{ formatDate(doc.uploadedAt) }}</span>
-          </div>
-          <button class="hrd-card__btn" (click)="baixar(doc)" [disabled]="baixandoId() === doc.id" aria-label="Baixar documento">
-            <i class="pi" [ngClass]="baixandoId() === doc.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
-          </button>
-        </div>
+      @for (doc of current(); track doc.id) {
+        <ng-container *ngTemplateOutlet="cartao; context: { $implicit: doc }" />
       }
     </div>
+
+    <!-- Os substituídos: histórico, dobrado. Um ASO antigo não é pendência. -->
+    @if (previous().length) {
+      <details class="hrd-anteriores">
+        <summary>Anteriores · {{ previous().length }} {{ previous().length === 1 ? 'substituído' : 'substituídos' }}</summary>
+        <div class="hrd-grid">
+          @for (doc of previous(); track doc.id) {
+            <ng-container *ngTemplateOutlet="cartao; context: { $implicit: doc }" />
+          }
+        </div>
+      </details>
+    }
   }
 </section>
+
+<ng-template #cartao let-doc>
+  <div class="hrd-card" [class.hrd-card--antigo]="doc.status === 'REPLACED'">
+    <span class="hrd-card__icon"><i class="pi pi-file"></i></span>
+    <div class="hrd-card__info">
+      <span class="hrd-card__title">{{ doc.title }}</span>
+      <span class="hrd-card__meta">
+        {{ doc.typeName ? doc.typeName + ' · ' : '' }}{{ doc.dueDate ? 'vence ' + (doc.dueDate | date: 'dd/MM/yyyy') : 'enviado em ' + formatDate(doc.uploadedAt) }}
+      </span>
+      <span class="hrd-card__status">
+        <span [class]="statusClass(doc.status)"><i [class]="statusIcon(doc.status)" aria-hidden="true"></i>{{ statusLabel(doc.status) }}</span>
+        @if (doc.status === 'EXPIRING' || doc.status === 'EXPIRED') {
+          <small>{{ describeDue(doc) }}</small>
+        }
+      </span>
+    </div>
+    <button class="hrd-card__btn" (click)="baixar(doc)" [disabled]="baixandoId() === doc.id" [attr.aria-label]="'Baixar ' + doc.title">
+      <i class="pi" [ngClass]="baixandoId() === doc.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+    </button>
+  </div>
+</ng-template>

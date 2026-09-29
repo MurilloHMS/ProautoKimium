@@ -1,0 +1,263 @@
+<p-toast position="top-right" />
+
+<!--
+  A barra: busca, filtros e ações numa linha, e as situações em chips logo
+  abaixo — a mesma toolbar da Programação (opção A, 2026-09-29).
+-->
+<div class="barra">
+  <div class="barra__linha">
+    <label class="busca">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input pInputText id="docs-busca" type="search" class="busca__campo"
+             placeholder="Funcionário, documento…" aria-label="Buscar documentos"
+             [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </label>
+
+    @if (!ehCelular()) {
+      <pk-combobox class="barra__filtro"
+                   [ngModel]="employeeFilter()" (ngModelChange)="employeeFilter.set($event)"
+                   [options]="employeeOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Todos os funcionários" [filter]="true" [showClear]="true" [dense]="true" />
+      <pk-combobox class="barra__filtro barra__filtro--tipo"
+                   [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)"
+                   [options]="typeOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Todos os tipos" [showClear]="true" [dense]="true" />
+
+      <span class="barra__espaco"></span>
+
+      <button type="button" class="barra__icone" aria-label="Atualizar" pTooltip="Atualizar" tooltipPosition="bottom"
+              [disabled]="loading()" (click)="load()">
+        <i class="pi pi-refresh" [class.pi-spin]="loading()" aria-hidden="true"></i>
+      </button>
+      <pk-button *pkCan="'rh/employee-documents:CONFIGURAR'" pkType="filter" pkSize="sm"
+                 pkIcon="pi pi-cog" pkLabel="Tipos de documento" (clicked)="typesOpen.set(true)" />
+      <pk-button *pkCan="'rh/employee-documents:INCLUIR'" pkType="new" pkSize="sm"
+                 pkIcon="pi pi-file-plus" pkLabel="Vincular documento" (clicked)="openLink()" />
+    } @else {
+      <button type="button" class="barra__icone" aria-label="Mais filtros" (click)="filtersOpen.set(true)">
+        <i class="pi pi-sliders-h" aria-hidden="true"></i>
+        @if (employeeFilter() || typeFilter()) { <span class="barra__ponto" aria-hidden="true"></span> }
+      </button>
+      <button *pkCan="'rh/employee-documents:INCLUIR'" type="button" class="barra__icone barra__icone--acao"
+              aria-label="Vincular documento" (click)="openLink()">
+        <i class="pi pi-plus" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+
+  <div class="chips" role="group" aria-label="Situação">
+    @for (status of statusOrder; track status) {
+      <button type="button" [class]="chipClass(status)"
+              [class.is-on]="isStatusOn(status)" [attr.aria-pressed]="isStatusOn(status)"
+              (click)="toggleStatus(status)">
+        <i [class]="statusInfo[status].icon" aria-hidden="true"></i>
+        {{ statusInfo[status].chip }} <small>{{ counts().get(status) ?? 0 }}</small>
+      </button>
+    }
+    @if (hasFilters()) {
+      <button type="button" class="chip chip--limpar" (click)="clearFilters()">
+        <i class="pi pi-times" aria-hidden="true"></i> Limpar
+      </button>
+    }
+  </div>
+</div>
+
+<div class="grade">
+  <pk-table
+    [data]="rows()"
+    [loading]="loading()"
+    [showCaption]="false"
+    [rows]="20"
+    [rowsOptions]="[20, 50, 100]"
+    emptyIcon="pi pi-folder-open"
+    [emptyTitle]="hasFilters() ? 'Nenhum documento com esses filtros' : 'Nenhum documento vinculado ainda'"
+    [emptySubtitle]="hasFilters() ? 'Tire um filtro ou toque em Limpar.' : 'Use &quot;Vincular documento&quot; para começar.'"
+    pageReportTitle="documentos">
+
+    <ng-template #cardTpl let-d>
+      <article class="pk-cartao doc-cartao" [class.doc-cartao--vencido]="d.status === 'EXPIRED'">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ d.title }}</span>
+          <span class="pk-cartao__sub">{{ d.employeeName }}{{ d.typeName ? ' · ' + d.typeName : '' }}</span>
+        </div>
+        <div class="vence" [class.vence--atraso]="d.status === 'EXPIRED'" [class.vence--breve]="d.status === 'EXPIRING'">
+          <b>{{ d.dueDate ? (d.dueDate | date: 'dd/MM/yy') : '—' }}</b>
+          <small>{{ describeDue(d) }}</small>
+        </div>
+        <div class="doc-cartao__rodape">
+          <span [class]="statusClass(d.status)"><i [class]="statusIcon(d.status)" aria-hidden="true"></i>{{ statusLabel(d.status) }}</span>
+          <span class="barra__espaco"></span>
+          <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Baixar ' + d.title"
+                  [disabled]="downloadingId() === d.id" (click)="download(d)">
+            <i [class]="downloadingId() === d.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'" aria-hidden="true"></i>
+          </button>
+          @if (d.status !== 'REPLACED') {
+            <button *pkCan="'rh/employee-documents:INCLUIR'" type="button" class="pk-cartao__icone"
+                    [attr.aria-label]="'Substituir ' + d.title" (click)="openReplace(d)">
+              <i class="pi pi-sync" aria-hidden="true"></i>
+            </button>
+          }
+          <button *pkCan="'rh/employee-documents:ALTERAR'" type="button" class="pk-cartao__icone"
+                  [attr.aria-label]="'Editar ' + d.title" (click)="openEdit(d)">
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+        </div>
+      </article>
+    </ng-template>
+
+    <ng-template #headerTpl>
+      <tr>
+        <th>Funcionário</th>
+        <th>Documento</th>
+        <th>Vencimento</th>
+        <th>Situação</th>
+        <th>Enviado</th>
+        <th class="col-acoes"><span class="sr-only">Ações</span></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #bodyTpl let-d>
+      <tr [class.linha--vencida]="d.status === 'EXPIRED'">
+        <td><span class="cel-principal">{{ d.employeeName }}</span></td>
+        <td>
+          <span class="cel-principal">{{ d.title }}</span>
+          <span class="cel-sub">{{ d.typeName || 'Sem tipo' }}</span>
+        </td>
+        <td>
+          <div class="vence" [class.vence--atraso]="d.status === 'EXPIRED'" [class.vence--breve]="d.status === 'EXPIRING'">
+            <b>{{ d.dueDate ? (d.dueDate | date: 'dd/MM/yy') : '—' }}</b>
+            <small>{{ describeDue(d) }}</small>
+          </div>
+        </td>
+        <td>
+          <span [class]="statusClass(d.status)"><i [class]="statusIcon(d.status)" aria-hidden="true"></i>{{ statusLabel(d.status) }}</span>
+        </td>
+        <td>
+          <span class="cel-sub cel-sub--forte">{{ d.uploadedBy || '—' }}</span>
+          <span class="cel-sub">{{ stamp(d.uploadedAt) }}</span>
+        </td>
+        <td class="col-acoes">
+          <div class="acoes">
+            <button type="button" class="acao" [attr.aria-label]="'Baixar ' + d.title" pTooltip="Baixar" tooltipPosition="left"
+                    [disabled]="downloadingId() === d.id" (click)="download(d)">
+              <i [class]="downloadingId() === d.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'" aria-hidden="true"></i>
+            </button>
+            @if (d.status !== 'REPLACED') {
+              <button *pkCan="'rh/employee-documents:INCLUIR'" type="button" class="acao"
+                      [attr.aria-label]="'Substituir ' + d.title" pTooltip="Substituir" tooltipPosition="left"
+                      (click)="openReplace(d)">
+                <i class="pi pi-sync" aria-hidden="true"></i>
+              </button>
+            }
+            <button *pkCan="'rh/employee-documents:ALTERAR'" type="button" class="acao"
+                    [attr.aria-label]="'Editar ' + d.title" pTooltip="Editar" tooltipPosition="left"
+                    (click)="openEdit(d)">
+              <i class="pi pi-pencil" aria-hidden="true"></i>
+            </button>
+            <button *pkCan="'rh/employee-documents:EXCLUIR'" type="button" class="acao acao--perigo"
+                    [attr.aria-label]="'Excluir ' + d.title" pTooltip="Excluir" tooltipPosition="left"
+                    (click)="deleteTarget.set(d)">
+              <i class="pi pi-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </pk-table>
+</div>
+
+<!-- Celular: funcionário e tipo numa folha, atrás do ícone de filtro. -->
+<pk-sheet [open]="filtersOpen()" title="Filtros" [fit]="true" (closed)="filtersOpen.set(false)">
+  <div pkSheetBody class="filtros">
+    <div class="form-field">
+      <label>Funcionário</label>
+      <pk-combobox [ngModel]="employeeFilter()" (ngModelChange)="employeeFilter.set($event)"
+                   [options]="employeeOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Todos os funcionários" [filter]="true" [showClear]="true" />
+    </div>
+    <div class="form-field">
+      <label>Tipo</label>
+      <pk-combobox [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)"
+                   [options]="typeOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Todos os tipos" [showClear]="true" />
+    </div>
+    <button *pkCan="'rh/employee-documents:CONFIGURAR'" type="button" class="filtros__tipos"
+            (click)="filtersOpen.set(false); typesOpen.set(true)">
+      <i class="pi pi-cog" aria-hidden="true"></i> Tipos de documento e avisos
+    </button>
+  </div>
+  <div pkSheetFooter class="botoes">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar" (clicked)="employeeFilter.set(null); typeFilter.set(null)" />
+    <pk-button pkType="save" pkSize="sm" [pkLabel]="'Ver ' + rows().length" (clicked)="filtersOpen.set(false)" />
+  </div>
+</pk-sheet>
+
+<app-link-document [open]="linkOpen()" [preset]="linkPreset()" [documents]="documents()" [types]="types()"
+                   (closed)="linkOpen.set(false)" (linked)="onLinked($event)" />
+
+<app-document-types [open]="typesOpen()" [types]="types()"
+                    (closed)="typesOpen.set(false)" (changed)="loadTypes(); load()" />
+
+<!-- Editar: título, tipo e vencimento. O arquivo não muda — para isso, substitui. -->
+<ng-template #edicao>
+  <div class="edicao">
+    <div class="form-field">
+      <label for="edit-titulo">Título <span class="required">*</span></label>
+      <input pInputText id="edit-titulo" type="text" maxlength="200"
+             [ngModel]="editTitle()" (ngModelChange)="editTitle.set($event)" />
+    </div>
+    <div class="form-field">
+      <label>Tipo</label>
+      <pk-combobox [ngModel]="editTypeId()" (ngModelChange)="editTypeId.set($event)"
+                   [options]="typeOptions()" optionLabel="label" optionValue="value" placeholder="Sem tipo" />
+    </div>
+    <div class="form-field">
+      <label for="edit-vence">Vencimento</label>
+      <p-datepicker inputId="edit-vence" [ngModel]="editDue()" (ngModelChange)="editDue.set($event)"
+                    dateFormat="dd/mm/yy" [showClear]="true" appendTo="body" placeholder="Sem vencimento" />
+      <small class="label-hint">Mudar a data faz os avisos valerem de novo para a data nova.</small>
+    </div>
+  </div>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!editTarget()" title="Editar documento" [fit]="true" (closed)="editTarget.set(null)">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="edicao" /></div>
+    <div pkSheetFooter class="botoes">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="editTarget.set(null)" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkDisabled]="!editTitle().trim()" [pkLoading]="editSaving()" (clicked)="saveEdit()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Editar documento" width="440px" [visible]="!!editTarget()" (visibleChange)="editTarget.set(null)">
+    <div pkDialogContent class="janela"><ng-container *ngTemplateOutlet="edicao" /></div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="editTarget.set(null)" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkDisabled]="!editTitle().trim()" [pkLoading]="editSaving()" (clicked)="saveEdit()" />
+    </div>
+  </pk-dialog>
+}
+
+<!--
+  Excluir. A pergunta diz o que acontece de verdade: o arquivo some, e se este
+  era o substituto de outro, o anterior volta a valer — e a gerar aviso.
+-->
+<pk-dialog header="Excluir documento" width="440px" [visible]="!!deleteTarget()" (visibleChange)="deleteTarget.set(null)">
+  <div pkDialogContent class="janela">
+    @if (deleteTarget(); as alvo) {
+      <p class="janela__texto">
+        Excluir <strong>{{ alvo.title }}</strong> de {{ alvo.employeeName }}? O arquivo é apagado e não
+        há como recuperar.
+      </p>
+      @if (deleteRevivesPrevious()) {
+        <p class="janela__aviso">
+          Este documento substituiu outro. Excluindo, o anterior volta a valer — e volta a gerar aviso de vencimento.
+        </p>
+      }
+    }
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="deleteTarget.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" [pkLoading]="deleting()" (clicked)="confirmDelete()" />
+  </div>
+</pk-dialog>

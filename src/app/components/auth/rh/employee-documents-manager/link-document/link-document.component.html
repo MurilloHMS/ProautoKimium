@@ -1,0 +1,120 @@
+<!-- Os campos: quem, o quê, o arquivo. -->
+<ng-template #campos>
+  <div class="vinc__campos">
+    <div class="form-field">
+      <label for="vinc-funcionario">Funcionário <span class="required">*</span></label>
+      <pk-combobox inputId="vinc-funcionario"
+                   [ngModel]="employeeId()" (ngModelChange)="employeeId.set($event)"
+                   [options]="employeeOptions()" optionLabel="label" optionValue="value"
+                   [filter]="true" placeholder="Escolha o funcionário" />
+    </div>
+
+    <div class="form-field">
+      <label for="vinc-tipo">Tipo <span class="required">*</span></label>
+      <pk-combobox inputId="vinc-tipo"
+                   [ngModel]="typeId()" (ngModelChange)="pickType($event)"
+                   [options]="typeOptions()" optionLabel="label" optionValue="value"
+                   placeholder="ASO, NR, contrato…" />
+    </div>
+
+    <!--
+      O substituto se sugere sozinho, já marcado: um ASO novo quase sempre toma
+      o lugar do velho, e esquecer deixaria o velho avisando para sempre.
+    -->
+    @if (replaceable(); as anterior) {
+      <div class="vinc__aviso" role="status">
+        <span>
+          {{ employeeFirstName() }} já tem <strong>{{ anterior.title }}</strong>
+          @if (anterior.dueDate) { que vence em <strong>{{ anterior.dueDate | date: 'dd/MM/yy' }}</strong> }.
+        </span>
+        <label class="vinc__check">
+          <input type="checkbox" [checked]="replace()" (change)="replace.set($any($event.target).checked)" />
+          Substitui o anterior (ele para de gerar aviso)
+        </label>
+      </div>
+    }
+
+    <div class="form-field">
+      <label for="vinc-titulo">Título</label>
+      <input pInputText id="vinc-titulo" type="text" maxlength="200"
+             [ngModel]="title()" (ngModelChange)="editTitle($event)"
+             placeholder="O nome do tipo, se ficar em branco" />
+    </div>
+
+    <div class="form-field">
+      <span class="vinc__rotulo">Arquivo <span class="required">*</span></span>
+      <pk-fileUpload mode="dropzone" accept=".pdf,.jpg,.jpeg,.png" [maxFileSize]="10000000"
+                     dropTitle="Arraste o arquivo ou toque para escolher"
+                     dropHint="PDF, JPG ou PNG · até 10 MB"
+                     (filesSelected)="pickFile($event)" (cleared)="file.set(null)" (fileRemoved)="file.set(null)" />
+    </div>
+  </div>
+</ng-template>
+
+<!-- O vencimento: o calendário da Programação, com atalhos que contam de hoje. -->
+<ng-template #vencimento>
+  <div class="vinc__vencimento">
+    <label class="vinc__toggle">
+      <span>Tem vencimento</span>
+      <input type="checkbox" role="switch" [checked]="hasDueDate()" (change)="hasDueDate.set($any($event.target).checked)" />
+    </label>
+
+    @if (hasDueDate()) {
+      <div class="vinc__atalhos" role="group" aria-label="Atalhos de vencimento">
+        <button type="button" class="vinc__atalho" [class.is-on]="isQuickDue(6)" (click)="quickDue(6)">+6 meses</button>
+        <button type="button" class="vinc__atalho" [class.is-on]="isQuickDue(12)" (click)="quickDue(12)">+1 ano</button>
+        <button type="button" class="vinc__atalho" [class.is-on]="isQuickDue(24)" (click)="quickDue(24)">+2 anos</button>
+      </div>
+
+      <p-datepicker [ngModel]="dueDate()" (ngModelChange)="dueDate.set($event)"
+                    [inline]="true" dateFormat="dd/mm/yy" ariaLabel="Data de vencimento" />
+
+      <p class="vinc__escolha" [class.is-vazia]="!dueDate()" aria-live="polite">
+        @if (dueDate(); as vence) {
+          <i class="pi pi-check-circle" aria-hidden="true"></i>
+          <span>
+            Vence em <strong>{{ vence | date: "EEEE, dd/MM/yyyy" : "" : "pt-BR" }}</strong>.
+            @if (selectedType()?.alertDaysBefore?.length && recipientNames().length) {
+              Avisos para {{ recipientNames().join(', ') }}
+              {{ selectedType()!.alertDaysBefore.join(' e ') }} dias antes{{ selectedType()!.notifyOnExpiry ? ', e no dia' : '' }}.
+            } @else if (selectedType()) {
+              Este tipo ainda não tem quem receba o aviso.
+            }
+          </span>
+        } @else {
+          Escolha a data de vencimento, ou desligue "Tem vencimento".
+        }
+      </p>
+    } @else {
+      <p class="vinc__escolha is-vazia">Sem vencimento: o documento fica válido e nunca gera aviso.</p>
+    }
+  </div>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="open()" title="Vincular documento" (closed)="close()">
+    <div pkSheetBody class="vinc vinc--folha">
+      <ng-container *ngTemplateOutlet="campos" />
+      <ng-container *ngTemplateOutlet="vencimento" />
+      @if (error(); as erro) { <p class="vinc__erro" role="alert">{{ erro }}</p> }
+    </div>
+    <div pkSheetFooter class="vinc__botoes">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Vincular" [pkDisabled]="!canSave()" [pkLoading]="saving()" (clicked)="save()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Vincular documento" width="780px" [visible]="open()" (visibleChange)="close()">
+    <div pkDialogContent class="vinc vinc--lado">
+      <ng-container *ngTemplateOutlet="campos" />
+      <ng-container *ngTemplateOutlet="vencimento" />
+      @if (error(); as erro) { <p class="vinc__erro" role="alert">{{ erro }}</p> }
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="close()" />
+      <pk-button pkType="save" pkSize="sm"
+                 [pkLabel]="employeeFirstName() ? 'Vincular e avisar ' + employeeFirstName() : 'Vincular'"
+                 [pkDisabled]="!canSave()" [pkLoading]="saving()" (clicked)="save()" />
+    </div>
+  </pk-dialog>
+}

@@ -1,0 +1,113 @@
+<ng-template #lista>
+  <div class="tipos__lista" role="listbox" aria-label="Tipos de documento">
+    @for (type of types(); track type.id) {
+      <button type="button" class="tipos__item" role="option"
+              [class.is-sel]="editing() === type.id" [class.is-off]="!type.active"
+              [attr.aria-selected]="editing() === type.id"
+              (click)="edit(type)">
+        <span>{{ type.name }}</span>
+        <small>{{ summary(type) }}</small>
+      </button>
+    } @empty {
+      <p class="tipos__vazio">Nenhum tipo ainda.</p>
+    }
+  </div>
+  <button type="button" class="tipos__novo" (click)="create()">
+    <i class="pi pi-plus" aria-hidden="true"></i> Novo tipo
+  </button>
+</ng-template>
+
+<ng-template #formulario>
+  <div class="tipos__form">
+    <div class="form-field">
+      <label for="tipo-nome">Nome <span class="required">*</span></label>
+      <input pInputText id="tipo-nome" type="text" maxlength="100"
+             [ngModel]="name()" (ngModelChange)="name.set($event)" placeholder="ASO, NR-35, Contrato…" />
+    </div>
+
+    <div class="form-field">
+      <label for="tipo-dias">Avisar com antecedência</label>
+      <div class="tipos__tags">
+        @for (day of days(); track day) {
+          <span class="tipos__tag">
+            {{ day }} {{ day === 1 ? 'dia' : 'dias' }}
+            <button type="button" [attr.aria-label]="'Remover ' + day + ' dias'" (click)="removeDay(day)">
+              <i class="pi pi-times" aria-hidden="true"></i>
+            </button>
+          </span>
+        }
+        <input id="tipo-dias" type="text" inputmode="numeric" class="tipos__tag-input"
+               placeholder="+ dias (ex.: 60, 15)"
+               [ngModel]="dayInput()" (ngModelChange)="dayInput.set($event)"
+               (keydown.enter)="$event.preventDefault(); addDays()" (blur)="dayInput() && addDays()" />
+      </div>
+    </div>
+
+    <label class="tipos__toggle">
+      <span>Avisar também no dia do vencimento</span>
+      <input type="checkbox" role="switch" [checked]="notifyOnExpiry()" (change)="notifyOnExpiry.set($any($event.target).checked)" />
+    </label>
+
+    <div class="form-field">
+      <label for="tipo-responsaveis">Quem recebe o aviso</label>
+      <pk-multiselect inputId="tipo-responsaveis"
+                      [ngModel]="recipients()" (ngModelChange)="recipients.set($event ?? [])"
+                      [options]="employeeOptions()" optionLabel="label" optionValue="value"
+                      placeholder="Escolha as pessoas" display="chip" />
+    </div>
+
+    <label class="tipos__toggle">
+      <span>Ativo (aparece para documento novo)</span>
+      <input type="checkbox" role="switch" [checked]="active()" (change)="active.set($any($event.target).checked)" />
+    </label>
+
+    <p class="tipos__previa" aria-live="polite">{{ preview() }}</p>
+
+    @if (error(); as erro) { <p class="tipos__erro" role="alert">{{ erro }}</p> }
+  </div>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="open()" title="Tipos de documento" [fit]="true" (closed)="close()">
+    <div pkSheetBody class="tipos tipos--folha">
+      <ng-container *ngTemplateOutlet="lista" />
+    </div>
+    <div pkSheetFooter class="tipos__botoes">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="close()" />
+    </div>
+  </pk-sheet>
+
+  <!-- O formulário sobe POR CIMA da lista: fechar volta para ela. -->
+  <pk-sheet [open]="open() && formOpen()" [stacked]="true"
+            [title]="editing() ? 'Tipo · ' + name() : 'Novo tipo'" (closed)="closeForm()">
+    <div pkSheetBody class="tipos tipos--folha">
+      <ng-container *ngTemplateOutlet="formulario" />
+    </div>
+    <div pkSheetFooter class="tipos__botoes">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="closeForm()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkDisabled]="!name().trim()" [pkLoading]="saving()" (clicked)="save()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Tipos de documento" width="820px" [visible]="open()" (visibleChange)="close()">
+    <div pkDialogContent class="tipos tipos--lado">
+      <div class="tipos__coluna">
+        <ng-container *ngTemplateOutlet="lista" />
+      </div>
+      <div class="tipos__coluna tipos__coluna--form">
+        @if (formOpen()) {
+          <ng-container *ngTemplateOutlet="formulario" />
+        } @else {
+          <p class="tipos__vazio">Escolha um tipo à esquerda para ver os avisos dele, ou crie um novo.</p>
+        }
+      </div>
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="close()" />
+      @if (formOpen()) {
+        <pk-button pkType="save" pkSize="sm" [pkLabel]="editing() ? 'Salvar ' + name() : 'Criar tipo'"
+                   [pkDisabled]="!name().trim()" [pkLoading]="saving()" (clicked)="save()" />
+      }
+    </div>
+  </pk-dialog>
+}
