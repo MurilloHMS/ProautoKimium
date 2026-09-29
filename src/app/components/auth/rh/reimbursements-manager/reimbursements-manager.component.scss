@@ -6,17 +6,251 @@
 
 .table-card { @include m.grid-screen-body; }
 
-.col-center { text-align: center !important; }
+// As duas abas: Pedidos e Indicadores.
+.rm-abas {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  padding: 8px 16px 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
 
-.header-actions {
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: var(--text-ui);
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: -1px;
+
+    i { font-size: .8rem; }
+    &.is-on { color: var(--app-action); border-bottom-color: var(--app-action); }
+    &:focus-visible { outline: none; box-shadow: inset var(--app-focus-ring); }
+  }
+}
+
+// O canto direito das abas no computador: o período e as ações (opção C).
+// Centrado na linha, e não no pé das abas: os 36px dos controles cabem nos
+// 38px da aba sem a linha crescer.
+.rm-abas__lado {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-control);
+  margin-left: auto;
+  align-self: center;
+  margin-top: -8px; // desconta o padding de cima da linha, que é das abas
+
 }
 
-.filter-field {
-  min-width: 160px;
+// Celular: o seletor inteiro no topo dos Indicadores, fora da rolagem.
+.rm-periodo-celular {
+  flex: none;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
+
+// A aba Indicadores rola sozinha dentro da tela de grade.
+.rm-indicadores { flex: 1 1 auto; min-height: 0; }
+
+.rm-recorte { flex: none; padding: 10px 16px 0; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// A BARRA — a mesma dos Produtos do site e da Programação (opção A): busca e ações numa
+// linha; os recortes em chips com contagem, na cor do selo.
+// ═══════════════════════════════════════════════════════════════════════════
+.barra {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.barra__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  min-width: 0;
+}
+
+.barra__espaco { flex: 1 1 auto; }
+
+.busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 400px;
+  min-width: 0;
+
+  i {
+    position: absolute;
+    left: 11px;
+    font-size: .8rem;
+    color: var(--app-text-subtle);
+    pointer-events: none;
+  }
+}
+
+.busca__campo {
+  width: 100%;
+  height: var(--field-h);
+  padding-left: 32px;
+}
+
+.barra__icone {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-h);
+  height: var(--field-h);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: border-color .15s ease, color .15s ease, transform .12s ease;
+
+  &:hover:not(:disabled) { border-color: var(--app-border-strong); color: var(--app-text); }
+  &:active:not(:disabled) { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &:disabled { cursor: default; }
+
+  &--acao {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .12s ease;
+
+  i { font-size: .72rem; color: var(--app-text-muted); }
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 600;
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:active { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  // O par de tokens do `.status-chip` (styles/chips.scss).
+  &--status {
+    i, small { color: var(--c); }
+    &:hover { border-color: var(--c); }
+
+    &.is-on {
+      background: var(--s);
+      border-color: var(--c);
+      color: var(--c);
+    }
+  }
+
+  // As cores dos selos desta tela (`.rm-badge`): aprovado verde, pago na cor
+  // de ação, recusado vermelho.
+  &--success { --c: var(--app-success); --s: var(--app-success-soft); }
+  &--paid { --c: var(--app-action); --s: var(--app-action-soft); }
+  &--danger { --c: var(--app-danger); --s: var(--app-danger-soft); }
+  &--neutral { --c: var(--app-text-muted); --s: var(--app-surface-3); }
+
+  // "Em análise" é o que pede o RH: o único sólido, como o "Atrasadas" da
+  // Programação — borda e texto na cor desligado, preenchido ligado.
+  &--acao {
+    --c: var(--app-warning);
+    border-color: var(--c);
+    color: var(--c);
+
+    &.is-on { background: var(--c); color: #fff; i, small { color: #fff; } }
+  }
+
+  &--tracejado:not(.is-on) { border-style: dashed; }
+
+  &--limpar {
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-text-muted);
+    padding: 0 6px;
+
+    &:hover { color: var(--app-text); border-color: transparent; }
+  }
+}
+
+
+// Os chips e a busca numa linha: a busca cede primeiro, e os chips, se ainda
+// faltar espaço, rolam de lado em vez de quebrar a linha.
+.barra__linha {
+  .busca { flex: 0 100 280px; min-width: 150px; } // 100: encolhe muito antes dos chips
+
+  .chips {
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+@media (max-width: 768px) {
+  // No celular a fileira rola de lado, sem quebrar: a lista começa mais cedo.
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -12px;
+    padding: 0 12px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .chip { height: 34px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip:active, .barra__icone:active { transform: none; }
+}
+
+.col-center { text-align: center !important; }
 
 .action-btn.p-button {
   width: 32px;
@@ -112,11 +346,6 @@
   i { color: var(--app-action); }
 }
 
-// ── Totais do mês ────────────────────────────────────────────────────────────
-// 12px embaixo também: com `0` os cartões encostavam na grade (ele: "estão
-// grudadas"). O mesmo respiro de 12px entre blocos do resto da tela.
-.rm-totals { display: block; padding: 12px 16px; }
-
 // ── Contestação ──────────────────────────────────────────────────────────────
 // Rótulo neutro: "contestado" é um fato do pedido, não um status com cor.
 .rm-tag {
@@ -178,18 +407,23 @@
   .rm-file { min-height: 48px; }
 }
 
-// ── Celular: uma linha, faixa de totais e filtro visível ─────────────────────
+// ── Celular: uma linha com o mês e os ícones, os chips embaixo ───────────────
+.rm-topo {
+  flex: none;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
 .rm-bar {
   position: relative;
-  flex: none;
   display: flex;
   align-items: center;
   gap: 8px;
   height: 56px;
   padding: 0 12px;
-  border-bottom: 1px solid var(--app-border);
-  background: var(--app-surface);
 }
+
+.rm-chips-linha { padding: 0 12px 10px; }
 
 .rm-icon {
   position: relative;
@@ -205,17 +439,6 @@
   cursor: pointer;
 
   &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
-}
-
-// Filtro ativo: ponto no ícone, além do chip abaixo.
-.rm-icon__dot {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--app-action);
 }
 
 // Sempre no DOM; fechado, recortado para fora da linha (sem animação quando
@@ -262,8 +485,6 @@
   cursor: pointer;
 }
 
-.rm-chips { flex: none; padding: 10px 12px 0; }
-
 .rm-chip {
   display: inline-flex;
   align-items: center;
@@ -278,27 +499,6 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
-}
-
-.rm-options { display: flex; flex-direction: column; }
-
-.rm-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  padding: 0 4px;
-  border: 0;
-  border-bottom: 1px solid var(--app-border);
-  background: transparent;
-  color: var(--app-text);
-  font: inherit;
-  font-size: 15px;
-  text-align: left;
-  cursor: pointer;
-
-  &[aria-checked="true"] { color: var(--app-action); font-weight: 600; }
   &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
 }
 

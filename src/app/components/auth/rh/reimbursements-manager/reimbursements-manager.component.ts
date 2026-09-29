@@ -1,34 +1,48 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
-import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { InputText } from 'primeng/inputtext';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table.component';
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { Reimbursement, ReimbursementStatus, ReimbursementSummary } from '../../../../domain/models/hr/reimbursement.model';
-import { MonthSwitcherComponent, currentMonth } from '../../shared/month-switcher/month-switcher.component';
-import { ReimbursementTotalsComponent } from '../../shared/reimbursement-totals/reimbursement-totals.component';
 import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
 import { ehCelular } from '../../../../infrastructure/state/eh-celular';
-import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import {ButtonDirective} from "primeng/button";
 import {Tooltip} from "primeng/tooltip";
 import { formatDateBr, formatStampBr } from '../../../../domain/utils/date-only';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { ReimbursementReportDialogComponent } from './report-dialog/reimbursement-report-dialog.component';
+import { IndicatorDrill, ReimbursementIndicatorsComponent } from './indicators/reimbursement-indicators.component';
+import { Granularity, categoryKey, inPeriod, periodOf, shiftPeriod } from './indicators/reimbursement-indicators';
+import { PeriodPickerComponent } from './indicators/period-picker.component';
+import { TeamStore } from '../../../../infrastructure/state/org-structure.store';
 
 type ReviewAction = 'approve' | 'reject';
+
+/**
+ * Os recortes da aba Pedidos, na cor do selo de cada status. "Em análise" é o
+ * único que pede ação do RH, e por isso o único sólido; "Recusados" não pede
+ * nada, e é tracejado — o padrão da Programação A.
+ */
+interface StatusChip {
+  label: string;
+  value: ReimbursementStatus | null;
+  icon: string;
+  tone: 'acao' | 'success' | 'paid' | 'danger' | 'neutral';
+  dashed?: boolean;
+}
 
 @Component({
   selector: 'app-reimbursements-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, SelectModule, DatePickerModule, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, ToolbarComponent, PkCanDirective, ReimbursementReportDialogComponent, MonthSwitcherComponent, ReimbursementTotalsComponent, PkSheetComponent],
+  imports: [CommonModule, FormsModule, TableModule, DatePickerModule, InputText, Toast, PkButtonComponent, PkDialogComponent, PkTableComponent, ButtonDirective, Tooltip, PkCanDirective, ReimbursementReportDialogComponent, PkSheetComponent, ReimbursementIndicatorsComponent, PeriodPickerComponent],
   templateUrl: './reimbursements-manager.component.html',
   styleUrl: './reimbursements-manager.component.scss',
   providers: [MessageService],
@@ -40,24 +54,71 @@ export class ReimbursementsManagerComponent implements OnInit {
   /** O comprovante para a diretoria: baixar o PDF ou mandar ao RH. */
   reportOpen = false;
   private readonly employeeStore = inject(EmployeeStore);
+  private readonly teamStore = inject(TeamStore);
+
+  /** A aba aberta: os pedidos ou os Indicadores (2026-09-29). */
+  readonly aba = signal<'pedidos' | 'indicadores'>('pedidos');
+
+
+  /**
+   * O recorte que veio de um clique nos Indicadores — funcionário, categoria ou
+   * departamento num período. Enquanto existe, a lista vem inteira da API e é
+   * filtrada aqui, porque o período pode ser um trimestre ou um ano, e a lista
+   * normal é de um mês só.
+   */
+  readonly recorte = signal<IndicatorDrill | null>(null);
 
   statusFilter: ReimbursementStatus | null = 'PENDING';
 
-  /** `yyyy-MM`; grade e totais pela data do gasto, como o comprovante. */
-  month = currentMonth();
-  summary: ReimbursementSummary | null = null;
+  /**
+   * O período da tela, um só para Pedidos e Indicadores (2026-09-29): Mês,
+   * Trimestre ou Ano, e o ‹ › que anda nele. Sempre pela data do gasto, como o
+   * comprovante.
+   */
+  readonly granularity = signal<Granularity>('month');
+  private readonly anchor = signal(anchorOf(new Date()));
+  readonly period = computed(() => periodOf(this.granularity(), this.anchor().year, this.anchor().month));
+
+  /** O futuro não tem gasto: o ‹ › para no período de hoje. */
+  readonly canGoForward = computed(() => {
+    const today = anchorOf(new Date());
+    return this.period().from < periodOf(this.granularity(), today.year, today.month).from;
+  });
+
+  /** "Set 2026" no lugar de "Setembro 2026": a barra do celular é estreita. */
+  readonly periodShortLabel = computed(() => {
+    const p = this.period();
+    return p.granularity === 'month' ? `${SHORT_MONTHS[p.month - 1]} ${p.year}` : p.label;
+  });
+
+  /** O mês do período em `yyyy-MM` — o que a API recebe no `?month=`. */
+  get month(): string {
+    const a = this.anchor();
+    return `${a.year}-${String(a.month).padStart(2, '0')}`;
+  }
+  set month(month: string) {
+    const [year, m] = month.split('-').map(Number);
+    this.anchor.set({ year, month: m });
+  }
+
+  readonly summary = signal<ReimbursementSummary | null>(null);
 
   readonly ehCelular = ehCelular();
-  /** Celular: a busca abre por cima da linha, e o status numa folha. */
+  /** Celular: a busca abre por cima da linha. */
   searchOpen = false;
-  statusSheetOpen = false;
   loadingSummary = false;
-  statusOptions: { label: string; value: ReimbursementStatus | null }[] = [
-    { label: 'Em análise', value: 'PENDING' },
-    { label: 'Aprovados', value: 'APPROVED' },
-    { label: 'Recusados', value: 'REJECTED' },
-    { label: 'Pagos', value: 'PAID' },
-    { label: 'Todos', value: null },
+
+  /**
+   * Os cartões de total saíram (2026-09-29): a análise mora nos Indicadores, e
+   * aqui ficou a lista. A contagem do mês foi para os chips — o número continua
+   * à vista, e é ele mesmo o filtro.
+   */
+  readonly statusChips: StatusChip[] = [
+    { label: 'Em análise', value: 'PENDING', icon: 'pi pi-hourglass', tone: 'acao' },
+    { label: 'A pagar', value: 'APPROVED', icon: 'pi pi-check', tone: 'success' },
+    { label: 'Pagos', value: 'PAID', icon: 'pi pi-wallet', tone: 'paid' },
+    { label: 'Recusados', value: 'REJECTED', icon: 'pi pi-times', tone: 'danger', dashed: true },
+    { label: 'Todos', value: null, icon: 'pi pi-list', tone: 'neutral' },
   ];
 
   reviewDialogVisible = false;
@@ -88,10 +149,32 @@ export class ReimbursementsManagerComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.loadSummary();
-    this.reimbursementService.getAll(this.statusFilter ?? undefined, this.month).subscribe({
+    this.pedidosStale = false;
+    const recorte = this.recorte();
+
+    // Mês: a API filtra e conta — o caminho de sempre.
+    if (!recorte && this.granularity() === 'month') {
+      this.loadSummary();
+      this.reimbursementService.getAll(this.statusFilter ?? undefined, this.month).subscribe({
+        next: (list) => {
+          this.reimbursements = list;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.loading = false;
+          this.msgService.add({ severity: 'warning', summary: 'Erro', detail: this.getErrorMessage(err) });
+        },
+      });
+      return;
+    }
+
+    // Trimestre, ano ou recorte dos Indicadores: a API só filtra por mês, então
+    // a lista vem inteira e o corte é aqui — e as contagens dos chips também.
+    this.reimbursementService.getAll().subscribe({
       next: (list) => {
-        this.reimbursements = list;
+        const inRange = recorte ? list.filter(r => this.noRecorte(r, recorte)) : list.filter(r => inPeriod(r, this.period()));
+        this.summary.set(summaryOf(inRange, this.period().label));
+        this.reimbursements = this.statusFilter ? inRange.filter(r => r.status === this.statusFilter) : inRange;
         this.loading = false;
       },
       error: (err) => {
@@ -105,7 +188,7 @@ export class ReimbursementsManagerComponent implements OnInit {
     this.loadingSummary = true;
     this.reimbursementService.getSummary(this.month).subscribe({
       next: (s) => {
-        this.summary = s;
+        this.summary.set(s);
         this.loadingSummary = false;
       },
       // Sem totais a grade continua útil; os cartões mostram o traço.
@@ -113,25 +196,87 @@ export class ReimbursementsManagerComponent implements OnInit {
     });
   }
 
-  changeMonth(month: string): void {
-    this.month = month;
+  setGranularity(granularity: Granularity): void {
+    if (granularity === this.granularity()) return;
+    this.granularity.set(granularity);
+    this.periodChanged();
+  }
+
+  movePeriod(step: number): void {
+    if (step > 0 && !this.canGoForward()) return;
+    const next = shiftPeriod(this.period(), step);
+    this.anchor.set({ year: next.year, month: next.month });
+    this.periodChanged();
+  }
+
+  /**
+   * Trocar o período é voltar ao modo normal: o recorte era de outro. A lista
+   * só é buscada na aba Pedidos; nos Indicadores ela fica marcada como velha.
+   */
+  private periodChanged(): void {
+    this.recorte.set(null);
+    if (this.aba() === 'pedidos') this.load();
+    else this.pedidosStale = true;
+  }
+
+  /** O período mudou nos Indicadores: a lista de Pedidos está velha até voltar. */
+  private pedidosStale = false;
+
+  openTab(tab: 'pedidos' | 'indicadores'): void {
+    this.aba.set(tab);
+    if (tab === 'pedidos' && this.pedidosStale) this.load();
+  }
+
+  /** Um clique num gráfico dos Indicadores: volta para Pedidos, já recortado. */
+  onDrill(drill: IndicatorDrill): void {
+    this.recorte.set(drill);
+    this.statusFilter = null;
+    this.aba.set('pedidos');
     this.load();
   }
 
-  /** O cartão clicado vira o filtro de status — o mesmo do seletor da toolbar. */
-  filterByCard(status: ReimbursementStatus | null): void {
+  limparRecorte(): void {
+    this.recorte.set(null);
+    this.load();
+  }
+
+  /** O pedido cai no recorte: pela data do gasto, e pelo funcionário, categoria ou departamento. */
+  private noRecorte(r: Reimbursement, recorte: IndicatorDrill): boolean {
+    const day = r.expenseDate.slice(0, 10);
+    if (day < recorte.from || day > recorte.to) return false;
+    if (recorte.employeeId && r.employeeId !== recorte.employeeId) return false;
+    if (recorte.categoryKey && categoryKey(r.category) !== recorte.categoryKey) return false;
+    if (recorte.departmentId) {
+      const teamId = this.employeeStore.items().find(e => e.id === r.employeeId)?.teamId;
+      const team = this.teamStore.items().find(t => t.id === teamId);
+      if (team?.department?.id !== recorte.departmentId) return false;
+    }
+    return true;
+  }
+
+  /** Um chip ligado por vez: tocar no que já está ligado não faz nada. */
+  filterByStatus(status: ReimbursementStatus | null): void {
+    if (status === this.statusFilter) return;
     this.statusFilter = status;
     this.load();
   }
 
-  get statusFilterLabel(): string {
-    return this.statusOptions.find(o => o.value === this.statusFilter)?.label ?? '';
-  }
-
-  /** Escolher na folha filtra e fecha: um toque, como no seletor da toolbar. */
-  pickStatus(status: ReimbursementStatus | null): void {
-    this.statusSheetOpen = false;
-    this.filterByCard(status);
+  /**
+   * A contagem de cada chip no período: no mês vem da API; no trimestre, no
+   * ano e no recorte dos Indicadores é contada aqui, da mesma lista que a
+   * grade mostra. Recusado não vem separado: é o que foi pedido menos os
+   * outros três.
+   */
+  countOf(status: ReimbursementStatus | null): number | null {
+    const s = this.summary();
+    if (!s) return null;
+    switch (status) {
+      case 'PENDING': return s.pending.count;
+      case 'APPROVED': return s.approved.count;
+      case 'PAID': return s.paid.count;
+      case 'REJECTED': return Math.max(0, s.sent.count - s.pending.count - s.approved.count - s.paid.count);
+      default: return s.sent.count;
+    }
   }
 
   /** O foco vai no mesmo toque: o teclado do iPhone só sobe assim. */
@@ -288,4 +433,26 @@ export class ReimbursementsManagerComponent implements OnInit {
       default:  return `Erro inesperado (${err.status})`;
     }
   }
+}
+
+const SHORT_MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+function anchorOf(date: Date): { year: number; month: number } {
+  return { year: date.getFullYear(), month: date.getMonth() + 1 };
+}
+
+/** Os totais que a API dá para um mês, contados aqui para um trimestre, um ano ou um recorte. */
+function summaryOf(list: Reimbursement[], label: string): ReimbursementSummary {
+  const bucket = (status?: ReimbursementStatus) => {
+    const rows = status ? list.filter(r => r.status === status) : list;
+    return { amount: rows.reduce((a, r) => a + r.amount, 0), count: rows.length };
+  };
+  return {
+    month: label,
+    sent: bucket(),
+    pending: bucket('PENDING'),
+    approved: bucket('APPROVED'),
+    paid: bucket('PAID'),
+    contestedPending: list.filter(r => r.status === 'PENDING' && r.contestedAt).length,
+  };
 }
