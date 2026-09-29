@@ -5,19 +5,286 @@
 
 .painel-wrapper { @include m.grid-screen; gap: 0; min-height: 0; padding: 0; }
 
-.sheet {
-  @include m.grid-screen-body;
+// ═══════════════════════════════════════════════════════════════════════════
+// A BARRA — busca, filtros e ações; os recortes em chips logo abaixo
+// ═══════════════════════════════════════════════════════════════════════════
+
+.barra {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 10px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
 }
 
-// A grade é a superfície da tela, como nas demais telas de grade — mas aqui as
-// linhas de coluna importam mais: é uma planilha, o olho segue a célula.
+.barra__linha {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-control);
+  min-width: 0;
+}
+
+.barra__espaco { flex: 1 1 auto; }
+
+::ng-deep .barra__maquina { width: 220px; }
+
+.busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 380px;
+  min-width: 0;
+
+  i {
+    position: absolute;
+    left: 11px;
+    font-size: .8rem;
+    color: var(--app-text-subtle);
+    pointer-events: none;
+  }
+}
+
+.busca__campo {
+  width: 100%;
+  height: var(--field-h);
+  padding-left: 32px;
+}
+
+// Botões de ícone: da altura dos campos no computador, 40px de alvo no
+// celular. Sempre com `aria-label` — o ícone sozinho não diz nada ao leitor.
+.barra__icone {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--field-h);
+  height: var(--field-h);
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) { border-color: var(--app-border-strong); color: var(--app-text); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &:disabled { cursor: default; }
+
+  &--acao {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+  }
+}
+
+.barra__ponto {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--app-action);
+}
+
+// ─── Chips ──────────────────────────────────────────────────────────────────
+//
+// No computador quebram linha; no celular rolam de lado numa fileira só — duas
+// ou três linhas de chip empurrariam a lista para baixo, que é o que a barra
+// nova existe para evitar.
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+// ─── O menu "⋯" ─────────────────────────────────────────────────────────────
+.mais-acoes { position: relative; }
+
+.mais-acoes__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 200px;
+  padding: 6px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+
+  animation: prog-desce .14s cubic-bezier(.2, .8, .2, 1);
+}
+
+.mais-acoes__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text);
+
+  font: inherit;
+  font-size: var(--text-ui);
+  text-align: left;
+  cursor: pointer;
+
+  i { color: var(--app-success); }
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.chips__divisor {
+  width: 1px;
+  height: 20px;
+  margin: 0 4px;
+  background: var(--app-border);
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 30px;
+  padding: 0 11px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  i { font-size: .72rem; color: var(--app-text-muted); }
+
+  small {
+    font-size: var(--text-micro);
+    font-weight: 600;
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &.is-on {
+    background: var(--app-action-soft);
+    border-color: var(--app-action);
+    color: var(--app-action);
+
+    i, small { color: var(--app-action); }
+  }
+
+  // ─── Os status, cada um na sua cor ────────────────────────────────────────
+  // O mesmo par de tokens do `.status-chip` (styles/chips.scss): parado, só o
+  // ícone e o número carregam a cor; ligado, o chip vira o selo da linha.
+  &--status {
+    i, small { color: var(--c); }
+
+    &:hover { border-color: var(--c); }
+
+    &.is-on {
+      background: var(--s);
+      border-color: var(--c);
+      color: var(--c);
+
+      i, small { color: var(--c); }
+    }
+  }
+
+  &--success { --c: var(--app-success); --s: var(--app-success-soft); }
+  &--info    { --c: var(--app-info);    --s: var(--app-info-soft); }
+  &--warning { --c: var(--app-warning); --s: var(--app-warning-soft); }
+  &--work    { --c: var(--app-work);    --s: var(--app-work-soft); }
+  &--danger  { --c: var(--app-danger);  --s: var(--app-danger-soft); }
+  &--neutral { --c: var(--app-text-muted); --s: var(--app-surface-3); }
+
+  // ─── Os filtros de data: desenho próprio, para não parecerem status ───────
+  //
+  // O vermelho claro já é de "Aguardando aquisição". Atrasadas é contorno
+  // vermelho parado e vermelho SÓLIDO ligado — o único chip cheio da fileira,
+  // porque é o único recorte que diz "alguém precisa agir".
+  &--atraso {
+    color: var(--app-danger);
+    border-color: var(--app-danger);
+
+    i, small { color: var(--app-danger); }
+
+    &.is-on {
+      background: var(--app-danger);
+      border-color: var(--app-danger);
+      color: #fff;
+
+      i, small { color: #fff; }
+    }
+  }
+
+  // Sem previsão é ausência de data: tracejado, como o botão "Definir data".
+  &--sem-data {
+    border-style: dashed;
+    border-color: var(--app-border-strong);
+
+    &.is-on {
+      background: var(--app-text);
+      border-style: solid;
+      border-color: var(--app-text);
+      color: var(--app-surface);
+
+      i, small { color: var(--app-surface); }
+    }
+  }
+
+  &--limpar {
+    border-color: transparent;
+    background: transparent;
+    color: var(--app-text-muted);
+    padding: 0 6px;
+
+    &:hover { color: var(--app-text); border-color: transparent; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// O CORPO — a tabela e, ao lado, o painel
+// ═══════════════════════════════════════════════════════════════════════════
+
+.corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+}
+
+.sheet {
+  @include m.grid-screen-body;
+  min-width: 0;
+}
+
+// Duas linhas por célula: o principal em cima, o que era coluna própria
+// embaixo, apagado. O olho corre pela linha de cima, e a de baixo responde a
+// segunda pergunta sem abrir nada.
 ::ng-deep .sheet-table {
   .p-datatable-thead > tr > th {
     height: var(--row-head-h);
     padding: 0;
     background: var(--app-surface-2);
     border-bottom: 1px solid var(--app-border);
-    border-right: 1px solid var(--app-border);
     color: var(--app-text-muted);
     font-size: var(--text-ui-sm);
     font-weight: 700;
@@ -26,12 +293,8 @@
     white-space: nowrap;
   }
 
-  // ─── O cabeçalho que ordena ───────────────────────────────────────────────
-  //
-  // `<button>` e não clique no `<th>`: a grade inteira é navegada por Tab, e
-  // `<th>` não é focável — `tabindex` mais `keydown.enter` seria reinventar o
-  // botão. O `all: unset` devolve o th ao que ele era e o botão herda a
-  // tipografia de cima.
+  // `<button>` e não clique no `<th>`: `<th>` não é focável — `tabindex` mais
+  // `keydown.enter` seria reinventar o botão.
   .th-sort {
     all: unset;
     box-sizing: border-box;
@@ -60,119 +323,142 @@
     &--on { color: var(--app-text); }
   }
 
+  .p-datatable-tbody > tr.linha {
+    cursor: pointer;
+
+    &:focus-visible { outline: none; box-shadow: inset var(--app-focus-ring); }
+  }
+
   .p-datatable-tbody > tr > td {
-    height: var(--row-h);
-    padding: 0 var(--cell-px);
+    height: 56px;
+    padding: 6px var(--cell-px);
     border-bottom: 1px solid var(--app-border);
-    border-right: 1px solid var(--app-border);
     font-size: var(--text-ui);
     color: var(--app-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    vertical-align: middle;
+    max-width: 0;
   }
 
-  // Célula editável: o clique tem que parecer possível antes do clique.
-  .p-datatable-tbody > tr > td.p-editable-column:hover {
+  // A linha aberta no painel: é onde a pessoa está.
+  .p-datatable-tbody > tr.is-sel > td {
     background: var(--app-action-soft);
-    cursor: text;
   }
 
-  .p-datatable-tbody > tr > td input.p-inputtext {
-    width: 100%;
-    height: calc(var(--row-h) - 8px);
-    padding: 0 6px;
-    font-size: var(--text-ui);
-  }
-
-  .cell-select, .cell-date { width: 100%; }
+  .col-maquina  { width: 24%; }
+  .col-cliente  { width: 24%; }
+  .col-status   { width: 16%; }
+  .col-previsao { width: 13%; }
+  .col-pessoas  { width: 13%; }
+  .col-alterado { width: 10%; }
 }
 
-// Filtros na toolbar: precisam caber lado a lado sem esticar a barra.
-::ng-deep .filter-select {
-  min-width: 170px;
-  max-width: 230px;
+.cel__main,
+.cel__sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.sheet-row--draft > td {
-  background: var(--app-warning-soft);
+.cel__main { font-weight: 600; }
+
+.cel__sub {
+  margin-top: 1px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
 }
 
-// Previsão vencida sem entrega: a informação que antes se descobria lendo linha
-// a linha na planilha.
-//
-// A linha inteira pintada, e não só a tarja: com duzentas linhas na tela, uma
-// marca de 3px na borda esquerda só é vista por quem já está procurando. O
-// fundo é `--app-danger-soft`, o mesmo tom de aviso do resto do sistema — forte
-// o bastante para saltar, fraco o bastante para o texto continuar legível.
-//
-// `> tr >` para ganhar da regra de listra e da de hover do PrimeNG, que são
-// mais específicas que uma classe solta.
-::ng-deep .sheet-table .p-datatable-tbody > tr.sheet-row--late > td {
-  background: var(--app-danger-soft);
+.cel__vazio {
+  font-weight: 400;
+  color: var(--app-text-subtle);
 }
 
-// O hover continua existindo, um pouco mais forte — sem isso a linha atrasada
-// seria a única da grade que não responde ao mouse.
-::ng-deep .sheet-table .p-datatable-tbody > tr.sheet-row--late:hover > td {
-  background: var(--app-danger-soft);
-  box-shadow: inset 0 0 0 999px rgba(229, 62, 62, .06);
+// A tag é como a máquina é chamada em voz alta no galpão.
+.tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border: 1px solid var(--app-border);
+  border-radius: 5px;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+  vertical-align: 1px;
 }
 
-.sheet-row--late > td:first-child {
+// Previsão vencida sem entrega. A faixa na borda e a data em vermelho bastam:
+// a linha inteira pintada competia com a linha selecionada.
+::ng-deep .sheet-table .p-datatable-tbody > tr.sheet-row--late > td:first-child {
   box-shadow: inset 3px 0 0 var(--app-danger);
 }
 
-.sheet-row--late .sheet-date-late {
-  color: var(--app-danger);
-  font-weight: 700;
-}
-
-.sheet-row--saved > td {
+.sheet-row--saved > td,
+.cartao.sheet-row--saved {
   // Pisca de leve ao gravar: confirma sem roubar o foco.
   animation: sheet-saved 1.2s ease-out;
 }
 
 @keyframes sheet-saved {
   from { background: var(--app-success-soft); }
-  to   { background: transparent; }
+  to   { background: var(--app-surface); }
 }
 
-.sheet-row__actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+// Sem bloco de "reduzir movimento": a piscada é só cor, não se move, e é o
+// único sinal de que a linha gravou.
+
+// ─── O botão da previsão ────────────────────────────────────────────────────
+//
+// Tracejado parado para dizer "isto se muda aqui". Dois andares: a data e a
+// distância até ela.
+.data {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
-}
+  min-width: 92px;
+  min-height: 40px;
+  padding: 3px 10px;
 
-.sheet-row__state {
-  font-size: var(--text-ui-sm);
-  color: var(--app-text-subtle);
-
-  &--ok { color: var(--app-success); }
-}
-
-.row-btn.p-button {
-  width: 26px;
-  height: 26px;
-  padding: 0;
+  border: 1px dashed var(--app-border-strong);
   border-radius: var(--radius-control);
   background: transparent;
-  border: 1px solid var(--app-border);
-  color: var(--app-text-muted);
+  color: var(--app-text);
 
-  &:hover { background: var(--app-surface-2); }
+  font: inherit;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
 
-  &--ok:hover:not(:disabled) {
-    background: var(--app-success);
-    border-color: var(--app-success);
-    color: #fff;
+  b {
+    font-size: var(--text-ui);
+    font-variant-numeric: tabular-nums;
   }
 
-  &--danger:hover {
-    background: var(--app-danger);
-    border-color: var(--app-danger);
-    color: #fff;
+  small {
+    font-size: var(--text-micro);
+    color: var(--app-text-muted);
+    white-space: nowrap;
+  }
+
+  &:hover { border-style: solid; border-color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &.is-late {
+    border-color: color-mix(in srgb, var(--app-danger) 55%, transparent);
+    background: var(--app-danger-soft);
+
+    small { color: var(--app-danger); font-weight: 600; }
+  }
+
+  &.is-empty b {
+    font-weight: 500;
+    color: var(--app-text-muted);
+  }
+
+  &:disabled {
+    cursor: default;
+    align-items: center;
   }
 }
 
@@ -185,53 +471,13 @@
   p { margin: 0; font-size: var(--text-ui); }
 }
 
-.sheet-note {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  padding: 8px 16px;
-  border-top: 1px solid var(--app-border);
-  background: var(--app-surface-2);
-  color: var(--app-text-muted);
-  font-size: var(--text-ui-sm);
-
-  // As teclas sumiam: fundo branco sobre cinza claro, borda apagada e texto
-  // herdando o `--app-text-muted` do parágrafo. Três coisas fracas somadas dão
-  // um retângulo em branco.
-  kbd {
-    padding: 1px 6px;
-    border: 1px solid var(--app-border-strong);
-    border-bottom-width: 2px;
-    border-radius: 4px;
-    background: var(--app-surface);
-    color: var(--app-text);
-    font-family: v.$font-body;
-    font-size: var(--text-micro);
-    font-weight: 600;
-  }
-}
-
-// No celular a dica ocupa meia tela para explicar um gesto que não existe ali:
-// não há Tab nem Esc, e "clique numa célula" é toque. Some.
-@media (max-width: 768px) {
-  .sheet-note { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sheet-row--saved > td { animation: none; }
-}
-
 // ─── Coluna de auditoria ────────────────────────────────────────────────────
-// Só leitura: a assinatura vem do servidor, não da célula.
-.col-audit { white-space: nowrap; }
-
 .audit {
   display: flex;
   flex-direction: column;
   line-height: 1.25;
   cursor: help;
+  min-width: 0;
 }
 
 .audit__who {
@@ -240,6 +486,7 @@
   color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .audit__when {
@@ -248,6 +495,414 @@
 }
 
 .audit__none { color: var(--app-text-subtle); }
+
+// ─── O painel do computador ─────────────────────────────────────────────────
+//
+// Ao lado da tabela, não por cima: a lista continua à vista enquanto se edita
+// uma linha, e a próxima está a um clique.
+.painel {
+  flex: 0 0 360px;
+  // Sem o `min-width: 0` o item flex cresce até o tamanho mínimo do conteúdo —
+  // o input do datepicker tem largura própria, e o painel media 452px.
+  width: 360px;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  border-left: 1px solid var(--app-border);
+  background: var(--app-surface);
+}
+
+.painel__cabeca {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.painel__titulo-bloco { flex: 1 1 auto; min-width: 0; }
+
+.painel__titulo {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.painel__sub {
+  margin: 2px 0 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.painel__historico,
+.painel__fechar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-text-muted);
+
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.painel__fechar {
+  width: 32px;
+  padding: 0;
+  justify-content: center;
+  border-color: transparent;
+}
+
+.painel__miolo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.painel__pe {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.painel__acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acao-excluir {
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: var(--app-danger);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); border-radius: var(--radius-control); }
+
+  // No celular fica no fim do formulário, longe do "Salvar": excluir não pode
+  // estar onde o polegar confirma.
+  &--bloco {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    margin-top: 16px;
+    border: 1px solid color-mix(in srgb, var(--app-danger) 35%, var(--app-border));
+    border-radius: var(--radius-control);
+  }
+}
+
+// ─── As perguntas do formulário ─────────────────────────────────────────────
+//
+// O que antes eram janelas depois do "Salvar". Agora são blocos no pé, acima
+// dos botões, e só existem quando a edição os pede.
+.pergunta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+}
+
+.pergunta__titulo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text);
+}
+
+.pergunta__conta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+
+  i { font-size: .7rem; color: var(--app-text-muted); }
+
+  strong { color: var(--app-primary); }
+  strong.is-bad { color: var(--app-danger); }
+}
+
+.pergunta__aviso {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  line-height: 1.45;
+}
+
+.pergunta__dica {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+.pergunta__motivo { margin: 0; }
+
+.opcional {
+  font-weight: 400;
+  color: var(--app-text-subtle);
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text);
+  cursor: pointer;
+
+  input { width: 16px; height: 16px; margin: 0; accent-color: var(--app-action); }
+}
+
+.campo-texto {
+  width: 100%;
+  resize: vertical;
+}
+
+// ─── O calendário da previsão ───────────────────────────────────────────────
+.atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+// O `pk-dialog` zera o padding do conteúdo: quem projeta traz o seu. Sem
+// isto o calendário encostava na borda do diálogo.
+.previsao-dialogo {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 20px;
+}
+
+// Calendário e motivo. Empilhados no celular, com 16px entre os blocos — o
+// calendário encostava nos atalhos e no campo.
+.previsao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.previsao__calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.previsao__motivo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+
+  textarea {
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+  }
+
+  // Desabilitado, e não escondido: a coluna fica no lugar, e o diálogo não
+  // muda de largura quando a data é escolhida.
+  &.is-off label { color: var(--app-text-subtle); }
+}
+
+// Computador: lado a lado, com um fio entre as colunas. O motivo estica até a
+// altura do calendário, que é o tamanho de texto que ele pediu.
+.previsao--lado {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+
+  .previsao__motivo {
+    padding-left: 24px;
+    border-left: 1px solid var(--app-border);
+
+    textarea { flex: 1 1 auto; min-height: 200px; }
+  }
+}
+
+// O calendário do diálogo: o global trava em 262px com dias de 30px, certo
+// para o menu que abre numa célula e apertado aqui, onde o calendário É o
+// conteúdo. `!important` só porque o global usa — é o único jeito de vencer.
+::ng-deep .previsao--lado .p-datepicker-panel {
+  width: 308px !important;
+  padding: 12px !important;
+  border: 1px solid var(--app-border);
+  box-shadow: none;
+
+  .p-datepicker-header { padding-bottom: 10px; margin-bottom: 8px; }
+
+  .p-datepicker-calendar {
+    border-spacing: 3px;
+
+    th { height: 30px; }
+    td > span { width: 36px; height: 36px; font-size: var(--text-ui); }
+  }
+}
+
+.excluir p { margin: 0 0 10px; line-height: 1.5; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELULAR — a linha vira cartão
+// ═══════════════════════════════════════════════════════════════════════════
+
+@media (max-width: 768px) {
+  .barra { padding: 10px 12px; }
+
+  .busca { flex: 1 1 auto; }
+
+  // 16px no campo: abaixo disso o iPhone dá zoom ao focar.
+  .busca__campo { font-size: 16px; height: 40px; }
+
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    // O chip do fim encosta na borda da tela ao rolar, e não na do padding.
+    margin: 0 -12px;
+    padding: 0 12px;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .chip { height: 34px; }
+
+  .barra__icone { width: 40px; height: 40px; }
+}
+
+// **A lista rola por conta própria, e isto não é detalhe.**
+//
+// O `.sheet` usa `grid-screen-body`, que é `overflow: visible`: quem rolava era
+// a tabela do PrimeNG, com `scrollHeight="flex"`. Uma lista comum no lugar dela
+// não rola nada — ela transborda, e o `overflow: hidden` do `grid-screen` lá em
+// cima corta no quinto cartão. O `min-height: 0` é o par obrigatório do
+// `flex: 1 1 auto`.
+.cartoes {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  // O fim leva o espaço da barra de baixo (opção B): o último cartão para
+  // acima da cápsula.
+  padding: 12px 12px calc(16px + var(--scroll-end-reserve, 0px));
+}
+
+.cartao {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 10px 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+// Previsão vencida: faixa na borda, e não o cartão tingido — o botão da data
+// já está vermelho, e o cartão inteiro gritaria mais alto que o status.
+.cartao--vencida {
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.cartao__corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--app-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-control);
+  }
+}
+
+.cartao__maquina {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao__linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.cartao__cliente {
+  min-width: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cartao .data { min-height: 44px; }
 
 // ─── Histórico de alterações ────────────────────────────────────────────────
 
@@ -357,288 +1012,6 @@
   margin: 0;
   color: var(--app-text-muted);
   font-size: var(--text-ui-sm);
-}
-
-// ─── Confirmação de estoque ─────────────────────────────────────────────────
-.estoque {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.estoque__lead {
-  margin: 0;
-  font-size: var(--text-ui);
-}
-
-// O número é a informação. Grande porque é o que a pessoa precisa conferir.
-.estoque__conta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin: 0;
-  padding: 12px 0;
-  font-size: 1.6rem;
-
-  i { font-size: 1rem; color: var(--app-text-muted); }
-}
-
-.estoque__de { color: var(--app-text-muted); }
-
-.estoque__para {
-  color: var(--app-primary);
-
-  &--bad { color: var(--app-danger); }
-}
-
-.estoque__nota {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  color: var(--app-text-muted);
-  font-size: var(--text-ui-sm);
-}
-
-.estoque__aviso {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--app-danger-soft, rgba(220, 38, 38, .08));
-  color: var(--app-danger);
-  font-size: var(--text-ui-sm);
-  line-height: 1.45;
-
-  i { margin-top: 2px; }
-}
-
-// ─── A escolha que falta ────────────────────────────────────────────────────
-//
-// O rascunho nasce sem status, e este rótulo ocupa o lugar do chip. Precisa
-// NÃO parecer um status: contorno tracejado e texto apagado dizem "falta você
-// preencher", enquanto um chip cinza diria "está preenchido com algo neutro" —
-// que é exatamente o engano que a escolha obrigatória existe para impedir.
-.status-pick {
-  display: inline-block;
-  padding: 2px 10px;
-  border: 1px dashed var(--app-border-strong);
-  border-radius: var(--radius-pill);
-  color: var(--app-text-subtle);
-  font-size: var(--text-ui-sm);
-  font-style: italic;
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CELULAR — a planilha vira lista de cartões
-//
-// Onze colunas somam ~1785px; a tela de um iPhone tem ~390px. Rolar de lado
-// não é uma versão pior da planilha, é outra tarefa. Aqui cada linha responde
-// sozinha, e o campo que mais muda tem botão próprio.
-// ═══════════════════════════════════════════════════════════════════════════
-
-// **A lista rola por conta própria, e isto não é detalhe.**
-//
-// O `.sheet` usa `grid-screen-body`, que é `overflow: visible`: quem rolava era
-// a tabela do PrimeNG, com `scrollHeight="flex"`. Uma lista comum no lugar dela
-// não rola nada — ela transborda, e o `overflow: hidden` do `grid-screen` lá em
-// cima corta no quinto cartão. O `min-height: 0` é o par obrigatório do
-// `flex: 1 1 auto`: sem ele o item flex se recusa a encolher abaixo do próprio
-// conteúdo e o `overflow-y` nunca chega a valer.
-.cartoes {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-
-  // A grade encostava nas bordas porque é a superfície da tela; o cartão não é,
-  // e precisa de margem para se ler como objeto solto. O fim leva o espaço da
-  // barra de baixo (opção B): o último cartão para acima da cápsula.
-  padding: .5rem .75rem calc(1rem + var(--scroll-end-reserve, 0px));
-}
-
-.cartao {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: .45rem .6rem;
-
-  padding: .7rem .75rem;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-surface);
-  background: var(--app-surface);
-}
-
-// Previsão vencida sem entrega: na planilha isso se descobre lendo linha a
-// linha. A marca é faixa na borda, e não fundo tingido — o cartão inteiro
-// vermelho gritaria mais alto que o status, que é a informação principal.
-.cartao--vencida {
-  border-color: var(--app-danger);
-  box-shadow: inset 3px 0 0 var(--app-danger);
-}
-
-.cartao--rascunho {
-  border-style: dashed;
-  background: var(--app-warning-soft);
-}
-
-.cartao__corpo {
-  grid-column: 1;
-  grid-row: 1;
-
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid var(--app-primary);
-    outline-offset: 3px;
-    border-radius: var(--radius-control);
-  }
-}
-
-.cartao__maquina {
-  font-size: .84rem;
-  font-weight: 600;
-  color: var(--app-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cartao__cliente {
-  font-size: .72rem;
-  color: var(--app-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-// A tag é como a máquina é chamada em voz alta no galpão.
-.cartao__tag {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: start;
-
-  font-size: .66rem;
-  font-weight: 700;
-  color: var(--app-subtle);
-  font-variant-numeric: tabular-nums;
-}
-
-.cartao__rodape {
-  grid-column: 1 / -1;
-  grid-row: 2;
-
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  flex-wrap: wrap;
-}
-
-// O histórico no cartão. Só ícone, e é a única coisa sem rótulo aqui: o cartão
-// não tem largura para "Histórico" ao lado da data sem empurrá-la para outra
-// linha. O mesmo ícone aparece com rótulo dentro da folha do formulário, então
-// ele se aprende num lugar e se reconhece no outro.
-.cartao__historico {
-  margin-left: auto;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 34px;
-  height: 34px;
-
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--app-text-muted);
-  cursor: pointer;
-
-  i { font-size: .8rem; }
-
-  &:focus-visible {
-    outline: 2px solid var(--app-primary);
-    outline-offset: 1px;
-  }
-}
-
-// O atalho da previsão. Tracejado enquanto está parado para dizer "isto se
-// preenche", e alvo de 34px porque é o gesto mais repetido da tela.
-//
-// O `margin-left: auto` sai quando o histórico está presente — ele já empurrou
-// os dois para a direita, e dois empurrões deixariam um buraco entre eles.
-.cartao__previsao {
-  margin-left: auto;
-
-  .cartao__historico + & { margin-left: 0; }
-
-  display: inline-flex;
-  align-items: center;
-  gap: .35rem;
-
-  height: 34px;
-  padding: 0 .7rem;
-
-  border: 1px dashed var(--app-border);
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--app-text);
-
-  font: inherit;
-  font-size: .74rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-
-  i { font-size: .8rem; color: var(--app-text-muted); }
-
-  &:focus-visible {
-    outline: 2px solid var(--app-primary);
-    outline-offset: 1px;
-  }
-
-  &.is-vencida {
-    color: var(--app-danger);
-    border-color: var(--app-danger);
-    border-style: solid;
-
-    i { color: var(--app-danger); }
-  }
-
-  &.is-vazia {
-    color: var(--app-subtle);
-    font-weight: 500;
-  }
-
-  // Rascunho ainda não existe na API: a data vai junto na criação.
-  &:disabled {
-    opacity: .5;
-    cursor: default;
-  }
-}
-
-.cartao__estado {
-  font-size: .8rem;
-  color: var(--app-text-muted);
-
-  &--ok { color: var(--app-success); }
 }
 
 // ─── Os dois diálogos do celular ───────────────────────────────────────────
@@ -845,16 +1218,13 @@
   to   { transform: translateY(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .folha,
-  .folha__painel {
-    animation: none;
-  }
-}
+// Com "reduzir movimento", a folha não sobe: só esmaece (ver MOVIMENTO, no fim).
 
 .form-programacao {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  // `minmax(0, …)` e não `1fr` puro: o `1fr` não encolhe abaixo do conteúdo,
+  // e o campo de data empurrava a coluna para fora do painel.
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: .75rem;
 
   // No celular a coluna dupla espreme rótulo e campo; uma só respira.
@@ -863,6 +1233,11 @@
   }
 
   .field-full { grid-column: 1 / -1; }
+
+  ::ng-deep .p-datepicker,
+  ::ng-deep .p-datepicker-input,
+  ::ng-deep pk-combobox,
+  input { width: 100%; min-width: 0; }
 }
 
 // O calendário ocupa a folha inteira.
@@ -887,7 +1262,10 @@
     background: transparent;
   }
 
-  .p-datepicker-calendar {
+  // `.p-datepicker-panel` na frente para empatar com o global do
+  // `forms.scss` e vencer pela ordem — sem ele, o teste mediu dias de 30px
+  // numa folha de 343px.
+  .p-datepicker-panel .p-datepicker-calendar {
     th { height: 28px; }
 
     // O dia deixa de ser um quadrado de 30px e passa a preencher a coluna: com
@@ -898,4 +1276,121 @@
       font-size: var(--text-ui);
     }
   }
+}
+
+// O pé do formulário no celular carrega as perguntas acima dos botões — o
+// mesmo desenho do painel do computador, só que empilhado.
+.folha__pe--perguntas {
+  flex-direction: column;
+  gap: 10px;
+
+  > * { flex: none; }
+}
+
+.folha__botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+
+  > * { flex: 1; }
+}
+
+::ng-deep .folha__botoes .pk-btn { width: 100%; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOVIMENTO — pedido por ele em 2026-09-28 ("mais fluido")
+//
+// Curto (140–220ms) e só onde algo MUDA de lugar ou aparece: o painel que
+// entra, o cartão que chega à lista, a pergunta que surge no pé do
+// formulário. Tudo sai de `ease-out`: começa rápido e assenta, que é o que se
+// lê como resposta ao toque, e não como espera.
+//
+// **Com "reduzir movimento" ligado sobra a opacidade, não nada.** A
+// preferência pede para tirar deslocamento e escala, que causam enjoo; o
+// esmaecer não se move. E é o modo da máquina dele: o Windows com as
+// animações do sistema desligadas faz o Chrome reportar `reduce`.
+// ═══════════════════════════════════════════════════════════════════════════
+
+$saida: cubic-bezier(.2, .8, .2, 1);
+
+@keyframes prog-painel {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes prog-entra {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes prog-desce {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes prog-esmaece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// O painel desliza da borda de onde vem, e a tabela não pula: ele entra no
+// espaço que abriu, sem empurrar nada durante o movimento.
+.painel { animation: prog-painel .22s $saida; }
+
+// O cartão que chega à lista — ao filtrar, ou a linha recém-criada. O `@for`
+// rastreia por id, então só o que é novo de verdade anima; salvar uma linha
+// não faz a lista inteira piscar.
+.cartao { animation: prog-entra .2s $saida both; }
+
+// As perguntas que antes eram janelas surgem no lugar, de cima para baixo.
+.pergunta,
+.pergunta__motivo,
+.pergunta__dica,
+.previsao__motivo { animation: prog-desce .18s $saida; }
+
+// Troca de estado sem salto: chip, data, linha selecionada, botões da barra.
+.chip,
+.data,
+.barra__icone,
+.painel__historico,
+.painel__fechar,
+.acao-excluir {
+  transition:
+    background-color .15s ease,
+    border-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease,
+    transform .12s ease;
+}
+
+::ng-deep .sheet-table .p-datatable-tbody > tr.linha > td {
+  transition: background-color .15s ease;
+}
+
+// O toque afunda um pouco: no celular não há hover, e sem isto o botão não dá
+// sinal nenhum de que foi apertado antes de a folha subir.
+.chip:active,
+.barra__icone:active,
+.data:not(:disabled):active { transform: scale(.96); }
+
+.cartao__corpo {
+  transition: opacity .12s ease;
+  &:active { opacity: .6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .painel,
+  .cartao,
+  .pergunta,
+  .pergunta__motivo,
+  .pergunta__dica,
+  .previsao__motivo,
+  .mais-acoes__menu { animation-name: prog-esmaece; }
+
+  .chip:active,
+  .barra__icone:active,
+  .data:not(:disabled):active { transform: none; }
+
+  // A folha também só esmaece, em vez de aparecer de uma vez.
+  .folha__painel { animation: prog-esmaece .18s ease; }
 }

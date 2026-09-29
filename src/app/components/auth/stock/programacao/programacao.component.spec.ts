@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 import { ProgramacaoComponent } from './programacao.component';
@@ -113,50 +113,71 @@ describe('ProgramacaoComponent · estoque', () => {
     machineStore.upsert(machine);
   });
 
+  /** Abre o formulário da linha gravada e aplica as mudanças, como a pessoa faria. */
+  const editarNoForm = (stored: MachineRegister, mudanca: Partial<Record<string, unknown>>) => {
+    registerStore.upsert(stored);
+    component.abrirForm(component.rows()[0]);
+    for (const [campo, valor] of Object.entries(mudanca)) {
+      component.editarCampo(campo as never, valor as never);
+    }
+  };
+
   /**
    * **O teste que impede o atrito.**
    *
-   * Reservar não é entregar: a máquina continua no galpão. Um diálogo aqui
+   * Reservar não é entregar: a máquina continua no galpão. Uma pergunta aqui
    * apareceria dezenas de vezes por dia sem nada a dizer.
    */
   it('mudar entre status de estoque não pergunta nada e grava direto', () => {
-    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.RESERVADA });
 
-    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.RESERVADA));
+    expect(component.stockDelta()).toBe(0);
+    component.salvarForm();
 
-    expect(component.stockDialogOpen()).toBeFalse();
     expect(registerService.update).toHaveBeenCalled();
     expect(lastPayload().adjustStock).toBeUndefined();
   });
 
-  it('marcar ENTREGUE pergunta antes e não grava ainda', () => {
-    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+  /**
+   * **O pedido desta versão:** a conta do estoque aparece no formulário
+   * enquanto se edita, e não numa janela depois do "Salvar".
+   */
+  it('marcar ENTREGUE mostra a conta do estoque no formulário, antes de salvar', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
 
-    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
-
-    expect(component.stockDialogOpen()).toBeTrue();
     expect(component.stockDelta()).toBe(-1);
     expect(component.currentStock()).toBe(5);
     expect(component.newStock()).toBe(4);
     expect(registerService.update).not.toHaveBeenCalled();
   });
 
-  it('confirmar grava com adjustStock ligado', () => {
-    registerStore.upsert(register(MachineStatus.DISPONIVEL));
-    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+  it('salvar grava com adjustStock ligado, sem abrir mais nada', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
 
-    component.confirmStockChange();
+    component.salvarForm();
 
     expect(lastPayload().adjustStock).toBeTrue();
     expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
-    expect(component.stockDialogOpen()).toBeFalse();
+    expect(component.formAberto()).toBeFalse();
+  });
+
+  /**
+   * A opção nova: quem já acertou o estoque pela tela de movimentação só
+   * atualiza a programação. Antes a única saída era cancelar a edição.
+   */
+  it('escolher "não mexer no estoque" grava com adjustStock desligado', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
+
+    component.adjustStockChoice.set(false);
+    component.salvarForm();
+
+    expect(lastPayload().adjustStock).toBeFalse();
+    expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
   });
 
   /** O caso que ele reportou: voltar de ENTREGUE tem que devolver ao estoque. */
   it('voltar de ENTREGUE soma 1', () => {
-    registerStore.upsert(register(MachineStatus.ENTREGUE));
-
-    component.onCellEdited(rowWith(register(MachineStatus.ENTREGUE), MachineStatus.DISPONIVEL));
+    editarNoForm(register(MachineStatus.ENTREGUE), { status: MachineStatus.DISPONIVEL });
 
     expect(component.stockDelta()).toBe(1);
     expect(component.newStock()).toBe(6);
@@ -168,48 +189,67 @@ describe('ProgramacaoComponent · estoque', () => {
    * some quando alguém lê só "só ENTREGUE".
    */
   it('entregar o que nunca esteve em estoque não pergunta nada', () => {
-    registerStore.upsert(register(MachineStatus.AGUARDANDO_AQUISICAO));
+    editarNoForm(register(MachineStatus.AGUARDANDO_AQUISICAO), { status: MachineStatus.ENTREGUE });
 
-    component.onCellEdited(
-      rowWith(register(MachineStatus.AGUARDANDO_AQUISICAO), MachineStatus.ENTREGUE));
+    expect(component.stockDelta()).toBe(0);
+    component.salvarForm();
 
-    expect(component.stockDialogOpen()).toBeFalse();
     expect(registerService.update).toHaveBeenCalled();
+    expect(lastPayload().adjustStock).toBeUndefined();
   });
 
   /**
    * **Divergência que já existia não pode travar o trabalho.**
    *
    * Se o estoque em movimentações está zerado e a programação diz que há
-   * máquina, a API recusaria a baixa. Em vez de deixar a pessoa sem saída, o
-   * botão troca de função e grava só o status.
+   * máquina, a API recusaria a baixa. A opção de baixar some e a edição grava
+   * só o status — mesmo que o "baixar" continue marcado por baixo.
    */
-  it('estoque insuficiente troca o botão e grava sem mexer no estoque', () => {
+  it('estoque insuficiente grava sem mexer no estoque', () => {
     stockIs(0);
-    registerStore.upsert(register(MachineStatus.DISPONIVEL));
-
-    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
 
     expect(component.stockWouldGoNegative()).toBeTrue();
+    expect(component.adjustStockChoice()).toBeTrue();
 
-    component.confirmStockChange();
+    component.salvarForm();
 
     expect(lastPayload().adjustStock).toBeFalse();
     expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
   });
 
   /**
-   * Desistir não pode deixar o status novo na tela: a pessoa sairia achando
-   * que salvou. O `refresh` traz de volta o que está no banco.
+   * O número ainda não chegou, então ninguém o viu. Salvar aqui seria
+   * confirmar uma conta que não foi mostrada — o que a pergunta existe para
+   * impedir.
    */
-  it('cancelar não grava nada', () => {
-    registerStore.upsert(register(MachineStatus.DISPONIVEL));
-    component.onCellEdited(rowWith(register(MachineStatus.DISPONIVEL), MachineStatus.ENTREGUE));
+  it('não salva enquanto o estoque ainda carrega', () => {
+    inventoryService.getInventoryMovementsByProduct.and.returnValue(new Subject<never>());
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
 
-    component.cancelStockChange();
+    expect(component.loadingStock()).toBeTrue();
+    component.salvarForm();
 
-    expect(component.stockDialogOpen()).toBeFalse();
     expect(registerService.update).not.toHaveBeenCalled();
+  });
+
+  /** Um GET por mudança de máquina, e não um por tecla digitada no formulário. */
+  it('o estoque é consultado uma vez, e não a cada campo editado', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
+    component.editarCampo('status', MachineStatus.ENTREGUE);
+    component.editarCampo('status', MachineStatus.ENTREGUE);
+
+    expect(inventoryService.getInventoryMovementsByProduct).toHaveBeenCalledTimes(1);
+  });
+
+  /** Fechar é desistir: nada vai para a API, e a linha continua como estava. */
+  it('fechar o formulário não grava nada', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.ENTREGUE });
+
+    component.fecharForm();
+
+    expect(registerService.update).not.toHaveBeenCalled();
+    expect(component.rows()[0].status).toBe(MachineStatus.DISPONIVEL);
   });
 
   // ─── Linha nova ───────────────────────────────────────────────────────────
@@ -235,19 +275,30 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.canSaveDraft(draft)).toBeFalse();
   });
 
-  // ─── O status na criação ──────────────────────────────────────────────────
+  // ─── O status e a máquina na criação ──────────────────────────────────────
 
   /**
-   * **A linha nova nasce sem status.**
+   * **A linha nova nasce sem status e sem máquina.**
    *
-   * Ela nascia em `DISPONIVEL`, e quem não reparasse na célula criava máquina
-   * em estoque e confirmava o `+1` sem querer. O caso que o padrão atrapalhava
-   * é `AGUARDANDO_AQUISICAO` — máquina que ainda não foi comprada.
+   * Ela nascia em `DISPONIVEL`, e quem não reparasse criava máquina em estoque
+   * e confirmava o `+1` sem querer. E nascia com a primeira máquina da lista,
+   * que é a mesma armadilha com outro campo.
    */
-  it('a linha nova nasce sem status', () => {
+  it('a linha nova nasce sem status e sem máquina, no formulário', () => {
     component.addRow();
 
-    expect(component.drafts()[0].status).toBeNull();
+    expect(component.formAberto()).toBeTrue();
+    expect(component.formRascunho()?.status).toBeNull();
+    expect(component.formRascunho()?.machineId).toBe('');
+  });
+
+  /** Ela vive no formulário até a API confirmar: a lista não ganha linha fantasma. */
+  it('a linha nova não entra na lista antes de ser criada', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+
+    component.addRow();
+
+    expect(component.rows().length).toBe(1);
   });
 
   it('sem status escolhido, não salva', () => {
@@ -259,56 +310,92 @@ describe('ProgramacaoComponent · estoque', () => {
   /**
    * **O botão desabilitado não é a trava.**
    *
-   * Sem esta guarda, `stockDeltaFor(null, null)` dá 0 — o status nulo não está
-   * em `IN_STOCK_STATUSES` — e a linha cairia direto no POST com `status: null`,
-   * deixando a API decidir. O botão "impede" até alguém chamar por atalho de
-   * teclado.
+   * Sem a guarda do `saveDraft`, `stockDeltaFor(null, null)` dá 0 e a linha
+   * cairia direto no POST com `status: null`, deixando a API decidir. O botão
+   * "impede" até alguém chamar por atalho de teclado.
    */
-  it('salvar um rascunho sem status não chama a API nem abre o diálogo', () => {
+  it('salvar uma linha nova sem status não chama a API', () => {
     component.addRow();
+    component.editarCampo('machineId', MACHINE_ID);
 
-    component.saveDraft(component.drafts()[0]);
+    component.salvarForm();
 
     expect(registerService.create).not.toHaveBeenCalled();
-    expect(component.stockDialogOpen()).toBeFalse();
   });
 
   /**
-   * O par do de cima, e ele existe por um motivo específico: sozinho, o
-   * anterior passaria se alguém "consertasse" o erro de tipo com
-   * `row.status ?? DISPONIVEL` — e aí toda linha nova voltaria a somar estoque.
+   * O par do de baixo, e ele existe por um motivo específico: sozinho, o outro
+   * passaria se alguém "consertasse" o erro de tipo com `row.status ??
+   * DISPONIVEL` — e aí toda linha nova voltaria a somar estoque.
    */
-  it('criar em DISPONIVEL continua perguntando pelo estoque', () => {
+  it('criar em DISPONIVEL mostra o estoque e grava com a resposta', () => {
     component.addRow();
-    const draft = component.drafts()[0];
-    draft.machineId = MACHINE_ID;
-    draft.status = MachineStatus.DISPONIVEL;
+    component.editarCampo('machineId', MACHINE_ID);
+    component.editarCampo('status', MachineStatus.DISPONIVEL);
 
-    component.saveDraft(draft);
-
-    expect(component.stockDialogOpen()).toBeTrue();
     expect(component.stockDelta()).toBe(1);
+    expect(component.newStock()).toBe(6);
+
+    component.salvarForm();
+
+    const payload = registerService.create.calls.mostRecent().args[0];
+    expect(payload.adjustStock).toBeTrue();
   });
 
   /**
    * **O teste que dá sentido ao pedido dele.**
    *
    * `AGUARDANDO_AQUISICAO` é máquina que ainda não foi comprada: criar a linha
-   * não pode lançar entrada. Hoje isso funciona por consequência do
-   * `stockDeltaFor`, e nada afirmava. Se alguém "simplificar" a regra, máquina
-   * não comprada passa a somar no estoque — e o erro só aparece na
-   * conciliação, dias depois.
+   * não pode lançar entrada. Se alguém "simplificar" a regra, máquina não
+   * comprada passa a somar no estoque — e o erro só aparece na conciliação,
+   * dias depois.
    */
   it('criar em AGUARDANDO_AQUISICAO grava direto, sem tocar no estoque', () => {
     component.addRow();
-    const draft = component.drafts()[0];
-    draft.machineId = MACHINE_ID;
-    draft.status = MachineStatus.AGUARDANDO_AQUISICAO;
+    component.editarCampo('machineId', MACHINE_ID);
+    component.editarCampo('status', MachineStatus.AGUARDANDO_AQUISICAO);
 
-    component.saveDraft(draft);
+    expect(component.stockDelta()).toBe(0);
+    component.salvarForm();
 
-    expect(component.stockDialogOpen()).toBeFalse();
-    expect(registerService.create).toHaveBeenCalled();
+    const payload = registerService.create.calls.mostRecent().args[0];
+    expect(payload.adjustStock).toBeUndefined();
+  });
+
+  // ─── Excluir ──────────────────────────────────────────────────────────────
+
+  it('excluir pergunta antes, e só confirma no botão', () => {
+    registerService.delete.and.returnValue(of('ok'));
+    registerStore.upsert(register(MachineStatus.RESERVADA));
+
+    component.deleteRow(component.rows()[0]);
+
+    expect(component.deleteTarget()).not.toBeNull();
+    expect(registerService.delete).not.toHaveBeenCalled();
+
+    component.confirmDelete();
+
+    expect(registerService.delete).toHaveBeenCalledWith(REGISTER_ID);
+  });
+
+  /** Apagar não baixa o estoque, e quem apaga máquina do galpão precisa saber. */
+  it('a pergunta avisa quando a máquina conta no estoque', () => {
+    registerStore.upsert(register(MachineStatus.DISPONIVEL));
+    component.deleteRow(component.rows()[0]);
+    expect(component.deleteCountsInStock()).toBeTrue();
+
+    component.deleteTarget.set({ ...component.rows()[0], status: MachineStatus.ENTREGUE });
+    expect(component.deleteCountsInStock()).toBeFalse();
+  });
+
+  /** A linha nova nunca existiu no banco: descartar não pergunta nada. */
+  it('descartar a linha nova fecha o formulário sem perguntar', () => {
+    component.addRow();
+
+    component.deleteRow(component.formRascunho()!);
+
+    expect(component.formAberto()).toBeFalse();
+    expect(component.deleteTarget()).toBeNull();
   });
 
   // ─── Ordenação ────────────────────────────────────────────────────────────
@@ -355,21 +442,6 @@ describe('ProgramacaoComponent · estoque', () => {
 
     expect(component.sortBy()).toBeNull();
     expect(component.rows().map(r => r.id)).toEqual(['r1', 'r2', 'r3']);
-  });
-
-  /**
-   * **O rascunho não participa da ordenação.**
-   *
-   * Era o que a ordenação nativa do PrimeNG quebraria: a linha que a pessoa
-   * acabou de criar escorregaria para a posição 140, e ela acharia que sumiu.
-   */
-  it('o rascunho continua no topo com a lista ordenada', () => {
-    comTresMaquinas();
-    component.addRow();
-
-    component.toggleSort('machine');
-
-    expect(component.rows()[0].id).toContain('draft-');
   });
 
   /**
@@ -529,48 +601,43 @@ describe('ProgramacaoComponent · estoque', () => {
     expect(component.valorDoCampo('observacao', 'qualquer coisa')).toBe('qualquer coisa');
   });
 
-  // ─── O motivo deixou de ser obrigatório ────────────────────────────────────
+  // ─── O motivo, dentro do formulário ────────────────────────────────────────
 
   /**
-   * **A regra que saiu.**
+   * **A regra que saiu antes, e continua fora.**
    *
-   * Obrigar justificativa ensinava a digitar "ok" para passar da tela. A
-   * pergunta continua aparecendo quando a previsão muda; só a exigência caiu.
+   * Obrigar justificativa ensinava a digitar "ok" para passar da tela. O campo
+   * aparece quando a previsão muda; deixar em branco grava com motivo nulo.
    */
-  it('confirmar sem motivo grava, com motivo nulo', () => {
-    const stored = { ...register(MachineStatus.DISPONIVEL), previsaoEntrega: '2026-09-01T00:00' };
-    registerStore.upsert(stored);
+  it('salvar sem escrever o motivo grava, com motivo nulo', () => {
+    editarNoForm(
+      { ...register(MachineStatus.DISPONIVEL), previsaoEntrega: '2026-09-01T00:00' },
+      { previsao: new Date(2026, 8, 20) });
 
-    const row = { ...component.rows()[0], previsao: new Date('2026-09-20T00:00') } as never;
-    component.onCellEdited(row);
-
-    expect(component.motivoAberto()).toBeTrue();
-
-    component.confirmarMotivo();
+    expect(component.formNeedsReason()).toBeTrue();
+    component.salvarForm();
 
     expect(registerService.update).toHaveBeenCalled();
     expect(lastPayload().motivoAlteracaoPrevisao).toBeNull();
   });
 
-  // ─── Quando o diálogo de motivo aparece ────────────────────────────────────
+  it('o motivo escrito no formulário vai junto, num salvar só', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { tecnico: 'Joana Prado' });
 
-  /** Edita uma célula da linha gravada e devolve o que a tela fez. */
-  const editar = (stored: MachineRegister, mudanca: Partial<MachineRegister & { previsao: Date | null }>) => {
-    registerStore.upsert(stored);
-    component.onCellEdited({ ...component.rows()[0], ...mudanca } as never);
-  };
+    component.formReason.set('  técnico de férias  ');
+    component.salvarForm();
+
+    expect(lastPayload().motivoAlteracaoPrevisao).toBe('técnico de férias');
+  });
 
   /**
-   * **A mudança que este pedido trouxe.**
-   *
-   * O diálogo só aparecia no adiamento. Agora o motivo vale para a edição
-   * inteira, e a API o repete em cada campo que mudou — então qualquer um dos
-   * sete pergunta.
+   * O motivo vale para a edição inteira, e a API o repete em cada campo que
+   * mudou — então qualquer um dos sete campos do histórico pede o campo.
    */
-  it('mudar um campo de texto abre o diálogo de motivo', () => {
-    editar(register(MachineStatus.DISPONIVEL), { tecnico: 'Joana Prado' });
+  it('mudar um campo de texto mostra o campo de motivo', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { tecnico: 'Joana Prado' });
 
-    expect(component.motivoAberto()).toBeTrue();
+    expect(component.formNeedsReason()).toBeTrue();
     expect(registerService.update).not.toHaveBeenCalled();
   });
 
@@ -578,16 +645,19 @@ describe('ProgramacaoComponent · estoque', () => {
    * **A regra do campo vazio.**
    *
    * Preencher é completar cadastro, não alterar: não há nada de onde ter saído,
-   * e não há decisão a justificar. Era a regra do adiamento e generalizou para
-   * os sete campos junto com o histórico.
+   * e não há decisão a justificar.
    */
-  it('preencher um campo que estava vazio não pergunta nada', () => {
-    const semConsultor = { ...register(MachineStatus.DISPONIVEL), consultor: '' };
+  it('preencher um campo que estava vazio não pede motivo, e o motivo nem vai', () => {
+    editarNoForm({ ...register(MachineStatus.DISPONIVEL), consultor: '' }, { consultor: 'Marcos Vinícius' });
 
-    editar(semConsultor, { consultor: 'Marcos Vinícius' });
+    expect(component.formNeedsReason()).toBeFalse();
 
-    expect(component.motivoAberto()).toBeFalse();
-    expect(registerService.update).toHaveBeenCalled();
+    // Mesmo com algo digitado antes de a regra mudar de ideia: o que a tela
+    // não perguntou, a API não recebe.
+    component.formReason.set('sobrou de antes');
+    component.salvarForm();
+
+    expect(lastPayload().motivoAlteracaoPrevisao).toBeUndefined();
   });
 
   /**
@@ -595,35 +665,159 @@ describe('ProgramacaoComponent · estoque', () => {
    * passa com uma regra que ignora tudo que envolve vazio, e aí limpar o
    * técnico de uma linha sumiria do histórico sem deixar rastro.
    */
-  it('apagar um campo que tinha valor pergunta o motivo', () => {
-    editar(register(MachineStatus.DISPONIVEL), { tecnico: '' });
+  it('apagar um campo que tinha valor pede o motivo', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { tecnico: '' });
 
-    expect(component.motivoAberto()).toBeTrue();
+    expect(component.formNeedsReason()).toBeTrue();
   });
 
   /**
    * **O teste que preserva a decisão antiga.**
    *
-   * Reservar não é entregar, e a grade se edita o dia todo: um diálogo de
-   * motivo a cada troca de status apareceria dezenas de vezes por dia sem nada
-   * a dizer. O status continua entrando no histórico — ele só não pergunta.
+   * Reservar não é entregar: um motivo a cada troca de status apareceria
+   * dezenas de vezes por dia sem nada a dizer. O status continua entrando no
+   * histórico — ele só não pergunta.
    */
-  it('mudar só o status não abre o diálogo de motivo', () => {
-    editar(register(MachineStatus.DISPONIVEL), { status: MachineStatus.RESERVADA });
+  it('mudar só o status não pede motivo', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { status: MachineStatus.RESERVADA });
 
-    expect(component.motivoAberto()).toBeFalse();
-    expect(registerService.update).toHaveBeenCalled();
+    expect(component.formNeedsReason()).toBeFalse();
   });
 
   /**
    * A Observação está fora do histórico por escolha do time. Perguntar o motivo
-   * ali seria pedir uma justificativa que a API descarta em silêncio — ela só
-   * grava motivo junto de um campo alterado.
+   * ali seria pedir uma justificativa que a API descarta em silêncio.
    */
-  it('mexer só na observação não abre o diálogo de motivo', () => {
-    editar(register(MachineStatus.DISPONIVEL), { Observacao: 'Entregar pela manhã' });
+  it('mexer só na observação não pede motivo', () => {
+    editarNoForm(register(MachineStatus.DISPONIVEL), { Observacao: 'Entregar pela manhã' });
 
-    expect(component.motivoAberto()).toBeFalse();
-    expect(registerService.update).toHaveBeenCalled();
+    expect(component.formNeedsReason()).toBeFalse();
+  });
+
+  // ─── Os chips de filtro ────────────────────────────────────────────────────
+
+  /**
+   * **Os dois recortes que não podem andar juntos.**
+   *
+   * Atrasada precisa de data, e sem previsão não tem: ligados ao mesmo tempo
+   * davam uma lista sempre vazia, que se lê como "não há nada".
+   */
+  it('ligar "Atrasadas" desliga "Sem previsão", e o contrário', () => {
+    component.toggleNoForecast();
+    component.toggleLate();
+
+    expect(component.onlyLate()).toBeTrue();
+    expect(component.semPrevisao()).toBeFalse();
+
+    component.toggleNoForecast();
+
+    expect(component.semPrevisao()).toBeTrue();
+    expect(component.onlyLate()).toBeFalse();
+  });
+
+  it('os chips de status somam, e o segundo toque tira', () => {
+    component.toggleStatus(MachineStatus.RESERVADA);
+    component.toggleStatus(MachineStatus.REFORMA);
+    expect(component.statusFilter()).toEqual([MachineStatus.RESERVADA, MachineStatus.REFORMA]);
+
+    component.toggleStatus(MachineStatus.RESERVADA);
+    expect(component.statusFilter()).toEqual([MachineStatus.REFORMA]);
+  });
+
+  /** O número do chip é do quadro inteiro: não muda porque outro chip foi ligado. */
+  it('a contagem do chip ignora os filtros ligados', () => {
+    registerStore.upsert({ ...register(MachineStatus.RESERVADA), id: 'a' });
+    registerStore.upsert({ ...register(MachineStatus.RESERVADA), id: 'b' });
+    registerStore.upsert({ ...register(MachineStatus.REFORMA), id: 'c' });
+
+    component.toggleStatus(MachineStatus.REFORMA);
+
+    expect(component.rows().length).toBe(1);
+    expect(component.statusCounts().get(MachineStatus.RESERVADA)).toBe(2);
+  });
+
+  /** "A 1042" é como a máquina é chamada no galpão: a busca tem que achar. */
+  it('a busca acha pela tag', () => {
+    registerStore.upsert({ ...register(MachineStatus.RESERVADA), id: 'a', tag: '1042' });
+    registerStore.upsert({ ...register(MachineStatus.RESERVADA), id: 'b', tag: '877' });
+
+    component.search = '1042';
+    component.onSearch();
+
+    expect(component.rows().map(r => r.id)).toEqual(['a']);
+  });
+
+  // ─── A cor e o nome do chip ────────────────────────────────────────────────
+
+  /**
+   * **O chip fala a língua do selo.** A cor vem do mesmo mapa de severidade
+   * que pinta o status na linha: um mapa próprio para o chip divergiria do
+   * selo no primeiro status novo, e o filtro verde mostraria linhas azuis.
+   */
+  it('cada chip de status leva a cor do selo da linha', () => {
+    expect(component.statusChipClass(MachineStatus.DISPONIVEL)).toContain('chip--success');
+    expect(component.statusChipClass(MachineStatus.RESERVADA)).toContain('chip--info');
+    expect(component.statusChipClass(MachineStatus.AGUARDANDO_AQUISICAO)).toContain('chip--danger');
+    expect(component.statusChipClass(MachineStatus.ENTREGUE)).toContain('chip--neutral');
+
+    for (const status of Object.values(MachineStatus)) {
+      const cor = component.statusClass(status).split('status-chip--')[1];
+      expect(component.statusChipClass(status)).withContext(status).toContain(`chip--${cor}`);
+    }
+  });
+
+  /** Os dois nomes longos encurtam no chip; os outros ficam como são. */
+  it('o chip usa o nome curto só onde o longo quebrava a fileira', () => {
+    expect(component.chipLabel(MachineStatus.LIBERAR_EQUIPAMENTOS)).toBe('Liberar');
+    expect(component.chipLabel(MachineStatus.AGUARDANDO_AQUISICAO)).toBe('Aguardando');
+    expect(component.chipLabel(MachineStatus.RESERVADA)).toBe(component.statusLabel(MachineStatus.RESERVADA));
+  });
+
+  // ─── O menu "⋯" ────────────────────────────────────────────────────────────
+
+  /**
+   * Esc fecha o de cima primeiro. Com o painel aberto e o menu por cima, um
+   * Esc que fechasse o painel levaria junto o que a pessoa estava editando.
+   */
+  it('Esc fecha o menu e deixa o formulário aberto', () => {
+    registerStore.upsert(register(MachineStatus.RESERVADA));
+    component.abrirForm(component.rows()[0]);
+    component.actionsOpen.set(true);
+
+    component.onEscapeFolha();
+
+    expect(component.actionsOpen()).toBeFalse();
+    expect(component.formAberto()).toBeTrue();
+  });
+
+  it('clique fora fecha o menu', () => {
+    component.actionsOpen.set(true);
+
+    document.body.click();
+
+    expect(component.actionsOpen()).toBeFalse();
+  });
+
+  // ─── A previsão dita como distância ────────────────────────────────────────
+
+  const emDias = (dias: number) => {
+    const hoje = new Date();
+    return new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + dias);
+  };
+
+  const linhaCom = (previsao: Date | null, status = MachineStatus.RESERVADA) =>
+    ({ ...register(status), previsao }) as never;
+
+  it('a distância até a previsão: atrasada, hoje, amanhã, em N dias', () => {
+    expect(component.relativeForecast(linhaCom(emDias(-6)))).toBe('atrasada 6 d');
+    expect(component.relativeForecast(linhaCom(emDias(0)))).toBe('hoje');
+    expect(component.relativeForecast(linhaCom(emDias(1)))).toBe('amanhã');
+    expect(component.relativeForecast(linhaCom(emDias(17)))).toBe('em 17 dias');
+    expect(component.relativeForecast(linhaCom(null))).toBe('sem previsão');
+  });
+
+  /** Entregue é passado resolvido: "atrasada" ali seria um alarme falso. */
+  it('linha entregue não conta atraso', () => {
+    expect(component.relativeForecast(linhaCom(emDias(-30), MachineStatus.ENTREGUE))).toBe('entregue');
   });
 });

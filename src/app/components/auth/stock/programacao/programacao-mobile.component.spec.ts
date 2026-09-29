@@ -17,10 +17,10 @@ import { Machine, MachineStatus } from '../../../../domain/models/prostock/machi
  *
  * **O que estes testes protegem não é o layout — é o caminho de gravação.**
  *
- * O cartão e o formulário são portas novas para a mesma linha, e a tentação é
- * cada um chamar o service direto. Quem faz isso pula quatro portões de uma
- * vez: o `hasChanges` que evita o PUT à toa, o `pedeMotivo` que alimenta o
- * histórico, a conciliação de estoque, e a fila entre os dois diálogos.
+ * O calendário e o formulário são portas para a mesma linha, e a tentação é
+ * cada um chamar o service direto. Quem faz isso pula as regras de uma vez: o
+ * `hasChanges` que evita o PUT à toa, o `pedeMotivo` que alimenta o histórico,
+ * e a conciliação de estoque.
  *
  * E o pior: **nada quebra na hora.** A tela salva, mostra o check verde, e a
  * perda só aparece semanas depois no Hub, como máquina que adiou sem
@@ -120,40 +120,58 @@ describe('ProgramacaoComponent · celular', () => {
     /**
      * **O teste mais importante do arquivo.**
      *
-     * Adiar é a edição que o histórico existe para registrar. Se o cartão
-     * gravar sem passar pelo `pedeMotivo`, a pergunta some — e some justamente
-     * na tela onde ele mais adia, que é o celular no meio da rua.
+     * Adiar é a edição que o histórico existe para registrar. O campo de motivo
+     * aparece no próprio calendário — e não numa janela depois do "Salvar",
+     * que era a segunda camada por cima da folha.
      */
-    it('trocar a data pelo cartão abre a pergunta do motivo, e ainda não grava', () => {
-      const guardado = register();
-      registerStore.upsert(guardado);
+    it('trocar uma data que existia mostra o motivo no calendário, e ainda não grava', () => {
+      registerStore.upsert(register());
 
-      const row = rowOf(guardado);
-      component.abrirPrevisao(row);
+      component.abrirPrevisao(rowOf(register()));
       component.previsaoRascunho.set(new Date(2026, 9, 15));
-      component.confirmarPrevisao();
 
-      expect(component.motivoAberto())
-        .withContext('adiar pelo cartão tem que perguntar o motivo')
+      expect(component.dateNeedsReason())
+        .withContext('adiar pelo cartão tem que mostrar o campo do motivo')
         .toBeTrue();
       expect(registerService.update)
-        .withContext('nada vai para a API antes da resposta')
+        .withContext('nada vai para a API antes do "Salvar data"')
         .not.toHaveBeenCalled();
     });
 
-    it('confirmando o motivo, a data nova chega à API com a justificativa', () => {
+    it('salvar a data leva o motivo junto, num toque só', () => {
+      registerStore.upsert(register());
+
+      component.abrirPrevisao(rowOf(register()));
+      component.previsaoRascunho.set(new Date(2026, 9, 15));
+      component.dateReason.set('peça atrasada no fornecedor');
+      component.confirmarPrevisao();
+
+      expect(registerService.update).toHaveBeenCalled();
+      expect(lastPayload().motivoAlteracaoPrevisao).toBe('peça atrasada no fornecedor');
+      expect(lastPayload().previsaoEntrega).toContain('2026-10-15');
+    });
+
+    /** O motivo é opcional: em branco, grava com nulo. */
+    it('salvar sem escrever o motivo grava do mesmo jeito', () => {
       registerStore.upsert(register());
 
       component.abrirPrevisao(rowOf(register()));
       component.previsaoRascunho.set(new Date(2026, 9, 15));
       component.confirmarPrevisao();
 
-      component.motivoTexto.set('peça atrasada no fornecedor');
-      component.confirmarMotivo();
-
       expect(registerService.update).toHaveBeenCalled();
-      expect(lastPayload().motivoAlteracaoPrevisao).toBe('peça atrasada no fornecedor');
-      expect(lastPayload().previsaoEntrega).toContain('2026-10-15');
+      expect(lastPayload().motivoAlteracaoPrevisao).toBeNull();
+    });
+
+    /** Voltar ao mesmo dia no calendário não é adiar: o campo some de novo. */
+    it('escolher de novo a data de antes esconde o motivo', () => {
+      registerStore.upsert(register());
+
+      component.abrirPrevisao(rowOf(register()));
+      component.previsaoRascunho.set(new Date(2026, 9, 15));
+      component.previsaoRascunho.set(new Date(2026, 8, 10));
+
+      expect(component.dateNeedsReason()).toBeFalse();
     });
 
     /**
@@ -167,10 +185,12 @@ describe('ProgramacaoComponent · celular', () => {
 
       component.abrirPrevisao(rowOf(semData));
       component.previsaoRascunho.set(new Date(2026, 9, 15));
+
+      expect(component.dateNeedsReason()).toBeFalse();
       component.confirmarPrevisao();
 
-      expect(component.motivoAberto()).toBeFalse();
       expect(registerService.update).toHaveBeenCalled();
+      expect(lastPayload().motivoAlteracaoPrevisao).toBeUndefined();
     });
 
     /** Desistir tem que deixar a tela como estava, não com a data nova. */
@@ -200,6 +220,31 @@ describe('ProgramacaoComponent · celular', () => {
         .withContext('o hasChanges tem que barrar')
         .not.toHaveBeenCalled();
     });
+
+    /**
+     * Contado de HOJE, e não da data atual da linha: a linha que mais se
+     * reprograma é a atrasada, e "+1 semana" sobre uma data vencida
+     * continuaria vencida.
+     */
+    it('o atalho "em 1 semana" conta a partir de hoje', () => {
+      registerStore.upsert(register());
+      component.abrirPrevisao(rowOf(register()));
+
+      component.quickDate('week');
+
+      const hoje = new Date();
+      const esperado = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 7);
+      expect((component.previsaoRascunho() as Date).getTime()).toBe(esperado.getTime());
+    });
+
+    it('o atalho "fim do mês" cai no último dia do mês corrente', () => {
+      component.quickDate('monthEnd');
+
+      const hoje = new Date();
+      const data = component.previsaoRascunho() as Date;
+      expect(data.getMonth()).toBe(hoje.getMonth());
+      expect(new Date(data.getFullYear(), data.getMonth(), data.getDate() + 1).getDate()).toBe(1);
+    });
   });
 
   // ─── O formulário completo ──────────────────────────────────────────────
@@ -212,6 +257,16 @@ describe('ProgramacaoComponent · celular', () => {
 
       component.abrirForm(rowOf(guardado));
       component.fecharForm();
+
+      expect(registerService.update).not.toHaveBeenCalled();
+    });
+
+    /** Abrir e salvar sem mexer também não: o `hasChanges` continua no caminho. */
+    it('abrir e salvar sem mexer não gera PUT', () => {
+      registerStore.upsert(register());
+
+      component.abrirForm(rowOf(register()));
+      component.salvarForm();
 
       expect(registerService.update).not.toHaveBeenCalled();
     });
@@ -234,12 +289,7 @@ describe('ProgramacaoComponent · celular', () => {
       expect(registerService.update).not.toHaveBeenCalled();
     });
 
-    /**
-     * Trocar o técnico também passa pelo motivo — ele é um dos oito campos do
-     * histórico, e alterar valor já preenchido conta como decisão a
-     * justificar. Foi este teste que provou o caminho: escrito esperando um
-     * PUT direto, ele falhou, e o certo era ele.
-     */
+    /** A API não tem PATCH: os outros oito campos continuam indo. */
     it('salvar aplica na linha e manda os nove campos', () => {
       registerStore.upsert(register());
 
@@ -247,58 +297,52 @@ describe('ProgramacaoComponent · celular', () => {
       component.editarCampo('tecnico', 'Outro técnico');
       component.salvarForm();
 
-      expect(component.motivoAberto())
-        .withContext('trocar o técnico é alteração registrada')
-        .toBeTrue();
-      component.confirmarMotivo();
-
       expect(registerService.update).toHaveBeenCalled();
       expect(lastPayload().tecnico).toBe('Outro técnico');
-      // Os outros oito continuam indo: a API não tem PATCH.
       expect(lastPayload().nomeCliente).toBe('Cliente');
       expect(lastPayload().regiao).toBe('Sul');
       expect(lastPayload().status).toBe(MachineStatus.RESERVADA);
     });
 
     /**
-     * O formulário não é atalho para furar a conciliação: mudar o status para
-     * ENTREGUE tira a máquina do estoque, e a pergunta é a mesma da planilha.
+     * **Por que este redesenho existe.**
+     *
+     * Mudar data e status de uma vez abria três camadas no celular: a folha, a
+     * janela do motivo e, depois dela, a do estoque. Agora as duas perguntas
+     * estão no formulário ao mesmo tempo, e um "Salvar" grava as duas
+     * respostas.
      */
-    it('mudar o status para ENTREGUE ainda abre o diálogo de estoque', () => {
-      registerStore.upsert(register({ status: MachineStatus.DISPONIVEL }));
-
-      component.abrirForm(rowOf(register({ status: MachineStatus.DISPONIVEL })));
-      component.editarCampo('status', MachineStatus.ENTREGUE);
-      component.salvarForm();
-
-      expect(component.stockDialogOpen()).toBeTrue();
-      expect(registerService.update).not.toHaveBeenCalled();
-    });
-
-    /**
-     * Os dois diálogos podem cair na mesma edição. **Em fila, nunca
-     * sobrepostos** — um por cima do outro esconderia metade da pergunta.
-     */
-    it('mudar data e status juntos pergunta o motivo primeiro, o estoque depois', () => {
+    it('mudar data e status juntos mostra motivo e estoque de uma vez, e um salvar grava tudo', () => {
       registerStore.upsert(register({ status: MachineStatus.DISPONIVEL }));
 
       component.abrirForm(rowOf(register({ status: MachineStatus.DISPONIVEL })));
       component.editarCampo('status', MachineStatus.ENTREGUE);
       component.editarCampo('previsao', new Date(2026, 9, 20) as never);
+
+      expect(component.formNeedsReason()).withContext('o motivo aparece').toBeTrue();
+      expect(component.stockDelta()).withContext('e o estoque também').toBe(-1);
+
+      component.formReason.set('cliente antecipou');
       component.salvarForm();
 
-      expect(component.motivoAberto())
-        .withContext('o motivo vem primeiro')
-        .toBeTrue();
-      expect(component.stockDialogOpen())
-        .withContext('e o de estoque ainda não abriu')
-        .toBeFalse();
+      expect(registerService.update).toHaveBeenCalledTimes(1);
+      expect(lastPayload().motivoAlteracaoPrevisao).toBe('cliente antecipou');
+      expect(lastPayload().adjustStock).toBeTrue();
+      expect(lastPayload().status).toBe(MachineStatus.ENTREGUE);
+    });
 
-      component.confirmarMotivo();
+    /**
+     * Voltar o status ao que era no meio da edição tira a pergunta: sobra só o
+     * que de fato vai ser gravado.
+     */
+    it('desfazer a troca de status no formulário tira a pergunta do estoque', () => {
+      registerStore.upsert(register({ status: MachineStatus.DISPONIVEL }));
 
-      expect(component.stockDialogOpen())
-        .withContext('agora sim, com o motivo já respondido')
-        .toBeTrue();
+      component.abrirForm(rowOf(register({ status: MachineStatus.DISPONIVEL })));
+      component.editarCampo('status', MachineStatus.ENTREGUE);
+      component.editarCampo('status', MachineStatus.DISPONIVEL);
+
+      expect(component.stockDelta()).toBe(0);
     });
   });
 });

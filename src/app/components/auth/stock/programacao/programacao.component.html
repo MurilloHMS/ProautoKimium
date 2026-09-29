@@ -1,399 +1,335 @@
-<p-confirmDialog [style]="{ width: '440px' }" />
 <p-toast position="top-right" />
 
 @if (mode() === 'grid') {
 <div class="painel-wrapper">
 
-  <app-toolbar>
-    @if (!ehCelular()) {
-      <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
-    }
-    <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="loading()" (clicked)="refresh()"/>
-    @if (!ehCelular()) {
-      <pk-button pkType="excel" pkSize="sm" pkLabel="Importar planilha" (clicked)="mode.set('import')"/>
-    }
+  <!--
+    A barra: busca, filtros e ações numa linha, e os recortes em chips logo
+    abaixo. Substituiu a toolbar de sete botões, que no celular ocupava um terço
+    da tela antes do primeiro cartão.
+  -->
+  <div class="barra">
+    <div class="barra__linha">
+      <label class="busca">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input pInputText
+               id="prog-busca"
+               type="search"
+               class="busca__campo"
+               placeholder="Máquina, tag, cliente, técnico…"
+               aria-label="Buscar na programação"
+               [(ngModel)]="search"
+               (ngModelChange)="onSearch()" />
+      </label>
 
-    <!-- Atalho para o recorte mais pedido: o que já venceu e não saiu. -->
-    <pk-button
-      [pkType]="onlyLate() ? 'cancel' : 'filter'"
-      pkSize="sm"
-      [pkLabel]="onlyLate() ? 'Ver todos' : 'Atrasados (' + lateCount() + ')'"
-      (clicked)="onlyLate.set(!onlyLate())"/>
+      @if (!ehCelular()) {
+        <pk-combobox class="barra__maquina"
+                     [ngModel]="machineFilter()" (ngModelChange)="machineFilter.set($event)"
+                     [options]="machineOptions()" optionLabel="label" optionValue="value"
+                     placeholder="Todas as máquinas" [filter]="true"
+                     [showClear]="true" [dense]="true" />
 
-    <!-- O par do de cima: o Hub avisa "N sem previsão" e manda para cá. Sem
-         controle visível, quem chega pelo link não sabe o que está vendo. -->
-    <pk-button
-      [pkType]="semPrevisao() ? 'cancel' : 'filter'"
-      pkSize="sm"
-      [pkLabel]="semPrevisao() ? 'Ver todos' : 'Sem previsão'"
-      (clicked)="semPrevisao.set(!semPrevisao())"/>
+        <span class="barra__espaco"></span>
 
-    <!-- Só aparece quando veio pela URL: é filtro de link, não de uso diário,
-         mas precisa ser visível e removível como os outros. -->
-    @if (saidaAte(); as ate) {
-      <pk-button
-        pkType="cancel"
-        pkSize="sm"
-        [pkLabel]="'Saídas até ' + (ate | date: 'dd/MM')"
-        (clicked)="saidaAte.set(null)"/>
-    }
+        <!-- Só "Nova linha" fica como botão inteiro: é a única ação do dia a
+             dia. Atualizar vira ícone e a importação, que é de vez em quando,
+             vai para o "⋯". -->
+        <button type="button" class="barra__icone" aria-label="Atualizar" pTooltip="Atualizar"
+                tooltipPosition="bottom" [disabled]="loading()" (click)="refresh()">
+          <i class="pi pi-refresh" [class.pi-spin]="loading()" aria-hidden="true"></i>
+        </button>
 
-    @if (hasFilters()) {
-      <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters()"/>
-    }
-
-    <div filters>
-      <pk-multiselect class="filter-control"
-                      [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)"
-                      [options]="statusOptions" optionLabel="label" optionValue="value"
-                      placeholder="Status" display="chip"
-                      [showClear]="true" [dense]="true" />
-
-      <pk-combobox class="filter-control"
-                   [ngModel]="machineFilter()" (ngModelChange)="machineFilter.set($event)"
-                   [options]="machineOptions()" optionLabel="label" optionValue="value"
-                   placeholder="Máquina" [filter]="true"
-                   [showClear]="true" [dense]="true" />
-
-      <input type="text"
-             class="toolbar-search"
-             placeholder="Buscar cliente, região, consultor…"
-             aria-label="Buscar na programação"
-             [(ngModel)]="search"
-             (ngModelChange)="onSearch()" />
-    </div>
-  </app-toolbar>
-
-  <div class="sheet">
-    @if (!ehCelular()) {
-    <p-table [value]="rows()"
-             dataKey="id"
-             [scrollable]="true"
-             scrollHeight="flex"
-             [loading]="loading()"
-             styleClass="sheet-table"
-             [rowHover]="true"
-             (onEditComplete)="onCellEdited($event.data)"
-             (onEditCancel)="onCellCancelled($event.data)">
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 190px" [attr.aria-sort]="ariaSort('machine')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'machine'"
-                    (click)="toggleSort('machine')">
-              Máquina <i class="pi" [ngClass]="sortIcon('machine')"></i>
-            </button>
-          </th>
-          <th style="width: 230px" [attr.aria-sort]="ariaSort('nomeCliente')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'nomeCliente'"
-                    (click)="toggleSort('nomeCliente')">
-              Cliente <i class="pi" [ngClass]="sortIcon('nomeCliente')"></i>
-            </button>
-          </th>
-          <th style="width: 110px" [attr.aria-sort]="ariaSort('regiao')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'regiao'"
-                    (click)="toggleSort('regiao')">
-              Região <i class="pi" [ngClass]="sortIcon('regiao')"></i>
-            </button>
-          </th>
-          <th style="width: 140px" [attr.aria-sort]="ariaSort('solicitante')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'solicitante'"
-                    (click)="toggleSort('solicitante')">
-              Solicitante <i class="pi" [ngClass]="sortIcon('solicitante')"></i>
-            </button>
-          </th>
-          <th style="width: 150px" [attr.aria-sort]="ariaSort('status')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'status'"
-                    (click)="toggleSort('status')">
-              Status <i class="pi" [ngClass]="sortIcon('status')"></i>
-            </button>
-          </th>
-          <th style="width: 220px">Observação</th>
-          <th style="width: 140px" [attr.aria-sort]="ariaSort('previsao')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'previsao'"
-                    (click)="toggleSort('previsao')">
-              Previsão saída <i class="pi" [ngClass]="sortIcon('previsao')"></i>
-            </button>
-          </th>
-          <th style="width: 140px" [attr.aria-sort]="ariaSort('consultor')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'consultor'"
-                    (click)="toggleSort('consultor')">
-              Consultor <i class="pi" [ngClass]="sortIcon('consultor')"></i>
-            </button>
-          </th>
-          <th style="width: 150px" [attr.aria-sort]="ariaSort('tecnico')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'tecnico'"
-                    (click)="toggleSort('tecnico')">
-              Técnico <i class="pi" [ngClass]="sortIcon('tecnico')"></i>
-            </button>
-          </th>
-          <th style="width: 80px" [attr.aria-sort]="ariaSort('tag')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'tag'"
-                    (click)="toggleSort('tag')">
-              Tag <i class="pi" [ngClass]="sortIcon('tag')"></i>
-            </button>
-          </th>
-          <th style="width: 165px" [attr.aria-sort]="ariaSort('updatedAt')">
-            <button type="button" class="th-sort"
-                    [class.th-sort--on]="sortBy()?.field === 'updatedAt'"
-                    (click)="toggleSort('updatedAt')">
-              Última alteração <i class="pi" [ngClass]="sortIcon('updatedAt')"></i>
-            </button>
-          </th>
-          <th style="width: 70px" class="col-center">—</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-row>
-        <tr [class.sheet-row--draft]="isDraft(row)" [class.sheet-row--saved]="isSaved(row.id)" [class.sheet-row--late]="isLate(row)">
-
-          <!-- Máquina: o equivalente da validação de dados da planilha -->
-          <td [pEditableColumn]="row" pEditableColumnField="machineId">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <pk-combobox [(ngModel)]="row.machineId" [options]="machineOptions()"
-                             optionLabel="label" optionValue="value" [dense]="true"
-                             (changed)="onCellEdited(row)" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ machineName(row.machineId) }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="nomeCliente">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.nomeCliente" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.nomeCliente || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="regiao">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.regiao" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.regiao || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="solicitante">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.solicitante" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.solicitante || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="status">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <pk-combobox [(ngModel)]="row.status" [options]="statusOptions"
-                             optionLabel="label" optionValue="value" [dense]="true"
-                             (changed)="onCellEdited(row)" />
-              </ng-template>
-              <ng-template pTemplate="output">
-                <!--
-                  O `@if` é obrigatório aqui, e não é estilo: o contexto do
-                  `pTemplate` é `any`, então o compilador NÃO pega
-                  `statusLabel(null)`. Em runtime isso renderizaria um chip
-                  cinza vazio — que parece um status válido, e é justamente o
-                  engano que a escolha obrigatória existe para impedir.
-                -->
-                @if (row.status) {
-                  <span [class]="statusClass(row.status)"><i [class]="statusIcon(row.status)" aria-hidden="true"></i>{{ statusLabel(row.status) }}</span>
-                } @else {
-                  <span class="status-pick">Escolher status</span>
-                }
-              </ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="Observacao">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.Observacao" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.Observacao || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="previsao">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <p-datepicker [(ngModel)]="row.previsao" appendTo="body" dateFormat="dd/mm/yy"
-                              styleClass="cell-date" (onSelect)="onCellEdited(row)" />
-              </ng-template>
-              <ng-template pTemplate="output">
-                {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : '—' }}
-              </ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="consultor">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.consultor" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.consultor || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="tecnico">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input pInputText type="text" [(ngModel)]="row.tecnico" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.tecnico || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <td [pEditableColumn]="row" pEditableColumnField="tag">
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <!--
-                  `maxlength` e a unica trava real do tamanho: a API
-                  aceita qualquer texto e quem recusa acima de dez e o
-                  Postgres, como erro de banco.
-                -->
-                <input pInputText type="text" maxlength="10" [(ngModel)]="row.tag" />
-              </ng-template>
-              <ng-template pTemplate="output">{{ row.tag || '—' }}</ng-template>
-            </p-cellEditor>
-          </td>
-
-          <!-- Só leitura: quem assina a alteração é o servidor, não a célula. -->
-          <td class="col-audit">
-            @if (row.updatedAt) {
-              <span class="audit" [pTooltip]="auditTooltip(row)" tooltipPosition="left">
-                <span class="audit__who">{{ row.updatedBy || 'Desconhecido' }}</span>
-                <small class="audit__when">{{ stamp(row.updatedAt) }}</small>
-              </span>
-            } @else {
-              <span class="audit__none">—</span>
-            }
-          </td>
-
-          <td class="col-center sheet-row__actions">
-            @if (isSaving(row.id)) {
-              <i class="pi pi-spin pi-spinner sheet-row__state" title="Salvando"></i>
-            } @else if (isSaved(row.id)) {
-              <i class="pi pi-check sheet-row__state sheet-row__state--ok" title="Salvo"></i>
-            } @else if (isDraft(row)) {
-              <button pButton type="button" icon="pi pi-check" class="row-btn row-btn--ok"
-                      [disabled]="!canSaveDraft(row)"
-                      [pTooltip]="saveDraftHint(row)" tooltipPosition="left"
-                      (click)="saveDraft(row)"></button>
-            }
-            @if (!isDraft(row)) {
-              <button pButton type="button" icon="pi pi-history" class="row-btn"
-                      pTooltip="Histórico de adiamentos" tooltipPosition="left"
-                      (click)="abrirHistorico(row)"></button>
-            }
-            <button pButton type="button" icon="pi pi-trash" class="row-btn row-btn--danger"
-                    [pTooltip]="isDraft(row) ? 'Descartar' : 'Excluir'" tooltipPosition="left"
-                    (click)="deleteRow(row)"></button>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="12" class="sheet-empty">
-            <i class="pi pi-table"></i>
-            <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-    }
-
-    <!-- ═══ Celular: uma linha é um cartão ═══════════════════════════════
-         O cartão responde sem abrir nada — máquina, cliente, status e
-         previsão. Região, solicitante, consultor, técnico e observação ficam
-         no formulário: no cartão virariam ruído em volta do que se consulta.
-    -->
-    @if (ehCelular()) {
-      <div class="cartoes">
-        @for (row of rows(); track row.id) {
-          <article class="cartao"
-                   [class.cartao--vencida]="isLate(row)"
-                   [class.cartao--rascunho]="isDraft(row)">
-
-            <button type="button" class="cartao__corpo" (click)="abrirForm(row)">
-              <span class="cartao__maquina">{{ machineName(row.machineId) || 'Sem máquina' }}</span>
-              <span class="cartao__cliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
-            </button>
-
-            @if (row.tag) {
-              <span class="cartao__tag">{{ row.tag }}</span>
-            }
-
-            <div class="cartao__rodape">
-              @if (row.status) {
-                <span [class]="statusClass(row.status)">
-                  <i [class]="statusIcon(row.status)"></i>
-                  {{ statusLabel(row.status) }}
-                </span>
-              }
-
-              <!-- Histórico direto do cartão: uma leitura frequente não deve
-                   custar abrir o formulário antes. Rascunho não tem, porque a
-                   linha ainda não existe na API. -->
-              @if (!isDraft(row)) {
-                <button type="button"
-                        class="cartao__historico"
-                        aria-label="Histórico de alterações"
-                        (click)="abrirHistorico(row)">
-                  <i class="pi pi-history"></i>
-                </button>
-              }
-
-              <!-- O atalho: é o que ele faz quase sempre, então é botão, e
-                   não um campo escondido atrás do formulário. -->
-              <button type="button"
-                      class="cartao__previsao"
-                      [class.is-vencida]="isLate(row)"
-                      [class.is-vazia]="!row.previsao"
-                      [disabled]="isDraft(row) || isSaving(row.id)"
-                      (click)="abrirPrevisao(row)">
-                <i class="pi pi-calendar"></i>
-                {{ row.previsao ? (row.previsao | date: 'dd/MM/yyyy') : 'Sem previsão' }}
+        <span class="mais-acoes">
+          <button type="button" class="barra__icone" aria-label="Mais ações" aria-haspopup="menu"
+                  [attr.aria-expanded]="actionsOpen()"
+                  (click)="$event.stopPropagation(); actionsOpen.set(!actionsOpen())">
+            <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+          </button>
+          @if (actionsOpen()) {
+            <div class="mais-acoes__menu" role="menu" (click)="$event.stopPropagation()">
+              <button type="button" role="menuitem" class="mais-acoes__item"
+                      (click)="actionsOpen.set(false); mode.set('import')">
+                <i class="pi pi-file-excel" aria-hidden="true"></i> Importar planilha
               </button>
-
-              @if (isSaving(row.id)) {
-                <i class="pi pi-spin pi-spinner cartao__estado" title="Salvando"></i>
-              } @else if (isSaved(row.id)) {
-                <i class="pi pi-check cartao__estado cartao__estado--ok" title="Salvo"></i>
-              }
             </div>
-          </article>
-        } @empty {
-          <div class="sheet-empty">
-            <i class="pi pi-table"></i>
-            <p>Nenhuma linha na programação. Use "Nova linha" para começar.</p>
-          </div>
-        }
-      </div>
-    }
+          }
+        </span>
+
+        <pk-button pkType="new" pkSize="sm" pkLabel="Nova linha" (clicked)="addRow()"/>
+      } @else {
+        <!-- O ponto diz que há filtro escondido na folha: filtro que não se vê
+             é lista curta sem explicação. -->
+        <button type="button" class="barra__icone" aria-label="Mais filtros"
+                (click)="filtersOpen.set(true)">
+          <i class="pi pi-sliders-h" aria-hidden="true"></i>
+          @if (machineFilter()) { <span class="barra__ponto" aria-hidden="true"></span> }
+        </button>
+        <button type="button" class="barra__icone barra__icone--acao" aria-label="Nova linha"
+                (click)="addRow()">
+          <i class="pi pi-plus" aria-hidden="true"></i>
+        </button>
+      }
+    </div>
+
+    <!--
+      Os recortes, com a contagem do quadro inteiro.
+
+      Cada status na SUA cor — a mesma do selo na linha (opção A, escolhida por
+      ele em 2026-09-29). O ícone fica: é o que sobrevive à escala de cinza.
+      Os dois filtros de DATA têm desenho próprio, para nunca parecerem status:
+      "Atrasadas" vira vermelho sólido ao ligar (o vermelho claro já é de
+      "Aguardando aquisição"), e "Sem previsão" é tracejado.
+    -->
+    <div class="chips" role="group" aria-label="Filtros rápidos">
+      <button type="button" class="chip chip--atraso"
+              [class.is-on]="onlyLate()" [attr.aria-pressed]="onlyLate()"
+              (click)="toggleLate()">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+        Atrasadas <small>{{ lateCount() }}</small>
+      </button>
+
+      <button type="button" class="chip chip--sem-data"
+              [class.is-on]="semPrevisao()" [attr.aria-pressed]="semPrevisao()"
+              (click)="toggleNoForecast()">
+        <i class="pi pi-calendar-times" aria-hidden="true"></i>
+        Sem previsão <small>{{ noForecastCount() }}</small>
+      </button>
+
+      <span class="chips__divisor" aria-hidden="true"></span>
+
+      @for (opcao of statusOptions; track opcao.value) {
+        <button type="button" [class]="statusChipClass(opcao.value)"
+                [class.is-on]="isStatusOn(opcao.value)" [attr.aria-pressed]="isStatusOn(opcao.value)"
+                [attr.title]="opcao.label"
+                (click)="toggleStatus(opcao.value)">
+          <i [class]="statusIcon(opcao.value)" aria-hidden="true"></i>
+          {{ chipLabel(opcao.value) }} <small>{{ statusCounts().get(opcao.value) ?? 0 }}</small>
+        </button>
+      }
+
+      <!-- Só vem pela URL (o cartão "Próximas saídas" do Hub): não é filtro de
+           uso diário, mas precisa ser visível e removível como os outros. -->
+      @if (saidaAte(); as ate) {
+        <button type="button" class="chip is-on" (click)="saidaAte.set(null)"
+                [attr.aria-label]="'Remover filtro: saídas até ' + (ate | date: 'dd/MM')">
+          Saídas até {{ ate | date: 'dd/MM' }} <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      }
+
+      @if (ehCelular() && machineFilter(); as maquina) {
+        <button type="button" class="chip is-on" (click)="machineFilter.set(null)"
+                [attr.aria-label]="'Remover filtro de máquina: ' + machineName(maquina)">
+          {{ machineName(maquina) }} <i class="pi pi-times" aria-hidden="true"></i>
+        </button>
+      }
+
+      @if (hasFilters()) {
+        <button type="button" class="chip chip--limpar" (click)="clearFilters()">
+          <i class="pi pi-times" aria-hidden="true"></i> Limpar
+        </button>
+      }
+    </div>
   </div>
 
-  <p class="sheet-note">
-    <i class="pi pi-info-circle"></i>
-    Clique numa célula para editar e confirme com <kbd>Enter</kbd> ou <kbd>Tab</kbd>
-    — cada linha é salva sozinha. <kbd>Esc</kbd> descarta a edição. Linha em
-    vermelho é previsão vencida sem entrega.
-  </p>
+  <div class="corpo">
+    <div class="sheet">
+      @if (!ehCelular()) {
+      <!--
+        Seis colunas. O que era coluna própria (tag, região, técnico,
+        observação) vai na segunda linha da célula: a tabela cabe no monitor, e
+        nada some — só deixa de disputar largura com o que se lê primeiro.
+      -->
+      <p-table [value]="rows()"
+               dataKey="id"
+               [scrollable]="true"
+               scrollHeight="flex"
+               [loading]="loading()"
+               styleClass="sheet-table"
+               [rowHover]="true">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="col-maquina" [attr.aria-sort]="ariaSort('machine')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'machine'"
+                      (click)="toggleSort('machine')">
+                Máquina <i class="pi" [ngClass]="sortIcon('machine')"></i>
+              </button>
+            </th>
+            <th class="col-cliente" [attr.aria-sort]="ariaSort('nomeCliente')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'nomeCliente'"
+                      (click)="toggleSort('nomeCliente')">
+                Cliente <i class="pi" [ngClass]="sortIcon('nomeCliente')"></i>
+              </button>
+            </th>
+            <th class="col-status" [attr.aria-sort]="ariaSort('status')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'status'"
+                      (click)="toggleSort('status')">
+                Status <i class="pi" [ngClass]="sortIcon('status')"></i>
+              </button>
+            </th>
+            <th class="col-previsao" [attr.aria-sort]="ariaSort('previsao')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'previsao'"
+                      (click)="toggleSort('previsao')">
+                Previsão <i class="pi" [ngClass]="sortIcon('previsao')"></i>
+              </button>
+            </th>
+            <th class="col-pessoas" [attr.aria-sort]="ariaSort('consultor')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'consultor'"
+                      (click)="toggleSort('consultor')">
+                Consultor · técnico <i class="pi" [ngClass]="sortIcon('consultor')"></i>
+              </button>
+            </th>
+            <th class="col-alterado" [attr.aria-sort]="ariaSort('updatedAt')">
+              <button type="button" class="th-sort" [class.th-sort--on]="sortBy()?.field === 'updatedAt'"
+                      (click)="toggleSort('updatedAt')">
+                Alterado <i class="pi" [ngClass]="sortIcon('updatedAt')"></i>
+              </button>
+            </th>
+          </tr>
+        </ng-template>
+
+        <!--
+          A linha inteira abre o painel. O Enter faz o mesmo, para quem navega
+          pelo teclado; o botão da data tem o próprio clique e não deixa o
+          evento subir.
+        -->
+        <ng-template pTemplate="body" let-row>
+          <tr class="linha"
+              tabindex="0"
+              [class.is-sel]="selectedId() === row.id"
+              [class.sheet-row--saved]="isSaved(row.id)"
+              [class.sheet-row--late]="isLate(row)"
+              (click)="abrirForm(row)"
+              (keydown.enter)="abrirForm(row)">
+            <td>
+              <span class="cel__main">
+                {{ machineName(row.machineId) || 'Sem máquina' }}
+                @if (row.tag) { <span class="tag">{{ row.tag }}</span> }
+              </span>
+              <span class="cel__sub">{{ row.Observacao || ' ' }}</span>
+            </td>
+            <td>
+              <span class="cel__main" [class.cel__vazio]="!row.nomeCliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
+              <span class="cel__sub">{{ row.regiao || ' ' }}</span>
+            </td>
+            <td>
+              @if (row.status) {
+                <span [class]="statusClass(row.status)"><i [class]="statusIcon(row.status)" aria-hidden="true"></i>{{ statusLabel(row.status) }}</span>
+              }
+            </td>
+            <td>
+              <ng-container *ngTemplateOutlet="dataBotao; context: { $implicit: row }" />
+            </td>
+            <td>
+              <span class="cel__main" [class.cel__vazio]="!row.consultor">{{ row.consultor || 'Sem consultor' }}</span>
+              <span class="cel__sub">{{ row.tecnico || 'sem técnico' }}</span>
+            </td>
+            <!-- Só leitura: quem assina a alteração é o servidor. -->
+            <td>
+              @if (row.updatedAt) {
+                <span class="audit" [pTooltip]="auditTooltip(row)" tooltipPosition="left">
+                  <span class="audit__who">{{ row.updatedBy || 'Desconhecido' }}</span>
+                  <small class="audit__when">{{ stamp(row.updatedAt) }}</small>
+                </span>
+              } @else {
+                <span class="audit__none">—</span>
+              }
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="sheet-empty">
+              <i class="pi pi-table"></i>
+              <p>{{ hasFilters() || search ? 'Nenhuma linha com esses filtros.' : 'Nenhuma linha na programação. Use "Nova linha" para começar.' }}</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      }
+
+      <!-- ═══ Celular: uma linha é um cartão ═══════════════════════════════
+           Máquina e tag, status e cliente, e a data à direita — o botão do
+           gesto de quase sempre. O resto está a um toque, no formulário. -->
+      @if (ehCelular()) {
+        <div class="cartoes">
+          @for (row of rows(); track row.id) {
+            <article class="cartao"
+                     [class.cartao--vencida]="isLate(row)"
+                     [class.sheet-row--saved]="isSaved(row.id)">
+              <button type="button" class="cartao__corpo" (click)="abrirForm(row)">
+                <span class="cartao__maquina">
+                  {{ machineName(row.machineId) || 'Sem máquina' }}
+                  @if (row.tag) { <span class="tag">{{ row.tag }}</span> }
+                </span>
+                <span class="cartao__linha">
+                  @if (row.status) {
+                    <span [class]="statusClass(row.status)"><i [class]="statusIcon(row.status)" aria-hidden="true"></i>{{ statusLabel(row.status) }}</span>
+                  }
+                  <span class="cartao__cliente">{{ row.nomeCliente || 'Sem cliente' }}</span>
+                </span>
+              </button>
+
+              <ng-container *ngTemplateOutlet="dataBotao; context: { $implicit: row }" />
+            </article>
+          } @empty {
+            <div class="sheet-empty">
+              <i class="pi pi-table"></i>
+              <p>{{ hasFilters() || search ? 'Nenhuma linha com esses filtros.' : 'Nenhuma linha na programação.' }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!--
+      O painel do computador: o formulário ao lado da tabela, e não por cima
+      dela. A lista continua à vista, e a linha aberta fica marcada.
+    -->
+    @if (!ehCelular() && formAberto() && formRascunho(); as f) {
+      <aside class="painel" aria-labelledby="painel-titulo">
+        <div class="painel__cabeca">
+          <div class="painel__titulo-bloco">
+            <h2 class="painel__titulo" id="painel-titulo">
+              {{ isDraft(f) ? 'Nova linha' : (machineName(f.machineId) || 'Programação') }}
+              @if (!isDraft(f) && f.tag) { <span class="tag">{{ f.tag }}</span> }
+            </h2>
+            @if (!isDraft(f)) {
+              <p class="painel__sub">{{ f.nomeCliente || 'Sem cliente' }}{{ f.regiao ? ' · ' + f.regiao : '' }}</p>
+            }
+          </div>
+          @if (!isDraft(f)) {
+            <button type="button" class="painel__historico" (click)="abrirHistorico(f)">
+              <i class="pi pi-history" aria-hidden="true"></i> Histórico
+            </button>
+          }
+          <button type="button" class="painel__fechar" aria-label="Fechar" (click)="fecharForm()">
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="painel__miolo">
+          <ng-container *ngTemplateOutlet="formCampos; context: { $implicit: f }" />
+        </div>
+
+        <div class="painel__pe">
+          <ng-container *ngTemplateOutlet="formPerguntas; context: { $implicit: f }" />
+          <div class="painel__acoes">
+            <button type="button" class="acao-excluir" (click)="deleteRow(f)">
+              {{ isDraft(f) ? 'Descartar' : 'Excluir' }}
+            </button>
+            <span class="barra__espaco"></span>
+            <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
+            <pk-button pkType="save" pkSize="sm"
+                       [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
+                       [pkDisabled]="(isDraft(f) && !canSaveDraft(f)) || (stockDelta() !== 0 && loadingStock())"
+                       (clicked)="salvarForm()" />
+          </div>
+        </div>
+      </aside>
+    }
+  </div>
 </div>
 }
 
@@ -403,63 +339,278 @@
     (finished)="refresh()" />
 }
 
+<!-- ═══ Peças compartilhadas ═══════════════════════════════════════════════ -->
+
 <!--
-  O atalho da previsão — uma folha que sobe de baixo.
+  O botão da previsão, na tabela e no cartão.
 
-  Não é `pk-dialog` de propósito. O diálogo do tema nasce centralizado, e no
-  celular isso põe o calendário longe do polegar, que está na base da tela: o
-  gesto mais repetido da tela merece nascer onde a mão já está.
-
-  Confirmar cai no `salvarLinha`, o MESMO caminho da célula da planilha — o
-  diálogo de motivo pode abrir logo em seguida, e isso está certo.
+  A data e a distância ("atrasada 6 d", "em 2 dias"): a pergunta que se faz à
+  tela é "quanto falta?", e a data sozinha obriga a conta de cabeça. Tracejado
+  parado para dizer "isto se muda aqui".
 -->
-@if (previsaoAberta(); as row) {
-  <div class="folha folha--sobreposta" (click)="cancelarPrevisao()">
+<ng-template #dataBotao let-row>
+  <button type="button"
+          class="data"
+          [class.is-late]="isLate(row)"
+          [class.is-empty]="!row.previsao"
+          [disabled]="isSaving(row.id)"
+          [attr.aria-label]="'Previsão de ' + (machineName(row.machineId) || 'máquina') + ': ' + (row.previsao ? (row.previsao | date: 'dd/MM/yyyy') + ', ' + relativeForecast(row) : 'sem previsão') + '. Alterar'"
+          (click)="$event.stopPropagation(); abrirPrevisao(row)">
+    @if (isSaving(row.id)) {
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    } @else {
+      <b>{{ row.previsao ? (row.previsao | date: 'dd/MM/yy') : 'Definir data' }}</b>
+      <small>{{ relativeForecast(row) }}</small>
+    }
+  </button>
+</ng-template>
 
-    <!-- O clique de dentro não fecha: só o de fora, no véu. -->
-    <div class="folha__painel"
-         role="dialog"
-         aria-modal="true"
-         aria-labelledby="folha-titulo"
-         (click)="$event.stopPropagation()">
+<!--
+  Os campos do formulário — no painel do computador e na folha do celular.
+  O status vem logo depois da máquina: é a segunda edição mais comum.
+-->
+<ng-template #formCampos let-f>
+  <div class="form-programacao">
+    <div class="form-field field-full">
+      <label for="f-maquina">Máquina</label>
+      <pk-combobox inputId="f-maquina"
+                   [ngModel]="f.machineId"
+                   (ngModelChange)="editarCampo('machineId', $event)"
+                   [options]="machineOptions()"
+                   [filter]="true"
+                   placeholder="Escolha a máquina" />
+    </div>
 
-      <span class="folha__puxador" aria-hidden="true"></span>
+    <div class="form-field">
+      <label for="f-status">Status</label>
+      <pk-combobox inputId="f-status"
+                   [ngModel]="f.status"
+                   (ngModelChange)="editarCampo('status', $event)"
+                   [options]="statusOptions"
+                   placeholder="Escolha o status" />
+    </div>
 
-      <p class="folha__titulo" id="folha-titulo">Previsão de entrega</p>
-      <p class="folha__linha">
-        {{ machineName(row.machineId) }}
-        @if (row.tag) { <span>· {{ row.tag }}</span> }
-      </p>
+    <div class="form-field">
+      <label for="f-previsao">Previsão</label>
+      <p-datepicker inputId="f-previsao"
+                    [ngModel]="f.previsao"
+                    (ngModelChange)="editarCampo('previsao', $event)"
+                    dateFormat="dd/mm/yy"
+                    [showClear]="true"
+                    appendTo="body" />
+    </div>
+
+    <div class="form-field field-full">
+      <label for="f-cliente">Cliente</label>
+      <input pInputText id="f-cliente" type="text"
+             [ngModel]="f.nomeCliente"
+             (ngModelChange)="editarCampo('nomeCliente', $event)" />
+    </div>
+
+    <div class="form-field">
+      <label for="f-regiao">Região</label>
+      <input pInputText id="f-regiao" type="text"
+             [ngModel]="f.regiao"
+             (ngModelChange)="editarCampo('regiao', $event)" />
+    </div>
+
+    <div class="form-field">
+      <label for="f-tag">Tag</label>
+      <!-- Dez é o limite do Postgres; sem `maxlength` o erro vira 500. -->
+      <input pInputText id="f-tag" type="text" maxlength="10"
+             [ngModel]="f.tag"
+             (ngModelChange)="editarCampo('tag', $event)" />
+    </div>
+
+    <div class="form-field">
+      <label for="f-consultor">Consultor</label>
+      <input pInputText id="f-consultor" type="text"
+             [ngModel]="f.consultor"
+             (ngModelChange)="editarCampo('consultor', $event)" />
+    </div>
+
+    <div class="form-field">
+      <label for="f-tecnico">Técnico</label>
+      <input pInputText id="f-tecnico" type="text"
+             [ngModel]="f.tecnico"
+             (ngModelChange)="editarCampo('tecnico', $event)" />
+    </div>
+
+    <div class="form-field field-full">
+      <label for="f-solicitante">Solicitante</label>
+      <input pInputText id="f-solicitante" type="text"
+             [ngModel]="f.solicitante"
+             (ngModelChange)="editarCampo('solicitante', $event)" />
+    </div>
+
+    <div class="form-field field-full">
+      <label for="f-obs">Observação</label>
+      <textarea id="f-obs" pTextarea rows="3" class="campo-texto"
+                [ngModel]="f.Observacao"
+                (ngModelChange)="editarCampo('Observacao', $event)"></textarea>
+    </div>
+  </div>
+</ng-template>
+
+<!--
+  As perguntas que antes eram janelas: o estoque e o motivo.
+
+  Moram no pé, junto do "Salvar", e só aparecem quando a edição as pede. Quem
+  vai clicar em salvar lê as duas antes do clique — e nada abre depois dele.
+-->
+<ng-template #formPerguntas let-f>
+  @if (isDraft(f) && saveDraftHint(f); as hint) {
+    <p class="pergunta__dica"><i class="pi pi-info-circle" aria-hidden="true"></i> {{ hint }}</p>
+  }
+
+  @if (stockDelta() !== 0) {
+    <div class="pergunta" role="group" aria-labelledby="pergunta-estoque">
+      @if (loadingStock()) {
+        <p class="pergunta__titulo" id="pergunta-estoque">
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Conferindo o estoque…
+        </p>
+      } @else {
+        <p class="pergunta__titulo" id="pergunta-estoque">
+          Estoque de <strong>{{ stockMachineName() }}</strong>:
+          <span class="pergunta__conta">{{ currentStock() }}
+            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+            <strong [class.is-bad]="stockWouldGoNegative()">{{ newStock() }}</strong></span>
+        </p>
+
+        @if (stockWouldGoNegative()) {
+          <p class="pergunta__aviso">
+            O estoque em movimentações já está em {{ currentStock() }}, então não há
+            máquina para dar baixa. Esta edição grava só a programação; acerte o
+            estoque pela tela de movimentação.
+          </p>
+        } @else {
+          <label class="radio">
+            <input type="radio" name="prog-estoque" [checked]="adjustStockChoice()"
+                   (change)="adjustStockChoice.set(true)" />
+            {{ stockDelta() < 0 ? 'Baixar 1 do estoque' : 'Somar 1 ao estoque' }}
+          </label>
+          <label class="radio">
+            <input type="radio" name="prog-estoque" [checked]="!adjustStockChoice()"
+                   (change)="adjustStockChoice.set(false)" />
+            Não mexer no estoque
+          </label>
+        }
+      }
+    </div>
+  }
+
+  @if (formNeedsReason()) {
+    <div class="form-field field-full pergunta__motivo">
+      <label for="f-motivo">Motivo da alteração <span class="opcional">(opcional)</span></label>
+      <input pInputText id="f-motivo" type="text"
+             placeholder="Ex.: cliente pediu para adiar"
+             [ngModel]="formReason()"
+             (ngModelChange)="formReason.set($event)" />
+    </div>
+  }
+</ng-template>
+
+<!--
+  O calendário da previsão: atalhos, o mês, e o motivo ali mesmo quando a data
+  que já existia vai mudar. Folha de baixo no celular (o polegar mora na base
+  da tela), diálogo no computador.
+-->
+<!--
+  No computador, calendário à esquerda e motivo à direita (pedido dele em
+  2026-09-29): o motivo ganha altura de texto de verdade, e o diálogo não muda
+  de tamanho ao escolher a data — a coluna está sempre lá, só desabilitada
+  enquanto a data não muda. No celular não cabe lado a lado: o motivo fica
+  embaixo e só aparece quando é pedido.
+-->
+<ng-template #previsaoCorpo>
+  <div class="previsao" [class.previsao--lado]="!ehCelular()">
+    <div class="previsao__calendario">
+      <div class="atalhos" role="group" aria-label="Atalhos de data">
+        <button type="button" class="chip" (click)="quickDate('week')">Em 1 semana</button>
+        <button type="button" class="chip" (click)="quickDate('fortnight')">Em 15 dias</button>
+        <button type="button" class="chip" (click)="quickDate('monthEnd')">Fim do mês</button>
+      </div>
 
       <p-datepicker
         [ngModel]="previsaoRascunho()"
         (ngModelChange)="previsaoRascunho.set($event)"
         [inline]="true"
         dateFormat="dd/mm/yy" />
+    </div>
 
-      <div class="folha__acoes">
-        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
-        <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+    @if (!ehCelular() || dateNeedsReason()) {
+      <div class="form-field previsao__motivo" [class.is-off]="!dateNeedsReason()">
+        <label for="previsao-motivo">Motivo <span class="opcional">(opcional)</span></label>
+        <textarea pTextarea
+                  id="previsao-motivo"
+                  [rows]="ehCelular() ? 3 : 8"
+                  [disabled]="!dateNeedsReason()"
+                  [placeholder]="dateNeedsReason() ? 'Ex.: peça atrasada no fornecedor, cliente pediu para adiar' : ''"
+                  [ngModel]="dateReason()"
+                  (ngModelChange)="dateReason.set($event)"></textarea>
+        <small class="label-hint">
+          {{ dateNeedsReason()
+              ? 'Fica no histórico: é o que responde, daqui a meses, por que essa máquina mudou de data.'
+              : (previsaoAberta()?.previsao ? 'Escolha a nova data para escrever o motivo.' : 'A primeira data não pede motivo.') }}
+        </small>
+      </div>
+    }
+  </div>
+</ng-template>
+
+@if (ehCelular()) {
+  @if (previsaoAberta(); as row) {
+    <div class="folha folha--sobreposta" (click)="cancelarPrevisao()">
+      <div class="folha__painel"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="folha-titulo"
+           (click)="$event.stopPropagation()">
+
+        <span class="folha__puxador" aria-hidden="true"></span>
+
+        <p class="folha__titulo" id="folha-titulo">Previsão de saída</p>
+        <p class="folha__linha">
+          {{ machineName(row.machineId) }}
+          @if (row.tag) { <span>· {{ row.tag }}</span> }
+          @if (row.previsao) { <span>· estava {{ row.previsao | date: 'dd/MM' }}</span> }
+        </p>
+
+        <ng-container *ngTemplateOutlet="previsaoCorpo" />
+
+        <div class="folha__acoes">
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
+          <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+        </div>
       </div>
     </div>
-  </div>
+  }
+} @else {
+  <pk-dialog
+    [header]="previsaoAberta() ? 'Previsão · ' + machineName(previsaoAberta()!.machineId) : ''"
+    [visible]="!!previsaoAberta()"
+    width="700px"
+    (visibleChange)="cancelarPrevisao()">
+    <div pkDialogContent class="previsao-dialogo">
+      @if (previsaoAberta()) {
+        <ng-container *ngTemplateOutlet="previsaoCorpo" />
+      }
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelarPrevisao()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar data" (clicked)="confirmarPrevisao()" />
+    </div>
+  </pk-dialog>
 }
 
 <!--
-  O formulário completo — o caso raro.
+  O formulário no celular — folha de 82% da altura.
 
-  Também é folha, e não `pk-dialog`: ele só é alcançável pelo cartão, que só
-  existe no celular. Um diálogo centralizado nunca chegaria a aparecer no
-  desktop, e no celular deixaria os campos longe do polegar.
-
-  Para em 82% da altura de propósito. O pedaço de lista que sobra em cima é o
-  que diz "você abriu uma gaveta, não trocou de tela" — em tela cheia isso se
-  perde, e aí não haveria motivo para não ser uma página.
-
-  Edita uma cópia: fechar sem salvar não pode deixar valor novo na tela, senão
-  a pessoa sai achando que salvou.
+  O pedaço de lista que sobra em cima é o que diz "você abriu uma gaveta, não
+  trocou de tela". Edita uma cópia: fechar sem salvar não deixa valor novo na
+  tela.
 -->
-@if (formAberto() && formRascunho(); as f) {
+@if (ehCelular() && formAberto() && formRascunho(); as f) {
   <div class="folha" (click)="fecharForm()">
     <div class="folha__painel folha__painel--alta"
          role="dialog"
@@ -471,12 +622,12 @@
         <span class="folha__puxador" aria-hidden="true"></span>
         <div class="folha__titulo-linha">
           <p class="folha__titulo" id="folha-form-titulo">
-            {{ isDraft(f) ? 'Nova linha' : 'Editar programação' }}
+            {{ isDraft(f) ? 'Nova linha' : (machineName(f.machineId) || 'Editar programação') }}
+            @if (!isDraft(f) && f.tag) { <span class="tag">{{ f.tag }}</span> }
           </p>
 
-          <!-- Rascunho não tem histórico: a linha ainda não existe na API.
-               O histórico é leitura, então mora na cabeça — longe dos botões
-               que gravam, e sem competir com eles pelo polegar. -->
+          <!-- O histórico é leitura: mora na cabeça, longe dos botões que
+               gravam, sem competir com eles pelo polegar. -->
           @if (!isDraft(f)) {
             <button type="button" class="folha__historico"
                     aria-label="Histórico de alterações"
@@ -488,143 +639,73 @@
         </div>
       </div>
 
-      <!-- Só o miolo rola. São nove campos: em qualquer altura o formulário
-           passa da folha, e o botão de salvar não pode fugir para baixo. -->
-      <div class="folha__miolo form-programacao">
-      <div class="form-field field-full">
-        <label for="f-maquina">Máquina</label>
-        <pk-combobox inputId="f-maquina"
-                     [ngModel]="f.machineId"
-                     (ngModelChange)="editarCampo('machineId', $event)"
-                     [options]="machineOptions()"
-                     placeholder="Selecione" />
+      <!-- Só o miolo rola: o botão de salvar não pode fugir para baixo. -->
+      <div class="folha__miolo">
+        <ng-container *ngTemplateOutlet="formCampos; context: { $implicit: f }" />
+        <button type="button" class="acao-excluir acao-excluir--bloco" (click)="deleteRow(f)">
+          <i class="pi pi-trash" aria-hidden="true"></i>
+          {{ isDraft(f) ? 'Descartar linha nova' : 'Excluir esta linha' }}
+        </button>
       </div>
 
-      <div class="form-field field-full">
-        <label for="f-cliente">Cliente</label>
-        <input pInputText id="f-cliente" type="text"
-               [ngModel]="f.nomeCliente"
-               (ngModelChange)="editarCampo('nomeCliente', $event)" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-status">Status</label>
-        <pk-combobox inputId="f-status"
-                     [ngModel]="f.status"
-                     (ngModelChange)="editarCampo('status', $event)"
-                     [options]="statusOptions"
-                     placeholder="Selecione" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-previsao">Previsão</label>
-        <p-datepicker inputId="f-previsao"
-                      [ngModel]="f.previsao"
-                      (ngModelChange)="editarCampo('previsao', $event)"
-                      dateFormat="dd/mm/yy"
-                      appendTo="body" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-regiao">Região</label>
-        <input pInputText id="f-regiao" type="text"
-               [ngModel]="f.regiao"
-               (ngModelChange)="editarCampo('regiao', $event)" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-tag">Tag</label>
-        <!-- Dez é o limite do Postgres; sem `maxlength` o erro vira 500. -->
-        <input pInputText id="f-tag" type="text" maxlength="10"
-               [ngModel]="f.tag"
-               (ngModelChange)="editarCampo('tag', $event)" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-solicitante">Solicitante</label>
-        <input pInputText id="f-solicitante" type="text"
-               [ngModel]="f.solicitante"
-               (ngModelChange)="editarCampo('solicitante', $event)" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-consultor">Consultor</label>
-        <input pInputText id="f-consultor" type="text"
-               [ngModel]="f.consultor"
-               (ngModelChange)="editarCampo('consultor', $event)" />
-      </div>
-
-      <div class="form-field">
-        <label for="f-tecnico">Técnico</label>
-        <input pInputText id="f-tecnico" type="text"
-               [ngModel]="f.tecnico"
-               (ngModelChange)="editarCampo('tecnico', $event)" />
-      </div>
-
-      <div class="form-field field-full">
-        <label for="f-obs">Observação</label>
-        <textarea id="f-obs" pTextarea rows="3" style="width:100%;resize:vertical"
-                  [ngModel]="f.Observacao"
-                  (ngModelChange)="editarCampo('Observacao', $event)"></textarea>
-      </div>
-      </div>
-
-      <div class="folha__pe">
-        <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
-        <pk-button pkType="save" pkSize="sm"
-                   [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
-                   (clicked)="salvarForm()" />
+      <div class="folha__pe folha__pe--perguntas">
+        <ng-container *ngTemplateOutlet="formPerguntas; context: { $implicit: f }" />
+        <div class="folha__botoes">
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="fecharForm()" />
+          <pk-button pkType="save" pkSize="sm"
+                     [pkLabel]="isDraft(f) ? 'Criar linha' : 'Salvar'"
+                     [pkDisabled]="(isDraft(f) && !canSaveDraft(f)) || (stockDelta() !== 0 && loadingStock())"
+                     (clicked)="salvarForm()" />
+        </div>
       </div>
     </div>
   </div>
 }
 
-<!--
-  Motivo da alteração.
-
-  Aparece em toda mudança que entra no histórico, e não só no adiamento: o
-  motivo vale para a edição inteira e a API o repete em cada campo que mudou.
-
-  O texto é opcional — a API aceita vazio. Perguntar sem obrigar é o que mantém
-  alguém preenchendo; obrigar ensinava a digitar "ok" para passar da tela.
-
-  Como agora ele abre a cada célula editada, o botão de sair diz "Descartar" e
-  não "Cancelar". Sair DESFAZ a edição, e num diálogo que aparece o tempo todo a
-  diferença entre "não quero escrever motivo" e "não quero a alteração" precisa
-  estar na palavra, não na memória de quem clica.
--->
-<pk-dialog
-  header="Por que essa linha mudou?"
-  [visible]="motivoAberto()"
-  width="480px"
-  (visibleChange)="cancelarMotivo()">
-
-  <div pkDialogContent class="pk-form-section">
+<!-- Os filtros que não viraram chip, no celular. -->
+<pk-sheet [open]="filtersOpen()" title="Filtros" (closed)="filtersOpen.set(false)">
+  <div pkSheetBody>
     <div class="form-field field-full">
-      <label for="motivoAdiamento">Motivo</label>
-      <textarea
-        id="motivoAdiamento"
-        pTextarea
-        rows="4"
-        style="width: 100%; resize: vertical;"
-        placeholder="Ex.: peça atrasada no fornecedor, técnico remanejado"
-        [ngModel]="motivoTexto()"
-        (ngModelChange)="motivoTexto.set($event)"></textarea>
-      <small class="label-hint">
-        Opcional, e vale para a edição inteira. Fica no histórico da
-        programação: é o que responde, daqui a três meses, por que essa máquina
-        atrasou ou por que trocou de técnico.
-      </small>
+      <label for="filtro-maquina">Máquina</label>
+      <pk-combobox inputId="filtro-maquina"
+                   [ngModel]="machineFilter()" (ngModelChange)="machineFilter.set($event)"
+                   [options]="machineOptions()" optionLabel="label" optionValue="value"
+                   placeholder="Todas as máquinas" [filter]="true" [showClear]="true" />
     </div>
   </div>
+  <div pkSheetFooter class="folha__botoes">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar filtros" (clicked)="clearFilters(); filtersOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" [pkLabel]="'Ver ' + rows().length + ' linhas'" (clicked)="filtersOpen.set(false)" />
+  </div>
+</pk-sheet>
 
+<!--
+  Excluir. A pergunta diz o que vai junto: o histórico de alterações, que não
+  volta, e — se a máquina conta no estoque — que apagar não baixa nada.
+-->
+<pk-dialog
+  header="Excluir programação"
+  [visible]="!!deleteTarget()"
+  width="440px"
+  (visibleChange)="deleteTarget.set(null)">
+  <div pkDialogContent class="excluir">
+    @if (deleteTarget(); as alvo) {
+      <p>
+        Excluir a programação de <strong>{{ machineName(alvo.machineId) }}</strong>
+        ({{ alvo.nomeCliente || 'sem cliente' }})? O histórico de alterações vai
+        junto, e não há como recuperar.
+      </p>
+      @if (deleteCountsInStock()) {
+        <p class="pergunta__aviso">
+          Esta máquina conta no estoque. Excluir a linha <strong>não</strong> baixa o
+          estoque — para isso, mude o status para Entregue.
+        </p>
+      }
+    }
+  </div>
   <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar alteração" (clicked)="cancelarMotivo()" />
-    <pk-button
-      pkType="save"
-      pkSize="sm"
-      pkLabel="Salvar alteração"
-      (clicked)="confirmarMotivo()" />
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="deleteTarget.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Excluir" (clicked)="confirmDelete()" />
   </div>
 </pk-dialog>
 
@@ -637,17 +718,8 @@
   Uma entrada por EDIÇÃO, não por campo. A API grava uma linha por campo que
   mudou, e quem arruma quatro coisas de uma vez geraria quatro cartões iguais
   exceto pelo par de valores — com a mesma justificativa repetida em todos.
--->
-<!--
-  Histórico de alterações.
 
-  **Folha no celular, diálogo no desktop, e o conteúdo escrito uma vez só.**
-  Esta tela abre o histórico de dois lugares: a coluna de ações da planilha (só
-  desktop) e a folha do formulário (só celular). Duplicar o corpo daria duas
-  versões para manter, e a segunda envelheceria calada.
-
-  Quando a segunda tela precisar disto, vale virar um `pk-sheet` de verdade no
-  tema; até lá o molde está aqui e na skill.
+  Folha no celular, diálogo no computador, e o conteúdo escrito uma vez só.
 -->
 <ng-template #historicoCorpo>
   @if (historicoCarregando()) {
@@ -755,56 +827,3 @@
     </div>
   </pk-dialog>
 }
-
-<!--
-  Confirmação de estoque.
-
-  Aparece só quando a transição cruza a fronteira do galpão. "Mudei um status" e
-  "mexi no estoque" não parecem a mesma ação para quem edita a grade — o número
-  antes e depois é o que liga as duas coisas na cabeça de quem clica.
--->
-<pk-dialog
-  [header]="stockDelta() < 0 ? 'Marcar como Entregue?' : 'Devolver ao estoque?'"
-  [visible]="stockDialogOpen()"
-  width="460px"
-  (visibleChange)="cancelStockChange()">
-
-  <div pkDialogContent class="estoque">
-    @if (loadingStock()) {
-      <p class="estoque__nota"><i class="pi pi-spin pi-spinner"></i> Conferindo o estoque…</p>
-    } @else {
-      <p class="estoque__lead">
-        O estoque de <strong>{{ stockMachineName() }}</strong>
-        {{ stockDelta() < 0 ? 'cai' : 'sobe' }} de
-      </p>
-
-      <p class="estoque__conta">
-        <span class="estoque__de">{{ currentStock() }}</span>
-        <i class="pi pi-arrow-right"></i>
-        <strong class="estoque__para" [class.estoque__para--bad]="stockWouldGoNegative()">
-          {{ newStock() }}
-        </strong>
-      </p>
-
-      @if (stockWouldGoNegative()) {
-        <p class="estoque__aviso">
-          <i class="pi pi-exclamation-triangle"></i>
-          O estoque em movimentações já está em {{ currentStock() }}, então ele
-          não tem essa máquina para dar baixa. A programação e o estoque estão
-          divergentes desde antes desta edição — dá para salvar o status agora e
-          acertar o estoque pela tela de movimentação.
-        </p>
-      }
-    }
-  </div>
-
-  <div pkDialogFooter class="pk-dialog-footer">
-    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelStockChange()" />
-    <pk-button
-      pkType="save"
-      pkSize="sm"
-      [pkLabel]="stockWouldGoNegative() ? 'Salvar sem mexer no estoque' : 'Confirmar'"
-      [pkDisabled]="loadingStock()"
-      (clicked)="confirmStockChange()" />
-  </div>
-</pk-dialog>

@@ -6,11 +6,9 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TextareaModule } from 'primeng/textarea';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { PkComboboxComponent } from '../../../theme/ProautoKimium/pk-combobox/pk-combobox.component';
-import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { TableModule } from 'primeng/table';
 import { Toast } from 'primeng/toast';
 import { Tooltip } from 'primeng/tooltip';
@@ -36,9 +34,9 @@ import { MachineStore } from '../../../../infrastructure/state/machine.store';
 import { RegisterService } from '../../../../infrastructure/services/prostock/register.service';
 import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
 import { formatStampBr, parseDateOnly } from '../../../../domain/utils/date-only';
-import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
+import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
 import { ProgramacaoImportComponent } from './programacao-import.component';
 
 /**
@@ -75,28 +73,36 @@ type SortField = 'machine' | 'nomeCliente' | 'regiao' | 'solicitante' | 'status'
 type SavableDraft = Row & { status: MachineStatus };
 
 /**
- * Programação de máquinas — a planilha.
+ * Programação de máquinas.
  *
- * Grade editável de propósito: o time trabalha nisso o dia inteiro no Excel, e
- * abrir um formulário por linha seria mais lento do que a ferramenta que estamos
- * substituindo. Edita na célula, sai com Tab, salva a linha.
+ * **Tabela enxuta + painel** (opção A, escolhida por ele num mockup em
+ * 2026-09-28). A grade editável célula a célula tinha doze colunas e ~1785px:
+ * metade ficava fora da tela, e cada edição abria uma janela de motivo e, às
+ * vezes, outra de estoque, uma depois da outra. Agora:
  *
- * As colunas são as nove da planilha. Os filtros da toolbar existem porque o
- * quadro passa de duzentas linhas: status, máquina e atraso são os recortes que
- * o time faz com o olho hoje.
+ * - seis colunas, com o que era coluna própria (tag, região, técnico,
+ *   observação) na segunda linha da célula;
+ * - a **previsão** — a edição de quase sempre — é um botão na linha, que abre o
+ *   calendário com o motivo ali mesmo;
+ * - o resto se edita num **formulário** (painel à direita no computador, folha
+ *   de baixo no celular), e o motivo e o estoque são perguntas DENTRO dele, não
+ *   janelas novas.
+ *
+ * Os filtros viraram chips com contagem porque o quadro passa de duzentas
+ * linhas: status, atraso e "sem previsão" são os recortes que o time faz.
  */
 @Component({
   selector: 'app-programacao',
   standalone: true,
   imports: [
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
-    ButtonModule, Toast, Tooltip, ToolbarComponent, PkButtonComponent,
-    PkComboboxComponent, PkMultiselectComponent, ProgramacaoImportComponent,
-    PkDialogComponent, TextareaModule, ConfirmDialogModule,
+    ButtonModule, Toast, Tooltip, PkButtonComponent, PkComboboxComponent,
+    ProgramacaoImportComponent, PkDialogComponent, PkSheetComponent,
+    TextareaModule,
   ],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService],
 })
 export class ProgramacaoComponent implements OnInit {
 
@@ -107,7 +113,6 @@ export class ProgramacaoComponent implements OnInit {
   private readonly registerService = inject(RegisterService);
   private readonly inventoryService = inject(InventoryProductService);
   private readonly messageService = inject(MessageService);
-  private readonly confirmationService = inject(ConfirmationService);
 
   readonly loading = this.store.loading;
   readonly statusOptions = machineStatusOptions();
@@ -142,45 +147,58 @@ export class ProgramacaoComponent implements OnInit {
    */
   readonly saidaAte = signal<Date | null>(null);
 
-  // ─── Motivo do adiamento ─────────────────────────────────────────────────
+  // ─── O motivo ─────────────────────────────────────────────────────────────
   //
-  // A API recusa com 400 quando a previsão muda e já havia data. Em vez de
-  // deixar o erro chegar e a linha voltar atrás, a tela pergunta antes — o
-  // motivo é informação que só a pessoa tem, e pedir depois de falhar seria
-  // castigo por algo que ela não podia adivinhar.
+  // Opcional: obrigar ensinava a digitar "ok" para passar da tela, e o campo
+  // perdia justamente para quem adia de verdade. E **não é mais janela**: era
+  // um diálogo que abria depois do "Salvar", e agora é um campo que aparece no
+  // próprio formulário (ou no calendário) assim que a edição passa a pedi-lo.
+  // Quem vai escrever vê a pergunta antes de decidir salvar; quem não vai,
+  // salva de uma vez.
 
-  readonly motivoAberto = signal(false);
-  readonly motivoTexto = signal('');
+  /** O motivo digitado no formulário. */
+  readonly formReason = signal('');
 
-  /** O que fica esperando o motivo para poder ser gravado. */
-  private pendente: { row: Row; payload: UpdateMachineRegister } | null = null;
+  /** O motivo digitado junto do calendário da previsão. */
+  readonly dateReason = signal('');
 
-  /**
-   * O motivo não trava mais o botão.
-   *
-   * Era obrigatório, e obrigar ensinava a digitar "ok" para passar da tela — o
-   * campo perdia justamente para quem adia de verdade. A pergunta continua
-   * aparecendo quando a previsão muda; só a exigência saiu, aqui e na API.
-   */
-
-  // ─── Confirmação de estoque ──────────────────────────────────────────────
+  // ─── O estoque ────────────────────────────────────────────────────────────
   //
   // Uma linha de programação é uma máquina física. Sair do estoque para
-  // ENTREGUE tira uma do galpão; voltar devolve. A tela mostra o número antes
-  // de gravar, porque "mudei um status" e "mexi no estoque" não parecem a
-  // mesma ação para quem está editando a grade.
+  // ENTREGUE tira uma do galpão; voltar devolve. O formulário mostra o número
+  // antes de gravar, porque "mudei um status" e "mexi no estoque" não parecem a
+  // mesma ação para quem está editando.
 
-  readonly stockDialogOpen = signal(false);
   readonly loadingStock = signal(false);
   readonly currentStock = signal(0);
-  readonly stockDelta = signal(0);
-  readonly stockMachineName = signal('');
 
-  /** O que fica esperando a confirmação do estoque. */
-  private pendingStock:
-    | { row: Row; payload: UpdateMachineRegister }
-    | { draft: Row; payload: CreateMachineRegister }
-    | null = null;
+  /** A máquina cujo estoque está em `currentStock` — evita um GET por tecla. */
+  private stockLoadedFor: string | null = null;
+
+  /**
+   * Baixar (ou devolver) no estoque junto com a edição?
+   *
+   * Sim por padrão, que é o certo quando as duas contagens batem. O "não mexer"
+   * existe para quem já acertou o estoque pela tela de movimentação e só está
+   * atualizando a programação.
+   */
+  readonly adjustStockChoice = signal(true);
+
+  /**
+   * Quanto o estoque muda se o formulário for salvo como está.
+   *
+   * Linha nova conta a partir do nada (`stockDeltaFor(null, …)`): nascer em
+   * estoque é uma máquina entrando no galpão.
+   */
+  readonly stockDelta = computed(() => {
+    const draft = this.formRascunho();
+    if (!draft?.status) return 0;
+
+    if (this.isDraft(draft)) return stockDeltaFor(null, draft.status);
+
+    const stored = this.store.items().find(item => item.id === draft.id);
+    return stored ? stockDeltaFor(stored.status, draft.status) : 0;
+  });
 
   readonly newStock = computed(() => this.currentStock() + this.stockDelta());
 
@@ -189,9 +207,18 @@ export class ProgramacaoComponent implements OnInit {
    *
    * Acontece de verdade: são duas contagens do mesmo fato, e qualquer caminho
    * antigo pode tê-las separado. Travar aqui deixaria a pessoa sem saída, então
-   * o botão muda de função em vez de sumir.
+   * a opção de baixar some e a edição grava só a programação.
    */
   readonly stockWouldGoNegative = computed(() => this.newStock() < 0);
+
+  /**
+   * O que vai no `adjustStock`: nada quando a edição não cruza a fronteira do
+   * galpão — a API lê ausência como `false`, e é o que ela sempre recebeu.
+   */
+  readonly stockAnswer = computed<boolean | undefined>(() => {
+    if (this.stockDelta() === 0) return undefined;
+    return this.adjustStockChoice() && !this.stockWouldGoNegative();
+  });
 
   // ─── Histórico de adiamentos ─────────────────────────────────────────────
   //
@@ -323,6 +350,87 @@ export class ProgramacaoComponent implements OnInit {
     this.statusFilter().length > 0 || !!this.machineFilter()
     || this.onlyLate() || this.semPrevisao() || !!this.saidaAte());
 
+  // ─── Os chips de filtro ───────────────────────────────────────────────────
+
+  /** A folha de filtros do celular (máquina e limpar). */
+  readonly filtersOpen = signal(false);
+
+  /**
+   * Quantas linhas há em cada status, sobre o quadro inteiro.
+   *
+   * Sobre o quadro e não sobre o recorte: o número do chip responde "quantas
+   * existem", e ele não pode mudar só porque outro chip foi ligado.
+   */
+  readonly statusCounts = computed(() => {
+    const counts = new Map<MachineStatus, number>();
+    for (const register of this.store.items()) {
+      counts.set(register.status, (counts.get(register.status) ?? 0) + 1);
+    }
+    return counts;
+  });
+
+  readonly noForecastCount = computed(() =>
+    this.store.items().filter(register => !register.previsaoEntrega).length);
+
+  /**
+   * "Atrasadas" e "Sem previsão" se excluem.
+   *
+   * Atrasada precisa de data, e sem previsão não tem: as duas juntas davam uma
+   * lista sempre vazia, que se lê como "não há nada", e não como "você ligou
+   * dois filtros impossíveis". Ligar uma desliga a outra.
+   */
+  toggleLate(): void {
+    const on = !this.onlyLate();
+    this.onlyLate.set(on);
+    if (on) this.semPrevisao.set(false);
+  }
+
+  toggleNoForecast(): void {
+    const on = !this.semPrevisao();
+    this.semPrevisao.set(on);
+    if (on) this.onlyLate.set(false);
+  }
+
+  /** Os chips de status somam: dá para ver Reservada e Reforma juntas. */
+  toggleStatus(status: MachineStatus): void {
+    this.statusFilter.update(current => current.includes(status)
+      ? current.filter(item => item !== status)
+      : [...current, status]);
+  }
+
+  isStatusOn(status: MachineStatus): boolean {
+    return this.statusFilter().includes(status);
+  }
+
+  /**
+   * O nome curto do chip. Dois rótulos longos faziam a fileira quebrar em duas
+   * linhas a 1280px; o nome inteiro continua no selo da linha e no `title`.
+   */
+  private static readonly CHIP_LABEL: Partial<Record<MachineStatus, string>> = {
+    [MachineStatus.LIBERAR_EQUIPAMENTOS]: 'Liberar',
+    [MachineStatus.AGUARDANDO_AQUISICAO]: 'Aguardando',
+  };
+
+  chipLabel(status: MachineStatus): string {
+    return ProgramacaoComponent.CHIP_LABEL[status] ?? this.statusLabel(status);
+  }
+
+  /** O chip na cor do status — o mesmo papel de cor do selo na linha. */
+  statusChipClass(status: MachineStatus): string {
+    return `chip chip--status chip--${MACHINE_STATUS_SEVERITY[status] ?? 'neutral'}`;
+  }
+
+  // ─── O menu "⋯" ────────────────────────────────────────────────────────────
+
+  /** Guarda o que é de vez em quando (importar planilha), fora da barra. */
+  readonly actionsOpen = signal(false);
+
+  /** Clique fora fecha — o botão e o menu param o clique antes de chegar aqui. */
+  @HostListener('document:click')
+  closeActions(): void {
+    if (this.actionsOpen()) this.actionsOpen.set(false);
+  }
+
   /**
    * Grade ou importação. A importação ocupa a tela inteira, como os cadastros:
    * a conferência mostra ~200 linhas e num diálogo isso fica espremido.
@@ -357,9 +465,39 @@ export class ProgramacaoComponent implements OnInit {
   readonly previsaoAberta = signal<Row | null>(null);
   readonly previsaoRascunho = signal<Date | string | null>(null);
 
+  /**
+   * O campo de motivo aparece quando a data que já existia vai mudar.
+   *
+   * A mesma regra do `pedeMotivo`, restrita ao único campo que o calendário
+   * mexe: preencher a primeira data é completar cadastro, e não pergunta.
+   */
+  readonly dateNeedsReason = computed(() => {
+    const row = this.previsaoAberta();
+    if (!row?.previsao) return false;
+
+    const chosen = this.previsaoRascunho();
+    const next = chosen instanceof Date ? this.toLocalDateTime(chosen) : null;
+    return dayPart(this.toLocalDateTime(row.previsao)) !== dayPart(next);
+  });
+
   abrirPrevisao(row: Row): void {
     this.previsaoRascunho.set(row.previsao ?? null);
+    this.dateReason.set('');
     this.previsaoAberta.set(row);
+  }
+
+  /**
+   * Os atalhos do calendário, contados a partir de hoje.
+   *
+   * De hoje e não da data atual: a linha que mais se reprograma é a atrasada, e
+   * "+1 semana" sobre uma data vencida continuaria vencida.
+   */
+  quickDate(kind: 'week' | 'fortnight' | 'monthEnd'): void {
+    const today = startOfToday();
+    const date = kind === 'monthEnd'
+      ? new Date(today.getFullYear(), today.getMonth() + 1, 0)
+      : new Date(today.getFullYear(), today.getMonth(), today.getDate() + (kind === 'week' ? 7 : 15));
+    this.previsaoRascunho.set(date);
   }
 
   confirmarPrevisao(): void {
@@ -369,9 +507,9 @@ export class ProgramacaoComponent implements OnInit {
     row.previsao = this.previsaoRascunho() as Row['previsao'];
     this.previsaoAberta.set(null);
 
-    // O mesmo caminho da célula: `hasChanges`, motivo e estoque continuam
-    // valendo. Chamar o service daqui perderia os três em silêncio.
-    this.salvarLinha(row);
+    // O mesmo caminho do formulário: `hasChanges` e a regra do motivo
+    // continuam valendo. Chamar o service daqui perderia os dois em silêncio.
+    this.salvarLinha(row, { reason: this.dateReason().trim() || null });
   }
 
   cancelarPrevisao(): void {
@@ -386,6 +524,11 @@ export class ProgramacaoComponent implements OnInit {
    */
   @HostListener('document:keydown.escape')
   onEscapeFolha(): void {
+    if (this.actionsOpen()) {
+      this.actionsOpen.set(false);
+      return;
+    }
+
     // O calendário vem por cima do formulário quando os dois estão abertos:
     // fecha o de cima primeiro, senão o Esc engoliria a folha inteira e a
     // pessoa perderia o que já tinha digitado.
@@ -400,7 +543,10 @@ export class ProgramacaoComponent implements OnInit {
   // ─── O formulário completo ────────────────────────────────────────────────
 
   /**
-   * O caso raro: mexer em técnico, consultor, região, observação.
+   * Tudo que não é a previsão: status, cliente, técnico, observação…
+   *
+   * Painel à direita no computador, folha de baixo no celular — o mesmo
+   * formulário, desenhado uma vez no template.
    *
    * Edita uma **cópia**. Só no salvar os valores voltam para a linha, então
    * fechar sem salvar não deixa nada pela metade — e o `hasChanges` continua
@@ -410,10 +556,31 @@ export class ProgramacaoComponent implements OnInit {
   readonly formRascunho = signal<Row | null>(null);
   private formAlvo: Row | null = null;
 
+  /** A linha aberta no painel, para a tabela marcar onde a pessoa está. */
+  readonly selectedId = computed(() => this.formAberto() ? this.formRascunho()?.id ?? null : null);
+
+  /**
+   * O campo de motivo aparece quando a edição passa a pedi-lo.
+   *
+   * Calculado sobre a cópia a cada tecla, com a mesma regra que decide o que a
+   * API registra no histórico. Rascunho não pergunta: a linha nem existe.
+   */
+  readonly formNeedsReason = computed(() => {
+    const draft = this.formRascunho();
+    if (!draft?.status || this.isDraft(draft)) return false;
+
+    const stored = this.store.items().find(item => item.id === draft.id);
+    return !!stored && pedeMotivo(stored, this.montarPayload(draft as Row & { status: MachineStatus }));
+  });
+
   abrirForm(row: Row): void {
     this.formAlvo = row;
     this.formRascunho.set({ ...row });
+    this.formReason.set('');
+    this.adjustStockChoice.set(true);
+    this.stockLoadedFor = null;
     this.formAberto.set(true);
+    this.syncStockCheck();
   }
 
   fecharForm(): void {
@@ -422,10 +589,22 @@ export class ProgramacaoComponent implements OnInit {
     this.formAlvo = null;
   }
 
+  /**
+   * Salva o formulário com as respostas que ele já coletou.
+   *
+   * Nada abre depois daqui: o motivo e o estoque foram perguntados dentro do
+   * formulário, antes do clique. Enquanto o estoque carrega, não salva — o
+   * número ainda não foi mostrado, e confirmar sem ver é o que a pergunta
+   * existe para impedir.
+   */
   salvarForm(): void {
     const editado = this.formRascunho();
     const alvo = this.formAlvo;
     if (!editado || !alvo) return;
+    if (this.stockDelta() !== 0 && this.loadingStock()) return;
+
+    const reason = this.formNeedsReason() ? this.formReason().trim() || null : undefined;
+    const adjustStock = this.stockAnswer();
 
     Object.assign(alvo, editado);
     const eraRascunho = this.isDraft(alvo);
@@ -434,16 +613,32 @@ export class ProgramacaoComponent implements OnInit {
     // Linha nova ainda não existe na API: ela tem porta própria, que valida o
     // mínimo antes de criar.
     if (eraRascunho) {
-      this.saveDraft(alvo);
+      this.saveDraft(alvo, adjustStock);
       return;
     }
 
-    this.salvarLinha(alvo);
+    this.salvarLinha(alvo, { reason, adjustStock });
   }
 
   /** Atualiza um campo do rascunho do formulário. */
   editarCampo<K extends keyof Row>(campo: K, valor: Row[K]): void {
     this.formRascunho.update(atual => atual ? { ...atual, [campo]: valor } : atual);
+    if (campo === 'status' || campo === 'machineId') this.syncStockCheck();
+  }
+
+  /**
+   * Carrega o estoque quando a edição passa a mexer nele.
+   *
+   * No momento em que o status cruza a fronteira do galpão, e não no salvar:
+   * o número tem que estar na tela antes de a pessoa decidir.
+   */
+  private syncStockCheck(): void {
+    const draft = this.formRascunho();
+    if (!draft || this.stockDelta() === 0) return;
+    if (this.stockLoadedFor === draft.machineId) return;
+
+    this.stockLoadedFor = draft.machineId;
+    this.loadStock(draft.machineId);
   }
 
 
@@ -464,8 +659,23 @@ export class ProgramacaoComponent implements OnInit {
     return row.previsao < startOfToday();
   }
 
-  /** Linhas ainda não salvas, no topo — some quando a API confirma. */
-  readonly drafts = signal<Row[]>([]);
+  /**
+   * A previsão dita como distância: "atrasada 6 d", "hoje", "em 2 dias".
+   *
+   * A data sozinha obriga a fazer a conta de cabeça a cada linha, e a pergunta
+   * que se faz para a tela é "quanto falta?". Entregue não conta: a data ali é
+   * passado resolvido, não prazo.
+   */
+  relativeForecast(row: Row): string {
+    if (!row.previsao) return 'sem previsão';
+    if (row.status === MachineStatus.ENTREGUE) return 'entregue';
+
+    const days = Math.round((startOfDay(row.previsao).getTime() - startOfToday().getTime()) / 86_400_000);
+    if (days < 0) return `atrasada ${-days} d`;
+    if (days === 0) return 'hoje';
+    if (days === 1) return 'amanhã';
+    return `em ${days} dias`;
+  }
 
   // Estado de gravação por id, fora das linhas (ver o comentário em `Row`).
   private readonly savingIds = signal<ReadonlySet<string>>(new Set<string>());
@@ -610,7 +820,10 @@ export class ProgramacaoComponent implements OnInit {
         }
 
         if (!term) return true;
-        return row.nomeCliente?.toLowerCase().includes(term)
+        // A tag entra porque é como a máquina é chamada em voz alta no galpão:
+        // "a 1042" acha a linha mais rápido que o nome do cliente.
+        return row.tag?.toLowerCase().includes(term)
+          || row.nomeCliente?.toLowerCase().includes(term)
           || row.tecnico?.toLowerCase().includes(term)
           || row.consultor?.toLowerCase().includes(term)
           || row.regiao?.toLowerCase().includes(term)
@@ -618,13 +831,12 @@ export class ProgramacaoComponent implements OnInit {
           || this.machineName(row.machineId).toLowerCase().includes(term);
       });
 
-    // Rascunho sempre no topo, sem passar pelo filtro nem pela ordenação: some
-    // da tela ao filtrar seria confuso logo depois de clicar em "Nova linha",
-    // e escorregar para a posição 140 ao ordenar, pior ainda.
+    // A linha nova não entra aqui: ela vive só no formulário até a API
+    // confirmar, e aí chega pelo store como qualquer outra.
     //
     // `filtered` já é array novo, saído do `.filter()` — ordenar in-place nele
     // é seguro. Ordenar `store.items()` seria mutar estado que o Hub também lê.
-    return [...this.drafts(), ...this.aplicarOrdem(filtered)];
+    return this.aplicarOrdem(filtered);
   });
 
   readonly lateCount = computed(() =>
@@ -747,14 +959,17 @@ export class ProgramacaoComponent implements OnInit {
   // ─── Linha nova ───────────────────────────────────────────────────────────
 
   /**
-   * A linha nasce local e só vai para a API quando alguém clica em salvar —
-   * assim ninguém cria registro por engano, que é o que aconteceria se
-   * gravássemos no clique de "nova linha".
+   * A linha nasce no formulário e só vai para a API quando alguém salva —
+   * assim ninguém cria registro por engano.
+   *
+   * **Sem máquina escolhida.** Ela nascia com a primeira da lista, e quem não
+   * reparasse criava a linha na máquina errada. A escolha é um ato, como o
+   * status.
    */
   addRow(): void {
-    const draft: Row = {
+    this.abrirForm({
       id: `draft-${Date.now()}`,
-      machineId: this.machineOptions()[0]?.value ?? '',
+      machineId: '',
       nomeCliente: '',
       tag: '',
       regiao: '',
@@ -765,12 +980,7 @@ export class ProgramacaoComponent implements OnInit {
       consultor: '',
       tecnico: '',
       previsao: null,
-    };
-    this.drafts.update(list => [draft, ...list]);
-  }
-
-  discardDraft(row: Row): void {
-    this.drafts.update(list => list.filter(item => item.id !== row.id));
+    });
   }
 
   /**
@@ -798,13 +1008,16 @@ export class ProgramacaoComponent implements OnInit {
   saveDraftHint(row: Row): string {
     if (!row.machineId) return 'Escolha a máquina para salvar';
     if (!row.status) return 'Escolha o status para salvar';
-    return 'Salvar linha';
+    return '';
   }
 
-  saveDraft(row: Row): void {
+  /**
+   * Cria a linha. O `adjustStock` é a resposta que o formulário já coletou;
+   * ausente, a API lê `false` e não lança nada no estoque.
+   */
+  saveDraft(row: Row, adjustStock?: boolean): void {
     if (!this.canSaveDraft(row) || this.isSaving(row.id)) return;
 
-    this.mark('saving', row.id, true);
     const payload: CreateMachineRegister = {
       machineId: row.machineId,
       nomeCliente: row.nomeCliente.trim(),
@@ -818,25 +1031,17 @@ export class ProgramacaoComponent implements OnInit {
       tecnico: row.tecnico ?? '',
     };
 
-    // Linha nova nascendo em estoque é uma máquina entrando no galpão.
-    const delta = stockDeltaFor(null, row.status);
-    if (delta !== 0) {
-      this.pendingStock = { draft: row, payload };
-      this.mark('saving', row.id, false);
-      this.openStockDialog(row.machineId, delta);
-      return;
+    // Linha nova nascendo em estoque é uma máquina entrando no galpão; fora
+    // dele, o campo nem vai.
+    if (stockDeltaFor(null, row.status) !== 0 && adjustStock !== undefined) {
+      payload.adjustStock = adjustStock;
     }
 
-    this.createRow(row, payload);
-  }
-
-  private createRow(row: Row, payload: CreateMachineRegister): void {
     this.mark('saving', row.id, true);
 
     this.store.create(payload).subscribe({
       next: () => {
         this.mark('saving', row.id, false);
-        this.discardDraft(row);
         this.messageService.add({ severity: 'success', summary: 'Linha incluída', detail: payload.nomeCliente });
       },
       error: (err: HttpErrorResponse) => {
@@ -846,51 +1051,30 @@ export class ProgramacaoComponent implements OnInit {
     });
   }
 
-  // ─── A checagem do estoque ───────────────────────────────────────────────
-
-  /**
-   * Pergunta antes de gravar, mas **só quando a transição cruza a fronteira**.
-   *
-   * DISPONIVEL → RESERVADA não pergunta nada: a máquina continua no galpão, e
-   * um diálogo aí seria atrito puro numa grade que se edita o dia todo.
-   */
-  private checkStockBeforeUpdate(row: Row, payload: UpdateMachineRegister): void {
-    const stored = this.store.items().find(item => item.id === row.id);
-    const delta = stored ? stockDeltaFor(stored.status, payload.status) : 0;
-
-    if (delta === 0) {
-      this.gravar(row, payload);
-      return;
-    }
-
-    this.pendingStock = { row, payload };
-    this.openStockDialog(row.machineId, delta);
-  }
+  // ─── O estoque atual ──────────────────────────────────────────────────────
 
   /**
    * O estoque atual vem do último movimento, como na tela de movimentação.
    *
-   * Carregado no clique e não junto da grade: seria um GET por linha numa tela
-   * de centenas, para um número que só interessa nesse instante.
+   * Carregado quando o formulário passa a mexer no estoque, e não junto da
+   * grade: seria um GET por linha numa tela de centenas, para um número que só
+   * interessa nesse instante.
    */
-  private openStockDialog(machineId: string, delta: number): void {
+  private loadStock(machineId: string): void {
     const machine = this.machineStore.items().find(item => item.id === machineId);
 
-    this.stockDelta.set(delta);
-    this.stockMachineName.set(machine?.name ?? 'esta máquina');
     this.currentStock.set(0);
-    this.loadingStock.set(true);
-    this.stockDialogOpen.set(true);
 
     if (!machine) {
       this.loadingStock.set(false);
       return;
     }
 
+    this.loadingStock.set(true);
     this.inventoryService.getInventoryMovementsByProduct(machine.systemCode).subscribe({
       next: (list) => {
         // Por `createdAt`, não por `movementDate`: a segunda não tem hora, e
-        // dois lançamentos do mesmo dia empatam. Era o que fazia o diálogo
+        // dois lançamentos do mesmo dia empatam. Era o que fazia a conta
         // mostrar um estoque de partida errado.
         const sorted = [...(list ?? [])].sort((a, b) =>
           (a.createdAt ?? a.movementDate).localeCompare(b.createdAt ?? b.movementDate));
@@ -902,64 +1086,22 @@ export class ProgramacaoComponent implements OnInit {
     });
   }
 
-  /**
-   * Confirma e grava, com o `adjustStock` ligado.
-   *
-   * Quando o estoque ficaria negativo o botão vira "salvar sem mexer no
-   * estoque" e manda `false`: a divergência já existia antes desta edição, e
-   * travar a pessoa aqui não conserta nada — só impede o trabalho dela.
-   */
-  confirmStockChange(): void {
-    if (!this.pendingStock || this.loadingStock()) return;
-
-    const adjustStock = !this.stockWouldGoNegative();
-    const pending = this.pendingStock;
-    this.pendingStock = null;
-    this.stockDialogOpen.set(false);
-
-    if ('draft' in pending) {
-      this.createRow(pending.draft, { ...pending.payload, adjustStock });
-    } else {
-      this.gravar(pending.row, { ...pending.payload, adjustStock });
-    }
+  /** O nome da máquina do formulário, para a pergunta do estoque. */
+  stockMachineName(): string {
+    const draft = this.formRascunho();
+    return (draft && this.machineName(draft.machineId)) || 'esta máquina';
   }
 
-  /**
-   * Desistir desfaz a edição.
-   *
-   * Mesmo motivo do `cancelarMotivo`: deixar o status novo na tela sem gravar é
-   * pior que o erro, porque a pessoa sai achando que salvou.
-   */
-  cancelStockChange(): void {
-    const pending = this.pendingStock;
-    this.pendingStock = null;
-    this.stockDialogOpen.set(false);
-
-    if (pending && !('draft' in pending)) this.store.refresh();
-  }
-
-  // ─── Edição em célula ─────────────────────────────────────────────────────
-
-  /**
-   * Chamado ao sair da célula. Salva a linha inteira porque a API só tem PUT de
-   * registro completo — não há PATCH de campo.
-   *
-   * Grava pelo service e atualiza a lista com `upsert`, em vez de recarregar
-   * tudo: um `refresh` a cada célula recriaria as linhas e apagaria o que o
-   * usuário estivesse digitando em outra célula.
-   */
-  onCellEdited(row: Row): void {
-    this.salvarLinha(row);
-  }
+  // ─── Gravação ─────────────────────────────────────────────────────────────
 
   /**
    * Monta o corpo do PUT a partir da linha.
    *
    * **Um construtor só, e é de propósito.** A API não tem PATCH — todo
-   * salvamento manda os nove campos —, e a tela tem duas portas de edição: a
-   * célula da planilha no desktop e o cartão no celular. Dois construtores
-   * divergiriam no dia em que a API ganhasse um campo, e o caminho menos usado
-   * passaria meses mandando o campo faltando sem ninguém notar.
+   * salvamento manda os nove campos —, e a tela tem duas portas de edição: o
+   * calendário da previsão e o formulário. Dois construtores divergiriam no dia
+   * em que a API ganhasse um campo, e o caminho menos usado passaria meses
+   * mandando o campo faltando sem ninguém notar.
    */
   private montarPayload(row: Row & { status: MachineStatus }): UpdateMachineRegister {
     return {
@@ -978,70 +1120,40 @@ export class ProgramacaoComponent implements OnInit {
   /**
    * O caminho único de gravação de uma linha existente.
    *
-   * São quatro portões, e **nenhum é decorativo** — quem chamar o service por
-   * fora pula os quatro em silêncio, e a perda só aparece semanas depois, no
-   * Hub, como máquina que adiou sem justificativa:
+   * As perguntas já foram feitas por quem chama — o formulário e o calendário
+   * mostram o motivo e o estoque ANTES do clique —, e chegam aqui como
+   * respostas. O que continua aqui são as regras, e **nenhuma é decorativa**:
+   * quem chamar o service por fora pula todas em silêncio, e a perda só aparece
+   * semanas depois, no Hub, como máquina que adiou sem justificativa.
    *
-   * 1. `hasChanges` — sem ele, todo Tab por célula intocada vira um PUT;
-   * 2. `pedeMotivo` — a justificativa vale para a edição inteira;
-   * 3. `checkStockBeforeUpdate` — concilia as duas contagens de estoque;
-   * 4. os dois diálogos entram **em fila**, nunca sobrepostos.
+   * 1. `hasChanges` — sem ele, abrir e salvar sem mexer vira um PUT;
+   * 2. `pedeMotivo` — o motivo só vai quando a edição o pede, e vale para ela
+   *    inteira;
+   * 3. `stockDeltaFor` — o `adjustStock` só vai quando o status cruza a
+   *    fronteira do galpão.
    */
-  salvarLinha(row: Row): void {
+  salvarLinha(row: Row, answers: { reason?: string | null; adjustStock?: boolean } = {}): void {
     if (!row || this.isDraft(row) || this.isSaving(row.id)) return;
 
     // Linha gravada sempre tem status — a API o exige. A guarda é a invariante
-    // virando código, e vira rede de verdade no dia em que o combo ganhar um
-    // botão de limpar.
+    // virando código.
     if (!row.status) return;
 
     const payload = this.montarPayload(row as Row & { status: MachineStatus });
 
-    // O combo já salva na seleção e o `onEditComplete` chega logo depois; sem
-    // isto, todo Tab por uma célula intocada viraria um PUT.
     const stored = this.store.items().find(item => item.id === row.id);
     if (stored && !hasChanges(stored, payload)) return;
 
-    // O motivo vale para a edição inteira, e a API o repete em cada campo que
-    // mudou — então a pergunta não é mais só sobre a previsão.
     if (stored && pedeMotivo(stored, payload)) {
-      this.pendente = { row, payload };
-      this.motivoTexto.set('');
-      this.motivoAberto.set(true);
-      return;
+      payload.motivoAlteracaoPrevisao = answers.reason?.trim() || null;
     }
 
-    this.checkStockBeforeUpdate(row, payload);
-  }
+    const delta = stored ? stockDeltaFor(stored.status, payload.status) : 0;
+    if (delta !== 0 && answers.adjustStock !== undefined) {
+      payload.adjustStock = answers.adjustStock;
+    }
 
-  /** Confirma o motivo e solta o PUT que estava esperando. */
-  confirmarMotivo(): void {
-    if (!this.pendente) return;
-
-    const { row, payload } = this.pendente;
-    this.pendente = null;
-    this.motivoAberto.set(false);
-
-    // Os dois diálogos podem cair na mesma edição — mudar a data E o status de
-    // uma vez. Em fila, nunca ao mesmo tempo: um por cima do outro esconderia
-    // metade da pergunta.
-    this.checkStockBeforeUpdate(row, { ...payload, motivoAlteracaoPrevisao: this.motivoTexto().trim() || null });
-  }
-
-  /**
-   * Desistir **desfaz a edição** — não é só recusar o motivo.
-   *
-   * Deixar o valor novo na tela sem gravar seria pior que o erro: a pessoa sai
-   * achando que salvou. O `refresh` traz de volta o que está no banco.
-   *
-   * O botão diz "Descartar alteração" por isso. Enquanto o diálogo só aparecia
-   * no adiamento dava para chamar de "Cancelar"; abrindo em toda edição, a
-   * palavra tem que dizer o que se perde.
-   */
-  cancelarMotivo(): void {
-    this.pendente = null;
-    this.motivoAberto.set(false);
-    this.store.refresh();
+    this.gravar(row, payload);
   }
 
   private gravar(row: Row, payload: UpdateMachineRegister): void {
@@ -1066,64 +1178,47 @@ export class ProgramacaoComponent implements OnInit {
     });
   }
 
-  /**
-   * Esc cancela a edição. O PrimeNG só desfaz a célula quando o `data` do
-   * `pEditableColumn` é o próprio valor; aqui passamos a linha inteira, então
-   * o desfazer é nosso — senão a tela mostraria um valor que não foi gravado.
-   */
-  onCellCancelled(row: Row): void {
-    if (!row || this.isDraft(row)) return;
-
-    const stored = this.store.items().find(item => item.id === row.id);
-    if (!stored) return;
-
-    Object.assign(row, stored, { previsao: parseDateOnly(stored.previsaoEntrega) });
-  }
+  // ─── Excluir ──────────────────────────────────────────────────────────────
 
   /**
-   * Excluir pede confirmação; descartar rascunho, não.
+   * O pedido de exclusão, e o que ele leva junto.
    *
-   * Rascunho é uma linha que nunca existiu no banco — perguntar ali é atrito
-   * por nada. Já a exclusão de verdade leva junto **o histórico de adiamentos**
-   * (`ON DELETE CASCADE` na V82), e é isso que a pergunta precisa dizer: o que
-   * some não é só a linha.
+   * A exclusão de verdade leva **o histórico de alterações** (`ON DELETE
+   * CASCADE` na V82), e é isso que a pergunta precisa dizer: o que some não é
+   * só a linha. Mora num `pk-dialog` com texto do template — a mensagem era
+   * HTML montado em string, com o nome do cliente dentro.
    */
+  readonly deleteTarget = signal<Row | null>(null);
+
+  /**
+   * Apagar não baixa o estoque de propósito: apagar é "essa linha nunca
+   * deveria ter existido". Se a máquina está no galpão, o certo é mudar o
+   * status. Mas quem clica precisa saber disso antes, não depois.
+   */
+  readonly deleteCountsInStock = computed(() => {
+    const status = this.deleteTarget()?.status;
+    return !!status && IN_STOCK_STATUSES.includes(status);
+  });
+
+  /** Rascunho não pergunta: é uma linha que nunca existiu no banco. */
   deleteRow(row: Row): void {
     if (this.isDraft(row)) {
-      this.discardDraft(row);
+      this.fecharForm();
       return;
     }
-
-    const quem = row.nomeCliente?.trim() || 'sem cliente';
-
-    // Apagar não baixa o estoque de propósito: apagar é "essa linha nunca
-    // deveria ter existido". Se a máquina está no galpão, o certo é mudar o
-    // status. Mas quem clica precisa saber disso antes, não depois.
-    const contaNoEstoque = row.status && IN_STOCK_STATUSES.includes(row.status)
-      ? '<br><br>Esta máquina conta no estoque. Apagar a linha <strong>não</strong> '
-        + 'baixa o estoque — para isso, mude o status para Entregue.'
-      : '';
-
-    this.confirmationService.confirm({
-      header: 'Excluir programação',
-      message: `Excluir a programação de <strong>${quem}</strong>? `
-        + 'O histórico de adiamentos dessa linha vai junto, e não há como recuperar.'
-        + contaNoEstoque,
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Excluir',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.confirmarExclusao(row),
-    });
+    this.deleteTarget.set(row);
   }
 
-  private confirmarExclusao(row: Row): void {
+  confirmDelete(): void {
+    const row = this.deleteTarget();
+    if (!row) return;
+    this.deleteTarget.set(null);
+
     this.store.deleteById(row.id).subscribe({
-      next: () => this.messageService.add({
-        severity: 'success',
-        summary: 'Linha removida',
-        detail: row.nomeCliente,
-      }),
+      next: () => {
+        if (this.formRascunho()?.id === row.id) this.fecharForm();
+        this.messageService.add({ severity: 'success', summary: 'Linha removida', detail: row.nomeCliente });
+      },
       error: (err: HttpErrorResponse) => this.showError(err),
     });
   }
@@ -1146,8 +1241,11 @@ export class ProgramacaoComponent implements OnInit {
 }
 
 function startOfToday(): Date {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return startOfDay(new Date());
+}
+
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 /**
