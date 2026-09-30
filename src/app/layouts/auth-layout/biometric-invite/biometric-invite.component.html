@@ -5,8 +5,8 @@
     <div pkSheetFooter class="convite__botoes convite__botoes--folha"><ng-container *ngTemplateOutlet="actions" /></div>
   </pk-sheet>
 } @else {
-  <pk-dialog [header]="title" [visible]="open()" width="480px" (visibleChange)="!$event && notNow()">
-    <div pkDialogContent><ng-container *ngTemplateOutlet="body" /></div>
+  <pk-dialog [header]="title" [visible]="open()" width="520px" (visibleChange)="!$event && notNow()">
+    <div pkDialogContent class="pk-dialog-body"><ng-container *ngTemplateOutlet="body" /></div>
     <div pkDialogFooter class="pk-dialog-footer convite__botoes"><ng-container *ngTemplateOutlet="actions" /></div>
   </pk-dialog>
 }
@@ -41,7 +41,7 @@
   @if (done()) {
     <pk-button pkType="save" pkLabel="Fechar" (clicked)="notNow()" />
   } @else {
-    <button type="button" class="convite__nunca" (click)="neverHere()">Não perguntar de novo neste {{ place }}</button>
+    <button type="button" class="convite__nunca" (click)="neverHere()">Não perguntar de novo {{ isPhone() ? 'neste celular' : 'aqui' }}</button>
     <pk-button pkType="cancel" pkIcon="pi pi-times" pkLabel="Agora não" (clicked)="notNow()" />
     <pk-button pkType="save" pkIcon="pi pi-check" [pkLabel]="'Ativar ' + biometric.words.withArticle" [pkLoading]="busy()" (clicked)="enable()" />
   }
