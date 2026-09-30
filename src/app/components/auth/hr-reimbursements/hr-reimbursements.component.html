@@ -16,8 +16,12 @@
             complicado"). Com o campo editável, o toque no celular abria o
             teclado junto com o calendário; `readonlyInput` deixa só o
             calendário, e o ícone diz que é para escolher, não escrever.
+
+            No celular o formulário é uma folha (pk-sheet, z-index 1050), e o
+            calendário, anexado ao body, nascia com o z-index do PrimeNG (~1002):
+            abria ATRÁS da folha (medido em 2026-09-30). A base 1100 o põe por cima.
           -->
-          <p-datepicker appendTo="body"
+          <p-datepicker appendTo="body" [baseZIndex]="1100"
             inputId="expenseDate"
             formControlName="expenseDate"
             [showButtonBar]="true"

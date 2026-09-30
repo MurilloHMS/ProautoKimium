@@ -5,7 +5,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { HrReimbursementsComponent } from './hr-reimbursements.component';
 import { Reimbursement, ReimbursementSummary } from '../../../domain/models/hr/reimbursement.model';
 import { environment } from '../../../../environments/environment';
-import { NO_COMPUTADOR, larguraDaJanela, providersDeTeste, restaurarLargura } from '../../../../testing/test-setup';
+import { NO_CELULAR, NO_COMPUTADOR, larguraDaJanela, providersDeTeste, restaurarLargura } from '../../../../testing/test-setup';
 
 const API = `${environment.apiUrl}/hr/reimbursements`;
 
@@ -291,5 +291,43 @@ describe('HrReimbursementsComponent', () => {
 
     expect(component.erroContestacao()).toBe('O prazo para contestar terminou em 05/10/2026');
     expect(component.contestTarget()).not.toBeNull();
+  });
+
+  /**
+   * **O que ele viu (2026-09-30, hotfix):** no celular, tocar na data do
+   * reembolso não abria o calendário — abria, mas atrás do formulário. A folha
+   * tem z-index 1050 e o calendário nascia com ~1002. Mede o que o dedo toca:
+   * o elemento no centro do calendário precisa ser o próprio calendário.
+   */
+  it('no celular, o calendário da data abre por cima do formulário', async () => {
+    restaurarLargura();
+    larguraDaJanela(NO_CELULAR);
+    responderCarga();
+    const celular = TestBed.createComponent(HrReimbursementsComponent);
+    document.body.appendChild(celular.nativeElement);
+    celular.componentInstance.month.set('2026-09');
+    celular.detectChanges();
+    responderCarga();
+    celular.componentInstance.abrirForm();
+    celular.detectChanges();
+    await celular.whenStable();
+    await new Promise(r => setTimeout(r, 300));
+    celular.detectChanges();
+
+    (document.querySelector('#expenseDate') as HTMLInputElement).click();
+    celular.detectChanges();
+    await new Promise(r => setTimeout(r, 300));
+    celular.detectChanges();
+
+    const painel = document.querySelector('.p-datepicker-panel') as HTMLElement;
+    const folha = document.querySelector('.pk-sheet') as HTMLElement;
+    expect(painel).withContext('o calendário abriu').not.toBeNull();
+    expect(folha).withContext('no celular o formulário é uma folha').not.toBeNull();
+    expect(Number(getComputedStyle(painel).zIndex)).toBeGreaterThan(Number(getComputedStyle(folha).zIndex));
+
+    const r = painel.getBoundingClientRect();
+    const noDedo = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    expect(painel.contains(noDedo)).withContext('o toque cai no calendário, e não na folha').toBeTrue();
+    celular.destroy();
   });
 });
