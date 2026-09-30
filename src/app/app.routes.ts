@@ -148,6 +148,12 @@ export const routes: Routes = [
       { path: 'documentos/calculadoras', loadComponent: () => import('./components/auth/calculadoras/calculadoras-hub/calculadoras-hub.component').then(m => m.CalculadorasHubComponent), data: { screen: 'documentos/calculadoras' } },
       { path: 'documentos/calculadoras/combustivel', loadComponent: () => import('./components/auth/calculadoras/combustivel/combustivel.component').then(m => m.CombustivelComponent), data: { screen: 'documentos/calculadoras/combustivel' } },
       { path: 'documentos/calculadoras/cmv', loadComponent: () => import('./components/auth/calculadoras/cmv/cmv.component').then(m => m.CmvComponent), data: { screen: 'documentos/calculadoras/cmv' } },
+
+      // Vendas — checklist de vendas (2026-09-30): o vendedor emite no celular,
+      // a Controladoria (role CONTRATOS) confere e mantém os cadastros.
+      { path: 'vendas/checklist', loadComponent: () => import('./components/auth/sales/checklist/checklist.component').then(m => m.ChecklistComponent), data: { screen: 'vendas/checklist' } },
+      { path: 'vendas/checklists', loadComponent: () => import('./components/auth/sales/checklists-controle/checklists-controle.component').then(m => m.ChecklistsControleComponent), data: { screen: 'vendas/checklists' } },
+      { path: 'vendas/checklist-cadastros', loadComponent: () => import('./components/auth/sales/checklist-cadastros/checklist-cadastros.component').then(m => m.ChecklistCadastrosComponent), data: { screen: 'vendas/checklist-cadastros' } },
       { path: 'documentos/galeria', loadComponent: () => import('./components/auth/gallery/gallery.component').then(m => m.GalleryComponent), data: { screen: 'documentos/galeria' } },
       // Eventos: só visualização. O detalhe é `?evento=<id>` na mesma rota — nenhuma
       // rota autenticada tem parâmetro, e o `app.routes.spec` exige screen === path.

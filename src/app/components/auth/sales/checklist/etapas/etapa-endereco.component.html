@@ -1,0 +1,67 @@
+<ng-template #campos let-qual>
+  <div class="ck-dois">
+    <div class="ck-campo">
+      <label [for]="'ck-cep-' + qual">CEP</label>
+      <input [id]="'ck-cep-' + qual" class="ck-input" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000"
+             [class.is-erro]="!!erro(qual, 'cep')" [class.is-diverge]="!!diverge(qual, 'zipCode')"
+             [value]="zip(endereco(qual).zipCode)" (input)="mudar(qual, 'zipCode', $any($event.target).value)" />
+    </div>
+    <div class="ck-campo">
+      <label [for]="'ck-uf-' + qual">Estado</label>
+      <input [id]="'ck-uf-' + qual" class="ck-input" autocomplete="address-level1" placeholder="SP" maxlength="2"
+             [class.is-erro]="!!erro(qual, 'uf')" [class.is-diverge]="!!diverge(qual, 'state')"
+             [value]="endereco(qual).state ?? ''" (input)="mudar(qual, 'state', $any($event.target).value)" />
+    </div>
+  </div>
+  @if (erro(qual, 'cep'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+  @if (erro(qual, 'uf'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+  @for (f of [
+    { campo: 'street', erro: 'rua', rotulo: 'Rua', auto: 'address-line1', ex: 'Ex.: Av. Francisco Glicério' },
+    { campo: 'number', erro: 'numero', rotulo: 'Número', auto: 'off', ex: 'Ex.: 1200 ou S/N' },
+    { campo: 'complement', erro: '-', rotulo: 'Complemento (se tiver)', auto: 'address-line2', ex: 'Ex.: Galpão 3' },
+    { campo: 'district', erro: 'bairro', rotulo: 'Bairro', auto: 'off', ex: '' },
+    { campo: 'city', erro: 'cidade', rotulo: 'Cidade', auto: 'address-level2', ex: '' }
+  ]; track f.campo) {
+    <div class="ck-campo">
+      <label [for]="'ck-' + f.campo + '-' + qual">{{ f.rotulo }}</label>
+      <input [id]="'ck-' + f.campo + '-' + qual" class="ck-input" [attr.autocomplete]="f.auto" [placeholder]="f.ex"
+             [class.is-erro]="!!erro(qual, f.erro)" [class.is-diverge]="!!diverge(qual, $any(f.campo))"
+             [value]="$any(endereco(qual))[f.campo] ?? ''" (input)="mudar(qual, $any(f.campo), $any($event.target).value)" />
+      @if (erro(qual, f.erro); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+      @if (diverge(qual, $any(f.campo)); as antes) {
+        <p class="ck-diverge">✎ Você mudou. No Sankhya está "{{ antes }}"; a Controladoria vai conferir.</p>
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="ck-corpo">
+  <p class="ck-pergunta">Endereço principal</p>
+  <ng-container *ngTemplateOutlet="campos; context: { $implicit: 'principal' }" />
+
+  <p class="ck-pergunta">A entrega é neste mesmo endereço?</p>
+  <ck-sim-nao rotulo="A entrega é neste mesmo endereço?" [valor]="s.conteudo().deliverySameAsMain" (valorChange)="entregaIgual($event)" />
+
+  @if (s.conteudo().deliverySameAsMain === false) {
+    <p class="ck-pergunta">Endereço de entrega</p>
+    <ng-container *ngTemplateOutlet="campos; context: { $implicit: 'entrega' }" />
+  }
+
+  <p class="ck-pergunta">Contato da unidade</p>
+  <div class="ck-campo">
+    <label for="ck-contato">Nome de quem recebe</label>
+    <input id="ck-contato" class="ck-input" autocomplete="off" [value]="s.conteudo().unitContact?.name ?? ''"
+           (input)="contato('name', $any($event.target).value)" />
+  </div>
+  <div class="ck-campo">
+    <label for="ck-horario">Horário de recebimento</label>
+    <input id="ck-horario" class="ck-input" autocomplete="off" placeholder="Ex.: 8h às 17h"
+           [value]="s.conteudo().unitContact?.receivingHours ?? ''" (input)="contato('receivingHours', $any($event.target).value)" />
+  </div>
+  <div class="ck-campo">
+    <label for="ck-fone-unidade">Telefone da unidade <small>(com DDD)</small></label>
+    <input id="ck-fone-unidade" class="ck-input" inputmode="tel" autocomplete="off" placeholder="(19) 3234-5678"
+           [value]="fone(s.conteudo().unitContact?.phone ?? '')" (input)="contato('phone', $any($event.target).value)" />
+  </div>
+</div>

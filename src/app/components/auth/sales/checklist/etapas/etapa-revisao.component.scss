@@ -1,0 +1,55 @@
+@use 'checklist' as ck;
+
+:host { display: block; }
+
+@include ck.formulario;
+
+.rev { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.rev__linha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &.is-falta { border-color: var(--app-danger); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.rev__n {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 14px;
+
+  &--ok { background: var(--app-success-soft); color: var(--app-success); }
+  &--falta { background: var(--app-danger-soft); color: var(--app-danger); }
+  &--opc { background: var(--app-surface-3); color: var(--app-text-muted); }
+}
+
+.rev__texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  b { font-size: 15.5px; }
+  small { font-size: 13.5px; color: var(--app-text-muted); line-height: 1.35; }
+}
+
+.rev__falta { color: var(--app-danger) !important; font-weight: 600; }
+.rev__ir { color: var(--app-text-subtle); font-size: 22px; }

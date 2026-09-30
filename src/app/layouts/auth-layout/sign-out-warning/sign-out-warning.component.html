@@ -1,0 +1,50 @@
+<!-- Um corpo, duas molduras (o padrão do comprovante de reembolsos): o @if fica
+     fora e o conteúdo entra por ngTemplateOutlet. -->
+@if (isPhone()) {
+  <pk-sheet [open]="!!out.warning()" [title]="title" [fit]="true" (closed)="out.stay()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="body" /></div>
+    <div pkSheetFooter class="aviso-saida__botoes"><ng-container *ngTemplateOutlet="actions" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [header]="title" [visible]="!!out.warning()" width="480px" (visibleChange)="!$event && out.stay()">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="body" /></div>
+    <div pkDialogFooter class="pk-dialog-footer aviso-saida__botoes"><ng-container *ngTemplateOutlet="actions" /></div>
+  </pk-dialog>
+}
+
+<ng-template #body>
+  @if (out.warning(); as p) {
+    <div class="aviso-saida">
+      <ul class="aviso-saida__lista">
+        @if (p.waiting) {
+          <li><i class="pi pi-clock" aria-hidden="true"></i><span><b>{{ count(p.waiting) }}</b> esperando internet para enviar</span></li>
+        }
+        @if (p.refused) {
+          <li class="perigo"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i><span><b>{{ count(p.refused) }}</b> com problema para corrigir</span></li>
+        }
+        @if (p.drafts) {
+          <li><i class="pi pi-pencil" aria-hidden="true"></i><span><b>{{ count(p.drafts) }}</b> em preenchimento</span></li>
+        }
+      </ul>
+      <p class="aviso-saida__texto">
+        Eles ficam guardados neste aparelho e só vão para a Controladoria quando você
+        <b>entrar de novo neste mesmo aparelho</b>, com o seu usuário.
+      </p>
+      @if (p.waiting && !out.online()) {
+        <p class="aviso-saida__nota">Sem internet agora: não dá para enviar.</p>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #actions>
+  @if (out.warning(); as p) {
+    @if (p.waiting && out.online()) {
+      <pk-button pkType="send" pkLabel="Enviar agora" [pkLoading]="out.sending()" (clicked)="out.sendNow()" />
+    } @else if (p.refused || p.drafts) {
+      <pk-button pkType="edit" pkIcon="pi pi-arrow-right" pkLabel="Abrir os checklists" (clicked)="openChecklists()" />
+    }
+    <pk-button pkType="cancel" pkIcon="pi pi-arrow-left" pkLabel="Continuar no sistema" (clicked)="out.stay()" />
+    <pk-button pkType="delete" pkIcon="pi pi-sign-out" pkLabel="Sair mesmo assim" [pkDisabled]="out.sending()" (clicked)="out.signOutAnyway()" />
+  }
+</ng-template>

@@ -1,0 +1,101 @@
+<div class="ck-corpo">
+  <p class="ck-pergunta">Este checklist tem pedido?</p>
+  <ck-sim-nao rotulo="Este checklist tem pedido?" [valor]="o().enabled ? true : (s.conteudo().order ? false : null)"
+              (valorChange)="temPedido($event)" />
+
+  @if (o().enabled) {
+    <ck-opcoes [opcoes]="tipos" rotulo="Tipo do pedido" [valor]="o().kind" (valorChange)="tipo($event)" />
+    @if (s.erro(7, 'tipoPedido'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+    <p class="ck-ajuda" style="margin:0">
+      @if (tabela()) { Os preços vêm da tabela do cliente ({{ tabela() }}) e, se faltar, da tabela geral (80). }
+      @else { Cliente sem tabela própria: os preços vêm da tabela geral (80). }
+    </p>
+
+    @for (item of o().items; track item.productCode) {
+      <section class="ck-cartao" [attr.aria-label]="item.name">
+        <div class="ck-cartao__cab" style="align-items:flex-start">
+          <b style="font-size:15.5px;line-height:1.3">{{ item.name }}</b>
+          <span class="origem" [class.origem--cliente]="item.priceSource === 'CLIENTE'">
+            {{ item.priceSource === 'CLIENTE' ? 'Tabela do cliente' : 'Tabela geral (80)' }}
+          </span>
+        </div>
+
+        <div class="ck-cartao__cab">
+          <span style="font-size:15px;font-weight:600">Embalagens</span>
+          <ck-quantidade [minimo]="1" [rotulo]="item.name" [valor]="item.packages" (valorChange)="embalagens(item.productCode, $event)" />
+        </div>
+
+        @if (!item.packageSize || tamanhoDoNome(item.productCode)) {
+          <div class="ck-campo">
+            <label [for]="'ck-emb-' + item.productCode">Tamanho da embalagem ({{ item.unit }})</label>
+            @if (item.packageSize) { <p class="ck-ajuda" style="margin:0">Tirado do nome do produto. Confira.</p> }
+            <input [id]="'ck-emb-' + item.productCode" class="ck-input" inputmode="decimal" autocomplete="off" placeholder="Ex.: 20"
+                   [class.is-erro]="!item.packageSize" [value]="item.packageSize ? (item.packageSize | number: '1.0-3' : 'pt-BR') : ''"
+                   (change)="tamanho(item.productCode, $any($event.target).value)" />
+          </div>
+        }
+
+        <div class="ck-campo">
+          <label [for]="'ck-preco-' + item.productCode">Preço de venda <small>(por {{ item.unit }})</small></label>
+          <input [id]="'ck-preco-' + item.productCode" class="ck-input" inputmode="decimal" autocomplete="off"
+                 [class.is-diverge]="alterado(item)" [value]="item.unitPrice | number: '1.2-4' : 'pt-BR'"
+                 (change)="preco(item.productCode, $any($event.target).value)" />
+          @if (alterado(item)) {
+            <p class="ck-diverge">✎ Preço da tabela: {{ item.tablePrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}.
+              A Controladoria vai ver a mudança.</p>
+            <button type="button" class="ck-link" style="align-self:flex-start" (click)="voltarAoPrecoDaTabela(item.productCode)">
+              Voltar ao preço da tabela</button>
+          } @else {
+            <p class="ck-ajuda" style="margin:0">É o preço da tabela. Para vender por outro valor, é só trocar.</p>
+          }
+        </div>
+
+        <p class="conta">
+          {{ item.packages }} × {{ item.packageSize ? (item.packageSize | number: '1.0-3' : 'pt-BR') : '?' }} {{ item.unit }}
+          × {{ item.unitPrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}
+          <span>{{ item.ipiPercent ? 'com IPI ' + (item.ipiPercent | number: '1.0-2' : 'pt-BR') + '%' : 'sem IPI' }}</span>
+        </p>
+        <div class="ck-cartao__cab">
+          <button type="button" class="ck-link ck-link--perigo" (click)="tirar(item.productCode)">Tirar</button>
+          <strong class="valor">{{ linha(item) | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+        </div>
+      </section>
+    }
+    @if (s.erro(7, 'itens'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+    @if (procurando()) {
+      <section class="ck-cartao" aria-label="Adicionar produto">
+        <label class="ck-busca">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input type="search" aria-label="Buscar produto" placeholder="Nome ou código do produto" autocomplete="off"
+                 [value]="busca()" (input)="busca.set($any($event.target).value)" />
+        </label>
+        @if (!busca()) { <p class="ck-ajuda" style="margin:0">Abaixo, os produtos da tabela do cliente. Digite para buscar na geral.</p> }
+        @for (x of opcoes(); track x.produto.code) {
+          <button type="button" class="ck-resultado" (click)="adicionar(x.produto, x.preco)">
+            <span>
+              <b>{{ x.produto.name }}</b>
+              <small>{{ x.preco.preco | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }} / {{ x.produto.unit }} ·
+                {{ x.preco.origem === 'CLIENTE' ? 'tabela do cliente' : 'tabela geral' }}</small>
+            </span>
+            <span class="ck-marca" aria-hidden="true">+</span>
+          </button>
+        } @empty {
+          <p class="ck-ajuda" style="margin:0">
+            @if (!s.indice()) { A lista de produtos ainda não foi baixada neste celular. }
+            @else if (busca()) { Nenhum produto com preço para "{{ busca() }}". }
+            @else { O cliente não tem tabela própria. Digite o nome do produto. }
+          </p>
+        }
+        <button type="button" class="ck-link" style="align-self:flex-start" (click)="procurando.set(false)">Fechar a busca</button>
+      </section>
+    } @else {
+      <button type="button" class="ck-botao-sec" (click)="procurando.set(true)"><i class="pi pi-plus" aria-hidden="true"></i> Adicionar produto</button>
+    }
+
+    @if (o().items.length) {
+      <div class="total"><span>Total do pedido</span><strong>{{ total() | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong></div>
+    }
+  }
+</div>

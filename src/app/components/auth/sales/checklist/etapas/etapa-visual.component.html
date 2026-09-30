@@ -1,0 +1,51 @@
+<div class="ck-corpo">
+  <p class="ck-ajuda" style="margin:0">Aperte + no que o cliente vai receber.</p>
+  <div class="lista">
+    @for (item of itens(); track item.name) {
+      <div class="linha">
+        <b>{{ item.name }}</b>
+        <ck-quantidade [rotulo]="item.name" [valor]="qtd(item.name)" (valorChange)="mudarQtd(item.id, item.name, $event)" />
+      </div>
+    } @empty {
+      <p class="ck-aviso"><i class="pi pi-info-circle" aria-hidden="true"></i>
+        <span>A lista de comunicação visual ainda não foi baixada neste celular.</span></p>
+    }
+  </div>
+
+  <p class="ck-pergunta">Produtos usados na implantação</p>
+  <p class="ck-ajuda">Para cada um: quantas etiquetas e a diluição.</p>
+  @for (p of v().products; track p.productCode) {
+    <section class="ck-cartao" [attr.aria-label]="p.name">
+      <b style="font-size:15.5px;line-height:1.3">{{ p.name }}</b>
+      <div class="linha linha--dentro">
+        <span>Etiquetas de equipamento</span>
+        <ck-quantidade [rotulo]="'etiquetas de equipamento de ' + p.name" [valor]="p.equipmentLabels"
+                       (valorChange)="etiquetas(p.productCode, 'equipmentLabels', $event)" />
+      </div>
+      <div class="linha linha--dentro">
+        <span>Etiquetas de frasco</span>
+        <ck-quantidade [rotulo]="'etiquetas de frasco de ' + p.name" [valor]="p.bottleLabels"
+                       (valorChange)="etiquetas(p.productCode, 'bottleLabels', $event)" />
+      </div>
+      <div class="ck-campo">
+        <label [for]="'ck-diluicao-' + p.productCode">Diluição</label>
+        <input [id]="'ck-diluicao-' + p.productCode" class="ck-input" autocomplete="off" placeholder="Ex.: 1:50"
+               [value]="p.dilution ?? ''" (input)="diluicao(p.productCode, $any($event.target).value)" />
+      </div>
+      <button type="button" class="ck-link ck-link--perigo" style="align-self:flex-start" (click)="tirarProduto(p.productCode)">Tirar</button>
+    </section>
+  }
+  @if (s.indice()) {
+    <label class="ck-busca">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input type="search" aria-label="Buscar produto usado" placeholder="Buscar produto para adicionar" autocomplete="off"
+             [value]="busca()" (input)="busca.set($any($event.target).value)" />
+    </label>
+    @for (p of resultados(); track p.code) {
+      <button type="button" class="ck-resultado" (click)="usar(p)">
+        <span><b>{{ p.name }}</b><small>código {{ p.code }}</small></span>
+        <span class="ck-marca" aria-hidden="true">+</span>
+      </button>
+    }
+  }
+</div>

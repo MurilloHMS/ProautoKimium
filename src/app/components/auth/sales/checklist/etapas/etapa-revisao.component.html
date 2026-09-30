@@ -1,0 +1,29 @@
+<div class="ck-corpo">
+  @if (s.problemas().length) {
+    <p class="ck-aviso"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+      <span>Falta {{ s.problemas().length === 1 ? '1 coisa' : s.problemas().length + ' coisas' }} para poder enviar. Toque na linha vermelha para arrumar.</span></p>
+  } @else {
+    <p class="ck-aviso ck-aviso--info"><i class="pi pi-check-circle" aria-hidden="true"></i>
+      <span>Tudo certo. Confira e toque em <b>Enviar checklist</b>.</span></p>
+  }
+
+  <ul class="rev" aria-label="Resumo do checklist">
+    @for (l of linhas(); track l.etapa) {
+      <li>
+        <button type="button" class="rev__linha" [class.is-falta]="l.faltas.length" (click)="irPara.emit(l.etapa)">
+          <span class="rev__n" [class.rev__n--ok]="!l.faltas.length && !l.opcional" [class.rev__n--falta]="l.faltas.length"
+                [class.rev__n--opc]="l.opcional" aria-hidden="true">{{ l.faltas.length ? '!' : l.opcional ? '–' : '✓' }}</span>
+          <span class="rev__texto">
+            <b>{{ l.titulo }}</b>
+            @if (l.faltas.length) {
+              @for (f of l.faltas; track f) { <small class="rev__falta">Falta: {{ f }}</small> }
+            } @else if (l.resumo) {
+              <small>{{ l.resumo }}</small>
+            }
+          </span>
+          <span class="rev__ir" aria-hidden="true">›</span>
+        </button>
+      </li>
+    }
+  </ul>
+</div>

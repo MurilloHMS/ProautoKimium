@@ -1,0 +1,318 @@
+@use 'mixins' as m;
+
+// Tela de grade: barra fixa, lista rolando, e o checklist aberto ao lado.
+:host { @include m.grid-screen; }
+
+.ctl {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+
+  &--aberto { grid-template-columns: minmax(0, 1fr) minmax(380px, 460px); }
+}
+
+.ctl__lista { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.ctl__tabela { @include m.grid-screen-body; }
+
+// ── Barra (padrão da Programação A) ──────────────────────────────────────────
+.barra {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.barra__linha { display: flex; align-items: center; gap: var(--gap-control, 8px); }
+
+.busca {
+  flex: 0 1 380px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--field-h, 36px);
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+
+  i { color: var(--app-text-subtle); font-size: .8rem; }
+  input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--app-text); font: inherit; &:focus { outline: none; } }
+  &:focus-within { box-shadow: var(--app-focus-ring); }
+}
+
+.barra__icone {
+  width: var(--field-h, 36px);
+  height: var(--field-h, 36px);
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.chip {
+  --c: var(--app-text-muted);
+  --s: var(--app-surface-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  small { color: var(--c); font-variant-numeric: tabular-nums; }
+  &.is-on { background: var(--s); border-color: var(--c); color: var(--c); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &[data-tom='warning'] { --c: var(--app-warning); --s: var(--app-warning-soft); }
+  &[data-tom='info'] { --c: var(--app-action); --s: var(--app-action-soft); }
+  &[data-tom='danger'] { --c: var(--app-danger); --s: var(--app-danger-soft); border-style: dashed; }
+  &[data-tom='success'] { --c: var(--app-success); --s: var(--app-success-soft); }
+
+  // O que pede ação é o único sólido (padrão da Programação A).
+  &--acao { border-color: var(--c); color: var(--c); }
+  &--acao.is-on { background: var(--c); color: #fff; small { color: #fff; } }
+}
+
+// ── Lista ────────────────────────────────────────────────────────────────────
+.linha { cursor: pointer; &.is-sel > td { background: var(--app-action-soft); } &:focus-visible { outline: 2px solid var(--app-action); } }
+.num { font-variant-numeric: tabular-nums; }
+.sub { display: block; color: var(--app-text-muted); font-size: 12px; }
+// Preço mudado pelo vendedor: a mesma cor de "você mudou" do celular.
+.alterado { color: var(--app-warning); font-weight: 600; }
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+
+  &[data-tom='warning'] { background: var(--app-warning-soft); color: var(--app-warning); }
+  &[data-tom='success'] { background: var(--app-success-soft); color: var(--app-success); }
+  &[data-tom='danger'] { background: var(--app-danger-soft); color: var(--app-danger); }
+  &[data-tom='info'] { background: var(--app-action-soft); color: var(--app-action); }
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 14px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  small { color: var(--app-text-muted); font-size: 13px; }
+}
+
+.cartao__topo { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+
+// ── Painel ───────────────────────────────────────────────────────────────────
+.ctl__painel {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px calc(24px + var(--scroll-end-reserve, 0px));
+  background: var(--app-surface);
+  border-left: 1px solid var(--app-border);
+
+  h3 { margin: 6px 0 -4px; font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--app-text-muted); }
+}
+
+.painel__cab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  > div { flex: 1; min-width: 0; }
+  h2 { margin: 0; font-size: 16px; line-height: 1.3; }
+  small { color: var(--app-text-muted); font-size: 12.5px; }
+}
+
+.painel__fechar {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+}
+
+.bt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &--ok { background: var(--app-success); border-color: var(--app-success); color: #fff; }
+  &:disabled { opacity: .5; cursor: default; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.implantacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-primary);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--app-primary-soft);
+
+  i { color: var(--app-primary); }
+  span { color: var(--app-text-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  b { color: var(--app-primary); font-size: 16px; }
+
+  // Sem data: continua à vista, mas neutro — não é erro, é "a combinar".
+  &--vazia { border-color: var(--app-border); background: var(--app-surface-2); }
+  &--vazia i, &--vazia b { color: var(--app-text-muted); }
+}
+
+.pedido {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--app-warning);
+  border-radius: 12px;
+  background: var(--app-warning-soft);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.confirmar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface-2);
+  font-size: 13.5px;
+
+  textarea {
+    min-height: 80px;
+    padding: 8px 10px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    resize: vertical;
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+}
+
+.difs, .mud ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+
+  li { display: grid; grid-template-columns: minmax(90px, 35%) 1fr; gap: 8px; padding: 7px 10px; border-radius: 8px; background: var(--app-surface-2); }
+  li > span:first-child { color: var(--app-text-muted); }
+  del { color: var(--app-danger); }
+  ins { color: var(--app-success); text-decoration: none; font-weight: 600; }
+}
+
+.dados {
+  display: grid;
+  grid-template-columns: minmax(110px, 38%) 1fr;
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 13px;
+
+  dt { color: var(--app-text-muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+}
+
+.pedido-tab {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+
+  th, td { padding: 6px 4px; border-bottom: 1px solid var(--app-border); text-align: left; vertical-align: top; }
+  th { color: var(--app-text-muted); font-size: 11px; text-transform: uppercase; }
+  tfoot td { border-bottom: 0; }
+}
+
+.hist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--app-border);
+  list-style: none;
+  font-size: 13px;
+
+  small { display: block; color: var(--app-text-muted); }
+}
+
+.mud summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--app-action); padding: 4px 0; }
+.nota { margin: 0; color: var(--app-text-muted); font-size: 13px; }
+
+.aviso {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  &--perigo { background: var(--app-danger-soft); color: var(--app-danger); font-weight: 600; }
+}
+
+// Celular: um de cada vez — o checklist aberto cobre a lista.
+@media (max-width: 768px) {
+  .ctl--aberto { grid-template-columns: minmax(0, 1fr); }
+  .ctl--aberto .ctl__lista { display: none; }
+  .ctl__painel { border-left: 0; padding: 14px 14px calc(24px + var(--scroll-end-reserve, 0px)); }
+  .barra { padding: 10px 12px; }
+  .busca { flex: 1 1 auto; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -12px; padding: 0 12px; }
+  .chip { height: 34px; }
+}

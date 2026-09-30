@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { PerfilComponent } from './perfil.component';
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { SignOutService } from '../../../infrastructure/services/sign-out.service';
 import { MyProfileResponseDto } from '../../../domain/models/profile.model';
 
 /**
@@ -20,6 +21,7 @@ import { MyProfileResponseDto } from '../../../domain/models/profile.model';
  * saiu do desenho.
  */
 describe('PerfilComponent · conta e sessão', () => {
+  const signOut = jasmine.createSpyObj<SignOutService>('SignOutService', ['signOut']);
 
   let fixture: ComponentFixture<PerfilComponent>;
   let perfil: PerfilComponent;
@@ -59,6 +61,8 @@ describe('PerfilComponent · conta e sessão', () => {
             ...auth,
           },
         },
+        // A saída passa pelo aviso de checklist pendente; aqui, só o espião.
+        { provide: SignOutService, useValue: signOut },
         MessageService,
       ],
     }).compileComponents();
@@ -107,6 +111,14 @@ describe('PerfilComponent · conta e sessão', () => {
    * O cartão digital é gated por `canCreateProfile`; a conta não. Quem não
    * pode criar cartão ainda tem login, papéis e sessão.
    */
+  /** Pedido dele (2026-09-30): quem tem checklist pendente é avisado antes de sair. */
+  it('"Sair da conta" passa pelo aviso de checklist pendente, e não sai direto', async () => {
+    await montar();
+    signOut.signOut.calls.reset();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.sair-btn button, button.sair-btn')!.click();
+    expect(signOut.signOut).toHaveBeenCalledTimes(1);
+  });
+
   it('a seção aparece mesmo para quem não pode criar cartão digital', async () => {
     await montar();
 

@@ -16,6 +16,7 @@ import { MessageService } from 'primeng/api';
 
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { SignOutService } from '../../../infrastructure/services/sign-out.service';
 import { urlDeMidia } from '../../../infrastructure/config/media-url';
 import {
   MyProfileResponseDto,
@@ -47,6 +48,7 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
 export class PerfilComponent implements OnInit, OnDestroy {
   private vcardService = inject(VcardService);
   private authService = inject(AuthService);
+  private readonly signOut = inject(SignOutService);
   private toast = inject(MessageService);
 
   data: MyProfileResponseDto | null = null;
@@ -164,9 +166,9 @@ export class PerfilComponent implements OnInit, OnDestroy {
     clearInterval(this.relogio);
   }
 
-  /** Sai da conta encerrando a sessão do lado do servidor também. */
+  /** Sai pelo SignOutService: com checklist pendente, ele avisa antes. */
   logout(): void {
-    this.authService.logoutRemoto().subscribe(() => (window.location.href = '/'));
+    void this.signOut.signOut();
   }
 
   load(): void {

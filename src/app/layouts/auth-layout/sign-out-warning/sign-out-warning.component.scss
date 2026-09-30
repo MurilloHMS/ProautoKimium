@@ -1,0 +1,41 @@
+.aviso-saida {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--app-text);
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--app-surface-2);
+    }
+
+    i { color: var(--app-text-muted); }
+    .perigo i { color: var(--app-danger); }
+  }
+
+  &__texto, &__nota { margin: 0; }
+  &__nota { color: var(--app-text-muted); font-size: 14px; }
+}
+
+// No celular os botões empilham com a largura toda (o pk-sheet já dá 48px);
+// no computador ficam em linha, à direita.
+.aviso-saida__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}

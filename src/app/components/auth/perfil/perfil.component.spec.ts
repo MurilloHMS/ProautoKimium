@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { PerfilComponent } from './perfil.component';
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { SignOutService } from '../../../infrastructure/services/sign-out.service';
 import { MyProfileResponseDto } from '../../../domain/models/profile.model';
 
 /**
@@ -22,6 +23,7 @@ import { MyProfileResponseDto } from '../../../domain/models/profile.model';
  * a pessoa procurar o RH e a pessoa achar que o sistema quebrou.
  */
 describe('PerfilComponent · quando não abre', () => {
+  const signOut = jasmine.createSpyObj<SignOutService>('SignOutService', ['signOut']);
   let fixture: ComponentFixture<PerfilComponent>;
   let component: PerfilComponent;
   let vcard: jasmine.SpyObj<VcardService>;
@@ -60,6 +62,8 @@ describe('PerfilComponent · quando não abre', () => {
             logoutRemoto: () => of(void 0),
           },
         },
+        // A saída passa pelo aviso de checklist pendente; aqui, só o espião.
+        { provide: SignOutService, useValue: signOut },
         { provide: MessageService, useValue: toast },
       ],
     })

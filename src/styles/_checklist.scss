@@ -1,0 +1,268 @@
+// O checklist de vendas no celular (2026-09-30).
+//
+// Quem usa tem de 22 a 65 anos, e parte tem muita dificuldade com tecnologia
+// (dito por ele). Daí as medidas, que valem para todas as etapas:
+//   - campo com 17px e 52px de altura (16px é o mínimo para o iPhone não dar
+//     zoom ao focar; 17px lê melhor na rua);
+//   - rótulo sempre visível em cima, nunca só placeholder;
+//   - erro com ícone e frase, e não só a borda vermelha — cor sozinha some para
+//     quem não distingue vermelho;
+//   - alvos de 48–56px.
+//
+// Mixin, e não classe global: cada etapa inclui no seu :host, e o estilo fica
+// com o encapsulamento do Angular.
+
+@mixin formulario {
+  .ck-corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .ck-pergunta {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--app-text);
+  }
+
+  .ck-ajuda {
+    margin: -10px 0 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--app-text-muted);
+  }
+
+  .ck-subtitulo {
+    margin: 6px 0 -6px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--app-text-muted);
+  }
+
+  .ck-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+
+    > label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--app-text);
+
+      small { font-weight: 500; color: var(--app-text-muted); }
+    }
+  }
+
+  .ck-input {
+    box-sizing: border-box; // não depende do reset do Bootstrap
+    width: 100%;
+    height: 52px;
+    padding: 0 14px;
+    border: 1.5px solid var(--app-border-strong);
+    border-radius: 12px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 17px;
+
+    &::placeholder { color: var(--app-text-subtle); }
+    &:focus-visible { outline: none; border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
+    &.is-erro { border-color: var(--app-danger); }
+    &.is-diverge { border-color: var(--app-warning); background: var(--app-warning-soft); }
+  }
+
+  // O campo de data nativo tem largura mínima própria, calculada pelo conteúdo, e
+  // não encolhe com width: 100% — no celular ele passava da tela e criava
+  // rolagem de lado (relato dele, 2026-09-30). Sem a aparência nativa ele vira
+  // uma caixa como as outras; o calendário que abre ao tocar continua o do celular.
+  input[type='date'].ck-input {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 49px; // o iPhone centraliza o texto pela linha, não pela altura
+
+    &::-webkit-date-and-time-value { text-align: left; }
+  }
+
+  textarea.ck-input {
+    height: auto;
+    min-height: 96px;
+    padding: 12px 14px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  .ck-erro {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--app-danger);
+
+    i { margin-top: 2px; font-size: 13px; }
+  }
+
+  .ck-diverge {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--app-warning);
+  }
+
+  .ck-dois {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  // Um bloco que agrupa (uma máquina, um produto do pedido).
+  .ck-cartao {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--app-border);
+    border-radius: 16px;
+    background: var(--app-surface);
+  }
+
+  .ck-cartao__cab {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    b { font-size: 16px; }
+  }
+
+  // Botão de ação secundária de largura toda: "+ Outra máquina", "Não achei".
+  .ck-botao-sec {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1.5px dashed var(--app-border-strong);
+    border-radius: 14px;
+    background: var(--app-surface);
+    color: var(--app-action);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+
+  // Link de texto grande: "Tirar", "Trocar cliente".
+  .ck-link {
+    min-height: 44px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--app-action);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &--perigo { color: var(--app-danger); }
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); border-radius: 8px; }
+  }
+
+  .ck-busca {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    padding: 0 14px;
+    border: 1.5px solid var(--app-action);
+    border-radius: 12px;
+    background: var(--app-surface);
+
+    i { color: var(--app-text-muted); font-size: 16px; }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--app-text);
+      font: inherit;
+      font-size: 17px;
+
+      &:focus { outline: none; }
+    }
+  }
+
+  // Um resultado de busca que se toca para escolher.
+  .ck-resultado {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 14px;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+    b { font-size: 16px; line-height: 1.3; }
+    small { font-size: 13px; line-height: 1.35; color: var(--app-text-muted); }
+
+    &.is-on { border-color: var(--app-action); box-shadow: inset 0 0 0 1px var(--app-action); }
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+
+  .ck-marca {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--app-action);
+    color: var(--app-on-action);
+    font-size: 20px;
+    font-weight: 700;
+
+    &--ok { background: var(--app-success-soft); color: var(--app-success); }
+  }
+
+  .ck-aviso {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--app-warning-soft);
+    color: var(--app-text);
+    font-size: 14px;
+    line-height: 1.45;
+
+    i { color: var(--app-warning); margin-top: 2px; }
+    &--info { background: var(--app-action-soft); i { color: var(--app-action); } }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+}

@@ -1,0 +1,172 @@
+@switch (modo()) {
+  @case ('formulario') {
+    @if (aberto(); as r) {
+      <app-checklist-formulario [rascunho]="r" (fechar)="voltarAoInicio()" (enviado)="concluido($event)" />
+    }
+  }
+
+  @case ('fim') {
+    <div class="fim">
+      @if (foiAgora()) {
+        <div class="fim__icone fim__icone--ok" aria-hidden="true">✓</div>
+        <h2>Checklist enviado!</h2>
+        <p>A Controladoria recebeu e vai conferir. Você recebe um aviso quando ela responder.</p>
+      } @else {
+        <div class="fim__icone fim__icone--espera" aria-hidden="true">⏳</div>
+        <h2>Guardado no celular</h2>
+        <p>Você está sem internet. <b>Não precisa fazer nada:</b> o checklist vai ser enviado sozinho quando a internet voltar.</p>
+        <p class="fim__menor">Pode fechar o aplicativo. Nada se perde.</p>
+      }
+      <button type="button" class="btn-grande" (click)="voltarAoInicio()">Voltar ao início</button>
+    </div>
+  }
+
+  @case ('detalhe') {
+    <div class="det">
+      <header class="det__topo">
+        <button type="button" class="det__voltar" aria-label="Voltar para a lista" (click)="voltarAoInicio()">‹</button>
+        <h2>Checklist @if (detalhe()?.summary?.number) { nº {{ detalhe()!.summary.number }} }</h2>
+      </header>
+
+      <div class="det__corpo">
+        @if (carregando()) {
+          <p class="nota">Abrindo…</p>
+        } @else if (erro() && !detalhe()) {
+          <p class="aviso aviso--perigo" role="alert">{{ erro() }}</p>
+          @if (!store.online()) { <p class="nota">Para ver os detalhes de um checklist enviado, é preciso internet.</p> }
+        } @else if (detalhe(); as d) {
+          <section class="cartao">
+            <span class="tag" [attr.data-tom]="status[d.summary.status].tone">{{ status[d.summary.status].label }}</span>
+            <b class="cartao__nome">{{ d.summary.customerName }}</b>
+            <small>Enviado em {{ d.summary.lastSubmittedAt | date: 'dd/MM/yyyy HH:mm' }} · versão {{ d.summary.version }}</small>
+            @if (d.summary.hasOrder) { <small>Pedido: {{ d.summary.orderTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</small> }
+          </section>
+
+          @if (d.summary.reviewNotes && (d.summary.status === 'RETURNED' || d.summary.status === 'REOPENED' || d.summary.status === 'APPROVED')) {
+            <p class="aviso"><b>A Controladoria escreveu:</b> "{{ d.summary.reviewNotes }}"</p>
+          }
+          @if (d.summary.status === 'CHANGE_REQUESTED') {
+            <p class="aviso">Você pediu alteração: "{{ d.summary.changeReason }}". Aguarde a resposta da Controladoria.</p>
+          }
+
+          @if (editavel(d.summary.status)) {
+            <button type="button" class="btn-grande" (click)="corrigirEnviado()">Corrigir agora</button>
+          }
+
+          <button type="button" class="btn-sec" (click)="comprovante(d.summary.id)">📄 Ver comprovante (PDF)</button>
+
+          @if (podePedirAlteracao(d)) {
+            @if (!pedindoAlteracao()) {
+              <button type="button" class="btn-sec" (click)="pedindoAlteracao.set(true)">Pedir alteração à Controladoria</button>
+            } @else {
+              <section class="cartao">
+                <label for="ck-motivo" class="cartao__nome">O que precisa mudar?</label>
+                <p class="nota">A Controladoria recebe o pedido e libera (ou não). Liberado, você altera e envia de novo.</p>
+                <textarea id="ck-motivo" class="texto" rows="3" maxlength="500" placeholder="Ex.: o cliente pediu mais 2 diluidores"
+                          [value]="motivo()" (input)="motivo.set($any($event.target).value)"></textarea>
+                <div class="dupla">
+                  <button type="button" class="btn-sec" (click)="pedindoAlteracao.set(false)">Cancelar</button>
+                  <button type="button" class="btn-grande" [disabled]="!motivo().trim() || processando()" (click)="enviarPedido()">
+                    {{ processando() ? 'Enviando…' : 'Enviar pedido' }}</button>
+                </div>
+              </section>
+            }
+          }
+          @if (erro()) { <p class="aviso aviso--perigo" role="alert">{{ erro() }}</p> }
+
+          <section class="cartao">
+            <b class="cartao__nome">Histórico</b>
+            <ol class="hist">
+              @for (e of d.events; track $index) {
+                <li><b>{{ eventos[e.type] }}</b> · {{ e.actorName }}
+                  <small>{{ e.createdAt | date: 'dd/MM/yyyy HH:mm' }}@if (e.notes) { · "{{ e.notes }}" }</small></li>
+              }
+            </ol>
+          </section>
+        }
+      </div>
+    </div>
+  }
+
+  @default {
+    <div class="ini">
+      <header class="ini__cab">
+        <div>
+          <h1>Checklists</h1>
+          <small>
+            @if (store.baixandoCatalogo()) { Atualizando clientes e produtos… }
+            @else if (store.catalogoBaixadoEm()) { Clientes e produtos atualizados em {{ store.catalogoBaixadoEm() | date: 'dd/MM HH:mm' }} }
+            @else { Clientes e produtos ainda não baixados neste celular }
+          </small>
+        </div>
+        <button type="button" class="ini__novo" (click)="novo()">＋ Novo checklist</button>
+      </header>
+
+      <div class="ini__corpo">
+        @if (!store.online()) {
+          <p class="aviso" role="status"><b>Sem internet agora.</b> Você pode preencher normalmente. Os checklists guardados são enviados sozinhos quando a internet voltar.</p>
+        }
+        @if (store.erroCatalogo(); as e) { <p class="aviso aviso--perigo" role="alert">{{ e }}</p> }
+
+        @if (store.recusados().length) {
+          <h2 class="sub">Precisam de correção</h2>
+          @for (f of store.recusados(); track f.id) {
+            <article class="cartao cartao--perigo">
+              <b class="cartao__nome">{{ f.envio.content.customer?.name || 'Cliente sem nome' }}</b>
+              <small class="cartao__recusa">{{ f.recusa }}</small>
+              <button type="button" class="btn-grande" (click)="corrigirRecusado(f)">Abrir e corrigir</button>
+            </article>
+          }
+        }
+
+        @if (store.aguardando().length) {
+          <h2 class="sub">Aguardando internet</h2>
+          @for (f of store.aguardando(); track f.id) {
+            <article class="cartao">
+              <div class="cartao__topo"><b class="cartao__nome">{{ f.envio.content.customer?.name || 'Cliente sem nome' }}</b>
+                <span class="tag" data-tom="warning">⏳ Vai enviar</span></div>
+              <small>Guardado em {{ f.guardadoEm | date: 'dd/MM HH:mm' }}@if (f.envio.content.order?.enabled) { · com pedido }</small>
+            </article>
+          }
+          @if (store.online()) {
+            <button type="button" class="btn-sec" [disabled]="store.enviando()" (click)="store.enviarFila()">
+              {{ store.enviando() ? 'Enviando…' : 'Enviar agora' }}</button>
+          }
+        }
+
+        @if (store.rascunhos().length) {
+          <h2 class="sub">Em preenchimento</h2>
+          @for (r of store.rascunhos(); track r.id) {
+            <article class="cartao">
+              <button type="button" class="cartao__abrir" (click)="abrir(r)">
+                <span class="cartao__topo"><b class="cartao__nome">{{ r.conteudo.customer?.name || 'Checklist sem cliente ainda' }}</b>
+                  <span class="tag" data-tom="neutral">Etapa {{ r.etapa }} de 8</span></span>
+                <small>Salvo em {{ r.salvoEm | date: 'dd/MM HH:mm' }}@if (r.motivo) { · correção pedida }</small>
+                <span class="cartao__continuar">Continuar ›</span>
+              </button>
+              @if (confirmarDescarte() === r.id) {
+                <div class="dupla">
+                  <button type="button" class="btn-sec" (click)="confirmarDescarte.set(null)">Manter</button>
+                  <button type="button" class="btn-perigo" (click)="descartar(r.id)">Apagar de vez</button>
+                </div>
+              } @else if (r.revision === 1) {
+                <button type="button" class="link-perigo" (click)="confirmarDescarte.set(r.id)">Apagar este rascunho</button>
+              }
+            </article>
+          }
+        }
+
+        <h2 class="sub">Enviados</h2>
+        @for (e of enviados(); track e.id) {
+          <button type="button" class="cartao cartao__abrir" (click)="verEnviado(e)">
+            <span class="cartao__topo"><b class="cartao__nome">{{ e.customerName }}</b>
+              <span class="tag" [attr.data-tom]="status[e.status].tone">{{ status[e.status].label }}</span></span>
+            <small>@if (e.number) { Nº {{ e.number }} · }Enviado em {{ e.lastSubmittedAt | date: 'dd/MM/yyyy' }}@if (e.hasOrder) { · {{ e.orderTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }} }</small>
+          </button>
+        } @empty {
+          <p class="nota">Nenhum checklist enviado ainda. Toque em <b>Novo checklist</b> para começar.</p>
+        }
+      </div>
+    </div>
+  }
+}

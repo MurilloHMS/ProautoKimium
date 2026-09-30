@@ -136,6 +136,12 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Hub de Abastecimento', icon: 'pi pi-fw pi-chart-line', routerLink: ['company/fuel-hub'], screen: 'company/fuel-hub' },
       { label: 'Guia de Utilização', icon: 'pi pi-fw pi-book', routerLink: ['company/guide'], screen: 'company/guide' },
       { label: 'Equipamentos', icon: 'pi pi-fw pi-hammer', routerLink: ['company/equipments'], screen: 'company/equipments' },
+      // Checklist de vendas (2026-09-30). Aqui, e não num grupo "Vendas": são
+      // nove cores de apoio da marca para nove grupos, e um décimo não teria cor
+      // própria. Nas permissões as telas ficam no módulo Vendas.
+      { label: 'Checklist de vendas', icon: 'pi pi-fw pi-clipboard', routerLink: ['vendas/checklist'], screen: 'vendas/checklist' },
+      { label: 'Checklists (Controladoria)', icon: 'pi pi-fw pi-check-square', routerLink: ['vendas/checklists'], screen: 'vendas/checklists' },
+      { label: 'Cadastros do checklist', icon: 'pi pi-fw pi-list-check', routerLink: ['vendas/checklist-cadastros'], screen: 'vendas/checklist-cadastros' },
     ],
   },
   {
