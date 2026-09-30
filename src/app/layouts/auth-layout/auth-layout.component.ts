@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { RouterOutlet } from '@angular/router';
 
 import { NotificationService } from '../../infrastructure/services/notification.service';
@@ -10,6 +11,8 @@ import { TabBarComponent } from './tab-bar/tab-bar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { InstalarComponent } from '../../components/shared/instalar/instalar.component';
 import { ehCelular } from '../../infrastructure/state/eh-celular';
+import { PermissionStore } from '../../infrastructure/state/permission.store';
+import { ChecklistOfflineStore } from '../../infrastructure/state/checklist-offline.store';
 
 /** Shell da área autenticada: topbar + drawer + conteúdo + bottom nav (mobile). */
 @Component({
@@ -25,6 +28,8 @@ import { ehCelular } from '../../infrastructure/state/eh-celular';
 export class AuthLayoutComponent implements OnInit, OnDestroy {
 
   private readonly notifications = inject(NotificationService);
+  private readonly permissions = inject(PermissionStore);
+  private readonly checklist = inject(ChecklistOfflineStore);
 
   readonly tabs = inject(TabsService);
 
@@ -42,6 +47,22 @@ export class AuthLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.notifications.start();
+    void this.acordarChecklist();
+  }
+
+  /**
+   * Checklist guardado no celular sai sozinho quando o vendedor entra no
+   * sistema, em qualquer tela — e não só quando ele abre a do checklist. Só
+   * para quem tem a tela: os outros não precisam do catálogo de 3 MB.
+   */
+  private async acordarChecklist(): Promise<void> {
+    try {
+      // ensureLoaded devolve Observable: sem firstValueFrom, o await não espera nada.
+      await firstValueFrom(this.permissions.ensureLoaded());
+      if (this.permissions.canOpen('vendas/checklist')) await this.checklist.iniciar();
+    } catch {
+      // Sem permissões carregadas não há o que acordar; a tela do checklist tenta de novo.
+    }
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,5 @@
+@use 'checklist' as ck;
+
+:host { display: block; }
+
+@include ck.formulario;

@@ -1,0 +1,245 @@
+// A tela do vendedor, feita para o celular (2026-09-30). O topo usa a cor da
+// marca, como no mockup; o resto são cartões grandes, um toque cada.
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--app-bg);
+  font-size: 16px;
+}
+
+.ini, .det { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+
+.ini__cab {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 20px;
+  background: var(--app-action);
+  color: var(--app-on-action);
+
+  h1 { margin: 0; font-size: 22px; }
+  small { opacity: .85; font-size: 13.5px; }
+}
+
+.ini__novo {
+  height: 60px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--app-surface);
+  color: var(--app-action);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 800;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--app-surface), 0 0 0 5px var(--app-on-action); }
+}
+
+.ini__corpo, .det__corpo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px calc(24px + var(--scroll-end-reserve, 0px));
+
+  > * { width: 100%; max-width: 640px; margin-inline: auto; }
+}
+
+.sub {
+  margin: 8px auto -2px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+
+  small { font-size: 13.5px; color: var(--app-text-muted); line-height: 1.4; }
+  &--perigo { border-color: var(--app-danger); }
+}
+
+.cartao__abrir {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &.cartao { padding: 14px; border: 1px solid var(--app-border); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); border-radius: 12px; }
+}
+
+.cartao__topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.cartao__nome { font-size: 16.5px; line-height: 1.3; }
+.cartao__recusa { color: var(--app-danger) !important; font-weight: 600; }
+.cartao__continuar { color: var(--app-action); font-weight: 700; font-size: 15px; }
+
+// O selo na cor do status (os mesmos tokens do .status-chip).
+.tag {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+
+  &[data-tom='warning'] { background: var(--app-warning-soft); color: var(--app-warning); }
+  &[data-tom='success'] { background: var(--app-success-soft); color: var(--app-success); }
+  &[data-tom='danger'] { background: var(--app-danger-soft); color: var(--app-danger); }
+  &[data-tom='info'] { background: var(--app-action-soft); color: var(--app-action); }
+}
+
+.aviso {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--app-warning-soft);
+  color: var(--app-text);
+  font-size: 14.5px;
+  line-height: 1.45;
+
+  b { color: var(--app-warning); }
+  &--perigo { background: var(--app-danger-soft); color: var(--app-danger); font-weight: 600; }
+}
+
+.nota { margin: 0; font-size: 14px; color: var(--app-text-muted); line-height: 1.45; }
+
+.btn-grande, .btn-sec, .btn-perigo {
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled { opacity: .45; cursor: default; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.btn-grande { border: 0; background: var(--app-action); color: var(--app-on-action); }
+.btn-sec { border: 1.5px solid var(--app-border-strong); background: var(--app-surface); color: var(--app-text); }
+.btn-perigo { border: 0; background: var(--app-danger); color: #fff; }
+
+.link-perigo {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--app-danger);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dupla { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.texto {
+  width: 100%;
+  min-height: 96px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--app-border-strong);
+  border-radius: 12px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 17px;
+  resize: vertical;
+
+  &:focus-visible { outline: none; border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
+}
+
+// ── Detalhe ──────────────────────────────────────────────────────────────────
+.det__topo {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+
+  h2 { margin: 0; font-size: 19px; }
+}
+
+.det__voltar {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.hist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-left: 2px solid var(--app-border);
+  list-style: none;
+  font-size: 14.5px;
+
+  small { display: block; }
+}
+
+// ── Fim ──────────────────────────────────────────────────────────────────────
+.fim {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 20px;
+  text-align: center;
+
+  h2 { margin: 0; font-size: 24px; }
+  p { margin: 0; max-width: 32ch; font-size: 16.5px; line-height: 1.5; color: var(--app-text-muted); }
+  .btn-grande { max-width: 360px; margin-top: 8px; }
+}
+
+.fim__menor { font-size: 14.5px !important; }
+
+.fim__icone {
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 44px;
+
+  &--ok { background: var(--app-success-soft); color: var(--app-success); }
+  &--espera { background: var(--app-warning-soft); color: var(--app-warning); }
+}

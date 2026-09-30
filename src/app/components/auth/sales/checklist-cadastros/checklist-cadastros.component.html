@@ -1,0 +1,75 @@
+<div class="cad">
+  <div class="abas" role="tablist" aria-label="Cadastros do checklist">
+    <button type="button" role="tab" [attr.aria-selected]="aba() === 'visual'" [class.is-on]="aba() === 'visual'" (click)="aba.set('visual')">
+      <i class="pi pi-image" aria-hidden="true"></i> Comunicação visual</button>
+    <button type="button" role="tab" [attr.aria-selected]="aba() === 'comodato'" [class.is-on]="aba() === 'comodato'" (click)="aba.set('comodato')">
+      <i class="pi pi-box" aria-hidden="true"></i> Equipamentos de comodato</button>
+  </div>
+
+  <div class="cad__corpo">
+    @if (erro()) { <p class="msg msg--erro" role="alert">{{ erro() }}</p> }
+    @if (ok()) { <p class="msg msg--ok" role="status">{{ ok() }}</p> }
+
+    @if (aba() === 'visual') {
+      <p class="ajuda">A lista que o vendedor vê na etapa 6. Desative o que não se usa mais — checklists antigos continuam mostrando o item.</p>
+      <div class="novo" *pkCan="'vendas/checklist-cadastros:INCLUIR'">
+        <input type="text" aria-label="Nome do item novo" placeholder="Nome do item novo (ex.: Guia de utilização açougue)" maxlength="150"
+               [value]="novoVisual()" (input)="novoVisual.set($any($event.target).value)" (keydown.enter)="criarVisual()" />
+        <button type="button" class="bt bt--pri" [disabled]="!novoVisual().trim()" (click)="criarVisual()">Incluir</button>
+      </div>
+      <table class="tab">
+        <thead><tr><th>Item</th><th style="width:90px">Ordem</th><th style="width:110px">Ativo</th></tr></thead>
+        <tbody>
+          @for (v of visuais(); track v.id) {
+            <tr [class.is-inativo]="!v.active">
+              <td><input type="text" [attr.aria-label]="'Nome de ' + v.name" [value]="v.name" maxlength="150"
+                         (change)="salvarVisual(v, { name: $any($event.target).value })" /></td>
+              <td><input type="number" [attr.aria-label]="'Ordem de ' + v.name" [value]="v.sortOrder"
+                         (change)="salvarVisual(v, { sortOrder: numero($any($event.target).value) })" /></td>
+              <td><button type="button" class="bt" [attr.aria-pressed]="v.active" (click)="salvarVisual(v, { active: !v.active })">
+                {{ v.active ? 'Ativo' : 'Inativo' }}</button></td>
+            </tr>
+          } @empty { <tr><td colspan="3" class="vazio">{{ carregando() ? 'Carregando…' : 'Nenhum item.' }}</td></tr> }
+        </tbody>
+      </table>
+    } @else {
+      <p class="ajuda">O que o vendedor pode pôr em comodato (etapa 5). O nome popular é por onde ele procura: "dosador frigorífico" acha a bomba Tekna.</p>
+      <div *pkCan="'vendas/checklist-cadastros:INCLUIR'">
+        @if (!adicionando()) {
+          <button type="button" class="bt bt--pri" (click)="abrirAdicionar()"><i class="pi pi-plus" aria-hidden="true"></i> Adicionar do Sankhya</button>
+        } @else {
+          <div class="add">
+            <div class="novo">
+              <input type="search" aria-label="Buscar produto no Sankhya" placeholder="Buscar nos grupos de comodato, lavanderia e embalagem"
+                     [value]="buscaCandidato()" (input)="buscaCandidato.set($any($event.target).value)" />
+              <button type="button" class="bt" (click)="adicionando.set(false)">Fechar</button>
+            </div>
+            <ul class="cands">
+              @for (c of candidatosFiltrados(); track c.productCode) {
+                <li><span><b>{{ c.name }}</b><small>código {{ c.productCode }}</small></span>
+                  <button type="button" class="bt" (click)="adicionarComodato(c)">Incluir</button></li>
+              } @empty { <li class="vazio">Nenhum produto disponível com essa busca.</li> }
+            </ul>
+          </div>
+        }
+      </div>
+      <table class="tab">
+        <thead><tr><th style="width:80px">Código</th><th>No Sankhya</th><th>Nome popular</th><th style="width:90px">Ordem</th><th style="width:110px">Ativo</th></tr></thead>
+        <tbody>
+          @for (c of comodatos(); track c.id) {
+            <tr [class.is-inativo]="!c.active">
+              <td class="num">{{ c.productCode }}</td>
+              <td>{{ c.erpName ?? 'Não está mais ativo no Sankhya' }}</td>
+              <td><input type="text" [attr.aria-label]="'Nome popular de ' + (c.erpName ?? c.productCode)" [value]="c.popularName ?? ''" maxlength="100"
+                         (change)="salvarComodato(c, { popularName: $any($event.target).value })" /></td>
+              <td><input type="number" [attr.aria-label]="'Ordem de ' + c.productCode" [value]="c.sortOrder"
+                         (change)="salvarComodato(c, { sortOrder: numero($any($event.target).value) })" /></td>
+              <td><button type="button" class="bt" [attr.aria-pressed]="c.active" (click)="salvarComodato(c, { active: !c.active })">
+                {{ c.active ? 'Ativo' : 'Inativo' }}</button></td>
+            </tr>
+          } @empty { <tr><td colspan="5" class="vazio">{{ carregando() ? 'Carregando…' : 'Nenhum equipamento.' }}</td></tr> }
+        </tbody>
+      </table>
+    }
+  </div>
+</div>

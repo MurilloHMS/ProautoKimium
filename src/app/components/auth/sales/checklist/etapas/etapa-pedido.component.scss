@@ -1,0 +1,43 @@
+@use 'checklist' as ck;
+
+:host { display: block; }
+
+@include ck.formulario;
+
+.origem {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--cliente { background: var(--app-success-soft); color: var(--app-success); }
+}
+
+.conta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.valor { font-size: 18px; font-variant-numeric: tabular-nums; }
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--app-action-soft);
+
+  span { font-weight: 600; color: var(--app-text-muted); }
+  strong { font-size: 22px; color: var(--app-action); font-variant-numeric: tabular-nums; }
+}

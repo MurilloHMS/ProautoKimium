@@ -1,0 +1,62 @@
+<div class="ck-corpo">
+  <p class="ck-ajuda" style="margin:0">Escolha o que vai para o cliente em comodato. Se não vai nada, é só continuar.</p>
+
+  @if (k().items.length) {
+    <p class="ck-subtitulo">Já escolhidos</p>
+    @for (item of k().items; track item.productCode) {
+      <div class="ck-cartao">
+        <div class="ck-cartao__cab">
+          <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+            <b>{{ item.popularName || item.name }}</b>
+            @if (item.popularName) { <small style="color:var(--app-text-muted);font-size:13px">{{ item.name }}</small> }
+          </span>
+          <ck-quantidade [minimo]="1" [rotulo]="item.popularName || item.name" [valor]="item.quantity" (valorChange)="quantidade(item.productCode, $event)" />
+        </div>
+        <button type="button" class="ck-link ck-link--perigo" style="align-self:flex-start" (click)="tirar(item.productCode)">Tirar</button>
+      </div>
+    }
+  }
+
+  @if (s.indice()) {
+    <label class="ck-busca">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input type="search" aria-label="Buscar equipamento" placeholder="Ex.: dosador, diluidor, suporte" autocomplete="off"
+             [value]="busca()" (input)="busca.set($any($event.target).value)" />
+    </label>
+    @for (item of resultados(); track item.productCode) {
+      <button type="button" class="ck-resultado" (click)="pegar(item)">
+        <span>
+          <b>{{ item.popularName || item.name }}</b>
+          @if (item.popularName) { <small>{{ item.name }}</small> }
+        </span>
+        <span class="ck-marca" aria-hidden="true">+</span>
+      </button>
+    } @empty {
+      @if (busca()) { <p class="ck-ajuda" style="margin:0">Nada com "{{ busca() }}" na lista. Use "Não achei na lista".</p> }
+    }
+  } @else {
+    <p class="ck-aviso"><i class="pi pi-info-circle" aria-hidden="true"></i>
+      <span>A lista de equipamentos ainda não foi baixada neste celular. Use "Não achei na lista" para escrever o item.</span></p>
+  }
+
+  @for (x of k().extraItems; track $index; let n = $index) {
+    <div class="ck-cartao">
+      <div class="ck-campo">
+        <label [for]="'ck-extra-' + n">Item que não estava na lista</label>
+        <input [id]="'ck-extra-' + n" class="ck-input" autocomplete="off" [class.is-erro]="!!s.erro(5, 'extra' + n)"
+               [value]="x.description" (input)="extra(n, 'description', $any($event.target).value)" />
+        @if (s.erro(5, 'extra' + n); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+      </div>
+      <div class="ck-cartao__cab">
+        <button type="button" class="ck-link ck-link--perigo" (click)="tirarExtra(n)">Tirar</button>
+        <ck-quantidade [minimo]="1" [rotulo]="x.description || 'item'" [valor]="x.quantity" (valorChange)="extra(n, 'quantity', $event)" />
+      </div>
+    </div>
+  }
+  <button type="button" class="ck-botao-sec" (click)="naoAchei()"><i class="pi pi-plus" aria-hidden="true"></i> Não achei na lista</button>
+
+  <div class="ck-campo">
+    <label for="ck-obs-comodato">Observações <small>(se tiver)</small></label>
+    <textarea id="ck-obs-comodato" class="ck-input" rows="3" [value]="k().notes ?? ''" (input)="notas($any($event.target).value)"></textarea>
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="ckf">
+  <header class="ckf__topo">
+    <div class="ckf__linha">
+      <button type="button" class="ckf__voltar" (click)="voltar()"
+              [attr.aria-label]="etapa() > 1 ? 'Voltar para a etapa ' + (etapa() - 1) : 'Sair do checklist (fica salvo)'">‹</button>
+      <div class="ckf__titulo">
+        <span class="ckf__etapa">Etapa {{ etapa() }} de {{ etapas.length }}</span>
+        <h2>{{ info().titulo }}</h2>
+      </div>
+      <button type="button" class="ckf__sair" (click)="sair()">Sair</button>
+    </div>
+    <div class="ckf__barra" role="progressbar" [attr.aria-valuenow]="etapa()" aria-valuemin="1" [attr.aria-valuemax]="etapas.length"
+         [attr.aria-label]="'Etapa ' + etapa() + ' de ' + etapas.length"><i [style.width.%]="progresso()"></i></div>
+
+    @if (falhaAoSalvar()) {
+      <p class="ckf__faixa ckf__faixa--perigo" role="alert">Não foi possível salvar neste celular. Não feche o aplicativo antes de enviar.</p>
+    } @else if (store.persistente()) {
+      <span class="ckf__salvo" [class.is-salvando]="!salvo()" aria-live="polite">
+        {{ salvo() ? '✓ Salvo neste celular' : 'Salvando…' }}
+      </span>
+    } @else {
+      <p class="ckf__faixa ckf__faixa--perigo" role="alert">Este navegador não deixa guardar no celular. Não feche o aplicativo antes de enviar.</p>
+    }
+    @if (!store.online()) {
+      <p class="ckf__faixa" role="status"><b>Sem internet agora.</b> Pode continuar: tudo fica salvo neste celular e é enviado sozinho quando a internet voltar.</p>
+    }
+    @if (recusa(); as r) {
+      <p class="ckf__faixa ckf__faixa--perigo" role="alert"><b>Não foi enviado.</b> O servidor recusou: "{{ r }}" Corrija e envie de novo.</p>
+    } @else if (rascunho().motivo) {
+      <p class="ckf__faixa ckf__faixa--motivo" role="note"><b>A Controladoria pediu:</b> "{{ rascunho().motivo }}"</p>
+    }
+  </header>
+
+  <main class="ckf__corpo" #corpo>
+    @switch (etapa()) {
+      @case (1) { <ck-etapa-cliente /> }
+      @case (2) { <ck-etapa-endereco /> }
+      @case (3) { <ck-etapa-contrato /> }
+      @case (4) { <ck-etapa-instalacao /> }
+      @case (5) { <ck-etapa-comodato /> }
+      @case (6) { <ck-etapa-visual /> }
+      @case (7) { <ck-etapa-pedido /> }
+      @case (8) { <ck-etapa-revisao (irPara)="ir($event)" /> }
+    }
+  </main>
+
+  <footer class="ckf__pe">
+    @if (etapa() > 1) {
+      <button type="button" class="ckf__btn ckf__btn--sec" aria-label="Voltar para a etapa anterior" (click)="voltar()">‹</button>
+    }
+    @if (etapa() < etapas.length) {
+      <button type="button" class="ckf__btn" (click)="continuar()">Continuar</button>
+    } @else {
+      <button type="button" class="ckf__btn ckf__btn--enviar" [disabled]="s.problemas().length > 0 || enviando()"
+              [attr.aria-disabled]="s.problemas().length > 0" (click)="enviar()">
+        {{ enviando() ? 'Enviando…' : 'Enviar checklist' }}
+      </button>
+    }
+  </footer>
+</div>

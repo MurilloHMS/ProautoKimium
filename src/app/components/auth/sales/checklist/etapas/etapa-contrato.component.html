@@ -1,0 +1,23 @@
+<div class="ck-corpo">
+  @if (!s.conteudo().customer) {
+    <p class="ck-aviso"><i class="pi pi-info-circle" aria-hidden="true"></i>
+      <span>Escolha o cliente na etapa 1 antes de preencher o contrato.</span></p>
+  } @else {
+    <p class="ck-ajuda" style="margin:0">Tudo nesta etapa é obrigatório: vai para o cadastro e para o contrato do cliente.</p>
+    @for (d of campos; track d.campo) {
+      <div class="ck-campo">
+        <label [for]="'ck-' + d.campo">{{ d.rotulo }}</label>
+        @if (d.ajuda) { <p class="ck-ajuda" style="margin:0">{{ d.ajuda }}</p> }
+        <input [id]="'ck-' + d.campo" class="ck-input" [attr.inputmode]="d.teclado" [type]="d.teclado === 'email' ? 'email' : 'text'"
+               [attr.autocomplete]="d.auto" [placeholder]="d.exemplo" autocapitalize="off"
+               [class.is-erro]="!!s.erro(3, d.erro)" [class.is-diverge]="!!diverge(d)"
+               [value]="valor(d)" (input)="mudar(d, $any($event.target).value)" />
+        @if (d.campo === 'stateRegistration') {
+          <button type="button" class="ck-link" style="align-self:flex-start" (click)="isento()">ISENTO</button>
+        }
+        @if (s.erro(3, d.erro); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+        @if (diverge(d); as antes) { <p class="ck-diverge">✎ Você mudou. No Sankhya está "{{ antes }}".</p> }
+      </div>
+    }
+  }
+</div>

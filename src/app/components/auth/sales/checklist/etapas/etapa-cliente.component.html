@@ -1,0 +1,64 @@
+<div class="ck-corpo">
+  @if (escolhido(); as c) {
+    @if (!novo()) {
+      <p class="ck-pergunta">Cliente escolhido</p>
+      <div class="ck-resultado is-on" role="status">
+        <span>
+          <b>{{ c.name }}</b>
+          <small>{{ doc(c.document ?? '') }} · código {{ c.code }}</small>
+        </span>
+        <span class="ck-marca ck-marca--ok" aria-hidden="true">✓</span>
+      </div>
+      <button type="button" class="ck-link" (click)="trocar()">Trocar de cliente</button>
+    } @else {
+      <p class="ck-pergunta">Cliente novo</p>
+      <p class="ck-ajuda">Os outros dados (endereço, CNPJ, contato) vêm nas próximas etapas.</p>
+      <div class="ck-campo">
+        <label for="ck-nome">Nome do cliente</label>
+        <input id="ck-nome" class="ck-input" [class.is-erro]="!!s.erro(1, 'nome')" autocomplete="off"
+               placeholder="Ex.: Padaria Bom Pão" [value]="c.name ?? ''" (input)="nomeDoNovo($any($event.target).value)" />
+        @if (s.erro(1, 'nome'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+      </div>
+      <div class="ck-campo">
+        <label for="ck-razao">Razão social <small>(se souber)</small></label>
+        <input id="ck-razao" class="ck-input" autocomplete="off" [value]="c.legalName ?? ''"
+               (input)="razaoDoNovo($any($event.target).value)" />
+      </div>
+      <button type="button" class="ck-link" (click)="trocar()">Procurar na lista de clientes</button>
+    }
+  } @else {
+    @if (!s.indice()) {
+      <p class="ck-aviso">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        <span>A lista de clientes ainda não foi baixada neste celular. Ela baixa sozinha na primeira vez que houver internet.
+          Sem ela, você pode cadastrar como cliente novo.</span>
+      </p>
+    } @else {
+      <label class="ck-busca">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input type="search" aria-label="Buscar cliente" placeholder="Nome, código ou CNPJ" autocomplete="off"
+               [value]="busca()" (input)="buscar($any($event.target).value)" />
+      </label>
+      <p class="ck-ajuda">Digite o nome, o código ou o CNPJ do cliente.</p>
+
+      @for (c of resultados(); track c.code) {
+        <button type="button" class="ck-resultado" (click)="s.escolherCliente(c)">
+          <span>
+            <b>{{ c.name }}</b>
+            <small>{{ doc(c.document ?? '') }}@if (c.city) { · {{ c.city }}/{{ c.state }} } · código {{ c.code }}</small>
+          </span>
+          <span class="ck-marca" aria-hidden="true">›</span>
+        </button>
+      } @empty {
+        @if (busca().length >= 2) {
+          <p class="ck-ajuda" style="margin:0">Nenhum cliente com "{{ busca() }}". Confira o nome ou cadastre como cliente novo.</p>
+        }
+      }
+    }
+
+    <button type="button" class="ck-botao-sec" (click)="s.clienteNovo(busca())">
+      <i class="pi pi-plus" aria-hidden="true"></i> É um cliente novo
+    </button>
+    @if (s.erro(1, 'cliente'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+  }
+</div>

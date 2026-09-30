@@ -1,0 +1,46 @@
+<div class="ck-corpo">
+  <p class="ck-pergunta">O pedido vai junto com a manutenção?</p>
+  <ck-sim-nao rotulo="O pedido vai junto com a manutenção?" [valor]="i.withMaintenance" (valorChange)="responder('withMaintenance', $event)" />
+  @if (s.erro(4, 'manutencao'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+  <p class="ck-pergunta">Vai precisar de máquina no cliente?</p>
+  <ck-sim-nao rotulo="Vai precisar de máquina no cliente?" [valor]="i.needsMachine" (valorChange)="responder('needsMachine', $event)" />
+  @if (s.erro(4, 'precisaMaquina'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+  @if (i.needsMachine) {
+    @for (m of i.machines; track $index; let n = $index) {
+      <section class="ck-cartao" [attr.aria-label]="'Máquina ' + (n + 1)">
+        <div class="ck-cartao__cab">
+          <b>Máquina {{ n + 1 }}</b>
+          <ck-quantidade [minimo]="1" [rotulo]="'máquina ' + (n + 1)" [valor]="m.quantity" (valorChange)="maquina(n, 'quantity', $event)" />
+        </div>
+        <ck-opcoes [opcoes]="tipos" rotulo="Tipo da máquina" [valor]="m.type" (valorChange)="maquina(n, 'type', $event)" />
+        @if (s.erro(4, 'maquina' + n + '.tipo'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+        @if (m.type === 'OUTRA') {
+          <div class="ck-campo">
+            <label [for]="'ck-outra-' + n">Qual máquina?</label>
+            <input [id]="'ck-outra-' + n" class="ck-input" autocomplete="off" [class.is-erro]="!!s.erro(4, 'maquina' + n + '.outra')"
+                   [value]="m.otherType ?? ''" (input)="maquina(n, 'otherType', $any($event.target).value || null)" />
+            @if (s.erro(4, 'maquina' + n + '.outra'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+          </div>
+        }
+
+        <p class="ck-pergunta">Vai com mesa?</p>
+        <ck-sim-nao rotulo="Vai com mesa?" [valor]="m.withTable" (valorChange)="maquina(n, 'withTable', $event)" />
+        @if (s.erro(4, 'maquina' + n + '.mesa'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+
+
+        @if (i.machines.length > 1) {
+          <button type="button" class="ck-link ck-link--perigo" style="align-self:flex-start" (click)="tirar(n)">Tirar esta máquina</button>
+        }
+      </section>
+    }
+    <button type="button" class="ck-botao-sec" (click)="outraMaquina()"><i class="pi pi-plus" aria-hidden="true"></i> Outra máquina</button>
+  }
+
+  <div class="ck-campo">
+    <label for="ck-obs-instalacao">Observação <small>(se tiver)</small></label>
+    <textarea id="ck-obs-instalacao" class="ck-input" rows="3" [value]="i.notes ?? ''" (input)="notas($any($event.target).value)"></textarea>
+  </div>
+</div>
