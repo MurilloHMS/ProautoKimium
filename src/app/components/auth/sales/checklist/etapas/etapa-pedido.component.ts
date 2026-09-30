@@ -66,7 +66,7 @@ export class EtapaPedidoComponent {
       c.order.items.push({
         productCode: p.code, name: p.name, unit: p.unit, packageSize: p.packageSize, packageLabel: p.packageLabel,
         packages: 1, unitPrice: preco.preco, ipiPercent: p.ipi ?? 0, priceTable: preco.tabela,
-        priceSource: preco.origem, lineTotal: null,
+        priceSource: preco.origem, tablePrice: preco.preco, lineTotal: null,
       });
       c.order.total = totalDoPedido(c.order.items);
     });
@@ -81,6 +81,24 @@ export class EtapaPedidoComponent {
   protected tamanho(codigo: number, texto: string): void {
     const valor = lerDecimal(texto);
     this.mudarItem(codigo, i => { i.packageSize = valor && valor > 0 ? valor : null; });
+  }
+
+  /**
+   * O preço de venda: começa no da tabela e o vendedor pode mudar (pedido
+   * dele, 2026-09-30). O da tabela fica guardado ao lado, para a Controladoria.
+   */
+  protected preco(codigo: number, texto: string): void {
+    const valor = lerDecimal(texto);
+    if (valor === null || valor < 0) return;
+    this.mudarItem(codigo, i => { i.unitPrice = valor; });
+  }
+
+  protected voltarAoPrecoDaTabela(codigo: number): void {
+    this.mudarItem(codigo, i => { if (i.tablePrice !== null) i.unitPrice = i.tablePrice; });
+  }
+
+  protected alterado(item: { unitPrice: number | null; tablePrice: number | null }): boolean {
+    return item.tablePrice !== null && item.unitPrice !== null && item.unitPrice !== item.tablePrice;
   }
 
   protected tirar(codigo: number): void {

@@ -66,6 +66,13 @@
 
         @if (erro()) { <p class="aviso aviso--perigo" role="alert">{{ erro() }}</p> }
 
+        <!-- Opcional, mas é o que se procura primeiro (pedido dele, 2026-09-30); o PDF tem o mesmo destaque. -->
+        <div class="implantacao" [class.implantacao--vazia]="!implantacao(d.content)">
+          <i class="pi pi-calendar" aria-hidden="true"></i>
+          <span>Data da implantação</span>
+          <b>{{ implantacao(d.content) ?? 'A definir' }}</b>
+        </div>
+
         @if (d.summary.status === 'CHANGE_REQUESTED') {
           <div class="pedido">
             <b>{{ d.summary.sellerName }} pediu para alterar</b>
@@ -125,7 +132,10 @@
               @for (i of d.content.order!.items; track i.productCode) {
                 <tr><td>{{ i.name }}<small class="sub">{{ i.priceSource === 'CLIENTE' ? 'Tabela do cliente' : 'Tabela geral' }} ({{ i.priceTable }})</small></td>
                   <td class="num">{{ i.packages }} × {{ i.packageSize }} {{ i.unit }}</td>
-                  <td class="num">{{ i.unitPrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}</td>
+                  <td class="num">{{ i.unitPrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}
+                    @if (i.tablePrice !== null && i.tablePrice !== undefined && i.unitPrice !== i.tablePrice) {
+                      <small class="sub alterado">alterado · tabela {{ i.tablePrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}</small>
+                    }</td>
                   <td class="num">{{ i.lineTotal | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</td></tr>
               }
             </tbody>

@@ -1,4 +1,16 @@
 <div class="ck-corpo">
+  <div class="ck-campo">
+    <label for="ck-implantacao">Data da implantação <small>(se já souber)</small></label>
+    <!-- Campo de data do próprio celular: abre o calendário que a pessoa já conhece. -->
+    <input id="ck-implantacao" type="date" class="ck-input" [class.is-erro]="!!s.erro(4, 'implantacao')"
+           [value]="i.implantationDate ?? ''" (change)="implantacao($any($event.target).value)" />
+    @if (porExtenso(i.implantationDate); as dia) {
+      <p class="ck-ajuda" style="margin:0">{{ dia }}</p>
+      <button type="button" class="ck-link" style="align-self:flex-start" (click)="implantacao(null)">Tirar a data</button>
+    }
+    @if (s.erro(4, 'implantacao'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
+  </div>
+
   <p class="ck-pergunta">O pedido vai junto com a manutenção?</p>
   <ck-sim-nao rotulo="O pedido vai junto com a manutenção?" [valor]="i.withMaintenance" (valorChange)="responder('withMaintenance', $event)" />
   @if (s.erro(4, 'manutencao'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }

@@ -172,6 +172,88 @@ describe('ChecklistFormularioComponent', () => {
     expect(store.rascunhos().map(r => r.id)).toEqual(['r1']);
   });
 
+  /** Pedido dele (2026-09-30): quantas etiquetas, e não "vai ou não vai"; e sem a pergunta da documentação. */
+  it('etapa 6: as etiquetas são quantidade, e a pergunta da documentação técnica não existe mais', async () => {
+    await montar(rascunho(6, checklistValido()));
+    expect(el.textContent).not.toContain('documentação técnica');
+
+    const mais = el.querySelector<HTMLButtonElement>('[aria-label="Pôr mais um de etiquetas de frasco de PROAUTO REMOCON. - 20 LT BB PRETA"]')!;
+    mais.click();
+    mais.click();
+    fixture.detectChanges(false);
+    const p = fixture.componentInstance['s'].conteudo().visual!.products[0];
+    expect(p.bottleLabels).toBe(3);
+    expect(p.equipmentLabels).toBe(2);
+  });
+
+  /** Pedido dele (2026-09-30): o vendedor pode vender por outro valor; o da tabela fica ao lado. */
+  it('etapa 7: trocar o preço de venda refaz a conta, mostra o da tabela, e dá para voltar', async () => {
+    await montar(rascunho(7, checklistValido()));
+    const preco = el.querySelector<HTMLInputElement>('#ck-preco-197')!;
+    expect(preco.value).toBe('10,98');
+
+    preco.value = '9,50';
+    preco.dispatchEvent(new Event('change'));
+    fixture.detectChanges(false);
+    const item = () => fixture.componentInstance['s'].conteudo().order!.items[0];
+    expect(item().unitPrice).toBe(9.5);
+    expect(item().tablePrice).withContext('o da tabela fica guardado').toBe(10.98);
+    expect(preco.classList).toContain('is-diverge');
+    // O formato de moeda põe espaço inquebrável depois do "R$".
+    const texto = () => el.textContent!.replace(/\u00a0/g, ' ');
+    expect(texto()).toContain('Preço da tabela: R$ 10,98');
+    // 3 × 20 × 9,50 × 1,0325 = 588,53, mais o Poseidon (529,65)
+    expect(texto()).toContain('R$ 1.118,18');
+
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('Voltar ao preço da tabela'))!.click();
+    fixture.detectChanges(false);
+    expect(item().unitPrice).toBe(10.98);
+    expect(texto()).not.toContain('Preço da tabela: R$');
+  });
+
+  it('etapa 7: produto adicionado pela busca guarda o preço da tabela, e trocar o de venda mostra a diferença', async () => {
+    const c = checklistValido();
+    c.order = { enabled: true, kind: 'VENDA', items: [], total: null };
+    await montar(rascunho(7, c));
+
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('Adicionar produto'))!.click();
+    fixture.detectChanges(false);
+    Array.from(el.querySelectorAll<HTMLButtonElement>('.ck-resultado')).find(b => b.textContent!.includes('REMOCON'))!.click();
+    fixture.detectChanges(false);
+
+    const item = () => fixture.componentInstance['s'].conteudo().order!.items[0];
+    // No catálogo de teste, a tabela 281 vende o 197 a R$ 9,50.
+    expect(item().tablePrice).toBe(9.5);
+    const preco = el.querySelector<HTMLInputElement>('#ck-preco-197')!;
+    preco.value = '12';
+    preco.dispatchEvent(new Event('change'));
+    fixture.detectChanges(false);
+    expect(item().unitPrice).toBe(12);
+    expect(el.textContent!.replace(/\u00a0/g, ' ')).toContain('Preço da tabela: R$ 9,50');
+  });
+
+  /** Pedido dele (2026-09-30): opcional, com o dia por extenso para conferir, e dá para tirar. */
+  it('etapa 4: data da implantação pelo calendário do celular, por extenso, e "Tirar a data"', async () => {
+    const c = checklistValido();
+    c.installation!.implantationDate = null;
+    await montar(rascunho(4, c));
+    const campo = el.querySelector<HTMLInputElement>('#ck-implantacao')!;
+    expect(campo.type).toBe('date');
+    expect(el.textContent).not.toContain('Tirar a data');
+
+    campo.value = '2026-10-05';
+    campo.dispatchEvent(new Event('change'));
+    fixture.detectChanges(false);
+    const data = () => fixture.componentInstance['s'].conteudo().installation!.implantationDate;
+    expect(data()).toBe('2026-10-05');
+    expect(el.textContent).toContain('segunda-feira, 5 de outubro de 2026');
+
+    Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('Tirar a data'))!.click();
+    fixture.detectChanges(false);
+    expect(data()).toBeNull();
+    expect(campo.value).toBe('');
+  });
+
   /** Medidas para quem tem pouca intimidade com o celular: nada abaixo de 44px de toque ou 16px de letra. */
   for (const etapa of [1, 2, 3, 4, 5, 6, 7, 8]) {
     it(`etapa ${etapa}: campos e botões com 44px ou mais, e letra de 16px ou mais nos campos`, async () => {

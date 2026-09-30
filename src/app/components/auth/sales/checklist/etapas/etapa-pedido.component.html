@@ -36,6 +36,21 @@
           </div>
         }
 
+        <div class="ck-campo">
+          <label [for]="'ck-preco-' + item.productCode">Preço de venda <small>(por {{ item.unit }})</small></label>
+          <input [id]="'ck-preco-' + item.productCode" class="ck-input" inputmode="decimal" autocomplete="off"
+                 [class.is-diverge]="alterado(item)" [value]="item.unitPrice | number: '1.2-4' : 'pt-BR'"
+                 (change)="preco(item.productCode, $any($event.target).value)" />
+          @if (alterado(item)) {
+            <p class="ck-diverge">✎ Preço da tabela: {{ item.tablePrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}.
+              A Controladoria vai ver a mudança.</p>
+            <button type="button" class="ck-link" style="align-self:flex-start" (click)="voltarAoPrecoDaTabela(item.productCode)">
+              Voltar ao preço da tabela</button>
+          } @else {
+            <p class="ck-ajuda" style="margin:0">É o preço da tabela. Para vender por outro valor, é só trocar.</p>
+          }
+        </div>
+
         <p class="conta">
           {{ item.packages }} × {{ item.packageSize ? (item.packageSize | number: '1.0-3' : 'pt-BR') : '?' }} {{ item.unit }}
           × {{ item.unitPrice | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR' }}

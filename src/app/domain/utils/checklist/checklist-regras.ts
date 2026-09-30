@@ -136,6 +136,9 @@ function endereco(etapa: number, onde: string, prefixo: string, a: ChecklistAddr
 function instalacao(c: ChecklistContent, lista: Problema[]): void {
   const i = c.installation;
   const add = (campo: string, mensagem: string) => lista.push({ etapa: 4, campo, mensagem });
+  if (i?.implantationDate && !dataValida(i.implantationDate)) {
+    add('implantacao', 'Etapa 4 — a data da implantação é inválida.');
+  }
   if (!i || i.withMaintenance === null || i.withMaintenance === undefined) {
     add('manutencao', 'Etapa 4 — responda se o pedido vai com a manutenção.');
   }
@@ -152,6 +155,14 @@ function instalacao(c: ChecklistContent, lista: Problema[]): void {
     if (!(m.quantity >= 1)) add(`maquina${n}.qtd`, `${onde}: a quantidade precisa ser pelo menos 1.`);
     if (m.withTable === null || m.withTable === undefined) add(`maquina${n}.mesa`, `${onde}: responda se vai com mesa.`);
   });
+}
+
+/** "aaaa-mm-dd" que existe no calendário: 2026-02-30 não passa. A API confere igual. */
+export function dataValida(texto: string): boolean {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(texto.trim());
+  if (!m) return false;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
 }
 
 function comodato(c: ChecklistContent, lista: Problema[]): void {
@@ -175,8 +186,11 @@ function comodato(c: ChecklistContent, lista: Problema[]): void {
 
 function visual(c: ChecklistContent, lista: Problema[]): void {
   const v = c.visual;
-  if (v?.technicalDocs && !emailsValidos(v.technicalDocsEmail)) {
-    lista.push({ etapa: 6, campo: 'emailDocs', mensagem: 'Etapa 6 — informe o e-mail para a documentação técnica.' });
+  for (const p of v?.products ?? []) {
+    if (p.equipmentLabels < 0 || p.bottleLabels < 0) {
+      lista.push({ etapa: 6, campo: `produto.${p.productCode}`,
+        mensagem: `Etapa 6 — a quantidade de etiquetas de "${p.name}" não pode ser negativa.` });
+    }
   }
 }
 
@@ -225,9 +239,9 @@ export function checklistVazio(): ChecklistContent {
     deliverySameAsMain: true,
     deliveryAddress: null,
     unitContact: { name: null, receivingHours: null, phone: null },
-    installation: { withMaintenance: null, needsMachine: null, machines: [], notes: null },
+    installation: { withMaintenance: null, needsMachine: null, machines: [], notes: null, implantationDate: null },
     comodato: { items: [], extraItems: [], notes: null },
-    visual: { items: [], products: [], technicalDocs: null, technicalDocsEmail: null },
+    visual: { items: [], products: [] },
     order: { enabled: false, kind: 'VENDA', items: [], total: null },
   };
 }

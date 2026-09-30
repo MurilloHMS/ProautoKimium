@@ -15,8 +15,8 @@ function resumo(id: string, status: ChecklistStatus, nome = 'Cliente ' + id): Ch
     changeReason: status === 'CHANGE_REQUESTED' ? 'Mais 2 diluidores' : null, changeRequestedAt: null };
 }
 
-function detalhe(s: ChecklistSummary): ChecklistDetail {
-  return { summary: s, content: checklistValido(), events: [], changes: [],
+function detalhe(s: ChecklistSummary, content = checklistValido()): ChecklistDetail {
+  return { summary: s, content, events: [], changes: [],
     erpDifferences: [{ field: 'Bairro', erp: 'VILA INDUSTRIAL', checklist: 'Centro' }] };
 }
 
@@ -48,12 +48,25 @@ describe('ChecklistsControleComponent', () => {
     return Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find(b => b.textContent!.trim().startsWith(texto))!;
   }
 
-  async function abrir(s: ChecklistSummary): Promise<void> {
+  async function abrir(s: ChecklistSummary, content = checklistValido()): Promise<void> {
     (fixture.componentInstance as unknown as { abrir(s: ChecklistSummary): Promise<void> }).abrir(s);
-    http.expectOne(`${API}/${s.id}`).flush(detalhe(s));
+    http.expectOne(`${API}/${s.id}`).flush(detalhe(s, content));
     await fixture.whenStable();
     fixture.detectChanges(false);
   }
+
+  it('data da implantação em destaque no topo; sem data, "A definir"', async () => {
+    await abrir(resumo('c1', 'SUBMITTED', 'Mercado'));
+    const caixa = () => el.querySelector('.implantacao')!;
+    expect(caixa().textContent).toContain('segunda-feira, 05/10/2026');
+    expect(caixa().classList).not.toContain('implantacao--vazia');
+
+    const sem = checklistValido();
+    sem.installation!.implantationDate = null;
+    await abrir(resumo('c2', 'SUBMITTED'), sem);
+    expect(caixa().textContent).toContain('A definir');
+    expect(caixa().classList).toContain('implantacao--vazia');
+  });
 
   it('abre em "Aguardando análise", e os chips contam cada situação', () => {
     expect(chip('Aguardando análise').getAttribute('aria-pressed')).toBe('true');

@@ -16,15 +16,16 @@ export function checklistValido(): ChecklistContent {
     deliveryAddress: null,
     unitContact: { name: 'Jorge', receivingHours: '8h às 17h', phone: '1932345678' },
     installation: { withMaintenance: false, needsMachine: true,
-      machines: [{ type: 'CAPO', otherType: null, quantity: 1, withTable: true }], notes: null },
+      machines: [{ type: 'CAPO', otherType: null, quantity: 1, withTable: true }], notes: null, implantationDate: '2026-10-05' },
     comodato: { items: [{ productCode: 1998, name: 'DILUIDOR NTI - AZUL', popularName: 'Diluidor padrão', quantity: 2 }],
       extraItems: [], notes: null },
-    visual: { items: [{ itemId: 'v1', name: 'Lave sempre as mãos', quantity: 3 }], products: [], technicalDocs: false, technicalDocsEmail: null },
+    visual: { items: [{ itemId: 'v1', name: 'Lave sempre as mãos', quantity: 3 }],
+      products: [{ productCode: 197, name: 'PROAUTO REMOCON. - 20 LT BB PRETA', equipmentLabels: 2, bottleLabels: 1, dilution: '1:50' }] },
     order: { enabled: true, kind: 'VENDA', total: null, items: [
       { productCode: 197, name: 'PROAUTO REMOCON. - 20 LT BB PRETA', unit: 'LT', packageSize: 20, packageLabel: '20 LT',
-        packages: 3, unitPrice: 10.98, ipiPercent: 3.25, priceTable: 281, priceSource: 'CLIENTE', lineTotal: null },
+        packages: 3, unitPrice: 10.98, ipiPercent: 3.25, priceTable: 281, priceSource: 'CLIENTE', tablePrice: 10.98, lineTotal: null },
       { productCode: 455, name: 'POSEIDON - 7,5 KG GL NATURAL', unit: 'KG', packageSize: 7.5, packageLabel: '7,5 KG GL',
-        packages: 2, unitPrice: 35.31, ipiPercent: 0, priceTable: 80, priceSource: 'GERAL', lineTotal: null },
+        packages: 2, unitPrice: 35.31, ipiPercent: 0, priceTable: 80, priceSource: 'GERAL', tablePrice: 35.31, lineTotal: null },
     ] },
   };
 }

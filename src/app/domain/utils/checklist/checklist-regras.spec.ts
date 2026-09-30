@@ -46,6 +46,18 @@ describe('checklist-regras', () => {
     ]);
   });
 
+  it('data da implantação: opcional, mas só data que existe — a mesma frase da API', () => {
+    const c = checklistValido();
+    for (const ok of [null, undefined, '', '2026-10-05', '2028-02-29']) {
+      c.installation!.implantationDate = ok;
+      expect(problemas(c)).withContext(String(ok)).toEqual([]);
+    }
+    for (const ruim of ['2026-02-30', '2027-02-29', '05/10/2026', '2026-13-01']) {
+      c.installation!.implantationDate = ruim;
+      expect(problemas(c).map(p => p.mensagem)).withContext(ruim).toEqual(['Etapa 4 — a data da implantação é inválida.']);
+    }
+  });
+
   it('e-mail de NF: um ou vários separados por ";" — como vem do Sankhya', () => {
     expect(emailsValidos('nf@mercado.com.br')).toBeTrue();
     expect(emailsValidos(' nf@mercado.com.br ; compras@mercado.com.br; ')).toBeTrue();

@@ -5,7 +5,7 @@ import {
   CHECKLIST_EVENT, CHECKLIST_STATUS, ChecklistContent, ChecklistDetail, ChecklistStatus, ChecklistSummary,
 } from '../../../../domain/models/sales/checklist.model';
 import { apiMessageOrFallback } from '../../../../domain/utils/api-error';
-import { normalizar } from '../../../../domain/utils/checklist/checklist-regras';
+import { dataValida, normalizar } from '../../../../domain/utils/checklist/checklist-regras';
 import { formatarDocumento } from '../../../../infrastructure/validators/documento-br';
 import { mascararTelefone } from '../../../../domain/utils/telefone-br';
 import { maskZip } from '../../../../domain/utils/address';
@@ -175,6 +175,15 @@ export class ChecklistsControleComponent implements OnInit {
     return this.contagem()[f] ?? 0;
   }
 
+  /** "segunda-feira, 05/10/2026", ou nulo quando o vendedor não marcou. */
+  protected implantacao(c: ChecklistContent): string | null {
+    const iso = c.installation?.implantationDate;
+    if (!iso || !dataValida(iso)) return null;
+    const [a, m, d] = iso.split('-').map(Number);
+    const dia = new Date(a, m - 1, d);
+    return `${dia.toLocaleDateString('pt-BR', { weekday: 'long' })}, ${iso.slice(8)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+  }
+
   /** O checklist em pares rótulo/valor, na ordem da planilha — o que se lança no Sankhya. */
   protected secoes(c: ChecklistContent): { titulo: string; linhas: [string, string][] }[] {
     const sn = (v: boolean | null | undefined) => (v === null || v === undefined ? '—' : v ? 'Sim' : 'Não');
@@ -215,8 +224,7 @@ export class ChecklistsControleComponent implements OnInit {
       ] },
       { titulo: 'Comunicação visual', linhas: [
         ...(c.visual?.items ?? []).map(i => [`${i.quantity} ×`, i.name] as [string, string]),
-        ...(c.visual?.products ?? []).map(p => [p.name, `etiqueta equip.: ${sn(p.equipmentLabel)} · frasco: ${sn(p.bottleLabel)} · diluição ${p.dilution ?? '—'}`] as [string, string]),
-        ['Documentação técnica', c.visual?.technicalDocs ? `Sim · ${c.visual.technicalDocsEmail}` : sn(c.visual?.technicalDocs)],
+        ...(c.visual?.products ?? []).map(p => [p.name, `${p.equipmentLabels} etiqueta(s) de equipamento · ${p.bottleLabels} de frasco · diluição ${p.dilution ?? '—'}`] as [string, string]),
       ] },
     ];
   }

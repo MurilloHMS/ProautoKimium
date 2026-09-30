@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { ChecklistMachine, MachineType } from '../../../../../domain/models/sales/checklist.model';
+import { ChecklistContent, ChecklistMachine, MachineType } from '../../../../../domain/models/sales/checklist.model';
+import { dataValida } from '../../../../../domain/utils/checklist/checklist-regras';
 import { ChecklistSessao } from '../checklist-sessao';
 import { OpcoesComponent } from '../ui/opcoes.component';
 import { QuantidadeComponent } from '../ui/quantidade.component';
@@ -8,7 +9,8 @@ import { SimNaoComponent } from '../ui/sim-nao.component';
 /**
  * Etapa 4 — instalação e máquinas. Tipo: Capô, Esteira, Frontal ou Outra (a
  * lista da planilha, confirmada por ele); "Vai com mesa?" é só Sim ou Não — o
- * tipo da mesa saiu a pedido dele (2026-09-30).
+ * tipo da mesa saiu a pedido dele (2026-09-30). A data da implantação é
+ * opcional e vem primeiro: é o que a Controladoria procura antes de tudo.
  */
 @Component({
   selector: 'ck-etapa-instalacao',
@@ -29,12 +31,12 @@ export class EtapaInstalacaoComponent {
   ];
 
   protected get i() {
-    return this.s.conteudo().installation ?? { withMaintenance: null, needsMachine: null, machines: [], notes: null };
+    return this.s.conteudo().installation ?? instalacaoVazia();
   }
 
   protected responder(campo: 'withMaintenance' | 'needsMachine', valor: boolean | null): void {
     this.s.atualizar(c => {
-      c.installation ??= { withMaintenance: null, needsMachine: null, machines: [], notes: null };
+      c.installation ??= instalacaoVazia();
       c.installation[campo] = valor;
       // "Sim" já abre a primeira máquina: o próximo passo óbvio vem pronto.
       if (campo === 'needsMachine' && valor && !c.installation.machines.length) {
@@ -60,9 +62,28 @@ export class EtapaInstalacaoComponent {
     this.s.atualizar(c => c.installation?.machines.splice(n, 1));
   }
 
+  /** O campo de data devolve "aaaa-mm-dd", ou vazio quando a pessoa limpa. */
+  protected implantacao(texto: string | null): void {
+    this.s.atualizar(c => {
+      c.installation ??= instalacaoVazia();
+      c.installation.implantationDate = texto || null;
+    });
+  }
+
+  /** "segunda-feira, 5 de outubro de 2026": confirma por extenso o que o calendário marcou. */
+  protected porExtenso(iso: string | null | undefined): string | null {
+    if (!iso || !dataValida(iso)) return null;
+    const [a, m, d] = iso.split('-').map(Number);
+    return new Date(a, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
   protected notas(texto: string): void {
     this.s.atualizar(c => { if (c.installation) c.installation.notes = texto || null; });
   }
+}
+
+function instalacaoVazia(): NonNullable<ChecklistContent['installation']> {
+  return { withMaintenance: null, needsMachine: null, machines: [], notes: null, implantationDate: null };
 }
 
 function novaMaquina(): ChecklistMachine {

@@ -72,8 +72,9 @@ export interface ChecklistVisualItem {
 export interface ChecklistUsedProduct {
   productCode: number;
   name: string;
-  equipmentLabel: boolean;
-  bottleLabel: boolean;
+  /** Quantas etiquetas vão (pedido dele, 2026-09-30 — antes era só sim/não). */
+  equipmentLabels: number;
+  bottleLabels: number;
   dilution: string | null;
 }
 
@@ -92,6 +93,11 @@ export interface ChecklistOrderItem {
   ipiPercent: number | null;
   priceTable: number | null;
   priceSource: PriceSource;
+  /**
+   * O preço que a tabela dizia. `unitPrice` é o de venda, que o vendedor pode
+   * mudar (pedido dele, 2026-09-30); os dois ficam, para a Controladoria ver.
+   */
+  tablePrice: number | null;
   lineTotal: number | null;
 }
 
@@ -106,13 +112,16 @@ export interface ChecklistContent {
     needsMachine: boolean | null;
     machines: ChecklistMachine[];
     notes: string | null;
+    /**
+     * "aaaa-mm-dd", do campo de data do celular. Opcional (pedido dele,
+     * 2026-09-30); rascunho de antes disso não tem o campo, daí o `?`.
+     */
+    implantationDate?: string | null;
   } | null;
   comodato: { items: ChecklistComodatoItem[]; extraItems: ChecklistExtraItem[]; notes: string | null } | null;
   visual: {
     items: ChecklistVisualItem[];
     products: ChecklistUsedProduct[];
-    technicalDocs: boolean | null;
-    technicalDocsEmail: string | null;
   } | null;
   order: { enabled: boolean; kind: OrderKind | null; items: ChecklistOrderItem[]; total: number | null } | null;
 }

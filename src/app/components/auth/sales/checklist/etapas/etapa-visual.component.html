@@ -13,24 +13,24 @@
   </div>
 
   <p class="ck-pergunta">Produtos usados na implantação</p>
-  <p class="ck-ajuda">Para cada um: etiquetas e a diluição.</p>
+  <p class="ck-ajuda">Para cada um: quantas etiquetas e a diluição.</p>
   @for (p of v().products; track p.productCode) {
     <section class="ck-cartao" [attr.aria-label]="p.name">
       <b style="font-size:15.5px;line-height:1.3">{{ p.name }}</b>
-      <div class="marcas">
-        <button type="button" role="checkbox" class="marca" [attr.aria-checked]="p.equipmentLabel" [class.is-on]="p.equipmentLabel"
-                (click)="produto(p.productCode, 'equipmentLabel', !p.equipmentLabel)">
-          <span class="marca__caixa" aria-hidden="true">{{ p.equipmentLabel ? '✓' : '' }}</span> Etiqueta de equipamento
-        </button>
-        <button type="button" role="checkbox" class="marca" [attr.aria-checked]="p.bottleLabel" [class.is-on]="p.bottleLabel"
-                (click)="produto(p.productCode, 'bottleLabel', !p.bottleLabel)">
-          <span class="marca__caixa" aria-hidden="true">{{ p.bottleLabel ? '✓' : '' }}</span> Etiqueta de frasco
-        </button>
+      <div class="linha linha--dentro">
+        <span>Etiquetas de equipamento</span>
+        <ck-quantidade [rotulo]="'etiquetas de equipamento de ' + p.name" [valor]="p.equipmentLabels"
+                       (valorChange)="etiquetas(p.productCode, 'equipmentLabels', $event)" />
+      </div>
+      <div class="linha linha--dentro">
+        <span>Etiquetas de frasco</span>
+        <ck-quantidade [rotulo]="'etiquetas de frasco de ' + p.name" [valor]="p.bottleLabels"
+                       (valorChange)="etiquetas(p.productCode, 'bottleLabels', $event)" />
       </div>
       <div class="ck-campo">
         <label [for]="'ck-diluicao-' + p.productCode">Diluição</label>
         <input [id]="'ck-diluicao-' + p.productCode" class="ck-input" autocomplete="off" placeholder="Ex.: 1:50"
-               [value]="p.dilution ?? ''" (input)="produto(p.productCode, 'dilution', $any($event.target).value)" />
+               [value]="p.dilution ?? ''" (input)="diluicao(p.productCode, $any($event.target).value)" />
       </div>
       <button type="button" class="ck-link ck-link--perigo" style="align-self:flex-start" (click)="tirarProduto(p.productCode)">Tirar</button>
     </section>
@@ -47,16 +47,5 @@
         <span class="ck-marca" aria-hidden="true">+</span>
       </button>
     }
-  }
-
-  <p class="ck-pergunta">O cliente quer a documentação técnica (boletim e FISPQ) por e-mail?</p>
-  <ck-sim-nao rotulo="Documentação técnica por e-mail?" [valor]="v().technicalDocs" (valorChange)="docs($event)" />
-  @if (v().technicalDocs) {
-    <div class="ck-campo">
-      <label for="ck-email-docs">Para qual e-mail? <small>(vários: separe por ;)</small></label>
-      <input id="ck-email-docs" class="ck-input" type="text" inputmode="email" autocapitalize="off" autocomplete="off"
-             [class.is-erro]="!!s.erro(6, 'emailDocs')" [value]="v().technicalDocsEmail ?? ''" (input)="emailDocs($any($event.target).value)" />
-      @if (s.erro(6, 'emailDocs'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
-    </div>
   }
 </div>

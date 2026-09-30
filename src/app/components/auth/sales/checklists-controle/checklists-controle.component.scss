@@ -96,6 +96,8 @@
 .linha { cursor: pointer; &.is-sel > td { background: var(--app-action-soft); } &:focus-visible { outline: 2px solid var(--app-action); } }
 .num { font-variant-numeric: tabular-nums; }
 .sub { display: block; color: var(--app-text-muted); font-size: 12px; }
+// Preço mudado pelo vendedor: a mesma cor de "você mudou" do celular.
+.alterado { color: var(--app-warning); font-weight: 600; }
 
 .tag {
   display: inline-block;
@@ -188,6 +190,26 @@
 }
 
 .botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.implantacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-primary);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--app-primary-soft);
+
+  i { color: var(--app-primary); }
+  span { color: var(--app-text-muted); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  b { color: var(--app-primary); font-size: 16px; }
+
+  // Sem data: continua à vista, mas neutro — não é erro, é "a combinar".
+  &--vazia { border-color: var(--app-border); background: var(--app-surface-2); }
+  &--vazia i, &--vazia b { color: var(--app-text-muted); }
+}
 
 .pedido {
   display: flex;
