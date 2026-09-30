@@ -35,9 +35,10 @@ import { lerValorDoCampo } from '../../../../infrastructure/validators/valor-dec
 
 
 
+import { EmployeeBiometricDevicesComponent } from './employee-biometric-devices/employee-biometric-devices.component';
 @Component({
     selector: 'app-employes',
-  imports: [TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
+  imports: [EmployeeBiometricDevicesComponent, TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
     DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',

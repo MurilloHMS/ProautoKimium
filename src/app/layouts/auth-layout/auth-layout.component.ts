@@ -10,6 +10,7 @@ import { NavDrawerComponent } from './nav-drawer/nav-drawer.component';
 import { TabBarComponent } from './tab-bar/tab-bar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { SignOutWarningComponent } from './sign-out-warning/sign-out-warning.component';
+import { BiometricInviteComponent } from './biometric-invite/biometric-invite.component';
 import { InstalarComponent } from '../../components/shared/instalar/instalar.component';
 import { ehCelular } from '../../infrastructure/state/eh-celular';
 import { PermissionStore } from '../../infrastructure/state/permission.store';
@@ -21,7 +22,7 @@ import { ChecklistOfflineStore } from '../../infrastructure/state/checklist-offl
   standalone: true,
   imports: [
     InstalarComponent, RouterOutlet, TopbarComponent,
-    GavetaComponent, NavDrawerComponent, TabBarComponent, BottomNavComponent, SignOutWarningComponent,
+    GavetaComponent, NavDrawerComponent, TabBarComponent, BottomNavComponent, SignOutWarningComponent, BiometricInviteComponent,
   ],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',

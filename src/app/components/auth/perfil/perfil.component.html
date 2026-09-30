@@ -320,6 +320,9 @@
         }
       </div>
 
+      <!-- Entrar com a digital: os aparelhos desta pessoa, e onde se desliga. -->
+      <app-biometric-devices />
+
       <div class="conta-card">
         <button pButton label="Sair da conta" icon="pi pi-sign-out"
                 class="p-button-sm p-button-outlined p-button-danger sair-btn"
@@ -353,6 +356,12 @@
                 class="p-button-sm" (click)="load()"></button>
       }
     </div>
+
+    <!--
+      A digital não depende do cadastro de funcionário: conta sem vínculo
+      também ativa pelo convite, e precisa de onde ver e remover.
+    -->
+    <app-biometric-devices class="perfil-bio-sem-vinculo" />
   </div>
 }
 

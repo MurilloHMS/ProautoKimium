@@ -1,0 +1,97 @@
+@use 'variables' as v;
+
+// O bloco da digital (mockup aprovado em 2026-09-30): quem ativou neste
+// aparelho, o botão grande, e a senha a um toque.
+.bio {
+  display: flex;
+  flex-direction: column;
+  gap: v.$space-3;
+  margin-bottom: v.$space-3;
+}
+
+.bio__pessoa {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  padding: v.$space-3;
+  border: 1px solid var(--app-border);
+  border-radius: v.$radius-md;
+  background: var(--app-surface-2);
+}
+
+.bio__iniciais {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  font-weight: 700;
+}
+
+.bio__nomes {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  b { color: var(--app-text); font-size: v.$font-size-md; }
+  small { color: var(--app-text-muted); font-size: v.$font-size-sm; }
+}
+
+.bio__entrar { min-height: 56px; font-size: 1.05rem; }
+
+.bio__icone {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.bio__ou {
+  display: flex;
+  align-items: center;
+  gap: v.$space-3;
+  color: var(--app-text-muted);
+  font-size: v.$font-size-sm;
+
+  span { flex: 1; height: 1px; background: var(--app-border); }
+}
+
+.bio__senha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: v.$space-2;
+  width: 100%;
+  min-height: 48px;
+  margin-top: v.$space-2;
+  border: 1.5px solid var(--app-border-strong);
+  border-radius: v.$radius-md;
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled { opacity: .6; cursor: default; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.bio__outra {
+  display: block;
+  min-height: 44px;
+  margin: v.$space-3 auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-primary);
+  font: inherit;
+  font-size: v.$font-size-sm;
+  text-decoration: underline;
+  cursor: pointer;
+}

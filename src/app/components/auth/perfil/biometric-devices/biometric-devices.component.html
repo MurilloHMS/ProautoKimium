@@ -1,0 +1,74 @@
+<div class="bio-card">
+  <h2 class="bio-card__titulo">
+    <svg class="bio-card__icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>
+    Entrar sem senha
+  </h2>
+  <p class="bio-card__texto">
+    Nestes aparelhos você entra com a digital (no iPhone, o Face ID). Ela fica no aparelho: a empresa não recebe nem guarda.
+  </p>
+
+  @if (loading()) {
+    <p class="bio-card__nota">Carregando…</p>
+  } @else {
+    @if (devices().length) {
+      <ul class="aparelhos">
+        @for (d of devices(); track d.id) {
+          <li class="aparelho">
+            <i class="pi" [class.pi-mobile]="isMobileLabel(d.deviceLabel)" [class.pi-desktop]="!isMobileLabel(d.deviceLabel)" aria-hidden="true"></i>
+            <div class="aparelho__dados">
+              <span class="aparelho__nome">
+                {{ d.deviceLabel }}
+                @if (isCurrent(d)) { <span class="aparelho__atual">Você está nele</span> }
+              </span>
+              <span class="aparelho__quando">{{ activatedText(d.createdAt) }} · {{ lastUseText(d.lastUsedAt) }}</span>
+            </div>
+            <button type="button" class="aparelho__remover" (click)="confirming.set(d)">Remover</button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="bio-card__nota">Nenhum aparelho ainda.</p>
+    }
+
+    @if (available() && !activeHere()) {
+      <pk-button pkType="new" pkIcon="pi pi-plus" [pkLabel]="'Ativar ' + biometric.words.withArticle + ' neste aparelho'"
+                 [pkLoading]="busy()" (clicked)="enableHere()" />
+    }
+  }
+
+  @if (error()) {
+    <p class="bio-card__erro" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ error() }}</p>
+  }
+
+  <p class="bio-card__nota">
+    <i class="pi pi-info-circle" aria-hidden="true"></i>
+    Perdeu ou trocou de aparelho? Remova-o aqui: ninguém entra mais por ele sem a senha.
+  </p>
+</div>
+
+<!-- Confirmação: folha no celular, diálogo no computador. -->
+@if (isPhone()) {
+  <pk-sheet [open]="!!confirming()" title="Remover aparelho" [fit]="true" (closed)="confirming.set(null)">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="confirmBody" /></div>
+    <div pkSheetFooter class="bio-botoes"><ng-container *ngTemplateOutlet="confirmActions" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Remover aparelho" [visible]="!!confirming()" width="440px" (visibleChange)="!$event && confirming.set(null)">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="confirmBody" /></div>
+    <div pkDialogFooter class="pk-dialog-footer bio-botoes"><ng-container *ngTemplateOutlet="confirmActions" /></div>
+  </pk-dialog>
+}
+
+<ng-template #confirmBody>
+  @if (confirming(); as d) {
+    <div class="bio-confirma">
+      <h3>Remover {{ d.deviceLabel }}?</h3>
+      <p>Nele, a entrada volta a ser só com a senha. Se o aparelho foi perdido ou trocado, remova: ninguém entra por ele sem a senha.</p>
+    </div>
+  }
+</ng-template>
+
+<ng-template #confirmActions>
+  <pk-button pkType="cancel" pkLabel="Cancelar" (clicked)="confirming.set(null)" />
+  <pk-button pkType="delete" pkLabel="Remover" [pkLoading]="busy()" (clicked)="remove()" />
+</ng-template>

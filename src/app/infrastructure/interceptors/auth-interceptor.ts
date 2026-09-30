@@ -40,6 +40,11 @@ export class AuthInterceptor implements HttpInterceptor {
       '/auth/first-access',
       '/auth/forgot-password',
       '/auth/reset-password',
+      // Entrar com a digital: o mesmo caso do login. Cobre as duas rotas
+      // (`/options` e a conclusão); o `401` delas é "a digital não
+      // confirmou", e não sessão caída. O cadastro da digital NÃO está aqui:
+      // quem cadastra está logado, e a API responde 400 quando recusa.
+      '/auth/webauthn/authentication',
     ];
 
     if (rotasPublicas.some(url => req.url.includes(url))) {

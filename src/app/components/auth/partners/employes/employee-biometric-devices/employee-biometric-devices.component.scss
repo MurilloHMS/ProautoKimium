@@ -1,0 +1,103 @@
+.rh-bio__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rh-bio__todos {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1.5px solid var(--app-danger);
+  border-radius: 10px;
+  background: var(--app-surface);
+  color: var(--app-danger);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+// A tabela rola sozinha no celular, sem empurrar a página para o lado.
+.rh-bio__tabela-wrap { overflow-x: auto; }
+
+.rh-bio__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--app-border);
+    color: var(--app-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  td {
+    padding: 10px;
+    border-bottom: 1px solid var(--app-border);
+    color: var(--app-text);
+    white-space: nowrap;
+  }
+}
+
+.rh-bio__acao { text-align: right; }
+
+.rh-bio__remover {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-danger);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.rh-bio__nota {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0 0;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+.rh-bio__erro {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 0;
+  color: var(--app-danger);
+  font-size: 14px;
+}
+
+.rh-bio__confirma {
+  h4 { margin: 0 0 8px; color: var(--app-text); font-size: 18px; }
+  p { margin: 0; color: var(--app-text-muted); line-height: 1.5; }
+}
+
+.rh-bio__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

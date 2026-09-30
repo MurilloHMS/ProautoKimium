@@ -1,0 +1,48 @@
+<!-- Um corpo, duas molduras (o padrão do aviso de saída). -->
+@if (isPhone()) {
+  <pk-sheet [open]="open()" [title]="title" [fit]="true" (closed)="notNow()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="body" /></div>
+    <div pkSheetFooter class="convite__botoes convite__botoes--folha"><ng-container *ngTemplateOutlet="actions" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [header]="title" [visible]="open()" width="480px" (visibleChange)="!$event && notNow()">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="body" /></div>
+    <div pkDialogFooter class="pk-dialog-footer convite__botoes"><ng-container *ngTemplateOutlet="actions" /></div>
+  </pk-dialog>
+}
+
+<ng-template #body>
+  <div class="convite">
+    <span class="convite__icone" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>
+    </span>
+
+    @if (done()) {
+      <h2 class="convite__titulo">Pronto!</h2>
+      <p class="convite__texto">Da próxima vez, entre com {{ biometric.words.withArticle }}. A senha continua funcionando.</p>
+    } @else {
+      <h2 class="convite__titulo">Entrar com {{ biometric.words.name === 'digital' ? 'a digital' : biometric.words.name }} da próxima vez?</h2>
+      <p class="convite__texto">
+        Em vez de digitar a senha, use {{ biometric.words.withArticle }} deste {{ place }}. Vale só para este {{ place }}.
+      </p>
+      <ul class="convite__garantias">
+        <li><i class="pi pi-check" aria-hidden="true"></i><span>{{ biometric.words.name === 'digital' ? 'Sua digital fica' : 'O seu rosto fica' }} no {{ place }}. A empresa não recebe nem guarda.</span></li>
+        <li><i class="pi pi-check" aria-hidden="true"></i><span>A senha continua funcionando.</span></li>
+        <li><i class="pi pi-check" aria-hidden="true"></i><span>Dá para desligar quando quiser, no Perfil.</span></li>
+      </ul>
+      @if (error()) {
+        <p class="convite__erro" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ error() }}</p>
+      }
+    }
+  </div>
+</ng-template>
+
+<ng-template #actions>
+  @if (done()) {
+    <pk-button pkType="save" pkLabel="Fechar" (clicked)="notNow()" />
+  } @else {
+    <button type="button" class="convite__nunca" (click)="neverHere()">Não perguntar de novo neste {{ place }}</button>
+    <pk-button pkType="cancel" pkIcon="pi pi-times" pkLabel="Agora não" (clicked)="notNow()" />
+    <pk-button pkType="save" pkIcon="pi pi-check" [pkLabel]="'Ativar ' + biometric.words.withArticle" [pkLoading]="busy()" (clicked)="enable()" />
+  }
+</ng-template>

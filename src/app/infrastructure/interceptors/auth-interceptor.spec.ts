@@ -104,6 +104,26 @@ describe('AuthInterceptor', () => {
       ['/login'], { queryParams: { [PARAM_SESSAO_EXPIRADA]: 1 } });
   });
 
+  /**
+   * O `401` do login pela digital é "a digital não confirmou", como a senha
+   * errada — e não sessão caída. Tratado como os outros, a tela de login
+   * recarregaria sem dizer nada, e a renovação tentaria trocar um refresh que
+   * nem existe.
+   */
+  it('401 do login pela digital não desloga nem tenta renovar', () => {
+    spyOn(auth, 'getRefreshToken').and.returnValue('refresh-guardado');
+    const url = `${environment.apiUrl}/auth/webauthn/authentication`;
+    let status = 0;
+
+    http.post(url, {}).subscribe({ error: e => (status = e.status) });
+    responder401(url);
+
+    expect(status).withContext('o erro chega à tela de login').toBe(401);
+    expect(auth.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    mock.expectNone(URL_REFRESH);
+  });
+
   // ─── Renovação ─────────────────────────────────────────────────────────────
 
   /**

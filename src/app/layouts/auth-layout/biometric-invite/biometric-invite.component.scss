@@ -1,0 +1,86 @@
+.convite {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--app-text);
+  font-size: 15px;
+  line-height: 1.5;
+
+  &__icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--app-primary-soft);
+    color: var(--app-primary);
+
+    svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  &__titulo { margin: 0; font-size: 20px; line-height: 1.3; }
+  &__texto { margin: 0; color: var(--app-text-muted); }
+
+  &__garantias {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li { display: flex; gap: 10px; align-items: flex-start; }
+    i { margin-top: 3px; color: var(--app-success); }
+  }
+
+  &__erro {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 0;
+    color: var(--app-danger);
+    font-size: 14px;
+  }
+}
+
+// No celular os botões empilham com a largura toda (o pk-sheet já dá 48px); no
+// computador ficam em linha, e "não perguntar" vai para a esquerda.
+.convite__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+// Na folha do celular são três: empilhados na largura toda, na ordem do mockup
+// — "Ativar" em cima, "Agora não", e o "não perguntar" por último. Lado a lado
+// (o padrão da folha), o link ficava espremido em quatro linhas.
+.convite__botoes--folha {
+  flex-direction: column-reverse;
+
+  .convite__nunca { margin: 0 auto; }
+}
+
+.convite__nunca {
+  min-height: 44px;
+  margin-right: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
