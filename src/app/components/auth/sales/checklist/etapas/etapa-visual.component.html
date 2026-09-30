@@ -53,8 +53,8 @@
   <ck-sim-nao rotulo="Documentação técnica por e-mail?" [valor]="v().technicalDocs" (valorChange)="docs($event)" />
   @if (v().technicalDocs) {
     <div class="ck-campo">
-      <label for="ck-email-docs">Para qual e-mail?</label>
-      <input id="ck-email-docs" class="ck-input" type="email" inputmode="email" autocapitalize="off" autocomplete="off"
+      <label for="ck-email-docs">Para qual e-mail? <small>(vários: separe por ;)</small></label>
+      <input id="ck-email-docs" class="ck-input" type="text" inputmode="email" autocapitalize="off" autocomplete="off"
              [class.is-erro]="!!s.erro(6, 'emailDocs')" [value]="v().technicalDocsEmail ?? ''" (input)="emailDocs($any($event.target).value)" />
       @if (s.erro(6, 'emailDocs'); as e) { <p class="ck-erro"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ e }}</p> }
     </div>

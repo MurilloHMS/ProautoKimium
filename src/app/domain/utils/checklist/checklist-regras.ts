@@ -38,6 +38,31 @@ export function emailValido(valor: string | null | undefined): boolean {
   return !!valor && EMAIL.test(valor.trim());
 }
 
+/**
+ * Um ou mais e-mails, como o Sankhya guarda o de NF (medido em 2026-09-30):
+ * separados por ";" (1.937 clientes) ou por ":" (44) — o ":" não existe dentro
+ * de um e-mail. Espaço em volta não conta; cada um precisa ser válido. A mesma
+ * regra da API (`emailList`).
+ */
+export function emailsValidos(valor: string | null | undefined): boolean {
+  const lista = emails(valor);
+  return lista.length > 0 && lista.every(e => EMAIL.test(e));
+}
+
+/** Os e-mails do campo, sem caractere invisível e sem vazio. */
+export function emails(valor: string | null | undefined): string[] {
+  return semInvisivel(valor ?? '').split(/[;:]/).map(e => e.trim()).filter(Boolean);
+}
+
+/**
+ * Tira o que não se vê: caractere de controle (o ERP tem um DEL grudado num
+ * e-mail) e espaço de largura zero. Na tela o e-mail parece perfeito, e sem
+ * isso falharia sem ninguém entender por quê.
+ */
+export function semInvisivel(valor: string): string {
+  return valor.replace(/[\p{Cc}\p{Cf}]/gu, '');
+}
+
 function vazio(valor: string | null | undefined): boolean {
   return !valor || !valor.trim();
 }
@@ -90,7 +115,7 @@ function cliente(c: ChecklistCustomer | null, lista: Problema[]): void {
   if (vazio(c.signatory)) add(3, 'assinante', 'Etapa 3 — informe quem assina o contrato.');
   else if (!nomeCompleto(c.signatory)) add(3, 'assinante', 'Etapa 3 — escreva o nome e o sobrenome de quem assina.');
   if (!cpfValido(c.signatoryCpf ?? '')) add(3, 'cpf', 'Etapa 3 — o CPF de quem assina é inválido.');
-  if (!emailValido(c.invoiceEmail)) add(3, 'emailNf', 'Etapa 3 — o e-mail para as notas fiscais é inválido.');
+  if (!emailsValidos(c.invoiceEmail)) add(3, 'emailNf', 'Etapa 3 — o e-mail para as notas fiscais é inválido. Se forem vários, separe por ponto e vírgula (;).');
   if (!emailValido(c.contractEmail)) add(3, 'emailContrato', 'Etapa 3 — o e-mail para o contrato é inválido.');
 }
 
@@ -150,7 +175,7 @@ function comodato(c: ChecklistContent, lista: Problema[]): void {
 
 function visual(c: ChecklistContent, lista: Problema[]): void {
   const v = c.visual;
-  if (v?.technicalDocs && !emailValido(v.technicalDocsEmail)) {
+  if (v?.technicalDocs && !emailsValidos(v.technicalDocsEmail)) {
     lista.push({ etapa: 6, campo: 'emailDocs', mensagem: 'Etapa 6 — informe o e-mail para a documentação técnica.' });
   }
 }

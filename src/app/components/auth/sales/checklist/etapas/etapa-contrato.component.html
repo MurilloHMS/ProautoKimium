@@ -8,7 +8,7 @@
       <div class="ck-campo">
         <label [for]="'ck-' + d.campo">{{ d.rotulo }}</label>
         @if (d.ajuda) { <p class="ck-ajuda" style="margin:0">{{ d.ajuda }}</p> }
-        <input [id]="'ck-' + d.campo" class="ck-input" [attr.inputmode]="d.teclado" [type]="d.teclado === 'email' ? 'email' : 'text'"
+        <input [id]="'ck-' + d.campo" class="ck-input" [attr.inputmode]="d.teclado" [type]="d.teclado === 'email' && !d.varios ? 'email' : 'text'"
                [attr.autocomplete]="d.auto" [placeholder]="d.exemplo" autocapitalize="off"
                [class.is-erro]="!!s.erro(3, d.erro)" [class.is-diverge]="!!diverge(d)"
                [value]="valor(d)" (input)="mudar(d, $any($event.target).value)" />

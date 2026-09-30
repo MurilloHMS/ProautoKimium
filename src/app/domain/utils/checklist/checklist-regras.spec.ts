@@ -1,5 +1,5 @@
 import { checklistValido } from '../../../../testing/checklist-fixtures';
-import { checklistVazio, nomeCompleto, normalizar, problemas, totalDaLinha, totalDoPedido } from './checklist-regras';
+import { checklistVazio, emailsValidos, nomeCompleto, normalizar, problemas, totalDaLinha, totalDoPedido } from './checklist-regras';
 
 /**
  * As regras do celular são as da API (ChecklistRules), com as mesmas frases:
@@ -27,7 +27,7 @@ describe('checklist-regras', () => {
       'Etapa 3 — o CNPJ (ou CPF) do cliente é inválido.',
       'Etapa 3 — informe o celular com DDD.',
       'Etapa 3 — o CPF de quem assina é inválido.',
-      'Etapa 3 — o e-mail para as notas fiscais é inválido.',
+      'Etapa 3 — o e-mail para as notas fiscais é inválido. Se forem vários, separe por ponto e vírgula (;).',
     ]);
   });
 
@@ -44,6 +44,25 @@ describe('checklist-regras', () => {
       'Etapa 4 — máquina 1: escreva qual é a máquina.',
       'Etapa 4 — máquina 1: responda se vai com mesa.',
     ]);
+  });
+
+  it('e-mail de NF: um ou vários separados por ";" — como vem do Sankhya', () => {
+    expect(emailsValidos('nf@mercado.com.br')).toBeTrue();
+    expect(emailsValidos(' nf@mercado.com.br ; compras@mercado.com.br; ')).toBeTrue();
+    expect(emailsValidos('nf@mercado.com.br;compras@')).toBeFalse();
+    // 44 clientes do Sankhya separam com ":" — os e-mails são válidos.
+    expect(emailsValidos('nf@mercado.com.br:compras@mercado.com.br')).toBeTrue();
+    // O DEL invisível que o ERP tem grudado num e-mail, e o espaço de largura zero.
+    expect(emailsValidos('\u007fnf@mercado.com.br')).toBeTrue();
+    expect(emailsValidos('nf@mercado.com.br\u200b')).toBeTrue();
+    // Erro de digitação de verdade continua recusado.
+    expect(emailsValidos('nf@mercado.com.b')).toBeFalse();
+    expect(emailsValidos('.nf@mercado.com.br')).toBeFalse();
+    expect(emailsValidos('nf@mercado@gmail.com')).toBeFalse();
+    expect(emailsValidos(' ; ')).toBeFalse();
+    const c = checklistValido();
+    c.customer!.invoiceEmail = 'nf@mercado.com.br;compras@mercado.com.br;fiscal@proautokimium.com.br';
+    expect(problemas(c)).toEqual([]);
   });
 
   it('quem assina: nome e sobrenome — a mesma regra e a mesma frase da API', () => {
