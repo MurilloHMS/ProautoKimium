@@ -169,13 +169,19 @@
             <span class="notif-empty__sub">O mural está indisponível no momento.</span>
           </div>
         } @else if (avisosRecentes().length > 0) {
+          <!-- A mesma linha das notificações: título, uma linha do texto e a data.
+               Com título, duas linhas e autor, cada aviso ocupava ~105px contra 72px
+               de uma notificação — o painel ficava mais alto que o vizinho e, num
+               notebook, empurrava a home para uma barra de rolagem. O autor e o
+               texto inteiro continuam no mural. -->
           @for (a of avisosRecentes(); track a.id) {
-            <a routerLink="/documentos/rh/announcements" class="aviso-row">
-              <span class="aviso-row__title">{{ a.title }}</span>
-              <span class="aviso-row__content">{{ a.content }}</span>
-              <span class="aviso-row__meta">
-                {{ a.publishedByName }} · {{ a.publishedAt | date:'dd/MM' }}
+            <a routerLink="/documentos/rh/announcements" class="notif-row">
+              <span class="notif-row__icon"><i class="pi pi-megaphone"></i></span>
+              <span class="notif-row__body">
+                <span class="notif-row__title">{{ a.title }}</span>
+                <span class="notif-row__msg">{{ a.content }}</span>
               </span>
+              <span class="notif-row__time">{{ a.publishedAt | date:'dd/MM' }}</span>
             </a>
           }
         } @else {
