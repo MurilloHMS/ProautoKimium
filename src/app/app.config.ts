@@ -2,6 +2,7 @@ import { ApplicationConfig } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
+import { PRIMENG_Z_INDEX } from './primeng-z-index';
 import { definePreset } from '@primeuix/themes';
 import Material from '@primeuix/themes/material';
 import Aura from '@primeuix/themes/aura';
@@ -42,6 +43,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       ripple: true,
+      zIndex: PRIMENG_Z_INDEX,
       theme: {
           preset: Material,
           options: {

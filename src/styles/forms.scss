@@ -151,12 +151,12 @@
 /* Painel do calendário.
    Ele precisa sair do fluxo (appendTo="body"): dentro de uma toolbar flex ele
    vira item flex e estica, e dentro de uma tela de grade (overflow hidden) ele
-   é recortado. O z-index garante que fique acima da topbar e da barra de abas. */
+   é recortado. O z-index NÃO mora aqui: o PrimeNG grava o dele inline, e o
+   inline ganha do CSS — a base é o `PRIMENG_Z_INDEX` (src/app/primeng-z-index.ts). */
 .p-datepicker-panel {
     /* O tema do PrimeNG dimensiona o painel sozinho e ele saía ocupando quase a
        tela toda. Aqui a largura é fixa e o mês vira uma grade de 7 colunas com
        células pequenas — a data é um dado, não a tela inteira. */
-    z-index: 1300;
     width: 262px !important;
     max-width: calc(100vw - 24px);
     padding: 8px !important;

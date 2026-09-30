@@ -5,6 +5,8 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
+import { providePrimeNG } from 'primeng/config';
+import { PRIMENG_Z_INDEX } from '../app/primeng-z-index';
 
 // Quem registra o pt-BR na aplicação é o `main.ts`, e teste nenhum roda o
 // `main.ts`. Sem isto, qualquer componente com `| date:'…':'pt-BR'` estoura em
@@ -41,6 +43,9 @@ export function providersDeTeste(
     // Rotas vazias: quem precisa navegar de verdade declara as suas. O que isto
     // resolve é o `ActivatedRoute` e o `Router` existirem.
     provideRouter([]),
+    // Só o z-index, e não o tema: é ele que decide se o painel do PrimeNG abre
+    // na frente ou atrás da folha, e o teste precisa medir o que o app usa.
+    providePrimeNG({ zIndex: PRIMENG_Z_INDEX }),
     ...extras,
   ];
 }
