@@ -38,6 +38,12 @@
   display: grid;
   gap: v.$space-6;
   align-items: start;
+  // Uma coluna no celular, e `minmax(0, 1fr)` e não o `auto` implícito: a
+  // coluna automática cresce até caber a linha inteira do texto mais comprido,
+  // e o texto do aviso é uma linha só, sem quebra. No iPhone o painel chegava
+  // a 954px numa tela de 390 e a página rolava para o lado (relato dele,
+  // 2026-09-30). Com o mínimo em 0, o texto corta em "…" como nas notificações.
+  grid-template-columns: minmax(0, 1fr);
 
   @media (min-width: v.$bp-lg) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
