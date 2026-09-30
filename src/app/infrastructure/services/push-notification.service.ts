@@ -10,6 +10,8 @@ import { environment } from '../../../environments/environment';
  * O payload enviado pelo backend já vem no formato { notification: {...} }, então o
  * service worker do Angular exibe a notificação automaticamente — inclusive com o app fechado.
  */
+export type PushStatus = 'unsupported' | 'denied' | 'enabled' | 'available';
+
 @Injectable({ providedIn: 'root' })
 export class PushNotificationService {
   constructor(private swPush: SwPush, private http: HttpClient, private router: Router) {}
@@ -27,6 +29,21 @@ export class PushNotificationService {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * O que dá para fazer com as notificações NESTE aparelho:
+   * - `unsupported`: sem push aqui (dev sem service worker; iPhone fora do app
+   *   instalado — o iOS só tem push com o app na tela de início);
+   * - `denied`: a pessoa bloqueou, e o navegador não deixa o site perguntar de novo;
+   * - `enabled`: já recebe;
+   * - `available`: ainda não ativou, e dá para ativar com um toque.
+   */
+  async status(): Promise<PushStatus> {
+    if (!this.swPush.isEnabled || typeof Notification === 'undefined') return 'unsupported';
+    if (Notification.permission === 'denied') return 'denied';
+    if (Notification.permission === 'granted' && await this.isSubscribed()) return 'enabled';
+    return 'available';
   }
 
   /** Navega para a rota da notificação quando o usuário clica nela. */

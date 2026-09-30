@@ -6,6 +6,7 @@ import { provideRouter } from '@angular/router';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
 import { providePrimeNG } from 'primeng/config';
+import { provideServiceWorker } from '@angular/service-worker';
 import { PRIMENG_Z_INDEX } from '../app/primeng-z-index';
 
 // Quem registra o pt-BR na aplicação é o `main.ts`, e teste nenhum roda o
@@ -46,6 +47,10 @@ export function providersDeTeste(
     // Só o z-index, e não o tema: é ele que decide se o painel do PrimeNG abre
     // na frente ou atrás da folha, e o teste precisa medir o que o app usa.
     providePrimeNG({ zIndex: PRIMENG_Z_INDEX }),
+    // O service worker DESLIGADO, como o app fora de produção: o `SwPush` existe
+    // (com `isEnabled` falso) e quem o injeta monta sem precisar de provider
+    // próprio. Teste que precisa do push ligado troca o serviço por um falso.
+    provideServiceWorker('ngsw-worker.js', { enabled: false }),
     ...extras,
   ];
 }

@@ -1,0 +1,103 @@
+@use 'variables' as v;
+
+// O mesmo desenho da faixa "Instalar" em formato de bloco: ícone, texto, um
+// botão grande e o X — o convite do sistema tem uma cara só.
+:host { display: block; }
+
+.notif-convite {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: v.$space-4;
+  padding: v.$space-4 v.$space-5;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+
+  &--pronto { background: var(--app-success-soft); }
+}
+
+.notif-convite__icone {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-3);
+
+  i { font-size: 1.1rem; color: var(--app-action); }
+
+  .notif-convite--pronto & i { color: var(--app-success); }
+}
+
+.notif-convite__texto {
+  display: flex;
+  flex: 1 1 220px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong { font-size: var(--text-ui); font-weight: 600; }
+
+  > span {
+    font-size: var(--text-ui-sm);
+    line-height: 1.4;
+    color: var(--app-text-muted);
+  }
+}
+
+.notif-convite__erro {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-top: 4px;
+  color: var(--app-danger) !important;
+}
+
+.notif-convite__botao {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  // 44px é o alvo mínimo de toque da Apple.
+  min-height: 44px;
+  padding: 0 v.$space-5;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--app-action);
+  color: #fff;
+  font: inherit;
+  // A mesma escala do título ao lado: com a fonte herdada, o botão saía maior
+  // que todo o resto do alerta.
+  font-size: var(--text-ui);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled { opacity: .7; cursor: default; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.notif-convite__fechar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-3); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+// No celular o botão "Ativar" desce e ocupa a largura toda: o texto não é
+// espremido, e o alvo fica grande. O X continua no canto.
+@media (max-width: v.$bp-md) {
+  .notif-convite__botao { order: 3; width: 100%; justify-content: center; }
+  .notif-convite__fechar { order: 2; }
+}

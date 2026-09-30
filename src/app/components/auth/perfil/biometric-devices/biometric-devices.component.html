@@ -54,7 +54,7 @@
   </pk-sheet>
 } @else {
   <pk-dialog header="Remover aparelho" [visible]="!!confirming()" width="440px" (visibleChange)="!$event && confirming.set(null)">
-    <div pkDialogContent><ng-container *ngTemplateOutlet="confirmBody" /></div>
+    <div pkDialogContent class="pk-dialog-body"><ng-container *ngTemplateOutlet="confirmBody" /></div>
     <div pkDialogFooter class="pk-dialog-footer bio-botoes"><ng-container *ngTemplateOutlet="confirmActions" /></div>
   </pk-dialog>
 }

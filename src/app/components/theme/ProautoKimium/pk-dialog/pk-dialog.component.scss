@@ -60,9 +60,21 @@
   }
 }
 
+// Corpo padrão, projetado via ng-content. O `.p-dialog-content` fica sem
+// padding de propósito (quem usa seções de formulário traz o próprio); quem
+// projeta texto e lista direto usa esta classe — sem ela o conteúdo encosta
+// nas bordas do diálogo (o convite da digital saiu assim, 2026-09-30).
+::ng-deep .pk-dialog-body {
+  padding: 20px 24px;
+}
+
 // Rodapé padrão, projetado via ng-content
 ::ng-deep .pk-dialog-footer {
   display: flex;
+  // O `.p-dialog-footer` do PrimeNG é flex alinhado à direita: sem isto este
+  // rodapé ficava do tamanho dos botões, e a linha de cima começava no meio.
+  flex: 1;
+  box-sizing: border-box;
   justify-content: flex-end;
   gap: var(--gap-control);
   padding: 12px 16px;

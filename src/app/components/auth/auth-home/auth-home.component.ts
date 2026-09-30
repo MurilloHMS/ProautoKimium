@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AtivarNotificacoesComponent } from './ativar-notificacoes/ativar-notificacoes.component';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { NotificationService } from '../../../infrastructure/services/notification.service';
@@ -28,7 +29,7 @@ import { HomeSummary, PENDING_INFO, PendingAccent, PendingItem } from '../../../
 @Component({
   selector: 'app-auth-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AtivarNotificacoesComponent],
   templateUrl: './auth-home.component.html',
   styleUrl: './auth-home.component.scss',
 })

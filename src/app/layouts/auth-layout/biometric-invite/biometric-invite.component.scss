@@ -56,7 +56,10 @@
 // computador ficam em linha, e "não perguntar" vai para a esquerda.
 .convite__botoes {
   display: flex;
-  flex-wrap: wrap;
+  // No computador os três numa linha, como no mockup: o link à esquerda e os
+  // dois botões à direita. Com quebra, o "Ativar" caía sozinho embaixo.
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 8px;
   justify-content: flex-end;
 }
