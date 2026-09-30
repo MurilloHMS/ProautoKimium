@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { Component, provideZonelessChangeDetection } from '@angular/core';
+import { BiometricDevicesComponent } from './biometric-devices/biometric-devices.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
@@ -22,6 +23,14 @@ import { MyProfileResponseDto } from '../../../domain/models/profile.model';
  * vinculou ao cadastro de funcionário. Dizer isso na tela é a diferença entre
  * a pessoa procurar o RH e a pessoa achar que o sistema quebrou.
  */
+
+/**
+ * A lista de aparelhos com a digital tem spec própria e fala com a API; aqui o
+ * assunto é outro, e ela entra vazia.
+ */
+@Component({ selector: 'app-biometric-devices', standalone: true, template: '' })
+class BiometricDevicesStub {}
+
 describe('PerfilComponent · quando não abre', () => {
   const signOut = jasmine.createSpyObj<SignOutService>('SignOutService', ['signOut']);
   let fixture: ComponentFixture<PerfilComponent>;
@@ -71,6 +80,10 @@ describe('PerfilComponent · quando não abre', () => {
       // componente ganha do provider do TestBed. Sem trocar aqui, o espião
       // nunca é o que a tela usa — e o teste do toast passaria a afirmar nada.
       .overrideComponent(PerfilComponent, {
+        remove: { imports: [BiometricDevicesComponent] },
+        add: { imports: [BiometricDevicesStub] },
+      })
+      .overrideComponent(PerfilComponent, {
         set: { providers: [{ provide: MessageService, useValue: toast }] },
       })
       .compileComponents();
@@ -102,6 +115,15 @@ describe('PerfilComponent · quando não abre', () => {
     expect(component.notLinked).toBeTrue();
     expect(texto()).toContain('Sua conta ainda não está vinculada');
     expect(texto()).toContain('Peça ao RH');
+  });
+
+  /** A digital não depende do vínculo: sem ele, a pessoa ainda vê e remove os aparelhos. */
+  it('sem funcionário vinculado, a lista de aparelhos com a digital continua na tela', () => {
+    vcard.getMyProfile.and.returnValue(erro(404, RECADO_DA_API));
+
+    montar();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('app-biometric-devices')).not.toBeNull();
   });
 
   /**

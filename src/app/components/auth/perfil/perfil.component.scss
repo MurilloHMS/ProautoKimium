@@ -692,3 +692,11 @@
 }
 
 .sair-btn { width: 100%; }
+
+// A lista de aparelhos no ramo sem perfil (conta sem vínculo, ou erro):
+// abaixo do aviso, na mesma largura dele.
+.perfil-bio-sem-vinculo {
+  display: block;
+  max-width: 480px;
+  margin: v.$space-6 auto 0;
+}

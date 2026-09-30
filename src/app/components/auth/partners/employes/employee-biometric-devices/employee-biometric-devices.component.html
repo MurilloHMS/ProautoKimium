@@ -1,0 +1,72 @@
+<div class="pk-form-section">
+  <div class="rh-bio__cabeca">
+    <h3 class="pk-form-section__title">
+      <i class="pi pi-shield"></i> Acesso com digital
+    </h3>
+    @if (devices().length > 1) {
+      <button type="button" class="rh-bio__todos" (click)="confirming.set('all')">Remover todos</button>
+    }
+  </div>
+  <p class="pk-form-section__hint">
+    Aparelhos em que {{ employeeName() || 'o funcionário' }} entra com a digital, sem senha. Remova quando ele sair da
+    empresa ou perder um aparelho. A digital em si fica no aparelho: a empresa não tem acesso a ela.
+  </p>
+
+  @if (loading()) {
+    <p class="rh-bio__nota">Carregando…</p>
+  } @else if (devices().length) {
+    <div class="rh-bio__tabela-wrap">
+      <table class="rh-bio__tabela">
+        <thead>
+          <tr><th scope="col">Aparelho</th><th scope="col">Ativado em</th><th scope="col">Último uso</th><th scope="col"><span class="sr-only">Ação</span></th></tr>
+        </thead>
+        <tbody>
+          @for (d of devices(); track d.id) {
+            <tr>
+              <td><b>{{ d.deviceLabel }}</b></td>
+              <td>{{ activatedText(d.createdAt).replace('Ativado em ', '') }}</td>
+              <td>{{ lastUseText(d.lastUsedAt).replace('usado ', '') }}</td>
+              <td class="rh-bio__acao"><button type="button" class="rh-bio__remover" (click)="confirming.set(d)">Remover</button></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="rh-bio__nota"><i class="pi pi-bell" aria-hidden="true"></i> {{ employeeName() || 'O funcionário' }} recebe um aviso no sino quando um aparelho dele é removido.</p>
+  } @else {
+    <p class="rh-bio__nota">Nenhum aparelho com a digital ativada.</p>
+  }
+
+  @if (error()) {
+    <p class="rh-bio__erro" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ error() }}</p>
+  }
+</div>
+
+@if (isPhone()) {
+  <pk-sheet [open]="!!confirming()" title="Acesso com digital" [fit]="true" (closed)="confirming.set(null)">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="confirmBody" /></div>
+    <div pkSheetFooter class="rh-bio__botoes"><ng-container *ngTemplateOutlet="confirmActions" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Acesso com digital" [visible]="!!confirming()" width="460px" (visibleChange)="!$event && confirming.set(null)">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="confirmBody" /></div>
+    <div pkDialogFooter class="pk-dialog-footer rh-bio__botoes"><ng-container *ngTemplateOutlet="confirmActions" /></div>
+  </pk-dialog>
+}
+
+<ng-template #confirmBody>
+  @if (confirming(); as target) {
+    <div class="rh-bio__confirma">
+      <h4>{{ confirmTitle(target) }}</h4>
+      <p>
+        {{ target === 'all' ? 'Neles' : 'Nele' }}, a entrada volta a ser só com a senha.
+        {{ employeeName() || 'O funcionário' }} recebe um aviso no sino, e pode ativar a digital de novo depois de entrar com a senha.
+      </p>
+    </div>
+  }
+</ng-template>
+
+<ng-template #confirmActions>
+  <pk-button pkType="cancel" pkLabel="Cancelar" (clicked)="confirming.set(null)" />
+  <pk-button pkType="delete" [pkLabel]="confirming() === 'all' ? 'Remover todos' : 'Remover'" [pkLoading]="busy()" (clicked)="remove()" />
+</ng-template>

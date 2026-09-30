@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { BiometricError, BiometricLoginService, RememberedDevice } from '../../../infrastructure/services/auth/biometric-login.service';
 import { LoginLayoutComponent } from '../../../layouts/login-layout/login-layout.component';
 import { PARAM_SESSAO_EXPIRADA } from '../../../infrastructure/interceptors/auth-interceptor';
 
@@ -12,13 +13,26 @@ import { PARAM_SESSAO_EXPIRADA } from '../../../infrastructure/interceptors/auth
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, NgxMaskDirective, LoginLayoutComponent],
   templateUrl: './login.component.html',
+  styleUrl: './login.component.scss',
   providers: [provideNgxMask()],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   form: FormGroup;
   errorMessage = '';
   loading = false;
   identifierMask = '';
+
+  protected readonly biometric = inject(BiometricLoginService);
+
+  /**
+   * Quem ativou a digital NESTE aparelho. Existindo, o login começa por ela e
+   * a senha fica a um toque (mockup aprovado, 2026-09-30); não existindo, a
+   * tela é a de sempre.
+   */
+  protected readonly device = signal<RememberedDevice | null>(this.biometric.remembered());
+  protected readonly usingPassword = signal(this.device() === null);
+  protected readonly biometricBusy = signal(false);
+  protected readonly biometricError = signal('');
 
   constructor(
     private fb: FormBuilder,
@@ -42,7 +56,7 @@ export class LoginComponent {
     // redefinicao —, onde a pessoa ainda pode escolher outra. No login, a unica
     // pergunta e se a senha confere, e quem responde e a API.
     this.form = this.fb.group({
-      username: ['', [Validators.required]],
+      username: [this.device()?.login ?? '', [Validators.required]],
       password: ['', [Validators.required]]
     });
 
@@ -58,11 +72,53 @@ export class LoginComponent {
     }
   }
 
+  /** O aparelho lembrado pode ter perdido o leitor (desligou a digital no sistema): volta a senha. */
+  async ngOnInit(): Promise<void> {
+    if (this.device() && !(await this.biometric.available())) {
+      this.usingPassword.set(true);
+    }
+  }
+
   onIdentifierInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     const digits = value.replace(/\D/g, '');
     this.identifierMask = digits.length > 0 && digits.length === value.replace(/[.\-]/g, '').length
       ? '000.000.000-00' : '';
+  }
+
+  /** "Entrar com a digital". A recusa mostra a senha já aberta, com o login preenchido. */
+  async signInWithBiometrics(): Promise<void> {
+    if (this.biometricBusy()) return;
+    this.biometricBusy.set(true);
+    this.biometricError.set('');
+    try {
+      await this.biometric.signIn();
+      this.enter();
+    } catch (e) {
+      this.biometricError.set(e instanceof BiometricError ? e.message : 'Não deu para entrar. Tente com a senha.');
+      this.usingPassword.set(true);
+    } finally {
+      this.biometricBusy.set(false);
+    }
+  }
+
+  usePassword(): void {
+    this.biometricError.set('');
+    this.usingPassword.set(true);
+  }
+
+  /** "Não é você?": este aparelho esquece quem ativou, e a tela volta a ser a de sempre. */
+  otherAccount(): void {
+    this.biometric.forget();
+    this.device.set(null);
+    this.biometricError.set('');
+    this.form.reset({ username: '', password: '' });
+    this.usingPassword.set(true);
+  }
+
+  protected initials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
   }
 
   login(){
@@ -73,17 +129,10 @@ export class LoginComponent {
     this.authService.login(username.toLowerCase(), password).subscribe({
       next: () => {
         this.loading = false;
-
-        // A credencial é válida, mas esta é a entrada do sistema interno. Um
-        // cliente que entrasse aqui veria todas as telas que não declaram
-        // role. A sessão é descartada na hora e ele vai para o portal dele.
-        if (this.authService.getUserRoles().includes('CLIENTE')) {
-          this.authService.logout();
-          this.router.navigate(['/cliente/login']);
-          return;
-        }
-
-        this.router.navigate(['/home'])
+        // Entrou pela senha: o sistema oferece a digital uma vez, lá dentro.
+        const login = this.authService.getUsername();
+        if (login) this.biometric.markInvite(login);
+        this.enter();
       },
       error: (err) => {
         this.loading = false;
@@ -92,5 +141,19 @@ export class LoginComponent {
           : 'CPF, e-mail ou senha inválidos';
       }
     });
+  }
+
+  /**
+   * A credencial é válida, mas esta é a entrada do sistema interno. Um cliente
+   * que entrasse aqui veria todas as telas que não declaram role. A sessão é
+   * descartada na hora e ele vai para o portal dele — pela senha ou pela digital.
+   */
+  private enter(): void {
+    if (this.authService.getUserRoles().includes('CLIENTE')) {
+      this.authService.logout();
+      this.router.navigate(['/cliente/login']);
+      return;
+    }
+    this.router.navigate(['/home']);
   }
 }

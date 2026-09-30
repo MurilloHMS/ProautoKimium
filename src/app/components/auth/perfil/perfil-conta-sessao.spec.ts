@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
+import { Component, provideZonelessChangeDetection } from '@angular/core';
+import { BiometricDevicesComponent } from './biometric-devices/biometric-devices.component';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -20,6 +21,14 @@ import { MyProfileResponseDto } from '../../../domain/models/profile.model';
  * Nenhum destes testes vai à rede por dado novo. Se algum precisar, a seção
  * saiu do desenho.
  */
+
+/**
+ * A lista de aparelhos com a digital tem spec própria e fala com a API; aqui o
+ * assunto é outro, e ela entra vazia.
+ */
+@Component({ selector: 'app-biometric-devices', standalone: true, template: '' })
+class BiometricDevicesStub {}
+
 describe('PerfilComponent · conta e sessão', () => {
   const signOut = jasmine.createSpyObj<SignOutService>('SignOutService', ['signOut']);
 
@@ -65,7 +74,12 @@ describe('PerfilComponent · conta e sessão', () => {
         { provide: SignOutService, useValue: signOut },
         MessageService,
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(PerfilComponent, {
+        remove: { imports: [BiometricDevicesComponent] },
+        add: { imports: [BiometricDevicesStub] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(PerfilComponent);
     perfil = fixture.componentInstance;

@@ -17,6 +17,7 @@ import { MessageService } from 'primeng/api';
 import { VcardService } from '../../../infrastructure/services/profile/vcard/vcard.service';
 import { AuthService } from '../../../infrastructure/services/auth.service';
 import { SignOutService } from '../../../infrastructure/services/sign-out.service';
+import { BiometricDevicesComponent } from './biometric-devices/biometric-devices.component';
 import { urlDeMidia } from '../../../infrastructure/config/media-url';
 import {
   MyProfileResponseDto,
@@ -35,7 +36,7 @@ const EMPTY_FORM = (): ProfileCreateDto => ({
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [
+  imports: [BiometricDevicesComponent, 
     CommonModule, FormsModule,
     ButtonModule, DialogModule, InputTextModule,
     ToastModule, SelectModule, TooltipModule,

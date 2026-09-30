@@ -617,6 +617,11 @@
         </div>
       </div>
 
+      <!-- Acesso com digital: só na edição — cadastro novo ainda não tem usuário. -->
+      @if (employeToEdit?.id) {
+        <app-employee-biometric-devices [employeeId]="employeToEdit!.id!" [employeeName]="employeToEdit!.name" />
+      }
+
     </form>
   </div>
 
