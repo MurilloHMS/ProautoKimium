@@ -1,0 +1,33 @@
+@switch (estado()) {
+  @case ('convite') { <ng-container *ngTemplateOutlet="convite" /> }
+  @case ('ativando') { <ng-container *ngTemplateOutlet="convite" /> }
+  @case ('erro') { <ng-container *ngTemplateOutlet="convite" /> }
+  @case ('pronto') {
+    <section class="notif-convite notif-convite--pronto" role="status">
+      <span class="notif-convite__icone" aria-hidden="true"><i class="pi pi-check"></i></span>
+      <div class="notif-convite__texto">
+        <strong>Notificações ativadas</strong>
+        <span>Você vai saber na hora quando sair holerite, reembolso ou aviso do RH.</span>
+      </div>
+      <button type="button" class="notif-convite__fechar" aria-label="Fechar" (click)="fechar()"><i class="pi pi-times"></i></button>
+    </section>
+  }
+}
+
+<ng-template #convite>
+  <section class="notif-convite">
+    <span class="notif-convite__icone" aria-hidden="true"><i class="pi pi-bell"></i></span>
+    <div class="notif-convite__texto">
+      <strong>Ative as notificações</strong>
+      <span>Saiba na hora quando sair holerite, reembolso ou aviso do RH — mesmo com o app fechado.</span>
+      @if (estado() === 'erro') {
+        <span class="notif-convite__erro" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i> {{ erro() }}</span>
+      }
+    </div>
+    <button type="button" class="notif-convite__botao" [disabled]="estado() === 'ativando'" (click)="ativar()">
+      <i class="pi" [class.pi-bell]="estado() !== 'ativando'" [class.pi-spin]="estado() === 'ativando'" [class.pi-spinner]="estado() === 'ativando'" aria-hidden="true"></i>
+      {{ estado() === 'ativando' ? 'Ativando…' : 'Ativar' }}
+    </button>
+    <button type="button" class="notif-convite__fechar" aria-label="Agora não" (click)="agoraNao()"><i class="pi pi-times"></i></button>
+  </section>
+</ng-template>
