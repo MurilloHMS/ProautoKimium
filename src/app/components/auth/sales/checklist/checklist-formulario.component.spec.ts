@@ -248,6 +248,12 @@ describe('ChecklistFormularioComponent', () => {
     expect(data()).toBe('2026-10-05');
     expect(el.textContent).toContain('segunda-feira, 5 de outubro de 2026');
 
+    // Relato dele (2026-09-30): o campo de data passava da tela no celular.
+    const caixa = campo.parentElement!.getBoundingClientRect();
+    expect(campo.getBoundingClientRect().right).withContext('o campo cabe na coluna').toBeLessThanOrEqual(caixa.right + 0.5);
+    expect(getComputedStyle(campo).minWidth).withContext('sem a largura mínima nativa').toBe('0px');
+    expect(document.documentElement.scrollWidth).withContext('sem rolagem de lado').toBeLessThanOrEqual(window.innerWidth);
+
     Array.from(el.querySelectorAll('button')).find(b => b.textContent!.includes('Tirar a data'))!.click();
     fixture.detectChanges(false);
     expect(data()).toBeNull();

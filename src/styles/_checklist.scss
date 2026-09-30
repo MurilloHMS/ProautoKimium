@@ -59,6 +59,7 @@
   }
 
   .ck-input {
+    box-sizing: border-box; // não depende do reset do Bootstrap
     width: 100%;
     height: 52px;
     padding: 0 14px;
@@ -73,6 +74,21 @@
     &:focus-visible { outline: none; border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
     &.is-erro { border-color: var(--app-danger); }
     &.is-diverge { border-color: var(--app-warning); background: var(--app-warning-soft); }
+  }
+
+  // O campo de data nativo tem largura mínima própria, calculada pelo conteúdo, e
+  // não encolhe com width: 100% — no celular ele passava da tela e criava
+  // rolagem de lado (relato dele, 2026-09-30). Sem a aparência nativa ele vira
+  // uma caixa como as outras; o calendário que abre ao tocar continua o do celular.
+  input[type='date'].ck-input {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 49px; // o iPhone centraliza o texto pela linha, não pela altura
+
+    &::-webkit-date-and-time-value { text-align: left; }
   }
 
   textarea.ck-input {
