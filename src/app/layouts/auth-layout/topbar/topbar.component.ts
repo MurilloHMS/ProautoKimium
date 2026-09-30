@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 
 import { AuthService } from '../../../infrastructure/services/auth.service';
+import { SignOutService } from '../../../infrastructure/services/sign-out.service';
 import { FlatMenuItem, MenuService } from '../../../infrastructure/services/menu.service';
 import { NotificationService } from '../../../infrastructure/services/notification.service';
 import { ThemeService } from '../../../infrastructure/services/theme.service';
@@ -27,6 +28,7 @@ export class TopbarComponent {
   private readonly menuService = inject(MenuService);
 
   readonly auth = inject(AuthService);
+  private readonly signOut = inject(SignOutService);
   readonly notifications = inject(NotificationService);
   readonly theme = inject(ThemeService);
 
@@ -148,15 +150,9 @@ export class TopbarComponent {
     return roles.length ? roles.join(', ') : 'Sem papéis';
   }
 
-  /**
-   * Espera o servidor encerrar a sessão antes de sair da tela.
-   *
-   * A navegação vai no `subscribe` e não em seguida: `window.location.href`
-   * descarrega a página, e uma requisição em voo no momento do descarregamento é
-   * cancelada pelo navegador — a sessão continuaria viva do lado de lá.
-   */
+  /** Sai pelo SignOutService: com checklist pendente, ele avisa antes. */
   logout(): void {
-    this.auth.logoutRemoto().subscribe(() => (window.location.href = '/'));
+    void this.signOut.signOut();
   }
 
   // ── Fechar dropdowns ao clicar fora ──────────────────────────────────────

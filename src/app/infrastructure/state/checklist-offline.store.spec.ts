@@ -159,4 +159,26 @@ describe('ChecklistOfflineStore', () => {
   it('o id nasce no aparelho, no formato UUID', () => {
     expect(novoId()).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
+  /** O que o aviso de saída conta (pedido dele, 2026-09-30). */
+  it('pendências: fila esperando e recusada, rascunho preenchido; rascunho em branco e outro login não contam', async () => {
+    const item = (id: string, recusa: string | null, dono = 'diego') => ({
+      chave: ChecklistDb.chave(dono, id), login: dono, id, guardadoEm: new Date().toISOString(), tentativas: 0, recusa, etapa: 8,
+      envio: { revision: 1, content: checklistValido(), filledOffline: true, deviceStartedAt: null },
+    });
+    await db.gravarNaFila(item('f1', null));
+    await db.gravarNaFila(item('f2', 'O CPF de quem assina é inválido.'));
+    await db.gravarNaFila(item('f3', null, 'outra-pessoa'));
+    await store.salvarRascunho(await store.novoRascunho());   // aberto e largado em branco
+    await rascunhoPronto();
+
+    expect(await store.pendingItems()).toEqual({ waiting: 1, refused: 1, drafts: 1 });
+  });
+
+  it('pendências: sem login, ou com o banco do aparelho quebrado, conta zero — nunca impede a saída', async () => {
+    login = null as unknown as string;
+    expect(await store.pendingItems()).toEqual({ waiting: 0, refused: 0, drafts: 0 });
+    login = 'diego';
+    spyOn(db, 'fila').and.rejectWith(new Error('IndexedDB bloqueado'));
+    expect(await store.pendingItems()).toEqual({ waiting: 0, refused: 0, drafts: 0 });
+  });
 });

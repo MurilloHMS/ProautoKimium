@@ -22,6 +22,16 @@ export type DesfechoDoEnvio =
   | { tipo: 'aguardando' }
   | { tipo: 'recusado'; motivo: string };
 
+/** O que ainda não chegou à Controladoria, neste aparelho e com este login. */
+export interface PendingChecklists {
+  /** Na fila, esperando sinal. */
+  waiting: number;
+  /** Na fila, recusados pela API: precisam de correção. */
+  refused: number;
+  /** Em preenchimento, nunca enviados. Rascunho aberto e deixado em branco não conta. */
+  drafts: number;
+}
+
 /** Espera entre tentativas de envio sem sinal: 5 s, 15 s, 30 s, 1 min, 2 min, e fica em 5 min. */
 export const ESPERAS_DE_REENVIO = [5_000, 15_000, 30_000, 60_000, 120_000, 300_000];
 
@@ -173,6 +183,28 @@ export class ChecklistOfflineStore implements OnDestroy {
       this.enviados.set(lista);
     } catch {
       // Sem sinal, a lista guardada continua valendo.
+    }
+  }
+
+  /**
+   * Lido do banco do aparelho, e não dos signals: quem sai pode nunca ter
+   * aberto a tela, e o store só carrega em iniciar(). Se o banco falhar, conta
+   * zero — o aviso de saída não pode impedir ninguém de sair.
+   */
+  async pendingItems(): Promise<PendingChecklists> {
+    const none = { waiting: 0, refused: 0, drafts: 0 };
+    const login = this.login();
+    if (!login) return none;
+    try {
+      const [queue, drafts] = await Promise.all([this.db.fila(login), this.db.rascunhos(login)]);
+      const blank = JSON.stringify(checklistVazio());
+      return {
+        waiting: queue.filter(i => !i.recusa).length,
+        refused: queue.filter(i => !!i.recusa).length,
+        drafts: drafts.filter(r => JSON.stringify(r.conteudo) !== blank).length,
+      };
+    } catch {
+      return none;
     }
   }
 
