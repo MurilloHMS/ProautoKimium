@@ -59,7 +59,7 @@ export class AuthHomeComponent implements OnInit {
   readonly avisosCarregando = signal(true);
   readonly avisosComErro = signal(false);
 
-  readonly avisosRecentes = computed(() => this.avisos().slice(0, 4));
+  readonly avisosRecentes = computed(() => this.avisos().slice(0, 5));
 
   ngOnInit(): void {
     // Falha no resumo não mostra erro na tela: as pendências simplesmente não
