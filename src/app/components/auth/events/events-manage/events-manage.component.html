@@ -8,6 +8,12 @@
                     (deleted)="voltarParaLista()" (back)="voltarParaLista()" />
   }
 
+  @case ('acompanhamento') {
+    @if (acompanhando(); as id) {
+      <app-event-attendance [eventId]="id" [celular]="ehCelular()" (back)="voltarParaLista()" />
+    }
+  }
+
   @case ('previa') {
     @if (previa(); as evento) {
       <div class="previa">
@@ -79,6 +85,7 @@
                           <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Publicar" tooltipPosition="left" aria-label="Publicar" (click)="publicar(e)"><i class="pi pi-upload"></i></button>
                         }
                         <button type="button" class="acao" pTooltip="Ver como fica" tooltipPosition="left" aria-label="Ver como fica" (click)="verComoFica(e)"><i class="pi pi-eye"></i></button>
+                        <button type="button" class="acao" data-testid="acompanhar" pTooltip="Acompanhamento: quem viu e quem vai" tooltipPosition="left" aria-label="Acompanhamento" (click)="acompanhar(e)"><i class="pi pi-users"></i></button>
                         <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Editar" tooltipPosition="left" aria-label="Editar" (click)="editarEvento(e)"><i class="pi pi-pencil"></i></button>
                         <button *pkCan="'communication/events:EXCLUIR'" type="button" class="acao acao--perigo" pTooltip="Excluir" tooltipPosition="left" aria-label="Excluir" (click)="excluindoEvento.set(e)"><i class="pi pi-trash"></i></button>
                       </td>
@@ -105,7 +112,8 @@
                     @if (!e.publishedAt) {
                       <button *pkCan="'communication/events:ALTERAR'" type="button" class="cartao__atalho" (click)="publicar(e)"><i class="pi pi-upload"></i> Publicar</button>
                     }
-                    <button type="button" class="cartao__atalho cartao__atalho--fim" (click)="verComoFica(e)"><i class="pi pi-eye"></i> Ver como fica</button>
+                    <button type="button" class="cartao__atalho cartao__atalho--fim" (click)="acompanhar(e)"><i class="pi pi-users"></i> Quem vai</button>
+                    <button type="button" class="cartao__atalho" (click)="verComoFica(e)"><i class="pi pi-eye"></i> Ver como fica</button>
                   </div>
                 </article>
               } @empty {
@@ -241,7 +249,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog [header]="tituloPalestrante()" [visible]="!!editandoPalestrante()" (visibleChange)="fecharPalestrante()" width="620px">
+  <pk-dialog [flush]="true" [header]="tituloPalestrante()" [visible]="!!editandoPalestrante()" (visibleChange)="fecharPalestrante()" width="620px">
     <div pkDialogContent>
       <div class="pk-form-section">
         <ng-container *ngTemplateOutlet="corpoPalestrante" />
@@ -254,7 +262,7 @@
   </pk-dialog>
 }
 
-<pk-dialog header="Excluir evento" [visible]="!!excluindoEvento()" (visibleChange)="excluindoEvento.set(null)" width="460px">
+<pk-dialog [flush]="true" header="Excluir evento" [visible]="!!excluindoEvento()" (visibleChange)="excluindoEvento.set(null)" width="460px">
   <div pkDialogContent>
     <div class="pk-form-section">
       @if (excluindoEvento(); as alvo) {
@@ -269,7 +277,7 @@
   </div>
 </pk-dialog>
 
-<pk-dialog header="Excluir palestrante" [visible]="!!excluindoPalestrante()" (visibleChange)="excluindoPalestrante.set(null)" width="460px">
+<pk-dialog [flush]="true" header="Excluir palestrante" [visible]="!!excluindoPalestrante()" (visibleChange)="excluindoPalestrante.set(null)" width="460px">
   <div pkDialogContent>
     <div class="pk-form-section">
       @if (excluindoPalestrante(); as alvo) {

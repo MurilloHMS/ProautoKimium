@@ -75,6 +75,7 @@ export class NotificacoesComponent implements OnInit {
       case 'DOCUMENTO': return 'pi pi-file';
       case 'REEMBOLSO': return 'pi pi-wallet';
       case 'CHECKLIST': return 'pi pi-clipboard';
+      case 'EVENTO': return 'pi pi-calendar';
       case 'PERSONALIZADA': return 'pi pi-megaphone';
       default: return 'pi pi-bell';
     }

@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
-  EventDetail, EventRequest, EventSummary, Speaker, SpeakerRequest, TalkRequest,
+  Attendance, AudienceOptions, EventAnswer, EventDetail, EventRequest, EventSummary, Invitation,
+  InvitationAnswer, InvitationDetail, Speaker, SpeakerRequest, TalkRequest,
 } from '../../../domain/models/events.model';
 
 /** `/api/events` e `/api/speakers`. */
@@ -23,6 +24,25 @@ export class EventsService {
   /** Rascunho responde 404 para quem só vê; abre para quem cadastra. */
   get(id: string): Observable<EventDetail> {
     return this.http.get<EventDetail>(`${this.base}/${id}`);
+  }
+
+  // ── Convites (ser convidado basta; sem permissão de tela) ──────────────────
+
+  myInvitations(): Observable<Invitation[]> {
+    return this.http.get<Invitation[]>(`${this.base}/invitations`);
+  }
+
+  /** 404 para quem não foi convidado — igual a evento que não existe. */
+  invitation(id: string): Observable<InvitationDetail> {
+    return this.http.get<InvitationDetail>(`${this.base}/invitations/${id}`);
+  }
+
+  respond(id: string, answer: EventAnswer, note: string | null): Observable<InvitationAnswer> {
+    return this.http.post<InvitationAnswer>(`${this.base}/${id}/response`, { answer, note });
+  }
+
+  registerView(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/views`, null);
   }
 
   // ── Cadastro ───────────────────────────────────────────────────────────────
@@ -49,6 +69,14 @@ export class EventsService {
 
   unpublish(id: string): Observable<EventDetail> {
     return this.http.post<EventDetail>(`${this.base}/${id}/unpublish`, null);
+  }
+
+  attendance(id: string): Observable<Attendance> {
+    return this.http.get<Attendance>(`${this.base}/${id}/attendance`);
+  }
+
+  audienceOptions(): Observable<AudienceOptions> {
+    return this.http.get<AudienceOptions>(`${this.base}/audience-options`);
   }
 
   addTalk(eventId: string, data: TalkRequest): Observable<EventDetail> {

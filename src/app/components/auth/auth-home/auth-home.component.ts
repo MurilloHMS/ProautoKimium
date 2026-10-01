@@ -8,7 +8,7 @@ import { NotificationService } from '../../../infrastructure/services/notificati
 import { AnnouncementService } from '../../../infrastructure/services/hr/announcement.service';
 import { HomeService } from '../../../infrastructure/services/home/home.service';
 import { Announcement } from '../../../domain/models/hr/announcement.model';
-import { HomeSummary, PENDING_INFO, PendingAccent, PendingItem } from '../../../domain/models/home/home-summary.model';
+import { HomeSummary, PENDING_INFO, PendingAccent, PendingItem, pendingQuery } from '../../../domain/models/home/home-summary.model';
 
 /**
  * Home da área autenticada — o que está esperando você.
@@ -86,6 +86,8 @@ export class AuthHomeComponent implements OnInit {
       },
     });
   }
+
+  readonly query = pendingQuery;
 
   /** Tipo desconhecido não quebra a tela: cai num ícone genérico e na home. */
   info(item: PendingItem): { icon: string; rota: string; accent: PendingAccent } {

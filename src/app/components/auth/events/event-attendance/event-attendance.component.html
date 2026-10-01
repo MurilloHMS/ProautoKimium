@@ -1,0 +1,129 @@
+@if (carregando() && !dados()) {
+  <p class="estado"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+} @else if (erro() && !dados()) {
+  <div class="estado">
+    <p>Não foi possível carregar o acompanhamento.</p>
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Tentar de novo" (clicked)="carregar()" />
+  </div>
+} @else if (dados(); as d) {
+  <div class="tela" data-testid="acompanhamento">
+    <div class="cabeca">
+      <app-page-header icon="pi pi-users" [title]="'Acompanhamento · ' + d.eventName"
+                       [subtitle]="formatPeriod(d.startDate, d.endDate) + ' · quem viu e quem confirmou'" />
+      @if (!celular()) {
+        <div class="kpis">
+          <pk-kpi label="Convidados" [value]="d.invited" icon="pi pi-users" />
+          <pk-kpi label="Vão" [value]="d.going" icon="pi pi-check" tone="success" />
+          <pk-kpi label="Não vão" [value]="d.notGoing" icon="pi pi-times" />
+          <pk-kpi label="Sem resposta" [value]="d.noAnswer" icon="pi pi-clock" tone="warning" />
+          <pk-kpi label="Nem abriram" [value]="d.neverViewed" icon="pi pi-eye-slash" tone="danger" />
+        </div>
+      }
+    </div>
+
+    <app-toolbar>
+      <pk-button pkType="left" pkSize="sm" pkLabel="Voltar" (clicked)="back.emit()" />
+      <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="carregando()" (clicked)="carregar()" />
+      <pk-button pkType="excel" pkSize="sm" pkLabel="Exportar" data-testid="exportar" (clicked)="exportar()" />
+      <div filters class="filtros">
+        @if (celular()) {
+          <pk-combobox class="filtros__combo" [options]="opcoesFiltro()" optionLabel="label" optionValue="value"
+                       [ngModel]="filtro()" (ngModelChange)="filtro.set($event)" [dense]="true" />
+        } @else {
+          <pk-segmented [options]="opcoesFiltro()" [value]="filtro()" (valueChange)="filtro.set($event)"
+                        size="sm" ariaLabel="Filtrar convidados" data-testid="filtros" />
+        }
+        <input type="search" class="toolbar-search" placeholder="Buscar funcionário…" aria-label="Buscar funcionário"
+               [value]="busca()" (input)="busca.set($any($event.target).value)" />
+      </div>
+    </app-toolbar>
+
+    <div class="corpo">
+      @if (!celular()) {
+        <div class="planilha">
+          <table class="sheet" data-testid="tabela-presenca">
+            <thead>
+              <tr>
+                <th>Funcionário</th>
+                <th>Empresa · setor</th>
+                <th>Visualizou</th>
+                <th>Resposta</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of linhas(); track a.employeeId) {
+                <tr data-testid="linha" [class.linha--fora]="!a.invited">
+                  <td>
+                    <b>{{ a.name }}</b>
+                    @if (!a.invited) { <span class="status-chip status-chip--neutral fora">Saiu do público</span> }
+                  </td>
+                  <td>{{ ondeTrabalha(a) }}</td>
+                  <td>
+                    @if (a.viewCount) {
+                      <span class="audit">
+                        <span class="audit__who">{{ formatStamp(a.firstViewedAt) }} · {{ vezes(a.viewCount) }}</span>
+                        @if (a.viewCount > 1) { <small class="audit__when">última {{ formatStamp(a.lastViewedAt) }}</small> }
+                      </span>
+                    } @else {
+                      <span class="nunca"><i class="pi pi-eye-slash" aria-hidden="true"></i> Nunca abriu</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="audit">
+                      <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING'"
+                            [class.status-chip--neutral]="a.answer === 'NOT_GOING'" [class.status-chip--warning]="!a.answer">
+                        <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING'"
+                           [class.pi-times]="a.answer === 'NOT_GOING'" [class.pi-clock]="!a.answer"></i>
+                        {{ rotuloResposta(a) }}
+                      </span>
+                      @if (a.answeredAt) { <small class="audit__when">{{ formatStamp(a.answeredAt) }}</small> }
+                    </span>
+                  </td>
+                  <td class="obs">{{ a.note || '—' }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="vazio"><i class="pi pi-users"></i><p>Ninguém neste filtro.</p></td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="cartoes">
+          @for (a of linhas(); track a.employeeId) {
+            <article class="cartao" data-testid="cartao-pessoa" [class.cartao--rascunho]="!a.invited">
+              <div class="cartao__corpo">
+                <span class="cartao__titulo">{{ a.name }}</span>
+                <span class="cartao__sub">{{ ondeTrabalha(a) }}</span>
+              </div>
+              <span class="cartao__canto">{{ a.answeredAt ? formatStamp(a.answeredAt) : '' }}</span>
+              <div class="cartao__rodape">
+                <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING'"
+                      [class.status-chip--neutral]="a.answer === 'NOT_GOING'" [class.status-chip--warning]="!a.answer">
+                  <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING'"
+                     [class.pi-times]="a.answer === 'NOT_GOING'" [class.pi-clock]="!a.answer"></i>
+                  {{ rotuloResposta(a) }}
+                </span>
+                @if (a.viewCount) {
+                  <span class="cartao__sub">Abriu {{ vezes(a.viewCount) }}</span>
+                } @else {
+                  <span class="nunca">Nunca abriu</span>
+                }
+                @if (!a.invited) { <span class="status-chip status-chip--neutral">Saiu do público</span> }
+              </div>
+              @if (a.note) { <p class="cartao__nota">{{ a.note }}</p> }
+            </article>
+          } @empty {
+            <p class="vazio">Ninguém neste filtro.</p>
+          }
+          <!-- No celular a faixa de baixo ficaria atrás da barra: o aviso vai no fim da lista. -->
+          <p class="rodape-celular"><i class="pi pi-info-circle"></i> Respostas até {{ formatDeadline(d.startsAt) }} · {{ resumoLembrete() }}</p>
+        </div>
+      }
+    </div>
+
+    @if (!celular()) {
+      <p class="nota"><i class="pi pi-info-circle"></i> Respostas até {{ formatDeadline(d.startsAt) }} · {{ resumoLembrete() }}</p>
+    }
+  </div>
+}

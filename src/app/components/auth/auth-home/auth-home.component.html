@@ -66,7 +66,7 @@
 
       <div class="pend-lista">
         @for (item of minhasPendencias(); track item.title + item.since) {
-          <a [routerLink]="info(item).rota" class="pend-linha">
+          <a [routerLink]="info(item).rota" [queryParams]="query(item)" class="pend-linha">
             <span class="pend-linha__icone" [class]="'pend-linha__icone pend-linha__icone--' + info(item).accent">
               <i [class]="info(item).icon"></i>
             </span>
@@ -96,7 +96,7 @@
 
       <div class="pend-lista">
         @for (item of aprovacoes(); track item.title + item.detail + item.since) {
-          <a [routerLink]="info(item).rota" class="pend-linha">
+          <a [routerLink]="info(item).rota" [queryParams]="query(item)" class="pend-linha">
             <span class="pend-linha__icone" [class]="'pend-linha__icone pend-linha__icone--' + info(item).accent">
               <i [class]="info(item).icon"></i>
             </span>

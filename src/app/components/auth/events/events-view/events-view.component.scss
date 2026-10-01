@@ -209,3 +209,6 @@
   font: inherit;
   cursor: pointer;
 }
+
+// O cartão da resposta entra no fluxo, como os outros blocos do evento.
+.rsvp { display: block; }

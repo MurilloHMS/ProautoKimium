@@ -155,6 +155,14 @@ export function formatStamp(iso: string | null | undefined): string {
   return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')} ${hhmm(hora)}`;
 }
 
+/** "06/10, às 08:00" — o prazo da resposta e o "respondido em". */
+export function formatDeadline(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  const [data, hora] = iso.split('T');
+  const [, m, d] = partes(data);
+  return `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}, às ${hhmm(hora)}`;
+}
+
 // ─── Redes ────────────────────────────────────────────────────────────────
 
 export function instagramUrl(usuario: string | null | undefined): string | null {

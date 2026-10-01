@@ -1,0 +1,79 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'chips';
+@use 'sheet-grid';
+
+// A mesma casca do cadastro de eventos: cabeçalho parado, lista rolando por dentro.
+:host { @include m.grid-screen; }
+
+.tela { @include m.grid-screen; }
+
+.cabeca {
+  flex: 0 0 auto;
+  padding: 16px 20px 0;
+
+  app-page-header { display: block; margin-bottom: 12px; }
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.corpo { @include m.grid-screen-body; }
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filtros__combo { min-width: 190px; }
+
+.linha--fora td { color: var(--app-text-muted); }
+.fora { margin-left: 6px; }
+.obs { max-width: 360px; white-space: pre-line; overflow-wrap: anywhere; }
+
+.nunca {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--app-danger);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+}
+
+.cartao__nota {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--app-text);
+  font-size: .8rem;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  p { margin: 0; }
+}
+
+// O `.audit` é coluna flexível: sem isto o chip estica até a borda da célula.
+.audit .status-chip { align-self: flex-start; }
+
+.rodape-celular {
+  display: flex;
+  gap: 6px;
+  margin: .25rem .25rem 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+}

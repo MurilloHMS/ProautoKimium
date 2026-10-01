@@ -48,6 +48,12 @@ export const APP_MENU: AppMenuItem[] = [
         icon: 'pi pi-fw pi-home',
         routerLink: ['home'],
       },
+      // Sem `screen`: todo funcionário pode ter convite, e quem decide é a API.
+      {
+        label: 'Meus convites',
+        icon: 'pi pi-fw pi-calendar-plus',
+        routerLink: ['convites'],
+      },
       {
         label: 'Documentos',
         icon: 'pi pi-fw pi-folder',

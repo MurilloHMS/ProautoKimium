@@ -172,6 +172,8 @@ export const routes: Routes = [
       { path: 'reembolsos', redirectTo: 'documentos/rh/reimbursements', pathMatch: 'full' },
       { path: 'mural', redirectTo: 'documentos/rh/announcements', pathMatch: 'full' },
 
+      // Sem `screen`: ser convidado basta, e quem decide é a API (404 para quem não é).
+      { path: 'convites', loadComponent: () => import('./components/auth/events/invitations/invitations.component').then(m => m.InvitationsComponent) },
       { path: 'notificacoes', loadComponent: () => import('./components/auth/notificacoes/notificacoes.component').then(m => m.NotificacoesComponent) },
       { path: 'perfil', loadComponent: () => import('./components/auth/perfil/perfil.component').then(m => m.PerfilComponent), data: { screen: 'perfil' } },
     ],

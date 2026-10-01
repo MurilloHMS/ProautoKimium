@@ -64,6 +64,7 @@ describe('EventsViewComponent', () => {
 
     const detalhe: EventDetail = {
       ...resumo('a', 'Poseidon Week', '2026-09-22', '2026-09-25'), description: null, locationType: null,
+      startsAt: '2026-09-22T09:00:00', settings: null,
       talks: [
         { id: 't1', title: 'Descontaminação de pintura', description: null, date: '2026-09-23', startTime: '14:00:00', endTime: '15:30:00',
           room: null, locationType: 'EVENT', location: null,
@@ -98,5 +99,38 @@ describe('EventsViewComponent', () => {
 
     expect(fixture.nativeElement.querySelector('[data-testid="nao-encontrado"]')).not.toBeNull();
     expect(texto()).toContain('ainda não foi publicado');
+  });
+
+  describe('o cartão da resposta', () => {
+    const detalhe = (): EventDetail => ({
+      ...resumo('p', 'Poseidon Week', '2026-10-06', '2026-10-08'), description: null, locationType: null,
+      startsAt: '2026-10-06T08:00:00', settings: null, talks: [],
+    });
+
+    async function abrir(): Promise<void> {
+      await montar([]);
+      await TestBed.inject(Router).navigate([], { queryParams: { evento: 'p' } });
+      http.expectOne(`${API}/p`).flush(detalhe());
+      await fixture.whenStable();
+    }
+
+    it('convidado: o evento abre com o cartão, e a visualização conta', async () => {
+      await abrir();
+      http.expectOne(`${API}/invitations/p`).flush({ event: detalhe(), startsAt: '2026-10-06T08:00:00', open: true, answer: null });
+      http.expectOne(`${API}/p/views`).flush(null);
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="rsvp"]')).not.toBeNull();
+    });
+
+    it('não convidado: o evento abre igual, sem cartão e sem visualização', async () => {
+      await abrir();
+      http.expectOne(`${API}/invitations/p`).flush({}, { status: 404, statusText: 'Not Found' });
+      await fixture.whenStable();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="rsvp"]')).toBeNull();
+      expect(texto()).toContain('Poseidon Week');
+      http.expectNone(`${API}/p/views`);
+    });
   });
 });
