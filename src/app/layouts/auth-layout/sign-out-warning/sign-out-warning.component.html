@@ -7,7 +7,7 @@
   </pk-sheet>
 } @else {
   <pk-dialog [header]="title" [visible]="!!out.warning()" width="480px" (visibleChange)="!$event && out.stay()">
-    <div pkDialogContent class="pk-dialog-body"><ng-container *ngTemplateOutlet="body" /></div>
+    <div pkDialogContent><ng-container *ngTemplateOutlet="body" /></div>
     <div pkDialogFooter class="pk-dialog-footer aviso-saida__botoes"><ng-container *ngTemplateOutlet="actions" /></div>
   </pk-dialog>
 }

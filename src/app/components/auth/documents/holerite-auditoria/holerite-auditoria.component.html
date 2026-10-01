@@ -130,14 +130,14 @@
 
 <!-- Cancelamento: o motivo fica no registro para sempre, e é a explicação que
      alguém vai procurar meses depois, quando ninguém lembrar do contexto. -->
-<pk-dialog header="Cancelar holerite"
+<pk-dialog [flush]="true" header="Cancelar holerite"
            [visible]="!!cancelando()"
            (visibleChange)="fecharCancelamento()"
            width="480px">
 
   <div pkDialogContent>
-    <!-- `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
-         conteúdo de propósito, e é a seção que traz o espaçamento. -->
+    <!-- `pk-form-section` e não uma div solta: o pk-dialog aqui é `flush`
+         (sem o corpo padrão), e é a seção que traz o espaçamento. -->
     <div class="pk-form-section">
       @if (cancelando(); as item) {
       <p class="cancelar__aviso">

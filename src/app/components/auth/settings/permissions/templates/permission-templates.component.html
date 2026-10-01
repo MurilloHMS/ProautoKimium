@@ -125,12 +125,12 @@
 </div>
 
 <!-- ─── Criar, duplicar, renomear ───────────────────────────────────────── -->
-<pk-dialog [header]="formTitle()" [visible]="formOpen()" width="480px"
+<pk-dialog [flush]="true" [header]="formTitle()" [visible]="formOpen()" width="480px"
            (visibleChange)="formOpen.set($event)">
 
   <!--
-    `pk-form-section` e não uma div solta: o pk-dialog zera o padding do
-    conteúdo de propósito, e é a seção que traz o espaçamento.
+    `pk-form-section` e não uma div solta: o pk-dialog aqui é `flush`
+    (sem o corpo padrão), e é a seção que traz o espaçamento.
   -->
   <div pkDialogContent>
     <div class="pk-form-section">
@@ -168,7 +168,7 @@
 </pk-dialog>
 
 <!-- ─── Reaplicar ───────────────────────────────────────────────────────── -->
-<pk-dialog header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
+<pk-dialog [flush]="true" header="Reaplicar o modelo" [visible]="reapplyOpen()" width="520px"
            (visibleChange)="reapplyOpen.set($event)">
 
   <div pkDialogContent>

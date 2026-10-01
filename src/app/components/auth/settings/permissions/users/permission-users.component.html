@@ -158,7 +158,7 @@
 </div>
 
 <!-- ─── Aplicar modelo ──────────────────────────────────────────────────── -->
-<pk-dialog header="Aplicar modelo" [visible]="applyOpen()" width="580px"
+<pk-dialog [flush]="true" header="Aplicar modelo" [visible]="applyOpen()" width="580px"
            (visibleChange)="applyOpen.set($event)">
 
   <!--
@@ -241,7 +241,7 @@
 </pk-dialog>
 
 <!-- ─── Desfazer a aplicação de um modelo ───────────────────────────────── -->
-<pk-dialog [header]="'Desfazer ' + (undoTemplate()?.name ?? '')"
+<pk-dialog [flush]="true" [header]="'Desfazer ' + (undoTemplate()?.name ?? '')"
            [visible]="undoOpen()" width="480px"
            (visibleChange)="undoOpen.set($event)">
 
@@ -282,7 +282,7 @@
 </pk-dialog>
 
 <!-- ─── Copiar de outra pessoa ──────────────────────────────────────────── -->
-<pk-dialog [header]="'Copiar permissões para ' + (selected()?.name ?? '')"
+<pk-dialog [flush]="true" [header]="'Copiar permissões para ' + (selected()?.name ?? '')"
            [visible]="copyOpen()" width="480px"
            (visibleChange)="copyOpen.set($event)">
 

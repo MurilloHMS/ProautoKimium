@@ -60,12 +60,22 @@
   }
 }
 
-// Corpo padrão, projetado via ng-content. O `.p-dialog-content` fica sem
-// padding de propósito (quem usa seções de formulário traz o próprio); quem
-// projeta texto e lista direto usa esta classe — sem ela o conteúdo encosta
-// nas bordas do diálogo (o convite da digital saiu assim, 2026-09-30).
-::ng-deep .pk-dialog-body {
+// Corpo padrão: margem nas bordas e espaço entre os blocos, sem ninguém
+// precisar lembrar de classe. Era opcional (`.pk-dialog-body`) e todo diálogo
+// novo esquecia — abria com os componentes colados (2026-10-01). Quem traz o
+// próprio espaçamento (`pk-form-section`, colunas) pede `[flush]="true"`.
+::ng-deep .pk-dialog__corpo:not(.pk-dialog__corpo--flush) {
   padding: 20px 24px;
+
+  > [pkDialogContent] {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    // O espaço entre blocos é o `gap`; a margem padrão do navegador (o `<p>`)
+    // somaria por cima e cada diálogo ficaria com um respiro diferente.
+    > * { margin-block: 0; }
+  }
 }
 
 // Rodapé padrão, projetado via ng-content

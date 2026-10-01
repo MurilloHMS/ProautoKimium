@@ -100,7 +100,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog header="Tipos de documento" width="820px" [visible]="open()" (visibleChange)="close()">
+  <pk-dialog [flush]="true" header="Tipos de documento" width="820px" [visible]="open()" (visibleChange)="close()">
     <div pkDialogContent class="tipos tipos--lado">
       <div class="tipos__coluna">
         <ng-container *ngTemplateOutlet="lista" />

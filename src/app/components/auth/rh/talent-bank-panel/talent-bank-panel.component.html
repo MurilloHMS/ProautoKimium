@@ -179,7 +179,7 @@
   }
 </div>
 
-<pk-dialog header="Excluir do banco de talentos"
+<pk-dialog [flush]="true" header="Excluir do banco de talentos"
            [visible]="!!excluindo()"
            (visibleChange)="fecharExclusao()"
            width="480px">
