@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin, of, catchError } from 'rxjs';
 
-import { EventDetail, EventSummary, EventTalk } from '../../../../domain/models/events.model';
+import { EventDetail, EventSummary, EventTalk, InvitationAnswer, InvitationDetail } from '../../../../domain/models/events.model';
 import {
   coverDateBox, eventPhase, formatPeriod, hhmm, phaseLabel, talkStatuses,
 } from '../../../../domain/utils/events';
@@ -13,6 +13,7 @@ import { EventsService } from '../../../../infrastructure/services/events/events
 import { saoPauloNowSignal } from '../../../../infrastructure/state/sao-paulo-now';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { EventDetailComponent } from '../event-detail/event-detail.component';
+import { EventRsvpComponent } from '../event-rsvp/event-rsvp.component';
 
 interface NoAr {
   evento: EventDetail;
@@ -30,7 +31,7 @@ interface NoAr {
 @Component({
   selector: 'app-events-view',
   standalone: true,
-  imports: [PageHeaderComponent, EventDetailComponent],
+  imports: [PageHeaderComponent, EventDetailComponent, EventRsvpComponent],
   templateUrl: './events-view.component.html',
   styleUrl: './events-view.component.scss',
 })
@@ -53,6 +54,8 @@ export class EventsViewComponent implements OnInit {
   private readonly deHoje = signal<EventDetail[]>([]);
 
   readonly aberto = signal<EventDetail | null>(null);
+  /** O convite do evento aberto, quando quem vê foi convidado; senão, nulo e sem cartão. */
+  readonly convite = signal<InvitationDetail | null>(null);
   readonly abrindo = signal(false);
   readonly naoEncontrado = signal(false);
 
@@ -124,15 +127,18 @@ export class EventsViewComponent implements OnInit {
     this.naoEncontrado.set(false);
     if (!id) {
       this.aberto.set(null);
+      this.convite.set(null);
       return;
     }
     if (this.aberto()?.id === id) return;
 
     this.abrindo.set(true);
+    this.convite.set(null);
     this.service.get(id).subscribe({
       next: evento => {
         this.aberto.set(evento);
         this.abrindo.set(false);
+        this.carregarConvite(id);
       },
       error: (err: HttpErrorResponse) => {
         this.abrindo.set(false);
@@ -142,6 +148,25 @@ export class EventsViewComponent implements OnInit {
         if (err?.status !== 404) this.erro.set(true);
       },
     });
+  }
+
+  /**
+   * 404 aqui é o normal de quem não foi convidado: o evento abre sem o cartão.
+   * Quem foi convidado ganha o cartão, e abrir conta para o Acompanhamento.
+   */
+  private carregarConvite(id: string): void {
+    this.service.invitation(id).subscribe({
+      next: convite => {
+        if (this.aberto()?.id !== id) return;
+        this.convite.set(convite);
+        this.service.registerView(id).subscribe({ error: () => undefined });
+      },
+      error: () => undefined,
+    });
+  }
+
+  respondeu(resposta: InvitationAnswer): void {
+    this.convite.update(c => c ? { ...c, answer: resposta } : c);
   }
 
   abrir(evento: { id: string }): void {

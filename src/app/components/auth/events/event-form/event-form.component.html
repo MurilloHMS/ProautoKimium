@@ -98,6 +98,59 @@
                          [emptyText]="tipoLocalEvento() === 'COMPANY' ? 'Escolha uma empresa com endereço para ver no mapa' : 'Preencha rua e cidade para ver no mapa'" />
       }
     </section>
+
+    <section class="bloco" data-testid="bloco-convidados">
+      <h2 class="bloco__titulo"><i class="pi pi-users"></i> Convidados e lembrete</h2>
+      <div class="radios" role="radiogroup" aria-label="Quem é convidado">
+        <label class="radio"><input type="radio" formControlName="audienceAll" [value]="true" data-testid="publico-todos"> <i class="pi pi-globe"></i> Todos os funcionários</label>
+        <label class="radio"><input type="radio" formControlName="audienceAll" [value]="false" data-testid="publico-escolher"> <i class="pi pi-filter"></i> Escolher</label>
+      </div>
+
+      @if (publicoTodos()) {
+        <small class="dica">Todo funcionário ativo com acesso ao KimiumHub — inclusive quem for contratado depois.</small>
+      } @else {
+        <div class="form-grid form-grid--publico">
+          <div class="form-field">
+            <pk-multiselect label="Empresas" formControlName="audienceCompanyIds" [options]="opcoesEmpresasPublico()"
+                            placeholder="Nenhuma" />
+            <small class="dica">Todo funcionário ativo da empresa.</small>
+          </div>
+          <div class="form-field">
+            <pk-multiselect label="Setores" formControlName="audienceDepartmentIds" [options]="opcoesSetoresPublico()"
+                            placeholder="Nenhum" />
+            <small class="dica">Pelo setor da equipe. Quem não tem equipe não entra por aqui.</small>
+          </div>
+          <div class="form-field">
+            <pk-multiselect label="Pessoas" formControlName="audienceEmployeeIds" [options]="opcoesPessoasPublico()"
+                            placeholder="Buscar pelo nome" />
+            <small class="dica">Para quem não entra pelos outros dois.</small>
+          </div>
+        </div>
+        @if (publicoVazio()) {
+          <small class="erro" data-testid="publico-vazio">Escolha pelo menos uma empresa, um setor ou uma pessoa.</small>
+        } @else {
+          <small class="dica">Quem entrar nessas empresas ou setores depois também é convidado.</small>
+        }
+      }
+
+      <div class="lembrete">
+        <pk-checkbox formControlName="reminderEnabled" inputId="ev-lembrete" label="Lembrar quem ainda não respondeu" />
+        @if (lembreteLigado()) {
+          <div class="lembrete__hora">
+            <label for="ev-lembrete-dias">Começar</label>
+            <input id="ev-lembrete-dias" type="number" min="1" max="60" step="1" inputmode="numeric"
+                   class="lembrete__dias" formControlName="reminderDaysBefore" data-testid="lembrete-dias" />
+            <label for="ev-lembrete-hora">dias antes do evento, todo dia às</label>
+            <p-select inputId="ev-lembrete-hora" formControlName="reminderTime" [options]="opcoesHora"
+                      optionLabel="label" optionValue="value" appendTo="body" styleClass="select-field lembrete__select" />
+            <small class="dica lembrete__resumo">
+              @if (inicioDoLembrete()) { A partir de {{ inicioDoLembrete() }}, }
+              até o início do evento{{ prazoDoLembrete() ? ' (' + prazoDoLembrete() + ')' : '' }}. Só para quem não respondeu.
+            </small>
+          </div>
+        }
+      </div>
+    </section>
   </form>
 
   @if (atual(); as e) {
@@ -269,7 +322,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog [header]="tituloPalestra()" [visible]="!!palestra()" (visibleChange)="fecharPalestra()" width="760px">
+  <pk-dialog [flush]="true" [header]="tituloPalestra()" [visible]="!!palestra()" (visibleChange)="fecharPalestra()" width="760px">
     <div pkDialogContent>
       <div class="pk-form-section">
         <ng-container *ngTemplateOutlet="corpoPalestra" />
@@ -282,7 +335,7 @@
   </pk-dialog>
 }
 
-<pk-dialog header="Excluir palestra" [visible]="!!excluindoPalestra()" (visibleChange)="excluindoPalestra.set(null)" width="440px">
+<pk-dialog [flush]="true" header="Excluir palestra" [visible]="!!excluindoPalestra()" (visibleChange)="excluindoPalestra.set(null)" width="440px">
   <div pkDialogContent>
     <div class="pk-form-section">
       @if (excluindoPalestra(); as t) {
@@ -296,7 +349,7 @@
   </div>
 </pk-dialog>
 
-<pk-dialog header="Excluir evento" [visible]="excluindo()" (visibleChange)="excluindo.set(false)" width="460px">
+<pk-dialog [flush]="true" header="Excluir evento" [visible]="excluindo()" (visibleChange)="excluindo.set(false)" width="460px">
   <div pkDialogContent>
     <div class="pk-form-section">
       @if (atual(); as e) {

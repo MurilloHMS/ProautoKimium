@@ -12,7 +12,9 @@
   (visibleChange)="onVisibleChange($event)">
 
   <ng-template pTemplate="content">
-    <ng-content select="[pkDialogContent]" />
+    <div class="pk-dialog__corpo" [class.pk-dialog__corpo--flush]="flush()">
+      <ng-content select="[pkDialogContent]" />
+    </div>
   </ng-template>
 
   <ng-template pTemplate="footer">

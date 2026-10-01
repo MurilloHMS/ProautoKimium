@@ -23,6 +23,7 @@ const POSEIDON: EventDetail = {
   location: { source: 'ADDRESS', companyId: null, name: 'Proauto Kimium',
     address: { zipCode: null, street: 'Av. Colombo', number: '5790', complement: null, district: null, city: 'Maringá', state: 'PR', formatted: 'Av. Colombo, 5790, Maringá - PR' } },
   publishedAt: '2026-09-14T10:00:00', updatedAt: null, updatedBy: null,
+  startsAt: '2026-09-22T09:00:00', settings: null,
   talks: [
     talk('manha', '2026-09-23', '09:00', '10:30'),
     talk('tarde', '2026-09-23', '14:00', '15:30'),

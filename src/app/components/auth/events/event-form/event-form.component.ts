@@ -10,18 +10,21 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { Address } from '../../../../domain/models/address.model';
 import {
-  EventDetail, EventLocationType, EventTalk, Speaker, TalkLocationType, TalkRequest,
+  AudienceOption, AudienceOptions, EventDetail, EventLocationType, EventRequest, EventTalk, Speaker, TalkLocationType,
+  TalkRequest,
 } from '../../../../domain/models/events.model';
 import { apiMessage } from '../../../../domain/utils/api-error';
 import { Coordinates, coordinatesOf, formatAddress, isUsableAddress } from '../../../../domain/utils/address';
-import { dayTab, eventDays, formatDateBr, formatStamp, hhmm, initials } from '../../../../domain/utils/events';
+import { dayTab, eventDays, formatDateBr, formatDeadline, formatStamp, hhmm, initials } from '../../../../domain/utils/events';
 import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { EventsService } from '../../../../infrastructure/services/events/events.service';
 import { CompanyStore } from '../../../../infrastructure/state/org-structure.store';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkCheckboxComponent } from '../../../theme/ProautoKimium/pk-checkbox/pk-checkbox.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input.component';
+import { PkMultiselectComponent } from '../../../theme/ProautoKimium/pk-multiselect/pk-multiselect.component';
 import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
 import { AddressFieldsComponent, addressFromGroup, addressGroup, addressPatch } from '../../shared/address-fields/address-fields.component';
 import { FormScreenComponent } from '../../shared/form-screen/form-screen.component';
@@ -40,7 +43,7 @@ const vazio = (a: Address | null) => !a || !Object.values(a).some(v => v);
   standalone: true,
   imports: [
     FormsModule, ReactiveFormsModule, NgTemplateOutlet, Select, TooltipModule, PkCanDirective, PkButtonComponent,
-    PkDialogComponent, PkInputComponent, PkSheetComponent, AddressFieldsComponent, FormScreenComponent, MapPreviewComponent,
+    PkCheckboxComponent, PkDialogComponent, PkInputComponent, PkMultiselectComponent, PkSheetComponent, AddressFieldsComponent, FormScreenComponent, MapPreviewComponent,
   ],
   templateUrl: './event-form.component.html',
   styleUrl: './event-form.component.scss',
@@ -93,6 +96,13 @@ export class EventFormComponent implements OnInit {
     companyId: [null as string | null],
     placeName: ['', Validators.maxLength(150)],
     address: this.enderecoEvento,
+    audienceAll: [true],
+    audienceCompanyIds: [[] as string[]],
+    audienceDepartmentIds: [[] as string[]],
+    audienceEmployeeIds: [[] as string[]],
+    reminderEnabled: [false],
+    reminderTime: ['09:00:00'],
+    reminderDaysBefore: [3 as number | null],
   });
 
   private readonly valorEvento = toSignal(this.form.valueChanges.pipe(startWith(this.form.value)));
@@ -100,6 +110,50 @@ export class EventFormComponent implements OnInit {
   readonly tipoLocalEvento = computed(() => this.valorEvento()?.locationType ?? 'NONE');
 
   readonly mapaEvento = computed(() => this.mapaDe(this.valorEvento(), 'NONE'));
+
+  // ── Convidados e lembrete ───────────────────────────────────────────────────
+
+  /** Empresas, setores e pessoas dos seletores — por `/audience-options`, e não pelo RH. */
+  readonly opcoesPublico = signal<AudienceOptions>({ companies: [], departments: [], employees: [] });
+
+  readonly opcoesEmpresasPublico = computed(() => this.paraSelect(this.opcoesPublico().companies));
+  readonly opcoesSetoresPublico = computed(() => this.paraSelect(this.opcoesPublico().departments));
+  readonly opcoesPessoasPublico = computed(() => this.paraSelect(this.opcoesPublico().employees));
+
+  /** O lembrete roda de hora em hora: só hora cheia. */
+  readonly opcoesHora = Array.from({ length: 24 }, (_, h) => {
+    const hh = String(h).padStart(2, '0');
+    return { label: `${hh}:00`, value: `${hh}:00:00` };
+  });
+
+  readonly publicoTodos = computed(() => this.valorEvento()?.audienceAll !== false);
+  readonly lembreteLigado = computed(() => !!this.valorEvento()?.reminderEnabled);
+
+  readonly publicoVazio = computed(() => {
+    const v = this.valorEvento();
+    return v?.audienceAll === false
+      && !v.audienceCompanyIds?.length && !v.audienceDepartmentIds?.length && !v.audienceEmployeeIds?.length;
+  });
+
+  /** "a partir de 03/10" — o primeiro dia do lembrete, para conferir a conta antes de salvar. */
+  readonly inicioDoLembrete = computed(() => {
+    const v = this.valorEvento();
+    const dias = Number(v?.reminderDaysBefore);
+    if (!v?.startDate || !Number.isInteger(dias) || dias < 1) return null;
+    const [y, m, d] = String(v.startDate).split('-').map(Number);
+    const dia = new Date(Date.UTC(y, m - 1, d - dias));
+    return `${String(dia.getUTCDate()).padStart(2, '0')}/${String(dia.getUTCMonth() + 1).padStart(2, '0')}`;
+  });
+
+  /** "até o início do evento (06/10, às 08:00)" — o prazo é o mesmo das respostas. */
+  readonly prazoDoLembrete = computed(() => {
+    const e = this.atual();
+    return e?.startsAt ? formatDeadline(e.startsAt) : null;
+  });
+
+  private paraSelect(lista: AudienceOption[]): { label: string; value: string }[] {
+    return lista.map(o => ({ label: o.detail ? `${o.name} — ${o.detail}` : o.name, value: o.id }));
+  }
 
   readonly periodoInvalido = computed(() => {
     const v = this.valorEvento();
@@ -203,6 +257,11 @@ export class EventFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.companies.load();
+    // Sem as opções, "Escolher" fica com os seletores vazios — e o "Todos" continua funcionando.
+    this.service.audienceOptions().subscribe({
+      next: opcoes => this.opcoesPublico.set(opcoes),
+      error: () => undefined,
+    });
   }
 
   titulo(): string {
@@ -226,7 +285,34 @@ export class EventFormComponent implements OnInit {
       companyId: e?.locationType === 'COMPANY' ? e.location?.companyId ?? null : null,
       placeName: e?.locationType === 'ADDRESS' ? e.location?.name ?? '' : '',
       address: addressPatch(endereco),
+      audienceAll: e?.settings?.audienceAll ?? true,
+      audienceCompanyIds: e?.settings?.companies.map(o => o.id) ?? [],
+      audienceDepartmentIds: e?.settings?.departments.map(o => o.id) ?? [],
+      audienceEmployeeIds: e?.settings?.employees.map(o => o.id) ?? [],
+      reminderEnabled: e?.settings?.reminderEnabled ?? false,
+      reminderTime: e?.settings?.reminderTime ?? '09:00:00',
+      reminderDaysBefore: e?.settings?.reminderDaysBefore ?? 3,
     });
+    this.incluirEscolhidosNasOpcoes(e);
+  }
+
+  /**
+   * Quem foi escolhido e depois saiu do cadastro de opções (desligado, por
+   * exemplo) continua aparecendo no seletor — senão o chip sumiria calado e o
+   * próximo "Salvar" tiraria a pessoa sem ninguém ter pedido.
+   */
+  private incluirEscolhidosNasOpcoes(e: EventDetail | null): void {
+    const s = e?.settings;
+    if (!s) return;
+    const junta = (atuais: AudienceOption[], escolhidos: AudienceOption[]) => {
+      const ids = new Set(atuais.map(o => o.id));
+      return [...atuais, ...escolhidos.filter(o => !ids.has(o.id))];
+    };
+    this.opcoesPublico.update(o => ({
+      companies: junta(o.companies, s.companies),
+      departments: junta(o.departments, s.departments),
+      employees: junta(o.employees, s.employees),
+    }));
   }
 
   aoEscolherCapa(event: Event): void {
@@ -265,8 +351,18 @@ export class EventFormComponent implements OnInit {
       return;
     }
     const endereco = addressFromGroup(this.enderecoEvento);
+    const dias = Number(v.reminderDaysBefore);
+    if (v.reminderEnabled && (!Number.isInteger(dias) || dias < 1 || dias > 60)) {
+      this.erro('O lembrete começa de 1 a 60 dias antes do evento.');
+      return;
+    }
+    if (this.publicoVazio()) {
+      this.erro('Escolha pelo menos uma empresa, um setor ou uma pessoa para convidar.');
+      return;
+    }
+    const todos = v.audienceAll !== false;
 
-    const dados = {
+    const dados: EventRequest = {
       name: v.name.trim(),
       description: (v.description ?? '').trim() || null,
       startDate: v.startDate,
@@ -276,6 +372,13 @@ export class EventFormComponent implements OnInit {
       placeName: tipo === 'ADDRESS' ? (v.placeName ?? '').trim() || null : null,
       address: tipo === 'ADDRESS' && !vazio(endereco) ? endereco : null,
       removeCover: this.removerCapa(),
+      audienceAll: todos,
+      audienceCompanyIds: todos ? [] : v.audienceCompanyIds ?? [],
+      audienceDepartmentIds: todos ? [] : v.audienceDepartmentIds ?? [],
+      audienceEmployeeIds: todos ? [] : v.audienceEmployeeIds ?? [],
+      reminderEnabled: !!v.reminderEnabled,
+      reminderTime: v.reminderEnabled ? v.reminderTime : null,
+      reminderDaysBefore: v.reminderEnabled ? Number(v.reminderDaysBefore) : null,
     };
 
     const e = this.atual();

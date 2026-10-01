@@ -1,0 +1,138 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+@use 'chips';
+
+:host {
+  gap: 14px;
+  @include m.page-layout;
+
+  & { display: flex; flex-direction: column; }
+}
+
+// O cartão da resposta entra no fluxo, como os outros blocos do evento.
+.rsvp { display: block; }
+
+.rotulo {
+  margin: 6px 0 0;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-head);
+  text-transform: uppercase;
+  color: var(--app-text-muted);
+}
+
+.aviso {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-surface);
+  background: var(--app-info-soft);
+  color: var(--app-text);
+}
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 12px;
+}
+
+.convite {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { border-color: var(--app-border-strong); }
+  &:focus-visible { outline: 2px solid var(--app-action); outline-offset: 2px; }
+
+  &--fechado { opacity: .85; }
+}
+
+.convite__topo { display: flex; gap: 12px; align-items: center; min-width: 0; }
+
+.convite__data {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-3);
+  color: var(--app-text);
+  line-height: 1.1;
+
+  b { font-family: v.$font-heading; font-size: 17px; font-weight: 800; }
+  small { font-size: var(--text-micro); font-weight: 600; text-transform: uppercase; }
+
+  &--destaque { background: var(--app-action); color: var(--app-on-action); }
+}
+
+.convite__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  b { font-size: 16px; overflow-wrap: anywhere; }
+  small { font-size: 13px; color: var(--app-text-muted); }
+}
+
+.convite__rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.convite__ir {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--app-action);
+
+  i { font-size: var(--text-micro); }
+}
+
+.estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 16px;
+  color: var(--app-text-muted);
+  text-align: center;
+
+  p { margin: 0; }
+}
+
+.estado__icone { font-size: 2rem; opacity: .5; }
+
+.botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--btn-h-md);
+  padding: 0 14px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  cursor: pointer;
+}

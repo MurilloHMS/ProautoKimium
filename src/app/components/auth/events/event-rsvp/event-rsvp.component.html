@@ -1,0 +1,77 @@
+<section class="rsvp" aria-label="Sua presença" data-testid="rsvp">
+  @if (salva(); as r) {
+    <span class="rsvp__icone" aria-hidden="true"
+          [class.rsvp__icone--vai]="r.answer === 'GOING'" [class.rsvp__icone--nao]="r.answer === 'NOT_GOING'">
+      <i class="pi" [class.pi-check]="r.answer === 'GOING'" [class.pi-times]="r.answer === 'NOT_GOING'"></i>
+    </span>
+    <div class="rsvp__texto" data-testid="resposta">
+      <b>{{ r.answer === 'GOING' ? 'Você vai' : 'Você não vai' }}</b>
+      <small>
+        Respondido em {{ quando(r.answeredAt) }}@if (r.note) { · <span class="rsvp__nota-curta">{{ r.note }}</span> }
+      </small>
+    </div>
+    @if (open()) {
+      <pk-button class="rsvp__acao" pkType="edit" pkSize="sm" pkLabel="Alterar resposta" data-testid="alterar" (clicked)="responder()" />
+    } @else {
+      <small class="rsvp__fechado" data-testid="fechado">O evento já começou: a resposta fica como está.</small>
+    }
+  } @else {
+    <span class="rsvp__icone rsvp__icone--pendente" aria-hidden="true"><i class="pi pi-calendar"></i></span>
+    <div class="rsvp__texto">
+      @if (open()) {
+        <b>Você ainda não respondeu</b>
+        <small>Responda até {{ prazo() }}.</small>
+      } @else {
+        <b>Você não respondeu</b>
+        <small data-testid="fechado">O evento já começou e você não respondeu.</small>
+      }
+    </div>
+    @if (open()) {
+      <pk-button class="rsvp__acao" pkType="save" pkSize="sm" pkIcon="pi pi-calendar-plus"
+                 pkLabel="Confirmar participação" data-testid="confirmar" (clicked)="responder()" />
+    }
+  }
+</section>
+
+<ng-template #formulario>
+  <div class="form">
+    <p class="form__prazo">Dá para mudar até o início: {{ prazo() }}.</p>
+    <pk-segmented [options]="opcoes" [value]="escolha()" (valueChange)="escolher($event)" [fill]="true"
+                  ariaLabel="Sua resposta" data-testid="opcoes" />
+    <div class="form-field">
+      <label for="rsvp-nota-{{ eventId() }}">Observação <span class="label-hint">(se quiser)</span></label>
+      <textarea id="rsvp-nota-{{ eventId() }}" rows="4" data-testid="nota" [attr.maxlength]="NOTE_MAX"
+                placeholder="Ex.: vou só no primeiro dia; preciso de refeição vegetariana"
+                [ngModel]="nota()" (ngModelChange)="nota.set($event)"></textarea>
+      <span class="form__contador" data-testid="contador"
+            [class.form__contador--limite]="tamanho() >= NOTE_MAX">{{ tamanho() }}/{{ NOTE_MAX }}</span>
+    </div>
+    @if (erro()) {
+      <p class="form__erro" role="alert" data-testid="erro"><i class="pi pi-exclamation-circle"></i> {{ erro() }}</p>
+    }
+  </div>
+</ng-template>
+
+@if (celular()) {
+  <pk-sheet [open]="editando()" [fit]="true" title="Confirmar participação" (closed)="cancelar()">
+    <div pkSheetBody>
+      <ng-container *ngTemplateOutlet="formulario" />
+    </div>
+    <div pkSheetFooter>
+      <pk-button pkType="cancel" pkLabel="Cancelar" (clicked)="cancelar()" />
+      <pk-button pkType="save" pkLabel="Salvar resposta" data-testid="salvar" [pkLoading]="salvando()"
+                 [pkDisabled]="!escolha() || salvando()" (clicked)="salvar()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog header="Confirmar participação" [visible]="editando()" (visibleChange)="cancelar()" width="520px">
+    <div pkDialogContent>
+      <ng-container *ngTemplateOutlet="formulario" />
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelar()" />
+      <pk-button pkType="save" pkSize="sm" pkLabel="Salvar resposta" data-testid="salvar" [pkLoading]="salvando()"
+                 [pkDisabled]="!escolha() || salvando()" (clicked)="salvar()" />
+    </div>
+  </pk-dialog>
+}

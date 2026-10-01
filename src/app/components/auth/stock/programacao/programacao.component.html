@@ -592,7 +592,7 @@
     </div>
   }
 } @else {
-  <pk-dialog
+  <pk-dialog [flush]="true"
     [header]="previsaoAberta() ? 'Previsão · ' + machineName(previsaoAberta()!.machineId) : ''"
     [visible]="!!previsaoAberta()"
     width="700px"
@@ -818,7 +818,7 @@
     </div>
   }
 } @else {
-  <pk-dialog
+  <pk-dialog [flush]="true"
     [header]="'Histórico · ' + historicoDe()"
     [visible]="historicoAberto()"
     width="560px"

@@ -10,13 +10,16 @@ export type PendingType =
   | 'FERIAS_AGUARDANDO'
   | 'REEMBOLSO_AGUARDANDO'
   | 'APROVACAO_FERIAS'
-  | 'APROVACAO_REEMBOLSO';
+  | 'APROVACAO_REEMBOLSO'
+  | 'EVENT_RSVP';
 
 export interface PendingItem {
   type: PendingType;
   title: string;
   detail: string;
   since: string | null;
+  /** O registro de que a pendência fala, quando a tela abre aquele um: o evento do convite. */
+  refId?: string | null;
 }
 
 export interface HomeSummary {
@@ -46,4 +49,10 @@ export const PENDING_INFO: Record<PendingType, { icon: string; rota: string; acc
   REEMBOLSO_AGUARDANDO:    { icon: 'pi pi-wallet',   rota: '/documentos/rh/reimbursements',      accent: 'teal'  },
   APROVACAO_FERIAS:        { icon: 'pi pi-sun',      rota: '/rh/vacation-requests',              accent: 'amber' },
   APROVACAO_REEMBOLSO:     { icon: 'pi pi-wallet',   rota: '/rh/reimbursements',                 accent: 'teal'  },
+  EVENT_RSVP:              { icon: 'pi pi-calendar', rota: '/convites',                          accent: 'navy'  },
 };
+
+/** O convite abre direto no evento: `/convites?evento=<id>`. Os outros tipos abrem a lista. */
+export function pendingQuery(item: PendingItem): Record<string, string> | null {
+  return item.type === 'EVENT_RSVP' && item.refId ? { evento: item.refId } : null;
+}

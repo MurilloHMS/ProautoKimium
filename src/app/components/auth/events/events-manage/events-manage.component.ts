@@ -20,6 +20,7 @@ import { PkInputComponent } from '../../../theme/ProautoKimium/pk-input/pk-input
 import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 import { ToolbarComponent } from '../../shared/toolbar/toolbar.component';
+import { EventAttendanceComponent } from '../event-attendance/event-attendance.component';
 import { EventDetailComponent } from '../event-detail/event-detail.component';
 import { EventFormComponent } from '../event-form/event-form.component';
 import { NgTemplateOutlet } from '@angular/common';
@@ -40,7 +41,7 @@ type Ordem<T> = { campo: keyof T; direcao: 1 | -1 };
   standalone: true,
   imports: [
     ReactiveFormsModule, Toast, TooltipModule, NgTemplateOutlet, PkCanDirective, PkButtonComponent, PkDialogComponent,
-    PkInputComponent, PkSheetComponent, PageHeaderComponent, ToolbarComponent, EventDetailComponent, EventFormComponent,
+    PkInputComponent, PkSheetComponent, PageHeaderComponent, ToolbarComponent, EventAttendanceComponent, EventDetailComponent, EventFormComponent,
   ],
   providers: [MessageService],
   templateUrl: './events-manage.component.html',
@@ -55,8 +56,10 @@ export class EventsManageComponent implements OnInit {
   readonly agora = saoPauloNowSignal();
 
   readonly secao = signal<Secao>('eventos');
-  /** Lista, formulário de um evento, ou o evento como Documentos mostra. */
-  readonly modo = signal<'lista' | 'formulario' | 'previa'>('lista');
+  /** Lista, formulário de um evento, o evento como Documentos mostra, ou quem vai. */
+  readonly modo = signal<'lista' | 'formulario' | 'previa' | 'acompanhamento'>('lista');
+  /** O evento do Acompanhamento. */
+  readonly acompanhando = signal<string | null>(null);
   readonly ehCelular = signal(false);
 
   readonly formatPeriod = formatPeriod;
@@ -200,6 +203,11 @@ export class EventsManageComponent implements OnInit {
     });
   }
 
+  acompanhar(e: { id: string }): void {
+    this.acompanhando.set(e.id);
+    this.modo.set('acompanhamento');
+  }
+
   /** O formulário salvou algo: a lista reflete, e o formulário continua aberto. */
   aoSalvarEvento(detalhe: EventDetail): void {
     this.emEdicao.set(detalhe);
@@ -210,6 +218,7 @@ export class EventsManageComponent implements OnInit {
     this.modo.set('lista');
     this.emEdicao.set(null);
     this.previa.set(null);
+    this.acompanhando.set(null);
     this.carregarEventos();
   }
 

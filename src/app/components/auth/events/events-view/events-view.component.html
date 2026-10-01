@@ -1,5 +1,10 @@
 @if (aberto(); as evento) {
-  <app-event-detail [event]="evento" [now]="agora()" (back)="fechar()" />
+  <app-event-detail [event]="evento" [now]="agora()" (back)="fechar()">
+    @if (convite(); as c) {
+      <app-event-rsvp class="rsvp" [eventId]="c.event.id" [startsAt]="c.startsAt" [open]="c.open"
+                      [answer]="c.answer" (answered)="respondeu($event)" />
+    }
+  </app-event-detail>
 } @else {
   <app-page-header icon="pi pi-calendar" title="Eventos" subtitle="Programação dos eventos da empresa" />
 

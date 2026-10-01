@@ -229,7 +229,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog header="Editar documento" width="440px" [visible]="!!editTarget()" (visibleChange)="editTarget.set(null)">
+  <pk-dialog [flush]="true" header="Editar documento" width="440px" [visible]="!!editTarget()" (visibleChange)="editTarget.set(null)">
     <div pkDialogContent class="janela"><ng-container *ngTemplateOutlet="edicao" /></div>
     <div pkDialogFooter class="pk-dialog-footer">
       <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="editTarget.set(null)" />
@@ -242,7 +242,7 @@
   Excluir. A pergunta diz o que acontece de verdade: o arquivo some, e se este
   era o substituto de outro, o anterior volta a valer — e a gerar aviso.
 -->
-<pk-dialog header="Excluir documento" width="440px" [visible]="!!deleteTarget()" (visibleChange)="deleteTarget.set(null)">
+<pk-dialog [flush]="true" header="Excluir documento" width="440px" [visible]="!!deleteTarget()" (visibleChange)="deleteTarget.set(null)">
   <div pkDialogContent class="janela">
     @if (deleteTarget(); as alvo) {
       <p class="janela__texto">

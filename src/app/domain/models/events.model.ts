@@ -98,6 +98,36 @@ export interface EventDetail {
   updatedAt: string | null;
   updatedBy: string | null;
   talks: EventTalk[];
+  /** Até quando dá para responder ao convite: o primeiro dia, na hora da primeira palestra. */
+  startsAt: string;
+  /** Público e lembrete. Só chega para quem cadastra. */
+  settings: EventSettings | null;
+}
+
+/** Uma empresa, um setor ou uma pessoa nos seletores do público. */
+export interface AudienceOption {
+  id: string;
+  name: string;
+  /** "Matriz · Comercial" ao lado do nome da pessoa. */
+  detail: string | null;
+}
+
+export interface AudienceOptions {
+  companies: AudienceOption[];
+  departments: AudienceOption[];
+  employees: AudienceOption[];
+}
+
+export interface EventSettings {
+  audienceAll: boolean;
+  companies: AudienceOption[];
+  departments: AudienceOption[];
+  employees: AudienceOption[];
+  reminderEnabled: boolean;
+  /** "09:00:00", sempre hora cheia. */
+  reminderTime: string | null;
+  /** Quantos dias antes do primeiro dia o lembrete começa (1 a 60). */
+  reminderDaysBefore: number | null;
 }
 
 export interface EventRequest {
@@ -110,4 +140,82 @@ export interface EventRequest {
   placeName: string | null;
   address: Address | null;
   removeCover: boolean;
+  audienceAll: boolean;
+  audienceCompanyIds: string[];
+  audienceDepartmentIds: string[];
+  audienceEmployeeIds: string[];
+  reminderEnabled: boolean;
+  reminderTime: string | null;
+  reminderDaysBefore: number | null;
+}
+
+// ─── Confirmação de presença ────────────────────────────────────────────────
+
+export type EventAnswer = 'GOING' | 'NOT_GOING';
+
+/** O limite da observação — o mesmo da coluna `event_responses.note`. */
+export const NOTE_MAX = 500;
+
+export interface InvitationAnswer {
+  answer: EventAnswer;
+  note: string | null;
+  firstAnsweredAt: string;
+  answeredAt: string;
+}
+
+/** Um card de "Meus convites". */
+export interface Invitation {
+  event: EventSummary;
+  startsAt: string;
+  /** Ainda dá para responder. */
+  open: boolean;
+  answer: InvitationAnswer | null;
+}
+
+/** O convite aberto: o evento inteiro e a resposta. */
+export interface InvitationDetail {
+  event: EventDetail;
+  startsAt: string;
+  open: boolean;
+  answer: InvitationAnswer | null;
+}
+
+export interface Attendee {
+  employeeId: string;
+  name: string;
+  companyName: string | null;
+  departmentName: string | null;
+  /** Falso: respondeu ou abriu, e depois saiu do público. Fora dos totais. */
+  invited: boolean;
+  firstViewedAt: string | null;
+  lastViewedAt: string | null;
+  viewCount: number;
+  answer: EventAnswer | null;
+  note: string | null;
+  firstAnsweredAt: string | null;
+  answeredAt: string | null;
+}
+
+export interface ReminderDay {
+  day: string;
+  sentAt: string;
+  recipients: number;
+}
+
+export interface Attendance {
+  eventId: string;
+  eventName: string;
+  startDate: string;
+  endDate: string;
+  startsAt: string;
+  reminderEnabled: boolean;
+  reminderTime: string | null;
+  reminderDaysBefore: number | null;
+  reminderDays: ReminderDay[];
+  invited: number;
+  going: number;
+  notGoing: number;
+  noAnswer: number;
+  neverViewed: number;
+  attendees: Attendee[];
 }

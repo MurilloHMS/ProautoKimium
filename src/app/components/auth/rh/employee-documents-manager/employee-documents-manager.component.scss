@@ -270,7 +270,7 @@
 
 // ─── Janelas ────────────────────────────────────────────────────────────────
 
-// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+// O `pk-dialog` aqui é `flush` (sem o corpo padrão); quem projeta traz o seu.
 .janela { padding: 16px 20px 20px; }
 
 .janela__texto { margin: 0 0 10px; line-height: 1.5; }

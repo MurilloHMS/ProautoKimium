@@ -297,7 +297,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog
+  <pk-dialog [flush]="true"
     [header]="reviewAction === 'approve' ? 'Aprovar reembolso' : 'Recusar reembolso'"
     [visible]="reviewDialogVisible"
     (visibleChange)="reviewDialogVisible = $event">
@@ -374,7 +374,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog header="Registrar pagamento" width="640px" [visible]="payDialogVisible" (visibleChange)="payDialogVisible = $event">
+  <pk-dialog [flush]="true" header="Registrar pagamento" width="640px" [visible]="payDialogVisible" (visibleChange)="payDialogVisible = $event">
     <div pkDialogContent class="pagamento pagamento--lado">
       <ng-container *ngTemplateOutlet="pagamentoCalendario" />
 

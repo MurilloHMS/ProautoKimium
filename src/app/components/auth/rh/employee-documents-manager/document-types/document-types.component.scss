@@ -4,7 +4,7 @@
   gap: 12px;
 }
 
-// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+// O `pk-dialog` aqui é `flush` (sem o corpo padrão); quem projeta traz o seu.
 .tipos--lado {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);

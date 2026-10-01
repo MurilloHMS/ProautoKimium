@@ -1,0 +1,64 @@
+@if (aberto(); as convite) {
+  <app-event-detail [event]="convite.event" [now]="agora()" backLabel="Meus convites" (back)="fechar()">
+    <app-event-rsvp class="rsvp" [eventId]="convite.event.id" [startsAt]="convite.startsAt"
+                    [open]="convite.open" [answer]="convite.answer" (answered)="respondeu($event)" />
+  </app-event-detail>
+} @else {
+  <app-page-header icon="pi pi-calendar-plus" title="Meus convites"
+                   subtitle="Responda até o início de cada evento" />
+
+  @if (naoEncontrado()) {
+    <p class="aviso" data-testid="nao-encontrado">
+      <i class="pi pi-info-circle"></i> Este convite não existe mais ou não é para você.
+    </p>
+  }
+
+  @if (carregando() || abrindo()) {
+    <p class="estado"><i class="pi pi-spin pi-spinner"></i> Carregando…</p>
+  } @else if (erro()) {
+    <div class="estado estado--erro">
+      <p>Não foi possível carregar os convites.</p>
+      <button type="button" class="botao" (click)="carregar()"><i class="pi pi-refresh"></i> Tentar de novo</button>
+    </div>
+  } @else {
+    @for (grupo of grupos(); track grupo.titulo) {
+      <h2 class="rotulo">{{ grupo.titulo }}</h2>
+      <div class="lista">
+        @for (i of grupo.itens; track i.event.id) {
+          @let s = situacao(i);
+          <button type="button" class="convite" data-testid="convite" [class.convite--fechado]="!i.open" (click)="abrir(i)">
+            <span class="convite__topo">
+              <span class="convite__data" [class.convite__data--destaque]="s === 'aguardando'">
+                <b>{{ coverDateBox(i.event.startDate, i.event.endDate).dias }}</b>
+                <small>{{ coverDateBox(i.event.startDate, i.event.endDate).mes }}</small>
+              </span>
+              <span class="convite__texto">
+                <b>{{ i.event.name }}</b>
+                <small>
+                  {{ formatPeriod(i.event.startDate, i.event.endDate) }}@if (i.event.location?.name) { · {{ i.event.location!.name }} }
+                </small>
+              </span>
+            </span>
+            <span class="convite__rodape">
+              <span class="status-chip" data-testid="situacao"
+                    [class.status-chip--warning]="s === 'aguardando'"
+                    [class.status-chip--success]="s === 'vai'"
+                    [class.status-chip--neutral]="s === 'nao-vai' || s === 'fechado'">
+                <i class="pi" aria-hidden="true"
+                   [class.pi-clock]="s === 'aguardando'" [class.pi-check]="s === 'vai'"
+                   [class.pi-times]="s === 'nao-vai'" [class.pi-minus]="s === 'fechado'"></i>
+                {{ rotulo(i) }}
+              </span>
+              <span class="convite__ir">{{ s === 'aguardando' ? 'Responder' : 'Ver' }} <i class="pi pi-chevron-right" aria-hidden="true"></i></span>
+            </span>
+          </button>
+        }
+      </div>
+    } @empty {
+      <div class="estado">
+        <i class="pi pi-calendar estado__icone"></i>
+        <p>Nenhum convite por enquanto.</p>
+      </div>
+    }
+  }
+}

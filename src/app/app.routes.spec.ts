@@ -24,8 +24,10 @@ describe('app.routes · o catálogo de telas', () => {
    *   pessoa barrada sem nem o aviso de que foi barrada.
    * - `home` e `notificacoes` são o mínimo que todo logado precisa.
    * - `cliente/*` é o portal, que tem sessão e escopo próprios.
+   * - `convites` é a confirmação de presença: ser convidado basta (decisão de
+   *   2026-10-01), e quem decide é a API — 404 para quem não foi convidado.
    */
-  const FORA_DO_CONTROLE = ['home', 'unauthorized', 'notificacoes'];
+  const FORA_DO_CONTROLE = ['home', 'unauthorized', 'notificacoes', 'convites'];
 
   /** Anda pela árvore inteira: as rotas do ERP moram sob o layout autenticado. */
   const todas = (lista: Route[], prefixo = ''): { path: string; data?: Record<string, unknown> }[] =>
@@ -75,11 +77,11 @@ describe('app.routes · o catálogo de telas', () => {
    *
    * Lista copiada dos `notificationService.notify(…)` da API (2026-09-28):
    * ReimbursementService, AnnouncementService, EmployeeDocumentService e
-   * HoleriteService. Link novo lá entra aqui.
+   * HoleriteService. Link novo lá entra aqui — `/convites` é do EventReminderService.
    */
   it('todo link de notificação da API chega a uma tela', () => {
     const LINKS_DA_API = ['/reembolsos', '/mural', '/documentos', '/documentos/holerites',
-      '/documentos/rh/documents', '/rh/employee-documents'];
+      '/documentos/rh/documents', '/rh/employee-documents', '/convites'];
 
     const telas = new Set(todas(routes).map(r => r.path));
     const redirects = new Map<string, string>();

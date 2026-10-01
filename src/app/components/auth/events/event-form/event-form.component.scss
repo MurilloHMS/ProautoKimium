@@ -202,3 +202,49 @@ app-form-screen { display: block; margin: 12px; }
 }
 
 .confirmacao { margin: 0; font-size: var(--text-ui); color: var(--app-text); }
+
+// ── Convidados e lembrete ────────────────────────────────────────────────────
+.form-grid--publico {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+
+  @media (max-width: v.$bp-md) { grid-template-columns: minmax(0, 1fr); }
+}
+
+.lembrete {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--app-border-soft);
+}
+
+.lembrete__hora {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-left: 28px;
+
+  label { font-size: var(--text-ui); color: var(--app-text-muted); }
+
+  @media (max-width: v.$bp-md) { padding-left: 0; }
+}
+
+:host ::ng-deep .lembrete__select { width: 110px; }
+
+.lembrete__dias {
+  width: 72px;
+  height: var(--field-h);
+  padding: 0 10px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+}
+
+.lembrete__resumo { flex-basis: 100%; }

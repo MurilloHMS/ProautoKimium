@@ -104,7 +104,7 @@
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog header="Vincular documento" width="780px" [visible]="open()" (visibleChange)="close()">
+  <pk-dialog [flush]="true" header="Vincular documento" width="780px" [visible]="open()" (visibleChange)="close()">
     <div pkDialogContent class="vinc vinc--lado">
       <ng-container *ngTemplateOutlet="campos" />
       <ng-container *ngTemplateOutlet="vencimento" />

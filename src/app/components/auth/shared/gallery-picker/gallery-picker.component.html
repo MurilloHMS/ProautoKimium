@@ -1,10 +1,10 @@
-<pk-dialog
+<pk-dialog [flush]="true"
   [header]="titulo()"
   [visible]="visible()"
   width="820px"
   (visibleChange)="fechar()">
 
-  <!-- pk-dialog zera o padding do conteúdo de propósito: o respiro vem daqui. -->
+  <!-- pk-dialog aqui é `flush`, sem o corpo padrão: o respiro vem daqui. -->
   <div pkDialogContent class="pk-form-section">
 
     <div class="gp-busca">

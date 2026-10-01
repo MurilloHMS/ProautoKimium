@@ -519,7 +519,7 @@
   > * { margin: 0; }
 }
 
-// O `pk-dialog` zera o padding do conteúdo; a folha já traz o dela.
+// O `pk-dialog` aqui é `flush` (sem o corpo padrão); a folha já traz o dela.
 .revisao:not(.revisao--folha) { padding: 16px 20px 20px; }
 
 // 16px no campo: abaixo disso o iPhone dá zoom ao focar, e a folha pula.
@@ -536,7 +536,7 @@
   gap: 14px;
 }
 
-// O `pk-dialog` zera o padding do conteúdo; quem projeta traz o seu.
+// O `pk-dialog` aqui é `flush` (sem o corpo padrão); quem projeta traz o seu.
 .pagamento--lado {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

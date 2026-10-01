@@ -712,7 +712,7 @@
   width: 100%;
 }
 
-// O `pk-dialog` zera o padding do conteúdo: quem projeta traz o seu. Sem
+// O `pk-dialog` aqui é `flush` (sem o corpo padrão): quem projeta traz o seu. Sem
 // isto o calendário encostava na borda do diálogo.
 .previsao-dialogo {
   display: flex;
