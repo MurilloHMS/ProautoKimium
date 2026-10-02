@@ -420,3 +420,44 @@
 
   ::ng-deep .p-skeleton { border-radius: var(--radius-control); }
 }
+
+// ─── Prévia do Gerar ───────────────────────────────────────────────────────────
+
+.generate-error {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: 0.8rem;
+}
+
+.guide-preview {
+  margin-top: 1.5rem;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  overflow: hidden;
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 75vh;
+    border: 0;
+    background: var(--app-surface-3);
+  }
+}
+
+.guide-preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--app-border);
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}

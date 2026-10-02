@@ -7,11 +7,20 @@
         <i class="pi pi-file-pdf"></i>
       </div>
       <div>
-        <h1 class="page-title">Gerar Guia de Utilização</h1>
-        <p class="page-subtitle">Selecione os produtos, configure e gere o guia em PDF</p>
+        <h1 class="page-title">{{ showLayout() ? 'Layout do Guia de Utilização' : 'Gerar Guia de Utilização' }}</h1>
+        <p class="page-subtitle">{{ showLayout()
+          ? 'Monte as colunas, o cabeçalho e o rodapé. Contratos só vê depois de publicado.'
+          : 'Selecione os produtos, configure e gere o guia em PDF' }}</p>
       </div>
     </div>
+    @if (canGenerate() && canEditLayout()) {
+      <pk-segmented [options]="modeOptions" [value]="mode()" (valueChange)="mode.set($event)" ariaLabel="Modo da tela" />
+    }
   </div>
+
+  @if (showLayout()) {
+    <app-guide-layout-editor />
+  } @else {
 
   <!-- Main Layout -->
   <div class="guide-layout">
@@ -208,16 +217,39 @@
           iconPos="left"
           styleClass="generate-btn"
           [loading]="generating"
-          [disabled]="!canGenerate"
+          [disabled]="!readyToGenerate"
           (onClick)="gerarGuia()">
         </p-button>
 
-        <p class="generate-hint" *ngIf="!canGenerate && !generating">
+        <pk-button
+          pkType="refresh"
+          pkLabel="Ver prévia"
+          pkIcon="pi pi-eye"
+          [pkLoading]="previewLoading()"
+          [pkDisabled]="!readyToGenerate"
+          (clicked)="verPrevia()" />
+
+        <p class="generate-hint" *ngIf="!readyToGenerate && !generating">
           <i class="pi pi-exclamation-circle"></i>
           Preencha o título e selecione ao menos um produto.
         </p>
+
+        @if (error()) {
+          <p class="generate-error" role="alert"><i class="pi pi-exclamation-triangle"></i> {{ error() }}</p>
+        }
       </div>
 
     </div>
   </div>
+
+  @if (previewUrl(); as url) {
+    <section class="guide-preview" aria-label="Prévia do guia">
+      <div class="guide-preview__head">
+        <span><i class="pi pi-eye"></i> Prévia do PDF — é o arquivo que vai ser baixado</span>
+        <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar" [pkLoading]="previewLoading()" (clicked)="verPrevia()" />
+      </div>
+      <iframe [src]="url" title="Prévia do guia de utilização"></iframe>
+    </section>
+  }
+  }
 </div>

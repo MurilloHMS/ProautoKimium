@@ -1,15 +1,25 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { SkeletonModule } from 'primeng/skeleton';
 import {ProductWebSiteResponseDTO} from "../../../domain/models/products.model";
 import {WebsiteProductStore} from "../../../infrastructure/state/website-product.store";
-import {environment} from "../../../../environments/environment";
 import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.component";
+import {PkSegmentedComponent} from "../../theme/ProautoKimium/pk-segmented/pk-segmented.component";
+import {PkButtonComponent} from "../../theme/ProautoKimium/pk-button/pk-button.component";
+import {PermissionStore} from "../../../infrastructure/state/permission.store";
+import {GuideLayoutService} from "../../../infrastructure/services/guide-layout.service";
+import {apiMessageOrFallback} from "../../../domain/utils/api-error";
+import {GuideLayoutEditorComponent} from "./layout-editor/guide-layout-editor.component";
+
+type GuideMode = 'gerar' | 'layout';
+
+/** A tela é uma só: INCLUIR gera guia (Contratos), CONFIGURAR edita o layout (Design). */
+export const GUIDE_SCREEN = 'company/guide';
 
 @Component({
   selector: 'app-guide',
@@ -21,11 +31,39 @@ import {PkInputComponent} from "../../theme/ProautoKimium/pk-input/pk-input.comp
     InputTextModule,
     SkeletonModule,
     PkInputComponent,
+    PkSegmentedComponent,
+    PkButtonComponent,
+    GuideLayoutEditorComponent,
   ],
   templateUrl: './guide.component.html',
   styleUrl: './guide.component.scss',
 })
 export class GuideComponent implements OnInit {
+  private readonly permissions = inject(PermissionStore);
+  private readonly layoutService = inject(GuideLayoutService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // ─── Modo ───────────────────────────────────────────────────────────────────
+  /**
+   * Quem só gera (Contratos) nunca vê o Layout; quem só edita (Design) cai
+   * direto nele. As duas permissões juntas mostram a troca.
+   */
+  readonly canGenerate = computed(() => this.permissions.can(GUIDE_SCREEN, 'INCLUIR'));
+  readonly canEditLayout = computed(() => this.permissions.can(GUIDE_SCREEN, 'CONFIGURAR'));
+  readonly mode = signal<GuideMode>('gerar');
+  readonly modeOptions = [
+    { label: 'Gerar', value: 'gerar' },
+    { label: 'Layout', value: 'layout' },
+  ];
+  readonly showLayout = computed(() => this.canEditLayout() && (this.mode() === 'layout' || !this.canGenerate()));
+
+  // ─── Prévia e erros do Gerar ────────────────────────────────────────────────
+  readonly previewUrl = signal<SafeResourceUrl | null>(null);
+  readonly previewLoading = signal(false);
+  readonly error = signal('');
+  private previewObjectUrl: string | null = null;
+
   // ─── State ──────────────────────────────────────────────────────────────────
   /**
    * A lista é a mesma de Produtos do site, e é a lista **inteira**: `items()`,
@@ -74,11 +112,15 @@ export class GuideComponent implements OnInit {
       this.filteredProducts().every(p => this.selectedIds.has(p.id));
   }
 
-  get canGenerate(): boolean {
+  get readyToGenerate(): boolean {
     return this.guideTitle.trim().length > 0 && this.selectedProducts.length > 0;
   }
 
-  constructor(private http: HttpClient) {}
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.previewObjectUrl) URL.revokeObjectURL(this.previewObjectUrl);
+    });
+  }
 
   ngOnInit(): void {
     this.productStore.load();
@@ -170,27 +212,14 @@ export class GuideComponent implements OnInit {
   }
 
   // ─── Generate ───────────────────────────────────────────────────────────────
+  /** Baixa o PDF. O desenho é sempre o do layout publicado. */
   gerarGuia(): void {
     this.titleInvalid = !this.guideTitle.trim();
-    if (!this.canGenerate) return;
+    if (!this.readyToGenerate) return;
 
     this.generating = true;
-
-    const formData = new FormData();
-
-    const requestPayload = {
-      tituloGuia: this.guideTitle.trim(),
-      productIds: this.selectedProducts.map(p => p.id),
-    };
-    formData.append('request', new Blob([JSON.stringify(requestPayload)], { type: 'application/json' }));
-
-    if (this.logoFile) {
-      formData.append('logoCliente', this.logoFile);
-    } else {
-      formData.append('logoCliente', new Blob([], { type: 'image/png' }), 'empty.png');
-    }
-
-    this.http.post(`${environment.apiUrl}/v1/reports/guide`, formData, { responseType: 'blob' })
+    this.error.set('');
+    this.layoutService.generate(this.guideTitle.trim(), this.selectedProducts.map(p => p.id), this.logoFile, false)
       .subscribe({
         next: (blob) => {
           this.generating = false;
@@ -202,8 +231,31 @@ export class GuideComponent implements OnInit {
           a.click();
           URL.revokeObjectURL(url);
         },
-        error: () => {
+        error: async (err) => {
           this.generating = false;
+          this.error.set(await apiMessageOrFallback(err, 'Não foi possível gerar o guia. Tente de novo.'));
+        }
+      });
+  }
+
+  /** O mesmo PDF do download, mostrado aqui antes de baixar. */
+  verPrevia(): void {
+    this.titleInvalid = !this.guideTitle.trim();
+    if (!this.readyToGenerate) return;
+
+    this.previewLoading.set(true);
+    this.error.set('');
+    this.layoutService.generate(this.guideTitle.trim(), this.selectedProducts.map(p => p.id), this.logoFile, true)
+      .subscribe({
+        next: (blob) => {
+          this.previewLoading.set(false);
+          if (this.previewObjectUrl) URL.revokeObjectURL(this.previewObjectUrl);
+          this.previewObjectUrl = URL.createObjectURL(blob);
+          this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.previewObjectUrl + '#view=FitH'));
+        },
+        error: async (err) => {
+          this.previewLoading.set(false);
+          this.error.set(await apiMessageOrFallback(err, 'Não foi possível gerar a prévia. Tente de novo.'));
         }
       });
   }
