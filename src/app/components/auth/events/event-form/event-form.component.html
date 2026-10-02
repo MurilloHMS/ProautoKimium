@@ -73,6 +73,7 @@
       <div class="radios" role="radiogroup" aria-label="Local do evento">
         <label class="radio"><input type="radio" formControlName="locationType" value="COMPANY"> <i class="pi pi-building"></i> Empresa do grupo</label>
         <label class="radio"><input type="radio" formControlName="locationType" value="ADDRESS"> <i class="pi pi-map-marker"></i> Outro endereço</label>
+        <label class="radio"><input type="radio" formControlName="locationType" value="ONLINE" data-testid="local-online"> <i class="pi pi-video"></i> Online (live)</label>
         <label class="radio"><input type="radio" formControlName="locationType" value="NONE"> Ainda sem local</label>
       </div>
 
@@ -91,16 +92,41 @@
           </div>
           <app-address-fields [group]="enderecoEvento" [required]="true" />
         }
+        @case ('ONLINE') {
+          <div class="form-grid">
+            <div class="form-field form-field--full">
+              <pk-input label="Link da transmissão" formControlName="onlineUrl" [pkRequired]="true" [pkMaxLength]="500"
+                        placeholder="https://www.instagram.com/… ou https://meet.google.com/…" data-testid="link-online" />
+              @if (linkInvalido()) {
+                <small class="erro" data-testid="link-invalido">Use o endereço inteiro, começando com https://</small>
+              } @else if (linkDigitado()) {
+                <small class="plataforma" data-testid="plataforma"><i [class]="plataforma().icon"></i> Reconhecido: <b>{{ plataforma().name }}</b></small>
+              } @else {
+                <small class="dica">Instagram, YouTube, LinkedIn, Google Meet, Teams, Zoom ou qualquer outro link https.</small>
+              }
+            </div>
+            <div class="form-field">
+              <label for="ev-live-inicio">Começa <span class="required">*</span></label>
+              <input id="ev-live-inicio" type="time" formControlName="startTime" />
+            </div>
+            <div class="form-field">
+              <label for="ev-live-fim">Termina <span class="required">*</span></label>
+              <input id="ev-live-fim" type="time" formControlName="endTime" />
+              @if (horarioDaLiveInvalido()) { <small class="erro">O fim precisa ser depois do início.</small> }
+            </div>
+          </div>
+          <small class="dica">O colaborador responde "Estou ciente", em vez de Vou / Não vou, e o botão Assistir abre este link.</small>
+        }
       }
 
-      @if (tipoLocalEvento() !== 'NONE') {
+      @if (tipoLocalEvento() !== 'NONE' && tipoLocalEvento() !== 'ONLINE') {
         <app-map-preview [address]="mapaEvento().texto" [coords]="mapaEvento().ponto" [height]="220"
                          [emptyText]="tipoLocalEvento() === 'COMPANY' ? 'Escolha uma empresa com endereço para ver no mapa' : 'Preencha rua e cidade para ver no mapa'" />
       }
     </section>
 
     <section class="bloco" data-testid="bloco-convidados">
-      <h2 class="bloco__titulo"><i class="pi pi-users"></i> Convidados e lembrete</h2>
+      <h2 class="bloco__titulo"><i class="pi pi-users"></i> Convidados e avisos</h2>
       <div class="radios" role="radiogroup" aria-label="Quem é convidado">
         <label class="radio"><input type="radio" formControlName="audienceAll" [value]="true" data-testid="publico-todos"> <i class="pi pi-globe"></i> Todos os funcionários</label>
         <label class="radio"><input type="radio" formControlName="audienceAll" [value]="false" data-testid="publico-escolher"> <i class="pi pi-filter"></i> Escolher</label>
@@ -133,8 +159,21 @@
         }
       }
 
+      <div class="avisos">
+        @if (avisoEnviadoEm(); as quando) {
+          <small class="dica" data-testid="aviso-enviado"><i class="pi pi-check-circle"></i> Os convidados foram avisados da publicação em {{ formatStamp(quando) }}.</small>
+        } @else {
+          <pk-checkbox formControlName="announceOnPublish" inputId="ev-avisar" label="Avisar todos os convidados ao publicar"
+                       description="Sino, push no celular e item na Home, uma vez só." />
+        }
+        @if (online()) {
+          <pk-checkbox formControlName="notifyLiveStart" inputId="ev-comecou" label="Avisar &quot;Começou agora&quot; na hora da live"
+                       description="Para todos os convidados, com o botão Assistir." />
+        }
+      </div>
+
       <div class="lembrete">
-        <pk-checkbox formControlName="reminderEnabled" inputId="ev-lembrete" label="Lembrar quem ainda não respondeu" />
+        <pk-checkbox formControlName="reminderEnabled" inputId="ev-lembrete" [label]="online() ? 'Lembrar quem ainda não confirmou' : 'Lembrar quem ainda não respondeu'" />
         @if (lembreteLigado()) {
           <div class="lembrete__hora">
             <label for="ev-lembrete-dias">Começar</label>

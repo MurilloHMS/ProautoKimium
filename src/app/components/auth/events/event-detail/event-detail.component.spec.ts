@@ -21,9 +21,10 @@ const POSEIDON: EventDetail = {
   id: 'ev-1', name: 'Poseidon Week', description: null, startDate: '2026-09-22', endDate: '2026-09-25', coverUrl: null,
   locationType: 'ADDRESS',
   location: { source: 'ADDRESS', companyId: null, name: 'Proauto Kimium',
-    address: { zipCode: null, street: 'Av. Colombo', number: '5790', complement: null, district: null, city: 'Maringá', state: 'PR', formatted: 'Av. Colombo, 5790, Maringá - PR' } },
+    address: { zipCode: null, street: 'Av. Colombo', number: '5790', complement: null, district: null, city: 'Maringá', state: 'PR', formatted: 'Av. Colombo, 5790, Maringá - PR' }, onlineUrl: null },
   publishedAt: '2026-09-14T10:00:00', updatedAt: null, updatedBy: null,
   startsAt: '2026-09-22T09:00:00', settings: null,
+  startTime: null, endTime: null, endsAt: '2026-09-26T00:00:00', answersUntil: '2026-09-22T09:00:00',
   talks: [
     talk('manha', '2026-09-23', '09:00', '10:30'),
     talk('tarde', '2026-09-23', '14:00', '15:30'),
@@ -31,7 +32,7 @@ const POSEIDON: EventDetail = {
     talk('cliente', '2026-09-23', '17:30', '18:30', {
       locationType: 'ADDRESS',
       location: { source: 'ADDRESS', companyId: null, name: 'Lava Rápido Estrela',
-        address: { zipCode: null, street: 'R. Néo Alves Martins', number: '2100', complement: null, district: 'Centro', city: 'Maringá', state: 'PR', formatted: 'R. Néo Alves Martins, 2100 - Centro, Maringá - PR' } },
+        address: { zipCode: null, street: 'R. Néo Alves Martins', number: '2100', complement: null, district: 'Centro', city: 'Maringá', state: 'PR', formatted: 'R. Néo Alves Martins, 2100 - Centro, Maringá - PR' }, onlineUrl: null },
     }),
     talk('quinta', '2026-09-24', '09:00', '11:00'),
   ],

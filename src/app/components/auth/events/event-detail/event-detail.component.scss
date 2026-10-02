@@ -483,3 +483,80 @@
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+// ── Live ─────────────────────────────────────────────────────────────────────
+// O botão é um <a> de verdade: leitor de tela anuncia link, toque longo copia
+// o endereço, e o rel corta o acesso da página aberta a esta (noopener) e o
+// endereço do ERP no Referer (noreferrer).
+
+.live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  padding: 16px 18px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+
+.live--ao-vivo {
+  border-color: color-mix(in srgb, var(--app-danger) 45%, var(--app-border));
+  box-shadow: inset 3px 0 0 var(--app-danger);
+}
+
+.live__texto {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.live__plataforma {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 4px;
+  font-size: 18px;
+}
+
+.live__quando {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: 13px;
+}
+
+.live__assistir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  background: var(--app-action);
+  color: var(--app-on-action);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+
+  @media (max-width: v.$bp-md) {
+    width: 100%;
+  }
+}
+
+.live--ao-vivo .live__assistir {
+  background: var(--app-danger);
+}
+
+.live--encerrada .live__assistir {
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  border: 1px solid var(--app-border-strong);
+}

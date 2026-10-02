@@ -21,7 +21,7 @@ const ACOMPANHAMENTO: Attendance = {
     { day: '2026-09-30', sentAt: '2026-09-30T09:00:01', recipients: 3 },
     { day: '2026-10-01', sentAt: '2026-10-01T09:00:01', recipients: 2 },
   ],
-  invited: 3, going: 1, notGoing: 0, noAnswer: 2, neverViewed: 1,
+  invited: 3, going: 1, notGoing: 0, noAnswer: 2, neverViewed: 1, acknowledged: 0, online: false,
   attendees: [
     pessoa('Carlos', { viewCount: 2, firstViewedAt: '2026-10-01T09:03:00', lastViewedAt: '2026-10-01T10:00:00' }),
     pessoa('Diego', { viewCount: 1, firstViewedAt: '2026-09-30T08:41:00', lastViewedAt: '2026-09-30T08:41:00',

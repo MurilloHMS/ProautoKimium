@@ -72,7 +72,7 @@
                     <tr [class.linha--rascunho]="!e.publishedAt">
                       <td><b>{{ e.name }}</b></td>
                       <td class="num">{{ formatDateBr(e.startDate) }}{{ e.startDate !== e.endDate ? ' a ' + formatDateBr(e.endDate) : '' }}</td>
-                      <td>{{ e.location?.name || '—' }}{{ e.awayTalkCount ? ' · ' + e.awayTalkCount + ' fora' : '' }}</td>
+                      <td>{{ onde(e) || '—' }}{{ e.awayTalkCount ? ' · ' + e.awayTalkCount + ' fora' : '' }}</td>
                       <td class="num">{{ e.talkCount }} {{ e.talkCount === 1 ? 'item' : 'itens' }}</td>
                       <td><span class="status-chip" [class]="'status-chip ' + s.classe">{{ s.rotulo }}</span></td>
                       <td>
@@ -87,6 +87,7 @@
                         <button type="button" class="acao" pTooltip="Ver como fica" tooltipPosition="left" aria-label="Ver como fica" (click)="verComoFica(e)"><i class="pi pi-eye"></i></button>
                         <button type="button" class="acao" data-testid="acompanhar" pTooltip="Acompanhamento: quem viu e quem vai" tooltipPosition="left" aria-label="Acompanhamento" (click)="acompanhar(e)"><i class="pi pi-users"></i></button>
                         <button *pkCan="'communication/events:ALTERAR'" type="button" class="acao" pTooltip="Editar" tooltipPosition="left" aria-label="Editar" (click)="editarEvento(e)"><i class="pi pi-pencil"></i></button>
+                        <button *pkCan="'communication/events:INCLUIR'" type="button" class="acao" data-testid="duplicar" pTooltip="Duplicar para a próxima semana" tooltipPosition="left" aria-label="Duplicar para a próxima semana" (click)="duplicar(e)"><i class="pi pi-copy"></i></button>
                         <button *pkCan="'communication/events:EXCLUIR'" type="button" class="acao acao--perigo" pTooltip="Excluir" tooltipPosition="left" aria-label="Excluir" (click)="excluindoEvento.set(e)"><i class="pi pi-trash"></i></button>
                       </td>
                     </tr>
@@ -104,7 +105,7 @@
                 <article class="cartao" [class.cartao--rascunho]="!e.publishedAt">
                   <button type="button" class="cartao__corpo" (click)="editarEvento(e)">
                     <span class="cartao__titulo">{{ e.name }}</span>
-                    <span class="cartao__sub">{{ e.location?.name || 'Sem local' }} · {{ e.talkCount }} {{ e.talkCount === 1 ? 'item' : 'itens' }}</span>
+                    <span class="cartao__sub">{{ onde(e) || 'Sem local' }} · {{ e.talkCount }} {{ e.talkCount === 1 ? 'item' : 'itens' }}</span>
                   </button>
                   <span class="cartao__canto">{{ formatDateBr(e.startDate).slice(0, 5) }}</span>
                   <div class="cartao__rodape">
@@ -114,6 +115,7 @@
                     }
                     <button type="button" class="cartao__atalho cartao__atalho--fim" (click)="acompanhar(e)"><i class="pi pi-users"></i> Quem vai</button>
                     <button type="button" class="cartao__atalho" (click)="verComoFica(e)"><i class="pi pi-eye"></i> Ver como fica</button>
+                    <button *pkCan="'communication/events:INCLUIR'" type="button" class="cartao__atalho" (click)="duplicar(e)"><i class="pi pi-copy"></i> Duplicar +7 dias</button>
                   </div>
                 </article>
               } @empty {

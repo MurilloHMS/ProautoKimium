@@ -13,9 +13,14 @@
       @if (!celular()) {
         <div class="kpis">
           <pk-kpi label="Convidados" [value]="d.invited" icon="pi pi-users" />
-          <pk-kpi label="Vão" [value]="d.going" icon="pi pi-check" tone="success" />
-          <pk-kpi label="Não vão" [value]="d.notGoing" icon="pi pi-times" />
-          <pk-kpi label="Sem resposta" [value]="d.noAnswer" icon="pi pi-clock" tone="warning" />
+          @if (d.online) {
+            <pk-kpi label="Cientes" [value]="d.acknowledged" icon="pi pi-check" tone="success" />
+            <pk-kpi label="Ainda não" [value]="d.noAnswer" icon="pi pi-clock" tone="warning" />
+          } @else {
+            <pk-kpi label="Vão" [value]="d.going" icon="pi pi-check" tone="success" />
+            <pk-kpi label="Não vão" [value]="d.notGoing" icon="pi pi-times" />
+            <pk-kpi label="Sem resposta" [value]="d.noAnswer" icon="pi pi-clock" tone="warning" />
+          }
           <pk-kpi label="Nem abriram" [value]="d.neverViewed" icon="pi pi-eye-slash" tone="danger" />
         </div>
       }
@@ -71,9 +76,9 @@
                   </td>
                   <td>
                     <span class="audit">
-                      <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING'"
+                      <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING' || a.answer === 'ACKNOWLEDGED'"
                             [class.status-chip--neutral]="a.answer === 'NOT_GOING'" [class.status-chip--warning]="!a.answer">
-                        <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING'"
+                        <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING' || a.answer === 'ACKNOWLEDGED'"
                            [class.pi-times]="a.answer === 'NOT_GOING'" [class.pi-clock]="!a.answer"></i>
                         {{ rotuloResposta(a) }}
                       </span>
@@ -98,9 +103,9 @@
               </div>
               <span class="cartao__canto">{{ a.answeredAt ? formatStamp(a.answeredAt) : '' }}</span>
               <div class="cartao__rodape">
-                <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING'"
+                <span class="status-chip" [class.status-chip--success]="a.answer === 'GOING' || a.answer === 'ACKNOWLEDGED'"
                       [class.status-chip--neutral]="a.answer === 'NOT_GOING'" [class.status-chip--warning]="!a.answer">
-                  <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING'"
+                  <i class="pi" aria-hidden="true" [class.pi-check]="a.answer === 'GOING' || a.answer === 'ACKNOWLEDGED'"
                      [class.pi-times]="a.answer === 'NOT_GOING'" [class.pi-clock]="!a.answer"></i>
                   {{ rotuloResposta(a) }}
                 </span>

@@ -1,7 +1,8 @@
 @if (aberto(); as convite) {
   <app-event-detail [event]="convite.event" [now]="agora()" backLabel="Meus convites" (back)="fechar()">
     <app-event-rsvp class="rsvp" [eventId]="convite.event.id" [startsAt]="convite.startsAt"
-                    [open]="convite.open" [answer]="convite.answer" (answered)="respondeu($event)" />
+                    [open]="convite.open" [answer]="convite.answer" [online]="convite.event.location?.source === 'ONLINE'"
+                    (answered)="respondeu($event)" />
   </app-event-detail>
 } @else {
   <app-page-header icon="pi pi-calendar-plus" title="Meus convites"

@@ -236,6 +236,7 @@ const VTIMEZONE = [
 function onde(t: EventTalk | null, e: Pick<EventDetail, 'location'>): string {
   const loc = t?.location ?? e.location;
   if (!loc) return '';
+  if (loc.onlineUrl) return loc.onlineUrl;
   const endereco = loc.address ? (loc.address.formatted || formatAddress(loc.address)) : '';
   return [loc.name, t?.room, endereco].filter(Boolean).join(' · ');
 }
@@ -273,6 +274,19 @@ function utcStamp(agora: Date): string {
  */
 export function icsForEvent(e: EventDetail, agora: Date = new Date()): string {
   const stamp = utcStamp(agora);
+  // A live tem horário próprio: entra na agenda das 09:00 às 09:40, com o
+  // link no lugar — e não como um dia inteiro bloqueado.
+  if (!e.talks.length && e.startTime && e.endTime) {
+    return calendario([
+      'BEGIN:VEVENT', `UID:${e.id}@proautokimium.com.br`, `DTSTAMP:${stamp}`,
+      `DTSTART;TZID=America/Sao_Paulo:${icsDateTime(e.startDate, e.startTime)}`,
+      `DTEND;TZID=America/Sao_Paulo:${icsDateTime(e.endDate, e.endTime)}`,
+      `SUMMARY:${icsEscape(e.name)}`,
+      ...(onde(null, e) ? [`LOCATION:${icsEscape(onde(null, e))}`] : []),
+      ...(e.location?.onlineUrl ? [`URL:${e.location.onlineUrl}`] : []),
+      'END:VEVENT',
+    ]);
+  }
   if (!e.talks.length) {
     return calendario([
       'BEGIN:VEVENT', `UID:${e.id}@proautokimium.com.br`, `DTSTAMP:${stamp}`,
@@ -324,4 +338,64 @@ export function downloadText(conteudo: string, nomeArquivo: string, tipo = 'text
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ─── Lives ──────────────────────────────────────────────────────────────────
+
+export interface LivePlatform {
+  key: 'instagram' | 'youtube' | 'linkedin' | 'meet' | 'teams' | 'zoom' | 'other';
+  name: string;
+  icon: string;
+}
+
+const PLATAFORMAS: { teste: RegExp; plataforma: LivePlatform }[] = [
+  { teste: /(^|\.)instagram\.com$/, plataforma: { key: 'instagram', name: 'Instagram', icon: 'pi pi-instagram' } },
+  { teste: /(^|\.)(youtube\.com|youtu\.be)$/, plataforma: { key: 'youtube', name: 'YouTube', icon: 'pi pi-youtube' } },
+  { teste: /(^|\.)linkedin\.com$/, plataforma: { key: 'linkedin', name: 'LinkedIn', icon: 'pi pi-linkedin' } },
+  { teste: /^meet\.google\.com$/, plataforma: { key: 'meet', name: 'Google Meet', icon: 'pi pi-video' } },
+  { teste: /(^|\.)teams\.(microsoft|live)\.com$/, plataforma: { key: 'teams', name: 'Microsoft Teams', icon: 'pi pi-microsoft' } },
+  { teste: /(^|\.)zoom\.us$/, plataforma: { key: 'zoom', name: 'Zoom', icon: 'pi pi-video' } },
+];
+
+const OUTRO_LINK: LivePlatform = { key: 'other', name: 'Link externo', icon: 'pi pi-external-link' };
+
+/**
+ * A plataforma pelo endereço. Olha o HOST, e não o texto inteiro: um link
+ * `https://golpe.com/?youtube.com` não pode aparecer com o selo do YouTube.
+ */
+export function livePlatform(url: string | null | undefined): LivePlatform {
+  const host = hostOf(url);
+  if (!host) return OUTRO_LINK;
+  return PLATAFORMAS.find(p => p.teste.test(host))?.plataforma ?? OUTRO_LINK;
+}
+
+/** A mesma régua da API: `https://` e um host com ponto. */
+export function isSafeLiveUrl(url: string | null | undefined): boolean {
+  const valor = (url ?? '').trim();
+  if (!/^https:\/\//i.test(valor)) return false;
+  const host = hostOf(valor);
+  return !!host && host.includes('.');
+}
+
+function hostOf(url: string | null | undefined): string | null {
+  try {
+    return new URL((url ?? '').trim()).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+export type LiveState = 'antes' | 'ao-vivo' | 'encerrada';
+
+/**
+ * Antes, ao vivo ou encerrada — pelo relógio de São Paulo, e não o do
+ * computador: quem abre de outro fuso veria "ao vivo" na hora errada.
+ *
+ * @param startsAt "2026-10-08T09:00:00" (hora de parede de São Paulo)
+ */
+export function liveState(startsAt: string, endsAt: string, agora: SaoPauloNow): LiveState {
+  const now = `${agora.date}T${agora.time}`;
+  if (now < startsAt.slice(0, 16)) return 'antes';
+  if (now < endsAt.slice(0, 16)) return 'ao-vivo';
+  return 'encerrada';
 }

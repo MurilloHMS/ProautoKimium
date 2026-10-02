@@ -4,7 +4,7 @@ import { EventDetail, EventLocation, EventTalk, Speaker } from '../../../../doma
 import { Coordinates, coordinatesOf, formatAddress } from '../../../../domain/utils/address';
 import {
   SaoPauloNow, TalkStatus, dayTab, downloadText, eventDays, formatPeriod, googleCalendarLink, hhmm,
-  icsFileName, icsForEvent, icsForTalk, initialDay, initials, instagramUrl, linkedinUrl, talkStatuses, websiteUrl,
+  icsFileName, icsForEvent, icsForTalk, initialDay, initials, instagramUrl, linkedinUrl, talkStatuses, websiteUrl, livePlatform, liveState,
 } from '../../../../domain/utils/events';
 import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 import { DirectionsMenuComponent } from '../../shared/directions-menu/directions-menu.component';
@@ -68,6 +68,16 @@ export class EventDetailComponent {
   });
 
   readonly local = computed(() => this.event().location);
+
+  // ── Live ───────────────────────────────────────────────────────────────────
+
+  readonly online = computed(() => this.local()?.source === 'ONLINE');
+  readonly linkDaLive = computed(() => this.local()?.onlineUrl ?? null);
+  readonly plataforma = computed(() => livePlatform(this.linkDaLive()));
+  /** Antes, ao vivo ou encerrada — pelo relógio de São Paulo que a tela recebe. */
+  readonly estadoDaLive = computed(() => liveState(this.event().startsAt, this.event().endsAt, this.now()));
+  /** Live sem palestra cadastrada não tem programação para mostrar: só o cartão. */
+  readonly semProgramacao = computed(() => this.online() && this.event().talks.length === 0);
   readonly enderecoDoEvento = computed(() => this.texto(this.local()));
   readonly capa = computed(() => this.event().coverUrl ? urlDeMidia(this.event().coverUrl, '') : null);
 

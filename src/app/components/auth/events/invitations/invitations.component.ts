@@ -120,13 +120,20 @@ export class InvitationsComponent implements OnInit {
   }
 
   situacao(i: Invitation): Situacao {
-    if (i.answer?.answer === 'GOING') return 'vai';
+    if (i.answer?.answer === 'GOING' || i.answer?.answer === 'ACKNOWLEDGED') return 'vai';
     if (i.answer?.answer === 'NOT_GOING') return 'nao-vai';
     return i.open ? 'aguardando' : 'fechado';
   }
 
   rotulo(i: Invitation): string {
     const passou = eventPhase(i.event, this.agora().date) === 'encerrado';
+    if (i.event.location?.source === 'ONLINE') {
+      switch (this.situacao(i)) {
+        case 'vai': return 'Você está ciente';
+        case 'aguardando': return 'Confirme que está ciente';
+        default: return 'Não confirmado';
+      }
+    }
     switch (this.situacao(i)) {
       case 'vai': return passou ? 'Você foi' : 'Você vai';
       case 'nao-vai': return 'Você não vai';

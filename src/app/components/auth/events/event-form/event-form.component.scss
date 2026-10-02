@@ -248,3 +248,25 @@ app-form-screen { display: block; margin: 12px; }
 }
 
 .lembrete__resumo { flex-basis: 100%; }
+
+// ── Online ───────────────────────────────────────────────────────────────────
+
+.plataforma {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--app-text-muted);
+
+  b { color: var(--app-text); }
+}
+
+.avisos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+
+  .dica i { color: var(--app-success); }
+}

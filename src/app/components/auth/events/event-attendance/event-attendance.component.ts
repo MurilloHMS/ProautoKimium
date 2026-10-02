@@ -51,6 +51,15 @@ export class EventAttendanceComponent {
 
   readonly filtros = computed(() => {
     const d = this.dados();
+    // Na live, "vão" são os cientes e "não vão" não existe: a resposta é uma só.
+    if (d?.online) {
+      return [
+        { valor: 'todos' as const, rotulo: 'Todos', total: d.invited },
+        { valor: 'vao' as const, rotulo: 'Cientes', total: d.acknowledged },
+        { valor: 'sem-resposta' as const, rotulo: 'Ainda não', total: d.noAnswer },
+        { valor: 'nem-abriram' as const, rotulo: 'Nem abriram', total: d.neverViewed },
+      ];
+    }
     return [
       { valor: 'todos' as const, rotulo: 'Todos', total: d?.invited ?? 0 },
       { valor: 'vao' as const, rotulo: 'Vão', total: d?.going ?? 0 },
@@ -110,7 +119,7 @@ export class EventAttendanceComponent {
 
   private passa(a: Attendee, filtro: FiltroPresenca): boolean {
     switch (filtro) {
-      case 'vao': return a.answer === 'GOING';
+      case 'vao': return a.answer === 'GOING' || a.answer === 'ACKNOWLEDGED';
       case 'nao-vao': return a.answer === 'NOT_GOING';
       case 'sem-resposta': return !a.answer;
       case 'nem-abriram': return a.viewCount === 0;
@@ -127,6 +136,8 @@ export class EventAttendanceComponent {
   }
 
   rotuloResposta(a: Attendee): string {
+    if (a.answer === 'ACKNOWLEDGED') return 'Ciente';
+    if (!a.answer && this.dados()?.online) return 'Ainda não';
     return a.answer === 'GOING' ? 'Vai' : a.answer === 'NOT_GOING' ? 'Não vai' : 'Sem resposta';
   }
 
