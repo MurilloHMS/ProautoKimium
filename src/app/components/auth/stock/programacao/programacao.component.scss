@@ -96,6 +96,11 @@
 // No computador quebram linha; no celular rolam de lado numa fileira só — duas
 // ou três linhas de chip empurrariam a lista para baixo, que é o que a barra
 // nova existe para evitar.
+.abas {
+  display: inline-flex;
+  flex: none;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;

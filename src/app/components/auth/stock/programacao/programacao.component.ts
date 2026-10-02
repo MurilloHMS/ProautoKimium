@@ -35,6 +35,7 @@ import { RegisterService } from '../../../../infrastructure/services/prostock/re
 import { InventoryProductService } from '../../../../infrastructure/services/company/inventory/inventory-product.service';
 import { formatStampBr, parseDateOnly } from '../../../../domain/utils/date-only';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkSegmentedComponent } from '../../../theme/ProautoKimium/pk-segmented/pk-segmented.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { PkSheetComponent } from '../../../theme/ProautoKimium/pk-sheet/pk-sheet.component';
 import { ProgramacaoImportComponent } from './programacao-import.component';
@@ -98,8 +99,7 @@ type SavableDraft = Row & { status: MachineStatus };
     CommonModule, FormsModule, TableModule, DatePickerModule, InputTextModule,
     ButtonModule, Toast, Tooltip, PkButtonComponent, PkComboboxComponent,
     ProgramacaoImportComponent, PkDialogComponent, PkSheetComponent,
-    TextareaModule,
-  ],
+    TextareaModule, PkSegmentedComponent],
   templateUrl: './programacao.component.html',
   styleUrl: './programacao.component.scss',
   providers: [MessageService],
@@ -116,6 +116,39 @@ export class ProgramacaoComponent implements OnInit {
 
   readonly loading = this.store.loading;
   readonly statusOptions = machineStatusOptions();
+
+  // ─── As abas: em andamento e entregues ────────────────────────────────────
+
+  /**
+   * Entregue já saiu do galpão e não pede mais nada de ninguém: fica na própria
+   * aba, fora do foco. Pedido dele (2026-10-02) — a lista do dia a dia é o que
+   * ainda vai sair.
+   */
+  readonly aba = signal<'andamento' | 'entregues'>('andamento');
+
+  readonly deliveredCount = computed(() =>
+    this.store.items().filter(r => r.status === MachineStatus.ENTREGUE).length);
+
+  readonly abaOptions = computed(() => [
+    { label: `Em andamento · ${this.store.items().length - this.deliveredCount()}`, value: 'andamento' },
+    { label: `Entregues · ${this.deliveredCount()}`, value: 'entregues' },
+  ]);
+
+  /** Os chips de status da aba Em andamento: Entregue tem a aba dele. */
+  readonly chipStatusOptions = this.statusOptions.filter(o => o.value !== MachineStatus.ENTREGUE);
+
+  /**
+   * Trocar de aba limpa os recortes de prazo e de status: "Atrasadas" ou
+   * "Reservada" não existem entre as entregues, e levá-los junto daria uma
+   * lista vazia sem explicação. Busca e máquina continuam: valem nas duas.
+   */
+  setAba(aba: 'andamento' | 'entregues'): void {
+    this.aba.set(aba);
+    this.statusFilter.set([]);
+    this.onlyLate.set(false);
+    this.semPrevisao.set(false);
+    this.saidaAte.set(null);
+  }
   readonly machineOptions = this.machineStore.activeOptions;
 
   search = '';
@@ -806,6 +839,8 @@ export class ProgramacaoComponent implements OnInit {
     const filtered = this.store.items()
       .map(register => this.toRow(register))
       .filter(row => {
+        // A aba vem antes de tudo: entregue só aparece na aba dela.
+        if ((this.aba() === 'entregues') !== (row.status === MachineStatus.ENTREGUE)) return false;
         // `row.status` é nulo só em rascunho, e rascunho não passa por aqui —
         // ele entra na lista depois do filtro. A guarda existe para o tipo.
         if (statuses.length && (!row.status || !statuses.includes(row.status))) return false;
@@ -892,7 +927,10 @@ export class ProgramacaoComponent implements OnInit {
       .filter((valor): valor is MachineStatus =>
         Object.values(MachineStatus).includes(valor as MachineStatus));
 
-    this.statusFilter.set(status);
+    // `?status=ENTREGUE` (o Hub manda) abre a aba das entregues; o chip
+    // Entregue não existe mais na fileira.
+    this.aba.set(status.includes(MachineStatus.ENTREGUE) ? 'entregues' : 'andamento');
+    this.statusFilter.set(status.filter(s => s !== MachineStatus.ENTREGUE));
     this.machineFilter.set(params.get('maquina') || null);
     this.onlyLate.set(params.get('atrasadas') === '1');
     this.semPrevisao.set(params.get('semPrevisao') === '1');

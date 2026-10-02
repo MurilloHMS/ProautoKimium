@@ -80,7 +80,14 @@
       "Atrasadas" vira vermelho sólido ao ligar (o vermelho claro já é de
       "Aguardando aquisição"), e "Sem previsão" é tracejado.
     -->
+    <!-- As abas na frente dos filtros, na mesma fileira (pedido dele): a aba
+         decide o que a lista é; os chips recortam dentro dela. -->
     <div class="chips" role="group" aria-label="Filtros rápidos">
+      <pk-segmented class="abas" [options]="abaOptions()" [value]="aba()" (valueChange)="setAba($event)"
+                    size="sm" ariaLabel="Em andamento ou entregues" data-testid="abas" />
+
+    @if (aba() === 'andamento') {
+      <span class="chips__divisor" aria-hidden="true"></span>
       <button type="button" class="chip chip--atraso"
               [class.is-on]="onlyLate()" [attr.aria-pressed]="onlyLate()"
               (click)="toggleLate()">
@@ -97,7 +104,7 @@
 
       <span class="chips__divisor" aria-hidden="true"></span>
 
-      @for (opcao of statusOptions; track opcao.value) {
+      @for (opcao of chipStatusOptions; track opcao.value) {
         <button type="button" [class]="statusChipClass(opcao.value)"
                 [class.is-on]="isStatusOn(opcao.value)" [attr.aria-pressed]="isStatusOn(opcao.value)"
                 [attr.title]="opcao.label"
@@ -128,6 +135,12 @@
           <i class="pi pi-times" aria-hidden="true"></i> Limpar
         </button>
       }
+    } @else if (ehCelular() && machineFilter(); as maquina) {
+      <button type="button" class="chip is-on" (click)="machineFilter.set(null)"
+              [attr.aria-label]="'Remover filtro de máquina: ' + machineName(maquina)">
+        {{ machineName(maquina) }} <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    }
     </div>
   </div>
 

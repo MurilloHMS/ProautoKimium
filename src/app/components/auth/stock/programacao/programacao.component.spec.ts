@@ -116,6 +116,8 @@ describe('ProgramacaoComponent · estoque', () => {
   /** Abre o formulário da linha gravada e aplica as mudanças, como a pessoa faria. */
   const editarNoForm = (stored: MachineRegister, mudanca: Partial<Record<string, unknown>>) => {
     registerStore.upsert(stored);
+    // Entregue mora na aba dela (2026-10-02): é de lá que se reabre uma.
+    if (stored.status === MachineStatus.ENTREGUE) component.setAba('entregues');
     component.abrirForm(component.rows()[0]);
     for (const [campo, valor] of Object.entries(mudanca)) {
       component.editarCampo(campo as never, valor as never);
