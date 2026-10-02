@@ -65,6 +65,28 @@ describe('EmployesComponent · hierarquia e departamento vindos do cadastro', ()
    * nome esconderia isso, e é o tipo de lista que as pessoas leem de cima para
    * baixo esperando a hierarquia real.
    */
+  /**
+   * Os stubs acima já nascem com a lista cheia — é o que acontece no app quando
+   * a tela de Hierarquias foi aberta antes. Abrindo o cadastro direto, quem
+   * busca a lista é esta tela; sem o `load()`, a combo fica vazia até alguém
+   * visitar Hierarquias, e ninguém associa uma coisa à outra.
+   */
+  it('busca as hierarquias ao abrir, sem depender da tela de Hierarquias', async () => {
+    const load = jasmine.createSpy('load');
+    await TestBed.configureTestingModule({
+      imports: [EmployesComponent],
+      providers: [
+        ...providersDeTeste(),
+        { provide: TeamStore, useValue: { items: signal(TIMES), load: () => {}, refresh: () => {} } },
+        { provide: HierarchyStore, useValue: { items: signal([]), load, refresh: () => {} } },
+      ],
+    }).compileComponents();
+
+    TestBed.createComponent(EmployesComponent).componentInstance.ngOnInit();
+
+    expect(load).toHaveBeenCalled();
+  });
+
   it('ordena por levelOrder, não por nome', async () => {
     const tela = await montar();
 
