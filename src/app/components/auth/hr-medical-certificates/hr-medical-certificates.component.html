@@ -103,21 +103,125 @@
       <p>Nenhum atestado enviado ainda</p>
     </div>
   } @else {
+    @if (resubmitDone()) {
+      <p class="hrmc-feito" role="status"><i class="pi pi-check-circle" aria-hidden="true"></i> {{ resubmitDone() }}</p>
+    }
     <div class="hrmc-grid">
       @for (cert of certificates(); track cert.id) {
-        <div class="hrmc-card">
-          <span class="hrmc-card__icon">
-            <i class="pi" [ngClass]="cert.submissionType === 'PHOTO' ? 'pi-camera' : 'pi-file'"></i>
-          </span>
-          <div class="hrmc-card__info">
-            <span class="hrmc-card__title">{{ formatDate(cert.startDate) }} — {{ formatDate(cert.endDate) }}</span>
-            <span class="hrmc-card__meta">{{ cert.daysCount }} dia(s) · enviado em {{ formatDate(cert.submittedAt) }}</span>
+        <div class="hrmc-card" [class.hrmc-card--recusado]="cert.status === 'REJECTED'">
+          <div class="hrmc-card__linha">
+            <span class="hrmc-card__icon">
+              <i class="pi" [ngClass]="cert.submissionType === 'PHOTO' ? 'pi-camera' : 'pi-file'"></i>
+            </span>
+            <div class="hrmc-card__info">
+              <span class="hrmc-card__title">{{ formatDate(cert.startDate) }} — {{ formatDate(cert.endDate) }}</span>
+              <span class="hrmc-card__meta">
+                {{ cert.daysCount }} dia(s) · {{ cert.resubmittedAt ? 'reenviado' : 'enviado' }} em {{ formatDate(lastSubmittedAt(cert)) }}
+              </span>
+            </div>
+            <button class="hrmc-card__btn" (click)="baixar(cert)" [disabled]="baixandoId() === cert.id" aria-label="Baixar atestado">
+              <i class="pi" [ngClass]="baixandoId() === cert.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
+            </button>
           </div>
-          <button class="hrmc-card__btn" (click)="baixar(cert)" [disabled]="baixandoId() === cert.id" aria-label="Baixar atestado">
-            <i class="pi" [ngClass]="baixandoId() === cert.id ? 'pi-spin pi-spinner' : 'pi-download'"></i>
-          </button>
+
+          @if (cert.status === 'REJECTED' && cert.reviewNotes) {
+            <p class="hrmc-motivo"><b>Motivo da recusa:</b> {{ cert.reviewNotes }}</p>
+          }
+
+          <div class="hrmc-card__status">
+            <span class="hrmc-badge" [ngClass]="'hrmc-badge--' + cert.status.toLowerCase()">
+              <i [ngClass]="statusInfo[cert.status].icon" aria-hidden="true"></i>
+              {{ statusInfo[cert.status].ownerLabel }}
+              @if (cert.status === 'RECEIVED' && cert.reviewedAt) { em {{ formatDate(cert.reviewedAt) }} }
+            </span>
+            @if (cert.resubmitDeadline) {
+              <span class="hrmc-prazo">Reenvie até {{ formatDate(cert.resubmitDeadline) }}</span>
+              <pk-button pkType="save" pkIcon="pi pi-upload" pkLabel="Enviar outro" pkSize="sm" (clicked)="openResubmit(cert)" />
+            }
+          </div>
+          @if (cert.status === 'RECEIVED' && cert.reviewNotes) {
+            <p class="hrmc-obs">{{ cert.reviewNotes }}</p>
+          }
         </div>
       }
     </div>
   }
 </section>
+
+
+<!--
+  Reenvio do recusado (2026-10-02): o mesmo período, outro arquivo. No celular
+  sobe de baixo; no computador é diálogo. O conteúdo é escrito uma vez só.
+-->
+<ng-template #reenvioCorpo>
+  @if (resubmitTarget(); as t) {
+    <p class="hrmc-reenvio__alvo">
+      Mesmo período ({{ formatDate(t.startDate) }} a {{ formatDate(t.endDate) }}). O arquivo anterior fica guardado.
+    </p>
+    @if (t.reviewNotes) {
+      <p class="hrmc-motivo"><b>O RH disse:</b> {{ t.reviewNotes }}</p>
+    }
+  }
+
+  <div class="hrmc-reenvio__tipo" role="group" aria-label="Como vai enviar">
+    <button type="button" [class.is-on]="resubmitType === 'FILE'" [attr.aria-pressed]="resubmitType === 'FILE'"
+            (click)="setResubmitType('FILE')"><i class="pi pi-file" aria-hidden="true"></i> Arquivo</button>
+    <button type="button" [class.is-on]="resubmitType === 'PHOTO'" [attr.aria-pressed]="resubmitType === 'PHOTO'"
+            (click)="setResubmitType('PHOTO')"><i class="pi pi-camera" aria-hidden="true"></i> Foto</button>
+  </div>
+
+  <div class="hrmc-upload">
+    @if (resubmitType === 'PHOTO') {
+      <label class="hrmc-upload__label" for="resubmitFile"><i class="pi pi-camera"></i> Tirar foto ou escolher da galeria</label>
+      <input id="resubmitFile" type="file" accept="image/*" capture="environment" (change)="onResubmitFile($event)" />
+    } @else {
+      <label class="hrmc-upload__label" for="resubmitFile"><i class="pi pi-upload"></i> Escolher arquivo</label>
+      <input id="resubmitFile" type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onResubmitFile($event)" />
+    }
+    @if (resubmitFile) {
+      <span class="hrmc-upload__filename"><i class="pi pi-file"></i> {{ resubmitFile.name }}</span>
+    }
+  </div>
+
+  @if (resubmitType === 'PHOTO' && resubmitFile) {
+    <pk-checkbox inputId="resubmitLegible"
+                 label="Confirmo que os dados da foto estão legíveis"
+                 [(ngModel)]="resubmitLegible" [ngModelOptions]="{ standalone: true }">
+    </pk-checkbox>
+  }
+
+  <div class="form-field form-field--full">
+    <label for="resubmitComment">Comentário <small>(opcional)</small></label>
+    <textarea id="resubmitComment" [(ngModel)]="resubmitComment" rows="2" maxlength="500"
+              placeholder="Ex.: agora escaneado"></textarea>
+  </div>
+
+  @if (resubmitError()) {
+    <p class="erro-envio" role="alert">{{ resubmitError() }}</p>
+  }
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!resubmitTarget()" [fit]="true" title="Enviar outro arquivo" (closed)="closeResubmit()">
+    <div pkSheetBody class="hrmc-reenvio hrmc-reenvio--folha">
+      <ng-container *ngTemplateOutlet="reenvioCorpo" />
+    </div>
+    <div pkSheetFooter class="hrmc-reenvio__botoes">
+      <pk-button pkType="cancel" pkLabel="Cancelar" pkSize="sm" (clicked)="closeResubmit()" />
+      <pk-button pkType="save" pkLabel="Reenviar" pkSize="sm" [pkDisabled]="!canResubmit"
+                 [pkLoading]="resubmitting()" (clicked)="resubmit()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [flush]="true" header="Enviar outro arquivo" width="520px"
+             [visible]="!!resubmitTarget()" (visibleChange)="!$event && closeResubmit()">
+    <div pkDialogContent class="hrmc-reenvio">
+      <ng-container *ngTemplateOutlet="reenvioCorpo" />
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkLabel="Cancelar" pkSize="sm" (clicked)="closeResubmit()" />
+      <pk-button pkType="save" pkLabel="Reenviar" pkSize="sm" [pkDisabled]="!canResubmit"
+                 [pkLoading]="resubmitting()" (clicked)="resubmit()" />
+    </div>
+  </pk-dialog>
+}

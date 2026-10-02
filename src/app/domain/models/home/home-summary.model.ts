@@ -11,6 +11,9 @@ export type PendingType =
   | 'REEMBOLSO_AGUARDANDO'
   | 'APROVACAO_FERIAS'
   | 'APROVACAO_REEMBOLSO'
+  | 'ATESTADO_AGUARDANDO'
+  | 'ATESTADO_RECUSADO'
+  | 'CONFERENCIA_ATESTADO'
   | 'EVENT_RSVP';
 
 export interface PendingItem {
@@ -49,6 +52,9 @@ export const PENDING_INFO: Record<PendingType, { icon: string; rota: string; acc
   REEMBOLSO_AGUARDANDO:    { icon: 'pi pi-wallet',   rota: '/documentos/rh/reimbursements',      accent: 'teal'  },
   APROVACAO_FERIAS:        { icon: 'pi pi-sun',      rota: '/rh/vacation-requests',              accent: 'amber' },
   APROVACAO_REEMBOLSO:     { icon: 'pi pi-wallet',   rota: '/rh/reimbursements',                 accent: 'teal'  },
+  ATESTADO_AGUARDANDO:     { icon: 'pi pi-file-check', rota: '/documentos/rh/medical-certificates', accent: 'navy' },
+  ATESTADO_RECUSADO:       { icon: 'pi pi-file-check', rota: '/documentos/rh/medical-certificates', accent: 'navy' },
+  CONFERENCIA_ATESTADO:    { icon: 'pi pi-file-check', rota: '/rh/medical-certificates',            accent: 'navy' },
   EVENT_RSVP:              { icon: 'pi pi-calendar', rota: '/convites',                          accent: 'navy'  },
 };
 

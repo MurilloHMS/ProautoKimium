@@ -3,7 +3,18 @@
 <app-toolbar>
   <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm"/>
 
-  <div filters>
+  <div filters class="mc-filtros">
+    <!-- Conferência (2026-10-02): "Em conferência" abre ligado, porque é o que pede o RH. -->
+    <div class="chips" role="group" aria-label="Situação">
+      @for (c of statusChips; track c.label) {
+        <button type="button" class="chip chip--status" [ngClass]="'chip--' + c.tone"
+                [class.chip--tracejado]="c.dashed" [class.is-on]="statusFilter === c.value"
+                [attr.aria-pressed]="statusFilter === c.value" (click)="filterByStatus(c.value)">
+          <i [ngClass]="c.icon" aria-hidden="true"></i> {{ c.label }}
+          @if (c.value === 'PENDING' && pendingCount) { <small>{{ pendingCount }}</small> }
+        </button>
+      }
+    </div>
     <input type="text"
            class="toolbar-search"
            placeholder="Buscar por nome..."
@@ -20,24 +31,40 @@
     [showCaption]="false"
     [filterFields]="['employeeName', 'originalFilename']"
     emptyIcon="pi pi-file-check"
-    emptyTitle="Nenhum atestado encontrado"
-    emptySubtitle="Ainda nao ha atestados enviados."
+    [emptyTitle]="statusFilter === 'PENDING' ? 'Nada para conferir' : 'Nenhum atestado encontrado'"
+    [emptySubtitle]="statusFilter === 'PENDING' ? 'Todo atestado que chegou já foi conferido.' : 'Troque o filtro de situação para ver outros atestados.'"
     pageReportTitle="Atestados">
 
     <ng-template #cardTpl let-c>
-      <article class="pk-cartao">
+      <article class="pk-cartao" [class.mc-cartao--reenvio]="c.resubmittedAt && c.status === 'PENDING'">
         <div class="pk-cartao__corpo pk-cartao__corpo--parado">
           <span class="pk-cartao__titulo">{{ c.employeeName }}</span>
           <span class="pk-cartao__sub">
-            {{ formatDate(c.startDate) }} — {{ formatDate(c.endDate) }}
+            {{ formatDate(c.startDate) }} — {{ formatDate(c.endDate) }} · enviado {{ formatStamp(lastSubmittedAt(c)) }}
           </span>
         </div>
         <span class="pk-cartao__marca">{{ c.daysCount }}d</span>
         <div class="pk-cartao__rodape">
-          <span class="type-badge">
-            <i [class]="c.submissionType === 'PHOTO' ? 'pi pi-camera' : 'pi pi-file'"></i>
-            {{ submissionLabel(c.submissionType) }}
+          <span class="mc-badge" [ngClass]="'mc-badge--' + c.status.toLowerCase()">
+            <i [ngClass]="statusIcon(c)" aria-hidden="true"></i> {{ statusLabel(c) }}
           </span>
+          @if (c.resubmittedAt) { <span class="mc-tag">Reenviado</span> }
+          @if (c.status === 'REJECTED' && c.reviewNotes) { <span class="mc-notes">{{ c.reviewNotes }}</span> }
+
+          @if (c.status === 'PENDING') {
+            <ng-container *pkCan="'rh/medical-certificates:ALTERAR'">
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Confirmar o recebimento do atestado de ' + c.employeeName"
+                      (click)="openReview(c, 'receive')">
+                <i class="pi pi-check"></i>
+              </button>
+              <button type="button" class="pk-cartao__icone"
+                      [attr.aria-label]="'Recusar o atestado de ' + c.employeeName"
+                      (click)="openReview(c, 'reject')">
+                <i class="pi pi-times"></i>
+              </button>
+            </ng-container>
+          }
           <button type="button" class="pk-cartao__icone"
                   [attr.aria-label]="'Baixar o atestado de ' + c.employeeName"
                   [disabled]="downloadingId === c.id" (click)="download(c)">
@@ -49,13 +76,13 @@
 
     <ng-template #headerTpl>
       <tr>
-        <th pSortableColumn="employeeName">Funcionario <p-sortIcon field="employeeName"></p-sortIcon></th>
-        <th pSortableColumn="startDate">Inicio <p-sortIcon field="startDate"></p-sortIcon></th>
-        <th pSortableColumn="endDate">Fim <p-sortIcon field="endDate"></p-sortIcon></th>
+        <th pSortableColumn="employeeName">Funcionário <p-sortIcon field="employeeName"></p-sortIcon></th>
+        <th pSortableColumn="startDate">Período <p-sortIcon field="startDate"></p-sortIcon></th>
         <th pSortableColumn="daysCount">Dias <p-sortIcon field="daysCount"></p-sortIcon></th>
         <th>Tipo</th>
         <th pSortableColumn="submittedAt">Enviado em <p-sortIcon field="submittedAt"></p-sortIcon></th>
-        <th class="col-center">Arquivo</th>
+        <th>Situação</th>
+        <th class="col-center">Ações</th>
       </tr>
     </ng-template>
 
@@ -67,30 +94,131 @@
             <span class="employee-name">{{ c.employeeName }}</span>
           </div>
         </td>
-        <td>{{ formatDate(c.startDate) }}</td>
-        <td>{{ formatDate(c.endDate) }}</td>
-        <td>
-          <span class="days-badge">{{ c.daysCount }}</span>
-        </td>
+        <td>{{ formatDate(c.startDate) }} — {{ formatDate(c.endDate) }}</td>
+        <td><span class="days-badge">{{ c.daysCount }}</span></td>
         <td>
           <span class="type-badge">
             <i [class]="c.submissionType === 'PHOTO' ? 'pi pi-camera' : 'pi pi-file'"></i>
             {{ submissionLabel(c.submissionType) }}
           </span>
         </td>
-        <td>{{ formatDateTime(c.submittedAt) }}</td>
-        <td class="col-center">
+        <td>{{ formatStamp(lastSubmittedAt(c)) }}</td>
+        <td>
+          <span class="mc-badge" [ngClass]="'mc-badge--' + c.status.toLowerCase()">
+            <i [ngClass]="statusIcon(c)" aria-hidden="true"></i> {{ statusLabel(c) }}
+          </span>
+          @if (c.resubmittedAt) { <span class="mc-tag">Reenviado</span> }
+          @if (c.status === 'PENDING' && lastRejection(c); as r) {
+            <div class="mc-mini">{{ c.previousAttempts.length + 1 }}º arquivo · antes: “{{ r.reviewNotes }}”</div>
+          }
+          @if (c.status === 'REJECTED' && c.reviewNotes) { <div class="mc-notes">{{ c.reviewNotes }}</div> }
+          @if (c.status !== 'PENDING' && c.reviewedByName) {
+            <div class="mc-mini">{{ c.reviewedByName }} · {{ formatStamp(c.reviewedAt) }}</div>
+          }
+        </td>
+        <td class="col-center mc-acoes">
+          @if (c.status === 'PENDING') {
+            <ng-container *pkCan="'rh/medical-certificates:ALTERAR'">
+              <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve"
+                      pTooltip="Confirmar recebimento" tooltipPosition="left"
+                      [attr.aria-label]="'Confirmar o recebimento do atestado de ' + c.employeeName"
+                      (click)="openReview(c, 'receive')"></button>
+              <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject"
+                      pTooltip="Recusar" tooltipPosition="left"
+                      [attr.aria-label]="'Recusar o atestado de ' + c.employeeName"
+                      (click)="openReview(c, 'reject')"></button>
+            </ng-container>
+          }
           <button pButton type="button"
                   [icon]="downloadingId === c.id ? 'pi pi-spin pi-spinner' : 'pi pi-download'"
-                  class="action-btn"
-                  pTooltip="Baixar atestado"
-                  tooltipPosition="left"
-                  [disabled]="downloadingId === c.id"
-                  (click)="download(c)">
-          </button>
+                  class="action-btn" pTooltip="Baixar atestado" tooltipPosition="left"
+                  [attr.aria-label]="'Baixar o atestado de ' + c.employeeName"
+                  [disabled]="downloadingId === c.id" (click)="download(c)"></button>
         </td>
       </tr>
     </ng-template>
 
   </pk-table>
 </div>
+
+<!--
+  Confirmar / Recusar — a mesma janela para os dois, como nos Reembolsos. No
+  celular sobe de baixo; no computador é diálogo. O conteúdo é escrito uma vez.
+-->
+<ng-template #revisaoCorpo>
+  @if (reviewTarget(); as t) {
+    <p class="review-target">
+      <i class="pi pi-user"></i>
+      <strong>{{ t.employeeName }}</strong>
+      — {{ formatDate(t.startDate) }} a {{ formatDate(t.endDate) }} · {{ t.daysCount }} dia(s)
+    </p>
+
+    @if (t.previousAttempts.length) {
+      <div class="mc-trail">
+        @for (a of t.previousAttempts; track a.id; let i = $index) {
+          @if (a.comment) {
+            <span><b>{{ formatStamp(a.submittedAt) }} · {{ t.employeeName }} reenviou:</b> “{{ a.comment }}”</span>
+          }
+          <span><b>{{ formatStamp(a.reviewedAt) }} · {{ a.reviewedByName ?? 'RH' }} recusou:</b> “{{ a.reviewNotes }}”</span>
+        }
+        <span><b>{{ formatStamp(t.resubmittedAt) }} · {{ t.employeeName }} reenviou{{ t.resubmitComment ? ':' : '' }}</b>
+          @if (t.resubmitComment) { “{{ t.resubmitComment }}” }</span>
+      </div>
+      <div class="mc-files">
+        @for (a of t.previousAttempts; track a.id; let i = $index) {
+          <button type="button" class="mc-file" (click)="downloadAttempt(t, a)">
+            <i class="pi pi-download" aria-hidden="true"></i>
+            <span><b>{{ i + 1 }}º envio · recusado</b><small>{{ a.originalFilename }}</small></span>
+          </button>
+        }
+        <button type="button" class="mc-file" (click)="download(t)">
+          <i class="pi pi-download" aria-hidden="true"></i>
+          <span><b>Atual</b><small>{{ t.originalFilename }}</small></span>
+        </button>
+      </div>
+    }
+  }
+
+  @if (reviewAction() === 'reject') {
+    <p class="mc-aviso">Quem enviou vê o motivo e pode mandar outro arquivo em até 30 dias.</p>
+  }
+
+  <div class="form-field form-field--full">
+    <label for="reviewNotes">
+      {{ reviewAction() === 'reject' ? 'Motivo' : 'Observação' }}
+      @if (reviewAction() === 'reject') { <span class="required">*</span> }
+    </label>
+    <textarea id="reviewNotes" [(ngModel)]="reviewNotes" rows="3" maxlength="500"
+              [placeholder]="reviewAction() === 'reject' ? 'Ex.: foto borrada, não dá para ler o CRM' : 'Opcional'"></textarea>
+  </div>
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="reviewVisible()" [fit]="true"
+            [title]="reviewAction() === 'receive' ? 'Confirmar recebimento' : 'Recusar atestado'"
+            (closed)="reviewVisible.set(false)">
+    <div pkSheetBody class="revisao revisao--folha">
+      <ng-container *ngTemplateOutlet="revisaoCorpo" />
+    </div>
+    <div pkSheetFooter class="revisao__botoes">
+      <pk-button pkType="cancel" (clicked)="reviewVisible.set(false)" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button [pkType]="reviewAction() === 'receive' ? 'save' : 'cancel'" (clicked)="confirmReview()"
+                 [pkLabel]="reviewAction() === 'receive' ? 'Confirmar' : 'Recusar'" pkSize="sm"
+                 [pkDisabled]="!canConfirmReview" [pkLoading]="reviewSaving()" />
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [flush]="true"
+             [header]="reviewAction() === 'receive' ? 'Confirmar recebimento' : 'Recusar atestado'"
+             [visible]="reviewVisible()" (visibleChange)="reviewVisible.set($event)">
+    <div pkDialogContent class="revisao">
+      <ng-container *ngTemplateOutlet="revisaoCorpo" />
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="reviewVisible.set(false)" pkLabel="Cancelar" pkSize="sm"/>
+      <pk-button [pkType]="reviewAction() === 'receive' ? 'save' : 'cancel'" (clicked)="confirmReview()"
+                 [pkLabel]="reviewAction() === 'receive' ? 'Confirmar' : 'Recusar'" pkSize="sm"
+                 [pkDisabled]="!canConfirmReview" [pkLoading]="reviewSaving()" />
+    </div>
+  </pk-dialog>
+}
