@@ -291,6 +291,7 @@ export class EmployesComponent implements TabDirtyCheck {
     this.employeeStore.load();
     this.companyStore.load();
     this.teamStore.load();
+    this.hierarchyStore.load();
     this.positionStore.load();
   }
 
