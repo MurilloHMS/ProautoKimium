@@ -224,4 +224,31 @@ describe('AuthGuard', () => {
     expect(await promessa).toBeFalse();
     expect(router.navigate).toHaveBeenCalledWith(['/unauthorized']);
   });
+
+  // ─── Tela que junta outras (a Pendências) ────────────────────────────────
+
+  /**
+   * A Pendências não tem código de tela próprio: ela junta férias, reembolsos
+   * e atestados. Entra quem abre qualquer uma das três — e quem não abre
+   * nenhuma é barrado, em vez de cair numa tela vazia.
+   */
+  describe('anyScreen', () => {
+    const juntas = ['rh/reimbursements', 'rh/vacation-requests', 'rh/medical-certificates'];
+    const decidirJuntas = async (mapa: Record<string, string[]>) => {
+      const resultado = guard.canActivate({ data: { anyScreen: juntas } } as unknown as ActivatedRouteSnapshot);
+      if (!isObservable(resultado)) return resultado;
+      const promessa = firstValueFrom(resultado);
+      http.expectOne(url).flush(mapa);
+      return promessa;
+    };
+
+    it('entra quem abre só uma das telas', async () => {
+      expect(await decidirJuntas({ 'rh/medical-certificates': ['CONSULTAR'] })).toBeTrue();
+    });
+
+    it('barra quem não abre nenhuma', async () => {
+      expect(await decidirJuntas({ 'rh/hub': ['CONSULTAR'] })).toBeFalse();
+      expect(router.navigate).toHaveBeenCalledWith(['/unauthorized']);
+    });
+  });
 });

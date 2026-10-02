@@ -25,10 +25,25 @@ describe('EventsViewComponent', () => {
     jasmine.clock().mockDate(new Date('2026-09-23T17:20:00Z'));
   });
 
+  // O relógio sai PRIMEIRO. Com o `verify` na frente, um teste que estourava o
+  // tempo deixava o relógio falso instalado, e todos os testes seguintes da
+  // suíte ficavam com o setTimeout congelado — o Chrome desconectava.
   afterEach(() => {
-    http.verify();
     jasmine.clock().uninstall();
+    http.verify();
   });
+
+  /**
+   * No lugar do `whenStable()`: com o relógio falso, o agendador do Angular sem
+   * zone espera um timer que só anda quando alguém manda. Aqui o teste manda.
+   */
+  async function estabilizar(): Promise<void> {
+    for (let i = 0; i < 3; i++) {
+      jasmine.clock().tick(20);
+      await Promise.resolve();
+      fixture.detectChanges();
+    }
+  }
 
   async function montar(lista: EventSummary[]): Promise<void> {
     await TestBed.configureTestingModule({ imports: [EventsViewComponent], providers: providersDeTeste() }).compileComponents();
@@ -36,7 +51,7 @@ describe('EventsViewComponent', () => {
     fixture = TestBed.createComponent(EventsViewComponent);
     fixture.detectChanges();
     http.expectOne(API).flush(lista);
-    await fixture.whenStable();
+    await estabilizar();
   }
 
   const texto = () => fixture.nativeElement.textContent as string;
@@ -49,7 +64,7 @@ describe('EventsViewComponent', () => {
       resumo('b', 'Workshop de Vendas', '2026-10-01', '2026-10-01'),
     ]);
     http.expectOne(`${API}/a`).flush({ ...resumo('a', 'Poseidon Week', '2026-09-22', '2026-09-25'), description: null, locationType: null, talks: [] });
-    await fixture.whenStable();
+    await estabilizar();
 
     const grupos = [...fixture.nativeElement.querySelectorAll('h2.grupo')].map((h: Element) => h.textContent!.trim());
     expect(grupos).toEqual(['Acontecendo', 'Próximos', 'Anteriores']);
@@ -74,7 +89,7 @@ describe('EventsViewComponent', () => {
       ],
     } as EventDetail;
     http.expectOne(`${API}/a`).flush(detalhe);
-    await fixture.whenStable();
+    await estabilizar();
 
     const faixa = fixture.nativeElement.querySelector('[data-testid="no-ar"]') as HTMLElement;
     expect(faixa).not.toBeNull();
@@ -95,7 +110,7 @@ describe('EventsViewComponent', () => {
 
     await TestBed.inject(Router).navigate([], { queryParams: { evento: 'rascunho' } });
     http.expectOne(`${API}/rascunho`).flush({ message: 'Evento não encontrado.' }, { status: 404, statusText: 'Not Found' });
-    await fixture.whenStable();
+    await estabilizar();
 
     expect(fixture.nativeElement.querySelector('[data-testid="nao-encontrado"]')).not.toBeNull();
     expect(texto()).toContain('ainda não foi publicado');
@@ -112,14 +127,14 @@ describe('EventsViewComponent', () => {
       await montar([]);
       await TestBed.inject(Router).navigate([], { queryParams: { evento: 'p' } });
       http.expectOne(`${API}/p`).flush(detalhe());
-      await fixture.whenStable();
+      await estabilizar();
     }
 
     it('convidado: o evento abre com o cartão, e a visualização conta', async () => {
       await abrir();
       http.expectOne(`${API}/invitations/p`).flush({ event: detalhe(), startsAt: '2026-10-06T08:00:00', open: true, answer: null });
       http.expectOne(`${API}/p/views`).flush(null);
-      await fixture.whenStable();
+      await estabilizar();
 
       expect(fixture.nativeElement.querySelector('[data-testid="rsvp"]')).not.toBeNull();
     });
@@ -127,7 +142,7 @@ describe('EventsViewComponent', () => {
     it('não convidado: o evento abre igual, sem cartão e sem visualização', async () => {
       await abrir();
       http.expectOne(`${API}/invitations/p`).flush({}, { status: 404, statusText: 'Not Found' });
-      await fixture.whenStable();
+      await estabilizar();
 
       expect(fixture.nativeElement.querySelector('[data-testid="rsvp"]')).toBeNull();
       expect(texto()).toContain('Poseidon Week');

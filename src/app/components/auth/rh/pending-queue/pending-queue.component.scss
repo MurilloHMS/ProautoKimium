@@ -1,0 +1,269 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// O padrão das telas de grade do RH (2026-10-02): cabeçalho fixo, tabela
+// ocupando o resto. As peças vêm do tema — `app-toolbar`, `pk-table`,
+// `pk-cartao`, `status-chip`, `action-btn` —; aqui só o que é desta tela.
+:host { @include m.grid-screen; }
+
+.table-card { @include m.grid-screen-body; }
+
+// As abas das filas, no mesmo desenho das abas dos Reembolsos.
+.pq-abas {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  padding: 8px 16px 0;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
+  overflow-x: auto;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-size: var(--text-ui);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    margin-bottom: -1px;
+
+    i { font-size: .8rem; }
+    &.is-on { color: var(--app-action); border-bottom-color: var(--app-action); }
+    &:focus-visible { outline: none; box-shadow: inset var(--app-focus-ring); }
+  }
+
+  &__n {
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: var(--radius-pill);
+    background: var(--app-warning-soft);
+    color: var(--app-warning);
+    font-size: var(--text-micro);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+}
+
+.pq-vazio { margin: 32px 16px; text-align: center; color: var(--app-text-muted); }
+.pq-mini { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+.pq-num { font-variant-numeric: tabular-nums; }
+.pq-rotulo { display: block; font-size: var(--text-ui-sm); color: var(--app-text-muted); margin: 10px 0 4px; }
+
+.pq-resumo {
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pq-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+// ── Chips de recorte: os mesmos dos Reembolsos e dos Atestados ─────────────
+.chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  i { font-size: .72rem; }
+  small { font-size: var(--text-micro); font-weight: 600; font-variant-numeric: tabular-nums; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  &--status {
+    i, small { color: var(--c); }
+    &:hover { border-color: var(--c); }
+    &.is-on { background: var(--s); border-color: var(--c); color: var(--c); }
+  }
+
+  &--success { --c: var(--app-success); --s: var(--app-success-soft); }
+  &--neutral { --c: var(--app-text-muted); --s: var(--app-surface-3); }
+  &--acao {
+    --c: var(--app-warning);
+    border-color: var(--c);
+    color: var(--c);
+    &.is-on { background: var(--c); color: #fff; i, small { color: #fff; } }
+  }
+}
+
+// ── Tabela: o mesmo vocabulário dos Atestados ──────────────────────────────
+.col-center { text-align: center !important; white-space: nowrap; }
+.col-num { text-align: right !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.col-check { width: 40px; input { width: 16px; height: 16px; cursor: pointer; } }
+
+.table-row.is-sel td { background: var(--app-action-soft); }
+
+.employee-info { display: flex; align-items: center; gap: 10px; }
+
+.employee-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--app-action) 8%, transparent);
+  color: var(--app-action);
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.employee-name { font-weight: 500; font-size: 0.88rem; }
+
+.days-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-action) 8%, transparent);
+  color: var(--app-action);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.status-chip + .status-chip { margin-left: 4px; }
+
+.action-btn.p-button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius-control);
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  &:hover { background: var(--app-action); border-color: var(--app-action); color: #fff; }
+  &.action-btn--approve:hover { background: var(--app-success); border-color: var(--app-success); }
+  &.action-btn--reject:hover { background: var(--app-danger); border-color: var(--app-danger); }
+  & + .action-btn { margin-left: 4px; }
+  // O número de pedidos ao lado do olho, no tamanho do texto da tabela.
+  .p-button-label { font-size: var(--text-ui-sm); font-weight: 600; }
+}
+
+// ── O lote: preso na base enquanto houver seleção ───────────────────────────
+.pq-lote {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-control, 8px);
+  padding: 10px 16px;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-ui-sm);
+
+  &__espaco { flex: 1; }
+}
+
+// ── Conferência em sequência ───────────────────────────────────────────────
+.pq-seq__moldura { padding: 16px 20px; }
+
+.pq-seq { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
+
+@media (max-width: 768px) { .pq-seq { grid-template-columns: 1fr; } }
+
+.pq-seq__comprovante {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-3);
+  overflow: hidden;
+
+  iframe { width: 100%; height: 520px; border: 0; }
+  img { max-width: 100%; max-height: 520px; object-fit: contain; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+@media (max-width: 768px) {
+  .pq-seq__comprovante { min-height: 240px; iframe { height: 320px; } img { max-height: 320px; } }
+}
+
+.pq-seq__kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin: 0;
+  dt { font-size: var(--text-micro); color: var(--app-text-muted); }
+  dd { margin: 0; font-weight: 600; }
+}
+
+.pq-seq__motivo { margin: 10px 0; font-size: var(--text-ui); }
+
+.pq-seq__dados textarea,
+.pq-revisao textarea {
+  width: 100%;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  padding: 8px;
+  font: inherit;
+  background: var(--app-surface);
+  color: var(--app-text);
+}
+
+// 16px no campo: abaixo disso o iPhone dá zoom ao focar.
+@media (max-width: 768px) { .pq-seq__dados textarea, .pq-revisao textarea { font-size: 16px; } }
+
+.pq-seq__espaco { flex: 1; }
+
+.pq-seq__passos { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 6px; }
+
+.pq-passo {
+  min-width: 26px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: var(--app-surface-3);
+  color: var(--app-text-muted);
+
+  &.is-atual { background: var(--app-action-soft); color: var(--app-action); }
+  &.is-sim { background: var(--app-success-soft); color: var(--app-success); }
+  &.is-nao { background: var(--app-danger-soft); color: var(--app-danger); }
+}
+
+// ── Revisão de férias e atestado ────────────────────────────────────────────
+.pq-revisao { display: flex; flex-direction: column; gap: 6px; padding: 16px 20px 20px; p { margin: 0; } }
+.pq-revisao.revisao--folha { padding: 0; }
+.pq-alvo { font-size: var(--text-ui); }
+
+.pq-botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+  > * { flex: 1; }
+  // No celular as setas são só ícone, para os quatro botões caberem na linha.
+  > .pq-seta { flex: 0 0 auto; }
+}

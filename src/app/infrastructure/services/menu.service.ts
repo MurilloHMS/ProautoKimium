@@ -107,6 +107,7 @@ export class MenuService {
    * pelo último `filter` do método abaixo.
    */
   private isAllowed(item: AppMenuItem): boolean {
+    if (item.anyScreen) return item.anyScreen.some(screen => this.permissions.canOpen(screen));
     if (!item.screen) return true;
     return this.permissions.canOpen(item.screen);
   }
