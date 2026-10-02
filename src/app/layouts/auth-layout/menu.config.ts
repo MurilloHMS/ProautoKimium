@@ -24,9 +24,18 @@ export interface AppMenuItem {
    * aparecer.
    */
   screen?: string;
+  /**
+   * Para a tela que junta outras (a Pendências junta férias, reembolsos e
+   * atestados): aparece para quem abre **qualquer uma** delas. Não existe código
+   * de tela próprio — a grade que o RH já configurou continua valendo.
+   */
+  anyScreen?: string[];
   badge?: string | number;
   items?: AppMenuItem[];
 }
+
+/** As telas que a Pendências junta: quem abre qualquer uma delas abre a Pendências. */
+export const PENDING_QUEUE_SCREENS = ['rh/reimbursements', 'rh/vacation-requests', 'rh/medical-certificates'];
 
 export const APP_MENU: AppMenuItem[] = [
   /**
@@ -80,6 +89,10 @@ export const APP_MENU: AppMenuItem[] = [
         label: 'Aprovações',
         icon: 'pi pi-fw pi-check-circle',
         items: [
+          {
+            label: 'Pendências', icon: 'pi pi-fw pi-hourglass', routerLink: ['rh/pendencias'],
+            anyScreen: PENDING_QUEUE_SCREENS,
+          },
           { label: 'Férias', icon: 'pi pi-fw pi-sun', routerLink: ['rh/vacation-requests'], screen: 'rh/vacation-requests' },
           { label: 'Reembolsos', icon: 'pi pi-fw pi-wallet', routerLink: ['rh/reimbursements'], screen: 'rh/reimbursements' },
           { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], screen: 'rh/medical-certificates' },

@@ -72,6 +72,8 @@ export class AuthGuard implements CanActivate {
     }
 
     const screen = route.data?.['screen'] as string | undefined;
+    // A tela que junta outras (a Pendências): entra quem abre qualquer uma delas.
+    const anyScreen = route.data?.['anyScreen'] as string[] | undefined;
 
     // O `ensureLoaded` vem ANTES da checagem de `screen`, e isso não é estilo.
     //
@@ -83,9 +85,11 @@ export class AuthGuard implements CanActivate {
       map(() => {
         // Rota sem tela não participa do controle: acesso negado, notificações,
         // o próprio início. Trancá-las deixaria a pessoa sem nem o aviso.
-        if (!screen) return true;
-
-        if (this.permissions.canOpen(screen)) return true;
+        if (anyScreen) {
+          if (anyScreen.some(s => this.permissions.canOpen(s))) return true;
+        } else if (!screen || this.permissions.canOpen(screen)) {
+          return true;
+        }
 
         this.router.navigate(['/unauthorized']);
         return false;

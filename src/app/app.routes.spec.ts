@@ -39,8 +39,17 @@ describe('app.routes · o catálogo de telas', () => {
         : filhas;
     });
 
-  const controladas = todas(routes)
+  const autenticadas = todas(routes)
     .filter(r => !r.path.startsWith('cliente') && !FORA_DO_CONTROLE.includes(r.path));
+
+  /**
+   * As telas que juntam outras (2026-10-02: a Pendências junta férias,
+   * reembolsos e atestados). Não têm código próprio na grade: o guard deixa
+   * entrar quem abre **qualquer uma** das telas de `data.anyScreen`, e cada
+   * uma tem que existir de verdade.
+   */
+  const juntas = autenticadas.filter(r => Array.isArray(r.data?.['anyScreen']));
+  const controladas = autenticadas.filter(r => !juntas.includes(r));
 
   it('encontrou as rotas autenticadas', () => {
     // Se este número despencar, a travessia parou de funcionar — e os outros
@@ -53,6 +62,16 @@ describe('app.routes · o catálogo de telas', () => {
     const semScreen = controladas.filter(r => !r.data?.['screen']).map(r => r.path);
 
     expect(semScreen).toEqual([]);
+  });
+
+  it('a tela que junta outras aponta só para telas que existem, e não fica vazia', () => {
+    const existentes = new Set(controladas.map(r => r.data?.['screen']));
+    expect(juntas.map(r => r.path)).toEqual(['rh/pendencias']);
+    for (const r of juntas) {
+      const telas = r.data!['anyScreen'] as string[];
+      expect(telas.length).withContext(r.path).toBeGreaterThan(0);
+      expect(telas.filter(t => !existentes.has(t))).withContext(r.path).toEqual([]);
+    }
   });
 
   /**

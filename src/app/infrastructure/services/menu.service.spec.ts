@@ -1,4 +1,9 @@
-import { dobrarAcento } from './menu.service';
+import { TestBed } from '@angular/core/testing';
+import { HttpTestingController } from '@angular/common/http/testing';
+
+import { MenuService, dobrarAcento } from './menu.service';
+import { PermissionStore } from '../state/permission.store';
+import { providersDeTeste } from '../../../testing/test-setup';
 
 describe('dobrarAcento', () => {
 
@@ -34,5 +39,29 @@ describe('dobrarAcento', () => {
     // O breadcrumb usa "›" (U+203A), que não é letra nem sinal combinante.
     expect(dobrarAcento('RH › Aprovações › Férias'))
       .toBe('rh › aprovacoes › ferias');
+  });
+});
+
+/**
+ * A Pendências não tem código de tela: aparece para quem abre férias,
+ * reembolsos ou atestados. Sem a regra, ela viraria item "sem tela" — e item
+ * sem tela aparece para todo logado.
+ */
+describe('MenuService · tela que junta outras', () => {
+  function labelsCom(grade: Record<string, string[]>): string[] {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providersDeTeste() });
+    const http = TestBed.inject(HttpTestingController);
+    TestBed.inject(PermissionStore).ensureLoaded().subscribe();
+    http.expectOne(r => r.url.endsWith('/me/permissions')).flush(grade);
+    return TestBed.inject(MenuService).flatItems().map(i => i.label);
+  }
+
+  it('aparece para quem abre só uma das telas que ela junta', () => {
+    expect(labelsCom({ 'rh/medical-certificates': ['CONSULTAR'] })).toContain('Pendências');
+  });
+
+  it('não aparece para quem não abre nenhuma', () => {
+    expect(labelsCom({ 'rh/hub': ['CONSULTAR'] })).not.toContain('Pendências');
   });
 });

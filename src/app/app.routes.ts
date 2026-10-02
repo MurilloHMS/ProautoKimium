@@ -25,6 +25,7 @@ import { TalentBankLinkRequestComponent } from './components/public/meu-curricul
 import { TalentBankEntryComponent } from './components/public/meu-curriculo/talent-bank-entry.component';
 import { VcardComponent } from './components/public/profile/vcard/vcard.component';
 import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
+import { PENDING_QUEUE_SCREENS } from './layouts/auth-layout/menu.config';
 import { clientGuard, clientLoggedOutGuard } from './infrastructure/guard/client.guard';
 
 export const routes: Routes = [
@@ -75,6 +76,9 @@ export const routes: Routes = [
       { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees' } },
       { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { screen: 'rh/organizational-structure' } },
       { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { screen: 'rh/career-structure' } },
+      // Pendências (2026-10-02): uma fila por tipo. Sem tela própria na grade —
+      // entra quem abre férias, reembolsos ou atestados, e vê só as filas dele.
+      { path: 'rh/pendencias', loadComponent: () => import('./components/auth/rh/pending-queue/pending-queue.component').then(m => m.PendingQueueComponent), data: { anyScreen: PENDING_QUEUE_SCREENS } },
       { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { screen: 'rh/vacation-requests' } },
       { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { screen: 'rh/reimbursements' } },
       { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { screen: 'rh/calendar' } },
