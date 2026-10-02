@@ -37,6 +37,12 @@ export class EventRsvpComponent {
   readonly startsAt = input.required<string>();
   readonly open = input.required<boolean>();
   readonly answer = input<InvitationAnswer | null>(null);
+  /**
+   * Live de comunicado: a resposta é um toque só, "Estou ciente", sem
+   * formulário e sem observação. Não tem "alterar": confirmar que viu o
+   * aviso não se desfaz.
+   */
+  readonly online = input(false);
 
   readonly answered = output<InvitationAnswer>();
 
@@ -124,6 +130,24 @@ export class EventRsvpComponent {
     });
   }
 
+  /** "Estou ciente": grava direto, sem abrir formulário. */
+  confirmarCiencia(): void {
+    if (this.salvando()) return;
+    this.salvando.set(true);
+    this.erro.set(null);
+    this.service.respond(this.eventId(), 'ACKNOWLEDGED', null).subscribe({
+      next: resposta => {
+        this.salvando.set(false);
+        this.salva.set(resposta);
+        this.answered.emit(resposta);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.salvando.set(false);
+        this.erro.set(this.mensagem(err));
+      },
+    });
+  }
+
   quando(iso: string | null | undefined): string {
     return formatDeadline(iso);
   }
@@ -134,7 +158,13 @@ export class EventRsvpComponent {
   }
 
   private mensagem(err: HttpErrorResponse): string {
-    if (err?.status === 409) return 'O evento já começou: a resposta não pode mais ser alterada.';
+    // Presencial: a frase fixa do prazo. Na live o prazo é outro (o fim da
+    // transmissão), e quem sabe dizer é a API.
+    if (err?.status === 409) {
+      return this.online() && err?.error?.message
+        ? err.error.message
+        : 'O evento já começou: a resposta não pode mais ser alterada.';
+    }
     if (err?.status === 404) return 'Este convite não está mais disponível.';
     return err?.error?.message || 'Não foi possível salvar a resposta. Tente de novo.';
   }

@@ -71,6 +71,11 @@ export class EventsService {
     return this.http.post<EventDetail>(`${this.base}/${id}/unpublish`, null);
   }
 
+  /** Uma cópia uma semana depois, como rascunho — as lives semanais. */
+  duplicate(id: string): Observable<EventDetail> {
+    return this.http.post<EventDetail>(`${this.base}/${id}/duplicate`, null);
+  }
+
   attendance(id: string): Observable<Attendance> {
     return this.http.get<Attendance>(`${this.base}/${id}/attendance`);
   }

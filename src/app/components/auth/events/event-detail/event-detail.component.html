@@ -18,7 +18,10 @@
       }
       <p class="capa__meta">
         <span><i class="pi pi-calendar"></i> {{ formatPeriod(event().startDate, event().endDate) }}</span>
-        @if (local()?.name) {
+        @if (online()) {
+          <span><i class="pi pi-clock"></i> {{ hhmm(event().startTime) }} às {{ hhmm(event().endTime) }}</span>
+          <span><i [class]="plataforma().icon"></i> {{ plataforma().name }} · online</span>
+        } @else if (local()?.name) {
           <span><i class="pi pi-map-marker"></i> {{ local()!.name }}</span>
         }
       </p>
@@ -30,10 +33,34 @@
     </div>
   </header>
 
-  <!-- O cartão "Você vai participar?", quando quem abre foi convidado. -->
+  @if (online() && linkDaLive(); as link) {
+    <!-- A live: o botão leva para a plataforma. Funciona a qualquer hora —
+         dá para guardar o link antes, e a gravação costuma ficar no mesmo
+         endereço; durante a transmissão ele só ganha destaque. -->
+    <section class="live" [class]="'live live--' + estadoDaLive()" data-testid="live">
+      <div class="live__texto">
+        <p class="rotulo">Transmissão</p>
+        <h2 class="live__plataforma"><i [class]="plataforma().icon"></i> {{ plataforma().name }}</h2>
+        @switch (estadoDaLive()) {
+          @case ('antes') { <p class="live__quando">Começa {{ formatPeriod(event().startDate, event().endDate) }}, às {{ hhmm(event().startTime) }}.</p> }
+          @case ('ao-vivo') { <p class="live__quando"><span class="status-chip status-chip--danger chip-agora"><i class="pi pi-circle-fill"></i>Ao vivo</span> Começou às {{ hhmm(event().startTime) }}.</p> }
+          @case ('encerrada') { <p class="live__quando">A transmissão terminou às {{ hhmm(event().endTime) }}.</p> }
+        }
+      </div>
+      <a class="live__assistir" [href]="link" target="_blank" rel="noopener noreferrer" data-testid="assistir">
+        @switch (estadoDaLive()) {
+          @case ('ao-vivo') { <i class="pi pi-play-circle"></i> Assistir agora }
+          @case ('antes') { <i class="pi pi-external-link"></i> Abrir a transmissão }
+          @case ('encerrada') { <i class="pi pi-external-link"></i> Abrir o link }
+        }
+      </a>
+    </section>
+  }
+
+  <!-- O cartão da resposta ("Você vai participar?" / "Estou ciente"), quando quem abre foi convidado. -->
   <ng-content />
 
-  @if (local()) {
+  @if (local() && !online()) {
     <section class="onde">
       <div class="onde__texto">
         <p class="rotulo">Onde fica</p>
@@ -51,6 +78,7 @@
     </section>
   }
 
+  @if (!semProgramacao()) {
   <nav class="dias" role="tablist" aria-label="Dias do evento">
     @for (aba of abas(); track aba.data) {
       <button type="button" role="tab" class="dia" data-testid="aba-dia"
@@ -165,4 +193,5 @@
       <p class="vazio">Nenhuma palestra neste dia.</p>
     }
   </div>
+  }
 </div>

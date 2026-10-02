@@ -12,7 +12,7 @@ const API = `${environment.apiUrl}/events`;
 
 function resumo(id: string, nome: string, inicio: string): EventSummary {
   return { id, name: nome, startDate: inicio, endDate: inicio, coverUrl: null, location: null, talkCount: 1,
-    awayTalkCount: 0, publishedAt: '2026-09-20T09:00:00', updatedAt: null, updatedBy: null };
+    awayTalkCount: 0, publishedAt: '2026-09-20T09:00:00', updatedAt: null, updatedBy: null, startTime: null, endTime: null };
 }
 
 function convite(id: string, nome: string, inicio: string, open: boolean, answer: Invitation['answer'] = null): Invitation {
@@ -69,7 +69,8 @@ describe('InvitationsComponent', () => {
 
     http.expectOne(`${API}/invitations/b`).flush({
       event: { ...resumo('b', 'Poseidon Week', '2026-10-06'), description: null, locationType: null, talks: [],
-        startsAt: '2026-10-06T08:00:00', settings: null },
+        startsAt: '2026-10-06T08:00:00', settings: null,
+        endsAt: '2026-10-07T00:00:00', answersUntil: '2026-10-06T08:00:00' },
       startsAt: '2026-10-06T08:00:00', open: true, answer: null,
     });
     const view = http.expectOne(`${API}/b/views`);

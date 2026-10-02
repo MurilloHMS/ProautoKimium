@@ -12,7 +12,7 @@ const API = `${environment.apiUrl}/events`;
 
 function resumo(id: string, nome: string, inicio: string, fim: string): EventSummary {
   return { id, name: nome, startDate: inicio, endDate: fim, coverUrl: null, location: null, talkCount: 3, awayTalkCount: 0,
-    publishedAt: '2026-09-01T10:00:00', updatedAt: null, updatedBy: null };
+    publishedAt: '2026-09-01T10:00:00', updatedAt: null, updatedBy: null, startTime: null, endTime: null };
 }
 
 describe('EventsViewComponent', () => {
@@ -64,7 +64,7 @@ describe('EventsViewComponent', () => {
 
     const detalhe: EventDetail = {
       ...resumo('a', 'Poseidon Week', '2026-09-22', '2026-09-25'), description: null, locationType: null,
-      startsAt: '2026-09-22T09:00:00', settings: null,
+      startsAt: '2026-09-22T09:00:00', settings: null, endsAt: '2026-09-26T00:00:00', answersUntil: '2026-09-22T09:00:00',
       talks: [
         { id: 't1', title: 'Descontaminação de pintura', description: null, date: '2026-09-23', startTime: '14:00:00', endTime: '15:30:00',
           room: null, locationType: 'EVENT', location: null,
@@ -105,6 +105,7 @@ describe('EventsViewComponent', () => {
     const detalhe = (): EventDetail => ({
       ...resumo('p', 'Poseidon Week', '2026-10-06', '2026-10-08'), description: null, locationType: null,
       startsAt: '2026-10-06T08:00:00', settings: null, talks: [],
+      endsAt: '2026-10-09T00:00:00', answersUntil: '2026-10-06T08:00:00',
     });
 
     async function abrir(): Promise<void> {

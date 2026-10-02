@@ -7,16 +7,18 @@
 
 import { Address } from './address.model';
 
-export type EventLocationType = 'COMPANY' | 'ADDRESS';
+export type EventLocationType = 'COMPANY' | 'ADDRESS' | 'ONLINE';
 export type TalkLocationType = 'EVENT' | 'COMPANY' | 'ADDRESS';
 
 /** Onde algo acontece, já resolvido pela API. */
 export interface EventLocation {
-  source: 'EVENT' | 'COMPANY' | 'ADDRESS';
+  source: 'EVENT' | 'COMPANY' | 'ADDRESS' | 'ONLINE';
   companyId: string | null;
   name: string | null;
-  /** Nulo quando não há endereço usável — empresa sem endereço, por exemplo. */
+  /** Nulo quando não há endereço usável — empresa sem endereço, evento online. */
   address: Address | null;
+  /** O link da transmissão; só em evento online (e nas palestras "no local do evento" dele). */
+  onlineUrl: string | null;
 }
 
 export interface Speaker {
@@ -83,6 +85,9 @@ export interface EventSummary {
   publishedAt: string | null;
   updatedAt: string | null;
   updatedBy: string | null;
+  /** Horário do evento online ("09:00:00"); nulo no presencial. */
+  startTime: string | null;
+  endTime: string | null;
 }
 
 export interface EventDetail {
@@ -98,10 +103,16 @@ export interface EventDetail {
   updatedAt: string | null;
   updatedBy: string | null;
   talks: EventTalk[];
-  /** Até quando dá para responder ao convite: o primeiro dia, na hora da primeira palestra. */
+  /** Quando começa: o horário da live, ou a primeira palestra do primeiro dia. */
   startsAt: string;
-  /** Público e lembrete. Só chega para quem cadastra. */
+  /** Público e avisos. Só chega para quem cadastra. */
   settings: EventSettings | null;
+  startTime: string | null;
+  endTime: string | null;
+  /** Quando acaba: o fim do "Ao vivo". */
+  endsAt: string;
+  /** Até quando dá para responder: o início no presencial, o fim na live. */
+  answersUntil: string;
 }
 
 /** Uma empresa, um setor ou uma pessoa nos seletores do público. */
@@ -128,6 +139,12 @@ export interface EventSettings {
   reminderTime: string | null;
   /** Quantos dias antes do primeiro dia o lembrete começa (1 a 60). */
   reminderDaysBefore: number | null;
+  /** Avisar todos os convidados na primeira publicação. */
+  announceOnPublish: boolean;
+  /** Quando o aviso de publicação saiu; nulo se ainda não saiu. */
+  announcedAt: string | null;
+  /** "Começou agora" na hora da live. */
+  notifyLiveStart: boolean;
 }
 
 export interface EventRequest {
@@ -147,11 +164,18 @@ export interface EventRequest {
   reminderEnabled: boolean;
   reminderTime: string | null;
   reminderDaysBefore: number | null;
+  /** Obrigatório com ONLINE, só https://. */
+  onlineUrl: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  announceOnPublish: boolean;
+  notifyLiveStart: boolean;
 }
 
 // ─── Confirmação de presença ────────────────────────────────────────────────
 
-export type EventAnswer = 'GOING' | 'NOT_GOING';
+/** Vou / Não vou no presencial; Estou ciente (ACKNOWLEDGED) na live. */
+export type EventAnswer = 'GOING' | 'NOT_GOING' | 'ACKNOWLEDGED';
 
 /** O limite da observação — o mesmo da coluna `event_responses.note`. */
 export const NOTE_MAX = 500;
@@ -218,4 +242,8 @@ export interface Attendance {
   noAnswer: number;
   neverViewed: number;
   attendees: Attendee[];
+  /** Cientes, na live. */
+  acknowledged: number;
+  /** Live: a auditoria conta cientes em vez de vão / não vão. */
+  online: boolean;
 }

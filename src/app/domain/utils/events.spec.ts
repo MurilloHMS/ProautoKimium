@@ -20,8 +20,10 @@ const poseidon: EventDetail = {
   location: {
     source: 'ADDRESS', companyId: null, name: 'Proauto Kimium',
     address: { zipCode: null, street: 'Av. Colombo', number: '5790', complement: null, district: 'Zona 7', city: 'Maringá', state: 'PR', formatted: 'Av. Colombo, 5790 - Zona 7, Maringá - PR' },
+    onlineUrl: null,
   },
   publishedAt: '2026-09-14T10:00:00', updatedAt: null, updatedBy: null, talks: [], startsAt: '2026-09-22T00:00:00', settings: null,
+  startTime: null, endTime: null, endsAt: '2026-09-26T00:00:00', answersUntil: '2026-09-22T00:00:00',
 };
 
 describe('nowInSaoPaulo', () => {

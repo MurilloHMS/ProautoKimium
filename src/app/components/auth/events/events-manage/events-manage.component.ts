@@ -8,8 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { EventDetail, EventSummary, Speaker } from '../../../../domain/models/events.model';
 import { apiMessage } from '../../../../domain/utils/api-error';
 import {
-  formatDateBr, formatPeriod, formatStamp, eventPhase, initials, instagramUrl, linkedinUrl, phaseLabel, websiteUrl,
-} from '../../../../domain/utils/events';
+  formatDateBr, formatPeriod, formatStamp, eventPhase, initials, instagramUrl, linkedinUrl, phaseLabel, websiteUrl, livePlatform } from '../../../../domain/utils/events';
 import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { EventsService } from '../../../../infrastructure/services/events/events.service';
@@ -230,6 +229,31 @@ export class EventsManageComponent implements OnInit {
       },
       error: err => this.avisarErro(err, 'Não foi possível publicar.'),
     });
+  }
+
+  /**
+   * Abre a cópia direto no formulário: ela nasce rascunho, e o próximo passo
+   * natural é trocar o tema da semana e publicar.
+   */
+  duplicar(e: EventSummary): void {
+    this.service.duplicate(e.id).subscribe({
+      next: copia => {
+        this.messages.add({
+          severity: 'success', summary: 'Duplicado',
+          detail: `Rascunho criado para ${formatDateBr(copia.startDate)}, com o mesmo público, link e avisos. Revise e publique.`,
+        });
+        this.emEdicao.set(copia);
+        this.modo.set('formulario');
+        this.carregarEventos();
+      },
+      error: err => this.avisarErro(err, 'Não foi possível duplicar o evento.'),
+    });
+  }
+
+  /** "YouTube · online" para a live; o nome do lugar para o presencial. */
+  onde(e: EventSummary): string {
+    if (e.location?.source === 'ONLINE') return `${livePlatform(e.location.onlineUrl).name} · online`;
+    return e.location?.name || '';
   }
 
   confirmarExclusaoEvento(): void {

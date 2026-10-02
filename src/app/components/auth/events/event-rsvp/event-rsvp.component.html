@@ -1,3 +1,32 @@
+@if (online()) {
+  <section class="rsvp" aria-label="Comunicado" data-testid="rsvp-ciente">
+    @if (salva()?.answer === 'ACKNOWLEDGED') {
+      <span class="rsvp__icone rsvp__icone--vai" aria-hidden="true"><i class="pi pi-check"></i></span>
+      <div class="rsvp__texto" data-testid="ciente">
+        <b>Você está ciente</b>
+        <small>Confirmado em {{ quando(salva()!.answeredAt) }}.</small>
+      </div>
+    } @else if (open()) {
+      <span class="rsvp__icone rsvp__icone--pendente" aria-hidden="true"><i class="pi pi-megaphone"></i></span>
+      <div class="rsvp__texto">
+        <b>Comunicado para você</b>
+        <small>Confirme que viu este aviso.</small>
+      </div>
+      <!-- lg: 48px de toque no celular, a medida do público 40+ -->
+      <pk-button class="rsvp__acao" pkType="save" pkSize="lg" pkIcon="pi pi-check" pkLabel="Estou ciente"
+                 data-testid="estou-ciente" [pkLoading]="salvando()" (clicked)="confirmarCiencia()" />
+    } @else {
+      <span class="rsvp__icone rsvp__icone--pendente" aria-hidden="true"><i class="pi pi-megaphone"></i></span>
+      <div class="rsvp__texto">
+        <b>Você não confirmou</b>
+        <small data-testid="fechado">A transmissão terminou e a confirmação fechou.</small>
+      </div>
+    }
+    @if (erro()) {
+      <p class="form__erro rsvp__erro" role="alert" data-testid="erro"><i class="pi pi-exclamation-circle"></i> {{ erro() }}</p>
+    }
+  </section>
+} @else {
 <section class="rsvp" aria-label="Sua presença" data-testid="rsvp">
   @if (salva(); as r) {
     <span class="rsvp__icone" aria-hidden="true"
@@ -32,6 +61,8 @@
     }
   }
 </section>
+
+}
 
 <ng-template #formulario>
   <div class="form">

@@ -2,7 +2,7 @@
   <app-event-detail [event]="evento" [now]="agora()" (back)="fechar()">
     @if (convite(); as c) {
       <app-event-rsvp class="rsvp" [eventId]="c.event.id" [startsAt]="c.startsAt" [open]="c.open"
-                      [answer]="c.answer" (answered)="respondeu($event)" />
+                      [answer]="c.answer" [online]="c.event.location?.source === 'ONLINE'" (answered)="respondeu($event)" />
     }
   </app-event-detail>
 } @else {

@@ -15,7 +15,9 @@ import {
 } from '../../../../domain/models/events.model';
 import { apiMessage } from '../../../../domain/utils/api-error';
 import { Coordinates, coordinatesOf, formatAddress, isUsableAddress } from '../../../../domain/utils/address';
-import { dayTab, eventDays, formatDateBr, formatDeadline, formatStamp, hhmm, initials } from '../../../../domain/utils/events';
+import {
+  dayTab, eventDays, formatDateBr, formatDeadline, formatStamp, hhmm, initials, isSafeLiveUrl, livePlatform,
+} from '../../../../domain/utils/events';
 import { urlDeMidia } from '../../../../infrastructure/config/media-url';
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { EventsService } from '../../../../infrastructure/services/events/events.service';
@@ -103,6 +105,11 @@ export class EventFormComponent implements OnInit {
     reminderEnabled: [false],
     reminderTime: ['09:00:00'],
     reminderDaysBefore: [3 as number | null],
+    onlineUrl: ['', Validators.maxLength(500)],
+    startTime: [''],
+    endTime: [''],
+    announceOnPublish: [true],
+    notifyLiveStart: [true],
   });
 
   private readonly valorEvento = toSignal(this.form.valueChanges.pipe(startWith(this.form.value)));
@@ -110,6 +117,20 @@ export class EventFormComponent implements OnInit {
   readonly tipoLocalEvento = computed(() => this.valorEvento()?.locationType ?? 'NONE');
 
   readonly mapaEvento = computed(() => this.mapaDe(this.valorEvento(), 'NONE'));
+
+  // ── Online ─────────────────────────────────────────────────────────────────
+
+  readonly online = computed(() => this.tipoLocalEvento() === 'ONLINE');
+  readonly linkDigitado = computed(() => (this.valorEvento()?.onlineUrl ?? '').trim());
+  readonly plataforma = computed(() => livePlatform(this.linkDigitado()));
+  /** Só reclama depois de algo digitado: campo vazio mostra a dica, não o erro. */
+  readonly linkInvalido = computed(() => !!this.linkDigitado() && !isSafeLiveUrl(this.linkDigitado()));
+  readonly horarioDaLiveInvalido = computed(() => {
+    const v = this.valorEvento();
+    return !!v?.startTime && !!v?.endTime && v.startDate === v.endDate && v.endTime <= v.startTime;
+  });
+  /** Quando o aviso de publicação já saiu, a caixa vira informação. */
+  readonly avisoEnviadoEm = computed(() => this.atual()?.settings?.announcedAt ?? null);
 
   // ── Convidados e lembrete ───────────────────────────────────────────────────
 
@@ -292,6 +313,11 @@ export class EventFormComponent implements OnInit {
       reminderEnabled: e?.settings?.reminderEnabled ?? false,
       reminderTime: e?.settings?.reminderTime ?? '09:00:00',
       reminderDaysBefore: e?.settings?.reminderDaysBefore ?? 3,
+      onlineUrl: e?.location?.onlineUrl ?? '',
+      startTime: e?.startTime ? hhmm(e.startTime) : '',
+      endTime: e?.endTime ? hhmm(e.endTime) : '',
+      announceOnPublish: e?.settings?.announceOnPublish ?? true,
+      notifyLiveStart: e?.settings?.notifyLiveStart ?? true,
     });
     this.incluirEscolhidosNasOpcoes(e);
   }
@@ -350,6 +376,20 @@ export class EventFormComponent implements OnInit {
       this.erro('Escolha a empresa do grupo.');
       return;
     }
+    if (tipo === 'ONLINE') {
+      if (!isSafeLiveUrl(v.onlineUrl)) {
+        this.erro('Cole o link da transmissão, começando com https://');
+        return;
+      }
+      if (!v.startTime || !v.endTime) {
+        this.erro('Informe o horário de início e de fim da transmissão.');
+        return;
+      }
+      if (this.horarioDaLiveInvalido()) {
+        this.erro('O fim da transmissão precisa ser depois do início.');
+        return;
+      }
+    }
     const endereco = addressFromGroup(this.enderecoEvento);
     const dias = Number(v.reminderDaysBefore);
     if (v.reminderEnabled && (!Number.isInteger(dias) || dias < 1 || dias > 60)) {
@@ -379,6 +419,11 @@ export class EventFormComponent implements OnInit {
       reminderEnabled: !!v.reminderEnabled,
       reminderTime: v.reminderEnabled ? v.reminderTime : null,
       reminderDaysBefore: v.reminderEnabled ? Number(v.reminderDaysBefore) : null,
+      onlineUrl: tipo === 'ONLINE' ? (v.onlineUrl ?? '').trim() : null,
+      startTime: tipo === 'ONLINE' ? v.startTime : null,
+      endTime: tipo === 'ONLINE' ? v.endTime : null,
+      announceOnPublish: !!v.announceOnPublish,
+      notifyLiveStart: tipo === 'ONLINE' && !!v.notifyLiveStart,
     };
 
     const e = this.atual();
@@ -410,9 +455,12 @@ export class EventFormComponent implements OnInit {
       next: detalhe => {
         this.atual.set(detalhe);
         this.saved.emit(detalhe);
+        const avisou = publicado && !!detalhe.settings?.announcedAt && !e.settings?.announcedAt;
         this.messages.add({
           severity: 'success', summary: publicado ? 'Publicado' : 'Rascunho',
-          detail: publicado ? 'O evento já aparece em Documentos.' : 'O evento saiu de Documentos.',
+          detail: !publicado ? 'O evento saiu de Documentos.'
+            : avisou ? 'O evento já aparece em Documentos, e os convidados foram avisados.'
+            : 'O evento já aparece em Documentos.',
         });
       },
       error: err => this.erroDaApi(err, 'Não foi possível mudar a publicação.'),
