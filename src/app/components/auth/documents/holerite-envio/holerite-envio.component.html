@@ -17,16 +17,38 @@
     <div class="envio__campo">
       <label>Tipo</label>
       <div class="envio__tipos">
-        @for (item of tipos; track item.value) {
+        @for (item of tipos(); track item.code) {
           <button type="button"
                   class="envio__tipo"
-                  [class.envio__tipo--ativo]="tipo() === item.value"
+                  data-testid="tipo"
+                  [class.envio__tipo--ativo]="tipo() === item.code"
                   [title]="item.label"
-                  (click)="tipo.set(item.value); voltarParaEscolha()">
+                  (click)="tipo.set(item.code); voltarParaEscolha()">
             <i [class]="item.icon"></i> {{ item.curto }}
           </button>
         }
+        @if (!criandoTipo()) {
+          <button *pkCan="'rh/holerit:INCLUIR'" type="button" class="envio__tipo envio__tipo--novo"
+                  data-testid="novo-tipo" (click)="abrirNovoTipo()">
+            <i class="pi pi-plus"></i> Novo tipo
+          </button>
+        }
       </div>
+      @if (criandoTipo()) {
+        <div class="envio__novo-tipo" data-testid="form-novo-tipo">
+          <input type="text" maxlength="60" placeholder="Ex.: Abono de férias" aria-label="Nome do tipo novo"
+                 data-testid="nome-novo-tipo"
+                 [ngModel]="nomeNovoTipo()" (ngModelChange)="nomeNovoTipo.set($event)"
+                 (keydown.enter)="criarTipo()" (keydown.escape)="cancelarNovoTipo()" />
+          <pk-button pkType="save" pkSize="sm" pkLabel="Criar" data-testid="criar-tipo"
+                     [pkDisabled]="!nomeNovoTipo().trim()" [pkLoading]="salvandoTipo()" (clicked)="criarTipo()" />
+          <pk-button pkType="cancel" pkSize="sm" (clicked)="cancelarNovoTipo()" />
+        </div>
+        <small class="envio__dica">O tipo fica salvo e aparece nos próximos envios, na auditoria e para o funcionário.</small>
+      }
+      @if (avisoTipo()) {
+        <small class="envio__aviso-tipo" role="status" data-testid="aviso-tipo">{{ avisoTipo() }}</small>
+      }
     </div>
 
     <div class="envio__acoes">

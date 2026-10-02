@@ -53,10 +53,15 @@
 
 .auditoria__tipos {
   display: flex;
+  // Os tipos viraram cadastro (2026-10-02): eram 4 fixos e agora o RH cria
+  // quantos quiser. Sem quebrar a fileira, o flex espremia os botões e o
+  // nome partia em duas linhas ("13º" em cima, "· 1ª" embaixo).
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .auditoria__tipo {
+  white-space: nowrap;
   padding: 8px 16px;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-control);

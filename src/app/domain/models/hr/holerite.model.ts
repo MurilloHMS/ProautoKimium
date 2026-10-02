@@ -6,38 +6,50 @@
  * quebrava.
  */
 
-export type HoleriteTipo =
-  | 'SALARIO'
-  | 'ADIANTAMENTO'
-  | 'DECIMO_TERCEIRO_1'
-  | 'DECIMO_TERCEIRO_2';
-
 /**
- * Os tipos na ordem em que aparecem para escolher, com o rótulo curto do botão
- * e o completo do resto.
- *
- * Uma lista só: o seletor do envio, o filtro do funcionário e o texto da
- * confirmação leem daqui. Antes eram três lugares com o mesmo ternário, e o do
- * aviso de notificação já chamava qualquer coisa de "salário".
- *
- * O mês de cada parcela do 13º não está aqui de propósito — quem diz o mês é a
- * competência escolhida no envio. Fixar novembro e dezembro no código quebraria
- * no ano em que o RH pagar as duas juntas.
+ * O código de um tipo de holerite ("SALARIO", "PLR"…). Era uma lista fixa; desde
+ * 2026-10-02 os tipos são um cadastro da API, que o RH aumenta pela tela de envio.
  */
-export const HOLERITE_TIPOS: ReadonlyArray<{
-  value: HoleriteTipo;
+export type HoleriteTipo = string;
+
+/** Um tipo como a API devolve (`GET /holerite/types`). */
+export interface PayslipType {
+  code: string;
   label: string;
+}
+
+/** Um tipo pronto para a tela: o nome inteiro, o curto do botão e o ícone. */
+export interface PayslipTypeView extends PayslipType {
   curto: string;
   icon: string;
-}> = [
-  { value: 'SALARIO',           label: 'Salário',          curto: 'Salário',      icon: 'pi pi-wallet' },
-  { value: 'ADIANTAMENTO',      label: 'Adiantamento',     curto: 'Adiantamento', icon: 'pi pi-calendar' },
-  { value: 'DECIMO_TERCEIRO_1', label: '13º — 1ª parcela', curto: '13º · 1ª',     icon: 'pi pi-gift' },
-  { value: 'DECIMO_TERCEIRO_2', label: '13º — 2ª parcela', curto: '13º · 2ª',     icon: 'pi pi-gift' },
-];
+}
 
-export const HOLERITE_TIPO_LABEL: Record<HoleriteTipo, string> =
-  Object.fromEntries(HOLERITE_TIPOS.map(t => [t.value, t.label])) as Record<HoleriteTipo, string>;
+/**
+ * Nome curto e ícone dos tipos de sempre. Tipo criado pelo RH não está aqui, e
+ * usa o próprio nome e um ícone neutro: o desenho não pode depender de alguém
+ * lembrar de mexer no código quando o RH criar "Bônus".
+ *
+ * O mês de cada parcela do 13º não está aqui de propósito — quem diz o mês é a
+ * competência escolhida no envio.
+ */
+const VISUAL: Record<string, { curto: string; icon: string }> = {
+  SALARIO: { curto: 'Salário', icon: 'pi pi-wallet' },
+  ADIANTAMENTO: { curto: 'Adiantamento', icon: 'pi pi-calendar' },
+  DECIMO_TERCEIRO_1: { curto: '13º · 1ª', icon: 'pi pi-gift' },
+  DECIMO_TERCEIRO_2: { curto: '13º · 2ª', icon: 'pi pi-gift' },
+  PLR: { curto: 'PLR', icon: 'pi pi-chart-line' },
+  FERIAS_COLETIVAS: { curto: 'Férias coletivas', icon: 'pi pi-sun' },
+};
+
+export function payslipTypeView(t: PayslipType): PayslipTypeView {
+  return { ...t, ...(VISUAL[t.code] ?? { curto: t.label, icon: 'pi pi-file' }) };
+}
+
+/** A resposta do cadastro: `created` falso quando o nome já existia. */
+export interface CreatePayslipTypeResult {
+  type: PayslipType;
+  created: boolean;
+}
 
 /**
  * O que vai acontecer com cada página do PDF, decidido pelo servidor.
