@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { PayslipTypeStore } from '../../../infrastructure/state/payslip-type.store';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -7,8 +8,6 @@ import { PageHeaderComponent } from '../shared/page-header/page-header.component
 import { PkButtonComponent } from '../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import {
-  HOLERITE_TIPOS,
-  HOLERITE_TIPO_LABEL,
   Holerite,
   HoleriteTipo,
 } from '../../../domain/models/hr/holerite.model';
@@ -57,8 +56,19 @@ export class HoleritesComponent implements OnInit {
   salvandoConfirmacao = signal(false);
   filtro = signal<Filtro>('TODOS');
 
-  /** Os mesmos tipos do envio, na mesma ordem — uma lista só para as duas telas. */
-  readonly tipos = HOLERITE_TIPOS;
+  private readonly types = inject(PayslipTypeStore);
+
+  /**
+   * Só os tipos que a pessoa TEM, na ordem do cadastro: um botão "Férias
+   * coletivas" para quem nunca recebeu um levaria a uma lista vazia. Tipo que
+   * a pessoa tem e a lista não conhece ainda entra no fim, com o código.
+   */
+  readonly tipos = computed(() => {
+    const meus = new Set(this.holerites().map(h => h.tipo));
+    const doCadastro = this.types.views().filter(t => meus.has(t.code));
+    const conhecidos = new Set(doCadastro.map(t => t.code));
+    return [...doCadastro, ...[...meus].filter(c => !conhecidos.has(c)).map(c => this.types.viewOf(c))];
+  });
 
   private readonly meses = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -87,6 +97,7 @@ export class HoleritesComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.types.load();
     this.http.get<Holerite[]>(`${environment.apiUrl}/holerite/me`).subscribe({
       next: (data) => {
         this.holerites.set(data ?? []);
@@ -111,7 +122,7 @@ export class HoleritesComponent implements OnInit {
   }
 
   tipoLabel(tipo: HoleriteTipo): string {
-    return HOLERITE_TIPO_LABEL[tipo] ?? tipo;
+    return this.types.labelOf(tipo);
   }
 
   setFiltro(f: Filtro): void {

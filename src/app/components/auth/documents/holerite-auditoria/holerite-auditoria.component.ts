@@ -7,11 +7,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 import {
   AUDITORIA_SITUACAO_INFO,
-  HOLERITE_TIPOS,
   HoleriteAuditoria,
   HoleriteTipo,
   situacaoDe,
 } from '../../../../domain/models/hr/holerite.model';
+import { PayslipTypeStore } from '../../../../infrastructure/state/payslip-type.store';
 import { HoleriteService } from '../../../../infrastructure/services/hr/holerite.service';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkDialogComponent } from '../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
@@ -39,6 +39,7 @@ export class HoleriteAuditoriaComponent {
   private readonly service = inject(HoleriteService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly types = inject(PayslipTypeStore);
 
   readonly competencia = signal(mesAtual());
   readonly tipo = signal<HoleriteTipo>('SALARIO');
@@ -46,7 +47,12 @@ export class HoleriteAuditoriaComponent {
   readonly carregando = signal(false);
   readonly buscou = signal(false);
 
-  readonly tipos = HOLERITE_TIPOS;
+  /** Os tipos do cadastro, os mesmos do envio. */
+  readonly tipos = this.types.views;
+
+  constructor() {
+    this.types.load();
+  }
   readonly situacaoInfo = AUDITORIA_SITUACAO_INFO;
   readonly situacaoDe = situacaoDe;
 

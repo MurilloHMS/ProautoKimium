@@ -7,8 +7,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RouterLink } from '@angular/router';
 
 import {
-  HOLERITE_TIPOS,
-  HOLERITE_TIPO_LABEL,
   HoleritePreviewItem,
   HoleritePreviewStatus,
   HoleriteTipo,
@@ -16,6 +14,9 @@ import {
   VincularHoleriteResult,
 } from '../../../../domain/models/hr/holerite.model';
 import { HoleriteService } from '../../../../infrastructure/services/hr/holerite.service';
+import { PayslipTypeStore } from '../../../../infrastructure/state/payslip-type.store';
+import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
+import { apiMessageOrFallback } from '../../../../domain/utils/api-error';
 import { PkButtonComponent } from '../../../theme/ProautoKimium/pk-button/pk-button.component';
 import { PkEmptyComponent } from '../../../theme/ProautoKimium/pk-empty/pk-empty.component';
 import { PkFileUploadComponent } from '../../../theme/ProautoKimium/pk-file-upload/pk-file-upload.component';
@@ -34,7 +35,7 @@ type Etapa = 'escolha' | 'conferencia' | 'enviado';
   selector: 'app-holerite-envio',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogModule,
-            PkButtonComponent, PkEmptyComponent, PkFileUploadComponent],
+            PkButtonComponent, PkEmptyComponent, PkFileUploadComponent, PkCanDirective],
   templateUrl: './holerite-envio.component.html',
   styleUrl: './holerite-envio.component.scss',
   providers: [ConfirmationService],
@@ -44,6 +45,7 @@ export class HoleriteEnvioComponent {
   private readonly service = inject(HoleriteService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
+  private readonly types = inject(PayslipTypeStore);
 
   readonly etapa = signal<Etapa>('escolha');
   readonly conferindo = signal(false);
@@ -59,8 +61,52 @@ export class HoleriteEnvioComponent {
   readonly tipo = signal<HoleriteTipo>('SALARIO');
 
   readonly statusInfo = PREVIEW_STATUS_INFO;
-  readonly tipoLabel = HOLERITE_TIPO_LABEL;
-  readonly tipos = HOLERITE_TIPOS;
+  /** Os tipos vêm do cadastro: o RH cria "PLR" aqui mesmo, e ele fica salvo. */
+  readonly tipos = this.types.views;
+
+  // ── Tipo novo, criado no meio do envio ────────────────────────────────────
+  readonly criandoTipo = signal(false);
+  readonly nomeNovoTipo = signal('');
+  readonly salvandoTipo = signal(false);
+  readonly avisoTipo = signal('');
+
+  constructor() {
+    this.types.load();
+  }
+
+  abrirNovoTipo(): void {
+    this.nomeNovoTipo.set('');
+    this.avisoTipo.set('');
+    this.criandoTipo.set(true);
+  }
+
+  cancelarNovoTipo(): void {
+    this.criandoTipo.set(false);
+  }
+
+  /**
+   * Cria e já seleciona. Nome que já existia (sem contar caixa nem acento)
+   * volta o existente, que é selecionado com um aviso — em vez de "PLR" e
+   * "plr" lado a lado.
+   */
+  criarTipo(): void {
+    const nome = this.nomeNovoTipo().trim();
+    if (!nome || this.salvandoTipo()) return;
+    this.salvandoTipo.set(true);
+    this.types.create(nome).subscribe({
+      next: r => {
+        this.salvandoTipo.set(false);
+        this.criandoTipo.set(false);
+        this.tipo.set(r.type.code);
+        this.voltarParaEscolha();
+        this.avisoTipo.set(r.created ? '' : `Já existia o tipo "${r.type.label}". Ele foi selecionado.`);
+      },
+      error: async err => {
+        this.salvandoTipo.set(false);
+        this.avisoTipo.set(await apiMessageOrFallback(err, 'Não foi possível criar o tipo.'));
+      },
+    });
+  }
 
   /** Quantas páginas em cada situação — alimenta o resumo e o texto da confirmação. */
   readonly contagem = computed(() => {
@@ -145,7 +191,7 @@ export class HoleriteEnvioComponent {
     const c = this.contagem();
     const partes = [
       `Enviar <strong>${this.totalEnviar()}</strong> holerite(s) de `
-      + `<strong>${this.tipoLabel[this.tipo()].toLowerCase()}</strong> de `
+      + `<strong>${this.types.labelOf(this.tipo())}</strong> de `
       + `<strong>${this.competenciaLegivel()}</strong>?`,
     ];
 

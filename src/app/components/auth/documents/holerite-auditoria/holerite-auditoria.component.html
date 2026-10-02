@@ -14,12 +14,12 @@
     <div class="auditoria__campo">
       <label>Tipo</label>
       <div class="auditoria__tipos">
-        @for (item of tipos; track item.value) {
+        @for (item of tipos(); track item.code) {
           <button type="button"
                   class="auditoria__tipo"
-                  [class.auditoria__tipo--ativo]="tipo() === item.value"
+                  [class.auditoria__tipo--ativo]="tipo() === item.code"
                   [title]="item.label"
-                  (click)="tipo.set(item.value)">
+                  (click)="tipo.set(item.code)">
             <i [class]="item.icon"></i> {{ item.curto }}
           </button>
         }

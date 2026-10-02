@@ -20,11 +20,12 @@
               (click)="setFiltro('TODOS')">
         Todos
       </button>
-      @for (item of tipos; track item.value) {
+      @for (item of tipos(); track item.code) {
         <button class="hl-filter"
-                [class.hl-filter--active]="filtro() === item.value"
+                data-testid="filtro-tipo"
+                [class.hl-filter--active]="filtro() === item.code"
                 [title]="item.label"
-                (click)="setFiltro(item.value)">
+                (click)="setFiltro(item.code)">
           <i [class]="item.icon"></i> {{ item.curto }}
         </button>
       }
