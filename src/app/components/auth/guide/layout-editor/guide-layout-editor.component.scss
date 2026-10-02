@@ -1,0 +1,565 @@
+// O editor do layout do guia. A página é papel: branca nos dois temas, com as
+// cores que o designer escolheu. O resto da tela segue os tokens.
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.editor__state,
+.editor__hint {
+  color: var(--app-text-muted);
+  font-size: 12px;
+  margin: 0;
+}
+
+.editor__error,
+.editor__notice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  font-size: 13px;
+}
+
+.editor__error {
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+}
+
+.editor__notice {
+  background: var(--app-success-soft);
+  color: var(--app-success);
+}
+
+.editor__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor__spacer {
+  flex: 1;
+}
+
+.editor__over {
+  color: var(--app-danger);
+  font-weight: 600;
+}
+
+.editor__work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+  min-height: 640px;
+}
+
+// ── A mesa e a página ───────────────────────────────────────────────────────
+
+.editor__desk {
+  background: var(--app-surface-3);
+  padding: 16px 24px;
+  min-width: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editor__desk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  font-size: 12px;
+  color: var(--app-text-muted);
+
+  b {
+    color: var(--app-text);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.page {
+  position: relative;
+  flex: none;
+  background: #ffffff;
+  color: #1b2236;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+  overflow: hidden;
+}
+
+.band {
+  position: absolute;
+  outline: 1px dashed color-mix(in srgb, var(--app-action) 35%, transparent);
+}
+
+.band__tag {
+  position: absolute;
+  left: 0;
+  top: -15px;
+  padding: 0 6px;
+  font: 600 10px/15px var(--app-font, inherit);
+  color: var(--app-on-action);
+  background: var(--app-action);
+  border-radius: 4px 4px 0 0;
+  pointer-events: none;
+}
+
+.el {
+  position: absolute;
+  display: flex;
+  overflow: hidden;
+  cursor: move;
+  touch-action: none;
+
+  &:hover {
+    outline: 1px solid color-mix(in srgb, var(--app-action) 60%, transparent);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.el--selected {
+  outline: 2px solid var(--app-action);
+  overflow: visible;
+  z-index: 2;
+}
+
+.el__text {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  line-height: 1.15;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.el__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.el__placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  font-size: 9px;
+  text-align: center;
+  color: #5d6579;
+  background: repeating-linear-gradient(135deg, #f1f3f7 0 6px, #e3e7ee 6px 7px);
+  border: 1px solid #d5dae3;
+}
+
+.el__resize {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--app-action);
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+// ── Tabela ───────────────────────────────────────────────────────────────────
+
+.thead {
+  position: absolute;
+}
+
+.th {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 700;
+  cursor: grab;
+  user-select: none;
+
+  & + & {
+    border-left: 1px solid rgb(255 255 255 / 0.55);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.th--selected {
+  outline: 2px solid #f5b400;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.th--drop {
+  box-shadow: inset 3px 0 0 #f5b400;
+}
+
+.th__grip {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  z-index: 2;
+  touch-action: none;
+
+  &:hover {
+    background: rgb(255 255 255 / 0.45);
+  }
+}
+
+.tbody {
+  position: absolute;
+  overflow: hidden;
+}
+
+.tbody__empty {
+  padding: 12px;
+}
+
+.tr {
+  display: flex;
+  border-bottom: 1px solid;
+}
+
+.td {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.td--selected {
+  background: color-mix(in srgb, var(--app-action) 7%, transparent);
+}
+
+.cb {
+  padding: 0 2px;
+  min-width: 0;
+
+  &:hover {
+    outline: 1px dashed color-mix(in srgb, var(--app-action) 45%, transparent);
+  }
+}
+
+.cb--selected {
+  outline: 1px dashed var(--app-action);
+}
+
+.cb__text {
+  display: flex;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.cb__img {
+  display: block;
+  width: 100%;
+  object-fit: contain;
+}
+
+.cb__dots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+
+  i {
+    display: block;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.25);
+  }
+}
+
+.cb__equip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #a7aebd;
+}
+
+// ── Painel ───────────────────────────────────────────────────────────────────
+
+.editor__side {
+  border-left: 1px solid var(--app-border);
+  background: var(--app-surface);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.props {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  h3 {
+    margin: 6px 0 0;
+    font-size: 13px;
+  }
+}
+
+.props__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  h3 {
+    flex: 1;
+    margin: 0;
+    min-width: 0;
+  }
+}
+
+.props__grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.props__grid4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.props__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.props__label {
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.props__colors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.props__colors label,
+.props__color {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--app-text-muted);
+
+  input[type='color'] {
+    width: 34px;
+    height: var(--field-h);
+    padding: 2px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--app-focus-ring);
+    }
+  }
+}
+
+.props__add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+
+  > span {
+    min-width: 76px;
+    font-size: 12px;
+    color: var(--app-text-muted);
+  }
+}
+
+.props__upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1.5px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  color: var(--app-action);
+  font-size: 12px;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &:focus-within {
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+.props__problems {
+  margin: 0;
+  padding: 8px 12px 8px 28px;
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: 12px;
+}
+
+.blocks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.blocks__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+}
+
+.blocks__item--selected {
+  border-color: var(--app-action);
+  box-shadow: inset 0 0 0 1px var(--app-action);
+}
+
+.blocks__name {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 4px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--app-text);
+  cursor: pointer;
+  border-radius: 4px;
+
+  small {
+    display: block;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--app-text-muted);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--app-focus-ring);
+  }
+}
+
+// ── Prévia do PDF ────────────────────────────────────────────────────────────
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.preview__frame {
+  position: relative;
+  flex: 1;
+  min-height: 420px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-3);
+  overflow: hidden;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 420px;
+    border: 0;
+  }
+}
+
+.preview__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--app-surface) 70%, transparent);
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+// ── Versões ──────────────────────────────────────────────────────────────────
+
+.versions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.versions__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+
+  > div {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+  }
+
+  small {
+    flex-basis: 100%;
+    color: var(--app-text-muted);
+  }
+}

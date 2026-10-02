@@ -1,0 +1,409 @@
+@if (loading()) {
+  <p class="editor__state">Carregando o layout…</p>
+} @else if (loadError()) {
+  <p class="editor__error" role="alert"><i class="pi pi-exclamation-triangle"></i> {{ loadError() }}</p>
+} @else if (layout(); as l) {
+
+  <!-- ═══ Barra: estado do rascunho e as ações ═══════════════════════════ -->
+  <div class="editor__bar">
+    @if (dirty()) {
+      <span class="status-chip status-chip--pending"><i class="pi pi-pencil"></i> Alterações não salvas</span>
+    } @else if (hasDraft()) {
+      <span class="status-chip status-chip--pending"><i class="pi pi-file-edit"></i> Rascunho salvo</span>
+    } @else {
+      <span class="status-chip status-chip--active"><i class="pi pi-check"></i> Igual ao publicado · v{{ publishedVersion() }}</span>
+    }
+    <span class="editor__hint">Contratos usa a v{{ publishedVersion() }} até você publicar.</span>
+
+    <span class="editor__spacer"></span>
+
+    <pk-button pkType="refresh" pkSize="sm" pkLabel="Versões" pkIcon="pi pi-history" (clicked)="openVersions()" />
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar rascunho" [pkDisabled]="!hasDraft() && !dirty()" (clicked)="discard()" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar rascunho" pkIcon="pi pi-save" [pkDisabled]="!dirty()" [pkLoading]="saving()" (clicked)="save()" />
+    <pk-button pkType="send" pkSize="sm" pkLabel="Publicar" pkIcon="pi pi-upload" [pkDisabled]="!canPublish()" (clicked)="openPublish()" />
+  </div>
+
+  @if (actionError()) {
+    <p class="editor__error" role="alert"><i class="pi pi-exclamation-triangle"></i> {{ actionError() }}</p>
+  }
+  @if (notice()) {
+    <p class="editor__notice" role="status"><i class="pi pi-check-circle"></i> {{ notice() }}</p>
+  }
+
+  <div class="editor__work">
+
+    <!-- ═══ A página, para editar ═════════════════════════════════════════ -->
+    <section class="editor__desk" #desk aria-label="Página do guia">
+      <div class="editor__desk-head">
+        <span>Página <b>{{ l.page.format === 'A4' ? 'A4' : 'Carta' }} {{ l.page.orientation === 'PORTRAIT' ? 'retrato' : 'paisagem' }}</b></span>
+        <span>Colunas <b [class.editor__over]="left() < 0">{{ total() }} / {{ size()!.contentWidth }} pt</b>
+          @if (left() < 0) { <span class="editor__over">— passa {{ -left() }} pt</span> }
+          @else if (left() > 0) { <span>· sobram {{ left() }} pt</span> }
+        </span>
+        <span class="editor__spacer"></span>
+        <pk-button pkType="edit" pkSize="sm" pkLabel="Página e tabela" pkIcon="pi pi-cog" (clicked)="selectPage()" />
+      </div>
+
+      <div class="page"
+           [style.width.px]="px(size()!.width)"
+           [style.height.px]="px(size()!.height)"
+           [style.font-family]="l.page.font + ', Verdana, sans-serif'">
+
+        <!-- Cabeçalho e rodapé: itens em posição livre -->
+        @for (key of bands; track key) {
+          @let band = l[key];
+          <div class="band"
+               [style.left.px]="px(l.page.margins.left)"
+               [style.width.px]="px(size()!.contentWidth)"
+               [style.height.px]="px(band.height)"
+               [style.top.px]="key === 'header' ? px(l.page.margins.top) : px(size()!.height - l.page.margins.bottom - band.height)"
+               (pointerdown)="$event.target === $event.currentTarget && selectPage()">
+            <span class="band__tag">{{ key === 'header' ? 'Cabeçalho' : 'Rodapé' }}</span>
+            @for (e of band.elements; track $index; let i = $index) {
+              <div class="el"
+                   role="button"
+                   tabindex="0"
+                   [attr.aria-label]="(e.type === 'TEXT' ? 'Texto ' + elementText(e) : imageLabel(e.image)) + ', setas movem'"
+                   [class.el--selected]="isElementSelected(key, i)"
+                   [style.left.px]="px(e.x)" [style.top.px]="px(e.y)"
+                   [style.width.px]="px(e.width)" [style.height.px]="px(e.height)"
+                   [style.background]="e.type === 'RECTANGLE' || e.type === 'LINE' ? e.color : null"
+                   (pointerdown)="startDrag($event, key, i)"
+                   (keydown)="nudge($event, key, i)">
+                @if (e.type === 'TEXT') {
+                  <span class="el__text"
+                        [style.font-size.px]="px(e.fontSize ?? 10)"
+                        [style.font-weight]="e.bold ? 700 : 400"
+                        [style.color]="e.color"
+                        [style.justify-content]="justify(e.align)"
+                        [style.align-items]="alignItems(e.verticalAlign)"
+                        [style.text-align]="(e.align ?? 'LEFT').toLowerCase()">{{ elementText(e) }}</span>
+                } @else if (e.type === 'IMAGE') {
+                  @if (e.image === 'COMPANY_LOGO') {
+                    <img class="el__img" src="logo-proauto.png" alt="" [style.object-position]="(e.align ?? 'CENTER').toLowerCase()" />
+                  } @else if (e.image === 'UPLOADED' && e.imageId && uploadedImages()[e.imageId]) {
+                    <img class="el__img" [src]="uploadedImages()[e.imageId]" alt="" />
+                  } @else {
+                    <span class="el__placeholder">{{ imageLabel(e.image) }}</span>
+                  }
+                }
+                @if (isElementSelected(key, i)) {
+                  <span class="el__resize" (pointerdown)="startResize($event, key, i)" aria-hidden="true"></span>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Título da tabela -->
+        <div class="thead"
+             [style.left.px]="px(l.page.margins.left)"
+             [style.top.px]="px(l.page.margins.top + l.header.height)"
+             [style.width.px]="px(total())"
+             [style.height.px]="px(l.table.headerHeight)"
+             [style.background]="l.table.headerBackground">
+          @for (c of l.table.columns; track $index; let ci = $index) {
+            <div class="th"
+                 role="button"
+                 tabindex="0"
+                 draggable="true"
+                 [attr.aria-label]="'Coluna ' + c.title + ', arraste para reordenar'"
+                 [class.th--selected]="isColumnSelected(ci)"
+                 [class.th--drop]="dropTarget() === ci"
+                 [style.left.px]="px(columnX(ci))"
+                 [style.width.px]="px(c.width)"
+                 [style.color]="l.table.headerColor"
+                 [style.font-size.px]="px(l.table.headerFontSize)"
+                 (click)="selectColumn(ci)"
+                 (keydown.enter)="selectColumn(ci)"
+                 (dragstart)="onColumnDragStart($event, ci)"
+                 (dragover)="onColumnDragOver($event, ci)"
+                 (drop)="onColumnDrop($event, ci)"
+                 (dragend)="onColumnDragEnd()">
+              {{ c.title }}
+              <span class="th__grip" title="Arraste para mudar a largura" (pointerdown)="startColumnResize($event, ci)" (click)="$event.stopPropagation()"></span>
+            </div>
+          }
+        </div>
+
+        <!-- Linhas: três produtos de verdade -->
+        <div class="tbody"
+             [style.left.px]="px(l.page.margins.left)"
+             [style.top.px]="px(l.page.margins.top + l.header.height + l.table.headerHeight)"
+             [style.width.px]="px(total())"
+             [style.max-height.px]="px(size()!.height - l.page.margins.top - l.page.margins.bottom - l.header.height - l.table.headerHeight - l.footer.height)">
+          @for (p of samples(); track p.id) {
+            <div class="tr" [style.min-height.px]="px(l.table.minRowHeight)" [style.border-bottom-color]="l.table.dividerColor">
+              @for (c of l.table.columns; track $index; let ci = $index) {
+                <div class="td"
+                     [class.td--selected]="isColumnSelected(ci)"
+                     [style.width.px]="px(c.width)"
+                     [style.padding-top.px]="px(c.paddingTop)"
+                     [style.gap.px]="px(BLOCK_GAP)"
+                     [style.border-left-color]="ci > 0 ? l.table.separatorColor : 'transparent'"
+                     (click)="selectColumn(ci)">
+                  @for (b of c.blocks; track $index; let bi = $index) {
+                    <div class="cb"
+                         [class.cb--selected]="isBlockSelected(ci, bi)"
+                         [style.min-height.px]="px(b.height)"
+                         (click)="$event.stopPropagation(); selectColumn(ci, bi)">
+                      @switch (b.field) {
+                        @case ('PHOTO') {
+                          <img class="cb__img" [style.height.px]="px(b.height)" [src]="photoUrl(p)" alt="" (error)="$any($event.target).style.visibility = 'hidden'" />
+                        }
+                        @case ('COLOR_CIRCLE') {
+                          <span class="cb__dots" [style.height.px]="px(b.height)">
+                            @for (cor of p.cores.slice(0, 4); track $index) {
+                              <i [style.background]="cor" [style.width.px]="px(b.height * 0.42)" [style.height.px]="px(b.height * 0.42)"></i>
+                            }
+                          </span>
+                        }
+                        @case ('EQUIPMENT_PHOTOS') {
+                          <span class="cb__equip" [style.height.px]="px(b.height)">
+                            @for (n of repeat(b.count); track n) { <i class="pi pi-image"></i> }
+                          </span>
+                        }
+                        @default {
+                          <span class="cb__text"
+                                [style.font-size.px]="px(b.fontSize)"
+                                [style.font-weight]="b.bold ? 700 : 400"
+                                [style.text-transform]="b.uppercase ? 'uppercase' : 'none'"
+                                [style.color]="b.color"
+                                [style.justify-content]="justify(b.align)"
+                                [style.text-align]="b.align.toLowerCase()"
+                                [style.align-items]="alignItems(b.verticalAlign)"
+                                [style.min-height.px]="px(b.height)">{{ cellText(b.field, p) }}</span>
+                        }
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          } @empty {
+            <p class="editor__hint tbody__empty">Cadastre produtos do site para ver as linhas de exemplo.</p>
+          }
+        </div>
+      </div>
+
+      <p class="editor__hint">
+        Arraste os itens do cabeçalho e do rodapé (setas movem 1 pt; Shift + setas, 10 pt). Arraste o título de uma
+        coluna para reordenar e a borda direita dela para mudar a largura. Esta página é uma aproximação para editar:
+        o que vale é a <b>Prévia do PDF</b>.
+      </p>
+    </section>
+
+    <!-- ═══ Painel: propriedades e prévia ═══════════════════════════════ -->
+    <aside class="editor__side">
+      <pk-segmented [options]="sideOptions" [value]="sideTab()" (valueChange)="sideTab.set($event)" [fill]="true" size="sm" ariaLabel="Painel" />
+
+      @if (sideTab() === 'preview') {
+        <div class="preview">
+          <p class="editor__hint">O arquivo que a API gera com o layout desta tela e três produtos de exemplo. Atualiza 1 s depois da última mudança.</p>
+          <div class="preview__frame">
+            @if (previewError()) {
+              <p class="editor__error">{{ previewError() }}</p>
+            } @else if (previewUrl(); as url) {
+              <iframe [src]="url" title="Prévia do PDF do guia"></iframe>
+            }
+            @if (previewLoading()) { <span class="preview__loading">Gerando prévia…</span> }
+          </div>
+          <pk-button pkType="refresh" pkSize="sm" pkLabel="Atualizar agora" (clicked)="refreshPreview()" />
+        </div>
+      } @else {
+        <div class="props">
+          @switch (selection().kind) {
+
+            @case ('page') {
+              <h3>Página</h3>
+              <pk-segmented [options]="formatOptions" [value]="l.page.format" (valueChange)="setPage({ format: $event })" size="sm" ariaLabel="Formato" />
+              <pk-segmented [options]="orientationOptions" [value]="l.page.orientation" (valueChange)="setPage({ orientation: $event })" size="sm" ariaLabel="Orientação" />
+              <div class="props__grid4">
+                <pk-input label="Topo" type="number" [ngModel]="l.page.margins.top" (ngModelChange)="setMargin('top', $event)" />
+                <pk-input label="Base" type="number" [ngModel]="l.page.margins.bottom" (ngModelChange)="setMargin('bottom', $event)" />
+                <pk-input label="Esq." type="number" [ngModel]="l.page.margins.left" (ngModelChange)="setMargin('left', $event)" />
+                <pk-input label="Dir." type="number" [ngModel]="l.page.margins.right" (ngModelChange)="setMargin('right', $event)" />
+              </div>
+              <pk-combobox label="Fonte do guia" [options]="fontOptions()" optionLabel="label" optionValue="value"
+                           [ngModel]="l.page.font" (ngModelChange)="setPage({ font: $event })" />
+              <p class="editor__hint">Só aparecem as fontes que o PDF tem. Outra sairia trocada no arquivo.</p>
+
+              <h3>Tabela</h3>
+              <div class="props__grid2">
+                <pk-input label="Altura mínima da linha" type="number" [ngModel]="l.table.minRowHeight" (ngModelChange)="setTable({ minRowHeight: +$event || 10 })" />
+                <pk-input label="Altura do título" type="number" [ngModel]="l.table.headerHeight" (ngModelChange)="setTable({ headerHeight: +$event || 0 })" />
+                <pk-input label="Fonte do título (pt)" type="number" [ngModel]="l.table.headerFontSize" (ngModelChange)="setTable({ headerFontSize: +$event || 6 })" />
+              </div>
+              <div class="props__colors">
+                <label>Fundo do título <input type="color" [value]="l.table.headerBackground" (input)="setTable({ headerBackground: $any($event.target).value.toUpperCase() })" /></label>
+                <label>Texto do título <input type="color" [value]="l.table.headerColor" (input)="setTable({ headerColor: $any($event.target).value.toUpperCase() })" /></label>
+                <label>Divisória <input type="color" [value]="l.table.dividerColor" (input)="setTable({ dividerColor: $any($event.target).value.toUpperCase() })" /></label>
+                <label>Separador <input type="color" [value]="l.table.separatorColor" (input)="setTable({ separatorColor: $any($event.target).value.toUpperCase() })" /></label>
+              </div>
+              <pk-button pkType="new" pkSize="sm" pkLabel="Adicionar coluna" (clicked)="addColumnToTable()" />
+
+              <h3>Cabeçalho e rodapé</h3>
+              <div class="props__grid2">
+                <pk-input label="Altura do cabeçalho" type="number" [ngModel]="l.header.height" (ngModelChange)="setBandHeight('header', $event)" />
+                <pk-input label="Altura do rodapé" type="number" [ngModel]="l.footer.height" (ngModelChange)="setBandHeight('footer', $event)" />
+              </div>
+              @for (key of bands; track key) {
+                <div class="props__add">
+                  <span>{{ key === 'header' ? 'Cabeçalho' : 'Rodapé' }} +</span>
+                  @for (t of elementTypes; track t.type) {
+                    <pk-button pkType="new" pkSize="sm" [pkLabel]="t.label" pkIcon="pi pi-plus" (clicked)="addElementTo(key, t.type)" />
+                  }
+                </div>
+              }
+              @if (problems().length) {
+                <ul class="props__problems" role="alert">
+                  @for (p of problems(); track p) { <li>{{ p }}</li> }
+                </ul>
+              }
+            }
+
+            @case ('element') {
+              @if (selectedElement(); as e) {
+                <div class="props__head">
+                  <h3>{{ e.type === 'TEXT' ? 'Texto' : e.type === 'IMAGE' ? 'Imagem' : e.type === 'LINE' ? 'Linha' : 'Retângulo' }}</h3>
+                  <pk-button pkType="delete" pkSize="sm" pkLabel="Remover" (clicked)="deleteElement()" />
+                </div>
+                @if (e.type === 'TEXT') {
+                  <pk-input label="Texto" [ngModel]="e.text" (ngModelChange)="setElement({ text: $event })"
+                            hint="Use {titulo} para o título que Contratos digita." />
+                  <div class="props__grid2">
+                    <pk-input label="Tamanho (pt)" type="number" [ngModel]="e.fontSize" (ngModelChange)="setElementNumber('fontSize', $event)" />
+                    <label class="props__color">Cor <input type="color" [value]="e.color ?? '#000000'" (input)="setElement({ color: $any($event.target).value.toUpperCase() })" /></label>
+                  </div>
+                  <pk-checkbox label="Negrito" [ngModel]="e.bold" (ngModelChange)="setElement({ bold: $event })" />
+                  <pk-segmented [options]="alignOptions" [value]="e.align ?? 'LEFT'" (valueChange)="setElement({ align: $event })" size="sm" ariaLabel="Alinhamento" />
+                  <pk-segmented [options]="valignOptions" [value]="e.verticalAlign ?? 'MIDDLE'" (valueChange)="setElement({ verticalAlign: $event })" size="sm" ariaLabel="Alinhamento vertical" />
+                }
+                @if (e.type === 'IMAGE') {
+                  <pk-combobox label="Imagem" [options]="imageOptions()" optionLabel="label" optionValue="key"
+                               [ngModel]="e.image" (ngModelChange)="setElement({ image: $event })" />
+                  @if (e.image === 'UPLOADED') {
+                    <label class="props__upload">
+                      <i class="pi pi-upload"></i> {{ e.imageId ? 'Trocar a imagem' : 'Enviar imagem (PNG ou JPG, até 2 MB)' }}
+                      <input type="file" accept="image/png,image/jpeg" (change)="uploadImage($event)" />
+                    </label>
+                  }
+                  <pk-segmented [options]="alignOptions" [value]="e.align ?? 'CENTER'" (valueChange)="setElement({ align: $event })" size="sm" ariaLabel="Alinhamento" />
+                }
+                @if (e.type === 'RECTANGLE' || e.type === 'LINE') {
+                  <label class="props__color">Cor <input type="color" [value]="e.color ?? '#CCCCCC'" (input)="setElement({ color: $any($event.target).value.toUpperCase() })" /></label>
+                }
+                <span class="props__label">Posição e tamanho (pt)</span>
+                <div class="props__grid4">
+                  <pk-input label="X" type="number" [ngModel]="e.x" (ngModelChange)="setElementNumber('x', $event)" />
+                  <pk-input label="Y" type="number" [ngModel]="e.y" (ngModelChange)="setElementNumber('y', $event)" />
+                  <pk-input label="Larg." type="number" [ngModel]="e.width" (ngModelChange)="setElementNumber('width', $event)" />
+                  <pk-input label="Alt." type="number" [ngModel]="e.height" (ngModelChange)="setElementNumber('height', $event)" />
+                </div>
+              }
+            }
+
+            @case ('column') {
+              @if (selectedColumn(); as c) {
+                <div class="props__head">
+                  <h3>Coluna {{ c.title }}</h3>
+                  <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true" pkTooltip="Mover para a esquerda" pkIcon="pi pi-arrow-left" (clicked)="shiftColumn(-1)" />
+                  <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true" pkTooltip="Mover para a direita" pkIcon="pi pi-arrow-right" (clicked)="shiftColumn(1)" />
+                  <pk-button pkType="delete" pkSize="sm" pkLabel="Tirar coluna" (clicked)="deleteColumn()" />
+                </div>
+                <pk-input label="Título" [ngModel]="c.title" (ngModelChange)="setColumn({ title: $event.toUpperCase() })" />
+                <div class="props__grid2">
+                  <pk-input label="Largura (pt)" type="number" [ngModel]="c.width" (ngModelChange)="setColumnNumber('width', $event)" />
+                  <pk-input label="Respiro do topo (pt)" type="number" [ngModel]="c.paddingTop" (ngModelChange)="setColumnNumber('paddingTop', $event)" />
+                </div>
+
+                <h3>Dentro da célula</h3>
+                <p class="editor__hint">De cima para baixo. A célula cresce se o texto não couber.</p>
+                <ol class="blocks">
+                  @for (b of c.blocks; track $index; let bi = $index) {
+                    <li class="blocks__item" [class.blocks__item--selected]="selectedBlock() === b">
+                      <button type="button" class="blocks__name" (click)="selectBlock(bi)">
+                        {{ fieldLabel(b.field) }}
+                        <small>{{ fieldKind(b.field) === 'TEXT' ? b.fontSize + ' pt' + (b.bold ? ' · negrito' : '') + (b.uppercase ? ' · MAIÚSC.' : '') : b.height + ' pt de altura' }}</small>
+                      </button>
+                      <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true" pkTooltip="Subir" pkIcon="pi pi-arrow-up" [pkDisabled]="bi === 0" (clicked)="moveBlock(bi, -1)" />
+                      <pk-button pkType="edit" pkSize="sm" [pkIconOnly]="true" pkTooltip="Descer" pkIcon="pi pi-arrow-down" [pkDisabled]="bi === c.blocks.length - 1" (clicked)="moveBlock(bi, 1)" />
+                      <pk-button pkType="delete" pkSize="sm" [pkIconOnly]="true" pkTooltip="Remover" (clicked)="deleteBlock(bi)" />
+                    </li>
+                  } @empty {
+                    <li class="editor__hint">Célula vazia.</li>
+                  }
+                </ol>
+                <pk-combobox label="Adicionar à célula" placeholder="Escolha um campo" [options]="fieldOptions()" optionLabel="label" optionValue="key"
+                             [ngModel]="null" (ngModelChange)="addBlockToColumn($event)" />
+
+                @if (selectedBlock(); as b) {
+                  <h3>{{ fieldLabel(b.field) }}</h3>
+                  <div class="props__grid2">
+                    <pk-input [label]="fieldKind(b.field) === 'TEXT' ? 'Altura mínima (pt)' : 'Altura (pt)'" type="number" [ngModel]="b.height" (ngModelChange)="setBlockNumber('height', $event)" />
+                    @if (fieldKind(b.field) === 'TEXT') {
+                      <pk-input label="Tamanho (pt)" type="number" [ngModel]="b.fontSize" (ngModelChange)="setBlockNumber('fontSize', $event)" />
+                    }
+                    @if (fieldKind(b.field) === 'IMAGE_LIST') {
+                      <pk-combobox label="Quantas fotos" [options]="countOptions" optionLabel="label" optionValue="value"
+                                   [ngModel]="b.count ?? 1" (ngModelChange)="setBlock({ count: $event })" />
+                    }
+                  </div>
+                  @if (fieldKind(b.field) === 'TEXT') {
+                    <div class="props__row">
+                      <pk-checkbox label="Negrito" [ngModel]="b.bold" (ngModelChange)="setBlock({ bold: $event })" />
+                      <pk-checkbox label="Maiúsculas" [ngModel]="b.uppercase" (ngModelChange)="setBlock({ uppercase: $event })" />
+                      <label class="props__color">Cor <input type="color" [value]="b.color" (input)="setBlock({ color: $any($event.target).value.toUpperCase() })" /></label>
+                    </div>
+                    <pk-segmented [options]="alignOptions" [value]="b.align" (valueChange)="setBlock({ align: $event })" size="sm" ariaLabel="Alinhamento" />
+                    <pk-segmented [options]="valignOptions" [value]="b.verticalAlign" (valueChange)="setBlock({ verticalAlign: $event })" size="sm" ariaLabel="Alinhamento vertical" />
+                  }
+                }
+              }
+            }
+          }
+        </div>
+      }
+    </aside>
+  </div>
+
+  <!-- ═══ Publicar ═══════════════════════════════════════════════════════ -->
+  <pk-dialog header="Publicar o layout?" [visible]="publishOpen()" (visibleChange)="publishOpen.set($event)" width="460px">
+    <div pkDialogContent>
+      <div class="pk-form-section">
+        <p>A partir de agora, todo guia que Contratos gerar sai com este layout. A v{{ publishedVersion() }} fica nas versões e pode voltar.</p>
+        @if (dirty()) { <p class="editor__hint">As alterações não salvas vão junto.</p> }
+        <pk-input label="O que mudou (opcional)" placeholder="Ex.: tirei a coluna concentração" [(ngModel)]="publishNote" />
+      </div>
+    </div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" (clicked)="publishOpen.set(false)" />
+      <pk-button pkType="send" pkLabel="Publicar" [pkLoading]="publishing()" (clicked)="publish()" />
+    </div>
+  </pk-dialog>
+
+  <!-- ═══ Versões ════════════════════════════════════════════════════════ -->
+  <pk-dialog header="Versões publicadas" [visible]="versionsOpen()" (visibleChange)="versionsOpen.set($event)" width="520px">
+    <div pkDialogContent>
+      <div class="pk-form-section">
+        <ul class="versions">
+          @for (v of versions(); track v.id) {
+            <li class="versions__item">
+              <div>
+                <b>v{{ v.version }}</b>
+                @if (v.current) { <span class="status-chip status-chip--active">Em uso</span> }
+                <small>{{ v.publishedAt.slice(0, 16).replace('T', ' ') }} · {{ v.publishedBy ?? 'migração' }}@if (v.note) { · {{ v.note }} }</small>
+              </div>
+              @if (!v.current) {
+                <pk-button pkType="refresh" pkSize="sm" pkLabel="Abrir como rascunho" pkIcon="pi pi-replay" (clicked)="restore(v)" />
+              }
+            </li>
+          } @empty {
+            <li class="editor__hint">Carregando…</li>
+          }
+        </ul>
+        <p class="editor__hint">Abrir uma versão antiga não publica: ela vira o rascunho, e você confere a prévia antes.</p>
+      </div>
+    </div>
+  </pk-dialog>
+}
