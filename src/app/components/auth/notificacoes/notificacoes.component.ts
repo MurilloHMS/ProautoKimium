@@ -74,6 +74,7 @@ export class NotificacoesComponent implements OnInit {
       case 'HOLERITE': return 'pi pi-receipt';
       case 'DOCUMENTO': return 'pi pi-file';
       case 'REEMBOLSO': return 'pi pi-wallet';
+      case 'ATESTADO': return 'pi pi-file-check';
       case 'CHECKLIST': return 'pi pi-clipboard';
       case 'EVENTO': return 'pi pi-calendar';
       case 'PROGRAMACAO': return 'pi pi-truck';

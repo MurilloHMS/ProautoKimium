@@ -130,8 +130,8 @@
 
 .hrmc-card {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
   padding: 16px 18px;
   background: var(--app-surface);
   border: 1px solid var(--app-border);
@@ -141,6 +141,22 @@
   &:hover {
     border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
     box-shadow: 0 8px 24px color-mix(in srgb, var(--app-action) 7%, transparent);
+  }
+
+  // A linha de sempre (ícone, período, baixar); a situação vem embaixo dela.
+  &__linha {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &--recusado { border-color: color-mix(in srgb, var(--app-danger) 40%, var(--app-border)); }
+
+  &__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
   }
 
   &__icon {
@@ -206,4 +222,106 @@
   margin: 8px 0 0;
   color: var(--app-danger);
   font-size: var(--text-ui-sm, 12px);
+}
+
+// ─── Conferência do RH (2026-10-02) ─────────────────────────────────────────
+// O ícone carrega a situação junto da cor: é o que sobrevive à escala de cinza.
+.hrmc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  &--pending  { background: var(--app-warning-soft); color: var(--app-warning); }
+  &--received { background: var(--app-success-soft); color: var(--app-success); }
+  &--rejected { background: var(--app-danger-soft);  color: var(--app-danger); }
+}
+
+.hrmc-prazo {
+  font-size: 0.8rem;
+  color: var(--app-text-muted);
+}
+
+.hrmc-card__status pk-button { margin-left: auto; }
+
+.hrmc-motivo {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+  font-size: 0.85rem;
+}
+
+.hrmc-obs {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--app-text-muted);
+}
+
+.hrmc-feito {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: 0.88rem;
+}
+
+.hrmc-reenvio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  > * { margin: 0; }
+  .hrmc-upload { margin: 0; }
+}
+
+.hrmc-reenvio:not(.hrmc-reenvio--folha) { padding: 16px 20px 20px; }
+
+// 16px no campo: abaixo disso o iPhone dá zoom ao focar, e a folha pula.
+.hrmc-reenvio--folha textarea { font-size: 16px; }
+
+.hrmc-reenvio__alvo {
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.hrmc-reenvio__tipo {
+  display: flex;
+  gap: 8px;
+
+  button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    border: 1px solid var(--app-border);
+    border-radius: var(--radius-control, 8px);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.is-on { border-color: var(--app-action); background: var(--app-action-soft); color: var(--app-action); }
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+}
+
+.hrmc-reenvio__botoes {
+  display: flex;
+  gap: .5rem;
+  width: 100%;
+
+  > * { flex: 1; }
 }
