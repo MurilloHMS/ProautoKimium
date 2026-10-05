@@ -84,15 +84,18 @@
     gap: 5px;
   }
 
+  // Três tipos desde 2026-10-05 (o atestado entrou): quebra de linha em vez
+  // de espremer, e "0 férias" nunca parte no meio.
   &__breakdown {
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 4px 10px;
     margin-top: 2px;
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--app-warning);
 
-    span { display: flex; align-items: center; gap: 5px; }
+    span { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
   }
 }
 
@@ -364,62 +367,6 @@ pk-calendar { display: block; }
 }
 
 // ── Atalhos ─────────────────────────────────────────────────
-
-.shortcuts {
-  h2 {
-    font-family: v.$font-heading;
-    font-size: 0.82rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--app-text-subtle);
-    margin: 0 0 12px;
-  }
-}
-
-.shortcuts__group-label {
-  font-family: v.$font-heading;
-  font-size: 0.74rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--app-text-subtle);
-  margin: 18px 0 8px;
-  padding-left: 2px;
-
-  &:first-of-type {
-    margin-top: 0;
-  }
-}
-
-.shortcuts__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 10px;
-}
-
-.shortcut {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  background: var(--app-surface);
-  border: 1px solid var(--app-border);
-  border-radius: 12px;
-  text-decoration: none;
-  color: var(--app-text);
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: all 0.15s ease;
-
-  i { color: var(--app-action); font-size: 1rem; flex-shrink: 0; }
-
-  &:hover {
-    border-color: color-mix(in srgb, var(--app-success) 50%, transparent);
-    box-shadow: var(--app-shadow-sm);
-    transform: translateY(-1px);
-  }
-}
 
 // ── Dialog: eventos do dia ─────────────────────────────────
 

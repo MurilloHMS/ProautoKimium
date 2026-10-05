@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrgStructureCompaniesComponent } from '../org-structure-companies/org-structure-companies.component';
 import { OrgStructureDepartmentsComponent } from '../org-structure-departments/org-structure-departments.component';
@@ -29,6 +30,7 @@ const CAREER_SCREEN = 'rh/career-structure';
 })
 export class OrgStructureComponent implements OnInit {
   private readonly permissions = inject(PermissionStore);
+  private readonly route = inject(ActivatedRoute, { optional: true });
 
   activeSection = signal<OrgStructureSection>('companies');
 
@@ -47,9 +49,12 @@ export class OrgStructureComponent implements OnInit {
 
   readonly sections = computed(() => this.all.filter(s => this.permissions.canOpen(s.screen)));
 
+  /** `?parte=cargos` é o destino do endereço antigo de Cargos & Níveis. */
   ngOnInit(): void {
-    const first = this.sections()[0];
-    if (first) this.activeSection.set(first.key);
+    const parte = this.route?.snapshot.queryParamMap.get('parte');
+    const pedida = parte === 'cargos' ? this.sections().find(s => s.key === 'positions') : undefined;
+    const alvo = pedida ?? this.sections()[0];
+    if (alvo) this.activeSection.set(alvo.key);
   }
 
   select(section: OrgStructureSection): void {

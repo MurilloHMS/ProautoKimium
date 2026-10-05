@@ -17,12 +17,13 @@
   </app-page-header>
 
   <section class="kpi-row">
-    <a routerLink="/rh/vacation-requests" class="kpi kpi--hero" [class.kpi--quiet]="loading || pendingTotal === 0">
+    <a routerLink="/rh/pendencias" class="kpi kpi--hero" [class.kpi--quiet]="loading || pendingTotal === 0">
       <span class="kpi__label">Pendências</span>
       <span class="kpi__value">{{ loading ? '—' : pendingTotal }}</span>
       <span class="kpi__breakdown">
         <span><i class="pi pi-sun"></i> {{ pendingVacations }} férias</span>
         <span><i class="pi pi-wallet"></i> {{ pendingReimbursements }} reembolsos</span>
+        <span><i class="pi pi-file-check"></i> {{ pendingCertificates }} atestados</span>
       </span>
     </a>
 
@@ -32,7 +33,7 @@
       <span class="kpi__sub"><i class="pi pi-user"></i> total no quadro</span>
     </div>
 
-    <a routerLink="/rh/team-overview" class="kpi">
+    <a routerLink="/rh/ausencias" class="kpi">
       <span class="kpi__label">De férias agora</span>
       <span class="kpi__value">{{ loading ? '—' : onVacationNow }}</span>
       <span class="kpi__sub"><i class="pi pi-sun"></i> fora hoje</span>
@@ -56,7 +57,7 @@
       <span class="kpi__sub"><i class="pi pi-money-bill"></i> salário atual somado</span>
     </div>
 
-    <a routerLink="/rh/organizational-structure" class="kpi kpi--org">
+    <a routerLink="/rh/organizacao" class="kpi kpi--org">
       <span class="kpi__label">Estrutura Organizacional</span>
       <span class="kpi__org-grid">
         <span><strong>{{ loading ? '—' : summary?.orgStructure?.companies }}</strong> empresas</span>
@@ -168,20 +169,6 @@
 
   </section>
 
-  <section class="shortcuts">
-    <h2>Ferramentas</h2>
-    @for (group of toolGroups; track group.label) {
-      <h3 class="shortcuts__group-label">{{ group.label }}</h3>
-      <div class="shortcuts__grid">
-        @for (tool of group.tools; track tool.key) {
-          <a [routerLink]="tool.route" class="shortcut">
-            <i [class]="tool.icon"></i>
-            <span>{{ tool.title }}</span>
-          </a>
-        }
-      </div>
-    }
-  </section>
 
 </div>
 

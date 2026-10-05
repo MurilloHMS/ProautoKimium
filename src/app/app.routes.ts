@@ -1,4 +1,5 @@
-import { Routes } from '@angular/router';
+import { Router, Routes } from '@angular/router';
+import { inject } from '@angular/core';
 
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
@@ -25,7 +26,7 @@ import { TalentBankLinkRequestComponent } from './components/public/meu-curricul
 import { TalentBankEntryComponent } from './components/public/meu-curriculo/talent-bank-entry.component';
 import { VcardComponent } from './components/public/profile/vcard/vcard.component';
 import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
-import { ABSENCES_SCREENS, COMMUNICATIONS_SCREENS, ORGANIZATION_SCREENS, PENDING_QUEUE_SCREENS } from './layouts/auth-layout/menu.config';
+import { ABSENCES_SCREENS, COMMUNICATIONS_SCREENS, ORGANIZATION_SCREENS, PAYSLIP_SCREENS, PENDING_QUEUE_SCREENS } from './layouts/auth-layout/menu.config';
 import { clientGuard, clientLoggedOutGuard } from './infrastructure/guard/client.guard';
 
 export const routes: Routes = [
@@ -71,31 +72,34 @@ export const routes: Routes = [
       { path: 'rh/hub', loadComponent: () => import('./components/auth/rh/rh-hub/rh-hub.component').then(m => m.RhHubComponent), data: { screen: 'rh/hub' } },
       // Menu de ferramentas + conteúdo ao lado. A rota era o separador direto;
       // ele virou uma das ferramentas de dentro.
-      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { screen: 'rh/holerit' } },
-      { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { screen: 'rh/holerit/extractor' } },
+      { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { anyScreen: PAYSLIP_SCREENS } },
+      // Reorganização do RH (2026-10-05): as telas que se juntaram viram
+      // redirecionamento. Notificações gravadas no banco e favoritos apontam
+      // para elas, e o endereço antigo não pode cair no 404.
+      { path: 'rh/holerit/extractor', redirectTo: () => inject(Router).createUrlTree(['/rh/holerit'], { queryParams: { ferramenta: 'coletar' } }) },
       // A ficha do funcionário (2026-10-05): a mesma tela de Funcionários na grade.
       { path: 'rh/employees/:id', loadComponent: () => import('./components/auth/rh/employee-profile/employee-profile.component').then(m => m.EmployeeProfileComponent), data: { screen: 'rh/employees' } },
       { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees' } },
       // Organização (2026-10-05): a estrutura e os cargos numa tela, cada parte com a tela dela.
       { path: 'rh/organizacao', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { anyScreen: ORGANIZATION_SCREENS } },
-      { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { screen: 'rh/organizational-structure' } },
-      { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { screen: 'rh/career-structure' } },
+      { path: 'rh/organizational-structure', redirectTo: 'rh/organizacao', pathMatch: 'full' },
+      { path: 'rh/career-structure', redirectTo: () => inject(Router).createUrlTree(['/rh/organizacao'], { queryParams: { parte: 'cargos' } }) },
       // Pendências (2026-10-02): uma fila por tipo. Sem tela própria na grade —
       // entra quem abre férias, reembolsos ou atestados, e vê só as filas dele.
       { path: 'rh/pendencias', loadComponent: () => import('./components/auth/rh/pending-queue/pending-queue.component').then(m => m.PendingQueueComponent), data: { anyScreen: PENDING_QUEUE_SCREENS } },
       { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { screen: 'rh/vacation-requests' } },
       { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { screen: 'rh/reimbursements' } },
-      { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { screen: 'rh/calendar' } },
+      { path: 'rh/calendar', redirectTo: 'rh/ausencias', pathMatch: 'full' },
       // Ausências (2026-10-05): Visão de Equipe e Calendário numa faixa só.
       { path: 'rh/ausencias', loadComponent: () => import('./components/auth/rh/absences/absences.component').then(m => m.AbsencesComponent), data: { anyScreen: ABSENCES_SCREENS } },
-      { path: 'rh/team-overview', loadComponent: () => import('./components/auth/rh/team-overview/team-overview.component').then(m => m.TeamOverviewComponent), data: { screen: 'rh/team-overview' } },
+      { path: 'rh/team-overview', redirectTo: 'rh/ausencias', pathMatch: 'full' },
       { path: 'rh/calculators', loadComponent: () => import('./components/auth/rh/hr-calculators/hr-calculators.component').then(m => m.HrCalculatorsComponent), data: { screen: 'rh/calculators' } },
       { path: 'rh/equipment-assignments', loadComponent: () => import('./components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component').then(m => m.HrEquipmentAssignmentsComponent), data: { screen: 'rh/equipment-assignments' } },
       // Comunicados (2026-10-05): Mural e Notificações numa tela. Sem código próprio
       // na grade — cada canal aparece para quem tinha a tela dele.
       { path: 'rh/comunicados', loadComponent: () => import('./components/auth/rh/communications/communications.component').then(m => m.CommunicationsComponent), data: { anyScreen: COMMUNICATIONS_SCREENS } },
-      { path: 'rh/notifications', loadComponent: () => import('./components/auth/rh/hr-notifications/hr-notifications.component').then(m => m.HrNotificationsComponent), data: { screen: 'rh/notifications' } },
-      { path: 'rh/announcements', loadComponent: () => import('./components/auth/rh/hr-announcements-manager/hr-announcements-manager.component').then(m => m.HrAnnouncementsManagerComponent), data: { screen: 'rh/announcements' } },
+      { path: 'rh/notifications', redirectTo: 'rh/comunicados', pathMatch: 'full' },
+      { path: 'rh/announcements', redirectTo: 'rh/comunicados', pathMatch: 'full' },
       { path: 'rh/employee-documents', loadComponent: () => import('./components/auth/rh/employee-documents-manager/employee-documents-manager.component').then(m => m.EmployeeDocumentsManagerComponent), data: { screen: 'rh/employee-documents' } },
       { path: 'rh/medical-certificates', loadComponent: () => import('./components/auth/rh/medical-certificates-manager/medical-certificates-manager.component').then(m => m.MedicalCertificatesManagerComponent), data: { screen: 'rh/medical-certificates' } },
       { path: 'rh/painel-de-vagas', loadComponent: () => import('./components/auth/rh/painel-de-vagas/painel-de-vagas.component').then(m => m.PainelDeVagasComponent), data: { screen: 'rh/painel-de-vagas' } },
