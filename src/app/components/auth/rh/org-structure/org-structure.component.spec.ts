@@ -3,6 +3,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 
 import { OrgStructureComponent } from './org-structure.component';
 import { PermissionStore } from '../../../../infrastructure/state/permission.store';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { providersDeTeste } from '../../../../../testing/test-setup';
 
 /**
@@ -10,8 +11,12 @@ import { providersDeTeste } from '../../../../../testing/test-setup';
  * a tela dela mostrava: quem só via a estrutura não pode ganhar os salários.
  */
 describe('OrgStructureComponent · partes por tela', () => {
-  function montar(grade: Record<string, string[]>) {
-    TestBed.configureTestingModule({ imports: [OrgStructureComponent], providers: providersDeTeste() });
+  function montar(grade: Record<string, string[]>, query: Record<string, string> = {}) {
+    TestBed.configureTestingModule({
+      imports: [OrgStructureComponent],
+      providers: [...providersDeTeste(),
+                  { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(query) } } }],
+    });
     const http = TestBed.inject(HttpTestingController);
     TestBed.inject(PermissionStore).ensureLoaded().subscribe();
     http.expectOne(r => r.url.endsWith('/me/permissions')).flush(grade);
@@ -29,5 +34,15 @@ describe('OrgStructureComponent · partes por tela', () => {
     const c = montar({ 'rh/career-structure': ['CONSULTAR'] });
     expect(c.sections().map(s => s.key)).toEqual(['positions']);
     expect(c.activeSection()).toBe('positions');
+  });
+
+  it('o endereço antigo de Cargos & Níveis chega com ?parte=cargos e abre em Cargos', () => {
+    const c = montar({ 'rh/organizational-structure': ['CONSULTAR'], 'rh/career-structure': ['CONSULTAR'] }, { parte: 'cargos' });
+    expect(c.activeSection()).toBe('positions');
+  });
+
+  it('?parte=cargos sem a tela de Cargos não abre o que a pessoa não vê', () => {
+    const c = montar({ 'rh/organizational-structure': ['CONSULTAR'] }, { parte: 'cargos' });
+    expect(c.activeSection()).toBe('companies');
   });
 });

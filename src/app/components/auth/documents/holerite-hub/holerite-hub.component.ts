@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
@@ -17,8 +18,8 @@ interface ItemFerramenta {
   label: string;
   icon: string;
   hint: string;
-  /** A tela que a ferramenta exige, quando não é a do próprio hub. */
-  screen?: string;
+  /** A tela que a ferramenta exige na grade. */
+  screen: string;
 }
 
 /**
@@ -42,9 +43,10 @@ interface ItemFerramenta {
   styleUrl: './holerite-hub.component.scss',
   providers: [MessageService],
 })
-export class HoleriteHubComponent {
+export class HoleriteHubComponent implements OnInit {
 
   private readonly permissions = inject(PermissionStore);
+  private readonly route = inject(ActivatedRoute);
 
   readonly ativa = signal<Ferramenta>('envio');
 
@@ -56,18 +58,21 @@ export class HoleriteHubComponent {
   private readonly todas: ItemFerramenta[] = [
     {
       key: 'envio',
+      screen: 'rh/holerit',
       label: 'Enviar holerites',
       icon: 'pi pi-send',
       hint: 'Confere e publica para os funcionários',
     },
     {
       key: 'auditoria',
+      screen: 'rh/holerit',
       label: 'Auditoria',
       icon: 'pi pi-verified',
       hint: 'Quem recebeu, abriu e confirmou',
     },
     {
       key: 'separar',
+      screen: 'rh/holerit',
       label: 'Separar em PDFs',
       icon: 'pi pi-clone',
       hint: 'Fatia o arquivo e baixa um ZIP, sem vincular',
@@ -81,8 +86,22 @@ export class HoleriteHubComponent {
     },
   ];
 
-  readonly ferramentas = computed(() =>
-    this.todas.filter(f => !f.screen || this.permissions.canOpen(f.screen)));
+  /**
+   * Cada ferramenta com a tela dela (2026-10-05): a rota aceita quem tem o
+   * envio OU o Coletar, e quem só tinha o Coletar vê só o Coletar.
+   */
+  readonly ferramentas = computed(() => this.todas.filter(f => this.permissions.canOpen(f.screen)));
+
+  /**
+   * Abre na ferramenta pedida (`?ferramenta=coletar`, o destino do endereço
+   * antigo do Coletar) ou na primeira que a pessoa pode usar.
+   */
+  ngOnInit(): void {
+    const pedida = this.route.snapshot.queryParamMap.get('ferramenta');
+    const visiveis = this.ferramentas();
+    const alvo = visiveis.find(f => f.key === pedida) ?? visiveis[0];
+    if (alvo) this.ativa.set(alvo.key);
+  }
 
   selecionar(key: Ferramenta): void {
     this.ativa.set(key);

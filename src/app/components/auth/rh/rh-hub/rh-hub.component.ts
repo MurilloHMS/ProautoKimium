@@ -17,6 +17,7 @@ import { EmployeeService } from '../../../../infrastructure/services/partners/em
 import { TeamOverviewService } from '../../../../infrastructure/services/hr/team-overview.service';
 import { EquipmentAssignmentService } from '../../../../infrastructure/services/hr/equipment-assignment.service';
 import { AnnouncementService } from '../../../../infrastructure/services/hr/announcement.service';
+import { MedicalCertificateService } from '../../../../infrastructure/services/hr/medical-certificate.service';
 import { CalendarService } from '../../../../infrastructure/services/hr/calendar.service';
 import { HrDashboardService } from '../../../../infrastructure/services/hr/hr-dashboard.service';
 import { CalendarEvent } from '../../../../domain/models/hr/calendar.model';
@@ -28,18 +29,6 @@ type ToolKey =
   | 'teamOverview' | 'calendar' | 'calculators' | 'equipment' | 'notifications'
   | 'announcements' | 'medicalCertificates' | 'jobs' | 'payslip' | 'payslipExtractor'
   | 'employeeDocuments';
-
-interface RhTool {
-  key: ToolKey;
-  title: string;
-  icon: string;
-  route: string;
-}
-
-interface RhToolGroup {
-  label: string;
-  tools: RhTool[];
-}
 
 type ActivityType = 'vacation' | 'reimbursement' | 'equipment' | 'announcement';
 
@@ -67,13 +56,15 @@ export class RhHubComponent implements OnInit {
   // ---- KPIs ----
   pendingVacations = 0;
   pendingReimbursements = 0;
+  pendingCertificates = 0;
   activeEmployees = 0;
   onVacationNow = 0;
   equipmentInUse = 0;
   eventsThisMonth = 0;
 
+  /** Os três tipos da Pendências. Até 2026-10-05 o atestado ficava de fora. */
   get pendingTotal(): number {
-    return this.pendingVacations + this.pendingReimbursements;
+    return this.pendingVacations + this.pendingReimbursements + this.pendingCertificates;
   }
 
   // ---- Distribuição (funcionários por empresa/cargo/departamento, folha e estrutura) ----
@@ -124,52 +115,7 @@ export class RhHubComponent implements OnInit {
   selectedDay: Date | null = null;
   selectedDayEvents: CalendarEvent[] = [];
 
-  // ---- Atalhos ----
-  toolGroups: RhToolGroup[] = [
-    {
-      label: 'Aprovações',
-      tools: [
-        { key: 'vacation', title: 'Férias', icon: 'pi pi-sun', route: '/rh/vacation-requests' },
-        { key: 'reimbursements', title: 'Reembolsos', icon: 'pi pi-wallet', route: '/rh/reimbursements' },
-        { key: 'medicalCertificates', title: 'Atestados', icon: 'pi pi-file-check', route: '/rh/medical-certificates' },
-      ],
-    },
-    {
-      label: 'Pessoas',
-      tools: [
-        { key: 'employees', title: 'Funcionários', icon: 'pi pi-user', route: '/rh/employees' },
-        { key: 'employeeDocuments', title: 'Documentos', icon: 'pi pi-file-edit', route: '/rh/employee-documents' },
-        { key: 'teamOverview', title: 'Visão de Equipe', icon: 'pi pi-users', route: '/rh/team-overview' },
-        { key: 'calendar', title: 'Calendário', icon: 'pi pi-calendar', route: '/rh/calendar' },
-      ],
-    },
-    {
-      label: 'Organização',
-      tools: [
-        { key: 'orgStructure', title: 'Estrutura', icon: 'pi pi-sitemap', route: '/rh/organizational-structure' },
-        { key: 'career', title: 'Cargos & Níveis', icon: 'pi pi-briefcase', route: '/rh/career-structure' },
-        { key: 'equipment', title: 'Equipamentos', icon: 'pi pi-desktop', route: '/rh/equipment-assignments' },
-      ],
-    },
-    {
-      label: 'Ferramentas',
-      tools: [
-        { key: 'calculators', title: 'Calculadoras', icon: 'pi pi-calculator', route: '/rh/calculators' },
-        { key: 'payslip', title: 'Holerit', icon: 'pi pi-file', route: '/rh/holerit' },
-        { key: 'payslipExtractor', title: 'Coletar Holerite', icon: 'pi pi-file-arrow-up', route: '/rh/holerit/extractor' },
-      ],
-    },
-    {
-      label: 'Comunicação',
-      tools: [
-        { key: 'announcements', title: 'Mural de Avisos', icon: 'pi pi-megaphone', route: '/rh/announcements' },
-        { key: 'notifications', title: 'Notificações', icon: 'pi pi-bell', route: '/rh/notifications' },
-        { key: 'jobs', title: 'Portal de Vagas', icon: 'pi pi-briefcase', route: '/rh/painel-de-vagas' },
-      ],
-    },
-  ];
 
-  tools: RhTool[] = this.toolGroups.flatMap(g => g.tools);
 
   constructor(
     private vacationService: VacationRequestService,
@@ -179,7 +125,8 @@ export class RhHubComponent implements OnInit {
     private equipmentService: EquipmentAssignmentService,
     private announcementService: AnnouncementService,
     private calendarService: CalendarService,
-    private dashboardService: HrDashboardService
+    private dashboardService: HrDashboardService,
+    private certificateService: MedicalCertificateService
   ) {}
 
   ngOnInit(): void {
@@ -190,6 +137,7 @@ export class RhHubComponent implements OnInit {
       vacationsAll: this.vacationService.getAll().pipe(catchError(() => of([]))),
       reimbursementsPending: this.reimbursementService.getAll('PENDING').pipe(catchError(() => of([]))),
       reimbursementsAll: this.reimbursementService.getAll().pipe(catchError(() => of([]))),
+      certificatesPending: this.certificateService.getAll('PENDING').pipe(catchError(() => of([]))),
       employees: this.employeeService.getEmployes().pipe(catchError(() => of([]))),
       teamOverview: this.teamOverviewService.getOverview().pipe(catchError(() => of([]))),
       equipment: this.equipmentService.listCurrentlyWithEmployees().pipe(catchError(() => of([]))),
@@ -200,6 +148,7 @@ export class RhHubComponent implements OnInit {
       this.summary = r.summary;
       this.pendingVacations = r.vacationsPending.length;
       this.pendingReimbursements = r.reimbursementsPending.length;
+      this.pendingCertificates = r.certificatesPending.length;
       this.activeEmployees = r.employees.filter((e) => e.ativo).length;
       this.onVacationNow = r.teamOverview.filter((e) => e.availabilityStatus === 'ON_VACATION').length;
       this.equipmentInUse = r.equipment.length;
@@ -255,7 +204,7 @@ export class RhHubComponent implements OnInit {
           text: `Aviso publicado: "${a.title}"`,
           subtext: `por ${a.publishedByName}`,
           timestamp: new Date(a.publishedAt).getTime(),
-          route: '/rh/announcements',
+          route: '/rh/comunicados',
         });
       }
 

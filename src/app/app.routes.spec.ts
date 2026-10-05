@@ -1,4 +1,6 @@
-import { Route } from '@angular/router';
+import { Route, UrlTree, provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 
 import { routes } from './app.routes';
 
@@ -64,13 +66,37 @@ describe('app.routes · o catálogo de telas', () => {
     expect(semScreen).toEqual([]);
   });
 
-  it('a tela que junta outras aponta só para telas que existem, e não fica vazia', () => {
+  /**
+   * Cada tela juntada continua existindo de um jeito ou de outro: como rota
+   * própria (Férias, ainda no menu) ou como endereço antigo que **redireciona
+   * para esta** (Visão de Equipe → Ausências). Uma tela que não é nenhum dos
+   * dois foi digitada errado — e a junção ficaria aberta para ninguém.
+   */
+  it('a tela que junta outras aponta só para telas que existem ou que redirecionam para ela', () => {
+    TestBed.configureTestingModule({ providers: [provideZonelessChangeDetection(), provideRouter([])] });
     const existentes = new Set(controladas.map(r => r.data?.['screen']));
-    expect(juntas.map(r => r.path).sort()).toEqual(['rh/ausencias', 'rh/comunicados', 'rh/organizacao', 'rh/pendencias']);
+    const redireciona = new Map<string, string>();
+    const andar = (lista: Route[], prefixo = '') => lista.forEach(rota => {
+      const path = [prefixo, rota.path].filter(Boolean).join('/');
+      if (typeof rota.redirectTo === 'string') {
+        redireciona.set(path, rota.redirectTo.replace(/^\//, '').split('?')[0]);
+      } else if (typeof rota.redirectTo === 'function') {
+        // Redirecionamento com query (`?parte=cargos`): roda a função e lê o destino.
+        const destino = TestBed.runInInjectionContext(() => (rota.redirectTo as (r: unknown) => UrlTree)({}));
+        redireciona.set(path, destino.toString().replace(/^\//, '').split('?')[0]);
+      }
+      if (rota.children) andar(rota.children, path);
+    });
+    andar(routes);
+
+    expect(juntas.map(r => r.path).sort())
+      .toEqual(['rh/ausencias', 'rh/comunicados', 'rh/holerit', 'rh/organizacao', 'rh/pendencias']);
     for (const r of juntas) {
       const telas = r.data!['anyScreen'] as string[];
       expect(telas.length).withContext(r.path).toBeGreaterThan(0);
-      expect(telas.filter(t => !existentes.has(t))).withContext(r.path).toEqual([]);
+      const soltas = telas.filter(t => !existentes.has(t) && redireciona.get(t) !== r.path
+                                       && t !== r.path && !t.startsWith(r.path + '/'));
+      expect(soltas).withContext(r.path).toEqual([]);
     }
   });
 

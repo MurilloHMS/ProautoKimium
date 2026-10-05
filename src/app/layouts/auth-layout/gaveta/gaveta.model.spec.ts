@@ -69,7 +69,12 @@ describe('gaveta.model', () => {
    * RH é o único com três níveis: uma folha solta e cinco subgrupos. A pasta
    * não aninha, então os subgrupos viram cabeçalhos de seção.
    */
-  it('RH vira uma folha solta e cinco secoes com cabecalho', () => {
+  /**
+   * Reorganização do RH (2026-10-05): o menu ficou quase plano. Só as
+   * Aprovações continuam como grupo — a Pendências e as três telas de
+   * histórico, que ele pediu para manter juntas.
+   */
+  it('RH vira uma secao de folhas soltas e uma secao, Aprovacoes', () => {
     const rh = acharCategoria('rh-recursos-humanos');
 
     expect(rh.tipo).toBe('pasta');
@@ -78,10 +83,13 @@ describe('gaveta.model', () => {
     const comTitulo = rh.secoes.filter(s => s.titulo !== null);
 
     expect(semTitulo.length).withContext('uma primeira secao, das folhas soltas').toBe(1);
-    expect(semTitulo[0].itens.map(i => i.label)).toEqual(['Painel RH']);
+    expect(semTitulo[0].itens.map(i => i.label)).toEqual([
+      'Painel', 'Pessoas', 'Documentos', 'Equipamentos', 'Ausências', 'Holerites', 'Organização',
+      'Comunicados', 'Vagas', 'Calculadoras',
+    ]);
 
-    expect(comTitulo.map(s => s.titulo))
-      .toEqual(['Aprovações', 'Pessoas', 'Organização', 'Ferramentas', 'Comunicação']);
+    expect(comTitulo.map(s => s.titulo)).toEqual(['Aprovações']);
+    expect(comTitulo[0].itens.map(i => i.label)).toEqual(['Pendências', 'Férias', 'Reembolsos', 'Atestados']);
   });
 
   it('o tile de RH usa o rotulo curto, e a pasta o nome inteiro', () => {
@@ -92,18 +100,16 @@ describe('gaveta.model', () => {
   });
 
   /**
-   * "Comunicação" existe no primeiro nível e dentro de RH. É por isso que os
-   * subgrupos viram seções em vez de serem achatados: soltos, os três itens da
-   * comunicação do RH ficariam ao lado de "Funcionários" sem nada explicando.
+   * "Comunicação" existe no primeiro nível, e o RH tem os seus Comunicados.
+   * São conjuntos diferentes: o do RH é mural e sino para funcionários.
    */
-  it('a Comunicacao do RH e a de primeiro nivel nao se misturam', () => {
-    const rh = acharCategoria('rh-recursos-humanos');
-    const dentroDoRh = rh.secoes.find(s => s.titulo === 'Comunicação')!.itens;
+  it('os Comunicados do RH nao se misturam com a Comunicacao de primeiro nivel', () => {
+    const rh = destinosDe(acharCategoria('rh-recursos-humanos'));
     const primeiroNivel = destinosDe(acharCategoria('comunicacao'));
 
-    expect(dentroDoRh.length).toBeGreaterThan(0);
-    expect(dentroDoRh.some(i => primeiroNivel.some(p => p.label === i.label)))
-      .withContext('as duas comunicacoes sao conjuntos diferentes')
+    expect(rh.some(i => i.label === 'Comunicados')).toBeTrue();
+    expect(rh.some(i => primeiroNivel.some(p => p.label === i.label && p.routerLink?.[0] === i.routerLink?.[0])))
+      .withContext('nenhum destino do RH repete um da Comunicação')
       .toBeFalse();
   });
 

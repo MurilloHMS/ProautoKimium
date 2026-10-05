@@ -46,6 +46,9 @@ export const ORGANIZATION_SCREENS = ['rh/organizational-structure', 'rh/career-s
 /** As telas que as Ausências juntam: a Visão de Equipe e o Calendário. */
 export const ABSENCES_SCREENS = ['rh/team-overview', 'rh/calendar'];
 
+/** Holerites: a tela de envio e o Coletar, que virou a 4ª ferramenta dela. */
+export const PAYSLIP_SCREENS = ['rh/holerit', 'rh/holerit/extractor'];
+
 export const APP_MENU: AppMenuItem[] = [
   /**
    * As tres entradas pessoais, juntas.
@@ -93,8 +96,13 @@ export const APP_MENU: AppMenuItem[] = [
     label: 'RH - Recursos Humanos',
     icon: 'pi pi-fw pi-users',
     items: [
-      { label: 'Painel RH', icon: 'pi pi-fw pi-objects-column', routerLink: ['rh/hub'], screen: 'rh/hub' },
+      // Reorganização do RH (2026-10-05): de 16 itens em 5 grupos para um menu
+      // quase plano. As telas que se juntaram não têm código próprio na grade
+      // (`anyScreen`); os endereços antigos redirecionam (app.routes.ts).
+      { label: 'Painel', icon: 'pi pi-fw pi-objects-column', routerLink: ['rh/hub'], screen: 'rh/hub' },
       {
+        // Pendências é o que espera decisão; as três telas de baixo guardam o
+        // histórico (aprovados, pagos, recusados) e os Indicadores.
         label: 'Aprovações',
         icon: 'pi pi-fw pi-check-circle',
         items: [
@@ -107,55 +115,26 @@ export const APP_MENU: AppMenuItem[] = [
           { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], screen: 'rh/medical-certificates' },
         ],
       },
+      { label: 'Pessoas', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
+      { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
+      // Equipamentos fica: é onde se registra a entrega e a devolução, e quem só
+      // tem esta tela não abre a ficha do funcionário.
+      { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
       {
-        label: 'Pessoas',
-        icon: 'pi pi-fw pi-address-book',
-        items: [
-          { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
-          { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
-          {
-            label: 'Ausências', icon: 'pi pi-fw pi-calendar-times', routerLink: ['rh/ausencias'],
-            anyScreen: ABSENCES_SCREENS,
-          },
-          { label: 'Visão de Equipe', icon: 'pi pi-fw pi-share-alt', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
-          { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar' },
-        ],
+        label: 'Ausências', icon: 'pi pi-fw pi-calendar-times', routerLink: ['rh/ausencias'],
+        anyScreen: ABSENCES_SCREENS,
+      },
+      { label: 'Holerites', icon: 'pi pi-fw pi-receipt', routerLink: ['rh/holerit'], anyScreen: PAYSLIP_SCREENS },
+      {
+        label: 'Organização', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizacao'],
+        anyScreen: ORGANIZATION_SCREENS,
       },
       {
-        label: 'Organização',
-        icon: 'pi pi-fw pi-sitemap',
-        items: [
-          {
-            label: 'Organização', icon: 'pi pi-fw pi-warehouse', routerLink: ['rh/organizacao'],
-            anyScreen: ORGANIZATION_SCREENS,
-          },
-          { label: 'Estrutura', icon: 'pi pi-fw pi-building-columns', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure' },
-          { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], screen: 'rh/career-structure' },
-          { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
-        ],
+        label: 'Comunicados', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/comunicados'],
+        anyScreen: COMMUNICATIONS_SCREENS,
       },
-      {
-        label: 'Ferramentas',
-        icon: 'pi pi-fw pi-sliders-h',
-        items: [
-          { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators' },
-          { label: 'Holerit', icon: 'pi pi-fw pi-receipt', routerLink: ['rh/holerit'], screen: 'rh/holerit' },
-          { label: 'Coletar Holerite', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/holerit/extractor'], screen: 'rh/holerit/extractor' },
-        ],
-      },
-      {
-        label: 'Comunicação',
-        icon: 'pi pi-fw pi-megaphone',
-        items: [
-          {
-            label: 'Comunicados', icon: 'pi pi-fw pi-comment', routerLink: ['rh/comunicados'],
-            anyScreen: COMMUNICATIONS_SCREENS,
-          },
-          { label: 'Mural de Avisos', icon: 'pi pi-fw pi-flag', routerLink: ['rh/announcements'], screen: 'rh/announcements' },
-          { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], screen: 'rh/notifications' },
-          { label: 'Portal de Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
-        ],
-      },
+      { label: 'Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
+      { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators' },
     ],
   },
   {
