@@ -61,14 +61,32 @@ describe('TopbarComponent · a busca no celular', () => {
 
     const antes = moldura.style.width;
     moldura.style.width = `${LARGURA_CELULAR}px`;
-    await new Promise(requestAnimationFrame);
+    await assentar(moldura);
 
     try {
       await trecho();
     } finally {
       moldura.style.width = antes;
-      await new Promise(requestAnimationFrame);
+      await assentar(moldura);
     }
+  }
+
+  /**
+   * Espera a moldura nova valer para o `@media`.
+   *
+   * **Não com `requestAnimationFrame`.** O Chrome segura os quadros de
+   * animação quando a janela do Karma fica em segundo plano: a espera não
+   * voltava, o teste estourava os 5s, as medidas rodavam depois — num
+   * componente já destruído, dando `NaN` dentro de um `afterAll` — e a moldura
+   * ficava com 390px para a suíte inteira, que às vezes travava (2026-10-05).
+   *
+   * Ler o layout força o navegador a recalcular na hora, com a largura nova; o
+   * `setTimeout` dá uma volta no laço para o Angular, e não fica preso assim.
+   */
+  async function assentar(moldura: HTMLElement): Promise<void> {
+    moldura.getBoundingClientRect();
+    void window.innerWidth;
+    await new Promise(resolve => setTimeout(resolve, 0));
   }
 
   it('nasce fechada', () => {
