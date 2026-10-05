@@ -30,6 +30,12 @@ export interface AppMenuItem {
    * de tela próprio — a grade que o RH já configurou continua valendo.
    */
   anyScreen?: string[];
+  /**
+   * Outros nomes pelos quais a tela é procurada na busca do topo — os nomes
+   * antigos das telas que se juntaram (2026-10-05). Quem digita "mural" acha
+   * Comunicados, em vez de "nenhuma página encontrada".
+   */
+  keywords?: string[];
   badge?: string | number;
   items?: AppMenuItem[];
 }
@@ -99,7 +105,7 @@ export const APP_MENU: AppMenuItem[] = [
       // Reorganização do RH (2026-10-05): de 16 itens em 5 grupos para um menu
       // quase plano. As telas que se juntaram não têm código próprio na grade
       // (`anyScreen`); os endereços antigos redirecionam (app.routes.ts).
-      { label: 'Painel', icon: 'pi pi-fw pi-objects-column', routerLink: ['rh/hub'], screen: 'rh/hub' },
+      { label: 'Painel', icon: 'pi pi-fw pi-objects-column', routerLink: ['rh/hub'], screen: 'rh/hub', keywords: ['Painel RH'] },
       {
         // Pendências é o que espera decisão; as três telas de baixo guardam o
         // histórico (aprovados, pagos, recusados) e os Indicadores.
@@ -115,25 +121,26 @@ export const APP_MENU: AppMenuItem[] = [
           { label: 'Atestados', icon: 'pi pi-fw pi-file-check', routerLink: ['rh/medical-certificates'], screen: 'rh/medical-certificates' },
         ],
       },
-      { label: 'Pessoas', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
+      { label: 'Pessoas', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees', keywords: ['Funcionários', 'Colaboradores', 'Ficha'] },
       { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
       // Equipamentos fica: é onde se registra a entrega e a devolução, e quem só
       // tem esta tela não abre a ficha do funcionário.
       { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
       {
         label: 'Ausências', icon: 'pi pi-fw pi-calendar-times', routerLink: ['rh/ausencias'],
-        anyScreen: ABSENCES_SCREENS,
+        anyScreen: ABSENCES_SCREENS, keywords: ['Visão de Equipe', 'Calendário', 'Quem está de férias'],
       },
-      { label: 'Holerites', icon: 'pi pi-fw pi-receipt', routerLink: ['rh/holerit'], anyScreen: PAYSLIP_SCREENS },
+      { label: 'Holerites', icon: 'pi pi-fw pi-receipt', routerLink: ['rh/holerit'], anyScreen: PAYSLIP_SCREENS, keywords: ['Holerit', 'Coletar Holerite', 'Contracheque'] },
       {
         label: 'Organização', icon: 'pi pi-fw pi-sitemap', routerLink: ['rh/organizacao'],
         anyScreen: ORGANIZATION_SCREENS,
+        keywords: ['Estrutura', 'Cargos & Níveis', 'Cargos', 'Empresas', 'Departamentos', 'Setores', 'Hierarquias', 'Dissídio'],
       },
       {
         label: 'Comunicados', icon: 'pi pi-fw pi-megaphone', routerLink: ['rh/comunicados'],
-        anyScreen: COMMUNICATIONS_SCREENS,
+        anyScreen: COMMUNICATIONS_SCREENS, keywords: ['Mural de Avisos', 'Notificações', 'Avisos'],
       },
-      { label: 'Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },
+      { label: 'Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas', keywords: ['Portal de Vagas', 'Banco de talentos', 'Candidaturas'] },
       { label: 'Calculadoras', icon: 'pi pi-fw pi-calculator', routerLink: ['rh/calculators'], screen: 'rh/calculators' },
     ],
   },
