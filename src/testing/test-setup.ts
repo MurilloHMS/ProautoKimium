@@ -1,4 +1,4 @@
-import { EnvironmentProviders, Provider, provideZonelessChangeDetection } from '@angular/core';
+import { DEFAULT_CURRENCY_CODE, EnvironmentProviders, LOCALE_ID, Provider, provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -38,6 +38,10 @@ export function providersDeTeste(
 ): (Provider | EnvironmentProviders)[] {
   return [
     provideZonelessChangeDetection(),
+    // O mesmo idioma do app (app.config.ts): o teste vê o "R$ 2.047,70" que a
+    // pessoa vê, e não o formato americano.
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
     provideNoopAnimations(),
     provideHttpClient(),
     provideHttpClientTesting(),

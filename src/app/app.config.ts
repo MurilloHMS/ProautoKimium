@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, DEFAULT_CURRENCY_CODE, LOCALE_ID } from '@angular/core';
 import { RouteReuseStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -34,6 +34,11 @@ const MaterialEmerald = definePreset(Material, {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Português do Brasil em todo pipe (2026-10-05). O `main.ts` registrava os
+    // dados do pt, mas ninguém dizia para usá-los: `currency:'BRL'` saía
+    // "R$2,047.70", com milhar e decimal americanos, no app inteiro.
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
     // Estas opções viviam no AppRoutingModule (que estava morto no fim do
     // app.routes.ts) — ou seja, nunca chegaram a valer. Agora valem.
     provideRouter(
