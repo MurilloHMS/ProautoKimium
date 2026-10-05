@@ -229,4 +229,87 @@ describe('PendingQueueComponent', () => {
       responder([]);
     });
   });
+
+  // ─── Clicar na linha abre a conferência (2026-10-05) ──────────────────────
+
+  describe('clique na linha', () => {
+    const ATESTADO = {
+      id: 'm1', employeeId: 'pedro', employeeName: 'Pedro Alves', startDate: '2026-10-01', endDate: '2026-10-01',
+      daysCount: 1, submissionType: 'PHOTO', confirmedLegible: true, originalFilename: 'foto.jpg',
+      submittedAt: '2026-10-01T08:00:00', status: 'PENDING', reviewedByName: null, reviewedAt: null, reviewNotes: null,
+      resubmittedAt: null, resubmitComment: null, resubmitDeadline: null, previousAttempts: [],
+    };
+    const FERIAS = {
+      id: 'v1', employeeId: 'joao', startDate: '2026-11-03', endDate: '2026-11-12', daysRequested: 10,
+      replacementEmployeeId: 'pedro', status: 'PENDING', requestedAt: '2026-10-01T10:00:00',
+      reviewedById: null, reviewedAt: null, reviewNotes: null,
+    };
+
+    async function montarTudo(): Promise<void> {
+      await montar({ 'rh/reimbursements': ['ALTERAR'], 'rh/vacation-requests': ['ALTERAR'], 'rh/medical-certificates': ['ALTERAR'] });
+      for (const r of http.match(() => true)) {
+        const url = r.request.url;
+        if (url === `${API}/hr/reimbursements`) r.flush(r.request.params.get('status') === 'PENDING' ? PENDENTES : []);
+        else if (url === `${API}/hr/vacation-requests`) r.flush([FERIAS]);
+        else if (url === `${API}/hr/medical-certificates`) r.flush([ATESTADO]);
+        else if (url.includes('employee') || url.includes('partner')) r.flush([{ id: 'joao', name: 'João Lima', ativo: true }, { id: 'pedro', name: 'Pedro Alves', ativo: true }]);
+        else r.flush([]);
+      }
+      fixture.detectChanges();
+    }
+
+    function linhas(): HTMLTableRowElement[] {
+      return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLTableRowElement>('tbody tr.pq-clicavel'));
+    }
+
+    it('reembolso: a linha abre a conferência em sequência daquela pessoa', async () => {
+      await montarTudo();
+      linhas()[0].click();
+      expect(component.current()).not.toBeNull();
+      http.expectOne(r => r.url.endsWith('/receipt')).flush(new Blob(['x'], { type: 'image/png' }));
+    });
+
+    it('reembolso: marcar a caixinha não abre a conferência', async () => {
+      await montarTudo();
+      linhas()[0].querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
+      expect(component.current()).toBeNull();
+      expect(component.selected().size).toBe(1);
+    });
+
+    it('atestado: a linha abre a conferência já com o arquivo na tela', async () => {
+      await montarTudo();
+      component.kind.set('ATESTADO');
+      fixture.detectChanges();
+      linhas()[0].click();
+      expect(component.single()?.certificate?.id).toBe('m1');
+      http.expectOne(`${API}/hr/medical-certificates/m1/file`).flush(new Blob(['x'], { type: 'image/jpeg' }));
+      expect(component.singlePreview()?.isPdf).toBeFalse();
+    });
+
+    it('férias: a linha abre a conferência com o substituto indicado', async () => {
+      await montarTudo();
+      component.kind.set('FERIAS');
+      fixture.detectChanges();
+      linhas()[0].click();
+      fixture.detectChanges();
+      expect(component.single()?.vacation?.id).toBe('v1');
+      expect(document.body.textContent).toContain('Substituto indicado');
+    });
+
+    it('o ✗ da linha só abre a conferência: recusar ainda exige o motivo', async () => {
+      await montarTudo();
+      component.kind.set('FERIAS');
+      fixture.detectChanges();
+      (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button[aria-label^="Recusar as férias"]')!.click();
+      expect(component.single()?.vacation?.id).toBe('v1');
+      http.expectNone(r => r.url.endsWith('/reject'));
+
+      component.confirmSingle('reject');
+      http.expectNone(r => r.url.endsWith('/reject'));
+
+      component.singleNotes = 'Período de fechamento';
+      component.confirmSingle('reject');
+      expect(http.expectOne(`${API}/hr/vacation-requests/v1/reject`).request.body).toEqual({ notes: 'Período de fechamento' });
+    });
+  });
 });

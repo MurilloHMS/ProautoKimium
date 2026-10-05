@@ -2,7 +2,8 @@
 
 <div class="painel-wrapper">
 
-  <!-- ── HEADER ── -->
+  <!-- ── HEADER ── (dentro do Holerites o cabeçalho é o do hub) -->
+  @if (!embedded()) {
   <div class="page-header">
     <div class="header-left">
       <div class="header-icon">
@@ -14,6 +15,7 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- ── UPLOAD CARD ── -->
   <p-card styleClass="upload-card">

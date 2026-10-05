@@ -66,7 +66,7 @@ describe('app.routes · o catálogo de telas', () => {
 
   it('a tela que junta outras aponta só para telas que existem, e não fica vazia', () => {
     const existentes = new Set(controladas.map(r => r.data?.['screen']));
-    expect(juntas.map(r => r.path)).toEqual(['rh/pendencias']);
+    expect(juntas.map(r => r.path).sort()).toEqual(['rh/ausencias', 'rh/comunicados', 'rh/organizacao', 'rh/pendencias']);
     for (const r of juntas) {
       const telas = r.data!['anyScreen'] as string[];
       expect(telas.length).withContext(r.path).toBeGreaterThan(0);

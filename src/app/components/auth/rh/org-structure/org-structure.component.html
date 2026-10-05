@@ -1,5 +1,5 @@
 <div class="org-switcher">
-  @for (section of sections; track section.key) {
+  @for (section of sections(); track section.key) {
     <button
       type="button"
       class="org-switcher__item"
@@ -23,5 +23,8 @@
   }
   @case ('hierarchies') {
     <app-org-structure-hierarchies />
+  }
+  @case ('positions') {
+    <app-career-structure />
   }
 }

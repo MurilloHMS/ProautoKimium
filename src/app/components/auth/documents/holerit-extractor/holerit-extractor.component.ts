@@ -1,4 +1,4 @@
-import {Component, computed, signal} from '@angular/core';
+import { Component, computed, signal, input } from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {ButtonModule} from "primeng/button";
@@ -43,6 +43,9 @@ import {PkButtonComponent} from "../../../theme/ProautoKimium/pk-button/pk-butto
   providers: [MessageService]
 })
 export class HoleritExtractorComponent {
+  /** Dentro do hub de Holerites: o cabeçalho é o do hub, e este some. */
+  readonly embedded = input(false);
+
   private readonly API_URL = `${environment.apiUrl}/pdf/holerith/extract`;
 
   selectedFile = signal<File | null>(null);

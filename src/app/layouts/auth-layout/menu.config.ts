@@ -37,6 +37,15 @@ export interface AppMenuItem {
 /** As telas que a Pendências junta: quem abre qualquer uma delas abre a Pendências. */
 export const PENDING_QUEUE_SCREENS = ['rh/reimbursements', 'rh/vacation-requests', 'rh/medical-certificates'];
 
+/** As telas que os Comunicados juntam: o Mural de Avisos e as Notificações. */
+export const COMMUNICATIONS_SCREENS = ['rh/announcements', 'rh/notifications'];
+
+/** As telas que a Organização junta: a estrutura e os cargos. */
+export const ORGANIZATION_SCREENS = ['rh/organizational-structure', 'rh/career-structure'];
+
+/** As telas que as Ausências juntam: a Visão de Equipe e o Calendário. */
+export const ABSENCES_SCREENS = ['rh/team-overview', 'rh/calendar'];
+
 export const APP_MENU: AppMenuItem[] = [
   /**
    * As tres entradas pessoais, juntas.
@@ -104,6 +113,10 @@ export const APP_MENU: AppMenuItem[] = [
         items: [
           { label: 'Funcionários', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees' },
           { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
+          {
+            label: 'Ausências', icon: 'pi pi-fw pi-calendar-times', routerLink: ['rh/ausencias'],
+            anyScreen: ABSENCES_SCREENS,
+          },
           { label: 'Visão de Equipe', icon: 'pi pi-fw pi-share-alt', routerLink: ['rh/team-overview'], screen: 'rh/team-overview' },
           { label: 'Calendário', icon: 'pi pi-fw pi-calendar', routerLink: ['rh/calendar'], screen: 'rh/calendar' },
         ],
@@ -112,6 +125,10 @@ export const APP_MENU: AppMenuItem[] = [
         label: 'Organização',
         icon: 'pi pi-fw pi-sitemap',
         items: [
+          {
+            label: 'Organização', icon: 'pi pi-fw pi-warehouse', routerLink: ['rh/organizacao'],
+            anyScreen: ORGANIZATION_SCREENS,
+          },
           { label: 'Estrutura', icon: 'pi pi-fw pi-building-columns', routerLink: ['rh/organizational-structure'], screen: 'rh/organizational-structure' },
           { label: 'Cargos & Níveis', icon: 'pi pi-fw pi-briefcase', routerLink: ['rh/career-structure'], screen: 'rh/career-structure' },
           { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },
@@ -130,6 +147,10 @@ export const APP_MENU: AppMenuItem[] = [
         label: 'Comunicação',
         icon: 'pi pi-fw pi-megaphone',
         items: [
+          {
+            label: 'Comunicados', icon: 'pi pi-fw pi-comment', routerLink: ['rh/comunicados'],
+            anyScreen: COMMUNICATIONS_SCREENS,
+          },
           { label: 'Mural de Avisos', icon: 'pi pi-fw pi-flag', routerLink: ['rh/announcements'], screen: 'rh/announcements' },
           { label: 'Notificações', icon: 'pi pi-fw pi-bell', routerLink: ['rh/notifications'], screen: 'rh/notifications' },
           { label: 'Portal de Vagas', icon: 'pi pi-fw pi-user-plus', routerLink: ['rh/painel-de-vagas'], screen: 'rh/painel-de-vagas' },

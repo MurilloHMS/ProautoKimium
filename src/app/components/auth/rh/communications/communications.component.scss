@@ -1,0 +1,134 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// Comunicados (2026-10-05). Só tokens do tema: as duas telas antigas tinham
+// borda em hex e ficavam erradas no tema escuro.
+:host { @include m.page-layout; }
+
+.cm-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card, 16px);
+  padding: 24px;
+
+  &__titulo { margin: 0 0 16px; font-size: 1rem; }
+}
+
+@media (max-width: 768px) { .cm-card { padding: 16px; } }
+
+.cm-canais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cm-canal {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  i { font-size: 1.1rem; color: var(--app-text-muted); margin-top: 2px; }
+  span { display: flex; flex-direction: column; gap: 2px; }
+  small { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+
+  &:hover { border-color: var(--app-border-strong); }
+  &.is-on { border-color: var(--app-action); background: var(--app-action-soft); i, b { color: var(--app-action); } }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.cm-rotulo { display: block; font-size: var(--text-ui-sm); font-weight: 600; color: var(--app-text-muted); margin-bottom: 6px; }
+
+.cm-publico { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &.is-on { border-color: var(--app-action); background: var(--app-action-soft); color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  padding: 10px;
+  font: inherit;
+  background: var(--app-surface);
+  color: var(--app-text);
+  resize: vertical;
+}
+
+// 16px no campo: abaixo disso o iPhone dá zoom ao focar.
+@media (max-width: 768px) { textarea { font-size: 16px; } }
+
+.cm-contador {
+  display: block;
+  text-align: right;
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+}
+
+.cm-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.cm-resultado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-success-soft);
+  color: var(--app-success);
+  font-size: var(--text-ui-sm);
+}
+
+.cm-secao {
+  font-family: v.$font-heading;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--app-action);
+  margin: 28px 0 12px;
+}
+
+.cm-estado { color: var(--app-text-muted); text-align: center; padding: 24px 0; }
+
+.cm-aviso {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card, 16px);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+
+  &__topo { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  &__data { color: var(--app-text-muted); font-size: var(--text-ui-sm); font-variant-numeric: tabular-nums; }
+  &__texto { margin: 8px 0; white-space: pre-line; overflow-wrap: anywhere; }
+  &__autor { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+}

@@ -48,10 +48,16 @@ const SCREEN: Record<PendingKind, string> = {
   ATESTADO: 'rh/medical-certificates',
 };
 
-/** Revisão de um pedido só: férias, atestado, ou um reembolso fora da sequência. */
+/**
+ * Conferência de um pedido só: férias ou atestado.
+ *
+ * Abre pelo clique na linha (2026-10-05, pedido dele: "quero visualizar o que
+ * foi enviado"). `focus` é só por onde a janela começa: o ✗ da linha já põe o
+ * cursor no motivo. A decisão é sempre o botão que a pessoa aperta no rodapé.
+ */
 interface SingleReview {
   kind: 'FERIAS' | 'ATESTADO';
-  action: 'approve' | 'reject';
+  focus?: 'reject';
   vacation?: VacationRequest;
   certificate?: MedicalCertificate;
 }
@@ -180,6 +186,7 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.releasePreview();
+    this.releaseSinglePreview();
   }
 
   load(): void {
@@ -348,7 +355,8 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
 
   // ---- Sequência ----
 
-  startSequence(group?: ReimbursementGroup): void {
+  startSequence(group?: ReimbursementGroup, event?: Event): void {
+    event?.stopPropagation();
     const items = group ? group.items
       : this.visibleGroups().filter(g => this.selected().has(g.employeeId)).flatMap(g => g.items);
     if (!items.length) return;
@@ -452,26 +460,37 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
 
   // ---- Férias e atestados ----
 
-  openSingle(review: SingleReview): void {
+  openSingle(review: SingleReview, event?: Event): void {
+    event?.stopPropagation();
     this.singleNotes = '';
+    this.releaseSinglePreview();
     this.single.set(review);
+    if (review.certificate) this.loadCertificatePreview(review.certificate);
+    if (review.focus === 'reject') setTimeout(() => document.getElementById('singleNotes')?.focus(), 50);
   }
 
-  get canConfirmSingle(): boolean {
-    return this.single()?.action === 'approve' || this.singleNotes.trim().length > 0;
+  closeSingle(): void {
+    this.single.set(null);
+    this.releaseSinglePreview();
   }
 
-  confirmSingle(): void {
+  /** Recusar exige o motivo: é o que a pessoa lê para saber o que fazer. */
+  get canRejectSingle(): boolean {
+    return this.singleNotes.trim().length > 0;
+  }
+
+  confirmSingle(action: 'approve' | 'reject'): void {
     const s = this.single();
-    if (!s || !this.canConfirmSingle || this.singleSaving()) return;
+    if (!s || this.singleSaving()) return;
+    if (action === 'reject' && !this.canRejectSingle) return;
     const notes = this.singleNotes.trim();
     let call: Observable<unknown>;
     if (s.kind === 'FERIAS') {
-      call = s.action === 'approve'
+      call = action === 'approve'
         ? this.vacations.approve(s.vacation!.id, { notes })
         : this.vacations.reject(s.vacation!.id, { notes });
     } else {
-      call = s.action === 'approve'
+      call = action === 'approve'
         ? this.certificates.confirmReceipt(s.certificate!.id, notes || null)
         : this.certificates.reject(s.certificate!.id, notes);
     }
@@ -479,7 +498,7 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
     call.subscribe({
       next: () => {
         this.singleSaving.set(false);
-        this.single.set(null);
+        this.closeSingle();
         this.messages.add({ severity: 'success', summary: 'Pronto', detail: 'Decisão registrada. A pessoa foi avisada.' });
         this.load();
       },
@@ -493,22 +512,48 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
   singleTitle(): string {
     const s = this.single();
     if (!s) return '';
-    if (s.kind === 'FERIAS') return s.action === 'approve' ? 'Aprovar férias' : 'Recusar férias';
-    return s.action === 'approve' ? 'Confirmar recebimento' : 'Recusar atestado';
+    return s.kind === 'FERIAS'
+      ? `Férias · ${this.nameOf(s.vacation!.employeeId)}`
+      : `Atestado · ${s.certificate!.employeeName}`;
+  }
+
+  // ---- O arquivo do atestado, na tela ----
+
+  readonly singlePreview = signal<{ url: SafeResourceUrl; raw: string; isPdf: boolean } | null>(null);
+  readonly singlePreviewError = signal(false);
+
+  private loadCertificatePreview(c: MedicalCertificate): void {
+    this.certificates.download(c.id).subscribe({
+      next: resp => {
+        if (this.single()?.certificate?.id !== c.id || !resp.body) return;
+        const raw = URL.createObjectURL(resp.body);
+        const isPdf = isPdfReceipt(resp.body.type, c.originalFilename);
+        this.singlePreview.set({ raw, isPdf, url: this.sanitizer.bypassSecurityTrustResourceUrl(raw) });
+      },
+      error: () => this.singlePreviewError.set(true),
+    });
+  }
+
+  private releaseSinglePreview(): void {
+    const p = this.singlePreview();
+    if (p) URL.revokeObjectURL(p.raw);
+    this.singlePreview.set(null);
+    this.singlePreviewError.set(false);
+  }
+
+  /** Um arquivo recusado da trilha do atestado. */
+  downloadAttempt(c: MedicalCertificate, attemptId: string, filename: string): void {
+    this.certificates.downloadAttempt(c.id, attemptId).subscribe({
+      next: resp => resp.body && saveBlob(resp.body, filename),
+      error: (err: HttpErrorResponse) => this.error(err, 'Não foi possível baixar o arquivo anterior.'),
+    });
   }
 
   /** O RH precisa ver o atestado antes de confirmar; abre o arquivo atual. */
-  downloadCertificate(c: MedicalCertificate): void {
+  downloadCertificate(c: MedicalCertificate, event?: Event): void {
+    event?.stopPropagation();
     this.certificates.download(c.id).subscribe({
-      next: resp => {
-        if (!resp.body) return;
-        const url = URL.createObjectURL(resp.body);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = c.originalFilename;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 200);
-      },
+      next: resp => resp.body && saveBlob(resp.body, c.originalFilename),
       error: (err: HttpErrorResponse) => this.error(err, 'Não foi possível baixar o atestado.'),
     });
   }
@@ -522,6 +567,15 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
 function monthOf(date: Date, offset: number): string {
   const d = new Date(date.getFullYear(), date.getMonth() + offset, 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 200);
 }
 
 function fold(text: string): string {
