@@ -54,4 +54,9 @@ export class VacationRequestService {
   registerByRh(payload: RegisterVacationByRhPayload): Observable<VacationRequest> {
     return this.http.post<VacationRequest>(`${environment.apiUrl}/hr/vacation-requests/register`, payload);
   }
+
+  /** Os pedidos de um funcionário, para a ficha (o mesmo endpoint, com `employeeId`). */
+  getByEmployee(employeeId: string): Observable<VacationRequest[]> {
+    return this.http.get<VacationRequest[]>(`${environment.apiUrl}/hr/vacation-requests`, { params: { employeeId } });
+  }
 }

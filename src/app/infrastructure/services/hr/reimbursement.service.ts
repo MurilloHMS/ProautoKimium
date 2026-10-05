@@ -103,6 +103,11 @@ export class ReimbursementService {
       params: reportParams(filter),
     });
   }
+
+  /** Os reembolsos de um funcionário, para a ficha. */
+  getByEmployee(employeeId: string): Observable<Reimbursement[]> {
+    return this.http.get<Reimbursement[]>(`${environment.apiUrl}/hr/reimbursements/employee/${employeeId}`);
+  }
 }
 
 /**
@@ -119,4 +124,5 @@ export function reportParams(filter: ReimbursementReportFilter): HttpParams {
     params = params.set('employeeId', filter.employeeId);
   }
   return params;
+
 }

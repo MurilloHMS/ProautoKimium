@@ -1,0 +1,176 @@
+@use 'variables' as v;
+@use 'mixins' as m;
+
+// A ficha do funcionário (2026-10-05). Página que rola: cabeçalho, atalhos e
+// seções. Peças do tema (status-chip, pk-button); aqui só o arranjo.
+:host { @include m.page-layout; }
+
+.fi { display: flex; flex-direction: column; gap: 16px; }
+
+.fi-topo { display: flex; }
+.fi-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  text-decoration: none;
+  &:hover { color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); border-radius: 4px; }
+}
+
+.fi-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card, 16px);
+
+  &__texto {
+    flex: 1;
+    min-width: 220px;
+    h1 { margin: 0; font-family: v.$font-heading; font-size: 1.35rem; color: var(--app-action); }
+    p { margin: 4px 0 0; color: var(--app-text-muted); font-size: var(--text-ui); }
+  }
+
+  &__selos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+}
+
+.fi-avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-weight: 700;
+  font-size: 1.15rem;
+  flex: none;
+}
+
+// Os atalhos ficam presos no topo enquanto a página rola.
+.fi-atalhos {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0;
+  background: var(--app-bg, var(--app-surface-2));
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.chip {
+  flex: none;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover { border-color: var(--app-action); color: var(--app-action); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.fi-secao {
+  scroll-margin-top: 56px;
+  padding: 16px 20px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-card, 16px);
+
+  h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 10px;
+    font-size: 1rem;
+  }
+}
+
+.fi-acao {
+  margin-left: auto;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-action);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.fi-resumo { font-weight: 500; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+
+.fi-kv {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px 20px;
+  margin: 0;
+  dt { font-size: var(--text-micro); color: var(--app-text-muted); }
+  dd { margin: 2px 0 0; font-weight: 500; overflow-wrap: anywhere; }
+}
+
+.fi-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--app-border);
+  font-size: var(--text-ui);
+
+  &:first-of-type { border-top: 0; }
+  // Cancelado: risca o nome, não o motivo — o motivo é o que se quer ler.
+  &--apagada .fi-linha__nome { color: var(--app-text-muted); text-decoration: line-through; }
+
+  &__texto { flex: 1; min-width: 160px; small { color: var(--app-text-muted); } }
+  &__valor { font-variant-numeric: tabular-nums; font-weight: 600; }
+  &__data { color: var(--app-text-muted); font-size: var(--text-ui-sm); font-variant-numeric: tabular-nums; min-width: 90px; text-align: right; }
+}
+
+.fi-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--app-warning-soft);
+  color: var(--app-warning);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  &--atestado { background: var(--app-info-soft); color: var(--app-info); }
+}
+
+.fi-mais {
+  margin-top: 6px;
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  color: var(--app-action);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  cursor: pointer;
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.fi-rodape { margin: 8px 0 0; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+
+.fi-estado { margin: 4px 0; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+.fi-estado--erro { color: var(--app-danger); }
+
+@media (max-width: 768px) {
+  .fi-cabecalho, .fi-secao { padding: 14px; }
+  .fi-linha__data { min-width: 0; text-align: left; }
+}

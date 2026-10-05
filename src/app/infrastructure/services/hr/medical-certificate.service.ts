@@ -86,4 +86,10 @@ export class MedicalCertificateService {
       observe: 'response',
     });
   }
+
+  /** O histórico de um funcionário e quantos no ano, para a ficha. */
+  getForEmployee(employeeId: string): Observable<{ history: MedicalCertificate[]; countThisYear: number }> {
+    return this.http.get<{ history: MedicalCertificate[]; countThisYear: number }>(
+      `${environment.apiUrl}/hr/medical-certificates/employee/${employeeId}`);
+  }
 }

@@ -493,3 +493,6 @@
   &--atencao  { color: var(--app-warning); background: var(--app-warning-soft); }
   &--erro     { color: var(--app-danger);  background: var(--app-danger-soft);  }
 }
+
+// A linha inteira abre a ficha do funcionário (2026-10-05).
+.emp-linha { cursor: pointer; }

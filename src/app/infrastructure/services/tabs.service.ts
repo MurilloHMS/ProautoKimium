@@ -117,6 +117,22 @@ export class TabsService {
     this.router.navigateByUrl('/home');
   }
 
+  /**
+   * Troca o rótulo de uma aba já aberta. Para telas cujo nome só se sabe
+   * depois de carregar — a ficha do funcionário mostra o nome da pessoa, e
+   * não "Funcionários" em todas as fichas abertas.
+   */
+  rename(url: string, label: string): void {
+    const clean = url.split('?')[0].split('#')[0];
+    let changed = false;
+    this._tabs.update(tabs => tabs.map(tab => {
+      if (tab.url !== clean || tab.label === label) return tab;
+      changed = true;
+      return { ...tab, label };
+    }));
+    if (changed) this.persist();
+  }
+
   // ── Interno ───────────────────────────────────────────────────────────────
 
   private currentUrl(): string {
