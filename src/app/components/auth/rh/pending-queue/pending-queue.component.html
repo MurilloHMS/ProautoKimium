@@ -55,7 +55,7 @@
                 emptySubtitle="Quando alguém pedir, aparece aqui agrupado por pessoa." pageReportTitle="Pessoas">
 
         <ng-template #cardTpl let-g>
-          <article class="pk-cartao">
+          <article class="pk-cartao pq-clicavel" (click)="startSequence(g)">
             <div class="pk-cartao__corpo pk-cartao__corpo--parado">
               <span class="pk-cartao__titulo">{{ g.employeeName }}</span>
               <span class="pk-cartao__sub">{{ g.items.length }} pedido(s) · {{ g.categories }}</span>
@@ -66,7 +66,7 @@
                 <span class="status-chip status-chip--warning"><i class="pi pi-exclamation-triangle"></i> {{ a.label }}</span>
               }
               <span class="pq-mini">espera {{ waiting(g.oldest) }}</span>
-              <button type="button" class="pk-cartao__atalho" (click)="startSequence(g)">
+              <button type="button" class="pk-cartao__atalho" (click)="startSequence(g, $event)">
                 <i class="pi pi-eye"></i> Conferir {{ g.items.length }}
               </button>
             </div>
@@ -88,8 +88,8 @@
         </ng-template>
 
         <ng-template #bodyTpl let-g>
-          <tr class="table-row" [class.is-sel]="isSelected(g)">
-            <td class="col-check">
+          <tr class="table-row pq-clicavel" [class.is-sel]="isSelected(g)" (click)="startSequence(g)">
+            <td class="col-check" (click)="$event.stopPropagation()">
               <input type="checkbox" [attr.aria-label]="'Selecionar ' + g.employeeName"
                      [checked]="isSelected(g)" [disabled]="!canSelect(g)"
                      [title]="canSelect(g) ? '' : 'Todos os pedidos têm alerta: confira um a um'"
@@ -112,7 +112,7 @@
             <td class="col-center">
               <button pButton type="button" icon="pi pi-eye" class="action-btn" [label]="'' + g.items.length"
                       pTooltip="Conferir um por um" tooltipPosition="left"
-                      [attr.aria-label]="'Conferir os pedidos de ' + g.employeeName" (click)="startSequence(g)"></button>
+                      [attr.aria-label]="'Conferir os pedidos de ' + g.employeeName" (click)="startSequence(g, $event)"></button>
             </td>
           </tr>
         </ng-template>
@@ -123,7 +123,7 @@
       <pk-table [data]="visibleVacations()" [loading]="loading()" [showCaption]="false"
                 emptyIcon="pi pi-sun" emptyTitle="Nenhum pedido de férias esperando" pageReportTitle="Pedidos">
         <ng-template #cardTpl let-v>
-          <article class="pk-cartao">
+          <article class="pk-cartao pq-clicavel" (click)="openSingle({ kind: 'FERIAS', vacation: v })">
             <div class="pk-cartao__corpo pk-cartao__corpo--parado">
               <span class="pk-cartao__titulo">{{ nameOf(v.employeeId) }}</span>
               <span class="pk-cartao__sub">{{ formatDate(v.startDate) }} a {{ formatDate(v.endDate) }} · espera {{ waiting(v.requestedAt) }}</span>
@@ -131,9 +131,9 @@
             <span class="pk-cartao__marca">{{ v.daysRequested }}d</span>
             <div class="pk-cartao__rodape">
               <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Aprovar as férias de ' + nameOf(v.employeeId)"
-                      (click)="openSingle({ kind: 'FERIAS', action: 'approve', vacation: v })"><i class="pi pi-check"></i></button>
+                      (click)="openSingle({ kind: 'FERIAS', vacation: v }, $event)"><i class="pi pi-check"></i></button>
               <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Recusar as férias de ' + nameOf(v.employeeId)"
-                      (click)="openSingle({ kind: 'FERIAS', action: 'reject', vacation: v })"><i class="pi pi-times"></i></button>
+                      (click)="openSingle({ kind: 'FERIAS', focus: 'reject', vacation: v }, $event)"><i class="pi pi-times"></i></button>
             </div>
           </article>
         </ng-template>
@@ -141,7 +141,7 @@
           <tr><th>Funcionário</th><th>Período</th><th>Dias</th><th>Espera</th><th class="col-center">Ações</th></tr>
         </ng-template>
         <ng-template #bodyTpl let-v>
-          <tr class="table-row">
+          <tr class="table-row pq-clicavel" (click)="openSingle({ kind: 'FERIAS', vacation: v })">
             <td>
               <div class="employee-info">
                 <div class="employee-avatar">{{ nameOf(v.employeeId).charAt(0) | uppercase }}</div>
@@ -154,10 +154,10 @@
             <td class="col-center">
               <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve" pTooltip="Aprovar" tooltipPosition="left"
                       [attr.aria-label]="'Aprovar as férias de ' + nameOf(v.employeeId)"
-                      (click)="openSingle({ kind: 'FERIAS', action: 'approve', vacation: v })"></button>
+                      (click)="openSingle({ kind: 'FERIAS', vacation: v }, $event)"></button>
               <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject" pTooltip="Recusar" tooltipPosition="left"
                       [attr.aria-label]="'Recusar as férias de ' + nameOf(v.employeeId)"
-                      (click)="openSingle({ kind: 'FERIAS', action: 'reject', vacation: v })"></button>
+                      (click)="openSingle({ kind: 'FERIAS', focus: 'reject', vacation: v }, $event)"></button>
             </td>
           </tr>
         </ng-template>
@@ -168,7 +168,7 @@
       <pk-table [data]="visibleCertificates()" [loading]="loading()" [showCaption]="false"
                 emptyIcon="pi pi-file-check" emptyTitle="Nenhum atestado esperando conferência" pageReportTitle="Atestados">
         <ng-template #cardTpl let-c>
-          <article class="pk-cartao">
+          <article class="pk-cartao pq-clicavel" (click)="openSingle({ kind: 'ATESTADO', certificate: c })">
             <div class="pk-cartao__corpo pk-cartao__corpo--parado">
               <span class="pk-cartao__titulo">{{ c.employeeName }}</span>
               <span class="pk-cartao__sub">{{ formatDate(c.startDate) }} a {{ formatDate(c.endDate) }} · espera {{ waiting(c.resubmittedAt ?? c.submittedAt) }}</span>
@@ -177,11 +177,11 @@
             <div class="pk-cartao__rodape">
               @if (c.resubmittedAt) { <span class="status-chip status-chip--neutral">Reenviado</span> }
               <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Baixar o atestado de ' + c.employeeName"
-                      (click)="downloadCertificate(c)"><i class="pi pi-download"></i></button>
+                      (click)="downloadCertificate(c, $event)"><i class="pi pi-download"></i></button>
               <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Confirmar o atestado de ' + c.employeeName"
-                      (click)="openSingle({ kind: 'ATESTADO', action: 'approve', certificate: c })"><i class="pi pi-check"></i></button>
+                      (click)="openSingle({ kind: 'ATESTADO', certificate: c }, $event)"><i class="pi pi-check"></i></button>
               <button type="button" class="pk-cartao__icone" [attr.aria-label]="'Recusar o atestado de ' + c.employeeName"
-                      (click)="openSingle({ kind: 'ATESTADO', action: 'reject', certificate: c })"><i class="pi pi-times"></i></button>
+                      (click)="openSingle({ kind: 'ATESTADO', focus: 'reject', certificate: c }, $event)"><i class="pi pi-times"></i></button>
             </div>
           </article>
         </ng-template>
@@ -189,7 +189,7 @@
           <tr><th>Funcionário</th><th>Período</th><th>Dias</th><th>Espera</th><th>Situação</th><th class="col-center">Ações</th></tr>
         </ng-template>
         <ng-template #bodyTpl let-c>
-          <tr class="table-row">
+          <tr class="table-row pq-clicavel" (click)="openSingle({ kind: 'ATESTADO', certificate: c })">
             <td>
               <div class="employee-info">
                 <div class="employee-avatar">{{ c.employeeName?.charAt(0) | uppercase }}</div>
@@ -206,12 +206,12 @@
             <td class="col-center">
               <button pButton type="button" icon="pi pi-check" class="action-btn action-btn--approve" pTooltip="Confirmar recebimento" tooltipPosition="left"
                       [attr.aria-label]="'Confirmar o atestado de ' + c.employeeName"
-                      (click)="openSingle({ kind: 'ATESTADO', action: 'approve', certificate: c })"></button>
+                      (click)="openSingle({ kind: 'ATESTADO', certificate: c }, $event)"></button>
               <button pButton type="button" icon="pi pi-times" class="action-btn action-btn--reject" pTooltip="Recusar" tooltipPosition="left"
                       [attr.aria-label]="'Recusar o atestado de ' + c.employeeName"
-                      (click)="openSingle({ kind: 'ATESTADO', action: 'reject', certificate: c })"></button>
+                      (click)="openSingle({ kind: 'ATESTADO', focus: 'reject', certificate: c }, $event)"></button>
               <button pButton type="button" icon="pi pi-download" class="action-btn" pTooltip="Baixar atestado" tooltipPosition="left"
-                      [attr.aria-label]="'Baixar o atestado de ' + c.employeeName" (click)="downloadCertificate(c)"></button>
+                      [attr.aria-label]="'Baixar o atestado de ' + c.employeeName" (click)="downloadCertificate(c, $event)"></button>
             </td>
           </tr>
         </ng-template>
@@ -329,41 +329,74 @@
 <ng-template #revisaoCorpo>
   @if (single(); as s) {
     @if (s.vacation; as v) {
-      <p class="pq-alvo"><b>{{ nameOf(v.employeeId) }}</b> · {{ formatDate(v.startDate) }} a {{ formatDate(v.endDate) }} · {{ v.daysRequested }} dia(s)</p>
+      <dl class="pq-seq__kv">
+        <div><dt>Período</dt><dd>{{ formatDate(v.startDate) }} a {{ formatDate(v.endDate) }}</dd></div>
+        <div><dt>Dias</dt><dd>{{ v.daysRequested }}</dd></div>
+        <div><dt>Pedido em</dt><dd>{{ formatStamp(v.requestedAt) }}</dd></div>
+        <div><dt>Substituto indicado</dt><dd>{{ v.replacementEmployeeId ? nameOf(v.replacementEmployeeId) : '—' }}</dd></div>
+      </dl>
     }
     @if (s.certificate; as c) {
-      <p class="pq-alvo"><b>{{ c.employeeName }}</b> · {{ formatDate(c.startDate) }} a {{ formatDate(c.endDate) }} · {{ c.daysCount }} dia(s)</p>
-      @for (a of c.previousAttempts; track a.id) {
-        <p class="pq-mini">{{ formatStamp(a.reviewedAt) }} · {{ a.reviewedByName ?? 'RH' }} recusou: “{{ a.reviewNotes }}”</p>
-      }
-      @if (c.resubmitComment) { <p class="pq-mini">Comentário do reenvio: “{{ c.resubmitComment }}”</p> }
+      <div class="pq-seq">
+        <div class="pq-seq__comprovante">
+          @if (singlePreview(); as p) {
+            @if (p.isPdf) { <iframe [src]="p.url" title="Atestado"></iframe> }
+            @else { <img [src]="p.url" alt="Atestado enviado"> }
+          } @else if (singlePreviewError()) {
+            <span class="pq-mini">Não foi possível abrir o arquivo.</span>
+          } @else {
+            <span class="pq-mini"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Abrindo o atestado…</span>
+          }
+        </div>
+        <div class="pq-seq__dados">
+          <dl class="pq-seq__kv">
+            <div><dt>Período</dt><dd>{{ formatDate(c.startDate) }} a {{ formatDate(c.endDate) }}</dd></div>
+            <div><dt>Dias</dt><dd>{{ c.daysCount }}</dd></div>
+            <div><dt>Enviado em</dt><dd>{{ formatStamp(c.resubmittedAt ?? c.submittedAt) }}</dd></div>
+            <div><dt>Como</dt><dd>{{ c.submissionType === 'PHOTO' ? 'Foto' : 'Arquivo' }}</dd></div>
+          </dl>
+          @if (c.previousAttempts.length) {
+            <div class="pq-trilha">
+              @for (a of c.previousAttempts; track a.id; let i = $index) {
+                <span><b>{{ formatStamp(a.reviewedAt) }} · {{ a.reviewedByName ?? 'RH' }} recusou:</b> “{{ a.reviewNotes }}”
+                  <button type="button" class="pq-link" (click)="downloadAttempt(c, a.id, a.originalFilename)">{{ i + 1 }}º arquivo</button></span>
+              }
+              @if (c.resubmitComment) { <span><b>{{ c.employeeName }} reenviou:</b> “{{ c.resubmitComment }}”</span> }
+            </div>
+          }
+          <ng-container *ngTemplateOutlet="motivo" />
+        </div>
+      </div>
+    } @else {
+      <ng-container *ngTemplateOutlet="motivo" />
     }
-    <label for="singleNotes" class="pq-rotulo">
-      {{ s.action === 'reject' ? 'Motivo' : 'Observação' }}
-      @if (s.action === 'reject') { <span class="required">*</span> } @else { <small>(opcional)</small> }
-    </label>
-    <textarea id="singleNotes" rows="3" maxlength="500" [(ngModel)]="singleNotes"></textarea>
   }
 </ng-template>
 
+<ng-template #motivo>
+  <label for="singleNotes" class="pq-rotulo">Observação <small>(obrigatória para recusar)</small></label>
+  <textarea id="singleNotes" rows="3" maxlength="500" [(ngModel)]="singleNotes"></textarea>
+</ng-template>
+
 @if (ehCelular()) {
-  <pk-sheet [open]="!!single()" [fit]="true" [title]="singleTitle()" (closed)="single.set(null)">
-    <div pkSheetBody class="pq-revisao"><ng-container *ngTemplateOutlet="revisaoCorpo" /></div>
+  <pk-sheet [open]="!!single()" [title]="singleTitle()" (closed)="closeSingle()">
+    <div pkSheetBody class="pq-revisao revisao--folha"><ng-container *ngTemplateOutlet="revisaoCorpo" /></div>
     <div pkSheetFooter class="pq-botoes">
-      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="single.set(null)" />
-      <pk-button [pkType]="single()?.action === 'approve' ? 'save' : 'cancel'" pkSize="sm"
-                 [pkLabel]="single()?.action === 'approve' ? 'Confirmar' : 'Recusar'"
-                 [pkDisabled]="!canConfirmSingle" [pkLoading]="singleSaving()" (clicked)="confirmSingle()" />
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Recusar" [pkDisabled]="!canRejectSingle || singleSaving()" (clicked)="confirmSingle('reject')" />
+      <pk-button pkType="save" pkSize="sm" [pkLabel]="single()?.kind === 'FERIAS' ? 'Aprovar' : 'Confirmar'"
+                 [pkLoading]="singleSaving()" (clicked)="confirmSingle('approve')" />
     </div>
   </pk-sheet>
 } @else {
-  <pk-dialog width="520px" [flush]="true" [header]="singleTitle()" [visible]="!!single()" (visibleChange)="!$event && single.set(null)">
+  <pk-dialog [width]="single()?.kind === 'ATESTADO' ? '960px' : '560px'" [flush]="true" [header]="singleTitle()"
+             [visible]="!!single()" (visibleChange)="!$event && closeSingle()">
     <div pkDialogContent class="pq-revisao"><ng-container *ngTemplateOutlet="revisaoCorpo" /></div>
     <div pkDialogFooter class="pk-dialog-footer">
-      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="single.set(null)" />
-      <pk-button [pkType]="single()?.action === 'approve' ? 'save' : 'cancel'" pkSize="sm"
-                 [pkLabel]="single()?.action === 'approve' ? 'Confirmar' : 'Recusar'"
-                 [pkDisabled]="!canConfirmSingle" [pkLoading]="singleSaving()" (clicked)="confirmSingle()" />
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" pkIcon="pi pi-arrow-left" (clicked)="closeSingle()" />
+      <span class="pq-seq__espaco"></span>
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Recusar" [pkDisabled]="!canRejectSingle || singleSaving()" (clicked)="confirmSingle('reject')" />
+      <pk-button pkType="save" pkSize="sm" [pkLabel]="single()?.kind === 'FERIAS' ? 'Aprovar' : 'Confirmar recebimento'"
+                 [pkLoading]="singleSaving()" (clicked)="confirmSingle('approve')" />
     </div>
   </pk-dialog>
 }

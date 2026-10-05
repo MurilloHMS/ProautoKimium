@@ -267,3 +267,27 @@
   // No celular as setas são só ícone, para os quatro botões caberem na linha.
   > .pq-seta { flex: 0 0 auto; }
 }
+
+// A linha inteira abre a conferência (2026-10-05).
+.pq-clicavel { cursor: pointer; }
+tr.pq-clicavel:hover td { background: var(--app-surface-2); }
+
+.pq-trilha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--app-border);
+  font-size: var(--text-ui-sm);
+}
+
+.pq-link {
+  border: 0;
+  background: none;
+  padding: 0 0 0 4px;
+  color: var(--app-action);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

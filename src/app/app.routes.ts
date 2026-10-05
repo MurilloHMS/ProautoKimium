@@ -25,7 +25,7 @@ import { TalentBankLinkRequestComponent } from './components/public/meu-curricul
 import { TalentBankEntryComponent } from './components/public/meu-curriculo/talent-bank-entry.component';
 import { VcardComponent } from './components/public/profile/vcard/vcard.component';
 import { ContatoEventosComponent } from './components/public/contato-eventos/contato-eventos.component';
-import { PENDING_QUEUE_SCREENS } from './layouts/auth-layout/menu.config';
+import { ABSENCES_SCREENS, COMMUNICATIONS_SCREENS, ORGANIZATION_SCREENS, PENDING_QUEUE_SCREENS } from './layouts/auth-layout/menu.config';
 import { clientGuard, clientLoggedOutGuard } from './infrastructure/guard/client.guard';
 
 export const routes: Routes = [
@@ -74,6 +74,8 @@ export const routes: Routes = [
       { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { screen: 'rh/holerit' } },
       { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { screen: 'rh/holerit/extractor' } },
       { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees' } },
+      // Organização (2026-10-05): a estrutura e os cargos numa tela, cada parte com a tela dela.
+      { path: 'rh/organizacao', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { anyScreen: ORGANIZATION_SCREENS } },
       { path: 'rh/organizational-structure', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { screen: 'rh/organizational-structure' } },
       { path: 'rh/career-structure', loadComponent: () => import('./components/auth/rh/career-structure/career-structure.component').then(m => m.CareerStructureComponent), data: { screen: 'rh/career-structure' } },
       // Pendências (2026-10-02): uma fila por tipo. Sem tela própria na grade —
@@ -82,9 +84,14 @@ export const routes: Routes = [
       { path: 'rh/vacation-requests', loadComponent: () => import('./components/auth/rh/vacation-requests-manager/vacation-requests-manager.component').then(m => m.VacationRequestsManagerComponent), data: { screen: 'rh/vacation-requests' } },
       { path: 'rh/reimbursements', loadComponent: () => import('./components/auth/rh/reimbursements-manager/reimbursements-manager.component').then(m => m.ReimbursementsManagerComponent), data: { screen: 'rh/reimbursements' } },
       { path: 'rh/calendar', loadComponent: () => import('./components/auth/rh/hr-calendar/hr-calendar.component').then(m => m.HrCalendarComponent), data: { screen: 'rh/calendar' } },
+      // Ausências (2026-10-05): Visão de Equipe e Calendário numa faixa só.
+      { path: 'rh/ausencias', loadComponent: () => import('./components/auth/rh/absences/absences.component').then(m => m.AbsencesComponent), data: { anyScreen: ABSENCES_SCREENS } },
       { path: 'rh/team-overview', loadComponent: () => import('./components/auth/rh/team-overview/team-overview.component').then(m => m.TeamOverviewComponent), data: { screen: 'rh/team-overview' } },
       { path: 'rh/calculators', loadComponent: () => import('./components/auth/rh/hr-calculators/hr-calculators.component').then(m => m.HrCalculatorsComponent), data: { screen: 'rh/calculators' } },
       { path: 'rh/equipment-assignments', loadComponent: () => import('./components/auth/rh/hr-equipment-assignments/hr-equipment-assignments.component').then(m => m.HrEquipmentAssignmentsComponent), data: { screen: 'rh/equipment-assignments' } },
+      // Comunicados (2026-10-05): Mural e Notificações numa tela. Sem código próprio
+      // na grade — cada canal aparece para quem tinha a tela dele.
+      { path: 'rh/comunicados', loadComponent: () => import('./components/auth/rh/communications/communications.component').then(m => m.CommunicationsComponent), data: { anyScreen: COMMUNICATIONS_SCREENS } },
       { path: 'rh/notifications', loadComponent: () => import('./components/auth/rh/hr-notifications/hr-notifications.component').then(m => m.HrNotificationsComponent), data: { screen: 'rh/notifications' } },
       { path: 'rh/announcements', loadComponent: () => import('./components/auth/rh/hr-announcements-manager/hr-announcements-manager.component').then(m => m.HrAnnouncementsManagerComponent), data: { screen: 'rh/announcements' } },
       { path: 'rh/employee-documents', loadComponent: () => import('./components/auth/rh/employee-documents-manager/employee-documents-manager.component').then(m => m.EmployeeDocumentsManagerComponent), data: { screen: 'rh/employee-documents' } },

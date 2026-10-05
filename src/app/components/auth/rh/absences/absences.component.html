@@ -1,0 +1,107 @@
+<p-toast position="top-right"></p-toast>
+
+<app-toolbar>
+  <pk-button pkType="refresh" (clicked)="load()" pkLabel="Atualizar" pkSize="sm" />
+  @if (canCalendar()) {
+    <div class="au-periodo" role="group" aria-label="Período">
+      <button type="button" class="au-seta" aria-label="Semana anterior" (click)="move(-1)"><i class="pi pi-chevron-left"></i></button>
+      <span class="au-periodo__rotulo">{{ rangeLabel() }}</span>
+      <button type="button" class="au-seta" aria-label="Próxima semana" (click)="move(1)"><i class="pi pi-chevron-right"></i></button>
+      @if (!isCurrentWeek()) { <button type="button" class="chip" (click)="goToday()">Hoje</button> }
+    </div>
+  }
+
+  <div filters class="au-filtros">
+    <p-select [options]="teamOptions()" [(ngModel)]="teamFilter" (onChange)="load()" optionLabel="label" optionValue="value"
+              appendTo="body" placeholder="Todos os setores" [showClear]="true" styleClass="select-field" ariaLabel="Setor" />
+    <p-select [options]="companyOptions()" [(ngModel)]="companyFilter" (onChange)="load()" optionLabel="label" optionValue="value"
+              appendTo="body" placeholder="Todas as empresas" [showClear]="true" styleClass="select-field" ariaLabel="Empresa" />
+  </div>
+</app-toolbar>
+
+<div class="au-corpo">
+  @if (canCalendar()) {
+    <div class="au-resumo">
+      <span class="status-chip status-chip--warning"><i class="pi pi-sign-out"></i> {{ summary().outToday }} fora hoje</span>
+      <span class="status-chip status-chip--info"><i class="pi pi-calendar"></i> {{ summary().leavingSoon }} saem nos próximos 7 dias</span>
+      @if (summary().pendingRequests > 0) {
+        <span class="status-chip status-chip--work"><i class="pi pi-hourglass"></i> {{ summary().pendingRequests }} pedido(s) de férias esperando</span>
+      }
+    </div>
+
+    @if (loading()) {
+      <p class="au-estado"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</p>
+    } @else if (ehCelular()) {
+      @for (a of list(); track a.employeeId + a.start + a.kind) {
+        <article class="pk-cartao">
+          <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+            <span class="pk-cartao__titulo">{{ a.name }}</span>
+            <span class="pk-cartao__sub">{{ formatDay(a.start) }} a {{ formatDay(a.end) }}</span>
+          </div>
+          <div class="pk-cartao__rodape">
+            @if (a.kind === 'CERTIFICATE') {
+              <span class="au-tipo au-tipo--atestado"><i class="pi pi-file-check"></i> Atestado</span>
+            } @else if (a.pending) {
+              <span class="au-tipo au-tipo--pedido"><i class="pi pi-hourglass"></i> Férias pedidas</span>
+            } @else {
+              <span class="au-tipo au-tipo--ferias"><i class="pi pi-sun"></i> Férias</span>
+            }
+          </div>
+        </article>
+      } @empty {
+        <p class="au-estado">Ninguém fora nestas duas semanas.</p>
+      }
+    } @else {
+      <div class="au-faixa" role="table" [attr.aria-label]="'Ausências de ' + rangeLabel()">
+        <div class="au-faixa__linha au-faixa__linha--cabecalho" role="row">
+          <span class="au-faixa__nome" role="columnheader">Funcionário</span>
+          @for (d of days(); track d.getTime()) {
+            <span class="au-dia" role="columnheader" [class.is-fds]="isWeekend(d)" [class.is-hoje]="isToday(d)">
+              <small>{{ weekday(d) }}</small>{{ d.getDate() }}
+            </span>
+          }
+        </div>
+        @for (r of rows(); track r.employeeId) {
+          <div class="au-faixa__linha" role="row">
+            <span class="au-faixa__nome" role="rowheader">{{ r.name }}</span>
+            @for (m of r.days; track $index) {
+              <span class="au-dia" role="cell" [class.is-fds]="isWeekend(days()[$index])" [class.is-hoje]="isToday(days()[$index])"
+                    [attr.aria-label]="markLabel(m) || null" [attr.title]="markLabel(m) || null">
+                @if (m) {
+                  <span class="au-marca" [class.au-marca--ferias]="m === 'VACATION'" [class.au-marca--pedido]="m === 'VACATION_PENDING'"
+                        [class.au-marca--atestado]="m === 'CERTIFICATE'">{{ markLetter(m) }}</span>
+                }
+              </span>
+            }
+          </div>
+        } @empty {
+          <p class="au-estado">Ninguém fora nestas duas semanas.</p>
+        }
+      </div>
+      <div class="au-legenda" aria-hidden="true">
+        <span><span class="au-marca au-marca--ferias">F</span> Férias</span>
+        <span><span class="au-marca au-marca--pedido">F</span> Férias pedidas, ainda não aprovadas</span>
+        @if (canCertificates()) { <span><span class="au-marca au-marca--atestado">A</span> Atestado</span> }
+      </div>
+    }
+  } @else if (canTeamOverview()) {
+    <!-- Quem só tinha a Visão de Equipe: quem está de férias ou com férias marcadas. -->
+    @for (e of away(); track e.employeeId) {
+      <article class="pk-cartao">
+        <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+          <span class="pk-cartao__titulo">{{ e.name }}</span>
+          <span class="pk-cartao__sub">{{ e.teamName ?? 'Sem setor' }}@if (e.companyName) { · {{ e.companyName }} }</span>
+        </div>
+        <div class="pk-cartao__rodape">
+          <span class="au-tipo" [class.au-tipo--ferias]="e.availabilityStatus === 'ON_VACATION'"
+                [class.au-tipo--pedido]="e.availabilityStatus === 'VACATION_SCHEDULED'">
+            <i class="pi" [class.pi-sun]="e.availabilityStatus === 'ON_VACATION'" [class.pi-calendar]="e.availabilityStatus === 'VACATION_SCHEDULED'"></i>
+            {{ e.availabilityStatus === 'ON_VACATION' ? 'De férias' : 'Férias marcadas' }}
+          </span>
+        </div>
+      </article>
+    } @empty {
+      <p class="au-estado">{{ loading() ? 'Carregando…' : 'Ninguém de férias agora.' }}</p>
+    }
+  }
+</div>

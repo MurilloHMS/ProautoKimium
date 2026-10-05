@@ -1,0 +1,104 @@
+<p-toast position="top-right"></p-toast>
+
+<app-page-header
+  icon="pi pi-megaphone"
+  title="Comunicados"
+  subtitle="Escreva uma vez e escolha onde sai: no mural ou só no sino" />
+
+@if (channels().length > 0) {
+  <section class="cm-card" aria-labelledby="cm-novo">
+    <h2 id="cm-novo" class="cm-card__titulo">Novo comunicado</h2>
+
+    <!-- Os dois canais só aparecem juntos para quem tem as duas telas. -->
+    @if (channels().length > 1) {
+      <div class="cm-canais" role="radiogroup" aria-label="Onde sai">
+        <button type="button" role="radio" class="cm-canal" [class.is-on]="channel() === 'MURAL'"
+                [attr.aria-checked]="channel() === 'MURAL'" (click)="setChannel('MURAL')">
+          <i class="pi pi-megaphone" aria-hidden="true"></i>
+          <span><b>Mural e sino de todos</b><small>Fica no mural; todos os ativos recebem o aviso.</small></span>
+        </button>
+        <button type="button" role="radio" class="cm-canal" [class.is-on]="channel() === 'BELL'"
+                [attr.aria-checked]="channel() === 'BELL'" (click)="setChannel('BELL')">
+          <i class="pi pi-bell" aria-hidden="true"></i>
+          <span><b>Só o sino</b><small>Não vai para o mural. Para pessoas escolhidas ou para todos.</small></span>
+        </button>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="send()" class="form-grid">
+      @if (channel() === 'BELL') {
+        <div class="form-field form-field--full">
+          <span class="cm-rotulo">Para quem</span>
+          <div class="cm-publico" role="radiogroup" aria-label="Para quem">
+            <button type="button" role="radio" class="chip" [class.is-on]="audience() === 'specific'"
+                    [attr.aria-checked]="audience() === 'specific'" (click)="setAudience('specific')">
+              <i class="pi pi-user" aria-hidden="true"></i> Pessoas escolhidas
+            </button>
+            <button type="button" role="radio" class="chip" [class.is-on]="audience() === 'all'"
+                    [attr.aria-checked]="audience() === 'all'" (click)="setAudience('all')">
+              <i class="pi pi-users" aria-hidden="true"></i> Todos os ativos
+            </button>
+          </div>
+        </div>
+        @if (audience() === 'specific') {
+          <div class="form-field form-field--full">
+            <pk-multiselect label="Funcionários" placeholder="Selecione um ou mais funcionários…"
+                            [options]="employeeOptions()" optionLabel="label" optionValue="value"
+                            [pkRequired]="true" formControlName="employeeIds" />
+          </div>
+        }
+      }
+
+      <div class="form-field form-field--full">
+        <pk-input label="Título" placeholder="Ex.: Mudança no horário de almoço" [pkRequired]="true"
+                  [pkMaxLength]="200" type="text" formControlName="title" />
+      </div>
+
+      <div class="form-field form-field--full">
+        <label for="cmText">{{ channel() === 'MURAL' ? 'Aviso' : 'Mensagem' }} <span class="required">*</span></label>
+        <textarea id="cmText" formControlName="text" [rows]="channel() === 'MURAL' ? 6 : 3"
+                  [attr.maxlength]="limits[channel()]"
+                  [placeholder]="channel() === 'MURAL' ? 'Escreva o aviso completo' : 'Uma mensagem curta, que cabe no sino'"></textarea>
+        <small class="cm-contador">{{ form.controls.text.value.length }}/{{ limits[channel()] }}</small>
+      </div>
+
+      @if (channel() === 'BELL') {
+        <div class="form-field form-field--full">
+          <pk-input label="Link (opcional)" placeholder="Ex.: /documentos/rh" [pkMaxLength]="300" type="text" formControlName="link" />
+        </div>
+      }
+    </form>
+
+    <div class="cm-acoes">
+      <pk-button pkType="send" pkSize="sm" [pkLabel]="channel() === 'MURAL' ? 'Publicar no mural' : 'Enviar notificação'"
+                 [pkDisabled]="!canSend" [pkLoading]="sending()" (clicked)="send()" />
+    </div>
+
+    @if (lastResult(); as r) {
+      <p class="cm-resultado" role="status">
+        <i class="pi pi-check-circle" aria-hidden="true"></i> {{ r.notified }} notificado(s)
+        @if (r.skippedNoAccount > 0) { · {{ r.skippedNoAccount }} sem login, não receberam }
+      </p>
+    }
+  </section>
+}
+
+@if (canReadMural()) {
+  <h2 class="cm-secao">No mural</h2>
+  @if (loadingList()) {
+    <p class="cm-estado"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</p>
+  } @else {
+    @for (a of published(); track a.id) {
+      <article class="cm-aviso">
+        <header class="cm-aviso__topo">
+          <b>{{ a.title }}</b>
+          <span class="cm-aviso__data">{{ formatDate(a.publishedAt) }}</span>
+        </header>
+        <p class="cm-aviso__texto">{{ a.content }}</p>
+        <span class="cm-aviso__autor"><i class="pi pi-user" aria-hidden="true"></i> {{ a.publishedByName }}</span>
+      </article>
+    } @empty {
+      <p class="cm-estado">Nada publicado no mural ainda.</p>
+    }
+  }
+}

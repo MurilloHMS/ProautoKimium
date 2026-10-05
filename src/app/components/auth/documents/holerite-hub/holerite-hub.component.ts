@@ -1,20 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 
 import { HoleriteAuditoriaComponent } from '../holerite-auditoria/holerite-auditoria.component';
 import { HoleriteEnvioComponent } from '../holerite-envio/holerite-envio.component';
 import { HoleritSpliterComponent } from '../holerit-spliter/holerit-spliter.component';
+import { HoleritExtractorComponent } from '../holerit-extractor/holerit-extractor.component';
+import { PermissionStore } from '../../../../infrastructure/state/permission.store';
 import { PageHeaderComponent } from '../../shared/page-header/page-header.component';
 
-type Ferramenta = 'envio' | 'auditoria' | 'separar';
+type Ferramenta = 'envio' | 'auditoria' | 'separar' | 'coletar';
 
 interface ItemFerramenta {
   key: Ferramenta;
   label: string;
   icon: string;
   hint: string;
+  /** A tela que a ferramenta exige, quando não é a do próprio hub. */
+  screen?: string;
 }
 
 /**
@@ -33,16 +37,23 @@ interface ItemFerramenta {
   selector: 'app-holerite-hub',
   standalone: true,
   imports: [CommonModule, ToastModule, PageHeaderComponent,
-            HoleriteEnvioComponent, HoleriteAuditoriaComponent, HoleritSpliterComponent],
+            HoleriteEnvioComponent, HoleriteAuditoriaComponent, HoleritSpliterComponent, HoleritExtractorComponent],
   templateUrl: './holerite-hub.component.html',
   styleUrl: './holerite-hub.component.scss',
   providers: [MessageService],
 })
 export class HoleriteHubComponent {
 
+  private readonly permissions = inject(PermissionStore);
+
   readonly ativa = signal<Ferramenta>('envio');
 
-  readonly ferramentas: ItemFerramenta[] = [
+  /**
+   * O Coletar era item de menu à parte (2026-10-05: entrou aqui, na
+   * reorganização do RH). Continua com a tela dele na grade: só aparece para
+   * quem já abria `rh/holerit/extractor`.
+   */
+  private readonly todas: ItemFerramenta[] = [
     {
       key: 'envio',
       label: 'Enviar holerites',
@@ -61,7 +72,17 @@ export class HoleriteHubComponent {
       icon: 'pi pi-clone',
       hint: 'Fatia o arquivo e baixa um ZIP, sem vincular',
     },
+    {
+      key: 'coletar',
+      label: 'Coletar holerites',
+      icon: 'pi pi-file-arrow-up',
+      hint: 'Extrai os dados da folha do PDF para conferir',
+      screen: 'rh/holerit/extractor',
+    },
   ];
+
+  readonly ferramentas = computed(() =>
+    this.todas.filter(f => !f.screen || this.permissions.canOpen(f.screen)));
 
   selecionar(key: Ferramenta): void {
     this.ativa.set(key);
