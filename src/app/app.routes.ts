@@ -73,6 +73,8 @@ export const routes: Routes = [
       // ele virou uma das ferramentas de dentro.
       { path: 'rh/holerit', loadComponent: () => import('./components/auth/documents/holerite-hub/holerite-hub.component').then(m => m.HoleriteHubComponent), data: { screen: 'rh/holerit' } },
       { path: 'rh/holerit/extractor', loadComponent: () => import('./components/auth/documents/holerit-extractor/holerit-extractor.component').then(m => m.HoleritExtractorComponent), data: { screen: 'rh/holerit/extractor' } },
+      // A ficha do funcionário (2026-10-05): a mesma tela de Funcionários na grade.
+      { path: 'rh/employees/:id', loadComponent: () => import('./components/auth/rh/employee-profile/employee-profile.component').then(m => m.EmployeeProfileComponent), data: { screen: 'rh/employees' } },
       { path: 'rh/employees', loadComponent: () => import('./components/auth/partners/employes/employes.component').then(m => m.EmployesComponent), data: { screen: 'rh/employees' } },
       // Organização (2026-10-05): a estrutura e os cargos numa tela, cada parte com a tela dela.
       { path: 'rh/organizacao', loadComponent: () => import('./components/auth/rh/org-structure/org-structure.component').then(m => m.OrgStructureComponent), data: { anyScreen: ORGANIZATION_SCREENS } },

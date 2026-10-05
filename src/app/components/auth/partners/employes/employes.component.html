@@ -45,7 +45,7 @@
 
       <ng-template #cardTpl let-e>
         <article class="pk-cartao">
-          <button type="button" class="pk-cartao__corpo" (click)="editEmploye(e)">
+          <button type="button" class="pk-cartao__corpo" (click)="openProfile(e)">
             <span class="pk-cartao__titulo">{{ e.name }}</span>
             <span class="pk-cartao__sub">
               {{ e.positionName || 'Sem cargo' }}@if (e.department) { · {{ e.department }} }
@@ -88,7 +88,8 @@
       </ng-template>
 
       <ng-template #bodyTpl let-e>
-        <tr class="table-row">
+        <!-- A linha abre a ficha (2026-10-05); o lápis continua editando direto. -->
+        <tr class="table-row emp-linha" (click)="openProfile(e)">
           <td>
             <span class="code-badge">{{ e.partnerCode }}</span>
           </td>
@@ -147,7 +148,7 @@
                 <button class="user-unlink"
                         pTooltip="Desvincular usuário"
                         tooltipPosition="left"
-                        (click)="unlink(e)">
+                        (click)="unlink(e); $event.stopPropagation()">
                   <i class="pi pi-times"></i>
                 </button>
               </span>
@@ -160,7 +161,7 @@
                       class="action-btn action-btn--link"
                       pTooltip="Vincular usuário"
                       tooltipPosition="left"
-                      (click)="openLinkDialog(e)">
+                      (click)="openLinkDialog(e); $event.stopPropagation()">
               </button>
             </ng-template>
           </td>
@@ -171,7 +172,7 @@
                     class="action-btn"
                     pTooltip="Editar funcionário"
                     tooltipPosition="left"
-                    (click)="editEmploye(e)">
+                    (click)="editEmploye(e); $event.stopPropagation()">
             </button>
           </td>
         </tr>

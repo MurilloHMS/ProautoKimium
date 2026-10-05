@@ -1,4 +1,6 @@
-import {Component, OnInit, computed, inject, signal} from '@angular/core';
+import {Component, OnInit, computed, effect, inject, signal, untracked} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ContractType, Employee, TransportType } from '../../../../domain/models/employee.model';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
@@ -68,6 +70,28 @@ export class EmployesComponent implements TabDirtyCheck {
   readonly loading = this.employeeStore.loading;
   /** grade ou formulário — o cadastro de funcionário não usa mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
+
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  /**
+   * `?editar=<id>`: o "Editar dados" da ficha volta para cá com o formulário
+   * aberto. Signal, e não leitura no ngOnInit: a tela fica viva entre abas, e o
+   * ngOnInit não roda de novo quando a pessoa volta para ela.
+   */
+  private readonly editParam = toSignal(this.route.queryParamMap, { requireSync: true });
+
+  /** Abre o formulário assim que a pessoa pedida está no cadastro, e limpa o `?editar`. */
+  private readonly openFromProfile = effect(() => {
+    const id = this.editParam().get('editar');
+    if (!id) return;
+    const found = this.employes().find(e => e.id === id);
+    if (!found) return;
+    untracked(() => {
+      this.editEmploye(found);
+      this.router.navigate([], { relativeTo: this.route, queryParams: { editar: null },
+                                 queryParamsHandling: 'merge', replaceUrl: true });
+    });
+  });
   employee: Employee | null = null;
   form: FormGroup;
   careerForm: FormGroup;
@@ -279,6 +303,11 @@ export class EmployesComponent implements TabDirtyCheck {
     });
 
     this.careerForm.get('positionId')?.valueChanges.subscribe((positionId) => this.onCareerPositionChange(positionId));
+  }
+
+  /** A ficha do funcionário (2026-10-05): clicar na pessoa abre tudo dela. */
+  openProfile(employee: Employee): void {
+    if (employee.id) this.router.navigate(['/rh/employees', employee.id]);
   }
 
   ngOnInit(){

@@ -1,0 +1,204 @@
+<!-- Estados de leitura repetidos em toda seção. -->
+<ng-template #carregando><p class="fi-estado"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</p></ng-template>
+<ng-template #falhou><p class="fi-estado fi-estado--erro">Não foi possível carregar esta parte. As outras continuam valendo.</p></ng-template>
+
+<div class="fi">
+  <nav class="fi-topo" aria-label="Navegação">
+    <a routerLink="/rh/employees" class="fi-voltar"><i class="pi pi-arrow-left" aria-hidden="true"></i> Funcionários</a>
+  </nav>
+
+  @if (employee(); as e) {
+    <header class="fi-cabecalho">
+      <div class="fi-avatar" aria-hidden="true">{{ initials(e.name) }}</div>
+      <div class="fi-cabecalho__texto">
+        <h1>{{ e.name }}</h1>
+        <p>
+          {{ e.positionName ?? 'Sem cargo' }}@if (e.positionLevelName) { {{ e.positionLevelName }} }
+          @if (companyName(e.companyId); as empresa) { · {{ empresa }} }
+          @if (teamName(e.teamId); as setor) { · {{ setor }} }
+          @if (e.contractType) { · {{ e.contractType }} }
+          @if (e.hiringDate) { desde {{ formatDate(e.hiringDate) }} }
+        </p>
+      </div>
+      <div class="fi-cabecalho__selos">
+        <span class="status-chip" [class.status-chip--success]="e.ativo" [class.status-chip--neutral]="!e.ativo">
+          <i class="pi" [class.pi-check-circle]="e.ativo" [class.pi-minus-circle]="!e.ativo"></i> {{ e.ativo ? 'Ativo' : 'Inativo' }}
+        </span>
+        @if (e.vacationBalanceDays != null) {
+          <span class="status-chip status-chip--warning"><i class="pi pi-sun"></i> {{ e.vacationBalanceDays }} dias de férias</span>
+        }
+        @if (canEdit()) {
+          <pk-button pkType="edit" pkSize="sm" pkLabel="Editar dados" (clicked)="edit()" />
+        }
+      </div>
+    </header>
+
+    <!-- Atalhos, não abas: a página é uma só, e dá para rolar e ver tudo. -->
+    <div class="fi-atalhos" role="navigation" aria-label="Seções da ficha">
+      @for (a of anchors(); track a.key) {
+        <button type="button" class="chip" (click)="goTo(a.key)">{{ a.label }}</button>
+      }
+    </div>
+
+    <section class="fi-secao" id="ficha-dados" aria-labelledby="h-dados">
+      <h2 id="h-dados">Dados</h2>
+      <dl class="fi-kv">
+        <div><dt>Código</dt><dd>{{ e.partnerCode || '—' }}</dd></div>
+        <div><dt>CPF</dt><dd>{{ e.document || '—' }}</dd></div>
+        <div><dt>E-mail</dt><dd>{{ e.email || '—' }}</dd></div>
+        <div><dt>Nascimento</dt><dd>{{ formatDate(e.birthday) }}</dd></div>
+        <div><dt>Hierarquia</dt><dd>{{ e.hierarchyName ?? '—' }}</dd></div>
+        <div><dt>Admissão</dt><dd>{{ formatDate(e.hiringDate) }}</dd></div>
+      </dl>
+    </section>
+
+    @if (can().carreira) {
+      <section class="fi-secao" id="ficha-carreira" aria-labelledby="h-carreira">
+        <h2 id="h-carreira">Cargo e carreira</h2>
+        @switch (career().state) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (c of visible('carreira', careerList()); track c.id) {
+              <div class="fi-linha">
+                <span class="status-chip" [class.status-chip--info]="c.reason !== 'TERMINATION'" [class.status-chip--danger]="c.reason === 'TERMINATION'">{{ reasonLabel(c) }}</span>
+                <span class="fi-linha__texto">{{ positionName(c.positionId) }} · {{ c.contractType }}</span>
+                <span class="fi-linha__valor">{{ c.salary | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="fi-linha__data">{{ formatDate(c.effectiveDate) }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Sem histórico de cargo. Atribua um cargo em “Editar dados”.</p> }
+            @if (careerList().length > limit && !expanded().has('carreira')) {
+              <button type="button" class="fi-mais" (click)="expand('carreira')">Ver todos ({{ careerList().length }})</button>
+            }
+          }
+        }
+      </section>
+    }
+
+    @if (can().documentos) {
+      <section class="fi-secao" id="ficha-documentos" aria-labelledby="h-documentos">
+        <h2 id="h-documentos">Documentos <a routerLink="/rh/employee-documents" class="fi-acao">Abrir em Documentos</a></h2>
+        @switch (documents().state) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (d of visible('documentos', documentList()); track d.id) {
+              <div class="fi-linha">
+                <span class="status-chip" [ngClass]="'status-chip--' + documentChip(d)"><i [class]="documentStatus(d).icon"></i> {{ documentStatus(d).label }}</span>
+                <span class="fi-linha__texto">{{ d.title }}@if (d.typeName) { <small> · {{ d.typeName }}</small> }</span>
+                <span class="fi-linha__data">{{ d.dueDate ? 'vence ' + formatDate(d.dueDate) : '' }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Nenhum documento vinculado.</p> }
+            @if (documentList().length > limit && !expanded().has('documentos')) {
+              <button type="button" class="fi-mais" (click)="expand('documentos')">Ver todos ({{ documentList().length }})</button>
+            }
+          }
+        }
+      </section>
+    }
+
+    @if (can().equipamentos) {
+      <section class="fi-secao" id="ficha-equipamentos" aria-labelledby="h-equipamentos">
+        <h2 id="h-equipamentos">Equipamentos <a routerLink="/rh/equipment-assignments" class="fi-acao">Abrir em Equipamentos</a></h2>
+        @switch (equipment().state) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (q of equipmentWith(); track q.id) {
+              <div class="fi-linha">
+                <span class="status-chip status-chip--work"><i class="pi pi-user"></i> Com a pessoa</span>
+                <span class="fi-linha__texto">{{ q.equipmentType }}@if (q.description) { <small> · {{ q.description }}</small> }</span>
+                <span class="fi-linha__data">desde {{ formatDate(q.deliveredAt) }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Nenhum equipamento com a pessoa agora.</p> }
+            @if (equipmentReturned().length) {
+              <p class="fi-rodape">{{ equipmentReturned().length }} devolvido(s) antes.</p>
+            }
+          }
+        }
+      </section>
+    }
+
+    @if (can().ferias || can().atestados) {
+      <section class="fi-secao" id="ficha-ausencias" aria-labelledby="h-ausencias">
+        <h2 id="h-ausencias">Ausências
+          @if (certificatesThisYear() !== null) { <small class="fi-resumo">{{ certificatesThisYear() }} atestado(s) este ano</small> }
+        </h2>
+        @switch (absencesState()) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (a of visible('ausencias', absences()); track a.kind + a.id) {
+              <div class="fi-linha">
+                <span class="fi-tipo" [class.fi-tipo--atestado]="a.kind === 'CERTIFICATE'">
+                  <i class="pi" [class.pi-sun]="a.kind === 'VACATION'" [class.pi-file-check]="a.kind === 'CERTIFICATE'"></i>
+                  {{ a.kind === 'VACATION' ? 'Férias' : 'Atestado' }}
+                </span>
+                <span class="fi-linha__texto">{{ formatDate(a.start) }} a {{ formatDate(a.end) }} · {{ a.days }} dia(s)</span>
+                <span class="status-chip" [ngClass]="'status-chip--' + toneChip(a.tone)">{{ a.status }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Nenhuma férias ou atestado registrado.</p> }
+            @if (absences().length > limit && !expanded().has('ausencias')) {
+              <button type="button" class="fi-mais" (click)="expand('ausencias')">Ver todas ({{ absences().length }})</button>
+            }
+          }
+        }
+      </section>
+    }
+
+    @if (can().reembolsos) {
+      <section class="fi-secao" id="ficha-reembolsos" aria-labelledby="h-reembolsos">
+        <h2 id="h-reembolsos">Reembolsos
+          @if (reimbursementOpen() > 0) { <small class="fi-resumo">{{ reimbursementOpen() | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} em aberto</small> }
+        </h2>
+        @switch (reimbursements().state) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (r of visible('reembolsos', reimbursements().data); track r.id) {
+              <div class="fi-linha">
+                <span class="status-chip" [ngClass]="'status-chip--' + reimbursementStatus(r).chip">{{ reimbursementStatus(r).label }}</span>
+                <span class="fi-linha__texto">{{ r.category }}</span>
+                <span class="fi-linha__valor">{{ r.amount | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="fi-linha__data">{{ formatDate(r.expenseDate) }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Nenhum reembolso pedido.</p> }
+            @if (reimbursements().data.length > limit && !expanded().has('reembolsos')) {
+              <button type="button" class="fi-mais" (click)="expand('reembolsos')">Ver todos ({{ reimbursements().data.length }})</button>
+            }
+          }
+        }
+      </section>
+    }
+
+    @if (can().holerites) {
+      <section class="fi-secao" id="ficha-holerites" aria-labelledby="h-holerites">
+        <h2 id="h-holerites">Holerites</h2>
+        @switch (payslips().state) {
+          @case ('loading') { <ng-container *ngTemplateOutlet="carregando" /> }
+          @case ('error') { <ng-container *ngTemplateOutlet="falhou" /> }
+          @default {
+            @for (h of visible('holerites', payslips().data); track h.id) {
+              <div class="fi-linha" [class.fi-linha--apagada]="h.canceledAt">
+                <span class="status-chip" [ngClass]="'status-chip--' + (payslipSituation(h).chip === 'active' ? 'success' : payslipSituation(h).chip)">
+                  <i class="pi" [ngClass]="payslipSituation(h).icon"></i> {{ payslipSituation(h).label }}
+                </span>
+                <span class="fi-linha__texto"><span class="fi-linha__nome">{{ payslipLabel(h.tipo) }} · {{ competencia(h.competencia) }}</span>
+                  @if (h.cancelReason) { <small> · motivo: “{{ h.cancelReason }}”</small> }
+                </span>
+                <span class="fi-linha__data">enviado {{ formatDate(h.createdAt) }}</span>
+              </div>
+            } @empty { <p class="fi-estado">Nenhum holerite enviado.</p> }
+            @if (payslips().data.length > limit && !expanded().has('holerites')) {
+              <button type="button" class="fi-mais" (click)="expand('holerites')">Ver todos ({{ payslips().data.length }})</button>
+            }
+          }
+        }
+      </section>
+    }
+  } @else if (notFound()) {
+    <p class="fi-estado">Funcionário não encontrado. Ele pode ter sido removido do cadastro.</p>
+  } @else {
+    <ng-container *ngTemplateOutlet="carregando" />
+  }
+</div>

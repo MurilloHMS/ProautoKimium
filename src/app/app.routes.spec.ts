@@ -82,8 +82,10 @@ describe('app.routes · o catálogo de telas', () => {
    * configuração dizendo que pode.
    */
   it('o screen declarado é igual ao path da rota', () => {
+    // Rota com parâmetro (`rh/employees/:id`) é a mesma tela do caminho sem ele.
+    const semParametro = (path: string) => path.replace(/\/:[^/]+$/, '');
     const divergentes = controladas
-      .filter(r => r.data?.['screen'] !== r.path)
+      .filter(r => r.data?.['screen'] !== semParametro(r.path))
       .map(r => ({ path: r.path, screen: r.data?.['screen'] }));
 
     expect(divergentes).toEqual([]);

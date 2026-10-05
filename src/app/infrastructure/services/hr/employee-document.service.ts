@@ -88,10 +88,16 @@ export class EmployeeDocumentService {
   deactivateType(id: string): Observable<void> {
     return this.http.delete<void>(`${this.typesUrl}/${id}`);
   }
+
+  /** Os documentos de um funcionário, para a ficha (o mesmo endpoint da lista, filtrado). */
+  getByEmployee(employeeId: string): Observable<EmployeeDocument[]> {
+    return this.http.get<EmployeeDocument[]>(`${environment.apiUrl}/hr/employee-documents`, { params: { employeeId } });
+  }
 }
 
 /** A data do calendário no formato da API, sem fuso: meia-noite local não pode virar o dia anterior. */
 export function toIsoDate(date: Date): string {
   const pad = (n: number) => `${n}`.padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
 }

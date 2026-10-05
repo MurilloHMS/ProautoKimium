@@ -99,4 +99,9 @@ export class HoleriteService {
     form.append('tipo', tipo);
     return form;
   }
+
+  /** Todos os holerites de um funcionário, cancelados incluídos — para a ficha. */
+  doFuncionario(employeeId: string): Observable<HoleriteAuditoria[]> {
+    return this.http.get<HoleriteAuditoria[]>(`${environment.apiUrl}/holerite/employee/${employeeId}`);
+  }
 }
