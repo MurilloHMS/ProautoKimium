@@ -13,6 +13,8 @@ export interface FlatMenuItem {
   breadcrumb: string;
   /** URL absoluta correspondente ao routerLink, ex.: "/rh/vacation-requests". */
   path: string;
+  /** Os nomes antigos e sinônimos do item (`AppMenuItem.keywords`). */
+  keywords?: string[];
 }
 
 /**
@@ -66,6 +68,7 @@ export class MenuService {
 
     return this.flatItems().filter(item =>
       dobrarAcento(item.label).includes(q) || dobrarAcento(item.breadcrumb).includes(q)
+      || (item.keywords ?? []).some(k => dobrarAcento(k).includes(q))
     );
   }
 
@@ -138,6 +141,7 @@ export class MenuService {
           target: item.target,
           breadcrumb: crumb,
           path: item.routerLink ? `/${item.routerLink.join('/')}` : '',
+          keywords: item.keywords,
         });
       }
 

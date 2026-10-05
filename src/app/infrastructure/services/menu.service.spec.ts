@@ -65,3 +65,29 @@ describe('MenuService · tela que junta outras', () => {
     expect(labelsCom({ 'rh/hub': ['CONSULTAR'] })).not.toContain('Pendências');
   });
 });
+
+/**
+ * Os nomes antigos das telas que se juntaram (2026-10-05). Antes, quem digitava
+ * "mural" ou "cargos" via "nenhuma página encontrada".
+ */
+describe('MenuService · busca pelos nomes antigos', () => {
+  function busca(grade: Record<string, string[]>, termo: string): string[] {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: providersDeTeste() });
+    const http = TestBed.inject(HttpTestingController);
+    TestBed.inject(PermissionStore).ensureLoaded().subscribe();
+    http.expectOne(r => r.url.endsWith('/me/permissions')).flush(grade);
+    return TestBed.inject(MenuService).search(termo).map(i => i.label);
+  }
+
+  it('"mural" acha Comunicados, "cargos" acha Organização, "visao de equipe" acha Ausências', () => {
+    const tudo = { 'rh/announcements': ['CONSULTAR'], 'rh/career-structure': ['CONSULTAR'], 'rh/team-overview': ['CONSULTAR'] };
+    expect(busca(tudo, 'mural')).toContain('Comunicados');
+    expect(busca(tudo, 'cargos')).toContain('Organização');
+    expect(busca(tudo, 'visao de equipe')).toContain('Ausências');
+  });
+
+  it('o nome antigo não mostra a tela para quem não tem acesso a ela', () => {
+    expect(busca({ 'rh/hub': ['CONSULTAR'] }, 'mural')).not.toContain('Comunicados');
+  });
+});
