@@ -41,7 +41,7 @@ export interface AppMenuItem {
 }
 
 /** As telas que a Pendências junta: quem abre qualquer uma delas abre a Pendências. */
-export const PENDING_QUEUE_SCREENS = ['rh/reimbursements', 'rh/vacation-requests', 'rh/medical-certificates'];
+export const PENDING_QUEUE_SCREENS = ['rh/reimbursements', 'rh/vacation-requests', 'rh/medical-certificates', 'rh/document-requests'];
 
 /** As telas que os Comunicados juntam: o Mural de Avisos e as Notificações. */
 export const COMMUNICATIONS_SCREENS = ['rh/announcements', 'rh/notifications'];
@@ -123,6 +123,10 @@ export const APP_MENU: AppMenuItem[] = [
       },
       { label: 'Pessoas', icon: 'pi pi-fw pi-user', routerLink: ['rh/employees'], screen: 'rh/employees', keywords: ['Funcionários', 'Colaboradores', 'Ficha'] },
       { label: 'Documentos', icon: 'pi pi-fw pi-file-edit', routerLink: ['rh/employee-documents'], screen: 'rh/employee-documents' },
+      {
+        label: 'Solicitações', icon: 'pi pi-fw pi-file-arrow-up', routerLink: ['rh/document-requests'], screen: 'rh/document-requests',
+        keywords: ['Pedir documento', 'RG', 'Uniforme', 'Formulário'],
+      },
       // Equipamentos fica: é onde se registra a entrega e a devolução, e quem só
       // tem esta tela não abre a ficha do funcionário.
       { label: 'Equipamentos', icon: 'pi pi-fw pi-desktop', routerLink: ['rh/equipment-assignments'], screen: 'rh/equipment-assignments' },

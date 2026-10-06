@@ -1,0 +1,124 @@
+<app-form-screen [title]="id() ? 'Editar solicitação' : 'Nova solicitação'" subtitle="Rascunho: só o RH vê até enviar"
+                 width="wide" (back)="back.emit()">
+  <div class="rb">
+    <div class="rb__principal">
+      <section class="rb__secao" aria-labelledby="rbO">
+        <h3 id="rbO">O que você está pedindo</h3>
+        <div class="form-field">
+          <label for="rbTitle">Título <span class="required">*</span></label>
+          <input pInputText id="rbTitle" type="text" maxlength="120" [ngModel]="title()" (ngModelChange)="title.set($event)"
+                 placeholder="Ex.: RG atualizado, Tamanhos de uniforme 2027" />
+        </div>
+        <div class="form-field">
+          <label for="rbInstr">Instruções para o funcionário</label>
+          <textarea pTextarea id="rbInstr" rows="3" [ngModel]="instructions()" (ngModelChange)="instructions.set($event)"
+                    placeholder="Ex.: envie frente e verso; pode ser foto do celular."></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="rbDue">Prazo <small>(opcional)</small></label>
+            <p-datepicker inputId="rbDue" appendTo="body" dateFormat="dd/mm/yy" placeholder="dd/mm/aaaa" [showButtonBar]="true"
+                          styleClass="datepicker-field" [ngModel]="dueDateValue()" (ngModelChange)="setDueDate($event)" />
+          </div>
+        </div>
+        <div class="form-field">
+          <span class="rb__rotulo">Documento para o funcionário baixar <small>(opcional)</small></span>
+          <div class="rb__modelo">
+            @if (templateFilename()) {
+              <i class="pi pi-file" aria-hidden="true"></i> <b>{{ templateFilename() }}</b>
+              <label class="rb__link" for="rbTpl">Trocar</label>
+            } @else {
+              <span>Para pedir a versão <b>assinada</b> ou <b>preenchida</b>, anexe o arquivo aqui.</span>
+              <label class="rb__botao" for="rbTpl"><i class="pi pi-upload" aria-hidden="true"></i> Escolher arquivo</label>
+            }
+            <input id="rbTpl" class="rb__arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onTemplate($event)" />
+          </div>
+        </div>
+      </section>
+
+      <section class="rb__secao" aria-labelledby="rbC">
+        <h3 id="rbC">Campos</h3>
+        @for (f of fields(); track f.key; let i = $index; let first = $first; let last = $last) {
+          <div class="rb-campo">
+            <div class="rb-campo__topo">
+              <span class="rb-campo__tipo">{{ typeLabel[f.type] }}</span>
+              <input pInputText pSize="small" class="rb-campo__nome" type="text" maxlength="200" [ngModel]="f.label"
+                     (ngModelChange)="patch(i, { label: $event })" placeholder="Pergunta" [attr.aria-label]="'Nome do campo ' + (i + 1)" />
+              <button type="button" class="rb-icone" aria-label="Subir" [disabled]="first" (click)="move(i, -1)"><i class="pi pi-arrow-up"></i></button>
+              <button type="button" class="rb-icone" aria-label="Descer" [disabled]="last" (click)="move(i, 1)"><i class="pi pi-arrow-down"></i></button>
+              <button type="button" class="rb-icone" [attr.aria-label]="'Remover ' + (f.label || 'campo')" (click)="removeField(i)"><i class="pi pi-times"></i></button>
+            </div>
+            @if (f.type === 'CHOICE') {
+              <div class="rb-campo__opcoes">
+                @for (o of f.options; track o) {
+                  <span class="rb-opcao">{{ o }}<button type="button" [attr.aria-label]="'Remover ' + o" (click)="removeOption(i, o)">×</button></span>
+                }
+                <input pInputText pSize="small" #opt class="rb-campo__opcao" type="text" placeholder="+ opção ↵" aria-label="Nova opção"
+                       (keydown.enter)="addOption(i, opt); $event.preventDefault()" (blur)="addOption(i, opt)" />
+              </div>
+              @if (!f.options.length) { <p class="rb__aviso">Escolha precisa de pelo menos uma opção.</p> }
+            }
+            <div class="rb-campo__meta">
+              <label><input type="checkbox" [ngModel]="f.required" (ngModelChange)="patch(i, { required: $event })" /> Obrigatório</label>
+              @if (f.type === 'FILE') {
+                <span class="rb-campo__vira">Ao aprovar, vira documento:
+                  <p-select [options]="typeOptions()" optionLabel="label" optionValue="value" appendTo="body" size="small"
+                            [ngModel]="f.documentTypeId" (ngModelChange)="patch(i, { documentTypeId: $event ?? null })"
+                            [ariaLabel]="'Tipo de documento de ' + (f.label || 'campo')" />
+                </span>
+              }
+            </div>
+          </div>
+        } @empty {
+          <p class="rb__dica">Nenhum campo ainda. Um RG é um campo de Arquivo; um uniforme, uma Escolha por peça.</p>
+        }
+        <div class="rb__adicionar">
+          @for (t of types; track t) {
+            <button type="button" (click)="add(t)">+ {{ typeLabel[t] }}</button>
+          }
+        </div>
+      </section>
+
+      <section class="rb__secao" aria-labelledby="rbQ">
+        <h3 id="rbQ">Quem recebe</h3>
+        <app-audience-picker [options]="audienceOptions()" [audience]="audience()" (audienceChange)="audience.set($event)" />
+      </section>
+    </div>
+
+    <aside class="rb__lado" aria-label="Prévia do funcionário">
+      <p class="rb__rotulo">Prévia do funcionário</p>
+      <div class="rb-previa">
+        <b>{{ title() || 'Sem título' }}</b>
+        @if (instructions()) { <span class="rb__dica">{{ instructions() }}</span> }
+        @if (templateFilename()) { <span class="rb-previa__baixar"><i class="pi pi-download"></i> {{ templateFilename() }}</span> }
+        @for (f of fields(); track f.key) {
+          <div class="rb-previa__campo">
+            <span>{{ f.label || '(sem nome)' }}@if (f.required) { * }</span>
+            @switch (f.type) {
+              @case ('CHOICE') {
+                <div class="rb-previa__chips">
+                  @for (o of f.options; track o) { <i>{{ o }}</i> } @empty { <em>sem opções</em> }
+                </div>
+              }
+              @case ('FILE') {
+                <div class="rb-previa__caixa"><i class="pi pi-camera"></i> Tirar foto ou escolher arquivo</div>
+                @if (typeName(f.documentTypeId); as t) { <em>Vira documento: {{ t }}</em> }
+              }
+              @case ('YES_NO') { <div class="rb-previa__chips"><i>Sim</i><i>Não</i></div> }
+              @default { <div class="rb-previa__caixa"></div> }
+            }
+          </div>
+        }
+      </div>
+    </aside>
+  </div>
+
+  @if (error()) { <p class="rb__erro" role="alert">{{ error() }}</p> }
+  @if (problems().length && fields().length) { <p class="rb__aviso">{{ problems()[0] }}</p> }
+
+  <div formActions>
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="back.emit()" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Salvar rascunho" [pkDisabled]="!title().trim()" [pkLoading]="saving()" (clicked)="saveDraft()" />
+    <pk-button pkType="send" pkSize="sm" pkLabel="Enviar" [pkDisabled]="!canSend() || saving()" (clicked)="send()" />
+  </div>
+</app-form-screen>

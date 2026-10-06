@@ -217,6 +217,51 @@
         </ng-template>
       </pk-table>
     }
+
+    @if (kind() === 'SOLICITACAO') {
+      <pk-table [data]="visibleAnswers()" [loading]="loading()" [showCaption]="false"
+                emptyIcon="pi pi-inbox" emptyTitle="Nenhuma resposta esperando conferência"
+                emptySubtitle="Quando alguém responder uma solicitação do RH, aparece aqui." pageReportTitle="Respostas">
+        <ng-template #cardTpl let-a>
+          <article class="pk-cartao pq-clicavel" (click)="reviewing.set(a)">
+            <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+              <span class="pk-cartao__titulo">{{ a.employeeName }}</span>
+              <span class="pk-cartao__sub">{{ a.requestTitle }} · espera {{ waiting(a.submittedAt ?? a.addedAt) }}</span>
+            </div>
+            <div class="pk-cartao__rodape">
+              @if (a.returnReason) { <span class="status-chip status-chip--neutral">Reenviada</span> }
+              <span class="pq-mini">{{ answerSummary(a) }}</span>
+              <button type="button" class="pk-cartao__atalho" (click)="reviewing.set(a); $event.stopPropagation()">
+                <i class="pi pi-eye"></i> Conferir
+              </button>
+            </div>
+          </article>
+        </ng-template>
+        <ng-template #headerTpl>
+          <tr><th>Funcionário</th><th>Solicitação</th><th>Enviou</th><th>Espera</th><th class="col-center">Ações</th></tr>
+        </ng-template>
+        <ng-template #bodyTpl let-a>
+          <tr class="table-row pq-clicavel" (click)="reviewing.set(a)">
+            <td>
+              <div class="employee-info">
+                <div class="employee-avatar">{{ a.employeeName?.charAt(0) | uppercase }}</div>
+                <span class="employee-name">{{ a.employeeName }}</span>
+              </div>
+            </td>
+            <td>{{ a.requestTitle }}
+              @if (a.returnReason) { <span class="status-chip status-chip--neutral">Reenviada</span> }
+            </td>
+            <td>{{ answerSummary(a) }}</td>
+            <td>{{ waiting(a.submittedAt ?? a.addedAt) }}</td>
+            <td class="col-center">
+              <button pButton type="button" icon="pi pi-eye" class="action-btn" pTooltip="Conferir" tooltipPosition="left"
+                      [attr.aria-label]="'Conferir a resposta de ' + a.employeeName"
+                      (click)="reviewing.set(a); $event.stopPropagation()"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </pk-table>
+    }
   </div>
 
   @if (kind() === 'REEMBOLSO' && selected().size > 0) {
@@ -400,3 +445,7 @@
     </div>
   </pk-dialog>
 }
+
+<!-- Solicitações do RH: a mesma conferência do acompanhamento (2026-10-06). -->
+<app-request-review [recipient]="reviewing()" [canDecide]="canDecideAnswers()"
+                    (closed)="reviewing.set(null)" (decided)="answerDecided($event)" />

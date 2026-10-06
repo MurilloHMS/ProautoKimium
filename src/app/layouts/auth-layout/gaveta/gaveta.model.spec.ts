@@ -84,7 +84,7 @@ describe('gaveta.model', () => {
 
     expect(semTitulo.length).withContext('uma primeira secao, das folhas soltas').toBe(1);
     expect(semTitulo[0].itens.map(i => i.label)).toEqual([
-      'Painel', 'Pessoas', 'Documentos', 'Equipamentos', 'Ausências', 'Holerites', 'Organização',
+      'Painel', 'Pessoas', 'Documentos', 'Solicitações', 'Equipamentos', 'Ausências', 'Holerites', 'Organização',
       'Comunicados', 'Vagas', 'Calculadoras',
     ]);
 

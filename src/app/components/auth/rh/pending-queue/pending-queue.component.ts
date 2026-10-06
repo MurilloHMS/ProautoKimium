@@ -17,12 +17,15 @@ import { Tooltip } from 'primeng/tooltip';
 import { ReimbursementService } from '../../../../infrastructure/services/hr/reimbursement.service';
 import { VacationRequestService } from '../../../../infrastructure/services/hr/vacation-request.service';
 import { MedicalCertificateService } from '../../../../infrastructure/services/hr/medical-certificate.service';
+import { DocumentRequestService } from '../../../../infrastructure/services/hr/document-request.service';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
 import { PermissionStore } from '../../../../infrastructure/state/permission.store';
 import { ehCelular } from '../../../../infrastructure/state/eh-celular';
 import { Reimbursement } from '../../../../domain/models/hr/reimbursement.model';
 import { VacationRequest } from '../../../../domain/models/hr/vacation-request.model';
 import { MedicalCertificate } from '../../../../domain/models/hr/medical-certificate.model';
+import { Recipient } from '../../../../domain/models/hr/document-request.model';
+import { RequestReviewComponent } from '../document-requests/request-review/request-review.component';
 import { formatDateBr, formatStampBr } from '../../../../domain/utils/date-only';
 import { apiMessage } from '../../../../domain/utils/api-error';
 import {
@@ -35,7 +38,7 @@ import {
   waitingFor,
 } from './pending-queue.logic';
 
-export type PendingKind = 'REEMBOLSO' | 'FERIAS' | 'ATESTADO';
+export type PendingKind = 'REEMBOLSO' | 'FERIAS' | 'ATESTADO' | 'SOLICITACAO';
 type ReimbursementFilter = 'ALL' | 'ALERT' | 'SMALL';
 
 /** O valor que conta como "pedido pequeno" no chip "Até R$ 100". */
@@ -46,6 +49,7 @@ const SCREEN: Record<PendingKind, string> = {
   REEMBOLSO: 'rh/reimbursements',
   FERIAS: 'rh/vacation-requests',
   ATESTADO: 'rh/medical-certificates',
+  SOLICITACAO: 'rh/document-requests',
 };
 
 /**
@@ -78,7 +82,7 @@ interface SingleReview {
   standalone: true,
   imports: [
     CommonModule, FormsModule, Toast, PkButtonComponent, PkDialogComponent, PkSheetComponent, PkTableComponent,
-    ToolbarComponent, ButtonDirective, Tooltip,
+    ToolbarComponent, ButtonDirective, Tooltip, RequestReviewComponent,
   ],
   templateUrl: './pending-queue.component.html',
   styleUrl: './pending-queue.component.scss',
@@ -88,6 +92,7 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
   private readonly reimbursements = inject(ReimbursementService);
   private readonly vacations = inject(VacationRequestService);
   private readonly certificates = inject(MedicalCertificateService);
+  private readonly requests = inject(DocumentRequestService);
   private readonly employees = inject(EmployeeStore);
   private readonly permissions = inject(PermissionStore);
   private readonly sanitizer = inject(DomSanitizer);
@@ -103,10 +108,16 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
   readonly baseline = signal<Reimbursement[]>([]);
   readonly pendingVacations = signal<VacationRequest[]>([]);
   readonly pendingCertificates = signal<MedicalCertificate[]>([]);
+  /** Respostas de Solicitações do RH esperando conferência, a mais antiga primeiro. */
+  readonly pendingAnswers = signal<Recipient[]>([]);
+  /** A resposta aberta na conferência. */
+  readonly reviewing = signal<Recipient | null>(null);
+  /** Quem só consulta a tela das Solicitações vê a fila, mas não aprova nem devolve. */
+  readonly canDecideAnswers = computed(() => this.permissions.can(SCREEN.SOLICITACAO, 'ALTERAR'));
 
   /** Os tipos que esta pessoa pode ver, na ordem da tela. */
   readonly kinds = computed<PendingKind[]>(() =>
-    (['REEMBOLSO', 'FERIAS', 'ATESTADO'] as PendingKind[]).filter(k => this.permissions.canOpen(SCREEN[k])));
+    (['REEMBOLSO', 'FERIAS', 'ATESTADO', 'SOLICITACAO'] as PendingKind[]).filter(k => this.permissions.canOpen(SCREEN[k])));
   readonly kind = signal<PendingKind>('REEMBOLSO');
   readonly filter = signal<ReimbursementFilter>('ALL');
   /** A busca da barra, por nome, nas três filas. */
@@ -136,6 +147,8 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
     this.pendingVacations().filter(v => this.matches(this.employees.nameOf(v.employeeId))));
   readonly visibleCertificates = computed(() =>
     this.pendingCertificates().filter(c => this.matches(c.employeeName)));
+  readonly visibleAnswers = computed(() =>
+    this.pendingAnswers().filter(a => this.matches(a.employeeName) || this.matches(a.requestTitle)));
 
   readonly alertCount = computed(() => this.alerts().size);
   readonly smallCount = computed(() => this.pendingReimbursements().filter(r => Number(r.amount) <= SMALL_AMOUNT).length);
@@ -204,9 +217,11 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
       : of([[], []] as [Reimbursement[], Reimbursement[]]);
     const vacations$ = kinds.includes('FERIAS') ? this.vacations.getAll('PENDING') : of([] as VacationRequest[]);
     const certificates$ = kinds.includes('ATESTADO') ? this.certificates.getAll('PENDING') : of([] as MedicalCertificate[]);
+    const answers$ = kinds.includes('SOLICITACAO') ? this.requests.awaitingReview() : of([] as Recipient[]);
 
-    forkJoin([reimbursements$, vacations$, certificates$]).subscribe({
-      next: ([[pending, baseline], vacations, certificates]) => {
+    forkJoin([reimbursements$, vacations$, certificates$, answers$]).subscribe({
+      next: ([[pending, baseline], vacations, certificates, answers]) => {
+        this.pendingAnswers.set(answers);
         this.pendingReimbursements.set(pending);
         this.baseline.set(baseline);
         this.pendingVacations.set([...vacations].sort((a, b) => a.requestedAt.localeCompare(b.requestedAt)));
@@ -228,6 +243,7 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
     switch (kind) {
       case 'REEMBOLSO': return this.pendingReimbursements().length;
       case 'FERIAS': return this.pendingVacations().length;
+      case 'SOLICITACAO': return this.pendingAnswers().length;
       default: return this.pendingCertificates().length;
     }
   }
@@ -235,13 +251,15 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
   oldest(kind: PendingKind): string | null {
     const dates = kind === 'REEMBOLSO' ? this.pendingReimbursements().map(r => r.requestedAt)
       : kind === 'FERIAS' ? this.pendingVacations().map(v => v.requestedAt)
+      : kind === 'SOLICITACAO' ? this.pendingAnswers().map(a => a.submittedAt ?? a.addedAt)
       : this.pendingCertificates().map(c => c.resubmittedAt ?? c.submittedAt);
     if (!dates.length) return null;
     return waitingFor(dates.reduce((a, b) => (a < b ? a : b)), this.now());
   }
 
   icon(kind: PendingKind): string {
-    return kind === 'REEMBOLSO' ? 'pi pi-wallet' : kind === 'FERIAS' ? 'pi pi-sun' : 'pi pi-file-check';
+    return kind === 'REEMBOLSO' ? 'pi pi-wallet' : kind === 'FERIAS' ? 'pi pi-sun'
+      : kind === 'SOLICITACAO' ? 'pi pi-inbox' : 'pi pi-file-check';
   }
 
   search(term: string): void {
@@ -259,7 +277,8 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
   }
 
   label(kind: PendingKind): string {
-    return kind === 'REEMBOLSO' ? 'Reembolsos' : kind === 'FERIAS' ? 'Férias' : 'Atestados';
+    return kind === 'REEMBOLSO' ? 'Reembolsos' : kind === 'FERIAS' ? 'Férias'
+      : kind === 'SOLICITACAO' ? 'Solicitações' : 'Atestados';
   }
 
   waiting(since: string): string {
@@ -556,6 +575,25 @@ export class PendingQueueComponent implements OnInit, OnDestroy {
       next: resp => resp.body && saveBlob(resp.body, c.originalFilename),
       error: (err: HttpErrorResponse) => this.error(err, 'Não foi possível baixar o atestado.'),
     });
+  }
+
+  // ---- Solicitações do RH ----
+
+  /** Os arquivos e as respostas, em uma linha: "RG · Camisa: M". */
+  answerSummary(a: Recipient): string {
+    const files = a.files.length ? `${a.files.length} arquivo(s)` : '';
+    const choices = a.form.filter(f => f.type === 'CHOICE' && a.answers[f.key] != null)
+      .map(f => `${f.label}: ${a.answers[f.key]}`);
+    return [files, ...choices].filter(Boolean).join(' · ') || 'Respostas de texto';
+  }
+
+  answerDecided(updated: Recipient): void {
+    this.reviewing.set(null);
+    this.messages.add({
+      severity: 'success', summary: 'Pronto',
+      detail: updated.status === 'APPROVED' ? 'Resposta aprovada. A pessoa foi avisada.' : 'Resposta devolvida com o motivo.',
+    });
+    this.load();
   }
 
   private error(err: HttpErrorResponse, fallback: string): void {

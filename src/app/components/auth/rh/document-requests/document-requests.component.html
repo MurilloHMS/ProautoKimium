@@ -1,0 +1,229 @@
+<p-toast position="top-right" />
+
+@switch (view()) {
+  @case ('builder') {
+    <app-request-builder [request]="editing()" [docTypes]="docTypes()" [audienceOptions]="audienceOptions()"
+                         (back)="backToList(); load()" (saved)="builderSaved($event)" />
+  }
+
+  @case ('list') {
+    <div class="dr-barra">
+      <label class="dr-busca">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input pInputText class="dr-busca__campo" type="search" placeholder="Buscar solicitação…" aria-label="Buscar solicitação"
+               [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </label>
+      <span class="dr-espaco"></span>
+      <button type="button" class="dr-icone" aria-label="Atualizar" [disabled]="loading()" (click)="load()">
+        <i class="pi pi-refresh" [class.pi-spin]="loading()" aria-hidden="true"></i>
+      </button>
+      <pk-button *pkCan="'rh/document-requests:INCLUIR'" pkType="new" pkSize="sm" pkLabel="Nova solicitação" (clicked)="newRequest()" />
+    </div>
+
+    <div class="table-card">
+      <pk-table [data]="visible()" [loading]="loading()" [showCaption]="false" [rows]="20"
+                emptyIcon="pi pi-inbox" emptyTitle="Nenhuma solicitação ainda"
+                emptySubtitle="Peça um documento (RG, contrato assinado) ou respostas (tamanho de uniforme)." pageReportTitle="Solicitações">
+        <ng-template #cardTpl let-r>
+          <article class="pk-cartao dr-clicavel" (click)="open(r)">
+            <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+              <span class="pk-cartao__titulo">{{ r.title }}</span>
+              <span class="pk-cartao__sub">{{ audienceText(r) }}@if (r.dueDate) { · prazo {{ date(r.dueDate) }} }</span>
+            </div>
+            @if (r.status !== 'DRAFT') { <span class="pk-cartao__marca">{{ r.counts.approved }}/{{ r.counts.total }}</span> }
+            <div class="pk-cartao__rodape">
+              <span class="status-chip" [ngClass]="'status-chip--' + requestStatus[r.status].chip">
+                <i [class]="requestStatus[r.status].icon" aria-hidden="true"></i> {{ requestStatus[r.status].label }}
+              </span>
+              @if (r.counts.submitted) { <span class="status-chip status-chip--work">{{ r.counts.submitted }} para revisar</span> }
+            </div>
+          </article>
+        </ng-template>
+        <ng-template #headerTpl>
+          <tr><th>Solicitação</th><th>Enviada</th><th>Prazo</th><th>Andamento</th><th>Para revisar</th><th>Situação</th><th class="col-center">Ações</th></tr>
+        </ng-template>
+        <ng-template #bodyTpl let-r>
+          <tr class="table-row dr-clicavel" (click)="open(r)">
+            <td class="dr-titulo"><b>{{ r.title }}</b><small>{{ audienceText(r) }}</small></td>
+            <td>{{ date(r.sentAt) }}</td>
+            <td>{{ date(r.dueDate) }}</td>
+            <td>
+              @if (r.status === 'DRAFT') { — } @else {
+                <span class="dr-progresso">
+                  <span class="dr-barrinha" [attr.aria-label]="r.counts.approved + ' de ' + r.counts.total + ' aprovadas'">
+                    <i class="dr-barrinha__ok" [style.width.%]="progress(r)"></i>
+                  </span>
+                  <span class="dr-num">{{ r.counts.approved }}/{{ r.counts.total }}</span>
+                </span>
+              }
+            </td>
+            <td>@if (r.counts.submitted) { <span class="status-chip status-chip--work">{{ r.counts.submitted }}</span> } @else { — }</td>
+            <td>
+              <span class="status-chip" [ngClass]="'status-chip--' + requestStatus[r.status].chip">
+                <i [class]="requestStatus[r.status].icon" aria-hidden="true"></i> {{ requestStatus[r.status].label }}
+              </span>
+            </td>
+            <td class="col-center" (click)="$event.stopPropagation()">
+              <button *pkCan="'rh/document-requests:INCLUIR'" type="button" class="dr-icone" aria-label="Duplicar" title="Duplicar"
+                      (click)="duplicate(r, $event)"><i class="pi pi-copy" aria-hidden="true"></i></button>
+              @if (r.status === 'DRAFT') {
+                <button *pkCan="'rh/document-requests:EXCLUIR'" type="button" class="dr-icone" aria-label="Excluir rascunho" title="Excluir rascunho"
+                        (click)="removeDraft(r, $event)"><i class="pi pi-trash" aria-hidden="true"></i></button>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </pk-table>
+    </div>
+  }
+
+  @case ('detail') {
+    @if (opened(); as r) {
+      <div class="dr-topo">
+      <div class="dr-cabeca">
+        <button type="button" class="dr-voltar" (click)="backToList()"><i class="pi pi-arrow-left" aria-hidden="true"></i> Solicitações</button>
+        <h2>{{ r.title }}</h2>
+        @if (r.dueDate) { <span class="dr-tag">Prazo {{ date(r.dueDate) }}</span> }
+        @if (r.templateFilename) { <span class="dr-tag"><i class="pi pi-file" aria-hidden="true"></i> {{ r.templateFilename }}</span> }
+        <span class="status-chip" [ngClass]="'status-chip--' + requestStatus[r.status].chip">{{ requestStatus[r.status].label }}</span>
+      </div>
+
+      <div class="dr-kpis" role="group" aria-label="Filtrar por situação">
+        @for (s of statusOrder; track s) {
+          <button type="button" class="dr-kpi" [ngClass]="'dr-kpi--' + recipientStatus[s].chip"
+                  [attr.aria-pressed]="filter() === s" (click)="toggleFilter(s)">
+            <span>{{ recipientStatus[s].label }}</span><b>{{ count(s) }}</b>
+          </button>
+        }
+      </div>
+
+      <div class="dr-barra">
+        @if (r.status === 'OPEN' && canSend()) {
+          <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-bell" [pkLabel]="'Lembrar pendentes (' + toRemind() + ')'"
+                     [pkDisabled]="!toRemind() || busy()" (clicked)="remind()" />
+          <pk-button pkType="new" pkSize="sm" pkLabel="Adicionar pessoas" (clicked)="openAddPeople()" />
+        }
+        <label class="dr-busca">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input pInputText class="dr-busca__campo" type="search" placeholder="Buscar pessoa…" aria-label="Buscar pessoa"
+                 [ngModel]="search()" (ngModelChange)="search.set($event)" />
+        </label>
+        <span class="dr-espaco"></span>
+        <pk-button pkType="excel" pkSize="sm" pkLabel="Excel" [pkDisabled]="!recipients().length" (clicked)="exportExcel()" />
+        @if (r.status === 'OPEN' && canDecide()) {
+          <pk-button pkType="cancel" pkSize="sm" pkIcon="pi pi-lock" pkLabel="Encerrar" (clicked)="confirmClose.set(true)" />
+        }
+      </div>
+
+      @if (choiceFields().length) {
+        <div class="dr-abas" role="tablist">
+          <button type="button" role="tab" [attr.aria-selected]="tab() === 'people'" (click)="tab.set('people')">Pessoas</button>
+          <button type="button" role="tab" [attr.aria-selected]="tab() === 'totals'" (click)="tab.set('totals')">Totais</button>
+        </div>
+      }
+      </div>
+
+      @if (tab() === 'totals') {
+        <div class="dr-rolagem">
+        @if (totals()[0]; as first) {
+          <p class="dr-dica">Contando {{ first.answered }} resposta(s) enviadas ou aprovadas. Devolvidas e pendentes ficam de fora.</p>
+        }
+        <div class="dr-totais">
+          @for (t of totals(); track t.field.key) {
+            <div class="dr-total">
+              <h3>{{ t.field.label }}</h3>
+              @for (c of t.counts; track c.option) {
+                <div class="dr-total__linha">
+                  <span>{{ c.option }}</span>
+                  <span class="dr-total__barra"><i [style.width]="barWidth(c.n, maxOf(t.counts))"></i></span>
+                  <b>{{ c.n }}</b>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        </div>
+      } @else {
+        <div class="table-card">
+          <pk-table [data]="visibleRecipients()" [loading]="recipientsLoading()" [showCaption]="false" [rows]="20"
+                    emptyIcon="pi pi-users" emptyTitle="Ninguém nessa situação" pageReportTitle="Pessoas">
+            <ng-template #cardTpl let-p>
+              <article class="pk-cartao dr-clicavel" (click)="reviewing.set(p)">
+                <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+                  <span class="pk-cartao__titulo">{{ p.employeeName }}</span>
+                  <span class="pk-cartao__sub">
+                    @if (hasFiles()) { {{ fileCount(p) }} }
+                    @for (f of choiceFields(); track f.key) { · {{ f.label }}: {{ answer(p, f) }} }
+                  </span>
+                </div>
+                <div class="pk-cartao__rodape">
+                  <span class="status-chip" [ngClass]="'status-chip--' + recipientStatus[p.status].chip">
+                    <i [class]="recipientStatus[p.status].icon" aria-hidden="true"></i> {{ recipientStatus[p.status].label }}
+                  </span>
+                </div>
+              </article>
+            </ng-template>
+            <ng-template #headerTpl>
+              <tr>
+                <th>Funcionário</th>
+                @if (hasFiles()) { <th>Arquivos</th> }
+                @for (f of choiceFields(); track f.key) { <th>{{ f.label }}</th> }
+                <th>Situação</th>
+                <th class="col-center">Ações</th>
+              </tr>
+            </ng-template>
+            <ng-template #bodyTpl let-p>
+              <tr class="table-row dr-clicavel" (click)="reviewing.set(p)">
+                <td>
+                  <div class="employee-info">
+                    <div class="employee-avatar">{{ p.employeeName?.charAt(0) | uppercase }}</div>
+                    <span class="employee-name">{{ p.employeeName }}</span>
+                  </div>
+                </td>
+                @if (hasFiles()) { <td>{{ fileCount(p) }}</td> }
+                @for (f of choiceFields(); track f.key) { <td>{{ answer(p, f) }}</td> }
+                <td>
+                  <span class="status-chip" [ngClass]="'status-chip--' + recipientStatus[p.status].chip">
+                    <i [class]="recipientStatus[p.status].icon" aria-hidden="true"></i> {{ recipientStatus[p.status].label }}
+                  </span>
+                </td>
+                <td class="col-center">
+                  @if (p.status !== 'PENDING') {
+                    <button type="button" class="dr-acao" (click)="reviewing.set(p); $event.stopPropagation()">
+                      {{ p.status === 'SUBMITTED' && canDecide() ? 'Revisar' : 'Ver' }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </pk-table>
+        </div>
+      }
+    }
+  }
+}
+
+<app-request-review [recipient]="reviewing()" [canDecide]="canDecide()"
+                    (closed)="reviewing.set(null)" (decided)="decided($event)" />
+
+<pk-dialog header="Adicionar pessoas" width="520px" [visible]="addingPeople()" (visibleChange)="addingPeople.set($event)">
+  <div pkDialogContent>
+    <p class="dr-dica">Quem já recebeu fica de fora sozinho. Os novos recebem o aviso no sino.</p>
+    <app-audience-picker [options]="audienceOptions()" [audience]="addAudience()" (audienceChange)="addAudience.set($event)" />
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="addingPeople.set(false)" />
+    <pk-button pkType="send" pkSize="sm" pkLabel="Adicionar" [pkDisabled]="addPeopleDisabled()" [pkLoading]="busy()" (clicked)="addPeople()" />
+  </div>
+</pk-dialog>
+
+<pk-dialog header="Encerrar solicitação" width="460px" [visible]="confirmClose()" (visibleChange)="confirmClose.set($event)">
+  <div pkDialogContent>
+    <p>Encerrar <b>{{ opened()?.title }}</b>? Quem ainda não respondeu sai das pendências e não consegue mais responder.</p>
+    <p class="dr-dica">As respostas já enviadas continuam aqui para conferir.</p>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="confirmClose.set(false)" />
+    <pk-button pkType="delete" pkSize="sm" pkIcon="pi pi-lock" pkLabel="Encerrar" [pkLoading]="busy()" (clicked)="close()" />
+  </div>
+</pk-dialog>
