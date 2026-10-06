@@ -1,0 +1,151 @@
+<section class="hdr">
+  <app-page-header icon="pi pi-inbox" title="Solicitações do RH"
+                   subtitle="Documentos e respostas que o RH pediu para você." />
+
+  @if (sent()) { <p class="hdr__feito" role="status"><i class="pi pi-check-circle" aria-hidden="true"></i> {{ sent() }}</p> }
+
+  @if (loading()) {
+    <div class="hdr__estado"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</div>
+  } @else if (loadError()) {
+    <div class="hdr__estado">Não foi possível carregar suas solicitações. Tente novamente mais tarde.</div>
+  } @else {
+    @if (todo().length) {
+      <h2 class="hdr__grupo">Para você fazer · {{ todo().length }}</h2>
+      <div class="hdr__lista">
+        @for (r of todo(); track r.id) {
+          <button type="button" class="hdr-cartao" [class.hdr-cartao--devolvida]="r.status === 'RETURNED'" (click)="open(r)">
+            <span class="hdr-cartao__titulo">{{ r.requestTitle }}</span>
+            @if (r.status === 'RETURNED' && r.returnReason) { <span class="hdr__motivo">{{ r.returnReason }}</span> }
+            <span class="hdr-cartao__meta">
+              <span class="status-chip" [ngClass]="'status-chip--' + statusInfo[r.status].chip">
+                <i [class]="statusInfo[r.status].icon" aria-hidden="true"></i> {{ statusInfo[r.status].ownerLabel }}
+              </span>
+              @if (r.requestDueDate) { <span>Prazo {{ date(r.requestDueDate) }}</span> }
+            </span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="hdr__vazio">
+        <span class="hdr__vazio-icone"><i class="pi pi-check" aria-hidden="true"></i></span>
+        <b>Tudo em dia</b>
+        <span>Nenhuma solicitação esperando você.</span>
+      </div>
+    }
+
+    @if (done().length) {
+      <h2 class="hdr__grupo">Já enviadas</h2>
+      <div class="hdr__lista">
+        @for (r of done(); track r.id) {
+          <button type="button" class="hdr-cartao" (click)="open(r)">
+            <span class="hdr-cartao__titulo">{{ r.requestTitle }}</span>
+            <span class="hdr-cartao__meta">
+              <span class="status-chip" [ngClass]="'status-chip--' + statusInfo[r.status].chip">
+                <i [class]="statusInfo[r.status].icon" aria-hidden="true"></i> {{ statusInfo[r.status].ownerLabel }}
+              </span>
+              @if (r.requestStatus === 'CLOSED' && r.status === 'PENDING') { <span>Encerrada pelo RH</span> }
+              @else if (r.submittedAt) { <span>Enviada {{ date(r.submittedAt) }}</span> }
+            </span>
+          </button>
+        }
+      </div>
+    }
+  }
+</section>
+
+@if (current(); as r) {
+  <app-form-screen [title]="r.requestTitle" [subtitle]="r.requestDueDate ? 'Prazo ' + date(r.requestDueDate) : ''" (back)="closeForm()">
+    <div class="hdr-form">
+      @if (r.status === 'RETURNED' && r.returnReason) {
+        <p class="hdr__motivo"><b>O RH devolveu:</b> {{ r.returnReason }}</p>
+      }
+      @if (!editable()) {
+        <span class="status-chip" [ngClass]="'status-chip--' + statusInfo[r.status].chip">
+          <i [class]="statusInfo[r.status].icon" aria-hidden="true"></i> {{ statusInfo[r.status].ownerLabel }}
+        </span>
+      }
+      @if (r.requestInstructions) { <p class="hdr__instrucoes">{{ r.requestInstructions }}</p> }
+      @if (r.requestTemplateFilename) {
+        <button type="button" class="hdr__baixar" (click)="downloadTemplate()">
+          <i class="pi pi-download" aria-hidden="true"></i>
+          <span>Baixar {{ r.requestTemplateFilename }}<small>Preencha ou assine e envie de volta abaixo</small></span>
+        </button>
+      }
+
+      @for (f of r.form; track f.key) {
+        <div class="hdr-campo">
+          <span class="hdr-campo__nome" [id]="'lbl-' + f.key">{{ f.label }} @if (f.required) { <i class="hdr__obrigatorio">*</i> }</span>
+          @if (f.help) { <small class="hdr__ajuda">{{ f.help }}</small> }
+
+          @switch (f.type) {
+            @case ('CHOICE') {
+              <div class="hdr-opcoes" role="group" [attr.aria-labelledby]="'lbl-' + f.key">
+                @for (o of f.options; track o) {
+                  <button type="button" [attr.aria-pressed]="isPicked(f, o)" [disabled]="!editable()" (click)="pick(f, o)">{{ o }}</button>
+                }
+              </div>
+            }
+            @case ('YES_NO') {
+              <div class="hdr-opcoes" role="group" [attr.aria-labelledby]="'lbl-' + f.key">
+                <button type="button" [attr.aria-pressed]="isPicked(f, true)" [disabled]="!editable()" (click)="pick(f, true)">Sim</button>
+                <button type="button" [attr.aria-pressed]="isPicked(f, false)" [disabled]="!editable()" (click)="pick(f, false)">Não</button>
+              </div>
+            }
+            @case ('FILE') {
+              @if (files()[f.key]; as up) {
+                <button type="button" class="hdr-arquivo hdr-arquivo--ok" (click)="downloadMine(up)">
+                  <i class="pi pi-file" aria-hidden="true"></i>
+                  <span><b>{{ up.originalFilename }}</b><small>Recebido. Toque para baixar.</small></span>
+                </button>
+              }
+              @if (editable()) {
+                @if (uploading() === f.key) {
+                  <span class="hdr__ajuda"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Enviando o arquivo…</span>
+                } @else {
+                  <div class="hdr-arquivo__botoes">
+                    <label class="hdr-arquivo__botao" [for]="'cam-' + f.key"><i class="pi pi-camera" aria-hidden="true"></i> {{ files()[f.key] ? 'Trocar por foto' : 'Tirar foto' }}</label>
+                    <input class="hdr__input-oculto" [id]="'cam-' + f.key" type="file" accept="image/*" capture="environment" (change)="onFile(f, $event)" />
+                    <label class="hdr-arquivo__botao" [for]="'arq-' + f.key"><i class="pi pi-folder-open" aria-hidden="true"></i> {{ files()[f.key] ? 'Trocar arquivo' : 'Escolher arquivo' }}</label>
+                    <input class="hdr__input-oculto" [id]="'arq-' + f.key" type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFile(f, $event)" />
+                  </div>
+                  <small class="hdr__ajuda">PDF, JPG ou PNG, até 10 MB.</small>
+                }
+              }
+            }
+            @case ('LONG_TEXT') {
+              @if (editable()) {
+                <textarea pTextarea rows="3" [attr.aria-labelledby]="'lbl-' + f.key" [ngModel]="answers[f.key]" (ngModelChange)="pick(f, $event)"></textarea>
+              } @else { <b>{{ answer(f) }}</b> }
+            }
+            @case ('NUMBER') {
+              @if (editable()) {
+                <input pInputText type="number" inputmode="decimal" [attr.aria-labelledby]="'lbl-' + f.key" [ngModel]="answers[f.key]" (ngModelChange)="pick(f, $event)" />
+              } @else { <b>{{ answer(f) }}</b> }
+            }
+            @case ('DATE') {
+              @if (editable()) {
+                <input pInputText type="date" [attr.aria-labelledby]="'lbl-' + f.key" [ngModel]="answers[f.key]" (ngModelChange)="pick(f, $event)" />
+              } @else { <b>{{ answer(f) }}</b> }
+            }
+            @default {
+              @if (editable()) {
+                <input pInputText type="text" maxlength="500" [attr.aria-labelledby]="'lbl-' + f.key" [ngModel]="answers[f.key]" (ngModelChange)="pick(f, $event)" />
+              } @else { <b>{{ answer(f) }}</b> }
+            }
+          }
+        </div>
+      }
+
+      @if (error()) { <p class="hdr__erro" role="alert">{{ error() }}</p> }
+      @if (editable() && missing().length) { <p class="hdr__ajuda">Falta: {{ missing().join(', ') }}.</p> }
+    </div>
+
+    <div formActions>
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Voltar" (clicked)="closeForm()" />
+      @if (editable()) {
+        <pk-button pkType="send" pkSize="sm" [pkLabel]="r.status === 'RETURNED' ? 'Enviar de novo' : 'Enviar para o RH'"
+                   [pkDisabled]="!!missing().length || !!uploading()" [pkLoading]="sending()" (clicked)="submit()" />
+      }
+    </div>
+  </app-form-screen>
+}

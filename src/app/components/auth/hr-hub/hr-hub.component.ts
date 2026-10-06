@@ -19,6 +19,7 @@ interface HrCategoria {
 })
 export class HrHubComponent {
   categorias: HrCategoria[] = [
+    { titulo: 'Solicitações do RH', descricao: 'Documentos e respostas que o RH pediu para você',    icon: 'pi pi-inbox', rota: '/documentos/rh/requests' },
     { titulo: 'Meus Documentos', descricao: 'Documentos vinculados pelo RH ao seu cadastro',       icon: 'pi pi-id-card', rota: '/documentos/rh/documents' },
     { titulo: 'Atestados',       descricao: 'Envie atestados e acompanhe seu histórico',            icon: 'pi pi-heart', rota: '/documentos/rh/medical-certificates' },
     { titulo: 'Reembolsos',      descricao: 'Solicite reembolsos e acompanhe o status',              icon: 'pi pi-wallet', rota: '/documentos/rh/reimbursements' },

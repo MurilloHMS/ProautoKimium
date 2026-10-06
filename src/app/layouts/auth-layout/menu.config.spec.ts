@@ -77,6 +77,8 @@ describe('menu.config × app.routes', () => {
     'documentos/rh/announcements',
     'documentos/rh/documents',
     'documentos/rh/medical-certificates',
+    // Solicitações do RH (2026-10-06): cartão do Pessoal, e a Home e o sino abrem direto.
+    'documentos/rh/requests',
     'documentos/rh/reimbursements',
     'documentos/rh/vacation-requests',
     'rh/candidaturas',

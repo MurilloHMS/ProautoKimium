@@ -128,7 +128,9 @@ describe('app.routes · o catálogo de telas', () => {
    */
   it('todo link de notificação da API chega a uma tela', () => {
     const LINKS_DA_API = ['/reembolsos', '/mural', '/documentos', '/documentos/holerites',
-      '/documentos/rh/documents', '/rh/employee-documents', '/convites'];
+      '/documentos/rh/documents', '/rh/employee-documents', '/convites',
+      // DocumentRequestService (2026-10-06): o funcionário responde; o RH confere na Pendências.
+      '/documentos/rh/requests', '/rh/pendencias'];
 
     const telas = new Set(todas(routes).map(r => r.path));
     const redirects = new Map<string, string>();

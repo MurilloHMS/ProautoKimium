@@ -1,0 +1,98 @@
+<ng-template #corpo>
+  @if (recipient(); as r) {
+    <div class="rr" [class.rr--sem-arquivo]="!files().length">
+      @if (files().length) {
+        <div class="rr__arquivo">
+          @if (files().length > 1) {
+            <div class="rr__abas" role="tablist" aria-label="Arquivos enviados">
+              @for (f of files(); track f.id) {
+                <button type="button" role="tab" [attr.aria-selected]="shown()?.id === f.id" [class.is-on]="shown()?.id === f.id"
+                        (click)="show(f)">{{ fieldOf(f) }}</button>
+              }
+            </div>
+          }
+          <div class="rr__visor">
+            @if (preview(); as p) {
+              @if (p.isPdf) { <iframe [src]="p.url" title="Arquivo enviado"></iframe> }
+              @else { <img [src]="p.url" alt="Arquivo enviado"> }
+            } @else if (previewError()) {
+              <span class="rr__mini">Não foi possível abrir o arquivo.</span>
+            } @else {
+              <span class="rr__mini"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Abrindo o arquivo…</span>
+            }
+          </div>
+          @if (shown(); as f) {
+            <button type="button" class="rr__link" (click)="download(f)">
+              <i class="pi pi-download" aria-hidden="true"></i> {{ f.originalFilename }}
+            </button>
+          }
+        </div>
+      }
+
+      <div class="rr__dados">
+        <span class="status-chip" [ngClass]="'status-chip--' + statusInfo[r.status].chip">
+          <i [class]="statusInfo[r.status].icon" aria-hidden="true"></i> {{ statusInfo[r.status].label }}
+        </span>
+
+        @if (answerFields().length) {
+          <dl class="rr__kv">
+            @for (f of answerFields(); track f.key) {
+              <div><dt>{{ f.label }}</dt><dd>{{ answer(f) }}</dd></div>
+            }
+          </dl>
+        }
+
+        @for (f of fileFields(); track f.key) {
+          @if (f.documentTypeId) {
+            <p class="rr__vira"><i class="pi pi-check-circle" aria-hidden="true"></i>
+              Ao aprovar, "{{ f.label }}" entra nos documentos do funcionário.</p>
+          }
+        }
+
+        <div class="rr__trilha">
+          @if (r.returnReason && r.status !== 'RETURNED') {
+            <span>Devolvida antes: “{{ r.returnReason }}”</span>
+          }
+          @if (r.status === 'RETURNED') { <span>{{ stamp(r.reviewedAt) }} · devolvida por {{ r.reviewedBy }}: “{{ r.returnReason }}”</span> }
+          @if (r.status === 'APPROVED') { <span>{{ stamp(r.reviewedAt) }} · aprovada por {{ r.reviewedBy }}</span> }
+          @if (r.submittedAt) { <span>{{ stamp(r.submittedAt) }} · enviada por {{ r.employeeName }}</span> }
+          <span>{{ stamp(r.addedAt) }} · solicitação recebida</span>
+        </div>
+
+        @if (decidable()) {
+          <label for="rrReason" class="rr__rotulo">Motivo <small>(obrigatório para devolver)</small></label>
+          <textarea id="rrReason" rows="3" maxlength="500" [(ngModel)]="reason"
+                    placeholder="Ex.: a foto está cortada, falta o verso."></textarea>
+        }
+        @if (error()) { <p class="rr__erro" role="alert">{{ error() }}</p> }
+      </div>
+    </div>
+  }
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!recipient()" [title]="title()" (closed)="close()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="corpo" /></div>
+    <div pkSheetFooter class="rr__botoes">
+      @if (decidable()) {
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Devolver" [pkDisabled]="!canReturn || saving()" (clicked)="decide('return')" />
+        <pk-button pkType="save" pkSize="sm" pkLabel="Aprovar" [pkLoading]="saving()" (clicked)="decide('approve')" />
+      } @else {
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="close()" />
+      }
+    </div>
+  </pk-sheet>
+} @else {
+  <pk-dialog [width]="files().length ? '960px' : '560px'" [flush]="true" [header]="title()"
+             [visible]="!!recipient()" (visibleChange)="!$event && close()">
+    <div pkDialogContent class="rr__moldura"><ng-container *ngTemplateOutlet="corpo" /></div>
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" pkIcon="pi pi-arrow-left" (clicked)="close()" />
+      <span class="rr__espaco"></span>
+      @if (decidable()) {
+        <pk-button pkType="cancel" pkSize="sm" pkLabel="Devolver" [pkDisabled]="!canReturn || saving()" (clicked)="decide('return')" />
+        <pk-button pkType="save" pkSize="sm" pkLabel="Aprovar" [pkLoading]="saving()" (clicked)="decide('approve')" />
+      }
+    </div>
+  </pk-dialog>
+}

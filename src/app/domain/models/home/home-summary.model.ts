@@ -14,7 +14,10 @@ export type PendingType =
   | 'ATESTADO_AGUARDANDO'
   | 'ATESTADO_RECUSADO'
   | 'CONFERENCIA_ATESTADO'
-  | 'EVENT_RSVP';
+  | 'EVENT_RSVP'
+  | 'SOLICITACAO_PENDENTE'
+  | 'SOLICITACAO_DEVOLVIDA'
+  | 'CONFERENCIA_SOLICITACAO';
 
 export interface PendingItem {
   type: PendingType;
@@ -56,9 +59,19 @@ export const PENDING_INFO: Record<PendingType, { icon: string; rota: string; acc
   ATESTADO_RECUSADO:       { icon: 'pi pi-file-check', rota: '/documentos/rh/medical-certificates', accent: 'navy' },
   CONFERENCIA_ATESTADO:    { icon: 'pi pi-file-check', rota: '/rh/medical-certificates',            accent: 'navy' },
   EVENT_RSVP:              { icon: 'pi pi-calendar', rota: '/convites',                          accent: 'navy'  },
+  SOLICITACAO_PENDENTE:    { icon: 'pi pi-inbox',    rota: '/documentos/rh/requests',            accent: 'navy'  },
+  SOLICITACAO_DEVOLVIDA:   { icon: 'pi pi-inbox',    rota: '/documentos/rh/requests',            accent: 'navy'  },
+  CONFERENCIA_SOLICITACAO: { icon: 'pi pi-inbox',    rota: '/rh/pendencias',                     accent: 'navy'  },
 };
 
-/** O convite abre direto no evento: `/convites?evento=<id>`. Os outros tipos abrem a lista. */
+/**
+ * O convite abre direto no evento (`/convites?evento=<id>`), e a solicitação
+ * direto na resposta (`/documentos/rh/requests?resposta=<id>`). Os outros tipos
+ * abrem a lista.
+ */
 export function pendingQuery(item: PendingItem): Record<string, string> | null {
-  return item.type === 'EVENT_RSVP' && item.refId ? { evento: item.refId } : null;
+  if (!item.refId) return null;
+  if (item.type === 'EVENT_RSVP') return { evento: item.refId };
+  if (item.type === 'SOLICITACAO_PENDENTE' || item.type === 'SOLICITACAO_DEVOLVIDA') return { resposta: item.refId };
+  return null;
 }
