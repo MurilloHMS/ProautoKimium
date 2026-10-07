@@ -1,0 +1,338 @@
+<p-toast position="top-right" />
+
+<nav class="eq-abas" aria-label="Telas de e-mail">
+  <a routerLink="/dev/email-queue" routerLinkActive="is-on" ariaCurrentWhenActive="page">Fila de e-mails</a>
+  <a routerLink="/dev/email-senders" routerLinkActive="is-on" ariaCurrentWhenActive="page">Remetentes</a>
+</nav>
+
+<div class="eq-rolagem">
+  <!-- O agendador está vivo? A última atividade responde. -->
+  <div class="eq-saude" role="status">
+    <span class="eq-saude__ponto" [class.is-parado]="!summary()?.lastActivityAt" aria-hidden="true"></span>
+    <b>{{ summary()?.lastActivityAt ? 'Agendador rodando' : 'Agendador' }}</b>
+    <span class="eq-saude__texto">{{ activity() }}</span>
+    <span class="eq-espaco"></span>
+    <pk-segmented size="sm" ariaLabel="Período dos indicadores" [options]="periodOptions" [value]="period()"
+                  (valueChange)="setPeriod($event)" />
+    <button type="button" class="eq-icone" aria-label="Atualizar" title="Atualizar" [disabled]="loading() || summaryLoading()" (click)="refresh()">
+      <i class="pi pi-refresh" [class.pi-spin]="loading() || summaryLoading()" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @if (summary(); as s) {
+    <div class="eq-kpis">
+      <button type="button" class="eq-kpi eq-kpi--danger" [attr.aria-pressed]="status() === 'FAILED' && !reason()" (click)="toggleKpi('FAILED')">
+        <span>Falharam e precisam de você</span><b>{{ s.failed }}</b><small>esgotaram as {{ maxAttempts }} tentativas</small>
+      </button>
+      <button type="button" class="eq-kpi eq-kpi--warning" [attr.aria-pressed]="status() === 'QUEUE'" (click)="toggleKpi('QUEUE')">
+        <span>Na fila agora</span><b>{{ s.queued }}</b>
+        <small>{{ waiting() !== null ? 'mais antigo espera ' + waiting() + ' min' : 'fila vazia' }}</small>
+      </button>
+      <button type="button" class="eq-kpi eq-kpi--success" [attr.aria-pressed]="status() === 'SENT'" (click)="toggleKpi('SENT')">
+        <span>Enviados</span><b>{{ s.sent }}</b><small>{{ s.successRate === null ? 'nenhum envio no período' : dec(s.successRate) + '% de sucesso' }}</small>
+      </button>
+      <div class="eq-kpi">
+        <span>Precisaram insistir</span><b>{{ s.retried }}</b><small>média de {{ dec(s.avgAttempts, 2) }} tentativas por e-mail</small>
+      </div>
+    </div>
+
+    <div class="eq-paineis">
+      <section class="eq-card" aria-labelledby="eqGrafico">
+        <div class="eq-card__cabeca"><h2 id="eqGrafico">Envios por dia</h2><small>últimos {{ s.perDay.length }} dia(s)</small></div>
+        <div class="eq-legenda">
+          <span><i class="eq-legenda--ok"></i>Enviados</span>
+          <span><i class="eq-legenda--falha"></i>Falharam</span>
+          <span><i class="eq-legenda--insistiu"></i>Precisaram de mais de uma tentativa</span>
+        </div>
+        @if (chart(); as c) {
+          <svg class="eq-grafico" [attr.viewBox]="'0 0 ' + c.width + ' ' + c.height" role="img" aria-label="Envios por dia">
+            @for (t of c.ticks; track t.value) {
+              <line class="eq-grafico__grade" [attr.x1]="c.plotLeft" [attr.x2]="c.width" [attr.y1]="t.y" [attr.y2]="t.y" />
+              <text class="eq-grafico__eixo" [attr.x]="c.plotLeft - 6" [attr.y]="t.y + 3" text-anchor="end">{{ t.value }}</text>
+            }
+            @for (b of c.bars; track b.date) {
+              <g>
+                <title>{{ b.title }}</title>
+                @if (b.sentH > 0) { <rect class="eq-grafico__ok" [attr.x]="b.x" [attr.y]="b.sentY" [attr.width]="b.width" [attr.height]="b.sentH" rx="2" /> }
+                @if (b.retriedH > 0) { <rect class="eq-grafico__insistiu" [attr.x]="b.x" [attr.y]="b.retriedY" [attr.width]="b.width" [attr.height]="b.retriedH" /> }
+                @if (b.failedH > 0) { <rect class="eq-grafico__falha" [attr.x]="b.x" [attr.y]="b.failedY" [attr.width]="b.width" [attr.height]="b.failedH" rx="2" /> }
+                @if (b.showLabel) {
+                  <text class="eq-grafico__eixo" [attr.x]="b.x + b.width / 2" [attr.y]="c.height - 6" text-anchor="middle">{{ b.label }}</text>
+                }
+              </g>
+            }
+          </svg>
+        }
+      </section>
+
+      <section class="eq-card" aria-labelledby="eqMotivos">
+        <div class="eq-card__cabeca"><h2 id="eqMotivos">Motivos de erro</h2><small>clique para filtrar</small></div>
+        <div class="eq-motivos">
+          @for (r of s.reasons; track r.kind) {
+            <button type="button" class="eq-motivo" [attr.aria-pressed]="reason() === r.kind" (click)="toggleReason(r)">
+              <b>{{ r.label }}</b><span class="eq-num">{{ r.count }}</span>
+              @if (r.sample) { <span class="eq-motivo__codigo" [title]="r.sample">{{ code(r.sample) }}</span> }
+              <span class="eq-barra"><i [style.width.%]="pct(r.count, maxReason())"></i></span>
+            </button>
+          } @empty {
+            <p class="eq-dica">Nenhuma falha no período.</p>
+          }
+        </div>
+      </section>
+
+      <section class="eq-card" aria-labelledby="eqOrigens">
+        <div class="eq-card__cabeca"><h2 id="eqOrigens">Por origem</h2><small>total · falhas</small></div>
+        <div class="eq-origens">
+          @for (o of originsSorted(); track o.origin ?? '') {
+            <div class="eq-origem">
+              <span>{{ originOf(o.origin, o.label) }}</span>
+              <span class="eq-num">{{ o.total }}</span>
+              <span class="eq-num eq-origem__falhas" [class.is-zero]="!o.failed">{{ o.failed }}</span>
+            </div>
+          } @empty {
+            <p class="eq-dica">Nenhum e-mail no período.</p>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  <section class="eq-lista" aria-labelledby="eqLista">
+    <div class="eq-barra-ferramentas">
+      <div class="eq-linha">
+        <h2 id="eqLista">E-mails</h2>
+        <label class="eq-busca">
+          <i class="pi pi-search" aria-hidden="true"></i>
+          <input pInputText class="eq-busca__campo" type="search" placeholder="Destinatário ou assunto" aria-label="Buscar por destinatário ou assunto"
+                 [ngModel]="search()" (ngModelChange)="onSearch($event)" />
+        </label>
+        <select class="eq-select" aria-label="Origem" [ngModel]="origin() ?? ''" (ngModelChange)="setOrigin($event)">
+          <option value="">Todas as origens</option>
+          @for (o of originOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
+        </select>
+        <select class="eq-select" aria-label="Período" [ngModel]="listDays()" (ngModelChange)="setListDays($event)">
+          <option [ngValue]="1">Hoje</option>
+          <option [ngValue]="7">Últimos 7 dias</option>
+          <option [ngValue]="30">Últimos 30 dias</option>
+        </select>
+      </div>
+      <div class="eq-chips" role="group" aria-label="Situação">
+        @for (c of chips(); track c.label) {
+          <button type="button" class="eq-chip" [attr.aria-pressed]="chipPressed(c.key) && !reason()" (click)="setStatus(c.key)">
+            {{ c.label }} @if (c.count !== null) { <small>{{ c.count }}</small> }
+          </button>
+        }
+        @if (reasonLabel(); as rl) {
+          <button type="button" class="eq-chip eq-chip--limpar" (click)="clearFilter()"><i class="pi pi-times" aria-hidden="true"></i> {{ rl }}</button>
+        }
+        @if (status() === 'QUEUE') {
+          <button type="button" class="eq-chip eq-chip--limpar" (click)="clearFilter()"><i class="pi pi-times" aria-hidden="true"></i> Na fila e agendados</button>
+        }
+      </div>
+    </div>
+
+    @if (selectedIds().length && canResend()) {
+      <div class="eq-lote" role="region" aria-label="Reenviar em lote">
+        @if (bulkConfirm()) {
+          <span>Voltar <b>{{ selectedIds().length }}</b> e-mail(s) para a fila, com as tentativas zeradas? O agendador envia na próxima passada.</span>
+          <span class="eq-espaco"></span>
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="bulkConfirm.set(false)" />
+          <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-replay" [pkLabel]="'Reenviar ' + selectedIds().length"
+                     [pkLoading]="busy()" (clicked)="resendSelected()" />
+        } @else {
+          <span><b>{{ selectedIds().length }}</b> e-mail(s) que falharam selecionado(s)</span>
+          <span class="eq-espaco"></span>
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Limpar" (clicked)="clearSelection()" />
+          <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-replay" [pkLabel]="'Reenviar ' + selectedIds().length" (clicked)="bulkConfirm.set(true)" />
+        }
+      </div>
+    }
+
+    <div class="table-card">
+      <pk-table [data]="visibleRows()" [loading]="loading()" [showCaption]="false" [rows]="20" [rowsOptions]="[20, 50, 100]"
+                emptyIcon="pi pi-envelope" emptyTitle="Nenhum e-mail com esses filtros" pageReportTitle="e-mails">
+        <ng-template #cardTpl let-r>
+          <article class="pk-cartao eq-clicavel" [class.pk-cartao--atencao]="failed(r)" (click)="open(r)">
+            <div class="pk-cartao__corpo pk-cartao__corpo--parado">
+              <span class="pk-cartao__titulo">{{ r.to }}</span>
+              <span class="pk-cartao__sub">{{ r.subject }}</span>
+              @if (hasError(r)) {
+                <span class="pk-cartao__sub eq-erro">{{ lastEvent(r) }} · {{ r.attempts }}/{{ maxAttempts }}</span>
+              } @else {
+                <span class="pk-cartao__sub">{{ originOf(r.origin, r.originLabel) }} · {{ lastEvent(r) === '—' ? short(r.createdAt) : lastEvent(r) }}</span>
+              }
+            </div>
+            <div class="pk-cartao__rodape">
+              <span class="status-chip" [ngClass]="'status-chip--' + info(r.status).chip">
+                <i [class]="info(r.status).icon" aria-hidden="true"></i> {{ info(r.status).label }}
+              </span>
+            </div>
+          </article>
+        </ng-template>
+        <ng-template #headerTpl>
+          <tr>
+            <th class="eq-col-check">
+              @if (canResend()) {
+                <input type="checkbox" aria-label="Selecionar todos os que falharam" [checked]="allSelected()"
+                       [disabled]="!failedVisible().length" (change)="toggleAll($any($event.target).checked)" />
+              }
+            </th>
+            <th>Situação</th><th>Destinatário</th><th>Assunto</th><th>Origem</th><th>Tentativas</th><th>Criado</th>
+            <th>Último erro ou envio</th><th class="col-center">Ações</th>
+          </tr>
+        </ng-template>
+        <ng-template #bodyTpl let-r>
+          <tr class="table-row eq-clicavel" (click)="open(r)">
+            <td class="eq-col-check" (click)="$event.stopPropagation()">
+              @if (resendable(r) && canResend()) {
+                <input type="checkbox" [attr.aria-label]="'Selecionar ' + r.to" [checked]="isSelected(r.id)"
+                       (change)="toggleSelect(r, $any($event.target).checked)" />
+              }
+            </td>
+            <td>
+              <span class="status-chip" [ngClass]="'status-chip--' + info(r.status).chip">
+                <i [class]="info(r.status).icon" aria-hidden="true"></i> {{ info(r.status).label }}
+              </span>
+            </td>
+            <td class="eq-quebra">{{ r.to }}</td>
+            <td class="eq-assunto" [title]="r.subject">
+              @if (r.hasAttachments) { <i class="pi pi-paperclip" aria-label="Com anexo"></i> }
+              {{ r.subject }}
+            </td>
+            <td>{{ originOf(r.origin, r.originLabel) }}</td>
+            <td>
+              <span class="eq-tentativas" [ngClass]="'eq-tentativas--' + tone(r)" [attr.aria-label]="r.attempts + ' de ' + maxAttempts + ' tentativas'">
+                @for (d of dots(r); track $index) { <i [class.is-on]="d.on"></i> }
+              </span>
+              <span class="eq-num eq-mudo">{{ r.attempts }}/{{ maxAttempts }}</span>
+            </td>
+            <td class="eq-num">{{ short(r.createdAt) }}</td>
+            <td class="eq-ultimo" [class.eq-erro]="hasError(r)" [title]="r.lastError ?? ''">{{ lastEvent(r) }}</td>
+            <td class="col-center" (click)="$event.stopPropagation()">
+              @if (resendable(r)) {
+                <button *pkCan="'dev/email-queue:ALTERAR'" type="button" class="eq-acao" (click)="open(r, true)">Reenviar</button>
+              }
+            </td>
+          </tr>
+        </ng-template>
+      </pk-table>
+    </div>
+    <p class="eq-rodape">
+      <span>{{ total() }} e-mail(s)@if (total() > rows().length) { · mostrando os {{ rows().length }} mais recentes }</span>
+      @if (reason()) { <span>Motivo filtrado entre os carregados.</span> }
+      <span class="eq-espaco"></span>
+      <span>Mais antigo primeiro entre os que falharam; os outros, do mais novo para o mais antigo.</span>
+    </p>
+  </section>
+</div>
+
+<!-- ── Ficha ── -->
+<ng-template #ficha>
+  @if (openedRow(); as row) {
+    <div class="eq-ficha">
+      <div class="eq-ficha__topo">
+        <span class="status-chip" [ngClass]="'status-chip--' + info(detail()?.status ?? row.status).chip">
+          <i [class]="info(detail()?.status ?? row.status).icon" aria-hidden="true"></i> {{ info(detail()?.status ?? row.status).label }}
+        </span>
+        <span class="eq-mudo">{{ originOf(row.origin, row.originLabel) }}</span>
+      </div>
+
+      @if (row.failureLabel || row.lastError) {
+        <div class="eq-caixa-erro">
+          <b>{{ row.failureLabel ?? 'Erro' }}</b>
+          @if (row.lastError) { <code>{{ row.lastError }}</code> }
+          <small>Última tentativa {{ stamp(row.lastAttemptAt) }} · {{ row.attempts }} de {{ maxAttempts }}</small>
+        </div>
+      }
+
+      @if (detailLoading()) {
+        <p class="eq-dica"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Abrindo o e-mail…</p>
+      } @else if (detailError()) {
+        <p class="eq-erro" role="alert">{{ detailError() }}</p>
+      }
+
+      @if (detail(); as d) {
+        <dl class="eq-kv">
+          <dt>Para</dt><dd>{{ d.to }}</dd>
+          <dt>De</dt><dd>@if (d.fromName) { {{ d.fromName }} &lt;{{ d.from }}&gt; } @else { {{ d.from }} }</dd>
+          <dt>Responder para</dt><dd>{{ d.replyTo ?? '—' }}</dd>
+          <dt>Criado</dt><dd>{{ stamp(d.createdAt) }}</dd>
+          <dt>Enviado</dt><dd>{{ stamp(d.sentAt) }}</dd>
+          <dt>Tentativas</dt>
+          <dd>
+            <span class="eq-tentativas" [ngClass]="'eq-tentativas--' + tone(d)" [attr.aria-label]="d.attempts + ' de ' + maxAttempts + ' tentativas'">
+              @for (x of dots(d); track $index) { <i [class.is-on]="x.on"></i> }
+            </span>
+            <span class="eq-num eq-mudo">{{ d.attempts }}/{{ maxAttempts }}</span>
+          </dd>
+        </dl>
+
+        @if (d.attachments.length) {
+          <div>
+            <h4 class="eq-ficha__titulo">Anexos</h4>
+            <ul class="eq-anexos">
+              @for (a of d.attachments; track a.filename) {
+                <li><i class="pi pi-paperclip" aria-hidden="true"></i> {{ a.filename }} <small>{{ size(a.sizeBytes) }}</small></li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div>
+          <h4 class="eq-ficha__titulo">Conteúdo</h4>
+          @if (d.bodyHidden) {
+            <div class="eq-escondido">
+              <b>Conteúdo escondido.</b> E-mail de {{ originOf(d.origin, d.originLabel).toLowerCase() }} leva código ou link que dá acesso à conta de
+              {{ localPart(d.to) }}. A tela mostra que ele existe, sem mostrar o que está dentro.
+              @if (failed(d)) {
+                <br>Não se reenvia: o código tem prazo e já não vale. Quem pediu solicita um novo.
+              }
+            </div>
+          } @else if (detailBody(); as html) {
+            <iframe class="eq-corpo" sandbox="" title="Conteúdo do e-mail" [srcdoc]="html"></iframe>
+          } @else {
+            <p class="eq-dica">E-mail sem conteúdo.</p>
+          }
+        </div>
+      }
+
+      @if (confirmResend()) {
+        <div class="eq-confirma" role="alert">
+          <p>Voltar este e-mail para a fila, com as tentativas zeradas?
+            @if (addressFailure(row.failureKind)) {
+              <b class="eq-erro">O erro foi no endereço: reenviar sem corrigir o cadastro vai falhar de novo.</b>
+            } @else {
+              O agendador envia na próxima passada.
+            }
+          </p>
+        </div>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #fichaBotoes>
+  @if (openedRow(); as row) {
+    @if (confirmResend()) {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="confirmResend.set(false)" />
+      <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-replay" pkLabel="Reenviar" [pkLoading]="busy()" (clicked)="resendOpened()" />
+    } @else {
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Fechar" (clicked)="closeDetail()" />
+      @if (resendable(row) && canResend()) {
+        <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-replay" pkLabel="Reenviar" (clicked)="askResend()" />
+      }
+    }
+  }
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!openedRow()" [title]="openedRow()?.subject ?? ''" (closed)="closeDetail()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="ficha" /></div>
+    <div pkSheetFooter class="eq-botoes"><ng-container *ngTemplateOutlet="fichaBotoes" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog width="640px" [header]="openedRow()?.subject ?? ''" [visible]="!!openedRow()" (visibleChange)="!$event && closeDetail()">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="ficha" /></div>
+    <div pkDialogFooter class="pk-dialog-footer"><ng-container *ngTemplateOutlet="fichaBotoes" /></div>
+  </pk-dialog>
+}
