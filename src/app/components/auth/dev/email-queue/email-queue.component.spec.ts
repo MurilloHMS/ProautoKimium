@@ -244,6 +244,38 @@ describe('EmailQueueComponent', () => {
       f.parentElement!.remove();
     });
 
+    it('e-mail antigo de 600px fixos: depois de encolher, o espaço da direita é igual ao da esquerda', async () => {
+      // A estrutura do template de vencimento de documentos de antes da fase 1:
+      // moldura com 10px de cada lado e o cartão de 600px fixos, que transborda à direita.
+      const f = await iframeCom(`<table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td align="center" style="padding:30px 10px"><table id="cartao" width="600" cellpadding="0" cellspacing="0"
+        style="background:#232e61"><tr><td style="height:80px">cartão</td></tr></table></td></tr></table>`, 590);
+      comp.fitBody(f);
+      const doc = f.contentDocument!;
+      const r = doc.getElementById('cartao')!.getBoundingClientRect();
+      // O Chrome já devolve o retângulo com o zoom aplicado.
+      const esquerda = r.left, direita = doc.documentElement.clientWidth - r.right;
+      expect(esquerda).toBeGreaterThan(5);
+      expect(Math.abs(esquerda - direita)).withContext(`esquerda ${esquerda.toFixed(1)} · direita ${direita.toFixed(1)}`).toBeLessThan(1.5);
+      f.parentElement!.remove();
+    });
+
+    it('a barra de rolagem da ficha aparece DEPOIS do ajuste (Windows): o e-mail reajusta e não fica cortado', async () => {
+      const antigo = `<table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <td align="center" style="padding:30px 10px"><table id="cartao" width="600" cellpadding="0" cellspacing="0"
+        style="background:#c0392b"><tr><td style="height:80px">cartão</td></tr></table></td></tr></table>`;
+      const f = await iframeCom(antigo, 640);
+      comp.fitBody(f);
+      // O iframe cresceu, a ficha ganhou barra de 17px, e ele ficou mais estreito.
+      f.style.width = '573px';
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const doc = f.contentDocument!;
+      const r = doc.getElementById('cartao')!.getBoundingClientRect();
+      expect(r.right).withContext('o cartão termina dentro da caixa').toBeLessThanOrEqual(doc.documentElement.clientWidth);
+      expect(Math.abs(r.left - (doc.documentElement.clientWidth - r.right))).toBeLessThan(1.5);
+      f.parentElement!.remove();
+    });
+
     it('e-mail antigo mais largo que a ficha encolhe para caber, em vez de rolar para o lado', async () => {
       const f = await iframeCom('<table width="640" style="width:640px"><tr><td>largo</td></tr></table>', 360);
       comp.fitBody(f);

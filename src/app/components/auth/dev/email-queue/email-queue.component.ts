@@ -173,9 +173,14 @@ export class EmailQueueComponent implements OnInit {
   });
 
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Reajusta o e-mail da ficha quando a largura do iframe muda (ver fitBody). */
+  private bodyObserver: ResizeObserver | null = null;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => { if (this.searchTimer) clearTimeout(this.searchTimer); });
+    inject(DestroyRef).onDestroy(() => {
+      if (this.searchTimer) clearTimeout(this.searchTimer);
+      this.bodyObserver?.disconnect();
+    });
   }
 
   ngOnInit(): void {
@@ -346,6 +351,8 @@ export class EmailQueueComponent implements OnInit {
   }
 
   closeDetail(): void {
+    this.bodyObserver?.disconnect();
+    this.bodyObserver = null;
     this.openedRow.set(null);
     this.detail.set(null);
     this.confirmResend.set(false);
@@ -401,6 +408,22 @@ export class EmailQueueComponent implements OnInit {
     fit();
     // Imagem que chega depois muda a altura.
     doc.querySelectorAll('img').forEach(img => img.addEventListener('load', fit, { once: true }));
+
+    // A largura muda DEPOIS do ajuste: o iframe cresce, a ficha ganha rolagem, e no
+    // Windows a barra ocupa 17px de verdade — o e-mail encolhido para a largura
+    // anterior ficava cortado na direita (print dele, 2026-10-07). Também cobre a
+    // janela redimensionada e o celular girado. Só a largura dispara: a altura muda
+    // a cada ajuste, e reagir a ela seria um laço.
+    this.bodyObserver?.disconnect();
+    let width = frame.clientWidth;
+    this.bodyObserver = new ResizeObserver(() => {
+      if (!frame.isConnected || frame.clientWidth === width) return;
+      width = frame.clientWidth;
+      // No próximo quadro: mudar a altura dentro do aviso do observer gera o erro
+      // "ResizeObserver loop completed with undelivered notifications".
+      requestAnimationFrame(fit);
+    });
+    this.bodyObserver.observe(frame);
   }
 
   // ── Leitura ──
