@@ -1,0 +1,398 @@
+@use 'mixins' as m;
+@use 'variables' as v;
+
+// Fila de e-mails: tela de grade, mas com painéis acima da lista. A tela inteira
+// rola por dentro (`.eq-rolagem`), e a lista tem altura própria no computador
+// para a paginação do pk-table ficar à vista.
+:host { @include m.grid-screen; }
+
+.eq-abas {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--app-text-muted);
+    text-decoration: none;
+    font-size: var(--text-ui);
+    &.is-on { color: var(--app-text); border-bottom-color: var(--app-action); font-weight: 600; }
+  }
+}
+
+.eq-rolagem {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px 16px calc(16px + var(--scroll-end-reserve, 0px));
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.eq-espaco { flex: 1; }
+.eq-num { font-variant-numeric: tabular-nums; }
+.eq-mudo { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+.eq-dica { margin: 0; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+.eq-erro { color: var(--app-danger); }
+.eq-clicavel { cursor: pointer; }
+
+// ── Saúde do agendador ──
+.eq-saude {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  font-size: var(--text-ui-sm);
+}
+.eq-saude__ponto {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--app-success);
+  box-shadow: 0 0 0 3px var(--app-success-soft);
+  &.is-parado { background: var(--app-text-subtle); box-shadow: 0 0 0 3px var(--app-surface-3); }
+}
+.eq-saude__texto { color: var(--app-text-muted); }
+
+.eq-icone {
+  display: inline-grid;
+  place-items: center;
+  width: var(--field-h);
+  height: var(--field-h);
+  padding: 0;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  &:disabled { opacity: .5; cursor: default; }
+}
+
+// ── Indicadores ──
+.eq-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.eq-kpi {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  text-align: left;
+  font: inherit;
+  color: var(--app-text);
+  span { font-size: var(--text-ui-sm); color: var(--app-text-muted); }
+  b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  small { font-size: var(--text-micro); color: var(--app-text-muted); }
+  &--danger b { color: var(--app-danger); }
+  &--warning b { color: var(--app-warning); }
+  &--success b { color: var(--app-success); }
+}
+button.eq-kpi {
+  cursor: pointer;
+  &:hover { border-color: var(--app-border-strong); }
+  &[aria-pressed='true'] { border-color: var(--app-action); box-shadow: inset 0 0 0 1px var(--app-action); }
+}
+
+// ── Painéis ──
+.eq-paineis {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  @media (max-width: 1100px) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); .eq-card:first-child { grid-column: 1 / -1; } }
+  @media (max-width: v.$bp-md) { grid-template-columns: minmax(0, 1fr); }
+}
+.eq-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+}
+.eq-card__cabeca {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  h2 { margin: 0; font-size: var(--text-ui); font-weight: 600; }
+  small { color: var(--app-text-muted); font-size: var(--text-micro); }
+}
+
+.eq-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: var(--text-micro);
+  color: var(--app-text-muted);
+  span { display: inline-flex; align-items: center; gap: 5px; }
+  i { width: 10px; height: 10px; border-radius: 2px; }
+}
+.eq-legenda--ok { background: var(--app-success); }
+.eq-legenda--falha { background: var(--app-danger); }
+.eq-legenda--insistiu { background: var(--app-warning); }
+
+.eq-grafico { width: 100%; height: auto; display: block; }
+.eq-grafico__grade { stroke: var(--app-border); stroke-width: 1; }
+.eq-grafico__eixo { fill: var(--app-text-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.eq-grafico__ok { fill: var(--app-success); }
+.eq-grafico__insistiu { fill: var(--app-warning); opacity: .9; }
+.eq-grafico__falha { fill: var(--app-danger); }
+
+.eq-motivos { display: grid; gap: 6px; }
+.eq-motivo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  b { font-weight: 600; font-size: var(--text-ui-sm); }
+  .eq-num { font-weight: 700; color: var(--app-danger); }
+  &[aria-pressed='true'] { border-color: var(--app-action); box-shadow: inset 0 0 0 1px var(--app-action); }
+}
+.eq-motivo__codigo {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--app-text-muted);
+  font-family: ui-monospace, monospace;
+  font-size: var(--text-micro);
+}
+.eq-barra {
+  grid-column: 1 / -1;
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--app-danger-soft);
+  i { display: block; height: 100%; background: var(--app-danger); }
+}
+
+.eq-origens { display: grid; }
+.eq-origem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px 36px;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--app-border-soft);
+  font-size: var(--text-ui-sm);
+  &:last-child { border-bottom: 0; }
+  .eq-num { text-align: right; }
+}
+.eq-origem__falhas { color: var(--app-danger); font-weight: 600; &.is-zero { color: var(--app-text-subtle); font-weight: 400; } }
+
+// ── Lista ──
+.eq-lista {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  overflow: hidden;
+  // A altura fica AQUI, no item do grid, e não no .table-card: a .eq-rolagem é
+  // um grid mais alto que a tela, e aí as linhas `auto` ficam no mínimo do
+  // conteúdo. O .table-card tem min-height 0, então a lista encolhia a 11px e
+  // só o paginador aparecia (medido em 2026-10-07).
+  height: min(640px, 75vh);
+  // No celular também precisa de altura: os cartões do pk-table rolam dentro
+  // da própria caixa, e com `auto` a lista inteira (busca e chips junto) ia a 2px.
+  @media (max-width: v.$bp-md) { height: 80dvh; }
+}
+.table-card { @include m.grid-screen-body; }
+
+.eq-barra-ferramentas { display: grid; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--app-border); }
+.eq-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  h2 { margin: 0 6px 0 0; font-size: var(--text-ui); font-weight: 600; }
+}
+.eq-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 1 300px;
+  min-width: 0;
+  i { position: absolute; left: 11px; font-size: .8rem; color: var(--app-text-subtle); pointer-events: none; }
+}
+.eq-busca__campo { width: 100%; height: var(--field-h); padding-left: 32px; }
+.eq-select {
+  height: var(--field-h);
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  &:focus { outline: none; border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
+}
+@media (max-width: v.$bp-md) {
+  .eq-busca { flex: 1 1 100%; }
+  .eq-select { flex: 1 1 140px; min-height: 44px; }
+}
+
+.eq-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.eq-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  cursor: pointer;
+  small { color: var(--app-text-muted); font-variant-numeric: tabular-nums; }
+  &[aria-pressed='true'] { border-color: var(--app-action); background: var(--app-action-soft); color: var(--app-action); font-weight: 600; }
+  &--limpar { border-style: dashed; color: var(--app-text-muted); }
+  @media (max-width: v.$bp-md) { min-height: 44px; }
+}
+
+.eq-lote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-action-soft);
+  font-size: var(--text-ui-sm);
+}
+
+.eq-col-check { width: 36px; input { width: 16px; height: 16px; cursor: pointer; } }
+.eq-quebra { overflow-wrap: anywhere; }
+.eq-assunto { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; i { color: var(--app-text-muted); font-size: var(--text-micro); } }
+.eq-ultimo { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--app-text-muted); font-size: var(--text-ui-sm); &.eq-erro { color: var(--app-danger); } }
+
+.eq-tentativas {
+  display: inline-flex;
+  gap: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+  i { width: 7px; height: 7px; border-radius: 50%; background: var(--app-surface-3); border: 1px solid var(--app-border); }
+  i.is-on { background: var(--app-warning); border-color: var(--app-warning); }
+  &--dead i.is-on { background: var(--app-danger); border-color: var(--app-danger); }
+  &--ok i.is-on { background: var(--app-success); border-color: var(--app-success); }
+}
+
+.eq-acao {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.eq-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+}
+
+// ── Ficha ──
+.eq-ficha { display: grid; gap: 14px; }
+.eq-ficha__topo { display: flex; align-items: center; gap: 10px; }
+.eq-ficha__titulo { margin: 0 0 6px; font-size: var(--text-ui-sm); color: var(--app-text-muted); font-weight: 600; }
+
+.eq-caixa-erro {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-danger);
+  border-radius: var(--radius-control);
+  background: var(--app-danger-soft);
+  b { color: var(--app-danger); }
+  code {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: ui-monospace, monospace;
+    font-size: var(--text-micro);
+    color: var(--app-text);
+  }
+  small { color: var(--app-text-muted); font-size: var(--text-micro); }
+}
+
+.eq-kv {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 14px;
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  dt { color: var(--app-text-muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+}
+
+.eq-anexos {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-ui-sm);
+  small { color: var(--app-text-muted); }
+}
+
+.eq-corpo {
+  width: 100%;
+  height: 360px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  // O e-mail é desenhado para fundo branco; o papel dele é a superfície clara.
+  background: var(--app-surface);
+}
+
+.eq-escondido {
+  padding: 12px;
+  border: 1px dashed var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  b { color: var(--app-text); }
+}
+
+.eq-confirma {
+  padding: 10px 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  p { margin: 0; font-size: var(--text-ui-sm); }
+  b { display: block; margin-top: 6px; }
+}
+
+.eq-botoes { display: flex; gap: .5rem; width: 100%; > * { flex: 1; } }

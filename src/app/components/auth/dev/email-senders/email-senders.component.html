@@ -1,0 +1,123 @@
+<p-toast position="top-right" />
+
+<nav class="es-abas" aria-label="Telas de e-mail">
+  <a routerLink="/dev/email-queue" routerLinkActive="is-on" ariaCurrentWhenActive="page">Fila de e-mails</a>
+  <a routerLink="/dev/email-senders" routerLinkActive="is-on" ariaCurrentWhenActive="page">Remetentes</a>
+</nav>
+
+<div class="es-rolagem">
+  <div class="es-grade">
+    <section class="es-card" aria-labelledby="esRemetentes">
+      <div class="es-card__cabeca">
+        <h2 id="esRemetentes">E-mails da empresa</h2>
+        @if (canCreate() && !adding()) {
+          <pk-button pkType="new" pkSize="sm" pkLabel="Novo remetente" (clicked)="openNew()" />
+        }
+      </div>
+      <p class="es-dica">Os únicos endereços de onde o ERP envia. Todos em <code>{{ domain }}</code>, o domínio autorizado no SMTP.</p>
+
+      @if (adding()) {
+        <form class="es-novo" novalidate (ngSubmit)="createSender()">
+          <label for="esDisplay">Nome que aparece para quem recebe
+            <input pInputText id="esDisplay" name="displayName" placeholder="Ex.: Financeiro Proauto" maxlength="60"
+                   [(ngModel)]="newDisplay" />
+          </label>
+          <label for="esName">Endereço
+            <span class="es-endereco">
+              <input pInputText id="esName" name="name" placeholder="financeiro" maxlength="30" autocomplete="off"
+                     autocapitalize="off" spellcheck="false" [(ngModel)]="newName" />
+              <span>{{ domain }}</span>
+            </span>
+          </label>
+          @if (formError()) { <p class="es-erro" role="alert">{{ formError() }}</p> }
+          <div class="es-novo__botoes">
+            <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="cancelNew()" />
+            <pk-button pkType="save" pkSize="sm" pkLabel="Salvar" [pkLoading]="creating()" (clicked)="createSender()" />
+          </div>
+        </form>
+      }
+
+      <div class="es-remetentes">
+        @for (s of senders(); track s.id) {
+          <div class="es-remetente" [class.is-inativo]="!s.active">
+            <b>
+              {{ s.displayName }}
+              @if (s.isDefault) { <span class="status-chip status-chip--info">padrão</span> }
+              @if (!s.active) { <span class="status-chip status-chip--neutral">inativo</span> }
+            </b>
+            <span class="es-remetente__endereco">{{ s.address }}</span>
+            <span class="es-remetente__uso">{{ usedBy(s) }}</span>
+            @if (canEdit()) {
+              <span class="es-remetente__acoes">
+                @if (s.active) {
+                  @if (!s.isDefault) {
+                    <button type="button" class="es-acao" [disabled]="saving() === s.id" (click)="makeDefault(s)">Tornar padrão</button>
+                  }
+                  <button type="button" class="es-acao" [disabled]="!!blockReason(s) || saving() === s.id"
+                          [title]="blockReason(s) ?? ''" (click)="deactivate(s)">Desativar</button>
+                } @else {
+                  <button type="button" class="es-acao" [disabled]="saving() === s.id" (click)="activate(s)">Ativar</button>
+                }
+              </span>
+            }
+          </div>
+        } @empty {
+          <p class="es-dica">{{ loading() ? 'Carregando…' : 'Nenhum remetente cadastrado.' }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="es-card" aria-labelledby="esRotas">
+      <div class="es-card__cabeca"><h2 id="esRotas">Quem envia o quê</h2><small>vale para os próximos e-mails</small></div>
+
+      <ng-template #remetenteSelect let-r let-label="label">
+        <select class="es-select" [attr.aria-label]="label" [disabled]="!canEdit() || saving() === r.origin"
+                [ngModel]="r.senderId" (ngModelChange)="changeRoute(r, 'senderId', $event)">
+          <option [ngValue]="null">Remetente padrão</option>
+          @for (s of choices(r.senderId); track s.id) { <option [ngValue]="s.id">{{ optionLabel(s) }}</option> }
+        </select>
+      </ng-template>
+      <ng-template #respostaSelect let-r let-label="label">
+        <select class="es-select" [attr.aria-label]="label" [disabled]="!canEdit() || saving() === r.origin"
+                [ngModel]="r.replyToId" (ngModelChange)="changeRoute(r, 'replyToId', $event)">
+          <option [ngValue]="null">Ninguém (não responder)</option>
+          @for (s of choices(r.replyToId); track s.id) { <option [ngValue]="s.id">{{ optionLabel(s) }}</option> }
+        </select>
+      </ng-template>
+
+      @if (ehCelular()) {
+        <div class="es-rotas-cartoes">
+          @for (r of routes(); track r.origin) {
+            <div class="es-rota-cartao">
+              <b>{{ r.label }}</b>
+              <small>@if (r.hint) { {{ r.hint }} · } {{ r.last30Days }} em 30 dias</small>
+              <label>Envia como
+                <ng-container *ngTemplateOutlet="remetenteSelect; context: { $implicit: r, label: 'Remetente de ' + r.label }" />
+              </label>
+              <label>Responder para
+                <ng-container *ngTemplateOutlet="respostaSelect; context: { $implicit: r, label: 'Responder para, em ' + r.label }" />
+              </label>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="es-tabela-rolagem">
+          <table class="es-tabela">
+            <thead><tr><th>Serviço</th><th>Envia como</th><th>Responder para</th><th class="es-num">Últimos 30 dias</th></tr></thead>
+            <tbody>
+              @for (r of routes(); track r.origin) {
+                <tr>
+                  <td><b>{{ r.label }}</b>@if (r.hint) { <small>{{ r.hint }}</small> }</td>
+                  <td><ng-container *ngTemplateOutlet="remetenteSelect; context: { $implicit: r, label: 'Remetente de ' + r.label }" /></td>
+                  <td><ng-container *ngTemplateOutlet="respostaSelect; context: { $implicit: r, label: 'Responder para, em ' + r.label }" /></td>
+                  <td class="es-num">{{ r.last30Days }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+      <p class="es-dica">O e-mail guarda o remetente do momento em que entrou na fila: mudar aqui não altera o que já está na fila, o que já foi enviado nem o que for reenviado.</p>
+    </section>
+  </div>
+</div>
