@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   EmailDetail,
+  EmailInsights,
   EmailListQuery,
   EmailPage,
   EmailRow,
@@ -29,6 +30,11 @@ export class EmailQueueService {
 
   summary(period: PeriodQuery): Observable<EmailSummary> {
     return this.http.get<EmailSummary>(`${this.url}/summary`, { params: withPeriod(new HttpParams(), period) });
+  }
+
+  /** A análise do período: tendência, funil, tempos, origem, provedor, endereços, horário e rastreio. */
+  insights(period: PeriodQuery): Observable<EmailInsights> {
+    return this.http.get<EmailInsights>(`${this.url}/insights`, { params: withPeriod(new HttpParams(), period) });
   }
 
   get(id: string): Observable<EmailDetail> {

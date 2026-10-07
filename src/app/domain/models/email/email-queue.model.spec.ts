@@ -22,6 +22,11 @@ import {
   buildChart as buildChartFn,
   groupByWeek,
   periodQuery,
+  trend,
+  rateTrend,
+  formatDuration,
+  bucketLabels,
+  hourIntensity,
   rowStatusInfo,
   lastEventText as lastEventTextFn,
 } from './email-queue.model';
@@ -230,6 +235,36 @@ describe('email-queue.model', () => {
       expect(semanas[0].sent).withContext('a primeira semana fica com o resto: 90 = 12×7 + 6').toBe(12);
       const b = buildChartFn(dias(90)).bars.at(-1)!;
       expect(b.period).toMatch(/^semana de \d{2}\/\d{2} a \d{2}\/\d{2}$/);
+    });
+  });
+
+  describe('análise', () => {
+    it('tendência: a cor depende do que é melhora', () => {
+      expect(trend(12, 7, false)).toEqual(jasmine.objectContaining({ text: '▲ 5', tone: 'bad' }));
+      expect(trend(6, 8, false)).toEqual(jasmine.objectContaining({ text: '▼ 2', tone: 'good' }));
+      expect(trend(1212, 1120, true, true)).toEqual(jasmine.objectContaining({ text: '▲ 8%', tone: 'good' }));
+      expect(trend(3, 3, true)!.tone).toBe('flat');
+      expect(trend(0, 0, true)).withContext('nada nos dois períodos: sem seta').toBeNull();
+    });
+
+    it('taxa: diferença em pontos percentuais; sem um dos lados, sem seta', () => {
+      expect(rateTrend(98.0, 97.9)!.text).toBe('▲ 0,1 p.p.');
+      expect(rateTrend(95, 97.5)).toEqual(jasmine.objectContaining({ text: '▼ 2,5 p.p.', tone: 'bad' }));
+      expect(rateTrend(98, null)).toBeNull();
+    });
+
+    it('duração legível', () => {
+      expect([0, 42, 190, 3600, 3900].map(formatDuration)).toEqual(['na hora', '42 s', '3 min', '1 h', '1 h 5 min']);
+      expect(formatDuration(null)).toBe('—');
+    });
+
+    it('as faixas do histograma, uma a mais que os limites', () => {
+      expect(bucketLabels([15, 60])).toEqual(['< 15 s', '15 s – 1 min', '1 min +']);
+    });
+
+    it('intensidade do horário relativa ao pico', () => {
+      expect(hourIntensity([0, 5, 10])).toEqual([0, 50, 100]);
+      expect(hourIntensity([0, 0])).toEqual([0, 0]);
     });
   });
 });

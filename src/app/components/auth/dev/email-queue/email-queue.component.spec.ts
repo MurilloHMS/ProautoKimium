@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 import { EmailQueueComponent } from './email-queue.component';
 import { EmailQueueService } from '../../../../infrastructure/services/email/email-queue.service';
 import { PermissionStore } from '../../../../infrastructure/state/permission.store';
-import { EmailDetail, EmailRow, EmailSummary } from '../../../../domain/models/email/email-queue.model';
+import { EmailDetail, EmailInsights, EmailRow, EmailSummary } from '../../../../domain/models/email/email-queue.model';
 import { NO_COMPUTADOR, larguraDaJanela, providersDeTeste, restaurarLargura } from '../../../../../testing/test-setup';
 
 function row(over: Partial<EmailRow> = {}): EmailRow {
@@ -22,6 +22,19 @@ const SUMMARY: EmailSummary = {
   lastActivityAt: '2026-10-07T17:42:00', perDay: [], reasons: [], origins: [],
 };
 
+const INSIGHTS: EmailInsights = {
+  current: { failed: 12, sent: 1212, retried: 21, bounced: 6, deliveryRate: 98.0 },
+  previous: { failed: 7, sent: 1120, retried: 12, bounced: 8, deliveryRate: 97.9 },
+  funnel: { created: 1240, sent: 1212, delivered: 1188, queued: 16, failed: 12, bounced: 6, unconfirmed: 18 },
+  toSend: { count: 10, medianSeconds: 42, p95Seconds: 190, edges: [15, 30, 60, 120, 300, 900], buckets: [2, 1, 3, 1, 1, 1, 1] },
+  toDeliver: { count: 0, medianSeconds: null, p95Seconds: null, edges: [1, 2, 5, 10, 30, 60], buckets: [0, 0, 0, 0, 0, 0, 0] },
+  origins: [{ origin: 'NEWSLETTER', label: 'Newsletter', total: 412, failed: 2, deliveryRate: 93.1, medianToSendSeconds: 360 }],
+  domains: [{ domain: 'hotmail.com', total: 176, deliveryRate: 93.2, bounced: 4 }],
+  problemAddresses: [{ address: 'joao@hotmial.com', times: 4, lastKind: 'INVALID_ADDRESS', lastLabel: 'Endereço inválido', origin: 'NEWSLETTER', originLabel: 'Newsletter' }],
+  perHour: Array.from({ length: 24 }, (_, h) => (h === 8 ? 100 : h === 6 ? 55 : 0)),
+  tracking: { enabled: true, awaiting: 16, unconfirmed: 2, lastRunAt: '2026-10-07T15:20:00', lastRunOk: true, lastRunPages: 1, lastRunError: null },
+};
+
 const ROWS = [
   row({ id: 'f1', to: 'joao@x.com', status: 'FAILED', attempts: 5, failureKind: 'MAILBOX_NOT_FOUND', failureLabel: 'Caixa postal não existe', lastError: '550 5.1.1' }),
   row({ id: 'f2', to: 'bia@x.com', status: 'FAILED', attempts: 5, failureKind: 'TIMEOUT', failureLabel: 'Tempo esgotado' }),
@@ -36,7 +49,8 @@ describe('EmailQueueComponent', () => {
 
   beforeEach(async () => {
     larguraDaJanela(NO_COMPUTADOR);
-    service = jasmine.createSpyObj<EmailQueueService>('EmailQueueService', ['list', 'summary', 'get', 'resend', 'resendMany']);
+    service = jasmine.createSpyObj<EmailQueueService>('EmailQueueService', ['list', 'summary', 'insights', 'get', 'resend', 'resendMany']);
+    service.insights.and.returnValue(of(INSIGHTS));
     service.list.and.returnValue(of({ total: ROWS.length, items: ROWS }));
     service.summary.and.returnValue(of(SUMMARY));
     service.get.and.callFake((id: string) => of({
@@ -215,7 +229,9 @@ describe('EmailQueueComponent', () => {
     expect(texto).toContain('92,5%');
     expect(texto).toContain('37 de 40 chegaram ao destinatário');
     expect(texto).toContain('2 sem confirmação');
-    expect(texto).toContain('1 devolvido(s)');
+    const devolvidos = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.eq-kpi'))
+      .find(k => k.textContent!.includes('Devolvidos'))!;
+    expect(devolvidos.querySelector('b')!.textContent).toBe('1');
   });
 
   describe('o e-mail na ficha não rola por dentro', () => {
@@ -285,6 +301,55 @@ describe('EmailQueueComponent', () => {
       expect(Number(zoom)).toBeLessThan(1);
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
       f.parentElement!.remove();
+    });
+  });
+
+  describe('análise (blocos A a H)', () => {
+    const texto = () => (fixture.nativeElement as HTMLElement).textContent!.replace(/\s+/g, ' ');
+
+    it('A: falhas subindo é seta vermelha; devolvidos caindo é verde; taxa em pontos percentuais', () => {
+      const setas = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.eq-kpis .eq-seta'));
+      const falhas = setas.find(s => s.closest('.eq-kpi')!.textContent!.includes('Falharam'))!;
+      const devolvidos = setas.find(s => s.closest('.eq-kpi')!.textContent!.includes('Devolvidos'))!;
+      expect(falhas.textContent!.trim()).toBe('▲ 5');
+      expect(falhas.classList).toContain('is-bad');
+      expect(devolvidos.textContent!.trim()).toBe('▼ 2');
+      expect(devolvidos.classList).toContain('is-good');
+      expect(texto()).toContain('▲ 0,1 p.p.');
+    });
+
+    it('B, C, D, E, G e H aparecem com os números da API', () => {
+      const t = texto();
+      expect(t).toContain('Do pedido à caixa de entrada');
+      expect(t).toContain('1188');
+      expect(t).toContain('18 sem confirmação');
+      expect(t).toContain('42 s · 95% até 3 min');
+      expect(t).toContain('sem dados no período');
+      expect(t).toContain('hotmail.com');
+      expect(t).toContain('pico às 8h (100)');
+      expect(t).toContain('enviados sem confirmação de entrega · 2 passaram dos 3 dias');
+      expect((fixture.nativeElement as HTMLElement).querySelector('.eq-taxa.is-baixa')).withContext('93,1% fica amarelo').not.toBeNull();
+    });
+
+    it('F: "Ver os 4" filtra a lista por aquele endereço', () => {
+      service.list.calls.reset();
+      const botao = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('button'))
+        .find(b => b.textContent!.includes('Ver os 4')) as HTMLButtonElement;
+      botao.click();
+      expect(service.list).toHaveBeenCalledWith(jasmine.objectContaining({ q: 'joao@hotmial.com', status: null }));
+    });
+
+    it('G: sem o token, a tela diz que o rastreio está desligado', () => {
+      service.insights.and.returnValue(of({ ...INSIGHTS, tracking: { ...INSIGHTS.tracking, enabled: false } }));
+      comp.refresh();
+      fixture.detectChanges();
+      expect(texto()).toContain('Desligado: falta o SMTP_API_TOKEN');
+    });
+
+    it('o período vai também para a análise', () => {
+      service.insights.calls.reset();
+      comp.setPeriod(30);
+      expect(service.insights).toHaveBeenCalledWith({ days: 30 });
     });
   });
 });

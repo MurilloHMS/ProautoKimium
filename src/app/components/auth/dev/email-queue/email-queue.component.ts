@@ -33,6 +33,14 @@ import {
   MAX_PERIOD_DAYS,
   PeriodChoice,
   ChartBar,
+  EmailInsights,
+  ProblemAddress,
+  bucketLabels,
+  formatDuration,
+  hourIntensity,
+  rateTrend,
+  share,
+  trend,
   deliveryText,
   isBounced,
   isoDate,
@@ -109,6 +117,32 @@ export class EmailQueueComponent implements OnInit {
   readonly summary = signal<EmailSummary | null>(null);
   readonly summaryLoading = signal(false);
 
+  // ── Análise (blocos A a H) ──
+  readonly insights = signal<EmailInsights | null>(null);
+  readonly trends = computed(() => {
+    const i = this.insights();
+    if (!i) return null;
+    const c = i.current, p = i.previous;
+    return {
+      failed: trend(c.failed, p.failed, false),
+      sent: trend(c.sent, p.sent, true, true),
+      rate: rateTrend(c.deliveryRate, p.deliveryRate),
+      bounced: trend(c.bounced, p.bounced, false),
+      retried: trend(c.retried, p.retried, false),
+    };
+  });
+  readonly sendLabels = computed(() => bucketLabels(this.insights()?.toSend.edges ?? []));
+  readonly deliverLabels = computed(() => bucketLabels(this.insights()?.toDeliver.edges ?? []));
+  readonly hours = computed(() => {
+    const per = this.insights()?.perHour ?? [];
+    const level = hourIntensity(per);
+    return per.map((n, h) => ({ h, n, level: level[h] }));
+  });
+  readonly peakHour = computed(() => {
+    const hs = this.hours();
+    return hs.length && hs.some(x => x.n) ? hs.reduce((a, b) => (b.n > a.n ? b : a)) : null;
+  });
+
   // ── Gráfico: a barra sob o mouse (ou o foco do teclado) mostra os números ──
   readonly hoveredBar = signal<ChartBar | null>(null);
 
@@ -155,7 +189,6 @@ export class EmailQueueComponent implements OnInit {
     return s?.days === 1 ? 'hoje' : `últimos ${s?.days ?? 7} dias`;
   });
   readonly maxReason = computed(() => Math.max(1, ...(this.summary()?.reasons ?? []).map(r => r.count)));
-  readonly originsSorted = computed(() => [...(this.summary()?.origins ?? [])].sort((a, b) => b.total - a.total));
   readonly waiting = computed(() => minutesWaiting(this.summary()?.oldestQueuedAt ?? null));
   readonly activity = computed(() => activityText(this.summary()?.lastActivityAt));
   readonly reasonLabel = computed(() => {
@@ -184,8 +217,7 @@ export class EmailQueueComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadSummary();
-    this.loadList();
+    this.refresh();
   }
 
   // ── Carga ──
@@ -224,7 +256,25 @@ export class EmailQueueComponent implements OnInit {
 
   refresh(): void {
     this.loadSummary();
+    this.loadInsights();
     this.loadList();
+  }
+
+  loadInsights(): void {
+    // A análise é complemento: se falhar, os indicadores e a lista seguem, sem toast repetido.
+    this.service.insights(this.query()).subscribe({
+      next: i => this.insights.set(i),
+      error: () => this.insights.set(null),
+    });
+  }
+
+  /** F: "Ver os N" filtra a lista por aquele endereço, em qualquer situação. */
+  showAddress(p: ProblemAddress): void {
+    this.status.set(null);
+    this.reason.set(null);
+    this.search.set(p.address);
+    this.loadList();
+    document.getElementById('eqLista')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ── Filtros ──
@@ -445,6 +495,10 @@ export class EmailQueueComponent implements OnInit {
   size(bytes: number): string { return fileSize(bytes); }
   pct(n: number, max: number): number { return barPercent(n, max); }
   dec(n: number | null | undefined, digits = 1): string { return formatDecimal(n, digits); }
+  dur(seconds: number | null | undefined): string { return formatDuration(seconds); }
+  pctOf(n: number, of: number): number { return share(n, of); }
+  /** Altura de cada faixa do histograma, relativa à maior. */
+  bucketPct(buckets: number[], n: number): number { return barPercent(n, Math.max(1, ...buckets)); }
   /** Primeira linha do erro de exemplo: o nome da exceção ou o código SMTP. */
   code(sample: string | null): string { return (sample ?? '').split(':')[0]; }
   localPart(to: string): string { return to.split('@')[0]; }

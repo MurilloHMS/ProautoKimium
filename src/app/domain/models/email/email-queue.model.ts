@@ -118,6 +118,93 @@ export interface DeliverySummary {
   rate: number | null;
 }
 
+// ── Análise (GET /dev/email-queue/insights; mockup aprovado em 2026-10-07, blocos A a H) ──
+
+export interface InsightTotals { failed: number; sent: number; retried: number; bounced: number; deliveryRate: number | null }
+export interface InsightFunnel { created: number; sent: number; delivered: number; queued: number; failed: number; bounced: number; unconfirmed: number }
+/** Em segundos. `buckets` tem um a mais que `edges`: abaixo do primeiro, e do último para cima. */
+export interface InsightTiming { count: number; medianSeconds: number | null; p95Seconds: number | null; edges: number[]; buckets: number[] }
+export interface OriginInsight { origin: EmailOrigin | null; label: string; total: number; failed: number; deliveryRate: number | null; medianToSendSeconds: number | null }
+export interface DomainInsight { domain: string; total: number; deliveryRate: number | null; bounced: number }
+export interface ProblemAddress { address: string; times: number; lastKind: FailureKind; lastLabel: string; origin: EmailOrigin | null; originLabel: string }
+export interface TrackingHealth {
+  enabled: boolean; awaiting: number; unconfirmed: number;
+  lastRunAt: string | null; lastRunOk: boolean | null; lastRunPages: number | null; lastRunError: string | null;
+}
+export interface EmailInsights {
+  current: InsightTotals;
+  previous: InsightTotals;
+  funnel: InsightFunnel;
+  toSend: InsightTiming;
+  toDeliver: InsightTiming;
+  origins: OriginInsight[];
+  domains: DomainInsight[];
+  problemAddresses: ProblemAddress[];
+  perHour: number[];
+  tracking: TrackingHealth;
+}
+
+export interface Trend { text: string; tone: 'good' | 'bad' | 'flat'; title: string }
+
+/**
+ * A: a seta contra o período anterior. `upIsGood` diz o que é melhora:
+ * enviados subindo é bom; falhas, devoluções e insistências subindo é ruim.
+ * Sem o período anterior (nada lá), não há seta.
+ */
+export function trend(current: number, previous: number, upIsGood: boolean, percent = false): Trend | null {
+  if (previous === 0 && current === 0) return null;
+  const diff = current - previous;
+  if (diff === 0) return { text: '=', tone: 'flat', title: 'igual ao período anterior' };
+  const up = diff > 0;
+  const tone = up === upIsGood ? 'good' : 'bad';
+  const amount = percent && previous > 0
+    ? `${formatDecimal(Math.abs(diff) / previous * 100, 0)}%`
+    : formatDecimal(Math.abs(diff), 0);
+  return { text: `${up ? '▲' : '▼'} ${amount}`, tone, title: `${up ? 'mais' : 'menos'} que o período anterior (${formatDecimal(previous, 0)})` };
+}
+
+/** A seta da taxa de entrega, em pontos percentuais. */
+export function rateTrend(current: number | null, previous: number | null): Trend | null {
+  if (current == null || previous == null) return null;
+  const diff = Math.round((current - previous) * 10) / 10;
+  if (diff === 0) return { text: '= 0 p.p.', tone: 'flat', title: 'igual ao período anterior' };
+  return {
+    text: `${diff > 0 ? '▲' : '▼'} ${formatDecimal(Math.abs(diff), 1)} p.p.`,
+    tone: diff > 0 ? 'good' : 'bad',
+    title: `era ${formatDecimal(previous, 1)}% no período anterior`,
+  };
+}
+
+/** "na hora", "42 s", "3 min", "1 h 5 min". */
+export function formatDuration(seconds: number | null | undefined): string {
+  if (seconds == null) return '—';
+  if (seconds < 1) return 'na hora';
+  if (seconds < 60) return `${Math.round(seconds)} s`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)} min`;
+  const h = Math.floor(seconds / 3600), min = Math.round((seconds % 3600) / 60);
+  return min ? `${h} h ${min} min` : `${h} h`;
+}
+
+/** Rótulo de cada faixa do histograma: "< 15 s", "15 s – 30 s", …, "15 min +". */
+export function bucketLabels(edges: number[]): string[] {
+  if (!edges.length) return [];
+  const out = [`< ${formatDuration(edges[0])}`];
+  for (let i = 1; i < edges.length; i++) out.push(`${formatDuration(edges[i - 1])} – ${formatDuration(edges[i])}`);
+  out.push(`${formatDuration(edges[edges.length - 1])} +`);
+  return out;
+}
+
+/** % de `n` sobre `of`, para as barras do funil; 0 quando não há base. */
+export function share(n: number, of: number): number {
+  return of > 0 ? Math.round((n / of) * 1000) / 10 : 0;
+}
+
+/** Intensidade de cada hora, de 0 a 100, para o mapa do horário. */
+export function hourIntensity(perHour: number[]): number[] {
+  const max = Math.max(0, ...perHour);
+  return perHour.map(v => (max ? Math.round((v / max) * 100) : 0));
+}
+
 export interface EmailListQuery extends PeriodQuery {
   status: EmailStatusFilter;
   origin: EmailOrigin | null;
