@@ -108,11 +108,142 @@ button.eq-kpi {
 // ── Painéis ──
 .eq-paineis {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 10px;
-  @media (max-width: 1100px) { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); .eq-card:first-child { grid-column: 1 / -1; } }
-  @media (max-width: v.$bp-md) { grid-template-columns: minmax(0, 1fr); }
 }
+// A largura de cada painel em 12 colunas (mockup aprovado); abaixo de 1100px, um por linha.
+.eq-s4 { grid-column: span 4; } .eq-s5 { grid-column: span 5; } .eq-s7 { grid-column: span 7; }
+.eq-s8 { grid-column: span 8; } .eq-s12 { grid-column: span 12; }
+@media (max-width: 1100px) { .eq-s4, .eq-s5, .eq-s7, .eq-s8 { grid-column: span 12; } }
+
+// ── A: o valor e a seta contra o período anterior ──
+.eq-kpi__valor { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; }
+.eq-seta {
+  display: inline-flex;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  &.is-good { background: var(--app-success-soft); color: var(--app-success); }
+  &.is-bad { background: var(--app-danger-soft); color: var(--app-danger); }
+}
+
+// ── B: funil ──
+.eq-funil { display: grid; gap: 8px; }
+.eq-funil__linha {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--text-ui-sm);
+  > span:first-child { color: var(--app-text-muted); }
+  b { text-align: right; small { display: block; font-weight: 400; color: var(--app-text-muted); font-size: var(--text-micro); } }
+}
+.eq-funil__barra {
+  height: 20px;
+  border-radius: 6px;
+  background: var(--app-surface-2);
+  overflow: hidden;
+  i { display: block; height: 100%; border-radius: 6px; }
+  .is-acao { background: var(--app-action); } .is-info { background: var(--app-info); } .is-ok { background: var(--app-success); }
+}
+.eq-perdas { display: flex; flex-wrap: wrap; gap: 6px; }
+.eq-perda {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-surface-2);
+  font-size: var(--text-micro);
+  i { width: 8px; height: 8px; border-radius: 2px; }
+  .is-espera { background: var(--app-warning); } .is-falha { background: var(--app-danger); } .is-neutro { background: var(--app-border-strong); }
+}
+
+// ── C: tempos ──
+.eq-tempos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; @media (max-width: 520px) { grid-template-columns: minmax(0, 1fr); } }
+.eq-tempo {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 10px;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  font-size: var(--text-ui-sm);
+}
+.eq-tempo__valor { font-size: 18px; font-variant-numeric: tabular-nums; small { font-size: var(--text-micro); font-weight: 400; color: var(--app-text-muted); } }
+.eq-histograma {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  i { flex: 1; min-height: 2px; border-radius: 3px 3px 0 0; background: var(--app-info); }
+}
+.eq-histograma__eixo { display: flex; justify-content: space-between; color: var(--app-text-muted); font-size: 10px; }
+
+// ── D, E, F: tabelas pequenas, com o cabeçalho e as linhas do tema (tables.scss) ──
+.eq-tabela-caixa { overflow-x: auto; }
+.eq-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-ui-sm);
+  font-variant-numeric: tabular-nums;
+  th {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--app-border-strong);
+    color: var(--app-text-muted);
+    font-size: var(--text-micro);
+    font-weight: 700;
+    letter-spacing: var(--tracking-head);
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--app-border-soft); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  .col-num { text-align: right; }
+  .eq-quebra { white-space: normal; overflow-wrap: anywhere; }
+}
+// No celular, a linha vira cartão (o padrão do ERP): o primeiro campo é o título,
+// e os outros vêm embaixo com o rótulo de `data-rotulo`. Cinco colunas não cabem
+// em ~330px nem enxutas (medido: 404px de conteúdo).
+@media (max-width: v.$bp-md) {
+  .eq-tabela {
+    thead { display: none; }
+    tr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 9px 0; border-bottom: 1px solid var(--app-border-soft); }
+    tr:last-child { border-bottom: 0; }
+    td { padding: 0; border: 0; white-space: normal; }
+    td:first-child { flex: 1 1 100%; font-weight: 600; overflow-wrap: anywhere; }
+    td[data-rotulo]::before { content: attr(data-rotulo) ' '; color: var(--app-text-muted); font-size: var(--text-micro); font-weight: 400; }
+    .col-num { text-align: left; }
+  }
+}
+.eq-taxa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  i { display: inline-block; width: 46px; height: 5px; border-radius: 3px; background: var(--app-surface-2); overflow: hidden; }
+  b { display: block; height: 100%; background: var(--app-success); }
+  &.is-baixa b { background: var(--app-warning); }
+}
+
+// ── G: rastreio ──
+.eq-rastreio { display: grid; gap: 2px; small { color: var(--app-text-muted); font-size: var(--text-micro); } b { font-size: 22px; } }
+.eq-rastreio .eq-rastreio__hora { font-size: 16px; }
+
+// ── H: horário ──
+.eq-horas {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 3px;
+  i { height: 26px; border-radius: 4px; background: color-mix(in srgb, var(--app-action) calc(var(--v, 0) * 1%), var(--app-surface-2)); }
+}
+.eq-horas__eixo { color: var(--app-text-muted); font-size: 10px; text-align: center; span { min-width: 0; } }
 .eq-card {
   display: grid;
   gap: 10px;
@@ -146,6 +277,53 @@ button.eq-kpi {
 .eq-legenda--insistiu { background: var(--app-warning); }
 
 .eq-grafico { width: 100%; height: auto; display: block; }
+
+// A dica do gráfico: os números da barra sob o mouse, o toque ou o foco.
+.eq-grafico-caixa { position: relative; }
+.eq-grafico__alvo { fill: transparent; }
+.eq-grafico__barra {
+  cursor: pointer;
+  outline: none;
+  &.is-on .eq-grafico__alvo, &:focus-visible .eq-grafico__alvo { fill: var(--app-surface-2); }
+}
+.eq-dica-grafico {
+  position: absolute;
+  // Acima do gráfico, sobre a legenda: dentro dele, cobria a barra que descreve.
+  bottom: calc(100% + 4px);
+  transform: translateX(-50%);
+  &.is-esquerda { transform: translateX(-15%); }
+  &.is-direita { transform: translateX(-85%); }
+  display: grid;
+  gap: 2px;
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow-overlay);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+  pointer-events: none;
+  z-index: 2;
+  b { font-size: var(--text-ui); }
+  span { display: inline-flex; align-items: center; gap: 6px; }
+  i { width: 10px; height: 10px; border-radius: 2px; }
+}
+
+.eq-data {
+  height: var(--field-h);
+  padding: 0 8px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--text-ui);
+  &:focus { outline: none; border-color: var(--app-action); box-shadow: var(--app-focus-ring); }
+  @media (max-width: v.$bp-md) { min-height: 44px; }
+}
+.eq-periodo-lista { font-size: var(--text-micro); }
 .eq-grafico__grade { stroke: var(--app-border); stroke-width: 1; }
 .eq-grafico__eixo { fill: var(--app-text-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 .eq-grafico__ok { fill: var(--app-success); }
@@ -368,8 +546,13 @@ button.eq-kpi {
 }
 
 .eq-corpo {
+  display: block;
+  // Nenhum pai flex pode espremê-lo: a altura é a do e-mail (fitBody).
+  flex-shrink: 0;
   width: 100%;
+  // Até o e-mail carregar; depois, fitBody() põe a altura do conteúdo.
   height: 360px;
+  overflow: hidden;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-control);
   // O e-mail é desenhado para fundo branco; o papel dele é a superfície clara.

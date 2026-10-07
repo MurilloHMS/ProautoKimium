@@ -2,8 +2,8 @@
  * Fila de e-mails e Remetentes — espelha os DTOs de `/api/dev/email-queue` e
  * `/api/dev/email-senders` (contrato de 2026-10-07).
  *
- * Nesta fase não existe "entregue": "Enviado" é o servidor SMTP ter aceitado o
- * e-mail. A confirmação de entrega fica para depois.
+ * "Enviado" é o SMTP Locaweb ter aceitado o e-mail; "entregue" é o servidor do
+ * destinatário ter aceitado, confirmado pelo relatório da Locaweb (V122).
  */
 
 export type EmailStatus = 'PENDING' | 'SCHEDULED' | 'SENT' | 'FAILED';
@@ -16,7 +16,13 @@ export type EmailOrigin =
 
 export type FailureKind = 'TIMEOUT' | 'MAILBOX_NOT_FOUND' | 'AUTH' | 'INVALID_ADDRESS' | 'MAILBOX_FULL' | 'OTHER';
 
-export type PeriodDays = 1 | 7 | 30;
+export type PeriodDays = 1 | 7 | 30 | 90;
+/** O período da tela: um atalho em dias, ou "desde" uma data (até 1 ano para trás). */
+export type PeriodChoice = PeriodDays | 'since';
+export interface PeriodQuery { days?: PeriodDays; since?: string }
+
+/** Contado pela API (EmailDeliveryState). */
+export type DeliveryState = 'NOT_SENT' | 'UNTRACKED' | 'AWAITING' | 'UNCONFIRMED' | 'DELIVERED' | 'BOUNCED';
 
 export interface EmailRow {
   id: string;
@@ -37,6 +43,9 @@ export interface EmailRow {
   hasAttachments: boolean;
   /** A API decide: só o que falhou, e nunca e-mail com código de acesso (o código já não vale). */
   resendable: boolean;
+  deliveryState?: DeliveryState;
+  deliveredAt?: string | null;
+  bouncedAt?: string | null;
 }
 
 export interface EmailPage {
@@ -58,6 +67,7 @@ export interface EmailDetail extends EmailRow {
   /** Primeiro acesso, senha, convite, banco de talentos: o corpo dá acesso a uma conta. */
   bodyHidden: boolean;
   attachments: EmailAttachment[];
+  bounceReason?: string | null;
 }
 
 export interface PerDay {
@@ -95,12 +105,109 @@ export interface EmailSummary {
   perDay: PerDay[];
   reasons: FailureReason[];
   origins: OriginCount[];
+  delivery?: DeliverySummary;
 }
 
-export interface EmailListQuery {
+/** Só os e-mails rastreados (de depois da V122). `rate` = entregues ÷ (enviados + falharam). */
+export interface DeliverySummary {
+  tracked: number;
+  delivered: number;
+  bounced: number;
+  /** Enviados ainda sem confirmação da Locaweb. */
+  awaiting: number;
+  rate: number | null;
+}
+
+// ── Análise (GET /dev/email-queue/insights; mockup aprovado em 2026-10-07, blocos A a H) ──
+
+export interface InsightTotals { failed: number; sent: number; retried: number; bounced: number; deliveryRate: number | null }
+export interface InsightFunnel { created: number; sent: number; delivered: number; queued: number; failed: number; bounced: number; unconfirmed: number }
+/** Em segundos. `buckets` tem um a mais que `edges`: abaixo do primeiro, e do último para cima. */
+export interface InsightTiming { count: number; medianSeconds: number | null; p95Seconds: number | null; edges: number[]; buckets: number[] }
+export interface OriginInsight { origin: EmailOrigin | null; label: string; total: number; failed: number; deliveryRate: number | null; medianToSendSeconds: number | null }
+export interface DomainInsight { domain: string; total: number; deliveryRate: number | null; bounced: number }
+export interface ProblemAddress { address: string; times: number; lastKind: FailureKind; lastLabel: string; origin: EmailOrigin | null; originLabel: string }
+export interface TrackingHealth {
+  enabled: boolean; awaiting: number; unconfirmed: number;
+  lastRunAt: string | null; lastRunOk: boolean | null; lastRunPages: number | null; lastRunError: string | null;
+}
+export interface EmailInsights {
+  current: InsightTotals;
+  previous: InsightTotals;
+  funnel: InsightFunnel;
+  toSend: InsightTiming;
+  toDeliver: InsightTiming;
+  origins: OriginInsight[];
+  domains: DomainInsight[];
+  problemAddresses: ProblemAddress[];
+  perHour: number[];
+  tracking: TrackingHealth;
+}
+
+export interface Trend { text: string; tone: 'good' | 'bad' | 'flat'; title: string }
+
+/**
+ * A: a seta contra o período anterior. `upIsGood` diz o que é melhora:
+ * enviados subindo é bom; falhas, devoluções e insistências subindo é ruim.
+ * Sem o período anterior (nada lá), não há seta.
+ */
+export function trend(current: number, previous: number, upIsGood: boolean, percent = false): Trend | null {
+  if (previous === 0 && current === 0) return null;
+  const diff = current - previous;
+  if (diff === 0) return { text: '=', tone: 'flat', title: 'igual ao período anterior' };
+  const up = diff > 0;
+  const tone = up === upIsGood ? 'good' : 'bad';
+  const amount = percent && previous > 0
+    ? `${formatDecimal(Math.abs(diff) / previous * 100, 0)}%`
+    : formatDecimal(Math.abs(diff), 0);
+  return { text: `${up ? '▲' : '▼'} ${amount}`, tone, title: `${up ? 'mais' : 'menos'} que o período anterior (${formatDecimal(previous, 0)})` };
+}
+
+/** A seta da taxa de entrega, em pontos percentuais. */
+export function rateTrend(current: number | null, previous: number | null): Trend | null {
+  if (current == null || previous == null) return null;
+  const diff = Math.round((current - previous) * 10) / 10;
+  if (diff === 0) return { text: '= 0 p.p.', tone: 'flat', title: 'igual ao período anterior' };
+  return {
+    text: `${diff > 0 ? '▲' : '▼'} ${formatDecimal(Math.abs(diff), 1)} p.p.`,
+    tone: diff > 0 ? 'good' : 'bad',
+    title: `era ${formatDecimal(previous, 1)}% no período anterior`,
+  };
+}
+
+/** "na hora", "42 s", "3 min", "1 h 5 min". */
+export function formatDuration(seconds: number | null | undefined): string {
+  if (seconds == null) return '—';
+  if (seconds < 1) return 'na hora';
+  if (seconds < 60) return `${Math.round(seconds)} s`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)} min`;
+  const h = Math.floor(seconds / 3600), min = Math.round((seconds % 3600) / 60);
+  return min ? `${h} h ${min} min` : `${h} h`;
+}
+
+/** Rótulo de cada faixa do histograma: "< 15 s", "15 s – 30 s", …, "15 min +". */
+export function bucketLabels(edges: number[]): string[] {
+  if (!edges.length) return [];
+  const out = [`< ${formatDuration(edges[0])}`];
+  for (let i = 1; i < edges.length; i++) out.push(`${formatDuration(edges[i - 1])} – ${formatDuration(edges[i])}`);
+  out.push(`${formatDuration(edges[edges.length - 1])} +`);
+  return out;
+}
+
+/** % de `n` sobre `of`, para as barras do funil; 0 quando não há base. */
+export function share(n: number, of: number): number {
+  return of > 0 ? Math.round((n / of) * 1000) / 10 : 0;
+}
+
+/** Intensidade de cada hora, de 0 a 100, para o mapa do horário. */
+export function hourIntensity(perHour: number[]): number[] {
+  const max = Math.max(0, ...perHour);
+  return perHour.map(v => (max ? Math.round((v / max) * 100) : 0));
+}
+
+export interface EmailListQuery extends PeriodQuery {
   status: EmailStatusFilter;
   origin: EmailOrigin | null;
-  days: PeriodDays;
   q: string;
   page: number;
   size: number;
@@ -159,11 +266,27 @@ export const EMAIL_STATUS_INFO: Record<string, StatusInfo> = {
   FAILED:    { label: 'Falhou',   chip: 'danger',  icon: 'pi pi-times-circle' },
 };
 
-export const PERIOD_OPTIONS: { label: string; value: PeriodDays }[] = [
+export const PERIOD_OPTIONS: { label: string; value: PeriodChoice }[] = [
   { label: 'Hoje', value: 1 },
   { label: '7 dias', value: 7 },
   { label: '30 dias', value: 30 },
+  { label: '90 dias', value: 90 },
+  { label: 'Desde…', value: 'since' },
 ];
+
+/** A API para em um ano; a data mínima do "Desde" segue a mesma regra. */
+export const MAX_PERIOD_DAYS = 366;
+
+/** "AAAA-MM-DD" de uma data local, sem passar por UTC. */
+export function isoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** O parâmetro de período da API: "desde" sem data válida cai nos 7 dias. */
+export function periodQuery(choice: PeriodChoice, since: string): PeriodQuery {
+  if (choice === 'since') return /^\d{4}-\d{2}-\d{2}$/.test(since) ? { since } : { days: 7 };
+  return { days: choice };
+}
 
 /** Erro de endereço: reenviar sem corrigir o cadastro falha de novo. */
 const ADDRESS_FAILURES = new Set<string>(['MAILBOX_NOT_FOUND', 'INVALID_ADDRESS']);
@@ -239,6 +362,14 @@ export interface ChartBar {
   retriedY: number; retriedH: number;
   showLabel: boolean;
   title: string;
+  /** Os números do dia (ou da semana), para a dica que aparece ao passar o mouse. */
+  sent: number;
+  failed: number;
+  retried: number;
+  /** "01/10" ou "semana de 29/09 a 05/10". */
+  period: string;
+  /** Centro da barra, em % da largura do gráfico: onde a dica aparece. */
+  centerPct: number;
 }
 
 export interface ChartModel {
@@ -256,7 +387,9 @@ export interface ChartModel {
  * (falharam) em cima, e os que precisaram insistir por cima do verde — eles
  * são parte dos enviados, não um terceiro grupo.
  */
-export function buildChart(perDay: PerDay[], width = 560, height = 180): ChartModel {
+export function buildChart(daily: PerDay[], width = 560, height = 180, weeklyAfter = WEEKLY_AFTER_DAYS): ChartModel {
+  const weekly = daily.length > weeklyAfter;
+  const perDay = weekly ? groupByWeek(daily) : daily.map(d => ({ ...d, last: d.date }));
   const pl = 28, pb = 22, pt = 8;
   const baseline = height - pb;
   const maxVal = Math.max(5, ...perDay.map(d => d.sent + d.failed));
@@ -267,22 +400,49 @@ export function buildChart(perDay: PerDay[], width = 560, height = 180): ChartMo
   const bars = perDay.map((d, i) => {
     const retried = Math.min(d.retried, d.sent);
     const label = dayMonth(d.date);
+    const period = weekly
+      ? (d.date === d.last ? label : `semana de ${label} a ${dayMonth(d.last)}`)
+      : label;
     return {
       date: d.date,
       label,
+      sent: d.sent, failed: d.failed, retried: d.retried, period,
+      centerPct: ((pl + i * bw + bw / 2) / width) * 100,
       x: pl + i * bw + bw * 0.18,
       width: bw * 0.64,
       sentY: y(d.sent), sentH: baseline - y(d.sent),
       failedY: y(d.sent + d.failed), failedH: y(d.sent) - y(d.sent + d.failed),
       retriedY: y(retried), retriedH: baseline - y(retried),
-      showLabel: i % every === 0 || i === perDay.length - 1,
-      title: `${label}: ${d.sent} enviado(s), ${d.failed} falharam, ${d.retried} precisaram insistir`,
+      // O último sempre aparece; o múltiplo logo antes dele sai, senão os dois se encostam.
+      showLabel: i === perDay.length - 1 || (i % every === 0 && perDay.length - 1 - i >= Math.ceil(every / 2)),
+      title: `${period}: ${d.sent} enviado(s), ${d.failed} falharam, ${d.retried} precisaram insistir`,
     };
   });
   return {
     width, height, plotLeft: pl, baseline, bars,
     ticks: [0, top / 2, top].map(value => ({ value, y: y(value) })),
   };
+}
+
+/** Acima disto o gráfico agrupa por semana: 90 barras finas não se leem nem se apontam com o mouse. */
+export const WEEKLY_AFTER_DAYS = 62;
+/** No celular o gráfico tem ~360px: mais de 14 barras viram fios que o dedo não acerta. */
+export const WEEKLY_AFTER_DAYS_PHONE = 14;
+
+/** Semanas de 7 dias contadas do fim (a última termina hoje); a primeira pode ser mais curta. */
+export function groupByWeek(daily: PerDay[]): (PerDay & { last: string })[] {
+  const out: (PerDay & { last: string })[] = [];
+  for (let end = daily.length; end > 0; end -= 7) {
+    const chunk = daily.slice(Math.max(0, end - 7), end);
+    out.unshift({
+      date: chunk[0].date,
+      last: chunk[chunk.length - 1].date,
+      sent: chunk.reduce((s, d) => s + d.sent, 0),
+      failed: chunk.reduce((s, d) => s + d.failed, 0),
+      retried: chunk.reduce((s, d) => s + d.retried, 0),
+    });
+  }
+  return out;
 }
 
 /** "2026-10-01" → "01/10". */
@@ -339,13 +499,50 @@ export function onlyFailedSelection(selected: Iterable<string>, rows: EmailRow[]
   return [...selected].filter(id => failed.has(id));
 }
 
-/** Coluna "Último erro ou envio". */
+/** Coluna "Último erro ou envio": para o que saiu, o que se sabe da entrega. */
 export function lastEventText(row: EmailRow): string {
-  if (row.status === 'SENT') return row.sentAt ? `enviado ${shortStamp(row.sentAt)}` : 'enviado';
+  if (row.status === 'SENT') {
+    const enviado = row.sentAt ? `enviado ${shortStamp(row.sentAt)}` : 'enviado';
+    switch (row.deliveryState) {
+      case 'DELIVERED': return `entregue ${shortStamp(row.deliveredAt)}`;
+      case 'BOUNCED': return `devolvido ${shortStamp(row.bouncedAt)}`;
+      case 'AWAITING': return `${enviado} · aguardando a entrega`;
+      case 'UNCONFIRMED': return `${enviado} · sem confirmação da Locaweb`;
+      default: return enviado;
+    }
+  }
   if (row.failureLabel || row.lastError) return row.failureLabel || row.lastError || '';
   if (row.status === 'SCHEDULED') return 'aguardando o horário';
   if (row.status === 'PENDING') return 'aguardando a próxima passada';
   return '—';
+}
+
+/** Devolvido pelo destinatário depois de a Locaweb aceitar: aparece como falha. */
+export function isBounced(row: { deliveryState?: DeliveryState }): boolean {
+  return row.deliveryState === 'BOUNCED';
+}
+
+/** O chip da linha: o devolvido deixa de parecer "Enviado". */
+export function rowStatusInfo(row: EmailRow): StatusInfo {
+  return isBounced(row) ? { label: 'Devolvido', chip: 'danger', icon: 'pi pi-reply' } : statusInfo(row.status);
+}
+
+/** A linha "Entregue" da ficha. */
+export function deliveryText(d: EmailDetail): string {
+  const dominio = d.to.split('@')[1] ?? 'destino';
+  switch (d.deliveryState) {
+    case 'DELIVERED': return `${formatStampBrShort(d.deliveredAt)} · o servidor de ${dominio} aceitou`;
+    case 'BOUNCED': return `devolvido ${formatStampBrShort(d.bouncedAt)}${d.bounceReason ? ': ' + d.bounceReason : ''}`;
+    case 'AWAITING': return 'aguardando a confirmação da Locaweb';
+    case 'UNCONFIRMED': return 'a Locaweb não confirmou em 3 dias';
+    case 'UNTRACKED': return 'enviado antes do rastreio de entrega';
+    default: return '—';
+  }
+}
+
+function formatStampBrShort(iso: string | null | undefined): string {
+  const m = iso ? /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(iso) : null;
+  return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : '—';
 }
 
 /** "07/10 14:22". */

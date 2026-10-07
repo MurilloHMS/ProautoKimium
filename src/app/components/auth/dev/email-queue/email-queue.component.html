@@ -12,47 +12,77 @@
     <b>{{ summary()?.lastActivityAt ? 'Agendador rodando' : 'Agendador' }}</b>
     <span class="eq-saude__texto">{{ activity() }}</span>
     <span class="eq-espaco"></span>
-    <pk-segmented size="sm" ariaLabel="Período dos indicadores" [options]="periodOptions" [value]="period()"
+    <pk-segmented size="sm" ariaLabel="Período dos indicadores e da lista" [options]="periodOptions" [value]="period()"
                   (valueChange)="setPeriod($event)" />
+    @if (period() === 'since') {
+      <input class="eq-data" type="date" aria-label="Desde a data" [min]="minSince" [max]="today"
+             [ngModel]="sinceDate()" (ngModelChange)="setSince($event)" />
+    }
     <button type="button" class="eq-icone" aria-label="Atualizar" title="Atualizar" [disabled]="loading() || summaryLoading()" (click)="refresh()">
       <i class="pi pi-refresh" [class.pi-spin]="loading() || summaryLoading()" aria-hidden="true"></i>
     </button>
   </div>
 
   @if (summary(); as s) {
+    <!-- A: cada número com a seta contra o período anterior, de mesmo tamanho. -->
     <div class="eq-kpis">
       <button type="button" class="eq-kpi eq-kpi--danger" [attr.aria-pressed]="status() === 'FAILED' && !reason()" (click)="toggleKpi('FAILED')">
-        <span>Falharam e precisam de você</span><b>{{ s.failed }}</b><small>esgotaram as {{ maxAttempts }} tentativas</small>
+        <span>Falharam e precisam de você</span>
+        <span class="eq-kpi__valor"><b>{{ s.failed }}</b><ng-container *ngTemplateOutlet="seta; context: { $implicit: trends()?.failed }" /></span>
+        <small>esgotaram as {{ maxAttempts }} tentativas</small>
       </button>
       <button type="button" class="eq-kpi eq-kpi--warning" [attr.aria-pressed]="status() === 'QUEUE'" (click)="toggleKpi('QUEUE')">
-        <span>Na fila agora</span><b>{{ s.queued }}</b>
+        <span>Na fila agora</span><span class="eq-kpi__valor"><b>{{ s.queued }}</b></span>
         <small>{{ waiting() !== null ? 'mais antigo espera ' + waiting() + ' min' : 'fila vazia' }}</small>
       </button>
       <button type="button" class="eq-kpi eq-kpi--success" [attr.aria-pressed]="status() === 'SENT'" (click)="toggleKpi('SENT')">
-        <span>Enviados</span><b>{{ s.sent }}</b><small>{{ s.successRate === null ? 'nenhum envio no período' : dec(s.successRate) + '% de sucesso' }}</small>
+        <span>Enviados</span>
+        <span class="eq-kpi__valor"><b>{{ s.sent }}</b><ng-container *ngTemplateOutlet="seta; context: { $implicit: trends()?.sent }" /></span>
+        <small>{{ s.successRate === null ? 'nenhum envio no período' : dec(s.successRate) + '% de sucesso' }}</small>
       </button>
+      <div class="eq-kpi eq-kpi--success">
+        <span>Taxa de entrega</span>
+        <span class="eq-kpi__valor"><b>{{ s.delivery?.rate == null ? '—' : dec(s.delivery!.rate) + '%' }}</b><ng-container *ngTemplateOutlet="seta; context: { $implicit: trends()?.rate }" /></span>
+        <small>
+          @if (s.delivery?.tracked) {
+            {{ s.delivery!.delivered }} de {{ s.delivery!.tracked }} chegaram ao destinatário@if (s.delivery!.awaiting) { · {{ s.delivery!.awaiting }} sem confirmação }
+          } @else {
+            nenhum e-mail rastreado no período
+          }
+        </small>
+      </div>
+      <div class="eq-kpi eq-kpi--danger">
+        <span>Devolvidos</span>
+        <span class="eq-kpi__valor"><b>{{ s.delivery?.bounced ?? 0 }}</b><ng-container *ngTemplateOutlet="seta; context: { $implicit: trends()?.bounced }" /></span>
+        <small>{{ s.sent ? dec(pctOf(s.delivery?.bounced ?? 0, s.sent)) + '% dos enviados' : 'nenhum envio no período' }} · o destinatário recusou</small>
+      </div>
       <div class="eq-kpi">
-        <span>Precisaram insistir</span><b>{{ s.retried }}</b><small>média de {{ dec(s.avgAttempts, 2) }} tentativas por e-mail</small>
+        <span>Precisaram insistir</span>
+        <span class="eq-kpi__valor"><b>{{ s.retried }}</b><ng-container *ngTemplateOutlet="seta; context: { $implicit: trends()?.retried }" /></span>
+        <small>média de {{ dec(s.avgAttempts, 2) }} tentativas por e-mail</small>
       </div>
     </div>
 
     <div class="eq-paineis">
-      <section class="eq-card" aria-labelledby="eqGrafico">
-        <div class="eq-card__cabeca"><h2 id="eqGrafico">Envios por dia</h2><small>últimos {{ s.perDay.length }} dia(s)</small></div>
+      <section class="eq-card eq-s7" aria-labelledby="eqGrafico">
+        <div class="eq-card__cabeca"><h2 id="eqGrafico">Envios por dia</h2><small>{{ periodText() }}@if (weeklyChart()) { · por semana }</small></div>
         <div class="eq-legenda">
           <span><i class="eq-legenda--ok"></i>Enviados</span>
           <span><i class="eq-legenda--falha"></i>Falharam</span>
           <span><i class="eq-legenda--insistiu"></i>Precisaram de mais de uma tentativa</span>
         </div>
         @if (chart(); as c) {
+          <div class="eq-grafico-caixa" (mouseleave)="hoveredBar.set(null)">
           <svg class="eq-grafico" [attr.viewBox]="'0 0 ' + c.width + ' ' + c.height" role="img" aria-label="Envios por dia">
             @for (t of c.ticks; track t.value) {
               <line class="eq-grafico__grade" [attr.x1]="c.plotLeft" [attr.x2]="c.width" [attr.y1]="t.y" [attr.y2]="t.y" />
               <text class="eq-grafico__eixo" [attr.x]="c.plotLeft - 6" [attr.y]="t.y + 3" text-anchor="end">{{ t.value }}</text>
             }
             @for (b of c.bars; track b.date) {
-              <g>
-                <title>{{ b.title }}</title>
+              <g class="eq-grafico__barra" [class.is-on]="hoveredBar()?.date === b.date" tabindex="0" [attr.aria-label]="b.title"
+                 (mouseenter)="hoveredBar.set(b)" (focus)="hoveredBar.set(b)" (blur)="hoveredBar.set(null)" (click)="hoveredBar.set(b)">
+                <!-- Área de toque da altura do gráfico: dia sem envio também mostra o zero. -->
+                <rect class="eq-grafico__alvo" [attr.x]="b.x - b.width * 0.28" [attr.y]="0" [attr.width]="b.width * 1.56" [attr.height]="c.baseline" />
                 @if (b.sentH > 0) { <rect class="eq-grafico__ok" [attr.x]="b.x" [attr.y]="b.sentY" [attr.width]="b.width" [attr.height]="b.sentH" rx="2" /> }
                 @if (b.retriedH > 0) { <rect class="eq-grafico__insistiu" [attr.x]="b.x" [attr.y]="b.retriedY" [attr.width]="b.width" [attr.height]="b.retriedH" /> }
                 @if (b.failedH > 0) { <rect class="eq-grafico__falha" [attr.x]="b.x" [attr.y]="b.failedY" [attr.width]="b.width" [attr.height]="b.failedH" rx="2" /> }
@@ -62,10 +92,19 @@
               </g>
             }
           </svg>
+          @if (hoveredBar(); as b) {
+            <div class="eq-dica-grafico" role="status" [style.left.%]="b.centerPct" [class.is-direita]="b.centerPct > 70" [class.is-esquerda]="b.centerPct < 30">
+              <b>{{ b.period }}</b>
+              <span><i class="eq-legenda--ok"></i>{{ b.sent }} enviado(s)</span>
+              <span><i class="eq-legenda--falha"></i>{{ b.failed }} falharam</span>
+              <span><i class="eq-legenda--insistiu"></i>{{ b.retried }} precisaram insistir</span>
+            </div>
+          }
+          </div>
         }
       </section>
 
-      <section class="eq-card" aria-labelledby="eqMotivos">
+      <section class="eq-card eq-s5" aria-labelledby="eqMotivos">
         <div class="eq-card__cabeca"><h2 id="eqMotivos">Motivos de erro</h2><small>clique para filtrar</small></div>
         <div class="eq-motivos">
           @for (r of s.reasons; track r.kind) {
@@ -80,20 +119,148 @@
         </div>
       </section>
 
-      <section class="eq-card" aria-labelledby="eqOrigens">
-        <div class="eq-card__cabeca"><h2 id="eqOrigens">Por origem</h2><small>total · falhas</small></div>
-        <div class="eq-origens">
-          @for (o of originsSorted(); track o.origin ?? '') {
-            <div class="eq-origem">
-              <span>{{ originOf(o.origin, o.label) }}</span>
-              <span class="eq-num">{{ o.total }}</span>
-              <span class="eq-num eq-origem__falhas" [class.is-zero]="!o.failed">{{ o.failed }}</span>
+      @if (insights(); as i) {
+        <!-- B: do pedido à caixa de entrada, só os rastreados. -->
+        <section class="eq-card eq-s7" aria-labelledby="eqFunil">
+          <div class="eq-card__cabeca"><h2 id="eqFunil">Do pedido à caixa de entrada</h2><small>{{ periodText() }} · só os rastreados</small></div>
+          @if (i.funnel.created) {
+            <div class="eq-funil">
+              <div class="eq-funil__linha"><span>Criados</span><span class="eq-funil__barra"><i class="is-acao" [style.width.%]="100"></i></span><b class="eq-num">{{ i.funnel.created }}</b></div>
+              <div class="eq-funil__linha"><span>Enviados</span><span class="eq-funil__barra"><i class="is-info" [style.width.%]="pctOf(i.funnel.sent, i.funnel.created)"></i></span><b class="eq-num">{{ i.funnel.sent }}<small>{{ dec(pctOf(i.funnel.sent, i.funnel.created)) }}%</small></b></div>
+              <div class="eq-funil__linha"><span>Entregues</span><span class="eq-funil__barra"><i class="is-ok" [style.width.%]="pctOf(i.funnel.delivered, i.funnel.created)"></i></span><b class="eq-num">{{ i.funnel.delivered }}<small>{{ dec(pctOf(i.funnel.delivered, i.funnel.created)) }}%</small></b></div>
             </div>
-          } @empty {
-            <p class="eq-dica">Nenhum e-mail no período.</p>
+            <div class="eq-perdas" aria-label="Onde ficaram os outros">
+              @if (i.funnel.queued) { <span class="eq-perda"><i class="is-espera"></i>{{ i.funnel.queued }} ainda na fila ou tentando</span> }
+              @if (i.funnel.failed) { <span class="eq-perda"><i class="is-falha"></i>{{ i.funnel.failed }} falharam no envio</span> }
+              @if (i.funnel.bounced) { <span class="eq-perda"><i class="is-falha"></i>{{ i.funnel.bounced }} devolvidos</span> }
+              @if (i.funnel.unconfirmed) { <span class="eq-perda"><i class="is-neutro"></i>{{ i.funnel.unconfirmed }} sem confirmação</span> }
+            </div>
+          } @else {
+            <p class="eq-dica">Nenhum e-mail rastreado no período. O rastreio vale para os e-mails enviados depois da V122.</p>
           }
-        </div>
-      </section>
+        </section>
+
+        <!-- C: quanto demora. -->
+        <section class="eq-card eq-s5" aria-labelledby="eqTempo">
+          <div class="eq-card__cabeca"><h2 id="eqTempo">Quanto demora</h2><small>mediana · 95% saem até</small></div>
+          <div class="eq-tempos">
+            <ng-container *ngTemplateOutlet="tempo; context: { titulo: 'Da criação até sair', t: i.toSend, rotulos: sendLabels() }" />
+            <ng-container *ngTemplateOutlet="tempo; context: { titulo: 'Do envio até chegar', t: i.toDeliver, rotulos: deliverLabels() }" />
+          </div>
+        </section>
+
+        <!-- D: por origem, com a entrega. -->
+        <section class="eq-card eq-s7" aria-labelledby="eqOrigens">
+          <div class="eq-card__cabeca"><h2 id="eqOrigens">Por origem</h2><small>barra amarela abaixo de 95%</small></div>
+          <div class="eq-tabela-caixa">
+            <table class="eq-tabela">
+              <thead><tr><th>Origem</th><th class="col-num">Total</th><th class="col-num">Falhas</th><th>Entrega</th><th class="col-num">Até sair</th></tr></thead>
+              <tbody>
+                @for (o of i.origins; track o.origin ?? '') {
+                  <tr>
+                    <td>{{ originOf(o.origin, o.label) }}</td>
+                    <td class="col-num" data-rotulo="Total">{{ o.total }}</td>
+                    <td class="col-num eq-origem__falhas" data-rotulo="Falhas" [class.is-zero]="!o.failed">{{ o.failed }}</td>
+                    <td data-rotulo="Entrega"><ng-container *ngTemplateOutlet="taxa; context: { $implicit: o.deliveryRate }" /></td>
+                    <td class="col-num" data-rotulo="Até sair">{{ dur(o.medianToSendSeconds) }}</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="eq-dica">Nenhum e-mail no período.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- E: provedores de quem recebe. -->
+        <section class="eq-card eq-s5" aria-labelledby="eqDominios">
+          <div class="eq-card__cabeca"><h2 id="eqDominios">Provedores de quem recebe</h2><small>parte depois do &#64;</small></div>
+          <div class="eq-tabela-caixa">
+            <table class="eq-tabela">
+              <thead><tr><th>Domínio</th><th class="col-num">E-mails</th><th>Entrega</th><th class="col-num">Devolvidos</th></tr></thead>
+              <tbody>
+                @for (d of i.domains; track d.domain) {
+                  <tr>
+                    <td>{{ d.domain }}</td>
+                    <td class="col-num" data-rotulo="E-mails">{{ d.total }}</td>
+                    <td data-rotulo="Entrega"><ng-container *ngTemplateOutlet="taxa; context: { $implicit: d.deliveryRate }" /></td>
+                    <td class="col-num" data-rotulo="Devolvidos">@if (d.bounced) { <span class="status-chip status-chip--danger">{{ d.bounced }}</span> } @else { <span class="eq-mudo">0</span> }</td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4" class="eq-dica">Nenhum e-mail no período.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- F: endereços que falham sempre. -->
+        <section class="eq-card eq-s8" aria-labelledby="eqEnderecos">
+          <div class="eq-card__cabeca"><h2 id="eqEnderecos">Endereços que falham sempre</h2><small>2 ou mais falhas ou devoluções</small></div>
+          @if (i.problemAddresses.length) {
+            <div class="eq-tabela-caixa">
+              <table class="eq-tabela">
+                <thead><tr><th>Endereço</th><th class="col-num">Vezes</th><th>Último motivo</th><th>De onde vem</th><th></th></tr></thead>
+                <tbody>
+                  @for (p of i.problemAddresses; track p.address) {
+                    <tr>
+                      <td class="eq-quebra">{{ p.address }}</td>
+                      <td class="col-num" data-rotulo="Vezes">{{ p.times }}</td>
+                      <td><span class="status-chip" [ngClass]="p.lastKind === 'MAILBOX_FULL' || p.lastKind === 'TIMEOUT' ? 'status-chip--warning' : 'status-chip--danger'">{{ p.lastLabel }}</span></td>
+                      <td data-rotulo="De">{{ originOf(p.origin, p.originLabel) }}</td>
+                      <td><button type="button" class="eq-acao" (click)="showAddress(p)">Ver os {{ p.times }}</button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <p class="eq-dica">Reenviar para esses endereços falha de novo: o conserto é no cadastro do cliente ou do funcionário.</p>
+          } @else {
+            <p class="eq-dica">Nenhum endereço falhou mais de uma vez no período.</p>
+          }
+        </section>
+
+        <!-- G: o rastreio da Locaweb está vivo? -->
+        <section class="eq-card eq-s4" aria-labelledby="eqRastreio">
+          <div class="eq-card__cabeca"><h2 id="eqRastreio">Rastreio da Locaweb</h2></div>
+          @if (!i.tracking.enabled) {
+            <p class="eq-erro">Desligado: falta o SMTP_API_TOKEN no ambiente da API. Sem ele, a taxa de entrega para de subir.</p>
+          } @else {
+            <div class="eq-rastreio">
+              <span class="eq-kpi__valor"><b>{{ i.tracking.awaiting + i.tracking.unconfirmed }}</b></span>
+              <small>enviados sem confirmação de entrega@if (i.tracking.unconfirmed) { · {{ i.tracking.unconfirmed }} passaram dos 3 dias }</small>
+            </div>
+            <div class="eq-rastreio">
+              <span class="eq-mudo">Última consulta</span>
+              @if (i.tracking.lastRunAt) {
+                <span class="eq-kpi__valor"><b class="eq-rastreio__hora">{{ short(i.tracking.lastRunAt) }}</b>
+                  <span class="eq-seta" [class.is-good]="i.tracking.lastRunOk" [class.is-bad]="!i.tracking.lastRunOk">{{ i.tracking.lastRunOk ? 'ok' : 'falhou' }}</span></span>
+                @if (i.tracking.lastRunOk) {
+                  <small>{{ i.tracking.lastRunPages ? i.tracking.lastRunPages + ' página(s) lida(s)' : 'nenhum e-mail esperando' }} · roda a cada 10 min</small>
+                } @else {
+                  <small class="eq-erro">{{ i.tracking.lastRunError }}</small>
+                }
+              } @else {
+                <small>ainda não rodou desde que a API subiu · roda a cada 10 min</small>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- H: a que horas o ERP manda. -->
+        <section class="eq-card eq-s12" aria-labelledby="eqHorario">
+          <div class="eq-card__cabeca"><h2 id="eqHorario">A que horas o ERP manda</h2>
+            <small>e-mails enviados por hora do dia@if (peakHour(); as pk) { · pico às {{ pk.h }}h ({{ pk.n }}) }</small></div>
+          <div class="eq-horas" role="img" [attr.aria-label]="peakHour() ? 'Pico às ' + peakHour()!.h + 'h' : 'Nenhum envio no período'">
+            @for (x of hours(); track x.h) {
+              <i [style.--v]="x.level" [title]="x.h + 'h: ' + x.n + ' e-mail(s)'"></i>
+            }
+          </div>
+          <div class="eq-horas eq-horas__eixo" aria-hidden="true">
+            @for (x of hours(); track x.h) { <span>{{ x.h % 3 === 0 ? x.h + 'h' : '' }}</span> }
+          </div>
+        </section>
+      }
     </div>
   }
 
@@ -110,11 +277,7 @@
           <option value="">Todas as origens</option>
           @for (o of originOptions; track o.value) { <option [value]="o.value">{{ o.label }}</option> }
         </select>
-        <select class="eq-select" aria-label="Período" [ngModel]="listDays()" (ngModelChange)="setListDays($event)">
-          <option [ngValue]="1">Hoje</option>
-          <option [ngValue]="7">Últimos 7 dias</option>
-          <option [ngValue]="30">Últimos 30 dias</option>
-        </select>
+        <span class="eq-mudo eq-periodo-lista">{{ periodText() }}</span>
       </div>
       <div class="eq-chips" role="group" aria-label="Situação">
         @for (c of chips(); track c.label) {
@@ -163,8 +326,8 @@
               }
             </div>
             <div class="pk-cartao__rodape">
-              <span class="status-chip" [ngClass]="'status-chip--' + info(r.status).chip">
-                <i [class]="info(r.status).icon" aria-hidden="true"></i> {{ info(r.status).label }}
+              <span class="status-chip" [ngClass]="'status-chip--' + rowInfo(r).chip">
+                <i [class]="rowInfo(r).icon" aria-hidden="true"></i> {{ rowInfo(r).label }}
               </span>
             </div>
           </article>
@@ -190,8 +353,8 @@
               }
             </td>
             <td>
-              <span class="status-chip" [ngClass]="'status-chip--' + info(r.status).chip">
-                <i [class]="info(r.status).icon" aria-hidden="true"></i> {{ info(r.status).label }}
+              <span class="status-chip" [ngClass]="'status-chip--' + rowInfo(r).chip">
+                <i [class]="rowInfo(r).icon" aria-hidden="true"></i> {{ rowInfo(r).label }}
               </span>
             </td>
             <td class="eq-quebra">{{ r.to }}</td>
@@ -258,6 +421,7 @@
           <dt>Responder para</dt><dd>{{ d.replyTo ?? '—' }}</dd>
           <dt>Criado</dt><dd>{{ stamp(d.createdAt) }}</dd>
           <dt>Enviado</dt><dd>{{ stamp(d.sentAt) }}</dd>
+          <dt>Entregue</dt><dd [class.eq-erro]="bounced(d)">{{ delivery(d) }}</dd>
           <dt>Tentativas</dt>
           <dd>
             <span class="eq-tentativas" [ngClass]="'eq-tentativas--' + tone(d)" [attr.aria-label]="d.attempts + ' de ' + maxAttempts + ' tentativas'">
@@ -289,7 +453,8 @@
               }
             </div>
           } @else if (detailBody(); as html) {
-            <iframe class="eq-corpo" sandbox="" title="Conteúdo do e-mail" [srcdoc]="html"></iframe>
+            <iframe #corpo class="eq-corpo" sandbox="allow-same-origin" title="Conteúdo do e-mail" [srcdoc]="html"
+                    (load)="fitBody(corpo)"></iframe>
           } @else {
             <p class="eq-dica">E-mail sem conteúdo.</p>
           }
@@ -336,3 +501,31 @@
     <div pkDialogFooter class="pk-dialog-footer"><ng-container *ngTemplateOutlet="fichaBotoes" /></div>
   </pk-dialog>
 }
+
+<!-- A seta contra o período anterior. -->
+<ng-template #seta let-t>
+  @if (t) { <span class="eq-seta" [class.is-good]="t.tone === 'good'" [class.is-bad]="t.tone === 'bad'" [title]="t.title">{{ t.text }}</span> }
+</ng-template>
+
+<!-- Taxa de entrega em barra: amarela abaixo de 95%. -->
+<ng-template #taxa let-r>
+  @if (r == null) { <span class="eq-mudo">—</span> } @else {
+    <span class="eq-taxa" [class.is-baixa]="r < 95"><i><b [style.width.%]="r"></b></i>{{ dec(r) }}%</span>
+  }
+</ng-template>
+
+<!-- C: um tempo, com mediana, 95% e as faixas. -->
+<ng-template #tempo let-titulo="titulo" let-t="t" let-rotulos="rotulos">
+  <div class="eq-tempo">
+    <span class="eq-mudo">{{ titulo }}</span>
+    @if (t.count) {
+      <b class="eq-tempo__valor">{{ dur(t.medianSeconds) }} <small>· 95% até {{ dur(t.p95Seconds) }}</small></b>
+      <div class="eq-histograma" aria-hidden="true">
+        @for (n of t.buckets; track $index) { <i [style.height.%]="bucketPct(t.buckets, n)" [title]="rotulos[$index] + ': ' + n"></i> }
+      </div>
+      <div class="eq-histograma__eixo" aria-hidden="true"><span>{{ rotulos[0] }}</span><span>{{ rotulos[rotulos.length - 1] }}</span></div>
+    } @else {
+      <small class="eq-mudo">sem dados no período</small>
+    }
+  </div>
+</ng-template>
