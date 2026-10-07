@@ -30,12 +30,21 @@ import {
   ORIGIN_LABELS,
   ORIGIN_ORDER,
   PERIOD_OPTIONS,
-  PeriodDays,
+  MAX_PERIOD_DAYS,
+  PeriodChoice,
+  ChartBar,
+  deliveryText,
+  isBounced,
+  isoDate,
+  periodQuery,
+  rowStatusInfo,
   activityText,
   attemptDots,
   attemptsTone,
   barPercent,
   buildChart,
+  WEEKLY_AFTER_DAYS,
+  WEEKLY_AFTER_DAYS_PHONE,
   fileSize,
   filterByFailure,
   formatDecimal,
@@ -61,9 +70,10 @@ const PAGE_SIZE = 200;
 /**
  * Fila de e-mails: o que falhou, o que espera e o que saiu.
  *
- * Mockup aprovado em 2026-10-07, sem a parte de entrega (fica para outra fase):
- * "Enviado" aqui é o servidor SMTP ter aceitado. Os indicadores, os motivos de
- * erro e os chips filtram a lista; a ficha mostra o erro e permite reenviar.
+ * Mockup aprovado em 2026-10-07. "Enviado" é o SMTP Locaweb ter aceitado;
+ * "entregue" é o servidor do destinatário, confirmado pelo relatório da Locaweb.
+ * Um período só manda nos indicadores E na lista (pedido dele, 2026-10-07): com
+ * dois, os números de cima não batiam com as linhas de baixo.
  */
 @Component({
   selector: 'app-email-queue',
@@ -87,15 +97,22 @@ export class EmailQueueComponent implements OnInit {
   readonly originOptions = ORIGIN_ORDER.map(o => ({ value: o, label: ORIGIN_LABELS[o] }));
   readonly maxAttempts = MAX_ATTEMPTS;
 
+  // ── Período (indicadores e lista) ──
+  readonly period = signal<PeriodChoice>(7);
+  /** A data do "Desde…", AAAA-MM-DD. */
+  readonly sinceDate = signal('');
+  readonly today = isoDate(new Date());
+  readonly minSince = isoDate(new Date(Date.now() - (MAX_PERIOD_DAYS - 1) * 86400000));
+  private readonly query = computed(() => periodQuery(this.period(), this.sinceDate()));
+
   // ── Indicadores ──
-  readonly period = signal<PeriodDays>(7);
   readonly summary = signal<EmailSummary | null>(null);
   readonly summaryLoading = signal(false);
-  /** Resumo do período da LISTA, para as contagens dos chips (pode ser outro período). */
-  readonly listSummary = signal<EmailSummary | null>(null);
+
+  // ── Gráfico: a barra sob o mouse (ou o foco do teclado) mostra os números ──
+  readonly hoveredBar = signal<ChartBar | null>(null);
 
   // ── Lista ──
-  readonly listDays = signal<PeriodDays>(7);
   readonly status = signal<EmailStatusFilter>(null);
   readonly reason = signal<FailureKind | null>(null);
   readonly origin = signal<EmailOrigin | null>(null);
@@ -127,8 +144,16 @@ export class EmailQueueComponent implements OnInit {
     return ids.length > 0 && ids.every(id => sel.has(id));
   });
 
-  readonly chart = computed(() => buildChart(this.summary()?.perDay ?? []));
-  readonly chips = computed(() => statusChips(this.listSummary()));
+  readonly chart = computed(() => buildChart(this.summary()?.perDay ?? [], 560, 180,
+    this.ehCelular() ? WEEKLY_AFTER_DAYS_PHONE : WEEKLY_AFTER_DAYS));
+  readonly weeklyChart = computed(() =>
+    (this.summary()?.perDay.length ?? 0) > (this.ehCelular() ? WEEKLY_AFTER_DAYS_PHONE : WEEKLY_AFTER_DAYS));
+  readonly chips = computed(() => statusChips(this.summary()));
+  readonly periodText = computed(() => {
+    const s = this.summary();
+    if (this.period() === 'since' && this.sinceDate()) return `desde ${this.sinceDate().split('-').reverse().join('/')}`;
+    return s?.days === 1 ? 'hoje' : `últimos ${s?.days ?? 7} dias`;
+  });
   readonly maxReason = computed(() => Math.max(1, ...(this.summary()?.reasons ?? []).map(r => r.count)));
   readonly originsSorted = computed(() => [...(this.summary()?.origins ?? [])].sort((a, b) => b.total - a.total));
   readonly waiting = computed(() => minutesWaiting(this.summary()?.oldestQueuedAt ?? null));
@@ -140,8 +165,10 @@ export class EmailQueueComponent implements OnInit {
 
   readonly detailBody = computed<SafeHtml | null>(() => {
     const d = this.detail();
-    // O iframe é `sandbox=""`: sem script, sem formulário, sem navegação. O bypass
-    // só diz ao Angular para não reescrever o HTML do e-mail — quem isola é o sandbox.
+    // O iframe é `sandbox="allow-same-origin"`: sem script, sem formulário, sem
+    // navegação. O allow-same-origin só deixa a TELA ler a altura do e-mail; sem
+    // allow-scripts junto, o e-mail não executa nada. O bypass só diz ao Angular
+    // para não reescrever o HTML — quem isola é o sandbox.
     return d?.body ? this.sanitizer.bypassSecurityTrustHtml(d.body) : null;
   });
 
@@ -160,11 +187,10 @@ export class EmailQueueComponent implements OnInit {
 
   loadSummary(): void {
     this.summaryLoading.set(true);
-    this.service.summary(this.period()).subscribe({
+    this.service.summary(this.query()).subscribe({
       next: s => {
         this.summary.set(s);
         this.summaryLoading.set(false);
-        if (this.listDays() === this.period()) this.listSummary.set(s);
       },
       error: (err: HttpErrorResponse) => {
         this.summaryLoading.set(false);
@@ -176,7 +202,7 @@ export class EmailQueueComponent implements OnInit {
   loadList(): void {
     this.loading.set(true);
     this.service.list({
-      status: this.status(), origin: this.origin(), days: this.listDays(), q: this.search(), page: 0, size: PAGE_SIZE,
+      ...this.query(), status: this.status(), origin: this.origin(), q: this.search(), page: 0, size: PAGE_SIZE,
     }).subscribe({
       next: page => {
         this.rows.set(page.items);
@@ -189,17 +215,6 @@ export class EmailQueueComponent implements OnInit {
         this.fail(err, 'Não foi possível carregar os e-mails.');
       },
     });
-    this.loadListSummary();
-  }
-
-  private loadListSummary(): void {
-    const days = this.listDays();
-    const s = this.summary();
-    if (s && s.days === days) {
-      this.listSummary.set(s);
-      return;
-    }
-    this.service.summary(days).subscribe({ next: r => this.listSummary.set(r), error: () => this.listSummary.set(null) });
   }
 
   refresh(): void {
@@ -209,16 +224,25 @@ export class EmailQueueComponent implements OnInit {
 
   // ── Filtros ──
 
-  setPeriod(days: PeriodDays): void {
-    this.period.set(days);
-    this.loadSummary();
+  /** O período manda nos indicadores e na lista. "Desde…" só carrega quando a data é escolhida. */
+  setPeriod(choice: PeriodChoice): void {
+    this.period.set(choice);
+    if (choice === 'since' && !this.sinceDate()) return;
+    this.refresh();
+  }
+
+  setSince(date: string): void {
+    if (!date) return;
+    // A data digitada fora do intervalo vira o limite: a API faria o mesmo.
+    const clamped = date > this.today ? this.today : date < this.minSince ? this.minSince : date;
+    this.sinceDate.set(clamped);
+    this.refresh();
   }
 
   /** Indicador clicado: filtra a lista no mesmo período; clicar de novo limpa. */
   toggleKpi(key: 'FAILED' | 'QUEUE' | 'SENT'): void {
     this.reason.set(null);
     this.status.set(this.status() === key ? null : key);
-    this.listDays.set(this.period());
     this.bulkConfirm.set(false);
     this.loadList();
   }
@@ -227,7 +251,6 @@ export class EmailQueueComponent implements OnInit {
     const same = this.reason() === r.kind;
     this.reason.set(same ? null : r.kind);
     this.status.set(same ? null : 'FAILED');
-    this.listDays.set(this.period());
     this.bulkConfirm.set(false);
     this.loadList();
   }
@@ -245,11 +268,6 @@ export class EmailQueueComponent implements OnInit {
 
   setOrigin(origin: EmailOrigin | ''): void {
     this.origin.set(origin || null);
-    this.loadList();
-  }
-
-  setListDays(days: number | string): void {
-    this.listDays.set(Number(days) as PeriodDays);
     this.loadList();
   }
 
@@ -353,16 +371,51 @@ export class EmailQueueComponent implements OnInit {
     });
   }
 
+  /**
+   * O iframe do tamanho do e-mail: sem rolagem dentro dele, quem rola é a ficha.
+   * Com altura fixa, a barra vertical roubava ~15px de largura e criava a
+   * horizontal também (medido em 2026-10-07: e-mails de 468 a 1.170px de altura
+   * numa caixa de 360). E-mail mais largo que a ficha (os antigos tinham 640px)
+   * é reduzido para caber, em vez de rolar para o lado.
+   */
+  fitBody(frame: HTMLIFrameElement): void {
+    const doc = frame.contentDocument;
+    if (!doc?.body) return;
+    const fit = () => {
+      // Sem barra nenhuma por construção: com a altura medida, o que sobrar por
+      // arredondamento (escala de 125%, fonte do Windows) é cortado, não rolado.
+      doc.documentElement.style.overflow = 'hidden';
+      doc.body.style.margin = '0';
+      doc.body.style.removeProperty('zoom');
+      const natural = Math.max(doc.documentElement.scrollWidth, doc.body.scrollWidth);
+      const available = frame.clientWidth;
+      if (available > 0 && natural > available + 1) doc.body.style.setProperty('zoom', String(available / natural));
+      // + a borda: a altura da caixa inclui a borda, e o e-mail vive por dentro dela.
+      const border = frame.offsetHeight - frame.clientHeight;
+      // Zera antes de medir: com a caixa maior que o e-mail, o navegador informa
+      // a altura da caixa, e um e-mail curto ficaria com espaço em branco.
+      frame.style.height = `${border}px`;
+      const content = Math.max(doc.documentElement.scrollHeight, Math.ceil(doc.body.getBoundingClientRect().height));
+      frame.style.height = `${content + 1 + border}px`;
+    };
+    fit();
+    // Imagem que chega depois muda a altura.
+    doc.querySelectorAll('img').forEach(img => img.addEventListener('load', fit, { once: true }));
+  }
+
   // ── Leitura ──
 
   info(status: string) { return statusInfo(status); }
+  rowInfo(row: EmailRow) { return rowStatusInfo(row); }
+  delivery(d: EmailDetail): string { return deliveryText(d); }
+  bounced(row: EmailRow): boolean { return isBounced(row); }
   originOf(origin: string | null, label: string | null): string { return originLabel(origin, label); }
   dots(row: EmailRow) { return attemptDots(row.attempts); }
   tone(row: EmailRow) { return attemptsTone(row.status); }
   failed(row: EmailRow): boolean { return isFailed(row); }
   resendable(row: EmailRow): boolean { return canBeResent(row); }
   lastEvent(row: EmailRow): string { return lastEventText(row); }
-  hasError(row: EmailRow): boolean { return row.status !== 'SENT' && !!(row.failureLabel || row.lastError); }
+  hasError(row: EmailRow): boolean { return isBounced(row) || (row.status !== 'SENT' && !!(row.failureLabel || row.lastError)); }
   addressFailure(kind: string | null): boolean { return isAddressFailure(kind); }
   stamp(iso: string | null): string { return formatStampBr(iso); }
   short(iso: string | null): string { return shortStamp(iso); }

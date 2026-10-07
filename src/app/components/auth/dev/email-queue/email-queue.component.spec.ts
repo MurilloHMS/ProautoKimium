@@ -164,4 +164,95 @@ describe('EmailQueueComponent', () => {
   it('a faixa do agendador mostra a última atividade', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('última atividade às 17:42');
   });
+
+  it('o período de cima manda também na lista: 90 dias recarrega os dois com o mesmo período', () => {
+    service.list.calls.reset();
+    service.summary.calls.reset();
+
+    comp.setPeriod(90);
+
+    expect(service.summary).toHaveBeenCalledWith({ days: 90 });
+    expect(service.list).toHaveBeenCalledWith(jasmine.objectContaining({ days: 90 }));
+  });
+
+  it('"Desde…" só carrega quando a data é escolhida, e a data vai para os dois', () => {
+    service.list.calls.reset();
+    service.summary.calls.reset();
+
+    comp.setPeriod('since');
+    expect(service.list).not.toHaveBeenCalled();
+
+    comp.setSince(comp.today);
+    expect(service.summary).toHaveBeenCalledWith({ since: comp.today });
+    expect(service.list).toHaveBeenCalledWith(jasmine.objectContaining({ since: comp.today }));
+  });
+
+  it('passar o mouse numa barra do gráfico mostra os números do dia', async () => {
+    service.summary.and.returnValue(of({ ...SUMMARY, perDay: [
+      { date: '2026-10-06', sent: 4, failed: 0, retried: 0 },
+      { date: '2026-10-07', sent: 12, failed: 3, retried: 2 },
+    ] }));
+    comp.refresh();
+    fixture.detectChanges();
+
+    const barras = (fixture.nativeElement as HTMLElement).querySelectorAll('.eq-grafico__barra');
+    barras[1].dispatchEvent(new MouseEvent('mouseenter'));
+    fixture.detectChanges();
+
+    const dica = (fixture.nativeElement as HTMLElement).querySelector('.eq-dica-grafico')!;
+    expect(dica.textContent).toContain('07/10');
+    expect(dica.textContent).toContain('12 enviado(s)');
+    expect(dica.textContent).toContain('3 falharam');
+    expect(dica.textContent).toContain('2 precisaram insistir');
+  });
+
+  it('a taxa de entrega aparece com o que ainda espera confirmação', async () => {
+    service.summary.and.returnValue(of({ ...SUMMARY, delivery: { tracked: 40, delivered: 37, bounced: 1, awaiting: 2, rate: 92.5 } }));
+    comp.refresh();
+    fixture.detectChanges();
+
+    const texto = (fixture.nativeElement as HTMLElement).textContent!;
+    expect(texto).toContain('92,5%');
+    expect(texto).toContain('37 de 40 chegaram ao destinatário');
+    expect(texto).toContain('2 sem confirmação');
+    expect(texto).toContain('1 devolvido(s)');
+  });
+
+  describe('o e-mail na ficha não rola por dentro', () => {
+    async function iframeCom(html: string, largura: number): Promise<HTMLIFrameElement> {
+      const f = document.createElement('iframe');
+      f.setAttribute('sandbox', 'allow-same-origin');
+      f.style.width = `${largura}px`;
+      f.style.height = '360px';
+      f.style.border = '1px solid #ccc';
+      f.style.boxSizing = 'border-box';
+      // Num pai comum: o body do tema é flex em coluna e espremeria o iframe.
+      const pai = document.createElement('div');
+      pai.appendChild(f);
+      document.body.appendChild(pai);
+      await new Promise<void>(ok => { f.onload = () => ok(); f.srcdoc = html; });
+      return f;
+    }
+
+    it('cresce até a altura do e-mail: nem barra vertical, nem a horizontal que ela criava', async () => {
+      const f = await iframeCom('<table width="100%" style="max-width:600px"><tr><td style="height:1100px">alto</td></tr></table>', 360);
+      comp.fitBody(f);
+      const de = f.contentDocument!.documentElement;
+      expect(f.offsetHeight).toBeGreaterThanOrEqual(1100);
+      expect(de.scrollHeight).toBeLessThanOrEqual(de.clientHeight + 1);
+      expect(de.scrollWidth).toBeLessThanOrEqual(de.clientWidth);
+      f.parentElement!.remove();
+    });
+
+    it('e-mail antigo mais largo que a ficha encolhe para caber, em vez de rolar para o lado', async () => {
+      const f = await iframeCom('<table width="640" style="width:640px"><tr><td>largo</td></tr></table>', 360);
+      comp.fitBody(f);
+      const doc = f.contentDocument!;
+      const zoom = doc.body.style.getPropertyValue('zoom');
+      expect(zoom).withContext('sem zoom, Number("") daria 0 e passaria').not.toBe('');
+      expect(Number(zoom)).toBeLessThan(1);
+      expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
+      f.parentElement!.remove();
+    });
+  });
 });

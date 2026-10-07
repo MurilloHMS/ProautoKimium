@@ -8,7 +8,7 @@ import {
   EmailPage,
   EmailRow,
   EmailSummary,
-  PeriodDays,
+  PeriodQuery,
 } from '../../../domain/models/email/email-queue.model';
 
 /** Fila de e-mails (tela do desenvolvedor, `dev/email-queue`). */
@@ -18,8 +18,7 @@ export class EmailQueueService {
   private readonly url = `${environment.apiUrl}/dev/email-queue`;
 
   list(query: EmailListQuery): Observable<EmailPage> {
-    let params = new HttpParams()
-      .set('days', query.days)
+    let params = withPeriod(new HttpParams(), query)
       .set('page', query.page)
       .set('size', query.size);
     if (query.status) params = params.set('status', query.status);
@@ -28,8 +27,8 @@ export class EmailQueueService {
     return this.http.get<EmailPage>(this.url, { params });
   }
 
-  summary(days: PeriodDays): Observable<EmailSummary> {
-    return this.http.get<EmailSummary>(`${this.url}/summary`, { params: { days } });
+  summary(period: PeriodQuery): Observable<EmailSummary> {
+    return this.http.get<EmailSummary>(`${this.url}/summary`, { params: withPeriod(new HttpParams(), period) });
   }
 
   get(id: string): Observable<EmailDetail> {
@@ -43,4 +42,9 @@ export class EmailQueueService {
   resendMany(ids: string[]): Observable<{ requeued: number }> {
     return this.http.post<{ requeued: number }>(`${this.url}/resend`, { ids });
   }
+}
+
+/** `since` (uma data) vence `days` na API; manda só um dos dois. */
+function withPeriod(params: HttpParams, period: PeriodQuery): HttpParams {
+  return period.since ? params.set('since', period.since) : params.set('days', period.days ?? 7);
 }
