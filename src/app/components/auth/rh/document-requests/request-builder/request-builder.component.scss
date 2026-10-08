@@ -1,24 +1,97 @@
-// O construtor: formulário à esquerda, prévia do funcionário à direita.
-.rb { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; }
-@media (max-width: 900px) { .rb { grid-template-columns: minmax(0, 1fr); } }
+@use 'variables' as v;
 
-.rb__principal { display: grid; gap: 14px; min-width: 0; }
+// O host preenche a tela e deixa encolher: sem `min-height: 0`, o construtor
+// crescia até o tamanho do conteúdo (1.913px com oito campos), a caixa que
+// devia rolar nunca rolava, e o pai cortava a sobra — com o rodapé de Salvar e
+// Enviar junto (medido em 2026-10-08).
+:host { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 
-.rb__secao {
+// Três colunas que rolam sozinhas (mockup aprovado em 2026-10-08).
+.rb {
+  flex: 1 1 auto;
+  min-height: 0;
   display: grid;
+  // 340: a coluna "Sobre" cabe o seletor de público (308px, quatro botões que não
+  // quebram) mais o recuo. Com 300 ela rolava 24px para o lado, e rolagem
+  // horizontal não pode (pedido dele, 2026-10-08).
+  grid-template-columns: 340px minmax(0, 1fr) 320px;
+}
+.rb-col {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  padding: 14px;
-  border: 1px solid var(--app-border);
-  border-radius: var(--radius-surface);
-  background: var(--app-surface);
-  h3 { margin: 0; font-size: var(--text-ui); }
+  padding: 14px 16px;
   .form-field input, .form-field textarea, .form-field ::ng-deep p-datepicker { width: 100%; }
 }
+.rb-col + .rb-col { border-left: 1px solid var(--app-border); }
+.rb-col__titulo {
+  margin: 0;
+  color: var(--app-text-muted);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: var(--tracking-head);
+  text-transform: uppercase;
+  span { font-weight: 400; }
+}
+.rb-col__titulo--meio { margin-top: 6px; }
+.rb-col--campos { padding-bottom: 0; }
+.rb-col--previa { background: var(--app-surface-2); }
+
+// Tela média: a prévia sai do lado e o construtor fica em duas colunas.
+@media (max-width: 1200px) {
+  .rb { grid-template-columns: 340px minmax(0, 1fr); }
+  .rb-col--previa { display: none; }
+}
+
+// Celular: abas, e só a coluna da aba aparece (a folha do form-screen rola).
+// Presas no topo da folha. O miolo do pk-sheet tem .85rem de recuo em cima: as
+// abas sobem até a borda e cobrem o recuo com o próprio fundo, senão o conteúdo
+// aparecia numa faixa acima delas ao rolar.
+.rb-abas {
+  position: sticky;
+  top: -.85rem;
+  z-index: 2;
+  display: flex;
+  gap: 4px;
+  margin-top: -.85rem;
+  padding: .85rem 0 8px;
+  background: var(--app-surface);
+  button {
+    flex: 1;
+    min-height: 44px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    color: var(--app-text-muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    small { display: block; font-size: var(--text-micro); font-weight: 400; }
+    &[aria-selected='true'] { background: var(--app-action-soft); color: var(--app-action); }
+  }
+}
+.rb[data-aba] {
+  display: block;
+  .rb-col { display: none; overflow: visible; padding: 0; }
+  .rb-col + .rb-col { border-left: 0; }
+}
+.rb[data-aba='about'] .rb-col--sobre,
+.rb[data-aba='fields'] .rb-col--campos,
+.rb[data-aba='preview'] .rb-col--previa { display: flex; }
+.rb[data-aba='preview'] .rb-col--previa { background: none; }
+
+// No celular a linha do campo não cabe (tipo + pergunta + três botões = 418px em
+// 358): a pergunta desce para a própria linha, inteira, e o resto fica em cima.
+.rb[data-aba] .rb-campo__linha { flex-wrap: wrap; }
+.rb[data-aba] .rb-campo__tipo { margin-right: auto; }
+.rb[data-aba] .rb-campo__nome { order: 1; flex: 1 1 100%; }
 
 .rb__rotulo { margin: 0; font-size: var(--text-ui-sm); color: var(--app-text-muted); font-weight: 500; }
 .rb__dica { margin: 0; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
 .rb__aviso { margin: 0; color: var(--app-danger); font-size: var(--text-ui-sm); }
-.rb__erro { margin: 12px 0 0; color: var(--app-danger); }
+.rb__erro { margin: 0; color: var(--app-danger); }
 
 .rb__modelo {
   display: flex;
@@ -32,7 +105,10 @@
   color: var(--app-text-muted);
   b { color: var(--app-text); overflow-wrap: anywhere; }
 }
-.rb__arquivo { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+// Escondido, mas preso dentro da caixa do modelo: sem um pai posicionado, ele ia
+// parar fora da tela e criava rolagem lateral na página (medido em 2026-10-08).
+.rb__modelo { position: relative; }
+.rb__arquivo { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .rb__botao, .rb__link { cursor: pointer; color: var(--app-action); font-weight: 600; }
 .rb__botao {
   display: inline-flex;
@@ -45,15 +121,30 @@
   background: var(--app-surface);
 }
 
+.rb-campos { display: grid; gap: 6px; }
 .rb-campo {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-control);
-  background: var(--app-surface-2);
+  background: var(--app-surface);
+  &.is-aberto { border-color: var(--app-action); box-shadow: inset 3px 0 0 var(--app-action); }
 }
-.rb-campo__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rb-campo__linha { display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 8px; cursor: pointer; }
+.rb-campo__obrig { color: var(--app-danger); font-size: var(--text-micro); white-space: nowrap; }
+.rb-campo__alerta { color: var(--app-danger); }
+.rb-campo__mais {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  border-top: 1px dashed var(--app-border);
+}
+.rb-campo__ajuda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui-sm);
+  input { flex: 1; min-width: 0; }
+}
 .rb-campo__tipo {
   padding: 2px 8px;
   border-radius: 6px;
@@ -63,12 +154,13 @@
   font-weight: 600;
   white-space: nowrap;
 }
-.rb-campo__nome { flex: 1 1 180px; min-width: 0; height: var(--field-h); }
+.rb-campo__nome { flex: 1 1 180px; min-width: 0; height: 34px; }
 .rb-icone {
   display: inline-grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  flex: none;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: 1px solid var(--app-border);
   border-radius: var(--radius-control);
@@ -110,6 +202,21 @@
   select { max-width: 100%; }
 }
 
+.rb-acrescentar {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  gap: 6px;
+  margin: auto -16px 0;
+  padding: 10px 16px 12px;
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface);
+  small { color: var(--app-text-muted); font-size: var(--text-micro); }
+}
+// No celular a folha tem recuo no fundo: presa ali, a barra deixava o campo
+// aparecer por baixo dela. Fica no fim da lista; quem fica preso são as abas.
+.rb[data-aba] .rb-acrescentar { position: static; margin: 8px 0 0; padding: 10px 0 0; }
+
 .rb__adicionar {
   display: flex;
   flex-wrap: wrap;
@@ -128,8 +235,6 @@
   }
 }
 
-.rb__lado { position: sticky; top: 12px; display: grid; gap: 8px; align-content: start; }
-@media (max-width: 900px) { .rb__lado { position: static; } }
 
 .rb-previa {
   display: grid;
@@ -139,6 +244,11 @@
   border-radius: var(--radius-surface);
   background: var(--app-surface-2);
   overflow-wrap: anywhere;
+}
+.rb-previa__campo {
+  padding: 6px;
+  border-radius: var(--radius-control);
+  &.is-atual { background: var(--app-action-soft); box-shadow: inset 0 0 0 1px var(--app-action); }
 }
 .rb-previa__campo { display: grid; gap: 4px; span { font-size: var(--text-ui-sm); font-weight: 600; } em { color: var(--app-text-muted); font-size: var(--text-micro); font-style: normal; } }
 .rb-previa__caixa {
@@ -164,3 +274,7 @@
 // O combo do tipo de documento no tamanho das outras linhas do campo.
 .rb-campo__vira ::ng-deep .p-select { min-width: 220px; font-size: var(--text-ui-sm); }
 .rb-campo__nome { font-size: var(--text-ui); }
+
+// Rodapé: a mensagem do que falta fica à esquerda dos botões.
+.rb-rodape { display: flex; flex: 1; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--gap-control); }
+.rb-rodape .rb__aviso, .rb-rodape .rb__erro { margin: 0 auto 0 0; }

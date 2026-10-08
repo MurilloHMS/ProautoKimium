@@ -48,8 +48,12 @@ export class FormScreenComponent {
    * três colunas por linha e o formulário encurta bastante.
    *
    * No celular não tem efeito — a folha é sempre da largura da tela.
+   *
+   * `full` é para tela de trabalho com colunas que rolam sozinhas (o
+   * construtor de solicitações): o corpo ocupa a área toda, sem margem nem
+   * rolagem própria, e quem rola é cada coluna do conteúdo.
    */
-  width = input<'default' | 'wide'>('default');
+  width = input<'default' | 'wide' | 'full'>('default');
 
   back = output<void>();
 
