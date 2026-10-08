@@ -108,6 +108,16 @@
   max-width: 1180px;
 }
 
+// Tela de trabalho em colunas: o corpo é só a moldura, e cada coluna do
+// conteúdo rola sozinha. O conteúdo precisa ser flex e preencher (flex: 1).
+.form-screen__body--full {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  padding: 0;
+  overflow: hidden;
+}
+
 // ─── Rodapé ─────────────────────────────────────────────────────────────────
 // Fica grudado embaixo em formulário longo: os botões nunca somem da vista,
 // que era exatamente o problema do diálogo alto.
