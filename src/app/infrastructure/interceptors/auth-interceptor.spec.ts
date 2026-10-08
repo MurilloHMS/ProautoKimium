@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideZonelessChangeDetection } from '@angular/core';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClient, HttpRequest, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 
@@ -59,14 +59,17 @@ describe('AuthInterceptor', () => {
 
   const URL_REFRESH = `${environment.apiUrl}/auth/refresh`;
 
+  /** Compara a URL sem os parâmetros: toda chamada da API ganha `?ngsw-bypass=true`. */
+  const porUrl = (url: string) => (r: HttpRequest<unknown>) => r.url === url;
+
   /** Responde a renovação que estiver em andamento. */
   const responderRefresh = (token = 'token-novo') =>
-    mock.expectOne(URL_REFRESH).flush({ token, refreshToken: 'refresh-novo' });
+    mock.expectOne(porUrl(URL_REFRESH)).flush({ token, refreshToken: 'refresh-novo' });
 
   afterEach(() => mock.verify());
 
   const responder401 = (url: string) =>
-    mock.expectOne(url).flush({}, { status: 401, statusText: 'Unauthorized' });
+    mock.expectOne(porUrl(url)).flush({}, { status: 401, statusText: 'Unauthorized' });
 
   // ─── O token certo para cada sessão ────────────────────────────────────────
 
@@ -80,10 +83,10 @@ describe('AuthInterceptor', () => {
     spyOn(clientAuth, 'getToken').and.returnValue('token-cliente');
 
     http.get(URL_ERP).subscribe();
-    expect(mock.expectOne(URL_ERP).request.headers.get('Authorization')).toBe('Bearer token-erp');
+    expect(mock.expectOne(porUrl(URL_ERP)).request.headers.get('Authorization')).toBe('Bearer token-erp');
 
     http.get(URL_CLIENTE).subscribe();
-    expect(mock.expectOne(URL_CLIENTE).request.headers.get('Authorization')).toBe('Bearer token-cliente');
+    expect(mock.expectOne(porUrl(URL_CLIENTE)).request.headers.get('Authorization')).toBe('Bearer token-cliente');
   });
 
   // ─── Sessão expirada ───────────────────────────────────────────────────────
@@ -145,7 +148,7 @@ describe('AuthInterceptor', () => {
     responder401(URL_ERP);
     responderRefresh('token-novo');
 
-    const repetida = mock.expectOne(URL_ERP);
+    const repetida = mock.expectOne(porUrl(URL_ERP));
     expect(repetida.request.headers.get('Authorization')).toBe('Bearer token-novo');
     repetida.flush({ ok: true });
 
@@ -171,12 +174,12 @@ describe('AuthInterceptor', () => {
     spyOn(auth, 'getRefreshToken').and.returnValue('refresh-bom');
 
     for (let i = 0; i < 5; i++) http.get(URL_ERP).subscribe();
-    mock.match(URL_ERP).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
+    mock.match(porUrl(URL_ERP)).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
 
     // Uma renovação para as cinco — `expectOne` falha se houver mais de uma.
     responderRefresh();
 
-    expect(mock.match(URL_ERP).length).toBe(5);   // as cinco repetidas
+    expect(mock.match(porUrl(URL_ERP)).length).toBe(5);   // as cinco repetidas
     expect(auth.logout).not.toHaveBeenCalled();
   });
 
@@ -190,7 +193,7 @@ describe('AuthInterceptor', () => {
 
     http.get(URL_ERP).subscribe();
     responder401(URL_ERP);
-    mock.expectOne(URL_REFRESH).flush({}, { status: 401, statusText: 'Unauthorized' });
+    mock.expectOne(porUrl(URL_REFRESH)).flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(auth.logout).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledOnceWith(
@@ -203,7 +206,7 @@ describe('AuthInterceptor', () => {
    */
   it('401 do próprio refresh não dispara outra renovação', () => {
     http.post(URL_REFRESH, { refreshToken: 'x' }).subscribe({ error: () => undefined });
-    mock.expectOne(URL_REFRESH).flush({}, { status: 401, statusText: 'Unauthorized' });
+    mock.expectOne(porUrl(URL_REFRESH)).flush({}, { status: 401, statusText: 'Unauthorized' });
 
     mock.verify();   // nenhuma segunda chamada pendente
     expect(auth.logout).not.toHaveBeenCalled();
@@ -221,7 +224,7 @@ describe('AuthInterceptor', () => {
     spyOn(auth, 'getRefreshToken').and.returnValue(null);
 
     for (let i = 0; i < 5; i++) http.get(URL_ERP).subscribe();
-    mock.match(URL_ERP).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
+    mock.match(porUrl(URL_ERP)).forEach(r => r.flush({}, { status: 401, statusText: 'Unauthorized' }));
 
     expect(auth.logout).toHaveBeenCalledTimes(1);
     expect(router.navigate).toHaveBeenCalledTimes(1);
@@ -275,7 +278,7 @@ describe('AuthInterceptor', () => {
     let recebeuErro = false;
 
     http.post(`${environment.apiUrl}/auth/login`, {}).subscribe({ error: () => (recebeuErro = true) });
-    mock.expectOne(`${environment.apiUrl}/auth/login`)
+    mock.expectOne(porUrl(`${environment.apiUrl}/auth/login`))
         .flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(recebeuErro).toBeTrue();
@@ -293,10 +296,36 @@ describe('AuthInterceptor', () => {
     let recebeuErro = false;
 
     http.get(URL_ERP).subscribe({ error: () => (recebeuErro = true) });
-    mock.expectOne(URL_ERP).flush({}, { status: 403, statusText: 'Forbidden' });
+    mock.expectOne(porUrl(URL_ERP)).flush({}, { status: 403, statusText: 'Forbidden' });
 
     expect(recebeuErro).toBeTrue();
     expect(auth.logout).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  // ─── Fora do service worker ────────────────────────────────────────────────
+
+  /**
+   * O defeito de 2026-10-08: um funcionário não conseguia mandar o primeiro
+   * reembolso ("O parâmetro 'expenseDate' é obrigatório"), e no ambiente de
+   * testes funcionava. O service worker só liga no build de produção, e o do
+   * Angular toma conta de TODA requisição da página, inclusive o POST com o
+   * comprovante; no Safari do iPhone o envio com arquivo que passa por ele pode
+   * chegar sem corpo. A API não cacheia nada no service worker, então as
+   * chamadas dela passam direto. Parâmetro, e não cabeçalho: um cabeçalho novo
+   * dispara o CORS, e a API só aceita Authorization, Content-Type, Accept e Origin.
+   */
+  it('as chamadas da API passam por fora do service worker; o resto não muda', () => {
+    const corpo = new FormData();
+    corpo.append('expenseDate', '2026-10-07');
+    http.post(`${environment.apiUrl}/hr/reimbursements`, corpo).subscribe();
+    http.get(URL_ERP).subscribe();
+    http.get('/assets/i18n/pt.json').subscribe();
+
+    const envio = mock.expectOne(porUrl(`${environment.apiUrl}/hr/reimbursements`)).request;
+    expect(envio.params.get('ngsw-bypass')).toBe('true');
+    expect(envio.body).toBe(corpo);
+    expect(mock.expectOne(porUrl(URL_ERP)).request.params.get('ngsw-bypass')).toBe('true');
+    expect(mock.expectOne('/assets/i18n/pt.json').request.params.has('ngsw-bypass')).toBeFalse();
   });
 });

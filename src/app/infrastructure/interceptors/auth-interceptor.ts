@@ -5,6 +5,7 @@ import { EMPTY, Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ClientAuthService } from '../services/client/client-auth.service';
 import { Sessao, SessionRefreshService } from '../services/session-refresh.service';
+import { environment } from '../../../environments/environment';
 
 /** O que a tela de login mostra quando a sessão caiu sozinha. */
 export const PARAM_SESSAO_EXPIRADA = 'expirou';
@@ -23,6 +24,8 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    req = this.semServiceWorker(req);
+
     /**
      * Rotas que não têm sessão para expirar.
      *
@@ -80,6 +83,25 @@ export class AuthInterceptor implements HttpInterceptor {
         return EMPTY;
       }),
     );
+  }
+
+  /**
+   * As chamadas da API passam por fora do service worker.
+   *
+   * O service worker do Angular (só no build de produção) toma conta de TODA
+   * requisição da página; no Safari do iPhone, um POST com arquivo que passa
+   * por ele pode chegar sem corpo. Foi o reembolso de 2026-10-08: "O parâmetro
+   * 'expenseDate' é obrigatório" com tudo preenchido, e no ambiente de testes
+   * (sem service worker) funcionando. A API não é cacheada pelo service worker,
+   * então nada se perde.
+   *
+   * Parâmetro `ngsw-bypass`, e não cabeçalho: um cabeçalho novo numa chamada
+   * para outro domínio dispara o CORS, e a API só aceita Authorization,
+   * Content-Type, Accept e Origin — o cabeçalho derrubaria todas as chamadas.
+   */
+  private semServiceWorker(req: HttpRequest<any>): HttpRequest<any> {
+    if (!req.url.startsWith(environment.apiUrl)) return req;
+    return req.clone({ setParams: { 'ngsw-bypass': 'true' } });
   }
 
   /**
