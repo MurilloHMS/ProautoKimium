@@ -121,6 +121,8 @@ export interface AudienceOption {
   name: string;
   /** "Matriz · Comercial" ao lado do nome da pessoa. */
   detail: string | null;
+  /** Só nas Solicitações: false = sem login; recebe, e o RH registra a resposta. */
+  hasAccess?: boolean;
 }
 
 export interface AudienceOptions {

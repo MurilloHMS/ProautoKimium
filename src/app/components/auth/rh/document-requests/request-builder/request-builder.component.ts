@@ -10,12 +10,14 @@ import { Observable, of, switchMap, tap } from 'rxjs';
 
 import { FormScreenComponent } from '../../../shared/form-screen/form-screen.component';
 import { PkButtonComponent } from '../../../../theme/ProautoKimium/pk-button/pk-button.component';
+import { PkDialogComponent } from '../../../../theme/ProautoKimium/pk-dialog/pk-dialog.component';
 import { AudiencePickerComponent, audienceIsEmpty, emptyAudience } from '../audience-picker/audience-picker.component';
 import { DocumentRequestService } from '../../../../../infrastructure/services/hr/document-request.service';
 import { AudienceOptions } from '../../../../../domain/models/events.model';
 import { EmployeeDocumentType } from '../../../../../domain/models/hr/employee-document.model';
 import {
   Audience,
+  AudiencePreview,
   DocumentRequest,
   FIELD_TYPES,
   FIELD_TYPE_LABEL,
@@ -41,7 +43,7 @@ import { formatDateOnly, parseDateOnly } from '../../../../../domain/utils/date-
 @Component({
   selector: 'app-request-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputTextModule, DatePickerModule, SelectModule, Textarea, FormScreenComponent, PkButtonComponent, AudiencePickerComponent],
+  imports: [CommonModule, FormsModule, InputTextModule, DatePickerModule, SelectModule, Textarea, FormScreenComponent, PkButtonComponent, PkDialogComponent, AudiencePickerComponent],
   templateUrl: './request-builder.component.html',
   styleUrl: './request-builder.component.scss',
 })
@@ -80,6 +82,9 @@ export class RequestBuilderComponent implements OnInit {
   readonly touched = signal<ReadonlySet<string>>(new Set());
   /** Tentou enviar com algo faltando: aí todos os erros aparecem. */
   readonly attempted = signal(false);
+
+  /** A confirmação do envio: quem recebe pelo portal e quem o RH vai registrar. */
+  readonly preview = signal<AudiencePreview | null>(null);
 
   /** O que impede o envio, na ordem em que a pessoa resolveria. */
   readonly sendProblems = computed(() => [
@@ -202,6 +207,12 @@ export class RequestBuilderComponent implements OnInit {
       if (this.ehCelular() && this.problems().length) this.mobileTab.set(this.title().trim() ? 'fields' : 'about');
       return;
     }
+    // Antes de enviar, a confirmação com a divisão: pelo portal × sem acesso.
+    if (!this.preview()) {
+      this.run(this.service.audiencePreview(this.audience()), p => this.preview.set(p));
+      return;
+    }
+    this.preview.set(null);
     this.run(this.persist().pipe(switchMap(saved => this.service.send(saved.id, this.audience()))),
       sent => this.saved.emit(sent));
   }

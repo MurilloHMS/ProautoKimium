@@ -155,3 +155,32 @@
     <pk-button pkType="send" pkSize="sm" pkLabel="Enviar" [pkDisabled]="saving()" (clicked)="send()" />
   </div>
 </app-form-screen>
+
+<!-- A confirmação do envio: quem recebe pelo portal, e quem o RH vai registrar. -->
+<pk-dialog width="480px" [header]="'Enviar ' + (title() ? '“' + title() + '”' : 'a solicitação') + '?'"
+           [visible]="!!preview()" (visibleChange)="!$event && preview.set(null)">
+  @if (preview(); as p) {
+    <div pkDialogContent class="rb-envio">
+      <div class="rb-envio__divisao">
+        <div><b>{{ p.withAccess }}</b><span>recebem pelo portal, com aviso no sino e no celular</span></div>
+        @if (p.withoutAccess.length) {
+          <div class="is-sem"><b>{{ p.withoutAccess.length }}</b><span>sem acesso ao portal: o RH registra a resposta deles</span></div>
+        }
+      </div>
+      @if (p.withoutAccess.length) {
+        <div class="rb-envio__nomes" aria-label="Sem acesso">
+          @for (n of p.withoutAccess.slice(0, 6); track n.id) { <span class="rb-envio__nome">{{ n.name }}</span> }
+          @if (p.withoutAccess.length > 6) { <span class="rb-envio__nome">+{{ p.withoutAccess.length - 6 }}</span> }
+        </div>
+        <p class="rb__dica">Quem criar o login depois passa a ver e responder pelo portal.</p>
+      }
+    </div>
+  }
+  <!-- Um @if por parte: com dois nós na raiz, o Angular não projeta nas fatias do diálogo (NG8011). -->
+  @if (preview(); as p) {
+    <div pkDialogFooter class="pk-dialog-footer">
+      <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" (clicked)="preview.set(null)" />
+      <pk-button pkType="send" pkSize="sm" [pkLabel]="'Enviar para ' + p.total" [pkLoading]="saving()" (clicked)="send()" />
+    </div>
+  }
+</pk-dialog>

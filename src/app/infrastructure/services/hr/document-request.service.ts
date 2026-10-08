@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   Audience,
+  AudiencePreview,
   DocumentRequest,
   Recipient,
   RequestFile,
@@ -70,6 +71,24 @@ export class DocumentRequestService {
 
   audienceOptions(): Observable<AudienceOptions> {
     return this.http.get<AudienceOptions>(`${this.url}/audience-options`);
+  }
+
+  /** Antes de enviar: quantos recebem pelo portal e quem o RH vai registrar. */
+  audiencePreview(audience: Audience): Observable<AudiencePreview> {
+    return this.http.post<AudiencePreview>(`${this.url}/audience-preview`, audience);
+  }
+
+  /** O RH anexa o arquivo no lugar do funcionário (sem acesso, ou entregou em papel). */
+  uploadOnBehalf(recipientId: string, fieldKey: string, file: File): Observable<RequestFile> {
+    const data = new FormData();
+    data.append('fieldKey', fieldKey);
+    data.append('file', file);
+    return this.http.post<RequestFile>(`${this.url}/recipients/${recipientId}/files`, data);
+  }
+
+  /** O RH registra a resposta no lugar do funcionário; `approve` já aprova. */
+  registerOnBehalf(recipientId: string, answers: Record<string, unknown>, approve: boolean): Observable<Recipient> {
+    return this.http.post<Recipient>(`${this.url}/recipients/${recipientId}/register`, { answers, approve });
   }
 
   recipients(id: string): Observable<Recipient[]> {

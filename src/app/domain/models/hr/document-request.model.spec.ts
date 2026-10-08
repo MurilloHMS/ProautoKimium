@@ -4,6 +4,8 @@ import {
   answerText,
   answersSheet,
   canAnswer,
+  canRegister,
+  remindable,
   formProblems,
   newField,
   tallyChoices,
@@ -86,5 +88,24 @@ describe('document-request.model', () => {
     expect(canAnswer(resposta({ status: 'SUBMITTED' }))).toBeFalse();
     expect(canAnswer(resposta({ status: 'APPROVED' }))).toBeFalse();
     expect(canAnswer(resposta({ status: 'PENDING', requestStatus: 'CLOSED' }))).toBeFalse();
+  });
+
+  describe('sem acesso (2026-10-08)', () => {
+    it('o lembrete conta só pendente ou devolvida COM login: os sem acesso o RH cobra pessoalmente', () => {
+      const lista = [
+        resposta({ status: 'PENDING', hasAccess: true }),
+        resposta({ status: 'RETURNED', hasAccess: true }),
+        resposta({ status: 'PENDING', hasAccess: false }),
+        resposta({ status: 'SUBMITTED', hasAccess: true }),
+      ];
+      expect(remindable(lista)).toBe(2);
+    });
+
+    it('o RH registra a resposta de quem ainda não respondeu ou foi devolvido', () => {
+      expect(canRegister(resposta({ status: 'PENDING' }))).toBeTrue();
+      expect(canRegister(resposta({ status: 'RETURNED' }))).toBeTrue();
+      expect(canRegister(resposta({ status: 'SUBMITTED' }))).toBeFalse();
+      expect(canRegister(resposta({ status: 'APPROVED' }))).toBeFalse();
+    });
   });
 });

@@ -186,3 +186,22 @@
   font: inherit;
   cursor: pointer;
 }
+
+// ── Sem acesso (2026-10-08): quem não tem login recebe, e o RH registra ──
+.dr-kpi--sem-acesso b { color: var(--app-action); }
+.dr-sem-acesso {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.dr-pessoa { display: grid; min-width: 0; }
+.dr-registrada { color: var(--app-text-muted); font-size: var(--text-micro); }
+.dr-acao--registrar { color: var(--app-action); font-weight: 600; white-space: nowrap; }
+.dr-dica--linha { margin: 0; font-size: var(--text-micro); }
