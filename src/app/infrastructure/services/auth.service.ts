@@ -152,13 +152,14 @@ export class AuthService {
   }
 
 
-  getStockControlToken(): Observable<string> {
-    return this.http.post<LoginResponseDTO>(
-      `${environment.apiUrl}/auth/app-token`,
-      {}
-    ).pipe(
-      map(res => res.token)
-    );
+  /**
+   * Troca o e-mail de uma conta. Responde 409 se o e-mail já é de outra.
+   *
+   * O login fica de fora de propósito: é o que vai dentro do token, e trocá-lo
+   * derrubaria a sessão da pessoa.
+   */
+  updateUser(login: string, changes: { email: string }): Observable<void> {
+    return this.http.patch<void>(`${environment.apiUrl}/auth/users/${login}`, changes);
   }
 
 

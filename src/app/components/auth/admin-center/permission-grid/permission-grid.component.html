@@ -1,0 +1,72 @@
+<div class="pgrid">
+
+  <!-- Busca e módulos. O alcance do "liberar tudo" de cada módulo é o que passou por aqui. -->
+  <div class="pgrid__bar">
+    <pk-input class="pgrid__search"
+              placeholder="Filtrar tela…"
+              icon="pi pi-search"
+              [ngModel]="filter()"
+              (ngModelChange)="setFilter($event)"
+              [ngModelOptions]="{ standalone: true }" />
+
+    <div class="pgrid__chips" role="group" aria-label="Filtrar por módulo">
+      <button type="button" class="pgrid__chip"
+              [attr.aria-pressed]="module() === 'todos'"
+              (click)="showModule('todos')">Todos</button>
+
+      @for (m of modules(); track m) {
+        <button type="button" class="pgrid__chip"
+                [attr.aria-pressed]="module() === m"
+                (click)="showModule(m)">{{ m }}</button>
+      }
+    </div>
+  </div>
+
+  @for (g of groups(); track g.module) {
+    <section class="pgrid__module" [attr.data-open]="g.open">
+      <div class="pgrid__module-head">
+        <button type="button" class="pgrid__module-toggle"
+                [attr.aria-expanded]="g.open"
+                (click)="toggleOpen(g.module)">
+          <i class="pi pgrid__caret" [class.pi-chevron-down]="g.open" [class.pi-chevron-right]="!g.open" aria-hidden="true"></i>
+          <span class="pgrid__module-name">{{ g.module }}</span>
+          <span class="pgrid__module-score">
+            @if (g.allowed === 0) { nenhuma }
+            @else { {{ g.allowed }} de {{ g.total }} {{ g.total === 1 ? 'tela' : 'telas' }} }
+          </span>
+        </button>
+
+        @if (g.open && !disabled()) {
+          <span class="pgrid__module-acts">
+            <button type="button" class="pgrid__link" (click)="setModule(g.module, true)">liberar tudo</button>
+            <button type="button" class="pgrid__link" (click)="setModule(g.module, false)">tirar tudo</button>
+          </span>
+        }
+      </div>
+
+      @if (g.open) {
+        <ul class="pgrid__screens">
+          @for (s of g.screens; track s.screen.code) {
+            <li class="pgrid__screen">
+              <span class="pgrid__label" [title]="s.screen.code">{{ s.screen.label }}</span>
+              <span class="pgrid__acts" role="group" [attr.aria-label]="s.screen.label">
+                @for (a of s.actions; track a.key) {
+                  <button type="button"
+                          class="pgrid__act"
+                          [attr.aria-pressed]="a.on"
+                          [attr.data-diverges]="a.diverges ? true : null"
+                          [disabled]="disabled()"
+                          [attr.aria-label]="a.label + ' em ' + s.screen.label + (a.diverges ? ' (difere do modelo)' : '')"
+                          [title]="a.diverges ? 'Difere do modelo aplicado' : ''"
+                          (click)="toggle(a.key)">{{ a.label }}</button>
+                }
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  } @empty {
+    <p class="pgrid__empty">Nenhuma tela com esse filtro.</p>
+  }
+</div>

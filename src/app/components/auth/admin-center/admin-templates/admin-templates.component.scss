@@ -1,0 +1,251 @@
+@use 'variables' as v;
+@use '../admin-dialogs';
+
+// A aba Modelos. A mesma composição da aba Usuários: lista à esquerda, modelo
+// aberto à direita; no celular, cartões e folha.
+
+:host { display: block; color: var(--app-text); }
+
+.at {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+
+  @media (max-width: v.$bp-md) { display: block; }
+}
+
+// ─── A lista ─────────────────────────────────────────────────────────────────
+.at__list {
+  flex: 0 0 300px;
+  min-width: 0;
+  position: sticky;
+  top: 16px;
+  max-height: calc(100dvh - 220px);
+  overflow-y: auto;
+
+  @media (max-width: v.$bp-md) {
+    position: static;
+    max-height: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+}
+
+.at__items {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  @media (max-width: v.$bp-md) { padding: 0; gap: 10px; }
+}
+
+.at__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--app-text);
+  cursor: pointer;
+
+  b { font-size: var(--text-ui); font-weight: 600; }
+
+  span {
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  &.is-off b { color: var(--app-text-muted); }
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  &[aria-current='true'] { background: var(--app-action-soft); }
+
+  @media (max-width: v.$bp-md) {
+    padding: 14px;
+    border-color: var(--app-border);
+    border-radius: var(--radius-surface);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-sm);
+
+    b { font-size: 15px; }
+    &:hover { background: var(--app-surface); }
+  }
+}
+
+.at__off {
+  margin-left: 6px;
+  font-size: var(--text-micro);
+  font-weight: 500;
+}
+
+.at__item-count { font-variant-numeric: tabular-nums; }
+
+.at__empty {
+  padding: 16px 12px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+// ─── O modelo aberto ─────────────────────────────────────────────────────────
+.at__detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.at__blank {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui);
+}
+
+.at__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  @media (max-width: v.$bp-md) { margin-bottom: 12px; }
+}
+
+.at__head-id {
+  flex: 1 1 240px;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+  }
+}
+
+.at__head-acts {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+// O aviso de quem já recebeu. Âmbar suave, sem borda: é para ser lido, não
+// para assustar.
+.at__notice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: var(--radius-surface);
+  background: var(--app-warning-soft);
+  color: var(--app-text);
+  font-size: var(--text-ui);
+  line-height: 1.55;
+
+  p { margin: 0; }
+
+  @media (max-width: v.$bp-md) { margin-bottom: 12px; }
+}
+
+.at__notice-title { font-size: 14px; }
+
+.at__grid {
+  overflow: visible;
+
+  @media (max-width: v.$bp-md) {
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+.at__savebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--app-border);
+  border-radius: 0 0 var(--radius-surface) var(--radius-surface);
+  background: var(--app-surface);
+
+  &[data-dirty='true'] { box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08); }
+}
+
+.at__save-msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-ui);
+  color: var(--app-text-muted);
+
+  b { color: var(--app-text); }
+}
+
+.at__sheet-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+// ─── A prévia do Reaplicar ───────────────────────────────────────────────────
+.at__preview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+
+  li {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--app-border-soft);
+    font-size: var(--text-ui);
+
+    &:first-child { border-top: 0; }
+
+    > b { flex: 0 0 110px; overflow-wrap: anywhere; }
+
+    @media (max-width: v.$bp-md) {
+      flex-direction: column;
+      gap: 4px;
+
+      > b { flex: none; }
+    }
+  }
+}
+
+.at__preview-what {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.at__preview-loses { color: var(--app-warning); font-weight: 500; }
+.at__preview-gains { color: var(--app-text); }
+.at__preview-same { color: var(--app-text-muted); }

@@ -1,0 +1,235 @@
+@use 'variables' as v;
+
+// A lista de permissões: módulos em sanfona, e em cada tela só as ações que ela
+// usa. Sem colunas — e por isso sem largura mínima: no celular os botões
+// quebram linha, nada rola para o lado.
+
+:host { display: block; min-width: 0; }
+
+.pgrid {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+// ─── Busca e módulos ─────────────────────────────────────────────────────────
+.pgrid__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+
+  @media (max-width: v.$bp-md) { padding: 4px 0 12px; }
+}
+
+.pgrid__search {
+  width: 220px;
+  max-width: 100%;
+
+  @media (max-width: v.$bp-md) { width: 100%; }
+}
+
+.pgrid__chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+
+  // No celular a sanfona já é o filtro por módulo: os treze botões ocupavam
+  // cinco linhas da folha antes da primeira tela.
+  @media (max-width: v.$bp-md) { display: none; }
+}
+
+// Filtro é escolha de recorte, não estado gravado: tinta leve, e não o azul
+// cheio que os botões de ação usam para "liberado".
+.pgrid__chip {
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+
+  &:hover { color: var(--app-text); }
+
+  &[aria-pressed='true'] {
+    background: var(--app-action-soft);
+    border-color: transparent;
+    color: var(--app-action);
+    font-weight: 600;
+  }
+
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+// ─── O módulo ────────────────────────────────────────────────────────────────
+.pgrid__module {
+  border-top: 1px solid var(--app-border);
+}
+
+.pgrid__module-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-right: 12px;
+  background: var(--app-surface-2);
+}
+
+.pgrid__module-toggle {
+  flex: 1 1 220px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible { outline: none; box-shadow: inset var(--app-focus-ring); }
+}
+
+.pgrid__caret {
+  font-size: 11px;
+  color: var(--app-text-muted);
+}
+
+.pgrid__module-name {
+  font-size: var(--text-ui);
+  font-weight: 600;
+}
+
+.pgrid__module-score {
+  margin-left: auto;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pgrid__module-acts {
+  display: flex;
+  gap: 2px;
+}
+
+.pgrid__link {
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 500;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--app-action);
+
+  &:hover { background: var(--app-action-soft); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+// ─── As telas ────────────────────────────────────────────────────────────────
+.pgrid__screens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pgrid__screen {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+  padding: 10px 16px 10px 40px;
+  border-top: 1px solid var(--app-border-soft);
+
+  @media (max-width: v.$bp-md) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+  }
+}
+
+.pgrid__label {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-size: var(--text-ui);
+  overflow-wrap: anywhere;
+
+  @media (max-width: v.$bp-md) { flex: none; font-size: 14px; }
+}
+
+.pgrid__acts {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+// O botão de ação. Azul cheio é "liberado": é o único estado gravado da tela,
+// e precisa ser lido de longe. Desligado é contorno.
+.pgrid__act {
+  position: relative;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 500;
+  height: 30px;
+  min-width: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+
+  &:hover:not(:disabled) { color: var(--app-text); border-color: var(--app-text-subtle); }
+
+  &[aria-pressed='true'] {
+    background: var(--app-action);
+    border-color: var(--app-action);
+    color: var(--app-on-action);
+
+    &:hover:not(:disabled) { background: var(--app-action-hover); color: var(--app-on-action); }
+  }
+
+  &:disabled { cursor: default; }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  // Difere dos modelos aplicados. É o que impede o "reaplicar" cego: sem esta
+  // marca, perder um ajuste feito de propósito é invisível.
+  &[data-diverges]::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--app-warning);
+    border: 2px solid var(--app-surface);
+  }
+
+  // Alvo de toque: 40px no celular, onde o dedo erra o de 30.
+  @media (max-width: v.$bp-md) {
+    height: 40px;
+    min-width: 52px;
+    font-size: var(--text-ui);
+  }
+}
+
+.pgrid__empty {
+  margin: 0;
+  padding: 24px 16px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  font-size: var(--text-ui);
+  text-align: center;
+}

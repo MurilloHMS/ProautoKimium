@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
-  ApplyMode, ApplyResult, PermissionCells, ScreenRow,
+  ApplyMode, ApplyResult, PermissionCells, ReapplyPreview, ScreenAccessOverview, ScreenRow,
   TemplateGrid, TemplateSummary, UserGrid, UserSummary,
 } from '../../../domain/models/permission-admin.model';
 
@@ -13,7 +13,7 @@ import {
  *
  * Separado do `PermissionStore`, que guarda as permissões **de quem está
  * logado**: aquele é consultado a cada render de menu e a cada `*pkCan`, este
- * só existe dentro de duas telas. Misturar os dois faria o store carregar
+ * só existe dentro da tela de administração. Misturar os dois faria o store carregar
  * catálogo e lista de usuários no login de todo mundo.
  */
 @Injectable({ providedIn: 'root' })
@@ -26,6 +26,11 @@ export class PermissionAdminService {
 
   screens(): Observable<ScreenRow[]> {
     return this.http.get<ScreenRow[]>(`${this.url}/screens`);
+  }
+
+  /** Quem acessa cada tela, todas de uma vez: a aba Telas. */
+  screenAccess(): Observable<ScreenAccessOverview> {
+    return this.http.get<ScreenAccessOverview>(`${this.url}/screen-access`);
   }
 
   // ─── Modelos ───────────────────────────────────────────────────────────────
@@ -99,6 +104,21 @@ export class PermissionAdminService {
    */
   undoApply(userId: string, templateId: string): Observable<ApplyResult> {
     return this.http.delete<ApplyResult>(`${this.url}/users/${userId}/templates/${templateId}`);
+  }
+
+  /** O que o "Reaplicar" faria, pessoa por pessoa. Só lê. */
+  reapplyPreview(templateId: string): Observable<ReapplyPreview> {
+    return this.http.get<ReapplyPreview>(`${this.url}/templates/${templateId}/reapply-preview`);
+  }
+
+  /**
+   * Leva a versão nova do modelo a quem já o recebeu.
+   *
+   * A API refaz cada pessoa pela soma de todos os modelos dela — não deixa a
+   * pessoa igual a este modelo, como o antigo "reaplicar com SUBSTITUIR" fazia.
+   */
+  reapply(templateId: string): Observable<ApplyResult> {
+    return this.http.post<ApplyResult>(`${this.url}/templates/${templateId}/reapply`, {});
   }
 
   copyFrom(userId: string, sourceUserId: string): Observable<ApplyResult> {

@@ -1,0 +1,66 @@
+<pk-dialog [flush]="true" [header]="header()" [visible]="open()" width="560px"
+           (visibleChange)="!$event && closed.emit()">
+
+  <div pkDialogContent>
+    @if (!fixedTemplateId()) {
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title"><i class="pi pi-bookmark"></i> Modelo</h3>
+        <div class="pform__opts">
+          @for (t of templates(); track t.id) {
+            <button type="button" class="pform__chip"
+                    [attr.aria-pressed]="t.id === templateId()"
+                    (click)="templateId.set(t.id)">{{ t.name }}</button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (!fixedPerson()) {
+      <div class="pk-form-section">
+        <h3 class="pk-form-section__title">
+          <i class="pi pi-users"></i> Pessoas · {{ targets().length }} {{ targets().length === 1 ? 'escolhida' : 'escolhidas' }}
+        </h3>
+        <div class="pform__people">
+          @for (p of people(); track p.id) {
+            <button type="button" class="pform__person"
+                    [attr.aria-pressed]="isTarget(p.id)"
+                    (click)="toggleTarget(p.id)">
+              <span class="pform__tick" aria-hidden="true"></span>
+              {{ p.name }} <span class="pform__login">{{ p.login }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- As duas consequências, escritas antes do clique. -->
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title"><i class="pi pi-sliders-h"></i> Como aplicar</h3>
+      <div class="pform">
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="mode() === 'SOMAR'"
+                (click)="mode.set('SOMAR')">
+          <b>Somar ao que a pessoa já tem</b>
+          <span>Libera o que o modelo dá e não tira nada. É o normal: quem recebe
+            Vendas e depois Estoque fica com os dois.</span>
+        </button>
+
+        <button type="button" class="pform__mode"
+                [attr.aria-pressed]="mode() === 'SUBSTITUIR'"
+                (click)="mode.set('SUBSTITUIR')">
+          <b>Deixar igual ao modelo</b>
+          <span class="pform__warn">Libera e tira. A pessoa fica exatamente como o
+            modelo: o que veio de outros modelos e os ajustes à mão se perdem.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="closed.emit()" />
+    <pk-button pkType="save" pkSize="sm"
+               [pkLabel]="total() === 1 ? 'Aplicar' : 'Aplicar a ' + total()"
+               [pkLoading]="busy()"
+               (clicked)="confirm()" />
+  </div>
+</pk-dialog>
