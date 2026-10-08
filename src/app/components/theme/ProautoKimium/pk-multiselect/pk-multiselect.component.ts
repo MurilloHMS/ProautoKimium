@@ -38,6 +38,8 @@ export class PkMultiselectComponent implements ControlValueAccessor, Validator {
    * altura é a do controle e não a de um campo com legenda.
    */
   dense       = input<boolean>(false);
+  /** Com mais de três marcados vira contagem; o padrão do PrimeNG vinha em inglês ("4 items selected"). */
+  selectedItemsLabel = input<string>('{0} selecionados');
 
   // ── Estado interno ────────────────────────────────────────
   innerValue: any[] = [];

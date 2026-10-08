@@ -1,0 +1,85 @@
+<ng-template #corpo>
+  @if (recipient(); as r) {
+    <div class="ra">
+      <p class="ra__aviso" role="note">
+        <i class="pi pi-user-edit" aria-hidden="true"></i>
+        <span>Você está respondendo <b>no lugar de {{ firstName() }}</b>@if (r.hasAccess === false) {, que não tem acesso ao portal}. Fica registrado que foi você.</span>
+      </p>
+      @if (r.status === 'RETURNED' && r.returnReason) { <p class="ra__motivo"><b>Devolvida:</b> {{ r.returnReason }}</p> }
+
+      @for (f of r.form; track f.key) {
+        <div class="ra-campo">
+          <span class="ra-campo__nome" [id]="'ra-' + f.key">{{ f.label }} @if (f.required) { <i class="ra__obrigatorio">*</i> }</span>
+          @if (f.help) { <small class="ra__dica">{{ f.help }}</small> }
+          @switch (f.type) {
+            @case ('CHOICE') {
+              <div class="ra-opcoes" role="group" [attr.aria-labelledby]="'ra-' + f.key">
+                @for (o of f.options; track o) {
+                  <button type="button" [attr.aria-pressed]="isPicked(f, o)" (click)="pick(f, o)">{{ o }}</button>
+                }
+              </div>
+            }
+            @case ('YES_NO') {
+              <div class="ra-opcoes" role="group" [attr.aria-labelledby]="'ra-' + f.key">
+                <button type="button" [attr.aria-pressed]="isPicked(f, true)" (click)="pick(f, true)">Sim</button>
+                <button type="button" [attr.aria-pressed]="isPicked(f, false)" (click)="pick(f, false)">Não</button>
+              </div>
+            }
+            @case ('FILE') {
+              @if (files()[f.key]; as up) {
+                <span class="ra-arquivo ra-arquivo--ok"><i class="pi pi-file" aria-hidden="true"></i> <b>{{ up.originalFilename }}</b></span>
+              }
+              @if (uploading() === f.key) {
+                <span class="ra__dica"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Enviando o arquivo…</span>
+              } @else {
+                <div class="ra-arquivo__botoes">
+                  @if (ehCelular()) {
+                    <label class="ra-arquivo__botao" [for]="'ra-cam-' + f.key"><i class="pi pi-camera" aria-hidden="true"></i> Fotografar o papel</label>
+                    <input class="ra__oculto" [id]="'ra-cam-' + f.key" type="file" accept="image/*" capture="environment" (change)="onFile(f, $event)" />
+                  }
+                  <label class="ra-arquivo__botao" [for]="'ra-arq-' + f.key"><i class="pi pi-folder-open" aria-hidden="true"></i> {{ files()[f.key] ? 'Trocar arquivo' : 'Escolher arquivo' }}</label>
+                  <input class="ra__oculto" [id]="'ra-arq-' + f.key" type="file" accept=".pdf,.jpg,.jpeg,.png" (change)="onFile(f, $event)" />
+                </div>
+                <small class="ra__dica">PDF, JPG ou PNG, até 10 MB. Vai para a pasta de {{ firstName() }}.</small>
+              }
+            }
+            @case ('LONG_TEXT') {
+              <textarea pTextarea rows="3" [attr.aria-labelledby]="'ra-' + f.key" [ngModel]="answers()[f.key]" (ngModelChange)="pick(f, $event)"></textarea>
+            }
+            @case ('NUMBER') {
+              <input pInputText type="number" inputmode="decimal" [attr.aria-labelledby]="'ra-' + f.key" [ngModel]="answers()[f.key]" (ngModelChange)="pick(f, $event)" />
+            }
+            @case ('DATE') {
+              <input pInputText type="date" [attr.aria-labelledby]="'ra-' + f.key" [ngModel]="answers()[f.key]" (ngModelChange)="pick(f, $event)" />
+            }
+            @default {
+              <input pInputText type="text" maxlength="500" [attr.aria-labelledby]="'ra-' + f.key" [ngModel]="answers()[f.key]" (ngModelChange)="pick(f, $event)" />
+            }
+          }
+        </div>
+      }
+      @if (error()) { <p class="ra__erro" role="alert">{{ error() }}</p> }
+    </div>
+  }
+</ng-template>
+
+<ng-template #botoes>
+  <pk-button pkType="cancel" pkSize="sm" pkLabel="Cancelar" [pkDisabled]="!!saving()" (clicked)="close()" />
+  <span class="ra__espaco"></span>
+  <pk-button pkType="send" pkSize="sm" pkLabel="Registrar" [pkLoading]="saving() === 'register'"
+             [pkDisabled]="!!uploading() || saving() === 'approve'" (clicked)="save(false)" />
+  <pk-button pkType="save" pkSize="sm" pkLabel="Registrar e aprovar" [pkLoading]="saving() === 'approve'"
+             [pkDisabled]="!!uploading() || saving() === 'register'" (clicked)="save(true)" />
+</ng-template>
+
+@if (ehCelular()) {
+  <pk-sheet [open]="!!recipient()" [title]="title()" (closed)="close()">
+    <div pkSheetBody><ng-container *ngTemplateOutlet="corpo" /></div>
+    <div pkSheetFooter class="ra__botoes"><ng-container *ngTemplateOutlet="botoes" /></div>
+  </pk-sheet>
+} @else {
+  <pk-dialog width="560px" [header]="title()" [visible]="!!recipient()" (visibleChange)="!$event && close()">
+    <div pkDialogContent><ng-container *ngTemplateOutlet="corpo" /></div>
+    <div pkDialogFooter class="pk-dialog-footer ra__botoes"><ng-container *ngTemplateOutlet="botoes" /></div>
+  </pk-dialog>
+}

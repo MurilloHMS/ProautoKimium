@@ -11,10 +11,11 @@
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  // 340: a coluna "Sobre" cabe o seletor de público (308px, quatro botões que não
-  // quebram) mais o recuo. Com 300 ela rolava 24px para o lado, e rolagem
-  // horizontal não pode (pedido dele, 2026-10-08).
-  grid-template-columns: 340px minmax(0, 1fr) 320px;
+  // 380: a coluna "Sobre" cabe o seletor de público (308px, quatro botões que não
+  // quebram) com folga, e os nomes no seletor de pessoas leem melhor. Com 300
+  // ela rolava para o lado; ele pediu mais larga (2026-10-08). Rolagem
+  // horizontal não pode.
+  grid-template-columns: 380px minmax(0, 1fr) 320px;
 }
 .rb-col {
   min-height: 0;
@@ -41,7 +42,7 @@
 
 // Tela média: a prévia sai do lado e o construtor fica em duas colunas.
 @media (max-width: 1200px) {
-  .rb { grid-template-columns: 340px minmax(0, 1fr); }
+  .rb { grid-template-columns: 380px minmax(0, 1fr); }
   .rb-col--previa { display: none; }
 }
 
@@ -278,3 +279,24 @@
 // Rodapé: a mensagem do que falta fica à esquerda dos botões.
 .rb-rodape { display: flex; flex: 1; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--gap-control); }
 .rb-rodape .rb__aviso, .rb-rodape .rb__erro { margin: 0 auto 0 0; }
+
+// A confirmação do envio (mockup do "sem acesso", 2026-10-08).
+.rb-envio { display: grid; gap: 12px; }
+.rb-envio__divisao {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  div { display: grid; gap: 2px; padding: 10px; border-radius: var(--radius-control); background: var(--app-surface-2); }
+  b { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+  span { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+  .is-sem { background: var(--app-action-soft); b { color: var(--app-action); } }
+}
+.rb-envio__nomes { display: flex; flex-wrap: wrap; gap: 4px; }
+.rb-envio__nome {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-micro);
+  font-weight: 600;
+}

@@ -1,9 +1,15 @@
 @use 'variables' as v;
 
+// O seletor nunca passa da largura do campo onde está. Sem isto, uma ficha com
+// rótulo longo ("nome · empresa · setor") esticava o controle até 909px numa
+// coluna de 340 e criava rolagem horizontal (medido em 2026-10-08).
+:host { display: block; min-width: 0; max-width: 100%; }
+
 .pk-field {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
 
   &--disabled { opacity: 0.55; pointer-events: none; }
 }
@@ -36,6 +42,8 @@
 // Cresce em altura conforme as fichas: só o mínimo acompanha os outros campos.
 ::ng-deep .pk-multiselect {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: var(--field-h);
   border: 1px solid var(--app-border);
   border-radius: var(--radius-control);
@@ -53,19 +61,29 @@
     box-shadow: var(--app-focus-ring);
   }
 
+  .p-multiselect-label-container { min-width: 0; }
+
   .p-multiselect-label {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 4px;
+    min-width: 0;
+    max-width: 100%;
     padding: 4px 10px;
     color: var(--app-text);
+    // O rótulo "2 selecionados" (display comma) também corta, em vez de esticar.
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .p-multiselect-label.p-placeholder { color: var(--app-text-subtle); }
 
   .p-multiselect-chip,
   .p-chip {
+    // A ficha cabe na linha: o texto longo corta com reticências.
+    max-width: 100%;
+    min-width: 0;
     padding: 1px 7px;
     border-radius: var(--radius-control);
     background: var(--app-action-soft);
@@ -97,4 +115,16 @@
       align-items: center;
     }
   }
+}
+// A ficha e o embrulho dela cabem na linha, com o "x" de remover sempre à
+// vista; só o texto encolhe, e corta no fim (o nome vem primeiro).
+::ng-deep .pk-multiselect .p-multiselect-chip-item { max-width: 100%; min-width: 0; }
+::ng-deep .pk-multiselect .p-chip { display: inline-flex; align-items: center; }
+::ng-deep .pk-multiselect .p-chip-remove-icon { flex: none; }
+::ng-deep .pk-multiselect .p-chip-label,
+::ng-deep .pk-multiselect .p-multiselect-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

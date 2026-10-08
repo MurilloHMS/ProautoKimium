@@ -13,6 +13,7 @@ import { PkTableComponent } from '../../../theme/ProautoKimium/pk-table/pk-table
 import { PkCanDirective } from '../../../../infrastructure/directives/pk-can.directive';
 import { RequestBuilderComponent } from './request-builder/request-builder.component';
 import { RequestReviewComponent } from './request-review/request-review.component';
+import { RegisterAnswerComponent } from './register-answer/register-answer.component';
 import { AudiencePickerComponent, audienceIsEmpty, emptyAudience } from './audience-picker/audience-picker.component';
 import { DocumentRequestService } from '../../../../infrastructure/services/hr/document-request.service';
 import { EmployeeDocumentService } from '../../../../infrastructure/services/hr/employee-document.service';
@@ -30,6 +31,8 @@ import {
   RequestField,
   answerText,
   answersSheet,
+  canRegister,
+  remindable,
   tallyChoices,
 } from '../../../../domain/models/hr/document-request.model';
 import { formatDateBr } from '../../../../domain/utils/date-only';
@@ -50,7 +53,7 @@ const SCREEN = 'rh/document-requests';
   standalone: true,
   imports: [
     CommonModule, FormsModule, Toast, InputTextModule, PkButtonComponent, PkDialogComponent, PkTableComponent, PkCanDirective,
-    RequestBuilderComponent, RequestReviewComponent, AudiencePickerComponent,
+    RequestBuilderComponent, RequestReviewComponent, RegisterAnswerComponent, AudiencePickerComponent,
   ],
   templateUrl: './document-requests.component.html',
   styleUrl: './document-requests.component.scss',
@@ -79,7 +82,10 @@ export class DocumentRequestsComponent implements OnInit {
   readonly opened = signal<DocumentRequest | null>(null);
   readonly recipients = signal<Recipient[]>([]);
   readonly recipientsLoading = signal(false);
-  readonly filter = signal<RecipientStatus | null>(null);
+  /** Uma situação, ou 'NO_ACCESS': quem não tem login (o RH registra a resposta dele). */
+  readonly filter = signal<RecipientStatus | 'NO_ACCESS' | null>(null);
+  /** De quem o RH está registrando a resposta. */
+  readonly registering = signal<Recipient | null>(null);
   readonly tab = signal<'people' | 'totals'>('people');
   readonly reviewing = signal<Recipient | null>(null);
 
@@ -100,7 +106,7 @@ export class DocumentRequestsComponent implements OnInit {
     const f = this.filter();
     const q = fold(this.search().trim());
     return this.recipients()
-      .filter(r => !f || r.status === f)
+      .filter(r => !f || (f === 'NO_ACCESS' ? r.hasAccess === false : r.status === f))
       .filter(r => !q || fold(r.employeeName).includes(q));
   });
 
@@ -108,10 +114,9 @@ export class DocumentRequestsComponent implements OnInit {
   readonly choiceFields = computed(() => (this.opened()?.form ?? []).filter(f => f.type === 'CHOICE'));
   readonly hasFiles = computed(() => (this.opened()?.form ?? []).some(f => f.type === 'FILE'));
   readonly totals = computed(() => tallyChoices(this.opened()?.form ?? [], this.recipients()));
-  readonly toRemind = computed(() => {
-    const c = this.opened()?.counts;
-    return c ? c.pending + c.returned : 0;
-  });
+  /** Só quem recebe o lembrete: pendente ou devolvida, e com login. Os sem acesso o RH cobra pessoalmente. */
+  readonly toRemind = computed(() => remindable(this.recipients()));
+  readonly withoutAccess = computed(() => this.recipients().filter(r => r.hasAccess === false).length);
 
   ngOnInit(): void {
     this.load();
@@ -191,7 +196,7 @@ export class DocumentRequestsComponent implements OnInit {
     });
   }
 
-  toggleFilter(status: RecipientStatus): void {
+  toggleFilter(status: RecipientStatus | 'NO_ACCESS'): void {
     this.filter.set(this.filter() === status ? null : status);
     this.tab.set('people');
   }
@@ -201,6 +206,23 @@ export class DocumentRequestsComponent implements OnInit {
     if (!c) return 0;
     return status === 'PENDING' ? c.pending : status === 'SUBMITTED' ? c.submitted
       : status === 'RETURNED' ? c.returned : c.approved;
+  }
+
+  /** "Registrar resposta" aparece para quem ainda não respondeu ou foi devolvido, se o RH pode conferir. */
+  registrable(r: Recipient): boolean {
+    return canRegister(r) && this.canDecide() && this.opened()?.status === 'OPEN';
+  }
+
+  registered(updated: Recipient): void {
+    this.registering.set(null);
+    this.messages.add({
+      severity: 'success', summary: 'Resposta registrada',
+      detail: updated.status === 'APPROVED'
+        ? `A resposta de ${updated.employeeName} foi registrada e aprovada.`
+        : `A resposta de ${updated.employeeName} foi registrada e está aguardando revisão.`,
+    });
+    this.load();
+    this.loadRecipients();
   }
 
   decided(updated: Recipient): void {

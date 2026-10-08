@@ -1,0 +1,81 @@
+// A folha "Registrar resposta": o mesmo desenho do formulário do funcionário
+// (hr-document-requests), com o aviso de que é o RH respondendo.
+.ra { display: grid; gap: 10px; }
+
+.ra__aviso {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--app-action-soft);
+  color: var(--app-text);
+  font-size: var(--text-ui-sm);
+  i { color: var(--app-action); margin-top: 2px; }
+  b { color: var(--app-action); }
+}
+.ra__motivo { margin: 0; color: var(--app-danger); font-size: var(--text-ui-sm); }
+
+.ra-campo {
+  // O input de arquivo escondido fica preso aqui dentro: sem um pai
+  // posicionado, ele saía da tela e criava rolagem lateral.
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  background: var(--app-surface);
+  input, textarea { width: 100%; min-height: 44px; }
+}
+.ra-campo__nome { font-weight: 600; }
+.ra__obrigatorio { color: var(--app-danger); font-style: normal; }
+.ra__dica { color: var(--app-text-muted); font-size: var(--text-ui-sm); }
+.ra__erro { margin: 0; color: var(--app-danger); }
+
+.ra-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  button {
+    min-width: 52px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--app-surface);
+    color: var(--app-text);
+    font: inherit;
+    cursor: pointer;
+    &[aria-pressed='true'] { border-color: var(--app-action); background: var(--app-action); color: var(--app-on-action); font-weight: 600; }
+  }
+}
+
+.ra-arquivo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  overflow-wrap: anywhere;
+  &--ok { border: 1px solid var(--app-success); background: var(--app-success-soft); }
+}
+.ra-arquivo__botoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.ra-arquivo__botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: var(--text-ui);
+  cursor: pointer;
+}
+.ra__oculto { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+.ra__botoes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-control); }
+.ra__espaco { flex: 1; }

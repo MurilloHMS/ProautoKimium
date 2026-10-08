@@ -95,6 +95,12 @@
             <span>{{ recipientStatus[s].label }}</span><b>{{ count(s) }}</b>
           </button>
         }
+        @if (withoutAccess()) {
+          <button type="button" class="dr-kpi dr-kpi--sem-acesso" [attr.aria-pressed]="filter() === 'NO_ACCESS'"
+                  (click)="toggleFilter('NO_ACCESS')" title="Sem login no portal: o RH registra a resposta">
+            <span>Sem acesso</span><b>{{ withoutAccess() }}</b>
+          </button>
+        }
       </div>
 
       <div class="dr-barra">
@@ -102,6 +108,9 @@
           <pk-button pkType="send" pkSize="sm" pkIcon="pi pi-bell" [pkLabel]="'Lembrar pendentes (' + toRemind() + ')'"
                      [pkDisabled]="!toRemind() || busy()" (clicked)="remind()" />
           <pk-button pkType="new" pkSize="sm" pkLabel="Adicionar pessoas" (clicked)="openAddPeople()" />
+          @if (withoutAccess()) {
+            <span class="dr-dica dr-dica--linha">Os {{ withoutAccess() }} sem acesso não recebem lembrete: o RH cobra pessoalmente.</span>
+          }
         }
         <label class="dr-busca">
           <i class="pi pi-search" aria-hidden="true"></i>
@@ -148,9 +157,10 @@
           <pk-table [data]="visibleRecipients()" [loading]="recipientsLoading()" [showCaption]="false" [rows]="20"
                     emptyIcon="pi pi-users" emptyTitle="Ninguém nessa situação" pageReportTitle="Pessoas">
             <ng-template #cardTpl let-p>
-              <article class="pk-cartao dr-clicavel" (click)="reviewing.set(p)">
+              <article class="pk-cartao dr-clicavel" (click)="registrable(p) ? registering.set(p) : reviewing.set(p)">
                 <div class="pk-cartao__corpo pk-cartao__corpo--parado">
-                  <span class="pk-cartao__titulo">{{ p.employeeName }}</span>
+                  <span class="pk-cartao__titulo">{{ p.employeeName }}@if (p.hasAccess === false) { <span class="dr-sem-acesso">sem acesso</span> }</span>
+                  @if (p.registeredBy) { <span class="pk-cartao__sub dr-registrada">registrada pelo RH ({{ p.registeredBy }})</span> }
                   <span class="pk-cartao__sub">
                     @if (hasFiles()) { {{ fileCount(p) }} }
                     @for (f of choiceFields(); track f.key) { · {{ f.label }}: {{ answer(p, f) }} }
@@ -160,6 +170,9 @@
                   <span class="status-chip" [ngClass]="'status-chip--' + recipientStatus[p.status].chip">
                     <i [class]="recipientStatus[p.status].icon" aria-hidden="true"></i> {{ recipientStatus[p.status].label }}
                   </span>
+                  @if (registrable(p)) {
+                    <button type="button" class="dr-acao dr-acao--registrar" (click)="registering.set(p); $event.stopPropagation()">Registrar resposta</button>
+                  }
                 </div>
               </article>
             </ng-template>
@@ -177,7 +190,10 @@
                 <td>
                   <div class="employee-info">
                     <div class="employee-avatar">{{ p.employeeName?.charAt(0) | uppercase }}</div>
-                    <span class="employee-name">{{ p.employeeName }}</span>
+                    <div class="dr-pessoa">
+                      <span class="employee-name">{{ p.employeeName }}@if (p.hasAccess === false) { <span class="dr-sem-acesso">sem acesso</span> }</span>
+                      @if (p.registeredBy) { <small class="dr-registrada">registrada pelo RH ({{ p.registeredBy }})</small> }
+                    </div>
                   </div>
                 </td>
                 @if (hasFiles()) { <td>{{ fileCount(p) }}</td> }
@@ -188,7 +204,9 @@
                   </span>
                 </td>
                 <td class="col-center">
-                  @if (p.status !== 'PENDING') {
+                  @if (registrable(p)) {
+                    <button type="button" class="dr-acao dr-acao--registrar" (click)="registering.set(p); $event.stopPropagation()">Registrar resposta</button>
+                  } @else if (p.status !== 'PENDING') {
                     <button type="button" class="dr-acao" (click)="reviewing.set(p); $event.stopPropagation()">
                       {{ p.status === 'SUBMITTED' && canDecide() ? 'Revisar' : 'Ver' }}
                     </button>
@@ -205,6 +223,8 @@
 
 <app-request-review [recipient]="reviewing()" [canDecide]="canDecide()"
                     (closed)="reviewing.set(null)" (decided)="decided($event)" />
+
+<app-register-answer [recipient]="registering()" (closed)="registering.set(null)" (registered)="registered($event)" />
 
 <pk-dialog header="Adicionar pessoas" width="520px" [visible]="addingPeople()" (visibleChange)="addingPeople.set($event)">
   <div pkDialogContent>

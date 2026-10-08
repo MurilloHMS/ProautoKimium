@@ -72,6 +72,27 @@ export interface Recipient {
   reviewedAt: string | null;
   returnReason: string | null;
   files: RequestFile[];
+  /** Tem login ativo: recebe pelo portal. Sem acesso, o RH registra a resposta (V123). */
+  hasAccess?: boolean;
+  /** Login do RH que registrou no lugar do funcionário; nulo = ele respondeu pelo portal. */
+  registeredBy?: string | null;
+}
+
+/** A confirmação do envio: quantos recebem pelo portal e quem o RH vai registrar. */
+export interface AudiencePreview {
+  total: number;
+  withAccess: number;
+  withoutAccess: { id: string; name: string }[];
+}
+
+/** Quem ainda pode receber o lembrete: pendente ou devolvida, e com login. */
+export function remindable(recipients: Recipient[]): number {
+  return recipients.filter(r => (r.status === 'PENDING' || r.status === 'RETURNED') && r.hasAccess !== false).length;
+}
+
+/** Quem pode ter a resposta registrada pelo RH: ainda não respondeu, ou foi devolvido. */
+export function canRegister(r: Recipient): boolean {
+  return r.status === 'PENDING' || r.status === 'RETURNED';
 }
 
 export interface UpdateDocumentRequest {

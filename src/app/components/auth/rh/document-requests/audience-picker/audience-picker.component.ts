@@ -12,7 +12,7 @@ type Mode = 'ALL' | 'COMPANY' | 'DEPARTMENT' | 'PEOPLE';
  * Quem recebe, como nos Eventos: todos, ou empresas, setores e pessoas.
  *
  * Usado no envio e em "Adicionar pessoas". A API resolve quem são as pessoas
- * (ativas e com login) e não repete quem já recebeu; aqui é só a escolha.
+ * (todas as ativas, com login ou sem) e não repete quem já recebeu; aqui é só a escolha.
  */
 @Component({
   selector: 'app-audience-picker',
@@ -42,7 +42,7 @@ type Mode = 'ALL' | 'COMPANY' | 'DEPARTMENT' | 'PEOPLE';
     </div>
   `,
   styles: [`
-    .ap { display: grid; gap: 10px; }
+    .ap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
     .ap__dica { margin: 0; color: var(--app-text-muted); font-size: var(--text-ui-sm); }
   `],
 })
@@ -68,10 +68,10 @@ export class AudiencePickerComponent {
 
   /** O nome com empresa e setor: dois "Carlos" precisam ser distinguíveis. */
   readonly people = computed(() => (this.options()?.employees ?? [])
-    .map(e => ({ id: e.id, label: e.detail ? `${e.name} · ${e.detail}` : e.name })));
+    .map(e => ({ id: e.id, label: [e.name, e.detail, e.hasAccess === false ? 'sem acesso' : null].filter(Boolean).join(' · ') })));
 
   readonly hint = computed(() => this.audience().all
-    ? 'Todos os funcionários ativos com acesso ao sistema.'
+    ? 'Todos os funcionários ativos. Quem não tem acesso ao portal recebe também, e o RH registra a resposta.'
     : 'A lista fecha no envio. Quem entrar depois, acrescente pelo "Adicionar pessoas".');
 
   /** O modo escolhido enquanto nada foi marcado ainda: sem isto, a escolha voltaria para "Todos". */
