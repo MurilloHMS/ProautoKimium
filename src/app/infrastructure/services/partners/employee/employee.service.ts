@@ -1,5 +1,5 @@
 import { Employee } from './../../../../domain/models/employee.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { empty, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
@@ -15,6 +15,20 @@ export class EmployeeService {
 
   getEmployes() : Observable<Employee[]>{
     return this.http.get<Employee[]>(`${environment.apiUrl}/employee`);
+  }
+
+  /**
+   * O relatório dos funcionários ativos que ainda não entraram no site.
+   *
+   * A resposta inteira, e não só o corpo: o nome do arquivo vem no
+   * `Content-Disposition`, e é a API que sabe se saiu .xlsx ou .pdf.
+   */
+  downloadPendingSiteAccessReport(format: 'xlsx' | 'pdf'): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${environment.apiUrl}/employee/site-access/pending/report`, {
+      params: { format },
+      responseType: 'blob',
+      observe: 'response',
+    });
   }
 
   getEmployeeEmail() : Observable<Recipient[]>{

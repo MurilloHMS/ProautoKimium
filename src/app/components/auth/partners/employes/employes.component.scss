@@ -7,7 +7,30 @@
 
 .painel-wrapper { @include m2.grid-screen; gap: 0; min-height: 0; padding: 0; }
 
-.table-card { @include m2.grid-screen-body; }
+.table-card {
+  @include m2.grid-screen-body;
+
+  // A tabela é um cartão (padrão de 2026-10-08): painel branco de bordas
+  // arredondadas sobre o fundo cinza, e não uma planilha de ponta a ponta.
+  margin: 0 16px 16px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--radius-surface);
+  box-shadow: var(--app-shadow-sm);
+  overflow: hidden;
+
+  // No celular a lista já vira cartões soltos: a moldura em volta deles sobra.
+  @media (max-width: v.$bp-md) {
+    margin: 0 16px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+}
+
+.painel-wrapper { background: var(--app-bg); }
 
 
 
@@ -167,30 +190,100 @@
 
 .text-muted { color: var(--app-text-subtle); font-size: .85rem; }
 
-// ─── Indicador de vínculo ─────────────────────────────────────────────────────
-.link-status {
+// ─── Acesso ao site ─────────────────────────────────────────────────────────
+.acesso {
   display: flex;
   align-items: center;
-  gap: .55rem;
-  margin-bottom: 1rem;
-  padding: .65rem 1rem;
-  border-radius: var(--radius-control);
-  font-size: .88rem;
-  font-weight: 500;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding: 14px 16px 12px;
+}
 
-  i { font-size: 1rem; }
+.acesso__rotulo {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
 
-  &--warn {
-    background: color-mix(in srgb, #f6ad55 16%, transparent);
-    color: #8a5a14;
-    i { color: #d9822b; }
-  }
+.acesso__espaco { flex: 1 1 auto; }
 
-  &--ok {
-    background: color-mix(in srgb, var(--app-success) 16%, transparent);
-    color: color-mix(in srgb, var(--app-success) 45%, #1c4a40);
-    i { color: var(--app-success); }
-  }
+// No celular o filtro ocupa a linha toda e o relatório desce para a de baixo.
+@media (max-width: v.$bp-md) {
+  .acesso__rotulo, .acesso__filtro { flex: 1 1 100%; }
+  .acesso__espaco { display: none; }
+  .acesso pk-button { flex: 1 1 100%; }
+  .acesso__filtro .pk-tabs__tab { padding: 0 8px; }
+}
+
+.acesso-celula {
+  display: flex;
+  align-items: center;
+  gap: 4px 8px;
+  flex-wrap: wrap;
+
+  // O botão de vincular fica ao lado do selo; o detalhe desce para a linha
+  // de baixo. Sem isto o botão caía numa terceira linha.
+  > button { order: 1; }
+  .acesso-detalhe { order: 2; }
+}
+
+// Vincular e desvincular: ações de texto pequenas, em cinza, que só ganham cor
+// no hover. Pedido dele (2026-10-08): o × solto ficou "feio demais" — o estilo
+// dele morava dentro do antigo `.user-link-chip`, que saiu, e sobrou o botão
+// cru do navegador.
+.acesso-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--app-text-muted);
+  font: inherit;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+
+  i { font-size: 10px; }
+
+  &:hover { background: var(--app-action-soft); color: var(--app-action); }
+  &--perigo:hover { background: var(--app-danger-soft); color: var(--app-danger); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.acesso-selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  white-space: nowrap;
+
+  i { font-size: 11px; }
+
+  &--ok { background: var(--app-success-soft); color: var(--app-success); }
+  &--pendente { background: var(--app-warning-soft); color: var(--app-warning); }
+  &--bloqueado { background: var(--app-danger-soft); color: var(--app-danger); }
+}
+
+.acesso-ponto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+// O detalhe embaixo do selo: o login, ou "pediu o código em 03/10".
+.acesso-detalhe {
+  flex-basis: 100%;
+  font-size: var(--text-micro);
+  color: var(--app-text-muted);
 }
 
 // ─── Vínculo usuário <-> funcionário ──────────────────────────────────────────

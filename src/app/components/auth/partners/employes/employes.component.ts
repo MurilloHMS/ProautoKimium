@@ -2,12 +2,16 @@ import {Component, OnInit, computed, effect, inject, signal, untracked} from '@a
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ContractType, Employee, TransportType } from '../../../../domain/models/employee.model';
+import { ContractType, Employee, SiteAccess, TransportType } from '../../../../domain/models/employee.model';
+import { Menu } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+import { downloadFileResponse } from '../../../../infrastructure/services/tools/pdf-tools.service';
 import { AuthService } from '../../../../infrastructure/services/auth.service';
 import { UserResponseDTO } from '../../../../domain/models/user.model';
 import { CompanyStore, HierarchyStore, TeamStore } from '../../../../infrastructure/state/org-structure.store';
 import { PositionStore } from '../../../../infrastructure/state/position.store';
 import { EmployeeStore } from '../../../../infrastructure/state/employee.store';
+import { PermissionStore } from '../../../../infrastructure/state/permission.store';
 import { EmployeeService } from '../../../../infrastructure/services/partners/employee/employee.service';
 import { ErpPartner } from '../../../../domain/models/erp-partner.model';
 import { TabDirtyCheck } from '../../../../infrastructure/routing/tab-dirty-check';
@@ -41,7 +45,7 @@ import { EmployeeBiometricDevicesComponent } from './employee-biometric-devices/
 @Component({
     selector: 'app-employes',
   imports: [EmployeeBiometricDevicesComponent, TableModule, CommonModule, ButtonModule, ToolbarModule, SelectModule,
-    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent],
+    DialogModule, InputTextModule, ReactiveFormsModule, FormsModule, CheckboxModule, DatePickerModule, Toast, PkButtonComponent, Tooltip, PkDialogComponent, PkTableComponent, ToolbarComponent, FormScreenComponent, PkInputComponent, PkCheckboxComponent, Menu],
     templateUrl: './employes.component.html',
     styleUrl: './employes.component.scss',
     providers: [MessageService]
@@ -68,6 +72,92 @@ export class EmployesComponent implements TabDirtyCheck {
   private readonly employeeStore = inject(EmployeeStore);
   readonly employes = this.employeeStore.items;
   readonly loading = this.employeeStore.loading;
+
+  // ─── Acesso ao site ────────────────────────────────────────────────────────
+  //
+  // Pedido do RH (2026-10-08): ver quem já entrou no site e cobrar quem não
+  // entrou. A situação vem da API junto com o funcionário (`siteAccess`); a
+  // lista de contas da Administração só serve de reserva para uma API mais
+  // velha que o site.
+
+  readonly accessFilter = signal<'todos' | 'ACTIVE' | 'PENDING'>('todos');
+  readonly downloading = signal(false);
+
+  /**
+   * A situação de cada funcionário.
+   *
+   * **Desligado fica de fora, tenha conta ou não.** Quem bloqueia a conta é o
+   * "Ativo" do funcionário: inativar já bloqueia (decisão dele, 2026-10-08). A
+   * coluna Ativo diz isso, e um filtro "Bloqueados" só repetiria a coluna.
+   * Também não é "pendente": ninguém precisa cobrar o cadastro de quem saiu.
+   *
+   * Sobra o BLOCKED de quem está ativo mas teve a conta bloqueada pela
+   * Administração: aparece no selo, sem filtro próprio.
+   */
+  accessOf(emp: Employee): SiteAccess | 'INACTIVE' {
+    if (!emp.ativo) return 'INACTIVE';
+    return emp.siteAccess ?? (this.linkedUserOf(emp) ? 'ACTIVE' : 'PENDING');
+  }
+
+  /** O login que aparece no selo: o da API, ou o da lista de contas. */
+  loginOf(emp: Employee): string | null {
+    return emp.siteLogin ?? this.linkedUserOf(emp);
+  }
+
+  /** "pediu o código em 03/10, não concluiu" ou "nunca entrou". */
+  pendingDetail(emp: Employee): string {
+    if (!emp.firstAccessRequestedAt) return 'nunca entrou';
+    const data = new Date(emp.firstAccessRequestedAt);
+    const dia = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    return `pediu o código em ${dia}, não concluiu`;
+  }
+
+  readonly accessCounts = computed(() => {
+    const total = { todos: 0, ACTIVE: 0, PENDING: 0 };
+    for (const e of this.employes()) {
+      total.todos++;
+      const situacao = this.accessOf(e);
+      if (situacao === 'ACTIVE' || situacao === 'PENDING') total[situacao]++;
+    }
+    return total;
+  });
+
+  readonly accessOptions = computed(() => {
+    const n = this.accessCounts();
+    return [
+      { value: 'todos' as const, label: 'Todos', count: n.todos },
+      { value: 'ACTIVE' as const, label: 'Com acesso', count: n.ACTIVE },
+      { value: 'PENDING' as const, label: 'Pendentes', count: n.PENDING },
+    ];
+  });
+
+  /** O que a tabela mostra: a busca de texto continua no pk-table, por cima disto. */
+  readonly visibleEmployes = computed(() => {
+    const filtro = this.accessFilter();
+    const todos = this.employes();
+    return filtro === 'todos' ? todos : todos.filter(e => this.accessOf(e) === filtro);
+  });
+
+  readonly reportItems: MenuItem[] = [
+    { label: 'Excel (.xlsx)', icon: 'pi pi-file-excel', command: () => this.downloadPendingReport('xlsx') },
+    { label: 'PDF', icon: 'pi pi-file-pdf', command: () => this.downloadPendingReport('pdf') },
+  ];
+
+  downloadPendingReport(format: 'xlsx' | 'pdf'): void {
+    this.downloading.set(true);
+    this.employeeService.downloadPendingSiteAccessReport(format).subscribe({
+      next: resposta => {
+        this.downloading.set(false);
+        if (!downloadFileResponse(resposta, `funcionarios-sem-acesso.${format}`)) {
+          this.msgService.add({ severity: 'warn', summary: 'Relatório vazio', detail: 'A API não mandou o arquivo.' });
+        }
+      },
+      error: () => {
+        this.downloading.set(false);
+        this.msgService.add({ severity: 'error', summary: 'Não deu', detail: 'Não foi possível gerar o relatório dos pendentes.' });
+      },
+    });
+  }
   /** grade ou formulário — o cadastro de funcionário não usa mais diálogo. */
   readonly mode = signal<'grid' | 'form'>('grid');
 
@@ -251,7 +341,12 @@ export class EmployesComponent implements TabDirtyCheck {
   }
 
   // Vínculo usuário <-> funcionário
-  users: UserResponseDTO[] = [];
+  //
+  // Num sinal, e não num array solto: as contagens do filtro de acesso são
+  // `computed`, e só se refazem quando a lista de contas chega se ela avisar.
+  private readonly usersList = signal<UserResponseDTO[]>([]);
+  get users(): UserResponseDTO[] { return this.usersList(); }
+  set users(lista: UserResponseDTO[]) { this.usersList.set(lista); }
   linkVisible = false;
   linkTarget: Employee | null = null;
   selectedUserLogin: string | null = null;
@@ -367,7 +462,25 @@ export class EmployesComponent implements TabDirtyCheck {
     }
   }
 
+  private readonly permissions = inject(PermissionStore);
+
+  /**
+   * Vincular e desvincular conta é da Administração (decisão dele, 2026-10-08):
+   * o RH só vê a situação. É a mesma authority que a API exige nos dois
+   * endpoints, então o botão nunca aparece para quem levaria 403.
+   */
+  readonly canManageLinks = computed(() => this.permissions.can('settings/admin', 'CONFIGURAR'));
+
+  /**
+   * A lista de contas é da Administração (`settings/admin`). Para o RH sem ela,
+   * o pedido só voltava 403: a situação no site já vem com o funcionário, e o
+   * vincular é coisa da Administração.
+   */
   loadUsers(){
+    if (!this.permissions.can('settings/admin', 'CONSULTAR')) {
+      this.users = [];
+      return;
+    }
     this.authService.getUsers().subscribe({
       next: (list) => this.users = list ?? [],
       error: () => this.users = []   // 404 = nenhum usuário cadastrado ainda
@@ -377,11 +490,6 @@ export class EmployesComponent implements TabDirtyCheck {
   /** Login do usuário vinculado a um funcionário, ou null. */
   linkedUserOf(emp: Employee): string | null {
     return this.users.find(u => u.codParceiro === emp.partnerCode)?.login ?? null;
-  }
-
-  /** Quantos funcionários (já carregados) ainda não têm usuário vinculado. */
-  get unlinkedCount(): number {
-    return this.employes().filter(e => !this.linkedUserOf(e)).length;
   }
 
   /** Usuários ainda sem funcionário vinculado (mais o já vinculado a este funcionário, ao reabrir). */
