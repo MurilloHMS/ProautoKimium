@@ -22,10 +22,11 @@ describe('AdminCenterComponent', () => {
     const auth = jasmine.createSpyObj<AuthService>('AuthService', ['getUsers']);
     auth.getUsers.and.returnValue(of([]));
     const api = jasmine.createSpyObj<PermissionAdminService>('PermissionAdminService',
-      ['screens', 'templates', 'users', 'templateGrid', 'appliedTo']);
+      ['screens', 'templates', 'users', 'templateGrid', 'appliedTo', 'screenAccess']);
     api.screens.and.returnValue(of([]));
     api.templates.and.returnValue(of([]));
     api.users.and.returnValue(of([]));
+    api.screenAccess.and.returnValue(of({ developers: 0, screens: [] }));
 
     await TestBed.configureTestingModule({
       imports: [AdminCenterComponent],
@@ -44,12 +45,12 @@ describe('AdminCenterComponent', () => {
 
   afterEach(() => restaurarLargura());
 
-  it('abre em Usuários, e as abas são um controle segmentado', async () => {
+  it('abre em Usuários, e as três abas são um controle segmentado', async () => {
     await montar({});
 
     expect(el().querySelector('app-admin-users')).not.toBeNull();
     const abas = el().querySelectorAll('.pk-tabs [role=tab]');
-    expect(abas.length).toBe(2);
+    expect(Array.from(abas).map(a => a.textContent!.trim().split(/\s/)[0])).toEqual(['Usuários', 'Telas', 'Modelos']);
     expect(abas[0].getAttribute('aria-selected')).toBe('true');
   });
 
@@ -81,5 +82,21 @@ describe('AdminCenterComponent', () => {
     component.trocarAba('modelos');
     fixture.detectChanges();
     expect(el().querySelector('.pk-page__bar')!.textContent).toContain('Novo modelo');
+  });
+
+  it('da aba Telas, abrir uma pessoa leva à conta dela na aba Usuários', async () => {
+    await montar({ aba: 'telas' });
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.resolveTo(true);
+    expect(el().querySelector('app-admin-screens')).not.toBeNull();
+
+    component.abrirUsuario('ricardo');
+    fixture.detectChanges();
+
+    expect(el().querySelector('app-admin-users')).not.toBeNull();
+    expect(component.usuarioAberto()).toBe('ricardo');
+    expect(router.navigate).toHaveBeenCalledWith([], jasmine.objectContaining({
+      queryParams: { aba: null, usuario: 'ricardo' },
+    }));
   });
 });

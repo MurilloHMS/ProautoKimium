@@ -8,7 +8,7 @@
       <p>Contas, o que cada uma acessa, e os modelos de acesso</p>
     </div>
 
-    @if (canCreate()) {
+    @if (canCreate() && aba() !== 'telas') {
       <div class="pk-page__actions">
         <pk-button pkType="new" pkSize="sm"
                    [pkLabel]="aba() === 'usuarios' ? 'Novo usuário' : 'Novo modelo'"
@@ -24,6 +24,11 @@
               (click)="trocarAba('usuarios')">
         Usuários @if (userCount() !== null) { <small>{{ userCount() }}</small> }
       </button>
+      <button type="button" class="pk-tabs__tab" role="tab" id="abaTelas"
+              [attr.aria-selected]="aba() === 'telas'" aria-controls="painelAdmin"
+              (click)="trocarAba('telas')">
+        Telas @if (screenCount() !== null) { <small>{{ screenCount() }}</small> }
+      </button>
       <button type="button" class="pk-tabs__tab" role="tab" id="abaModelos"
               [attr.aria-selected]="aba() === 'modelos'" aria-controls="painelAdmin"
               (click)="trocarAba('modelos')">
@@ -33,9 +38,11 @@
   </nav>
 
   <div class="pk-page__body" id="painelAdmin" role="tabpanel"
-       [attr.aria-labelledby]="aba() === 'usuarios' ? 'abaUsuarios' : 'abaModelos'">
+       [attr.aria-labelledby]="aba() === 'usuarios' ? 'abaUsuarios' : aba() === 'telas' ? 'abaTelas' : 'abaModelos'">
     @if (aba() === 'usuarios') {
-      <app-admin-users [initialLogin]="usuarioDaUrl" (counted)="userCount.set($event)" />
+      <app-admin-users [initialLogin]="usuarioAberto()" (counted)="userCount.set($event)" />
+    } @else if (aba() === 'telas') {
+      <app-admin-screens (counted)="screenCount.set($event)" (openUser)="abrirUsuario($event)" />
     } @else {
       <app-admin-templates (counted)="templateCount.set($event)" />
     }

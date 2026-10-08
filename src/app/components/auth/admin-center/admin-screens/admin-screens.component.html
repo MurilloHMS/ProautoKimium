@@ -1,0 +1,129 @@
+<div class="as">
+
+  <!-- ─── As telas ────────────────────────────────────────────────────────── -->
+  <aside class="as__list pk-panel" aria-label="Telas">
+    <div class="as__search">
+      <pk-input placeholder="Buscar tela…" icon="pi pi-search"
+                [ngModel]="search()" (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
+    </div>
+
+    <div class="as__groups">
+      @for (g of groups(); track g.module) {
+        <p class="as__module">{{ g.module }}</p>
+        <ul class="as__items">
+          @for (i of g.items; track i.screen.code) {
+            <li>
+              <button type="button" class="as__item"
+                      [class.is-empty]="!i.people.length"
+                      [attr.aria-current]="!celular() && i.screen.code === selectedCode() ? 'true' : null"
+                      (click)="select(i.screen.code)">
+                <span class="as__item-name">{{ i.screen.label }}</span>
+                <span class="as__item-count">{{ countLabel(i.people.length) }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @empty {
+        <p class="as__empty">{{ loading() ? 'Carregando…' : 'Nenhuma tela com essa busca.' }}</p>
+      }
+    </div>
+  </aside>
+
+  @if (!celular()) {
+    <div class="as__detail">
+      @if (selected()) {
+        <ng-container *ngTemplateOutlet="tela" />
+      } @else {
+        <div class="as__blank pk-panel">{{ loading() ? 'Carregando…' : 'Escolha uma tela na lista.' }}</div>
+      }
+    </div>
+  }
+</div>
+
+<pk-sheet [open]="celular() && sheetOpen()" [title]="selected()?.screen?.label ?? ''" (closed)="sheetOpen.set(false)">
+  <div pkSheetBody>
+    @if (celular() && sheetOpen() && selected()) {
+      <ng-container *ngTemplateOutlet="tela" />
+    }
+  </div>
+  <div pkSheetFooter>
+    <pk-button pkType="cancel" pkLabel="Fechar" (clicked)="sheetOpen.set(false)" />
+  </div>
+</pk-sheet>
+
+<!-- ─── A tela escolhida ──────────────────────────────────────────────────── -->
+<ng-template #tela>
+  @if (selected(); as i) {
+    @if (!celular()) {
+      <header class="as__head">
+        <h2>{{ i.screen.label }}</h2>
+        <p>{{ i.screen.module }} · {{ i.screen.code }}</p>
+      </header>
+    } @else {
+      <p class="as__head-sub">{{ i.screen.module }} · {{ i.screen.code }}</p>
+    }
+
+    <section class="as__summary pk-panel" aria-label="Resumo por ação">
+      <div class="as__boxes">
+        @for (s of summary(); track s.label) {
+          <div class="as__box">
+            <b>{{ s.count }}</b>
+            <span>{{ s.count === 1 ? 'pode' : 'podem' }} {{ s.label }}</span>
+          </div>
+        }
+      </div>
+      @if (developers() > 0) {
+        <p class="as__dev-note">
+          {{ developers() === 1 ? 'A conta de desenvolvedor acessa' : 'As ' + developers() + ' contas de desenvolvedor acessam' }}
+          tudo e não entra{{ developers() === 1 ? '' : 'm' }} na conta.
+        </p>
+      }
+    </section>
+
+    <section class="as__people pk-panel" aria-label="Quem acessa">
+      @if (i.people.length) {
+        <div class="as__row as__row--head" aria-hidden="true">
+          <span>Pessoa</span><span>O que pode</span><span>De onde vem</span>
+        </div>
+        <ul class="as__rows">
+          @for (p of i.people; track p.id) {
+            <li>
+              <button type="button" class="as__row" [title]="'Abrir a conta de ' + p.name" (click)="openUser.emit(p.login)">
+                <span class="as__who">
+                  <b>{{ p.name }}</b>
+                  <small>{{ p.login }}@if (!p.active) { · <span class="as__blocked">bloqueado</span> }</small>
+                </span>
+                <span class="as__acts">
+                  @for (a of sorted(p.actions); track a) {
+                    <span class="as__act">{{ labels[a] }}</span>
+                  }
+                </span>
+                <span class="as__from">
+                  @for (t of p.templates; track t) {
+                    <span class="as__tpl">{{ t }}</span>
+                  }
+                  @if (p.addedByHand.length) {
+                    <span class="as__hand">
+                      <span class="as__dot" aria-hidden="true"></span>
+                      {{ p.templates.length ? listLabels(p.addedByHand) + ' liberado à mão' : 'liberado à mão' }}
+                    </span>
+                  }
+                  @if (p.removedByHand.length) {
+                    <span class="as__hand">
+                      <span class="as__dot" aria-hidden="true"></span>
+                      {{ listLabels(p.removedByHand) }} tirado à mão
+                    </span>
+                  }
+                </span>
+              </button>
+            </li>
+          }
+        </ul>
+        <p class="as__hint">Clique numa pessoa para abrir a conta dela e mudar o acesso.</p>
+      } @else {
+        <p class="as__nobody">Ninguém acessa esta tela, fora as contas de desenvolvedor.</p>
+      }
+    </section>
+  }
+</ng-template>

@@ -119,6 +119,32 @@ export interface UserGrid {
  */
 export type ApplyMode = 'SOMAR' | 'SUBSTITUIR';
 
+/**
+ * Uma pessoa que acessa uma tela, e de onde vem cada ação: os modelos que dão,
+ * o que foi liberado sem modelo nenhum dar, e o que um modelo dá e alguém tirou.
+ */
+export interface ScreenAccessPerson {
+  id: string;
+  name: string;
+  login: string;
+  active: boolean;
+  actions: PermissionName[];
+  templates: string[];
+  addedByHand: PermissionName[];
+  removedByHand: PermissionName[];
+}
+
+export interface ScreenAccess {
+  screen: string;
+  people: ScreenAccessPerson[];
+}
+
+/** Quem acessa cada tela. Desenvolvedores têm tudo e só entram na contagem. */
+export interface ScreenAccessOverview {
+  developers: number;
+  screens: ScreenAccess[];
+}
+
 /** O que o "Reaplicar" faria com uma pessoa. As chaves vêm como `tela:AÇÃO`. */
 export interface ReapplyPerson {
   id: string;

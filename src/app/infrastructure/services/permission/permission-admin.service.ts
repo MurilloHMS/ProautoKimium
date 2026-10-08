@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
-  ApplyMode, ApplyResult, PermissionCells, ReapplyPreview, ScreenRow,
+  ApplyMode, ApplyResult, PermissionCells, ReapplyPreview, ScreenAccessOverview, ScreenRow,
   TemplateGrid, TemplateSummary, UserGrid, UserSummary,
 } from '../../../domain/models/permission-admin.model';
 
@@ -26,6 +26,11 @@ export class PermissionAdminService {
 
   screens(): Observable<ScreenRow[]> {
     return this.http.get<ScreenRow[]>(`${this.url}/screens`);
+  }
+
+  /** Quem acessa cada tela, todas de uma vez: a aba Telas. */
+  screenAccess(): Observable<ScreenAccessOverview> {
+    return this.http.get<ScreenAccessOverview>(`${this.url}/screen-access`);
   }
 
   // ─── Modelos ───────────────────────────────────────────────────────────────
