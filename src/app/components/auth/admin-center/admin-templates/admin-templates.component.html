@@ -1,0 +1,242 @@
+<div class="at">
+
+  <!-- ─── A lista de modelos ──────────────────────────────────────────────── -->
+  <aside class="at__list pk-panel" aria-label="Modelos">
+    <ul class="at__items">
+      @for (t of templates(); track t.id) {
+        <li>
+          <button type="button" class="at__item" [class.is-off]="!t.active"
+                  [attr.aria-current]="!celular() && t.id === selected()?.id ? 'true' : null"
+                  (click)="select(t)">
+            <b>{{ t.name }} @if (!t.active) { <span class="at__off">desativado</span> }</b>
+            <span>
+              {{ t.description || 'Sem descrição' }}
+            </span>
+            <span class="at__item-count">
+              @if (t.appliedToUsers === 0) { ninguém recebeu }
+              @else { {{ t.appliedToUsers === 1 ? '1 pessoa recebeu' : t.appliedToUsers + ' pessoas receberam' }} }
+            </span>
+          </button>
+        </li>
+      } @empty {
+        <li class="at__empty">{{ loading() ? 'Carregando…' : 'Nenhum modelo ainda.' }}</li>
+      }
+    </ul>
+  </aside>
+
+  @if (!celular()) {
+    <div class="at__detail">
+      @if (selected()) {
+        <ng-container *ngTemplateOutlet="modelo" />
+      } @else {
+        <div class="at__blank pk-panel">{{ loading() ? 'Carregando…' : 'Escolha um modelo na lista.' }}</div>
+      }
+    </div>
+  }
+</div>
+
+<pk-sheet [open]="celular() && sheetOpen()" [title]="selected()?.name ?? ''" (closed)="closeSheet()">
+  <div pkSheetBody>
+    @if (celular() && sheetOpen() && selected()) {
+      <ng-container *ngTemplateOutlet="modelo" />
+    }
+  </div>
+  <div pkSheetFooter>
+    @if (celular() && canEdit() && selected()) {
+      <div class="at__sheet-save">
+        <span class="at__save-msg">
+          @if (changed() > 0) { <b>{{ changed() }}</b> {{ changed() === 1 ? 'alteração' : 'alterações' }} }
+          @else { Nada para salvar }
+        </span>
+        <pk-button pkType="cancel" pkLabel="Descartar" [pkDisabled]="changed() === 0" (clicked)="discard()" />
+        <pk-button pkType="save" pkLabel="Salvar" [pkDisabled]="changed() === 0" [pkLoading]="saving()" (clicked)="save()" />
+      </div>
+    } @else {
+      <pk-button pkType="cancel" pkLabel="Fechar" (clicked)="closeSheet()" />
+    }
+  </div>
+</pk-sheet>
+
+<!-- ─── O modelo aberto, servido às duas molduras ─────────────────────────── -->
+<ng-template #modelo>
+  @if (selected(); as m) {
+    <header class="at__head">
+      <div class="at__head-id">
+        @if (!celular()) { <h2>{{ m.name }}</h2> }
+        <p>{{ m.description || 'Sem descrição' }} @if (!m.active) { · <b>desativado</b> }</p>
+      </div>
+      <div class="at__head-acts">
+        @if (canConfigure() && m.active) {
+          <pk-button pkType="new" pkSize="sm" pkLabel="Aplicar a pessoas…" pkIcon="pi pi-users"
+                     (clicked)="applyOpen.set(true)" />
+        }
+        @if (canCreate()) {
+          <pk-button pkType="new" pkSize="sm" pkLabel="Duplicar" pkIcon="pi pi-copy" (clicked)="openDuplicate()" />
+        }
+        @if (canEdit()) {
+          <pk-button pkType="edit" pkSize="sm" pkLabel="Renomear" (clicked)="openRename()" />
+          <pk-button pkType="cancel" pkSize="sm" [pkLabel]="m.active ? 'Desativar' : 'Reativar'"
+                     [pkIcon]="m.active ? 'pi pi-eye-slash' : 'pi pi-eye'" (clicked)="toggleActive()" />
+        }
+      </div>
+    </header>
+
+    <!--
+      O aviso que impede a correção silenciosa. Escrito em três partes, como ele
+      aprovou no mockup: quem recebeu, o que o Salvar faz, o que o Reaplicar faz.
+    -->
+    @if (appliedTo().length) {
+      <div class="at__notice" role="note">
+        <b class="at__notice-title">
+          {{ appliedTo().length === 1 ? '1 pessoa já recebeu este modelo' : appliedTo().length + ' pessoas já receberam este modelo' }}:
+          {{ appliedNames() }}.
+        </b>
+        <p>
+          <b>Salvar o modelo não muda o acesso {{ appliedTo().length === 1 ? 'dela' : 'delas' }}.</b>
+          A mudança vale para quem receber o modelo daqui em diante.
+        </p>
+        <p>
+          Para que {{ appliedTo().length === 1 ? 'ela também fique' : 'elas também fiquem' }} com a versão nova,
+          use <b>Reaplicar</b>. O acesso de cada uma é refeito a partir dos modelos que ela tem, e
+          <b>o que foi ajustado à mão nessas pessoas se perde</b>.
+          @if (reapplyPeople()) {
+            @if (withChanges().length === 0) {
+              Hoje, reaplicar não muda ninguém.
+            } @else {
+              Hoje, reaplicar muda o acesso de
+              @for (p of withChanges(); track p.id; let ultimo = $last) {
+                <b>{{ p.name }}</b> ({{ p.loses.length + p.gains.length }} {{ p.loses.length + p.gains.length === 1 ? 'mudança' : 'mudanças' }}){{ ultimo ? '.' : ', ' }}
+              }
+            }
+          }
+        </p>
+        @if (canConfigure()) {
+          <div>
+            <pk-button pkType="refresh" pkSize="sm"
+                       [pkLabel]="appliedTo().length === 1 ? 'Reaplicar a 1 pessoa…' : 'Reaplicar às ' + appliedTo().length + ' pessoas…'"
+                       [pkDisabled]="changed() > 0"
+                       [pkTooltip]="changed() > 0 ? 'Salve o modelo antes de reaplicar' : ''"
+                       (clicked)="openReapply()" />
+          </div>
+        }
+      </div>
+    }
+
+    <section class="at__grid pk-panel" aria-label="Liberações do modelo">
+      <app-permission-grid
+        [screens]="screens()"
+        [saved]="m.cells"
+        [disabled]="!canEdit()"
+        (changedCount)="changed.set($event)" />
+
+      @if (!celular() && canEdit()) {
+        <div class="at__savebar" [attr.data-dirty]="changed() > 0">
+          <span class="at__save-msg">
+            @if (changed() > 0) {
+              <b>{{ changed() }} {{ changed() === 1 ? 'alteração' : 'alterações' }}</b> em {{ m.name }}
+            } @else {
+              Nada para salvar
+            }
+          </span>
+          <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar" [pkDisabled]="changed() === 0" (clicked)="discard()" />
+          <pk-button pkType="save" pkSize="sm" pkLabel="Salvar modelo" [pkDisabled]="changed() === 0"
+                     [pkLoading]="saving()" (clicked)="save()" />
+        </div>
+      }
+    </section>
+  }
+</ng-template>
+
+<!-- ─── Aplicar a pessoas ──────────────────────────────────────────────────── -->
+<app-apply-template-dialog
+  [open]="applyOpen()"
+  [templates]="templates()"
+  [people]="people()"
+  [fixedTemplateId]="selected()?.id ?? null"
+  (closed)="applyOpen.set(false)"
+  (applied)="onApplied($event)"
+  (failed)="falhou($event)" />
+
+<!-- ─── Reaplicar ──────────────────────────────────────────────────────────── -->
+<pk-dialog [flush]="true"
+           [header]="'Reaplicar ' + (selected()?.name ?? '') + (reapplyCount() ? ' a ' + reapplyCount() + (reapplyCount() === 1 ? ' pessoa?' : ' pessoas?') : '?')"
+           [visible]="reapplyOpen()" width="540px"
+           (visibleChange)="reapplyOpen.set($event)">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <p class="pform__hint">
+        O acesso de cada pessoa é refeito a partir dos modelos dela, já com a
+        versão nova de <b>{{ selected()?.name }}</b>. O que foi liberado ou
+        tirado à mão volta a ser como os modelos dizem.
+      </p>
+    </div>
+
+    <div class="pk-form-section">
+      @if (reapplyPeople(); as pessoas) {
+        <ul class="at__preview">
+          @for (p of pessoas; track p.id) {
+            <li>
+              <b>{{ p.name }}</b>
+              <div class="at__preview-what">
+                @if (!p.loses.length && !p.gains.length) {
+                  <span class="at__preview-same">Nada muda: já está como os modelos dizem.</span>
+                }
+                @if (p.loses.length) {
+                  <span class="at__preview-loses">
+                    Deixa de poder:
+                    {{ describeAll(p.loses) }}.
+                  </span>
+                }
+                @if (p.gains.length) {
+                  <span class="at__preview-gains">
+                    Passa a poder:
+                    {{ describeAll(p.gains) }}.
+                  </span>
+                }
+              </div>
+            </li>
+          } @empty {
+            <li class="at__preview-same">Ninguém para reaplicar: quem recebeu é conta de desenvolvedor.</li>
+          }
+        </ul>
+      } @else {
+        <p class="pform__hint">Calculando o que muda para cada pessoa…</p>
+      }
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="reapplyOpen.set(false)" />
+    <pk-button pkType="refresh" pkSize="sm"
+               [pkLabel]="reapplyCount() === 1 ? 'Reaplicar a 1' : 'Reaplicar às ' + reapplyCount()"
+               [pkDisabled]="!reapplyCount()"
+               [pkLoading]="reapplying()"
+               (clicked)="confirmReapply()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Criar, duplicar, renomear ──────────────────────────────────────────── -->
+<pk-dialog [flush]="true" [header]="formTitle()" [visible]="formOpen()" width="480px"
+           (visibleChange)="formOpen.set($event)">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <div class="pform">
+        <pk-input label="Nome" placeholder="Ex.: Vendas Júnior" [pkRequired]="true"
+                  [ngModel]="formName()" (ngModelChange)="formName.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
+        <pk-input label="Descrição" placeholder="Para que serve este modelo"
+                  [ngModel]="formDescription()" (ngModelChange)="formDescription.set($event)"
+                  [ngModelOptions]="{ standalone: true }" />
+        @if (formKind() === 'duplicate') {
+          <p class="pform__hint">Nasce com as mesmas liberações de <b>{{ current()?.name }}</b>.</p>
+        }
+        @if (formKind() === 'new') {
+          <p class="pform__hint">Nasce <b>sem nada liberado</b>. Marque o que ele deve dar.</p>
+        }
+      </div>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="formOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Confirmar" (clicked)="submitForm()" />
+  </div>
+</pk-dialog>

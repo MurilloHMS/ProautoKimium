@@ -21,15 +21,22 @@ export const PERMISSIONS = [
 
 export type PermissionName = typeof PERMISSIONS[number];
 
-/** O rótulo curto de cada coluna. O nome inteiro não cabe em 62px. */
+/**
+ * O nome de cada ação, por extenso.
+ *
+ * Eram abreviações ("Cons", "Conf") porque a grade tinha sete colunas de 62px.
+ * Sem colunas, cada tela mostra só as ações que usa, e cabe a palavra inteira.
+ * CONSULTAR vira "Ver": é o que a pessoa faz com a tela, e é a única ação de
+ * metade delas.
+ */
 export const PERMISSION_LABELS: Record<PermissionName, string> = {
-  ALTERAR: 'Alt',
-  EXCLUIR: 'Exc',
-  CONSULTAR: 'Cons',
-  CONFIGURAR: 'Conf',
-  INCLUIR: 'Inc',
-  ENVIAR: 'Env',
-  BAIXAR: 'Baix',
+  ALTERAR: 'Alterar',
+  EXCLUIR: 'Excluir',
+  CONSULTAR: 'Ver',
+  CONFIGURAR: 'Configurar',
+  INCLUIR: 'Incluir',
+  ENVIAR: 'Enviar',
+  BAIXAR: 'Baixar',
 };
 
 export interface ScreenRow {
@@ -37,6 +44,13 @@ export interface ScreenRow {
   label: string;
   module: string;
   sortOrder: number;
+  /**
+   * As ações que esta tela usa de verdade, na ordem de `PERMISSIONS`.
+   *
+   * A API as lê dos próprios `@PreAuthorize`, então endpoint novo já nasce na
+   * grade. Tela que nenhum endpoint cita vem com `['CONSULTAR']`.
+   */
+  actions: PermissionName[];
 }
 
 export interface TemplateSummary {
@@ -104,6 +118,20 @@ export interface UserGrid {
  * tela escreve as duas consequências antes do clique.
  */
 export type ApplyMode = 'SOMAR' | 'SUBSTITUIR';
+
+/** O que o "Reaplicar" faria com uma pessoa. As chaves vêm como `tela:AÇÃO`. */
+export interface ReapplyPerson {
+  id: string;
+  name: string;
+  /** Ajuste à mão que se perde. */
+  loses: string[];
+  /** O que a versão nova do modelo passou a dar. */
+  gains: string[];
+}
+
+export interface ReapplyPreview {
+  people: ReapplyPerson[];
+}
 
 export interface ApplyResult {
   users: number;

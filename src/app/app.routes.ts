@@ -155,8 +155,10 @@ export const routes: Routes = [
       { path: 'settings/admin', loadComponent: () => import('./components/auth/admin-center/admin-center.component').then(m => m.AdminCenterComponent), data: { screen: 'settings/admin' } },
       { path: 'dev/email-queue', loadComponent: () => import('./components/auth/dev/email-queue/email-queue.component').then(m => m.EmailQueueComponent), data: { screen: 'dev/email-queue' } },
       { path: 'dev/email-senders', loadComponent: () => import('./components/auth/dev/email-senders/email-senders.component').then(m => m.EmailSendersComponent), data: { screen: 'dev/email-senders' } },
-      { path: 'settings/permissions/templates', loadComponent: () => import('./components/auth/settings/permissions/templates/permission-templates.component').then(m => m.PermissionTemplatesComponent), data: { screen: 'settings/permissions/templates' } },
-      { path: 'settings/permissions/users', loadComponent: () => import('./components/auth/settings/permissions/users/permission-users.component').then(m => m.PermissionUsersComponent), data: { screen: 'settings/permissions/users' } },
+      // As duas telas de permissão viraram abas da administração (2026-10-08).
+      // O `?login=` que o atalho antigo mandava continua abrindo a pessoa certa.
+      { path: 'settings/permissions/templates', redirectTo: () => inject(Router).createUrlTree(['/settings/admin'], { queryParams: { aba: 'modelos' } }) },
+      { path: 'settings/permissions/users', redirectTo: ({ queryParams }) => inject(Router).createUrlTree(['/settings/admin'], { queryParams: { usuario: queryParams?.['login'] ?? null } }) },
       { path: 'faq/manager', loadComponent: () => import('./components/auth/faq-manager/faq-manager.component').then(m => m.FaqManagerComponent), data: { screen: 'faq/manager' } },
       { path: 'profile-manager', loadComponent: () => import('./components/auth/profile/profile-manager/profile-manager.component').then(m => m.ProfileManagerComponent), data: { screen: 'profile-manager' } },
 

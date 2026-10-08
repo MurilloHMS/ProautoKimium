@@ -1,0 +1,381 @@
+<div class="au">
+
+  <!-- ─── A lista ─────────────────────────────────────────────────────────── -->
+  <aside class="au__list pk-panel" aria-label="Usuários">
+    <div class="au__search">
+      <pk-input placeholder="Buscar por nome, login ou e-mail"
+                icon="pi pi-search"
+                [ngModel]="search()"
+                (ngModelChange)="search.set($event)"
+                [ngModelOptions]="{ standalone: true }" />
+    </div>
+
+    <ul class="au__items">
+      @for (u of visibleUsers(); track u.login) {
+        <li>
+          <button type="button" class="au__item"
+                  [attr.aria-current]="!celular() && u.login === selectedLogin() ? 'true' : null"
+                  (click)="select(u)">
+            <span class="au__item-top">
+              <b>{{ nameOf(u) }}</b>
+              <span class="au__status" [class.is-off]="!u.active">{{ u.active ? 'ativo' : 'bloqueado' }}</span>
+            </span>
+            <span class="au__item-sub">{{ u.login }}@if (u.email) { · {{ u.email }} }</span>
+            <span class="au__tags">
+              @if (u.developer) {
+                <span class="au__tag au__tag--quiet">desenvolvedor · acesso total</span>
+              } @else if (u.client) {
+                <span class="au__tag au__tag--quiet">portal do cliente</span>
+              } @else {
+                @for (t of u.templates; track t) {
+                  <span class="au__tag">{{ t }}</span>
+                } @empty {
+                  <span class="au__tag au__tag--quiet">sem modelo</span>
+                }
+              }
+            </span>
+          </button>
+        </li>
+      } @empty {
+        <li class="au__empty">{{ loading() ? 'Carregando…' : 'Ninguém com essa busca.' }}</li>
+      }
+    </ul>
+  </aside>
+
+  <!-- ─── A conta aberta (computador) ─────────────────────────────────────── -->
+  @if (!celular()) {
+    <div class="au__detail">
+      @if (selected()) {
+        <ng-container *ngTemplateOutlet="conta" />
+      } @else {
+        <div class="au__blank pk-panel">{{ loading() ? 'Carregando…' : 'Escolha um usuário na lista.' }}</div>
+      }
+    </div>
+  }
+</div>
+
+<!-- ─── A conta aberta (celular): folha de baixo ──────────────────────────── -->
+<pk-sheet [open]="celular() && sheetOpen()" [title]="selected() ? nameOf(selected()!) : ''" (closed)="closeSheet()">
+  <div pkSheetBody>
+    @if (celular() && sheetOpen() && selected()) {
+      <div class="pk-tabs au__sheet-tabs" role="tablist" aria-label="Partes da conta">
+        <button type="button" class="pk-tabs__tab" role="tab"
+                [attr.aria-selected]="sheetTab() === 'dados'" (click)="sheetTab.set('dados')">Dados</button>
+        <button type="button" class="pk-tabs__tab" role="tab"
+                [attr.aria-selected]="sheetTab() === 'acesso'" (click)="sheetTab.set('acesso')">
+          Acesso @if (changed() > 0) { <small>{{ changed() }}</small> }
+        </button>
+      </div>
+      <ng-container *ngTemplateOutlet="conta" />
+    }
+  </div>
+  <div pkSheetFooter>
+    @if (celular() && sheetTab() === 'acesso' && canEditAccess() && access()) {
+      <div class="au__sheet-save">
+        <span class="au__save-msg">
+          @if (changed() > 0) { <b>{{ changed() }}</b> {{ changed() === 1 ? 'alteração' : 'alterações' }} }
+          @else { Nada para salvar }
+        </span>
+        <pk-button pkType="cancel" pkLabel="Descartar" [pkDisabled]="changed() === 0" (clicked)="discardAccess()" />
+        <pk-button pkType="save" pkLabel="Salvar" [pkDisabled]="changed() === 0" [pkLoading]="saving()" (clicked)="saveAccess()" />
+      </div>
+    } @else {
+      <pk-button pkType="cancel" pkLabel="Fechar" (clicked)="closeSheet()" />
+    }
+  </div>
+</pk-sheet>
+
+<!-- ─── O miolo da conta, servido às duas molduras ────────────────────────── -->
+<ng-template #conta>
+  @if (selected(); as u) {
+
+    @if (!celular()) {
+      <header class="au__head">
+        <span class="au__avatar" aria-hidden="true">{{ nameOf(u).slice(0, 2).toUpperCase() }}</span>
+        <div class="au__head-id">
+          <h2>{{ nameOf(u) }}</h2>
+          <p>{{ u.login }}</p>
+        </div>
+        <span class="au__status au__status--big" [class.is-off]="!u.active">
+          <i class="pi" [class.pi-check-circle]="u.active" [class.pi-ban]="!u.active" aria-hidden="true"></i>
+          {{ u.active ? 'Ativo' : 'Bloqueado' }}
+        </span>
+      </header>
+    }
+
+    <!-- Dados -->
+    @if (!celular() || sheetTab() === 'dados') {
+      <section class="au__section pk-panel" aria-labelledby="secDados">
+        <div class="au__section-head">
+          <h3 id="secDados">Dados</h3>
+          @if (canConfigure()) {
+            <div class="au__section-acts">
+              <pk-button pkType="token" pkSize="sm" pkLabel="Enviar redefinição de senha" (clicked)="resetPassword()" />
+              @if (!u.developer) {
+                <pk-button [pkType]="u.active ? 'delete' : 'save'" pkSize="sm"
+                           [pkIcon]="u.active ? 'pi pi-lock' : 'pi pi-lock-open'"
+                           [pkLabel]="u.active ? 'Bloquear' : 'Desbloquear'"
+                           (clicked)="toggleBlock()" />
+              }
+            </div>
+          }
+        </div>
+
+        <div class="au__fields">
+          <div class="au__field">
+            <span class="au__label">Login</span>
+            <span class="au__value">{{ u.login }}</span>
+            <small class="au__help">Não muda: é o que vai dentro da sessão.</small>
+          </div>
+
+          <div class="au__field">
+            <pk-input label="E-mail" type="email"
+                      [ngModel]="emailDraft()"
+                      (ngModelChange)="emailDraft.set($event); emailError.set('')"
+                      [ngModelOptions]="{ standalone: true }"
+                      [pkReadonly]="!canConfigure()" />
+            <!--
+              Linha própria, e não o errorMsg do pk-input: ele só aparece para
+              campo inválido e tocado, e a recusa da API (409) chega com o campo
+              válido. Foi o teste que pegou: a frase sumia calada.
+            -->
+            @if (emailError()) {
+              <p class="au__error" role="alert">{{ emailError() }}</p>
+            }
+            @if (emailChanged() && canConfigure()) {
+              <div class="au__inline-acts">
+                <pk-button pkType="cancel" pkSize="sm" pkLabel="Desfazer"
+                           (clicked)="emailDraft.set(u.email); emailError.set('')" />
+                <pk-button pkType="save" pkSize="sm" pkLabel="Salvar e-mail"
+                           [pkLoading]="savingEmail()" (clicked)="saveEmail()" />
+              </div>
+            }
+          </div>
+
+          @if (!u.client) {
+            <div class="au__field au__field--wide">
+              <span class="au__label">Funcionário vinculado</span>
+              @if (u.codParceiro) {
+                <div class="au__linked">
+                  <i class="pi pi-link" aria-hidden="true"></i>
+                  <span>{{ u.employeeName || 'Funcionário' }} · {{ u.codParceiro }}</span>
+                  @if (canConfigure()) {
+                    <button type="button" class="au__text-btn" (click)="unlinkOpen.set(true)">Desvincular</button>
+                  }
+                </div>
+              } @else if (canConfigure()) {
+                <div class="au__link-row">
+                  <pk-combobox class="au__link-combo"
+                               [options]="employeeOptions()"
+                               optionLabel="label" optionValue="value"
+                               [filter]="true"
+                               placeholder="Escolha o funcionário"
+                               [ngModel]="employeeCode()"
+                               (ngModelChange)="employeeCode.set($event)"
+                               [ngModelOptions]="{ standalone: true }" />
+                  <pk-button pkType="save" pkSize="sm" pkLabel="Vincular" pkIcon="pi pi-link"
+                             [pkDisabled]="!employeeCode()" (clicked)="link()" />
+                </div>
+              } @else {
+                <span class="au__value au__value--muted">Sem vínculo</span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Acesso -->
+    @if (!celular() || sheetTab() === 'acesso') {
+      <section class="au__section au__section--access pk-panel" aria-labelledby="secAcesso">
+        <div class="au__section-head">
+          <h3 id="secAcesso">Acesso</h3>
+          @if (canConfigure() && !u.developer && !u.client && access()) {
+            <div class="au__section-acts">
+              <pk-button pkType="new" pkSize="sm" pkLabel="Aplicar modelo" pkIcon="pi pi-bookmark"
+                         (clicked)="applyOpen.set(true)" />
+              <pk-button pkType="upload" pkSize="sm" pkLabel="Copiar de outro usuário" pkIcon="pi pi-clone"
+                         (clicked)="openCopy()" />
+            </div>
+          }
+        </div>
+
+        @if (u.client) {
+          <p class="au__note">
+            <b>Conta do portal do cliente.</b> O que ela vê vem do cadastro do
+            cliente, em Empresas › Clientes, e não desta tela.
+          </p>
+        } @else if (u.developer) {
+          <p class="au__note">
+            <b>Conta de desenvolvedor.</b> Tem acesso a tudo por definição, e por
+            isso não tem lista para editar: é o que garante que sempre exista
+            alguém capaz de reabrir o sistema.
+          </p>
+        } @else if (access(); as pessoa) {
+          <div class="au__applied">
+            <span class="au__applied-label">Modelos aplicados</span>
+            @for (t of pessoa.appliedTemplates; track t.id) {
+              <span class="au__chip">
+                {{ t.name }}
+                @if (canConfigure()) {
+                  <button type="button" [attr.aria-label]="'Desfazer ' + t.name" [title]="'Desfazer ' + t.name"
+                          (click)="undoTemplate.set(t)">×</button>
+                }
+              </span>
+            } @empty {
+              <span class="au__applied-none">nenhum</span>
+            }
+            @if (divergences() > 0) {
+              <span class="au__diverges">
+                <span class="au__dot" aria-hidden="true"></span>
+                {{ divergences() }} {{ divergences() === 1 ? 'diferença' : 'diferenças' }} do modelo
+              </span>
+            }
+          </div>
+
+          <app-permission-grid
+            [screens]="screens()"
+            [saved]="pessoa.cells"
+            [applied]="pessoa.appliedCells"
+            [disabled]="!canEditAccess()"
+            (changedCount)="changed.set($event)" />
+
+          @if (!celular() && canEditAccess()) {
+            <div class="au__savebar" [attr.data-dirty]="changed() > 0">
+              <span class="au__save-msg">
+                @if (changed() > 0) {
+                  <b>{{ changed() }} {{ changed() === 1 ? 'alteração' : 'alterações' }}</b> no acesso de {{ nameOf(u) }}
+                } @else {
+                  Nada para salvar
+                }
+              </span>
+              <pk-button pkType="cancel" pkSize="sm" pkLabel="Descartar" [pkDisabled]="changed() === 0" (clicked)="discardAccess()" />
+              <pk-button pkType="save" pkSize="sm" pkLabel="Salvar acesso" [pkDisabled]="changed() === 0"
+                         [pkLoading]="saving()" (clicked)="saveAccess()" />
+            </div>
+          }
+        } @else {
+          <p class="au__note">Carregando…</p>
+        }
+      </section>
+    }
+  }
+</ng-template>
+
+<!-- ─── Aplicar modelo ─────────────────────────────────────────────────────── -->
+<app-apply-template-dialog
+  [open]="applyOpen()"
+  [templates]="templates()"
+  [fixedPerson]="selectedPerson()"
+  (closed)="applyOpen.set(false)"
+  (applied)="onApplied($event)"
+  (failed)="falhou($event)" />
+
+<!-- ─── Desfazer um modelo ─────────────────────────────────────────────────── -->
+<pk-dialog [flush]="true" [header]="'Desfazer ' + (undoTemplate()?.name ?? '')"
+           [visible]="!!undoTemplate()" width="480px"
+           (visibleChange)="!$event && undoTemplate.set(null)">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <div class="pform">
+        <p class="pform__hint">
+          Tira de <b>{{ selected() ? nameOf(selected()!) : '' }}</b> o que
+          <b>{{ undoTemplate()?.name }}</b> liberou.
+        </p>
+        @if (undoKeeps() > 0) {
+          <p class="pform__hint">
+            O que {{ undoKeeps() === 1 ? 'o outro modelo aplicado também dá' : 'os outros ' + undoKeeps() + ' modelos aplicados também dão' }}
+            <b>continua liberado</b>.
+          </p>
+        } @else {
+          <p class="pform__hint">
+            É o único modelo desta pessoa: depois disto ela fica só com o que
+            foi liberado à mão.
+          </p>
+        }
+        <p class="pform__hint">O modelo continua existindo, e quem mais o recebeu não muda.</p>
+      </div>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="undoTemplate.set(null)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Desfazer" (clicked)="confirmUndo()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Copiar de outro usuário ────────────────────────────────────────────── -->
+<pk-dialog [flush]="true" [header]="'Copiar acesso para ' + (selected() ? nameOf(selected()!) : '')"
+           [visible]="copyOpen()" width="480px"
+           (visibleChange)="copyOpen.set($event)">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <h3 class="pk-form-section__title"><i class="pi pi-clone"></i> Copiar de quem</h3>
+      <div class="pform__people">
+        @for (p of copyCandidates(); track p.id) {
+          <button type="button" class="pform__person"
+                  [attr.aria-pressed]="p.id === copySourceId()"
+                  (click)="copySourceId.set(p.id)">
+            <span class="pform__tick" aria-hidden="true"></span>
+            {{ p.name }} <span class="pform__login">{{ p.login }}</span>
+          </button>
+        }
+      </div>
+    </div>
+    <div class="pk-form-section">
+      <p class="pform__danger">
+        O acesso inteiro de <b>{{ selected() ? nameOf(selected()!) : '' }}</b> é
+        trocado pelo da pessoa escolhida, e os modelos aplicados passam a ser os dela.
+      </p>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="copyOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Copiar" [pkDisabled]="!copySourceId()" (clicked)="confirmCopy()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Desvincular ────────────────────────────────────────────────────────── -->
+<pk-dialog [flush]="true" header="Desvincular o funcionário?" [visible]="unlinkOpen()" width="440px"
+           (visibleChange)="unlinkOpen.set($event)">
+  <div pkDialogContent>
+    <div class="pk-form-section">
+      <p class="pform__hint">
+        A conta <b>{{ selected()?.login }}</b> deixa de ser de
+        <b>{{ selected()?.employeeName || 'este funcionário' }}</b>. Holerites,
+        férias e documentos dele param de aparecer para ela.
+      </p>
+    </div>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="unlinkOpen.set(false)" />
+    <pk-button pkType="delete" pkSize="sm" pkLabel="Desvincular" (clicked)="confirmUnlink()" />
+  </div>
+</pk-dialog>
+
+<!-- ─── Novo usuário ───────────────────────────────────────────────────────── -->
+<pk-dialog [flush]="true" header="Novo usuário" [visible]="createOpen()" width="480px"
+           (visibleChange)="createOpen.set($event)">
+  <div pkDialogContent>
+    <form class="pk-form-section" [formGroup]="createForm" (ngSubmit)="submitCreate()">
+      <div class="pform">
+        <pk-input formControlName="login" label="Login" [pkRequired]="true" icon="pi pi-user"
+                  placeholder="login.usuario" [errorMsg]="fieldError('login')" />
+        <pk-input formControlName="email" label="E-mail" type="email" [pkRequired]="true" icon="pi pi-envelope"
+                  placeholder="usuario@empresa.com" [errorMsg]="fieldError('email')" />
+        <pk-password formControlName="password" label="Senha" [pkRequired]="true" [feedback]="true"
+                     placeholder="Mínimo 8 caracteres" autocomplete="new-password" [errorMsg]="fieldError('password')" />
+        <pk-password formControlName="confirmPassword" label="Confirmar senha" [pkRequired]="true"
+                     placeholder="Repita a senha" autocomplete="new-password" [errorMsg]="fieldError('confirmPassword')" />
+        <p class="pform__hint">
+          Nasce com o modelo <b>Base</b>. O resto do acesso se dá depois, na aba
+          Acesso dele.
+        </p>
+      </div>
+      <button type="submit" hidden></button>
+    </form>
+  </div>
+  <div pkDialogFooter class="pk-dialog-footer">
+    <pk-button pkType="cancel" pkSize="sm" (clicked)="createOpen.set(false)" />
+    <pk-button pkType="save" pkSize="sm" pkLabel="Criar" [pkLoading]="creating()" (clicked)="submitCreate()" />
+  </div>
+</pk-dialog>

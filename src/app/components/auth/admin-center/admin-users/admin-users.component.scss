@@ -1,0 +1,461 @@
+@use 'variables' as v;
+@use '../admin-dialogs';
+
+// A aba Usuários. Duas colunas no computador (lista e conta aberta), uma no
+// celular (cartões; a conta sobe numa folha). Os painéis brancos sobre o fundo
+// cinza vêm do padrão de camadas (`pk-panel`).
+
+:host { display: block; color: var(--app-text); }
+
+.au {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+
+  @media (max-width: v.$bp-md) { display: block; }
+}
+
+// ─── A lista ─────────────────────────────────────────────────────────────────
+.au__list {
+  flex: 0 0 320px;
+  min-width: 0;
+  // Acompanha a rolagem da página no computador: a lista fica à mão enquanto a
+  // conta aberta, que é mais alta, rola.
+  position: sticky;
+  top: 16px;
+  max-height: calc(100dvh - 220px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: v.$bp-md) {
+    position: static;
+    max-height: none;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+}
+
+.au__search {
+  padding: 12px;
+  border-bottom: 1px solid var(--app-border);
+
+  @media (max-width: v.$bp-md) { padding: 0 0 12px; border: 0; }
+}
+
+.au__items {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  @media (max-width: v.$bp-md) {
+    padding: 0;
+    gap: 10px;
+    overflow: visible;
+  }
+}
+
+.au__item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: var(--app-text);
+  cursor: pointer;
+
+  &:hover { background: var(--app-surface-2); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+
+  // A escolhida: a mesma pílula clara das abas, e não azul — selecionar não é ação.
+  &[aria-current='true'] {
+    background: var(--app-action-soft);
+  }
+
+  // No celular, cada conta é um cartão branco.
+  @media (max-width: v.$bp-md) {
+    padding: 14px;
+    border-color: var(--app-border);
+    border-radius: var(--radius-surface);
+    background: var(--app-surface);
+    box-shadow: var(--app-shadow-sm);
+
+    &:hover { background: var(--app-surface); }
+  }
+}
+
+.au__item-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+
+  b {
+    font-size: var(--text-ui);
+    font-weight: 600;
+    min-width: 0;
+    overflow-wrap: anywhere;
+
+    @media (max-width: v.$bp-md) { font-size: 15px; }
+  }
+}
+
+.au__item-sub {
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.au__status {
+  flex: none;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  color: var(--app-success);
+
+  &.is-off { color: var(--app-danger); }
+
+  &--big {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-ui-sm);
+  }
+}
+
+.au__tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.au__tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-size: var(--text-micro);
+  font-weight: 600;
+
+  &--quiet {
+    background: var(--app-surface-3);
+    color: var(--app-text-muted);
+    font-weight: 500;
+  }
+}
+
+.au__empty {
+  padding: 16px 12px;
+  font-size: var(--text-ui-sm);
+  color: var(--app-text-muted);
+}
+
+// ─── A conta aberta ──────────────────────────────────────────────────────────
+.au__detail {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.au__blank {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--app-text-muted);
+  font-size: var(--text-ui);
+}
+
+.au__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.au__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-weight: 700;
+  font-size: var(--text-ui);
+}
+
+.au__head-id {
+  flex: 1 1 200px;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: 17px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    margin: 2px 0 0;
+    font-size: var(--text-ui-sm);
+    color: var(--app-text-muted);
+  }
+}
+
+.au__section {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  // Na folha, as seções são o próprio conteúdo: sem cartão dentro de cartão.
+  @media (max-width: v.$bp-md) {
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: transparent;
+  }
+}
+
+.au__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+
+  h3 {
+    margin: 0;
+    font-family: v.$font-heading;
+    font-size: 14px;
+    font-weight: 700;
+
+    // Na folha, a aba logo acima já diz "Dados" ou "Acesso".
+    @media (max-width: v.$bp-md) { display: none; }
+  }
+
+  @media (max-width: v.$bp-md) { padding: 12px 0; }
+}
+
+.au__section-acts {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+// ─── Dados ───────────────────────────────────────────────────────────────────
+.au__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 16px 16px;
+
+  @media (max-width: v.$bp-md) {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 0 16px;
+  }
+}
+
+.au__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  &--wide { grid-column: 1 / -1; }
+}
+
+.au__label {
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-text-muted);
+}
+
+.au__value {
+  display: flex;
+  align-items: center;
+  min-height: var(--field-h);
+  font-size: var(--text-ui);
+  overflow-wrap: anywhere;
+
+  &--muted { color: var(--app-text-muted); }
+}
+
+.au__help {
+  font-size: var(--text-micro);
+  color: var(--app-text-subtle);
+}
+
+.au__error {
+  margin: 0;
+  font-size: var(--text-ui-sm);
+  color: var(--app-danger);
+}
+
+.au__inline-acts {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.au__linked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: var(--field-h);
+  font-size: var(--text-ui);
+
+  i { color: var(--app-text-muted); }
+}
+
+.au__text-btn {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--text-ui-sm);
+  font-weight: 600;
+  color: var(--app-danger);
+  min-height: 32px;
+  padding: 0 6px;
+  border-radius: var(--radius-control);
+
+  &:hover { background: var(--app-danger-soft); }
+  &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+}
+
+.au__link-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.au__link-combo {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+// ─── Acesso ──────────────────────────────────────────────────────────────────
+.au__note {
+  margin: 0 16px 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--app-surface-2);
+  font-size: var(--text-ui);
+  line-height: 1.5;
+  color: var(--app-text-muted);
+
+  b { color: var(--app-text); }
+
+  @media (max-width: v.$bp-md) { margin: 0 0 16px; }
+}
+
+.au__applied {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 16px 4px;
+  font-size: var(--text-ui-sm);
+
+  @media (max-width: v.$bp-md) { padding: 0 0 4px; }
+}
+
+.au__applied-label { color: var(--app-text-muted); }
+.au__applied-none { color: var(--app-text-subtle); }
+
+.au__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 4px 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--app-action-soft);
+  color: var(--app-action);
+  font-weight: 600;
+
+  button {
+    width: 22px;
+    height: 22px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover { background: rgba(35, 46, 97, 0.12); }
+    &:focus-visible { outline: none; box-shadow: var(--app-focus-ring); }
+  }
+}
+
+.au__diverges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  color: var(--app-warning);
+}
+
+.au__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--app-warning);
+}
+
+// A barra de salvar fica presa embaixo da tela enquanto a lista rola.
+.au__savebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-top: 1px solid var(--app-border);
+  border-radius: 0 0 var(--radius-surface) var(--radius-surface);
+  background: var(--app-surface);
+
+  &[data-dirty='true'] { box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08); }
+}
+
+.au__save-msg {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--text-ui);
+  color: var(--app-text-muted);
+
+  b { color: var(--app-text); }
+}
+
+// ─── A folha (celular) ───────────────────────────────────────────────────────
+.au__sheet-tabs { margin-bottom: 8px; }
+
+.au__sheet-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}

@@ -213,11 +213,9 @@ export const APP_MENU: AppMenuItem[] = [
       { label: 'Produtos do site', icon: 'pi pi-fw pi-tags', routerLink: ['settings/products/website'], screen: 'settings/products/website' },
       { label: 'Faq', icon: 'pi pi-fw pi-question-circle', routerLink: ['faq/manager'], screen: 'faq/manager' },
       { label: 'Perfil', icon: 'pi pi-fw pi-id-card', routerLink: ['profile-manager'], screen: 'profile-manager' },
-      { label: 'Admin', icon: 'pi pi-fw pi-shield', routerLink: ['settings/admin'], screen: 'settings/admin' },
+      { label: 'Administração', icon: 'pi pi-fw pi-shield', routerLink: ['settings/admin'], screen: 'settings/admin' },
       { label: 'Fila de e-mails', icon: 'pi pi-fw pi-history', routerLink: ['dev/email-queue'], screen: 'dev/email-queue' },
       { label: 'Remetentes de e-mail', icon: 'pi pi-fw pi-address-book', routerLink: ['dev/email-senders'], screen: 'dev/email-senders' },
-      { label: 'Modelos de permissão', icon: 'pi pi-fw pi-bookmark', routerLink: ['settings/permissions/templates'], screen: 'settings/permissions/templates' },
-      { label: 'Permissões por usuário', icon: 'pi pi-fw pi-lock', routerLink: ['settings/permissions/users'], screen: 'settings/permissions/users' },
     ],
   },
   {
