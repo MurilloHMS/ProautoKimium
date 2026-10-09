@@ -1,5 +1,20 @@
+/**
+ * Se o funcionário já entrou no site.
+ *
+ * ACTIVE tem conta e entra; BLOCKED tem conta bloqueada; PENDING ainda não fez
+ * o primeiro acesso. Vem da API junto com o funcionário: tirar isso da lista de
+ * contas da Administração, como a tela fazia, exige `settings/admin`, e quem é
+ * do RH sem ela via todo mundo como pendente.
+ */
+export type SiteAccess = 'ACTIVE' | 'BLOCKED' | 'PENDING';
+
 export interface Employee{
   id?: string,
+  siteAccess?: SiteAccess | null,
+  /** O login da conta, quando existe. */
+  siteLogin?: string | null,
+  /** Quando pediu o código do primeiro acesso e não concluiu. */
+  firstAccessRequestedAt?: string | null,
   partnerCode: string,
   document: string,
   name: string,

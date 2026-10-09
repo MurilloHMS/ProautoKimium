@@ -16,17 +16,28 @@
     </div>
   </app-toolbar>
 
-  <!-- Indicador de vínculo usuário/funcionário -->
-  <div class="link-status" *ngIf="employes().length > 0"
-       [ngClass]="unlinkedCount > 0 ? 'link-status--warn' : 'link-status--ok'">
-    <i class="pi" [ngClass]="unlinkedCount > 0 ? 'pi-exclamation-triangle' : 'pi-check-circle'"></i>
-    <span *ngIf="unlinkedCount > 0">
-      <strong>{{ unlinkedCount }}</strong> de {{ employes().length }} funcionário{{ employes().length > 1 ? 's' : '' }}
-      sem usuário vinculado
-    </span>
-    <span *ngIf="unlinkedCount === 0">
-      Todos os {{ employes().length }} funcionários estão vinculados a um usuário
-    </span>
+  <!--
+    Acesso ao site (2026-10-08): quem já entrou e quem falta, com o relatório
+    dos pendentes. Substituiu o aviso "X sem usuário vinculado", que lia a lista
+    de contas da Administração e mostrava todo mundo pendente para o RH.
+  -->
+  <div class="acesso" *ngIf="employes().length > 0">
+    <span class="acesso__rotulo" id="acessoRotulo">Acesso ao site</span>
+    <div class="pk-tabs acesso__filtro" role="group" aria-labelledby="acessoRotulo">
+      @for (o of accessOptions(); track o.value) {
+        <button type="button" class="pk-tabs__tab"
+                [attr.aria-selected]="accessFilter() === o.value"
+                [attr.aria-pressed]="accessFilter() === o.value"
+                (click)="accessFilter.set(o.value)">
+          {{ o.label }} <small>{{ o.count }}</small>
+        </button>
+      }
+    </div>
+    <span class="acesso__espaco"></span>
+    <pk-button pkType="download" pkSize="sm" pkLabel="Relatório dos pendentes" pkIcon="pi pi-download"
+               [pkLoading]="downloading()" [pkDisabled]="accessCounts().PENDING === 0"
+               (clicked)="relatorio.toggle($event)" />
+    <p-menu #relatorio [popup]="true" [model]="reportItems" appendTo="body" />
   </div>
 
   <!-- Table Card -->
@@ -35,7 +46,7 @@
     <pk-table
       #grid
       [showCaption]="false"
-      [data]="employes()"
+      [data]="visibleEmployes()"
       [loading]="loading()"
       [filterFields]="['name', 'email', 'partnerCode', 'hierarchy', 'positionName', 'contractType']"
       emptyIcon="pi pi-users"
@@ -59,13 +70,7 @@
               {{ e.ativo ? 'Ativo' : 'Inativo' }}
             </span>
 
-            @if (linkedUserOf(e); as login) {
-              <span class="user-link-chip"><i class="pi pi-user"></i>{{ login }}</span>
-            } @else {
-              <button type="button" class="pk-cartao__atalho" (click)="openLinkDialog(e)">
-                <i class="pi pi-link"></i> Vincular
-              </button>
-            }
+            <ng-container *ngTemplateOutlet="acessoSelo; context: { $implicit: e }" />
           </div>
         </article>
       </ng-template>
@@ -82,7 +87,7 @@
           <th pSortableColumn="positionName">Cargo <p-sortIcon field="positionName"></p-sortIcon></th>
           <th pSortableColumn="contractType">Contrato <p-sortIcon field="contractType"></p-sortIcon></th>
           <th pSortableColumn="birthday">Aniversário <p-sortIcon field="birthday"></p-sortIcon></th>
-          <th class="col-center">Usuário</th>
+          <th>Acesso ao site</th>
           <th class="col-center">Ações</th>
         </tr>
       </ng-template>
@@ -141,29 +146,26 @@
           </span>
             <span *ngIf="!e.birthday" class="text-muted">—</span>
           </td>
-          <td class="col-center">
-            <ng-container *ngIf="linkedUserOf(e) as login; else semVinculo">
-              <span class="user-link-chip">
-                <i class="pi pi-user"></i>{{ login }}
-                <button class="user-unlink"
-                        pTooltip="Desvincular usuário"
-                        tooltipPosition="left"
-                        (click)="unlink(e); $event.stopPropagation()">
-                  <i class="pi pi-times"></i>
-                </button>
-              </span>
-            </ng-container>
-            <ng-template #semVinculo>
-              <button pButton
-                      type="button"
-                      icon="pi pi-link"
-                      label="Vincular"
-                      class="action-btn action-btn--link"
-                      pTooltip="Vincular usuário"
-                      tooltipPosition="left"
-                      (click)="openLinkDialog(e); $event.stopPropagation()">
-              </button>
-            </ng-template>
+          <td>
+            <div class="acesso-celula">
+              <ng-container *ngTemplateOutlet="acessoSelo; context: { $implicit: e }" />
+              <!-- Vincular e desvincular: só a Administração. O RH só vê a situação. -->
+              @if (canManageLinks() && users.length) {
+                @if (linkedUserOf(e)) {
+                  <button type="button" class="acesso-acao acesso-acao--perigo"
+                          [attr.aria-label]="'Desvincular o usuário de ' + e.name"
+                          (click)="unlink(e); $event.stopPropagation()">
+                    <i class="pi pi-times" aria-hidden="true"></i> desvincular
+                  </button>
+                } @else if (e.ativo) {
+                  <button type="button" class="acesso-acao"
+                          [attr.aria-label]="'Vincular um usuário a ' + e.name"
+                          (click)="openLinkDialog(e); $event.stopPropagation()">
+                    <i class="pi pi-link" aria-hidden="true"></i> vincular
+                  </button>
+                }
+              }
+            </div>
           </td>
           <td class="col-center">
             <button pButton
@@ -179,6 +181,26 @@
       </ng-template>
 
     </pk-table>
+
+    <ng-template #acessoSelo let-e>
+      @switch (accessOf(e)) {
+        @case ('ACTIVE') {
+          <span class="acesso-selo acesso-selo--ok"><i class="pi pi-check" aria-hidden="true"></i> Com acesso</span>
+          @if (loginOf(e); as login) { <small class="acesso-detalhe">{{ login }}</small> }
+        }
+        @case ('BLOCKED') {
+          <span class="acesso-selo acesso-selo--bloqueado"><i class="pi pi-ban" aria-hidden="true"></i> Bloqueado</span>
+          @if (loginOf(e); as login) { <small class="acesso-detalhe">{{ login }}</small> }
+        }
+        @case ('PENDING') {
+          <span class="acesso-selo acesso-selo--pendente"><span class="acesso-ponto" aria-hidden="true"></span> Pendente</span>
+          <small class="acesso-detalhe">{{ pendingDetail(e) }}</small>
+        }
+        @default {
+          <span class="text-muted">—</span>
+        }
+      }
+    </ng-template>
   </div>
 </div>
 }
